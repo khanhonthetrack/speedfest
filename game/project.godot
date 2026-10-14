@@ -32,6 +32,12 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="car"
+3d_physics/layer_3="trigger"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

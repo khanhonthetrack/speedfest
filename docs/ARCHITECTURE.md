@@ -46,6 +46,17 @@ tools/                 build, export, screenshot, test scripts
   surface centerline, `basis.x` = right, `basis.y` = road normal (up), `-basis.z` = forward
   (direction of travel).
 
+## Collision layers
+
+| layer | name | who | mask |
+|---|---|---|---|
+| 1 | world | track road/walls/props (StaticBody3D) | — |
+| 2 | car | the local `Car` (RigidBody3D) | 1 |
+| 3 | trigger | checkpoints, finish, boost pads (Area3D) | 2 (detect cars) |
+
+Car suspension rays use mask 1 only and ignore areas. Remote cars are visuals only (no physics bodies),
+so players never collide.
+
 ## Data schemas (JSON-serializable Dictionaries)
 
 ### CarConfig — what a player drives (stored by Profile, sent over the network)
