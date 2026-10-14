@@ -24,6 +24,7 @@ Profile="*res://autoload/profile.gd"
 Game="*res://autoload/game.gd"
 Net="*res://autoload/net.gd"
 Audio="*res://autoload/audio_manager.gd"
+AutoPilot="*res://autoload/auto_pilot.gd"
 
 [display]
 
