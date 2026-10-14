@@ -20,3 +20,12 @@ date, who (module/agent), what changed, what's next or blocked.
   - Tools: `tools/godot_import.sh`, `check_scripts.sh`, `run_scene.sh`, `export_web.sh`.
 - **Next:** M1, 8 module agents in parallel (networking, car physics, car visuals, track builder,
   scenery, UI, audio, race), each on its own branch, then integration.
+
+## 2026-10-14 ~23:10 — M1 launched (orchestrator)
+
+- Started 8 module agents in parallel. Each builds in its own git worktree and pushes to
+  `module/<key>`. An independent reviewer then audits and fixes the work on the same branch:
+  `networking`, `audio`, `physics`, `race`, `visuals`, `scenery`, `tracks`, `ui`.
+- The full per-module specs given to the agents are in the workflow script. The essentials are in
+  docs/ARCHITECTURE.md and docs/PLAN.md. Each module documents itself in `docs/modules/<key>.md`.
+- Next: merge all `module/*` branches into `main` (M2 integration).
