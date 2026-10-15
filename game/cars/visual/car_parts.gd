@@ -197,29 +197,9 @@ static func round_lamp(s: CarShape, kit: MeshKit, rear: bool, x: float, y: float
 
 # --- shared details -----------------------------------------------------------
 
+## Interior and driver: see res://cars/visual/car_cabin.gd (session 7).
 static func _interior(s: CarShape, kit: MeshKit) -> void:
-	var c0: float = s.gh["cowl"]
-	var c1: float = s.gh["ws_top"]
-	var c2: float = s.gh["roof_end"]
-	var seat_t := lerpf(c1, c2, 0.6)
-	var zs := s.z_of(seat_t)
-	var belt := s.gh_base_y(seat_t)
-	var avail := float(s.gh["roof_y"]) - belt
-	var seat_top := belt + avail * 0.55
-	kit.color = GREY
-	for side in [-1.0, 1.0]:
-		var x: float = side * 0.3
-		var back := Basis(Vector3.RIGHT, -0.18)
-		kit.box("trim", Vector3(x, (seat_top + belt - 0.3) * 0.5, zs + 0.1), Vector3(0.4, seat_top - belt + 0.3, 0.09), back)
-		kit.box("trim", Vector3(x, seat_top + avail * 0.1, zs + 0.13), Vector3(0.22, avail * 0.16, 0.07), back)
-	# dashboard and steering wheel
-	var td := lerpf(c0, c1, 0.8)
-	var zd := s.z_of(td)
-	var yd := s.gh_base_y(td)
-	kit.color = DARK
-	kit.box("trim", Vector3(0, yd, zd + 0.06), Vector3(s.gh_base_w(td) * 1.8, 0.1, 0.22))
-	kit.color = GREY
-	kit.cylinder("trim", Vector3(-0.3, yd + avail * 0.22, zd + 0.22), Vector3(0, 0.5, 1).normalized(), 0.025, 0.16, 0.16, 14)
+	CarCabin.build(s, kit)
 
 
 static func _mirrors(s: CarShape, kit: MeshKit) -> void:

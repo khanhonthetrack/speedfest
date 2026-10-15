@@ -1,7 +1,8 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back;
 // Car lamps. Vertex color RGB = unlit lens tint, A = lamp type:
-//   1.0 headlight, 0.75 taillight, 0.5 reverse, 0.25 indicator (amber), 0.0 dark reflector.
+//   1.0 headlight, 0.75 taillight, 0.5 reverse, 0.25 indicator (amber), 0.1 instrument (glows in
+//   its own RGB: gauges, screens), 0.0 dark reflector.
 
 uniform vec4 head_color : source_color = vec4(0.9, 0.95, 1.0, 1.0);
 uniform float head_energy = 3.0;
@@ -31,6 +32,9 @@ void fragment() {
 	} else if (type > 0.15) {
 		em = vec3(1.0, 0.45, 0.02) * 0.9;
 		alb = vec3(0.6, 0.3, 0.02);
+	} else if (type > 0.05) {
+		em = lamp.rgb * 1.6;
+		alb = lamp.rgb * 0.2;
 	}
 	ALBEDO = alb;
 	METALLIC = 0.3;

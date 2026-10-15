@@ -44,6 +44,7 @@ var _paint_mat: ShaderMaterial
 var _lights_mat: ShaderMaterial
 var _wheel_mat: ShaderMaterial
 var _glass_mat: StandardMaterial3D
+var _glass_front_mat: StandardMaterial3D
 var _glow_mat: ShaderMaterial
 var _flame_mat: ShaderMaterial
 var _ghost_mat: StandardMaterial3D
@@ -318,7 +319,8 @@ func _build_body() -> void:
 	info = (entry["info"] as Dictionary).duplicate(true)
 	var mesh: ArrayMesh = entry["mesh"]
 	_body.mesh = mesh
-	var mats := {"paint": _paint_mat, "glass": _glass_mat, "trim": _trim_mat, "chrome": _chrome_mat, "lights": _lights_mat}
+	var mats := {"paint": _paint_mat, "glass": _glass_mat, "glass_front": _glass_front_mat, "trim": _trim_mat,
+		"chrome": _chrome_mat, "lights": _lights_mat}
 	for i in mesh.get_surface_count():
 		_body.set_surface_override_material(i, mats.get(mesh.surface_get_name(i)))
 	_built_body_key = _body_key()
@@ -560,6 +562,7 @@ func _make_materials() -> void:
 	_glass_mat.roughness = 0.03
 	_glass_mat.metallic = 0.2
 	_glass_mat.metallic_specular = 0.9
+	_glass_front_mat = _glass_mat.duplicate() as StandardMaterial3D
 	_glow_mat = ShaderMaterial.new()
 	_glow_mat.shader = GLOW_SHADER
 	_glow_mat.set_shader_parameter("phase", randf() * 10.0)
@@ -581,7 +584,9 @@ func _apply_materials() -> void:
 	_paint_mat.set_shader_parameter("belt_y", shape.belt(0.5))
 	_paint_mat.set_shader_parameter("sill_y", shape.bot(0.5))
 	var tint := float(style["tint"])
-	_glass_mat.albedo_color = Color(0.03, 0.04, 0.05, lerpf(0.45, 0.94, tint))
+	# lighter than before (session 7) so the cabin and driver read through the side glass
+	_glass_mat.albedo_color = Color(0.03, 0.04, 0.05, lerpf(0.3, 0.88, tint))
+	_glass_front_mat.albedo_color = Color(0.03, 0.04, 0.05, lerpf(0.16, 0.42, tint))
 	_lights_mat.set_shader_parameter("head_color", Color(String(style["headlight"])))
 	_wheel_mat.set_shader_parameter("rim_color", Color(String(style["rim_color"])))
 	_wheel_mat.set_shader_parameter("caliper_color", Color(String(style["caliper"])))

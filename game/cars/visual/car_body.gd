@@ -4,7 +4,8 @@ extends RefCounted
 ## Output goes into a MeshKit in GROUND space (y = 0 is the road); CarVisual offsets the mesh.
 ##
 ## Material keys written: "paint" (vertex color R = 1 on the hood panel, for carbon),
-## "glass", "trim" (black plastic / underbody, vertex colored).
+## "glass" (side/rear), "glass_front" (windshield), "trim" (black plastic / underbody / cabin, vertex
+## colored).
 
 const SIDE_PTS := 9
 const DECK_PTS := 8
@@ -17,6 +18,7 @@ const COL_UNDER := Color(0.025, 0.025, 0.028, 1)
 const COL_BLACK := Color(0.035, 0.035, 0.04, 1)
 const COL_SEAL := Color(0.02, 0.02, 0.022, 1)
 const COL_CABIN := Color(0.018, 0.018, 0.02, 1)
+const COL_INTERIOR := Color(0.045, 0.045, 0.05, 1)   # dash top, tub floor and door cards
 
 
 ## Station t values along the body (denser at the ends and around the wheel arches).
@@ -37,6 +39,11 @@ static func stations(s: CarShape) -> Array[float]:
 			ts.append(s.t_of(zw + ra * cos(a)))
 	for key in ["cowl", "ws_top", "roof_end", "back_end"]:
 		ts.append(float(s.gh[key]))
+	# crisp cabin tub ends (dash face, rear bulkhead)
+	var cab := s.cabin()
+	for key in ["t_dash", "t_back"]:
+		for d in [-1.0, 1.0]:
+			ts.append(float(cab[key]) + d * float(cab["et"]))
 	ts.append(float(s.style_k["hood_from"]))
 	ts.append(float(s.style_k["hood_to"]))
 	ts.sort()
@@ -80,9 +87,17 @@ static func section(s: CarShape, t: float) -> PackedVector3Array:
 	for a in [0.3, 0.62, 1.0]:
 		var ang: float = a * PI * 0.5
 		pts.append(Vector3(cx + r * cos(ang), yt + r * sin(ang), z))
+	# deck: two samples right at the cabin tub wall (fixed fractions of the deck half-width, so
+	# every station has the same columns), then the usual samples in to the centerline
+	var cab := s.cabin()
+	var fw: float = cab["fw"]
+	var fe: float = cab["fe"]
+	var us: Array[float] = [fw + fe, fw - fe]
 	for k in range(1, DECK_PTS + 1):
-		var x := cx * (1.0 - float(k) / float(DECK_PTS))
-		pts.append(Vector3(x, s.deck_y(x, t) if k < DECK_PTS else s.crown(t), z))
+		us.append((fw - fe) * (1.0 - float(k) / float(DECK_PTS)))
+	for u in us:
+		var x := cx * u
+		pts.append(Vector3(x, s.shell_deck_y(x, u, t), z))
 	for k in pts.size():
 		var q := pts[k]
 		pts[k] = Vector3(q.x, q.y, q.z + s.end_bulge(q.x, q.y, t))
@@ -98,10 +113,20 @@ static func build_shell(s: CarShape, kit: MeshKit) -> void:
 	var deck_start := 4 + SIDE_PTS + 3 - 1
 	var hood_from: float = s.style_k["hood_from"]
 	var hood_to: float = s.style_k["hood_to"]
+	# the deck under the glass is cabin interior (dash top, tub, parcel shelf), not body paint
+	var c0: float = s.gh["cowl"]
+	var c3: float = s.gh["back_end"]
+	var inside := func(j: int, c: Vector3) -> bool:
+		if j < deck_start:
+			return false
+		var tt := s.t_of(c.z)
+		return tt > c0 + 0.002 and tt < c3 - 0.002 and absf(c.x) < s.gh_base_w(tt) - 0.004
 	var mat_fn := func(i: int, j: int, c: Vector3) -> String:
 		if j < 3:
 			return "trim"
 		if s.style_k["intake"] and s.in_intake(c.y, s.t_of(c.z)):
+			return "trim"
+		if inside.call(j, c):
 			return "trim"
 		return "paint"
 	var color_fn := func(i: int, j: int, c: Vector3) -> Color:
@@ -109,6 +134,8 @@ static func build_shell(s: CarShape, kit: MeshKit) -> void:
 			return COL_UNDER
 		if s.style_k["intake"] and s.in_intake(c.y, s.t_of(c.z)):
 			return COL_BLACK
+		if inside.call(j, c):
+			return COL_INTERIOR
 		var t := s.t_of(c.z)
 		if j >= deck_start and t > hood_from and t < hood_to:
 			return COL_HOOD
@@ -195,7 +222,8 @@ static func build_greenhouse(s: CarShape, kit: MeshKit) -> void:
 		if is_side and j == 0:
 			return "trim"
 		if t < c1:
-			return "paint" if is_pillar else "glass"
+			# windshield: its own, clearer glass (the tint is for side and rear windows)
+			return "paint" if is_pillar else "glass_front"
 		if t <= c2 + 0.004:
 			if is_side:
 				if bp > 0.0 and absf(t - bp) < 0.012:

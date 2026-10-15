@@ -2,7 +2,7 @@ extends Node
 ## Headless: builds every part combination of every car, checks triangle and draw-call budgets,
 ## exercises the whole CarVisual API, and checks that paint-only style changes don't rebuild meshes.
 
-const MAX_TRIS := 25000
+const MAX_TRIS := 28000    # session 7: +~2k for the cabin tub, seats and driver
 const MAX_DRAWS := 12
 
 

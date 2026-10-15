@@ -1,6 +1,7 @@
 extends Node3D
 ## Car showcase: reflective dark floor, studio/night lighting, one or all cars.
-## Args: --car=kaze|brute|veloce|all  --angle=front|rear|side|three_quarter|top|low  --style=default|alt|max
+## Args: --car=kaze|brute|veloce|all  --angle=front|rear|side|three_quarter|top|low|cabin|cockpit
+##       --style=default|alt|max|livery:<name>|finish:<name>  --tint=0..1 (window tint override)
 ##       --spin=1 (turntable)  --nitro=1  --brake=1  --ghost=0.5  --lights=1 (real headlights)
 
 var cars: Array[CarVisual] = []
@@ -36,6 +37,8 @@ func _ready() -> void:
 
 static func style_for(id: String, which: String) -> Dictionary:
 	var s := CarDefs.default_style(id)
+	if TestHooks.has_arg("tint"):
+		s["tint"] = float(TestHooks.arg("tint", 0.5))
 	if which == "alt":
 		var alt := {
 			"kaze": {"paint": "#f4f4f4", "finish": "pearl", "accent": "#e0102a", "livery": "side_stripe", "hood": 2, "hood_carbon": false,
@@ -147,9 +150,23 @@ func _place_camera(angle: String, n: int) -> void:
 		"wheel":
 			dir = Vector3(-1.0, 0.05, -0.25)
 			dist = 2.6
+		"cabin":
+			# close look through the left side window (interior check)
+			dir = Vector3(-1.0, 0.3, -0.35)
+			dist = 2.9
+		"cabin_r":
+			dir = Vector3(1.0, 0.3, -0.35)
+			dist = 2.9
+		"cockpit":
+			# through the windshield from above the hood
+			dir = Vector3(-0.25, 0.45, -1.0)
+			dist = 3.4
 	var target := Vector3(0, 0.55, 0)
 	if angle == "wheel" and n == 1:
 		target = Vector3(-0.7, 0.33, -1.2)
+	if angle in ["cabin", "cabin_r", "cockpit"] and n == 1:
+		var car_id: String = cars[0].car_id
+		target = Vector3(0.0, float(CarDefs.geometry(car_id)["height"]) * 0.72, -0.05)
 	cam.position = target + dir.normalized() * dist
 	cam.look_at(target)
 

@@ -14,7 +14,18 @@ Three procedural, original cars built entirely in code, with NFSU2-style customi
 
 - **Body**: lofted cross-sections along the length (`CarShape` keyframed profiles → `CarBody`),
   wheel arches cut into the section (with dark wheel-well liners), curved nose/tail (`end_bulge`),
-  separate greenhouse loft with glass/pillar/roof material zones, dark interior shell, seats, dash, wheel.
+  separate greenhouse loft with glass/pillar/roof material zones and a dark headliner.
+- **Cabin and driver** (session 7, `CarCabin`, layout in `CarShape.cabin()`): the deck under the
+  glass sinks into a dark tub. It keeps the dash top under the windshield, has inner door walls and
+  a floor, and everything under the glass is interior trim instead of body paint. In it: bucket
+  seats with bolsters and per-car colored inserts, a rear bench on the 2+2s (kaze, brute, kitsune),
+  a binnacle with glowing gauges (lamp type 0.1) and a center screen, console + shifter, door cards
+  (armrest, colored trim line, chrome pull), rear-view mirror, a steering wheel (rim, 3 spokes, hub,
+  column). The driver: legs to the pedals, torso along the seat back with a red harness, arms to
+  the rim at ten and two, gloves, collar, helmet in the body paint with a vinyl-color stripe and a
+  smoked visor. Scaled per car to fit under the roof (`k`); right-hand drive on kaze/pixie/kitsune.
+  The windshield is its own surface (`glass_front`): always fairly clear, while the tint applies to
+  side and rear glass.
 - **Parts** (`CarParts`): hood 0..3 (stock, vented, scoop, twin scoop; carbon via a shader flag, no
   rebuild), front 0..2, rear 0..2, skirts 0..2, spoiler 0..4 (none, lip, ducktail, GT wing, high wing
   with accent endplates), mirrors, door seams + handles, grilles, lamps, exhaust tips, plate.
@@ -22,7 +33,7 @@ Three procedural, original cars built entirely in code, with NFSU2-style customi
   dish, Turbine, Split-6), polished lip, hub, lug nuts, slotted brake disc, caliper. All 4 wheels are
   one MultiMesh (1 draw call), calipers another.
 - **Shaders**: `car_paint` (gloss, metallic flake with distance fade, pearl fresnel shift, matte,
-  chrome; liveries racing_stripes/side_stripe/two_tone/fade(halftone)/checker in car-local space;
+  chrome; 16 liveries in car-local space (DESIGN §3.2);
   carbon twill; clearcoat on Forward+ only), `car_lights` (head/tail/brake/reverse/indicator by vertex
   alpha), `car_wheel`, `car_glow` (underglow blob: static/pulse/strobe/rainbow), `car_flame` (nitro).
 - **Underglow**: additive ground blob + one OmniLight (skipped on Compatibility below quality 2, or
@@ -31,8 +42,8 @@ Three procedural, original cars built entirely in code, with NFSU2-style customi
   GPUParticles3D on Forward+), world-space so they trail.
 - **Ghost**: `set_ghost(a < 1)` swaps body and wheels to one translucent paint-tinted material
   (works on both renderers; `GeometryInstance3D.transparency` does not affect ShaderMaterials on compat).
-- **Performance**: ≤ 22.7k triangles per car (worst of all 1620 part combos), ≤ 9 draw calls (body 5 surfaces,
-  wheels, calipers, glow, plate). Body/wheel meshes are cached per `car:parts` key and shared between
+- **Performance**: ≤ 26k triangles per car (worst of all 3240 part combos of the 6 cars, session 7;
+  `test_build` budget 28k), ≤ 10 draw calls (body 6 surfaces, wheels, calipers, glow, plate). Body/wheel meshes are cached per `car:parts` key and shared between
   cars; materials are per-instance surface overrides. Build ≈ 100 ms native (first time per key);
   paint/finish/livery/carbon/colors/tint/underglow/ride height changes are material/transform-only (0 ms).
 
@@ -41,6 +52,7 @@ Three procedural, original cars built entirely in code, with NFSU2-style customi
 - `cars/visual/car_shape.gd` — `CarShape` per-car profiles and surface sampling
 - `cars/visual/car_body.gd` — `CarBody` shell + greenhouse lofts
 - `cars/visual/car_parts.gd` — `CarParts` details and style parts
+- `cars/visual/car_cabin.gd` — `CarCabin` interior and driver (session 7)
 - `cars/visual/car_wheels.gd` — `CarWheels` wheel/caliper meshes
 - `cars/visual/mesh_kit.gd` — `MeshKit` geometry accumulator (auto winding, mirror, lofts, revolve)
 - `shaders/car_paint|car_lights|car_wheel|car_glow|car_flame.gdshader`

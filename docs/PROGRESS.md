@@ -570,3 +570,24 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   new cars.
 - Checked on compat screenshots for all six cars. test_build 56/56 (3240 part combos, worst 22,862
   tris, budget 25,000), garage_test 15/15, nav_test 8/8, lobby_fake_test 23/23.
+
+## 2026-10-15 ~20:50 UTC — Session 7: owner request "interiors suck ... put a driver inside"
+
+- Why it looked weird: the body deck ran straight through the cabin at window height, painted in
+  the body color. The seats were slabs sticking up through that shelf, the wheel was a solid disc,
+  and nobody sat in the car.
+- `CarShape.cabin()` lays out each car's cabin from its greenhouse: driver scale `k` so the helmet
+  fits under the roof, recline, hip/shoulder/head/wheel positions, the dash face and rear bulkhead,
+  tub floor and walls. Short cabs (the pickup) slide back so the wheel clears the windshield.
+  Right-hand drive for the JDM cars, a rear bench on the 2+2s. `CarShape.shell_deck_y()` sinks
+  the deck into a tub. `CarBody.section()` samples it at fixed fractions so every station keeps
+  the same columns, and the shell paints everything under the glass as dark interior trim.
+- New `CarCabin` (game/cars/visual/car_cabin.gd), ~1.5k tris: bucket seats with colored inserts,
+  rear bench, binnacle with glowing gauges (new `car_lights` instrument type) and screen, console and
+  shifter, door cards, rear-view mirror, steering wheel (rim/spokes/hub/column), and the driver
+  (helmet in the body paint with a vinyl stripe and a smoked visor, suit per car, red harness,
+  gloves on the wheel at ten and two, legs to the pedals).
+- Glass: the windshield is its own clearer surface (`glass_front`), side and rear glass a bit
+  lighter than before, so the cabin reads on the web renderer too.
+- Checked with new showcase angles `cabin`, `cabin_r` and `cockpit` (and `--tint=`) on all six
+  cars, both renderers. test_build 56/56 (worst 25,988 tris; budget raised 25k → 28k), draws ≤ 10.

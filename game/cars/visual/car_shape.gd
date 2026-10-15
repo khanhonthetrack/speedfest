@@ -20,6 +20,12 @@ var axle_t: Array[float] = []    # front, rear
 var p: Dictionary = {}           # profile arrays
 var gh: Dictionary = {}          # greenhouse params
 var style_k: Dictionary = {}     # misc per-car styling numbers
+var _cabin: Dictionary = {}
+
+## Cabin (session 7, owner: "Interiors suck ... put a driver inside"): right-hand drive for the
+## JDM cars, a rear bench where the roof is long enough for one.
+const CABIN_RHD: Array[String] = ["kaze", "pixie", "kitsune"]
+const CABIN_REAR_SEATS: Array[String] = ["kaze", "brute", "kitsune"]
 
 
 func _init(p_car_id: String) -> void:
@@ -302,6 +308,85 @@ func deck_y(x: float, t: float) -> float:
 	# inner walls ("dip_pow"); otherwise the usual rounded crown
 	var e: float = float(style_k.get("dip_pow", 2.4)) if c < b - 0.05 else 2.4
 	return b + (c - b) * (1.0 - pow(u, e))
+
+
+## Half-width of the deck at t (where the shoulder rounding ends): the deck samples' 100%.
+func deck_half(t: float) -> float:
+	var r: float = style_k["shoulder_r"]
+	return side_x(belt(t) - r, t) - r
+
+
+## Cabin layout in ground space (car-local, -z = front), computed once from the greenhouse:
+##   t_dash / t_back   where the cabin tub starts (the dash face) and ends (bulkhead behind the seats)
+##   floor_y           tub floor; fw, fe: tub wall as a fraction of deck_half (+- half the crisp edge)
+##   k                 driver scale (fits the helmet under the roof); side: +1 right-hand drive
+##   hip, shoulder, head, wheel (Vector3, x = 0: add side * x_seat), wheel_n (wheel face normal),
+##   wheel_r, x_seat, theta (torso recline), rear (bool), rear_z (rear bench hip z)
+## The tub replaces the body deck under the glass (CarBody.section via shell_deck_y), so the
+## driver sits IN the car instead of on a shelf at the window line.
+func cabin() -> Dictionary:
+	if not _cabin.is_empty():
+		return _cabin
+	var c0: float = gh["cowl"]
+	var c1: float = gh["ws_top"]
+	var c2: float = gh["roof_end"]
+	var c3: float = gh["back_end"]
+	var z0 := z_of(c0)
+	var z1 := z_of(c1)
+	var z2 := z_of(c2)
+	var tm := lerpf(c1, c2, 0.4)
+	var floor_y := maxf(bot(tm) + 0.12, belt(tm) - 0.5)
+	var roof_in := float(gh["roof_y"]) - 0.06
+	# hip-to-helmet-top is ~0.97 m at scale 1 (seated, reclined)
+	var k := clampf((roof_in - 0.02 - floor_y) / 0.97, 0.72, 1.0)
+	var theta := deg_to_rad(23.0)
+	var tdir := Vector3(0.0, cos(theta), sin(theta))
+	var lt := 0.5 * k
+	var lh := 0.19 * k      # shoulder -> head center (helmet sits down on the shoulders)
+	var head_z := z1 + clampf(0.42 * (z2 - z1), 0.18, 0.42)
+	var hip := Vector3(0.0, floor_y + 0.16 * k, head_z - (lt + lh) * tdir.z)
+	var shoulder := hip + tdir * lt
+	var wheel := shoulder + Vector3(0.0, -0.12 * k, -0.42 * k)
+	var wheel_r := 0.17 * k
+	# short cabs (the pickup): slide everyone back so the wheel clears the windshield base
+	var shift := maxf(0.0, z0 + 0.2 - (wheel.z - wheel_r * 0.4))
+	hip.z += shift
+	shoulder.z += shift
+	wheel.z += shift
+	var head := shoulder + tdir * lh
+	var rear := car_id in CABIN_REAR_SEATS
+	var rear_z := hip.z + 0.78 * k
+	var z_back := (rear_z + 0.34 * k) if rear else (shoulder.z + 0.24 * k)
+	var t_dash := clampf(t_of(wheel.z - 0.17 * k), c0 + 0.012, c1 - 0.012)
+	var t_back := clampf(t_of(z_back), t_of(head.z + 0.15), c3 - 0.01)
+	var x_wall := 9.0
+	for i in 17:
+		x_wall = minf(x_wall, gh_base_w(lerpf(t_dash, t_back, float(i) / 16.0)) - 0.05)
+	var dh := deck_half(t_of(hip.z))
+	var fw := clampf(x_wall / dh, 0.6, 0.95)
+	var fe := 0.014 / dh
+	var x_seat := clampf(x_wall - 0.3 * k, 0.26, 0.4)
+	_cabin = {
+		"t_dash": t_dash, "t_back": t_back, "floor_y": floor_y, "fw": fw, "fe": fe, "x_wall": x_wall,
+		"k": k, "theta": theta, "tdir": tdir, "side": 1.0 if car_id in CABIN_RHD else -1.0,
+		"hip": hip, "shoulder": shoulder, "head": head, "wheel": wheel, "wheel_r": wheel_r,
+		"wheel_n": (shoulder - wheel).normalized(), "x_seat": x_seat, "rear": rear, "rear_z": rear_z,
+		"et": 0.012 / length,
+	}
+	return _cabin
+
+
+## Body deck height for the shell: the normal deck, sunk to the cabin floor inside the tub.
+## u = |x| / deck_half(t) (the shell samples it at fixed fractions, see CarBody.section).
+func shell_deck_y(x: float, u: float, t: float) -> float:
+	var y := deck_y(x, t)
+	var c := cabin()
+	var et: float = c["et"]
+	var ft := smoothstep(float(c["t_dash"]) - et, float(c["t_dash"]) + et, t) * (1.0 - smoothstep(float(c["t_back"]) - et, float(c["t_back"]) + et, t))
+	if ft <= 0.0:
+		return y
+	var fx := 1.0 - smoothstep(float(c["fw"]) - float(c["fe"]), float(c["fw"]) + float(c["fe"]), u)
+	return lerpf(y, float(c["floor_y"]), ft * fx)
 
 
 # --- greenhouse ---------------------------------------------------------------
