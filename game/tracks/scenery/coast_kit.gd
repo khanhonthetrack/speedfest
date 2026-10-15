@@ -18,6 +18,8 @@ var noise2 := FastNoiseLite.new()
 var sea_side: float = 1.0
 var seaward := Vector3.LEFT
 var bay := PackedFloat32Array()     # per field sample: 1 on/near bridges
+var deck := PackedByteArray()       # per field sample: 1 = deck in the air (elevated/bridge/loop/jump/wallride zone)
+var gref := PackedFloat32Array()    # per field sample: ground reference height for the terrain
 var batches := SceneryBatches.new(450.0 if Settings.is_compat() else 300.0)
 var footprints: Array = []
 var stats := {}
@@ -42,6 +44,7 @@ func build(p_field: SceneryField, rng_seed: int) -> Node3D:
 	acc.y = 0.0
 	seaward = acc.normalized() if acc.length() > 0.01 else Vector3.LEFT
 	_bay_weights()
+	_ground_refs()
 	batches.register("neon", SceneryMat.neon(3.0), 900.0, false)
 	batches.register("rock", SceneryMat.shader_mat("terrain", {"mode": 2, "sea_level": SEA_LEVEL}), 0.0, true)
 	batches.register("metal", SceneryMat.vcolor(0.6, 0.3), 600.0, true)
@@ -73,6 +76,44 @@ func _bay_weights() -> void:
 				bay[k] = maxf(bay[k], w * w * (3.0 - 2.0 * w))
 
 
+## Ground reference per sample: the road's low edge where the road is at grade; under decks it is
+## interpolated between the neighbouring at-grade sections and kept well under the deck.
+func _ground_refs() -> void:
+	deck.resize(field.count)
+	gref.resize(field.count)
+	var anchors: Array[int] = []
+	for i in field.count:
+		deck[i] = 1 if (field.zone_bits[i] & SceneryField.DECK_BITS) != 0 else 0
+		gref[i] = field.low[i]
+		if deck[i] == 0:
+			anchors.append(i)
+	if anchors.is_empty():
+		for i in field.count:
+			gref[i] = maxf(SEA_LEVEL + 6.0, field.low[i] - 18.0)
+		return
+	var i := 0
+	while i < field.count:
+		if deck[i] == 0:
+			i += 1
+			continue
+		var j := i
+		while j < field.count and deck[j] == 1:
+			j += 1
+		var a := i - 1
+		var b := j
+		if field.path.is_circuit:
+			if a < 0:
+				a = anchors[anchors.size() - 1]
+			if b >= field.count:
+				b = anchors[0]
+		var ya: float = field.low[a] if a >= 0 else field.low[b]
+		var yb: float = field.low[b] if b < field.count else ya
+		for k in range(i, j):
+			var t := float(k - i + 1) / float(j - i + 1)
+			gref[k] = minf(lerpf(ya, yb, t), field.low[k] - 14.0)
+		i = j
+
+
 func _far_height(x: float, z: float, side: float, road_y: float, ed: float, i: int) -> float:
 	var n := noise.get_noise_2d(x, z) * 0.5 + 0.5
 	var n2 := noise2.get_noise_2d(x, z)
@@ -80,13 +121,15 @@ func _far_height(x: float, z: float, side: float, road_y: float, ed: float, i: i
 	var b := bay[i] if i >= 0 else 0.0
 	if side == sea_side:
 		var drop := smoothstep(0.0, 70.0 + n * 40.0, ed)
-		h = lerpf(road_y - 1.5, SEA_LEVEL - 10.0 - n * 8.0, drop) + n2 * 3.0 * (1.0 - drop)
+		var gy := gref[i] if i >= 0 else road_y
+		h = lerpf(gy - 1.5, SEA_LEVEL - 10.0 - n * 8.0, drop) + n2 * 3.0 * (1.0 - drop)
 		# rocky points that stick out into the sea
 		if n > 0.68:
 			h = maxf(h, SEA_LEVEL + (n - 0.68) * 90.0 * (1.0 - smoothstep(120.0, 260.0, ed)))
 	else:
 		var rise := smoothstep(0.0, 320.0, ed)
-		h = road_y + 1.0 + rise * (35.0 + n * 85.0) + n2 * 4.0 * smoothstep(0.0, 40.0, ed)
+		var gy2 := gref[i] if i >= 0 else road_y
+		h = gy2 + 1.0 + rise * (35.0 + n * 85.0) + n2 * 4.0 * smoothstep(0.0, 40.0, ed)
 		h = lerpf(h, SEA_LEVEL - 9.0, b * (1.0 - smoothstep(60.0, 240.0, ed)))
 	if terrain != null:
 		# fade to sea at the edge of the terrain grid (islands-like border)
@@ -108,7 +151,9 @@ func _terrain() -> void:
 	terrain.hole_below = 1e6   # never cut holes on the coast
 	terrain.chunk_cells = 36 if Settings.is_compat() else 24
 	terrain.far_fn = _far_height
-	terrain.follow_fn = func(i: int) -> float: return 1.0 - bay[i] if field.has_zone(i, "bridge") else 1.0
+	terrain.follow_fn = func(i: int) -> float: return 0.0 if deck[i] == 1 else 1.0
+	terrain.deck_clear = 6.0
+	terrain.deck_slope = 0.9
 	terrain.compute()
 	terrain.build_meshes(root, SceneryMat.shader_mat("terrain", {"mode": 2, "sea_level": SEA_LEVEL}), "Terrain")
 
@@ -199,6 +244,8 @@ func _palms() -> void:
 		if field.query(p, 30.0) < 3.0:
 			continue
 		p.y = _ground_at(p.x, p.z)
+		if deck[i] == 1 and p.y + 14.0 > field.low[i] - 1.0 and field.q_clear < 8.0:
+			continue   # crown would brush the deck
 		if p.y < SEA_LEVEL + 1.0:
 			continue
 		var s := rng.randf_range(0.85, 1.25)
@@ -290,6 +337,8 @@ func _posts_and_lamps() -> void:
 			if field.zone_near(dm, ["tunnel", "bridge", "no_props"], 4.0):
 				continue
 			var i := clampi(int(round(dm / field.path.length * (field.count - 1))), 0, field.count - 1)
+			if deck[i] == 1:
+				continue   # open platform deck: no posts in the air
 			var fr := field.frame(i)
 			var yb := SceneryField.yaw_basis(field.fwd[i])
 			var p := fr.origin + yb.x * side * (field.half[i] + 2.4)
@@ -308,6 +357,8 @@ func _posts_and_lamps() -> void:
 		if field.zone_near(dm, ["tunnel", "bridge", "no_props"], 8.0):
 			continue
 		var i := clampi(int(round(dm / field.path.length * (field.count - 1))), 0, field.count - 1)
+		if deck[i] == 1:
+			continue
 		var fr := field.frame(i)
 		var side := -sea_side
 		var base := fr.origin + fr.basis.x * side * (field.half[i] + 3.2)

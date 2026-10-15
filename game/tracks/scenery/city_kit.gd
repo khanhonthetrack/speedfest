@@ -20,6 +20,7 @@ var field: SceneryField
 var root: Node3D
 var rng := RandomNumberGenerator.new()
 var ground_y: float = 0.0
+var _deck_h: float = 0.0        # deck height above ground next to the building being placed
 var batches := SceneryBatches.new(300.0)
 var occupancy: Dictionary = {}     # Vector2i (4 m cells) -> true
 var footprints: Array = []         # [pos, radius, kind] for tests
@@ -40,7 +41,7 @@ func build(p_field: SceneryField, rng_seed: int) -> Node3D:
 	root = SceneryRoot.new()
 	(root as SceneryRoot).theme = "city"
 	root.name = "CityProps"
-	ground_y = field.height_percentile(0.2)
+	ground_y = field.ground_level()
 	var bmat := SceneryMat.shader_mat("building", {"wetness": 0.7, "window_energy": 1.25})
 	_bld = SceneryInstances.new(SceneryProps.unit_box(), bmat, 400.0, false, true)
 	_poles = SceneryInstances.new(SceneryProps.street_lamp_pole(), SceneryMat.plain(Color(0.2, 0.21, 0.23), 0.4, 0.6), 250.0)
@@ -84,6 +85,7 @@ func _ground() -> void:
 	t.elevated_above = 2.5
 	t.hole_below = 1.2
 	t.shoulder_drop = 0.25
+	t.deck_clear = 2.0
 	t.far_fn = func(_x: float, _z: float, _s: float, _ry: float, _ed: float, _i: int) -> float: return ground_y - 0.3
 	t.compute()
 	t.build_meshes(root, SceneryMat.shader_mat("terrain", {"mode": 0, "wetness": 1.0}), "Ground")
@@ -139,7 +141,8 @@ func _add_building(c: Vector3, b: Basis, w: float, dpt: float, h: float, front: 
 	var tint := rng.randf_range(0.15, 0.85)
 	var cus := Color(seed, style, lit, tint)
 	var podium_h := h
-	var tall := h > 45.0
+	# next to a high deck keep facades flat so deck-level signs sit on the main face
+	var tall := h > 45.0 and _deck_h <= 8.0
 	if tall:
 		podium_h = rng.randf_range(8.0, 16.0)
 	_bld.add(Transform3D(b.scaled_local(Vector3(w, podium_h, dpt)), c), Color.WHITE, cus)
@@ -205,6 +208,9 @@ func _facade_dressing(c: Vector3, b: Basis, w: float, dpt: float, podium_h: floa
 	var neon := batches.at("neon", face_c)
 	var board := batches.at("board", face_c)
 	var sb := Basis(fx, Vector3.UP, fz)
+	if _deck_h > 8.0:
+		_deck_signs(c, fz, fx, half_extent, along, face_c, sb, total_h)
+		return
 	# shop-front glow strip
 	var strip_col: Color = NEON[rng.randi_range(0, NEON.size() - 1)]
 	if rng.randf() < 0.7:
@@ -258,6 +264,35 @@ func _facade_dressing(c: Vector3, b: Basis, w: float, dpt: float, podium_h: floa
 			var px := (float(k) - 1.0) * wsign * 0.4
 			metal.add_box(Transform3D(sb, pc + fx * px + Vector3(0, -lh3 * 0.5 - 0.6, -0.5)), Vector3(0.25, 1.4 + lh3 * 0.4, 0.25), Color(0.12, 0.12, 0.13))
 		_sign(pc, sb, txt3, lh3, col3, wsign, false)
+
+
+## Signs readable from a deck at rooftop height: big signs at deck level on taller buildings,
+## rooftop signs facing the road on lower ones (seen from above).
+func _deck_signs(c: Vector3, fz: Vector3, fx: Vector3, half_extent: float, along: float, face_c: Vector3, sb: Basis, total_h: float) -> void:
+	var col: Color = NEON[rng.randi_range(0, NEON.size() - 1)]
+	if total_h > _deck_h + 6.0:
+		if rng.randf() < 0.8:
+			var txt: String = BRANDS[rng.randi_range(0, BRANDS.size() - 1)]
+			var lh := rng.randf_range(2.5, 4.5)
+			var y := clampf(_deck_h + rng.randf_range(-1.0, 7.0), lh, total_h - lh - 1.0)
+			_sign(face_c + fx * rng.randf_range(-along * 0.15, along * 0.15) + Vector3(0, y, 0.05), sb, txt, lh, col, along * 0.85, true)
+		if rng.randf() < 0.35:
+			var stripe := NEON[rng.randi_range(0, NEON.size() - 1)] as Color
+			var neon := batches.at("neon", face_c)
+			for k in 3:
+				neon.add_box(Transform3D(sb, face_c + Vector3(0, _deck_h - 4.0 + k * 5.0, 0.0)), Vector3(along * 0.95, 0.18, 0.12), stripe * 0.8, Vector2(4.0, float(k) * 0.3))
+	elif total_h > 10.0 and rng.randf() < 0.55:
+		var txt3: String = BRANDS[rng.randi_range(0, BRANDS.size() - 1)]
+		var lh3 := rng.randf_range(3.5, 6.0)
+		var pc := c + fz * (half_extent - 2.0) + Vector3(0, total_h + lh3 * 0.5 + 1.2, 0)
+		var metal := batches.at("metal", pc)
+		var wsign := minf(along * 0.95, lh3 * txt3.length() * 0.95)
+		for k in 3:
+			var px := (float(k) - 1.0) * wsign * 0.4
+			metal.add_box(Transform3D(sb, pc + fx * px + Vector3(0, -lh3 * 0.5 - 0.6, -0.5)), Vector3(0.25, 1.4 + lh3 * 0.4, 0.25), Color(0.12, 0.12, 0.13))
+		# tilt the sign back a little so it reads from the deck above
+		var tb := sb.rotated(fx, -0.35)
+		_sign(pc, tb, txt3, lh3, col, wsign, false)
 
 
 ## Text sign with a dark backing board and a thin neon frame. Fits in max_w.
@@ -330,9 +365,15 @@ func _frontage() -> void:
 				continue
 			_claim(cells)
 			var h := _pick_height(c, true)
-			if road_y > ground_y + 4.0:
-				h = maxf(h, road_y - ground_y + rng.randf_range(6.0, 30.0))
+			_deck_h = road_y - ground_y if field.is_deck(i, ground_y) else 0.0
+			if _deck_h > 8.0:
+				# towers below, beside and above the deck
+				if rng.randf() < 0.55:
+					h = _deck_h + rng.randf_range(8.0, 70.0)
+				else:
+					h = maxf(8.0, (_deck_h - 6.0) * rng.randf_range(0.35, 0.9))
 			_add_building(c, bb, frontage, depth, h, -right * side, true)
+			_deck_h = 0.0
 			footprints.append([c, 0.0, "building", hx, hz, bb])
 
 
@@ -408,8 +449,10 @@ func _lamps() -> void:
 				continue
 			var i := clampi(int(round(dm / field.path.length * (field.count - 1))), 0, field.count - 1)
 			var fr := field.frame(i)
-			var elevated := fr.origin.y > ground_y + 2.0
-			var lateral := field.half[i] + (0.45 if elevated else 2.6)
+			var elevated := field.is_deck(i, ground_y, 2.0)
+			if elevated:
+				continue   # open platform decks: no lamp posts in the air
+			var lateral := field.half[i] + 2.6
 			var base := fr.origin + fr.basis.x * side * lateral
 			if not elevated:
 				base.y = fr.origin.y - 0.05
@@ -445,7 +488,7 @@ func _gantries() -> void:
 	while placed.size() < want and tries < 200:
 		tries += 1
 		var dm := rng.randf_range(60.0, field.path.length - 60.0)
-		if field.zone_near(dm, ["tunnel", "loop", "jump", "no_props"], 40.0):
+		if field.zone_near(dm, ["tunnel", "loop", "jump", "no_props", "wallride"], 40.0):
 			continue
 		var ok := true
 		for pd in placed:
@@ -470,7 +513,10 @@ func _gantries() -> void:
 		var mcol := Color(0.25, 0.26, 0.28)
 		for side: float in [-1.0, 1.0]:
 			var pp := fr.origin + yb.x * side * hw
-			metal.add_box(Transform3D(yb, pp + Vector3(0, (top + 1.2) * 0.5 - 0.3, 0)), Vector3(0.6, top + 1.2, 0.6), mcol)
+			# on a deck the posts run all the way down to the street
+			var bottom := ground_y - 0.3 if field.is_deck(i, ground_y) else fr.origin.y - 0.3
+			var post_h := fr.origin.y + top + 0.9 - bottom
+			metal.add_box(Transform3D(yb, Vector3(pp.x, bottom + post_h * 0.5, pp.z)), Vector3(0.6, post_h, 0.6), mcol)
 			_post_collision(pp, Vector3(0.6, top + 1.2, 0.6), yb)
 		for k in 2:
 			metal.add_box(Transform3D(yb, fr.origin + Vector3(0, top + 0.2 + k * 1.0, 0)), Vector3(hw * 2.0 + 0.6, 0.25, 0.25), mcol)
@@ -524,6 +570,8 @@ func _billboards_on_poles() -> void:
 		var bw := rng.randf_range(14.0, 20.0)
 		var bh := bw * 0.5
 		var ph := rng.randf_range(12.0, 18.0)
+		if field.is_deck(i, ground_y):
+			ph = fr.origin.y - ground_y + rng.randf_range(-1.0, 6.0)   # readable from the deck
 		# face oncoming drivers, angled towards the road
 		var face := (-yb.z * 0.8 - yb.x * side * 0.6).normalized()
 		var fb := Basis(Vector3.UP.cross(face).normalized(), Vector3.UP, face)
@@ -592,7 +640,7 @@ func _puddles() -> void:
 	var n := clampi(int(field.path.length / 45.0), 10, 80)
 	for k in n:
 		var dm := rng.randf_range(0.0, field.path.length)
-		if field.zone_near(dm, ["loop", "jump"], 5.0):
+		if field.zone_near(dm, ["loop", "jump", "wallride"], 5.0):
 			continue
 		var i := clampi(int(round(dm / field.path.length * (field.count - 1))), 0, field.count - 1)
 		var fr := field.frame(i)

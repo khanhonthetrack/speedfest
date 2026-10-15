@@ -17,6 +17,7 @@ var field: SceneryField
 var root: Node3D
 var rng := RandomNumberGenerator.new()
 var floor_y: float = 0.0
+var tiers: int = 16               # stand rows; more when the track floats high above the floor
 var batches := SceneryBatches.new(300.0)
 var footprints: Array = []
 var ring: Array = []          # Transform3D frames around the bowl (basis.x = outward)
@@ -30,7 +31,9 @@ func build(p_field: SceneryField, rng_seed: int) -> Node3D:
 	root = SceneryRoot.new()
 	(root as SceneryRoot).theme = "arena"
 	root.name = "ArenaProps"
-	floor_y = field.height_percentile(0.1)
+	floor_y = field.ground_level()
+	var deck := field.height_percentile(0.75) - floor_y
+	tiers = clampi(int(deck + 10.0), 16, 40)
 	batches.register("neon", SceneryMat.neon(4.0), 0.0, false)
 	batches.register("metal", SceneryMat.vcolor(0.5, 0.5, true), 0.0, true)
 	batches.register("screen", SceneryMat.shader_mat("screen", {"energy": 2.0}), 0.0, false)
@@ -120,7 +123,6 @@ func _bowl() -> void:
 		return
 	# Orientation: lofts produce faces on one side depending on travel direction. Make sure the
 	# profile's "up/inward" side is the visible one: if the ring runs clockwise, flip x sign.
-	var tiers := 16
 	var crowd := PackedVector2Array()
 	for k in tiers + 1:
 		var x := 3.0 + k * 1.7
@@ -190,7 +192,7 @@ func _towers() -> void:
 		return
 	var n := clampi(int(ring_len / 160.0), 6, 12)
 	var cen := field.center()
-	var tower_h := 58.0
+	var tower_h := maxf(58.0, 4.0 + tiers + 34.0)
 	var metal_mesh := SceneryProps.flood_tower(tower_h)
 	var lamp_mesh := SceneryProps.flood_lamps(tower_h)
 	var tm := MultiMeshInstance3D.new()
@@ -199,7 +201,7 @@ func _towers() -> void:
 	for k in n:
 		var fi := int(float(k) / n * (ring.size() - 1))
 		var f: Transform3D = ring[fi]
-		var p := f.origin + f.basis.x * 38.0
+		var p := f.origin + f.basis.x * (3.0 + (tiers + 1) * 1.7 + 7.0)
 		var to_c := (cen - p)
 		to_c.y = 0.0
 		to_c = to_c.normalized()
@@ -259,8 +261,8 @@ func _jumbotrons() -> void:
 	for k in n:
 		var fi := int((float(k) + 0.5) / n * (ring.size() - 1))
 		var f: Transform3D = ring[fi]
-		var tiers_top := 4.0 + 16.0 + 8.0
-		var p := f.origin + f.basis.x * 26.0 + Vector3(0, tiers_top + 14.0, 0)
+		var tiers_top := 4.0 + tiers + 8.0
+		var p := f.origin + f.basis.x * (3.0 + (tiers + 1) * 1.7 - 6.0) + Vector3(0, tiers_top + 14.0, 0)
 		var to_c := cen - p
 		to_c.y = 0.0
 		to_c = to_c.normalized()
@@ -293,7 +295,7 @@ func _arches() -> void:
 	while placed.size() < want and tries < 300:
 		tries += 1
 		var dm := rng.randf_range(40.0, field.path.length - 40.0)
-		if field.zone_near(dm, ["loop", "jump", "tunnel", "no_props", "boost"], 35.0):
+		if field.zone_near(dm, ["loop", "jump", "tunnel", "no_props", "boost", "wallride"], 35.0):
 			continue
 		var ok := true
 		for pd in placed:
@@ -327,7 +329,9 @@ func _arches() -> void:
 			neon.add_box(Transform3D(bb, mid + yb.z * 0.62), Vector3(len * 0.8, 0.3, 0.06), col * 0.55, Vector2(4.0, float(k) / segs))
 		for sx: float in [-1.0, 1.0]:
 			var leg := fr.origin + yb.x * r * sx
-			metal.add_box(Transform3D(yb, leg + Vector3(0, 0.75, 0)), Vector3(1.4, 1.5, 1.6), Color(0.06, 0.06, 0.08))
+			# leg column down to the stadium floor (decks float above it)
+			var leg_h := leg.y + 1.5 - (floor_y - 0.3)
+			metal.add_box(Transform3D(yb, Vector3(leg.x, floor_y - 0.3 + leg_h * 0.5, leg.z)), Vector3(1.4, leg_h, 1.6), Color(0.06, 0.06, 0.08))
 			_collision_box(leg + Vector3(0, 1.5, 0), Vector3(1.4, 3.0, 1.6), yb)
 			footprints.append([leg, 0.7, "arch_leg", 0.7, 0.8, yb])
 		footprints.append([fr.origin + Vector3(0, r, 0), 0.0, "arch", r, 1.0, yb, true])
@@ -355,7 +359,7 @@ func _pylons() -> void:
 		var dm := d
 		d += rng.randf_range(45.0, 75.0)
 		k += 1
-		if field.zone_near(dm, ["loop", "tunnel", "no_props"], 10.0):
+		if field.zone_near(dm, ["loop", "tunnel", "no_props", "wallride"], 10.0):
 			continue
 		var i := clampi(int(round(dm / field.path.length * (field.count - 1))), 0, field.count - 1)
 		var side := 1.0 if k % 2 == 0 else -1.0
@@ -397,7 +401,7 @@ func _searchlights() -> void:
 		var f: Transform3D = ring[fi]
 		var rot := SceneryRotor.new()
 		rot.name = "Searchlight%d" % k
-		rot.position = f.origin + f.basis.x * 30.0 + Vector3(0, 30.0, 0)
+		rot.position = f.origin + f.basis.x * (3.0 + (tiers + 1) * 1.7) + Vector3(0, tiers + 14.0, 0)
 		rot.speed = 0.25 + 0.1 * k
 		rot.phase = k * 1.7
 		var mi := MeshInstance3D.new()

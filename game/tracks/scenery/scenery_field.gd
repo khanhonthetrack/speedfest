@@ -23,7 +23,9 @@ var ymin: float = 1e9
 var ymax: float = -1e9
 var max_half: float = 7.0
 
-const ZONE_BITS := {"loop": 1, "jump": 2, "tunnel": 4, "bridge": 8, "boost": 16, "no_props": 32}
+const ZONE_BITS := {"loop": 1, "jump": 2, "tunnel": 4, "bridge": 8, "boost": 16, "no_props": 32, "elevated": 64, "wallride": 128}
+## Zones whose road is a deck in the air (props go on the ground below, never at deck height).
+const DECK_BITS := 1 | 2 | 8 | 64 | 128
 
 var _cell: float = 24.0
 var _grid: Dictionary = {}
@@ -173,6 +175,21 @@ static func yaw_basis(forward: Vector3) -> Basis:
 	f = f.normalized()
 	var r := f.cross(Vector3.UP).normalized()
 	return Basis(r, Vector3.UP, -f)
+
+
+## Ground level for flat themes: path meta "ground_y" if the track sets it, otherwise the lower of
+## 0 and the 20th percentile of road heights (Trackmania-style decks float above y = 0).
+func ground_level() -> float:
+	if path.has_meta("ground_y"):
+		return float(path.get_meta("ground_y"))
+	return minf(height_percentile(0.2), 0.0)
+
+
+## True if sample i is a deck in the air: a deck zone, or more than `above` m over `ground`.
+func is_deck(i: int, ground: float, above := 3.0) -> bool:
+	if i < 0 or i >= count:
+		return false
+	return (zone_bits[i] & DECK_BITS) != 0 or low[i] > ground + above
 
 
 ## Percentile of road heights (used as the "ground" level of flat themes).
