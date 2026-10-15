@@ -24,10 +24,12 @@ func layout() -> Dictionary:
 			{"t": 180, "r": 45, "bank": 32},
 			{"s": 20}, {"boost": 12}, {"s": 30},
 			{"t": -90, "r": 40, "bank": 8},
-			{"s": 30},
+			# long straight run-up (keyboard players need to settle the car after the S-bend)
+			# and a wider kicker + landing (22 m) that narrows back over the run-out
+			{"s": 80, "w": 22.0},
 			{"jump": {"ramp": 40.0, "h": 4.0, "gap": 20.0, "land": 60.0}},
 			{"cp": true},
-			{"s": 150},
+			{"s": 100, "w": 16.0},
 			{"t": 90, "r": 60, "bank": 10},
 			{"s": 10},
 			{"cp": true},
