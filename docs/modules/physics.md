@@ -395,14 +395,12 @@ players are always at full throttle, so every small slide snapped.
 - Track side (track_builder): deck rings inside loops are 1 m wherever the ring falls (`LOOP_RING`);
   a loop half-covered by a chunk used 1.5 m rings, and at 260+ km/h the body hit a deck fold edge.
 
-## Body collision lift (session 4)
-Loop entries reached 260–285 km/h after the easier handling (20–23 m loops: 25–30 g). At the
-suspension force cap the springs compress ~0.26 m, past the body's 0.18–0.21 m clearance: the body
-box touched the deck, caught a fold edge (car stopped dead) or got a back-face contact and was pushed
-through the loop. Fix: the body collision floor sits `BODY_LIFT` (0.12 m) above the visual floor, so
-the body box can't reach the road even at the cap; dynamics are unchanged. Tried and rejected:
-backface collision off on the road (more failures, one car ejected 142 m), a 40× hard-stop spring
-(rang at 60 Hz, the brute bounced out of loops), and a velocity end stop (cars slid off tight wall
-rides). `tests/tracks/test_collision_faces.tscn` checks deck/barrier winding (6/6).
-Known track issue: on Pulse Arena the car leaves the loop airborne and lands on the wall-ride entry at
-~275 km/h (envelope 140–215); keyboard emulation in storm can lose it there (fix in the layout).
+## High-load loop entries (session 4, open)
+At 260–285 km/h into a 20–23 m loop (25–30 g) the suspension saturates and the body box touches the
+deck; occasionally it then catches or penetrates and the car falls out of the loop. Tried and
+rejected (each traded these failures for others in the physics suite or the real-track matrix):
+road backface collision off, a 40× hard-stop spring (rang at 60 Hz), a velocity end stop (cars slid
+off tight wall rides), lifting the body collision floor 0.12 m (cars hopped on loop exits). Kept the
+easy-handling state (82bd701). The fix belongs in the layouts: don't put boosts right before loops /
+wall rides that push entries past the envelope (loops ≲ 230 km/h, wall rides 140–215 km/h).
+`tests/tracks/test_collision_faces.tscn` (deck/barrier winding) stays as a guard.

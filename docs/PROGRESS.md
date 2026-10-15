@@ -275,3 +275,12 @@ date, who (module/agent), what changed, what's next or blocked.
   the downtown loop and coast cases are clean. New guard test `tests/tracks/test_collision_faces`.
 - Remaining known case: arena, kaze keyboard in storm, lands on the wall-ride entry at ~275 km/h after
   flying off the loop exit (track layout issue, session 3 open item #1).
+
+## 2026-10-15 ~11:00 UTC — High-load loop entries: physics experiments reverted
+
+- Velocity end stop (ff618b4) broke tight wall rides; lifting the body collision floor (f81c036)
+  made cars hop on loop exits (test_stunts) and the matrix got no better (default 14/18, storm 15/18).
+  Reverted car.gd to the easy-handling state (82bd701: physics suite OK, matrix default 16/18, storm
+  17/18). The remaining failures are loop/wall-ride entries far above the envelope after boosts
+  (downtown loop at 284 km/h, arena loop exit landing on the wall-ride entry at 275 km/h): to be
+  fixed in the layouts (downtown rework, arena tweak). docs/modules/physics.md "High-load loop entries".

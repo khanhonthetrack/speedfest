@@ -27,7 +27,6 @@ const LAND_REBOUND_TIME := 0.35          # after a touchdown, cap the rebound sp
 const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
 const LAND_ABSORB := 0.45                # fraction of the touchdown speed into the ground removed (rest: suspension squash)
 const MAX_WHEEL_G := 28.0                # cap on a single wheel's suspension force (in corner weights)
-const BODY_LIFT := 0.12                  # collision floor above the visual floor (see _setup)
 const STICK_ACCEL := 13.0                # extra road-normal pull on steep/inverted road at speed
 const STICK_STEEP := 0.6                 # 1 - normal.y where the stick force is at full strength
 const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 per rad)
@@ -183,10 +182,7 @@ func _setup() -> void:
 		m * (width * width + 1.0) / 12.0 * 1.2)
 	# collision: a floor box over the wheelbase, raised nose/tail boxes (approach/departure angles,
 	# so overhangs don't scrape in loops or on ramps) and a cabin. All above the contact patches.
-	# The collision floor sits BODY_LIFT above the visual floor: the suspension can compress ~0.26 m
-	# at its force cap (25-30 g, 260+ km/h into a 20 m loop) and the body box must never reach the
-	# road there, or it catches deck fold edges / gets pushed through (session 4).
-	var y0: float = -_radius + float(g["ground_clearance"]) + 0.07 + BODY_LIFT
+	var y0: float = -_radius + float(g["ground_clearance"]) + 0.07
 	var y_belt: float = y0 + (height - float(g["ground_clearance"])) * 0.5
 	var y1: float = -_radius + height
 	var core_len := _wheelbase + 0.5
