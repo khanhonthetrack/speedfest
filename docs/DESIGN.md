@@ -138,6 +138,10 @@ lie on the road and change grip and rolling drag (TrackSurface `KIND_GRIP` / `KI
 |---|---|---|---|
 | `infield` | **Infield Rush** | Stadium lawn at night | Banked 120° whose inside half is grass (short line, less grip) vs. the asphalt outside (long line, full grip; in rain it has a puddle). A full-width gravel flick. A kicker over a sand trap: carry speed or land in the sand. |
 | `dunes` | **Dune Dash** | Beach at dusk | A sweeper with loose sand on the inside (cut it, heavy drag) or the boardwalk outside. A dune jump with a sand landing. A banked gravel bend. A clifftop straight with grass verges into the finish jump. |
+| `rooftop` | **Rooftop Rush** (session 6, ~14 s) | Neon city, rain | Never touch the street: helipad start, drop jump onto the next roof, straight THROUGH a tower (cp inside), a facade wall ride, then the "cable": an open ledge and a grind rail strung across to the finish roof. |
+| `cliff` | **Cliff Hanger** (session 6, ~15 s) | Coast at dusk | Two downhill sweepers with sand on the inside half (short line, bogs you down) vs. asphalt outside (wet in rain), a cliff wall ride over the sea, a red super boost into the bay jump with the finish on the far headland. |
+| `twister` | **Twister** (session 6, ~14 s) | Stadium | Banked 90 with a grass cut, then two loops that drift opposite ways with a left-side-only turbo between them (line up for it on the loop exit), out onto a kicker through the finish. |
+| `pipes` | **Pipe Dream** (session 6, ~18 s) | Stadium | Three banked half-pipe 180s that swap direction: the low line is short but gravel, the high line clean asphalt, and each exit's side turbo sits on the high side. |
 
 Weather stacks with the ground (wet gravel is the worst). Rain and storm add puddles on the asphalt lines.
 

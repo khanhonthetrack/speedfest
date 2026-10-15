@@ -14,6 +14,11 @@ const RANGES := {
 	"dunes": {"len": [300.0, 700.0], "cps": [1, 3]},
 	# start-ledge jump onto a grind rail (session 5)
 	"rails": {"len": [200.0, 500.0], "cps": [1, 2]},
+	# 10-30 s maps, one idea each (session 6)
+	"rooftop": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"cliff": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"twister": {"len": [500.0, 1000.0], "cps": [2, 3]},
+	"pipes": {"len": [600.0, 1200.0], "cps": [2, 3]},
 }
 
 var hits: Array = []

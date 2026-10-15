@@ -93,8 +93,9 @@ Keep it fun, and clever." Worked on the Pi (it can push and reach CC0 asset site
       no ready-up. Private rooms stay as an option. Done: `server/lib/rotation.js`, LIVE room in
       `lobby.js`, `Net.join_live()`, menu "ONLINE · LIVE" + "PRIVATE ROOM", lobby JUMP IN, results
       "NEXT UP"; server 16/16, live_smoke_test 2 clients PASS, net_smoke PASS
-- [ ] 2. **New maps (10–30 s)**, each built around one clever idea, AutoDriver-finishable, in the
-      rotation and the track select.
+- [x] 2. **New maps (10–30 s)**, each built around one clever idea, AutoDriver-finishable, in the
+      rotation and the track select. Done: Rooftop Rush, Cliff Hanger, Twister, Pipe Dream (14–20 s);
+      side boost pads (`"x"`, `"pw"`); track select is a carousel; LIVE playlist has all 10 tracks
 - [ ] 3. **New car types** with clearly different handling (and looks): e.g. an AWD rally hatch that
       rules gravel/grass, a light high-grip kart-like car, a heavy torquey truck.
 - [ ] 4. **Better graphics**: CC0 HDRI skies (Poly Haven) and lighting/post polish on both renderers.

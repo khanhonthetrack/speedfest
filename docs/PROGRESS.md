@@ -458,3 +458,18 @@ date, who (module/agent), what changed, what's next or blocked.
   (2 headless Godot clients: 18 checks PASS; added to check_all); net_smoke 3 clients PASS;
   lobby_fake_test 23/23. nav_test's 2 menu-focus failures predate this (first-run name prompt has
   focus on a fresh profile).
+
+## 2026-10-15 ~15:30 UTC — Session 6 (Pi), M6-2 DONE: four new 10–30 s maps
+
+- **Rooftop Rush** (`rooftop`, city, rain): roof drop jump → through a tower (cp) → facade wall ride
+  → open ledge onto a grind "cable" across to the finish roof. **Cliff Hanger** (`cliff`, coast):
+  downhill sweepers with sand on the inside half, cliff wall ride, super boost bay jump through
+  the finish. **Twister** (`twister`, arena): grass-cut banked 90, two loops drifting opposite ways
+  with a left-only turbo between them, kicker through the finish. **Pipe Dream** (`pipes`, arena):
+  three banked half-pipe 180s, gravel low line vs. clean high line, side turbos on the high side.
+- Builder: boost pads take optional `"x"`/`"pw"` (side pads). TrackDefs: 10 tracks (targets
+  14/15/14/18 s). Track select: horizontal carousel (follows focus, wheel scrolls). LIVE playlist:
+  all 10 (150–180 s rounds for the new ones).
+- Checks: test_tracks all 10 tracks 203/203; test_rail 33/33; AutoDriver (race.tscn --autodrive):
+  rooftop 14.0 s, cliff 15.2 s, twister 14.2 s, pipes 19.6 s, 0 respawns each; server 16/16.
+  Screenshots (compat) of each map look right.

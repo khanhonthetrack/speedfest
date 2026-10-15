@@ -12,6 +12,10 @@ const PLAYLIST = [
   { track: 'infield', duration_s: 120, weathers: ['dry', 'rain'] },
   { track: 'dunes', duration_s: 120, weathers: ['dry'] },
   { track: 'rails', duration_s: 90, weathers: ['dry', 'rain'] },
+  { track: 'rooftop', duration_s: 180, weathers: ['rain', 'dry', 'storm'] },
+  { track: 'cliff', duration_s: 180, weathers: ['dry', 'rain'] },
+  { track: 'twister', duration_s: 150, weathers: ['dry', 'rain'] },
+  { track: 'pipes', duration_s: 150, weathers: ['dry', 'rain', 'storm'] },
 ];
 
 const ALT_WEATHER_CHANCE = 0.25;

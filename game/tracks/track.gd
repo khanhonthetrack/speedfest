@@ -371,13 +371,16 @@ func _build_boost_pads() -> void:
 		var len: float = b["len"]
 		var mid := path.sample_transform(d0 + len * 0.5)
 		var pw := minf(path.width_at(d0) - 4.0, 9.0)
+		if float(b.get("pw", 0.0)) > 0.0:
+			pw = float(b["pw"])
+		var px := float(b.get("x", 0.0))   # side pads: a line choice (session 6)
 		var acc := TrackBuilder.Acc.new()
 		var ds := TrackBuilder.ring_ds(d0, d0 + len, 1.0)
 		var frames: Array[Transform3D] = []
 		var prof: Array = []
 		for dd in ds:
 			var f := path.sample_transform(dd)
-			frames.append(Transform3D(f.basis, f.origin + f.basis.y * 0.03))
+			frames.append(Transform3D(f.basis, f.origin + f.basis.y * 0.03 + f.basis.x * px))
 			prof.append(PackedVector2Array([Vector2(-pw * 0.5, 0), Vector2(pw * 0.5, 0)]))
 		var dsl := PackedFloat32Array()
 		for dd in ds:
@@ -400,7 +403,7 @@ func _build_boost_pads() -> void:
 		area.collision_layer = TrackBuilder.LAYER_TRIGGER
 		area.collision_mask = TrackBuilder.MASK_CAR
 		area.monitorable = false
-		area.transform = mid
+		area.transform = Transform3D(mid.basis, mid.origin + mid.basis.x * px)
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = Vector3(pw, 3.0, len)

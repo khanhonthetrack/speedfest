@@ -1,6 +1,7 @@
 extends Control
-## Solo track select: one card per track (art, name, theme, blurb, target time, your PB). Six cards
-## fit a 1280-wide screen; short maps (target under 15 s) are tagged SPRINT, the rest STUNT RUN.
+## Solo track select: one card per track (art, name, theme, blurb, target time, your PB) in a
+## horizontal carousel that follows focus (mouse wheel scrolls it); short maps (target under 15 s)
+## are tagged SPRINT, the rest STUNT RUN.
 ## Enter/click starts Game.start_solo(id). Esc goes back to the main menu.
 
 const THEME_NAMES := {"city": "NIGHT CITY", "arena": "STADIUM", "coast": "COAST"}
@@ -67,10 +68,30 @@ func _build() -> void:
 	top.add_child(carbox)
 	col.add_child(top)
 
+	# a carousel: the row scrolls with the focused card (10+ tracks since session 6)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.follow_focus = true
+	scroll.gui_input.connect(func(e: InputEvent) -> void:
+		var mb := e as InputEventMouseButton
+		if mb and mb.pressed and mb.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			scroll.scroll_horizontal += 160 if mb.button_index == MOUSE_BUTTON_WHEEL_DOWN else -160
+			scroll.accept_event())
+	col.add_child(scroll)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	col.add_child(row)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# room for the focused card's 3% grow and glow
+	var pad := MarginContainer.new()
+	pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for side in ["left", "right", "top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 10)
+	pad.add_child(row)
+	scroll.add_child(pad)
 	for id in TrackDefs.IDS:
 		var c := _card(id)
 		row.add_child(c)
@@ -112,9 +133,8 @@ func _card(id: String) -> Button:
 	var th := String(d["theme"])
 	var accent: Color = THEME_COLORS.get(th, UITheme.CYAN)
 	var b := Button.new()
-	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.focus_mode = Control.FOCUS_ALL
-	b.custom_minimum_size = Vector2(166, 420)
+	b.custom_minimum_size = Vector2(214, 410)
 	var normal := UITheme.panel_style(Color(UITheme.PANEL, 0.92), Color(accent, 0.35), 2, 0.0)
 	var hot := UITheme.panel_style(Color(UITheme.PANEL_LIGHT, 0.96), accent, 3, 0.0)
 	hot.shadow_color = Color(accent, 0.35)

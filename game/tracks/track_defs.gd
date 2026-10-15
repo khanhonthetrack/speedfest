@@ -3,8 +3,9 @@ extends RefCounted
 ## Static metadata for the tracks. Layouts live in res://tracks/defs/<id>.gd.
 ## infield / dunes: ~10 s sprints that use grass, gravel and sand (owner, session 4).
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
+## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "infield", "dunes", "rails"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails"]
 
 const DEFS := {
 	"downtown": {
@@ -50,6 +51,42 @@ const DEFS := {
 		"circuit": false,
 		"blurb": "10-second beach sprint: a sand short cut, a dune jump, a gravel hairpin and grass on the clifftop.",
 		"target_s": 11,
+		"weather": "dry",
+	},
+	"rooftop": {
+		"name": "Rooftop Rush",
+		"short": "Rooftops",
+		"theme": "city",
+		"circuit": false,
+		"blurb": "Never touch the street: roof jump, through a tower, a facade wall ride, then grind the cable to the finish roof.",
+		"target_s": 14,
+		"weather": "rain",
+	},
+	"cliff": {
+		"name": "Cliff Hanger",
+		"short": "Cliff",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Downhill sweepers with sand on the inside, a cliff wall ride, then the super boost bay jump.",
+		"target_s": 15,
+		"weather": "dry",
+	},
+	"twister": {
+		"name": "Twister",
+		"short": "Twister",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Two loops that twist opposite ways, a side turbo between them, out onto the finish jump.",
+		"target_s": 14,
+		"weather": "dry",
+	},
+	"pipes": {
+		"name": "Pipe Dream",
+		"short": "Pipes",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Three banked half-pipes: low and gravelly or high and fast. The side turbos reward the high line.",
+		"target_s": 18,
 		"weather": "dry",
 	},
 	"rails": {

@@ -50,7 +50,8 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
   (magenta + checker banner + label), each with an `Area3D` (layer 3 = value 4, mask 2)
   spanning the road plus the barriers, 8 m high, 4 m deep. Checkered line on the road.
 - **Boost pads**: `Area3D` + scrolling chevron shader (`shaders/track_boost.gdshader`);
-  calls `car.apply_boost(forward, accel, duration)` for `Car` bodies.
+  calls `car.apply_boost(forward, accel, duration)` for `Car` bodies. Optional `"x"` (lateral
+  offset, + right) and `"pw"` (pad width) make side pads, a line choice (session 6: Twister, Pipe Dream).
 - Then `SceneryKit.build_environment(theme)` and `SceneryKit.build_props(theme, path, seed)`.
 
 ## Layouts (M3 rework: Trackmania-style, 2026-10-15)
@@ -228,3 +229,12 @@ Area3D is unchanged (40 m tall, so cars flying over still count). View: `tests/t
   bang along the gravel bend's wall in dry (2 fails), so gravel stays at 0.62.
 - Infield's road stays 22 m wide from the gravel flick to the kicker (a 22→18 taper there caught
   cars sliding off the gravel).
+
+## Session 6 maps (10–30 s, one idea each)
+
+`defs/rooftop.gd` (Rooftop Rush, city), `defs/cliff.gd` (Cliff Hanger, coast), `defs/twister.gd`
+(Twister, arena), `defs/pipes.gd` (Pipe Dream, arena). AutoDriver on the Pi: rooftop 14.0 s,
+cliff 15.2 s, twister 14.2 s, pipes 19.6 s, all 0 respawns; test_tracks all PASS. Rooftop's cable
+gap is 7 m with the rail dropping 3 m over 55 m (a 6 m gap into a steeper rail broke the 4.5°/m
+surface-twist limit).
+

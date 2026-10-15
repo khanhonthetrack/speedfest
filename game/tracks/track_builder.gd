@@ -12,7 +12,8 @@ extends RefCounted
 ##   {"hermite": [Vector3 end, yaw_deg], "len_scale": 1.0}  smooth connector to a pose
 ##   {"close": true}                     circuits: smooth connector back to the start pose
 ## Markers (zero length): {"cp": true}, {"start": true}, {"finish": true},
-##   {"boost": 10} (pad length), {"zone": "tunnel", "on": true/false}, {"walls": "both"|"left"|"right"|"none"},
+##   {"boost": 10} (pad length; optional "x" lateral offset m (+ right), "pw" pad width m, "super": true),
+##   {"zone": "tunnel", "on": true/false}, {"walls": "both"|"left"|"right"|"none"},
 ##   {"puddle": 14, "w": 7, "x": -4, "at": 0, "storm": false} (weather puddle, see res://weather/weather.gd)
 ##   {"surface": "grass"|"gravel"|"sand", "len": 60, "x0": -9, "x1": 2, "at": 0} (ground patch on the
 ##     road from at..at+len, lateral x0..x1 m (+ right); grip and drag in res://weather/track_surface.gd)
@@ -103,7 +104,8 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		if s.has("boost"):
 			var sup: bool = s.get("super", false)
 			boosts.append({"d": d0, "len": float(s["boost"]), "super": sup,
-				"accel": float(s.get("accel", 26.0 if sup else 20.0)), "dur": float(s.get("dur", 1.6 if sup else 1.3))})
+				"accel": float(s.get("accel", 26.0 if sup else 20.0)), "dur": float(s.get("dur", 1.6 if sup else 1.3)),
+				"x": float(s.get("x", 0.0)), "pw": float(s.get("pw", 0.0))})
 			zones.append({"from": d0 - 2.0, "to": d0 + float(s["boost"]) + 2.0, "kind": "boost"})
 			continue
 		if s.has("puddle"):
