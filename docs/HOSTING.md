@@ -73,8 +73,8 @@ Good to know:
 1. Everyone opens the URL, enters a name, and optionally tunes a car in the **Garage**.
 2. **Online** → one player creates a room (the host). The others join it from the list or by its
    4-letter code.
-3. The host picks the track and the round length, and presses **Start**. Everyone gets a
-   3-2-1-GO countdown.
+3. The host picks the track, the round length and the **weather** (Dry / Rain / Storm: in the rain,
+   puddles cut grip), and presses **Start**. Everyone gets a 3-2-1-GO countdown.
 4. Drive as many runs as you like before the timer runs out. Your best time counts.
    Backspace/R respawns at the last checkpoint, Delete/Enter restarts the run, and Tab shows
    the leaderboard.
