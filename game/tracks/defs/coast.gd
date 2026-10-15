@@ -1,0 +1,53 @@
+extends RefCounted
+## Sunset Coast: dusk point-to-point sprint (~3 km) along a cliffside highway. The sea is on
+## the right (east). Fast sweepers, elevation, a long bridge over a bay and a rock tunnel.
+
+
+func layout() -> Dictionary:
+	return {
+		"width": 14.0,
+		"circuit": false,
+		"start_pos": Vector3(0, 34, 0),
+		"start_yaw": 0.0,
+		"walls": "both",
+		"wall_style": "guardrail",
+		"ground": "terrain",
+		"kill_y": -3.0,
+		"ground_y": 0.0,
+		"wet": false,
+		"segments": [
+			{"s": 30}, {"start": true}, {"s": 170, "dy": -4.0},
+			{"t": -35, "r": 220, "bank": 6, "dy": -6.0},
+			{"t": 55, "r": 200, "bank": 7, "dy": -3.0},
+			{"cp": true},
+			{"s": 140, "dy": 6.0},
+			{"t": -45, "r": 180, "bank": 7},
+			{"s": 100, "dy": -8.0},
+			{"t": 40, "r": 170, "bank": 7, "dy": -5.0},
+			{"cp": true},
+			{"s": 40},
+			{"zone": "bridge", "on": true},
+			{"s": 340},
+			{"zone": "bridge", "on": false},
+			{"cp": true},
+			{"s": 30},
+			{"t": -40, "r": 200, "bank": 6, "dy": 8.0},
+			{"zone": "tunnel", "on": true},
+			{"s": 110},
+			{"t": -30, "r": 260, "bank": 4},
+			{"s": 70},
+			{"zone": "tunnel", "on": false},
+			{"cp": true},
+			{"t": 50, "r": 190, "bank": 7, "dy": -10.0},
+			{"s": 180, "dy": -4.0},
+			{"t": -45, "r": 170, "bank": 7, "dy": -2.0},
+			{"s": 60},
+			{"cp": true},
+			{"t": 40, "r": 210, "bank": 6},
+			{"s": 80},
+			{"t": -25, "r": 260, "bank": 4},
+			{"s": 140},
+			{"finish": true},
+			{"s": 120},
+		],
+	}
