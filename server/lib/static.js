@@ -141,7 +141,7 @@ class StaticFiles {
     for (const abs of files) {
       try {
         const st = await fsp.stat(abs);
-        const entry = this._entry(abs, st);
+        const entry = this._entry(await fsp.realpath(abs), st);
         await entry.ready;
       } catch (err) {
         warn(`warm ${abs}: ${err.message}`);
@@ -245,7 +245,15 @@ class StaticFiles {
       return send(404, 'Not Found');
     }
 
-    const entry = this._entry(abs, st);
+    // Key the cache on the on-disk path: on case-insensitive hosts (Windows/macOS) /INDEX.wasm and
+    // /index.wasm are the same file and must share one cached copy (the .wasm is ~35 MB).
+    let real;
+    try {
+      real = await fsp.realpath(abs);
+    } catch {
+      return send(404, 'Not Found');
+    }
+    const entry = this._entry(real, st);
     if (entry.raw === null && st.size <= MAX_CACHED_BYTES) {
       // First request for this file version: wait for the raw bytes (compression may finish later).
       await Promise.race([entry.ready, new Promise((resolve) => setTimeout(resolve, 150))]);
