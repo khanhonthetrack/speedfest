@@ -344,3 +344,25 @@ The stock `_tilt_at` smoothsteps inside every segment, which makes dense tilt po
 5. **Audio**: `EngineAudio.set_params(car.get_rpm_ratio(), car.controls.throttle, abs(speed),
    car.get_drift_amount(), car.is_nitro_active(), car.is_grounded())`. `landed` gives the thud
    strength. `get_wheelspin()` is a good extra squeal input.
+
+## Handling feel pass (integrator, 2026-10-15, owner feedback)
+Owner: *"the car handling is weird. Sometimes when i hit the barriers i flip out. i can't drift by
+using back and left/right arrow at the same time. Jumping physics looks very fake"*
+- **Barrier hits never flip the car.** While a side contact is active (+0.35 s), the velocity into
+  the wall is removed (tiny bounce) and the roll/pitch rate is cut to 15% (`WALL_SPIN_KEEP`). The yaw
+  rate is capped (`WALL_YAW_MAX`), and any upward "pop" from the hit is cancelled. Barrier collision tops
+  now slope down toward the road (track_builder), so a car landing on one slides back onto the
+  track instead of resting on an invisible ledge.
+- **Brake drift:** brake + steer above ~50 km/h (keyboard: Down + Left/Right) breaks the rear loose
+  (`BRAKE_DRIFT_REAR_GRIP`). The brakes keep only 30% of their force while sliding, and the slide
+  carries on throttle via the drift assist. Bots (AutoDriver) switch it off with `brake_drift_enabled`;
+  the keyboard-emulation test keeps it on (`emulate_player`).
+- **Jumps:**
+  - Air steering is a nudge (0.3 rad/s), not a spin.
+  - +35% gravity while airborne (`AIR_GRAVITY_EXTRA`) makes arcs punchier and less floaty.
+  - The nose partly follows the flight path, then lines up with the landing surface (downward probe),
+    so landings are wheels-first.
+  - Touchdown absorb is 0.45 (was 0.7), so the suspension visibly squashes.
+- Test: `tests/physics/test_feel.tscn` covers 3 cars × wall hits at 150/250 km/h and 12/25/45°,
+  with and without steering away, plus brake drift and air spin (84 checks). `tests/physics/jump_view.tscn`
+  gives side-view frames and a per-frame trace of a real track jump (`--trace_from/--trace_to`).

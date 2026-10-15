@@ -116,7 +116,9 @@ func _s_wall(s: Dictionary, car: Car) -> void:
 				_phase(s, "drive")
 		"drive":
 			_ctl(car, 1.0, 0.0, 0.0)
-			if s["hit"] < 0 and car.global_position.x > 1110 - 0.5 - 1.1:
+			# the car deflects off the wall (barrier contacts remove the push into it), so its
+			# center stays ~1.3-1.6 m from the wall face at a 15 deg hit
+			if s["hit"] < 0 and (s["hits"] > 0 or car.global_position.x > 1110 - 0.5 - 2.0):
 				s["hit"] = s["t"]
 			if s["hit"] >= 0 and s["t"] - s["hit"] >= 60:
 				var v := car.linear_velocity.length() * 3.6

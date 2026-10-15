@@ -888,8 +888,10 @@ static func _build_wall_run(path: TrackPath, ds: PackedFloat32Array, side: float
 			_:
 				p = PackedVector2Array([Vector2(o, -0.3), Vector2(o, 0.1), Vector2(o + 0.16, 0.32), Vector2(o + 0.26, 1.0), Vector2(o + 0.44, 1.0), Vector2(o + 0.54, 0.32), Vector2(o + 0.7, 0.1), Vector2(o + 0.7, -0.3)])
 				s = PackedVector2Array([Vector2(o + 0.255, 0.9), Vector2(o + 0.262, 0.97)])
-		# collision is taller than the visual barrier so fast cars can't climb over it
-		var c := PackedVector2Array([Vector2(o, -0.6), Vector2(o, WALL_COLLISION_H), Vector2(o + 0.6, WALL_COLLISION_H), Vector2(o + 0.6, -0.6)])
+		# collision is taller than the visual barrier so fast cars can't climb over it. Its top
+		# slopes DOWN toward the road, so a car landing on it slides back onto the track instead
+		# of resting on an invisible ledge.
+		var c := PackedVector2Array([Vector2(o, -0.6), Vector2(o, WALL_COLLISION_H), Vector2(o + 0.6, WALL_COLLISION_H + 0.9), Vector2(o + 0.6, -0.6)])
 		if side < 0:
 			p = mirror_profile(p)
 			c = mirror_profile(c)

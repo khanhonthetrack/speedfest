@@ -177,3 +177,18 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
   rendered as grey boxes (now soft round puffs), and the PB ghost filled the screen when right
   behind the camera (now fades within ~12 m).
 
+### User (verbatim)
+
+> the car handling is weird. Sometimes when i hit the barriers i flip out. i can't drift by using back and left/right arrow at the same time. Jumping physics looks very fake
+
+### Claude
+
+- Reproduced it with a new test (`tests/physics/test_feel`). The muscle car hitting a wall at
+  45° / 250 km/h tilted 38° and popped 1.1 m up. Brake + steer slid only 8–20°. Air steering spun the car
+  32°/s. Jumps were real-gravity floaty arcs with the nose staying level. A car landing off-center
+  could rest on top of the invisible 2.6 m barrier collision.
+- Fixed in car.gd / track_builder.gd (details: docs/modules/physics.md "Handling feel pass"):
+  wall contacts deflect without roll/pop, brake drift for players, subtle air steering, +35% air
+  gravity, nose follows the arc and lines up with the landing, softer landing absorb, and barrier
+  collision tops that slope back toward the road.
+

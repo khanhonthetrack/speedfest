@@ -47,6 +47,7 @@ func _ready() -> void:
 		# emulate a keyboard player: the bot's wishes become digital key presses that go through
 		# CarInput's steering ramp (tests that keyboard steering can take every corner)
 		keyboard = true
+		ai.emulate_player = true
 		var emu := Node.new()
 		emu.set_script(KeyEmu)
 		emu.set("car", car)

@@ -25,14 +25,24 @@ const BUMP_MULT := 6.0                  # bump-stop stiffness relative to the sp
 const BUMP_DAMP := 1.0                   # extra compression damping inside the bump-stop zone (x damper)
 const LAND_REBOUND_TIME := 0.35          # after a touchdown, cap the rebound speed for this long
 const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
-const LAND_ABSORB := 0.7                 # fraction of the touchdown speed into the ground removed
+const LAND_ABSORB := 0.45                # fraction of the touchdown speed into the ground removed (rest: suspension squash)
 const MAX_WHEEL_G := 28.0                # cap on a single wheel's suspension force (in corner weights)
 const STICK_ACCEL := 13.0                # extra road-normal pull on steep/inverted road at speed
 const STICK_STEEP := 0.6                 # 1 - normal.y where the stick force is at full strength
 const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 per rad)
 const AIR_DAMP := 1.6                    # air pitch/roll rate damping (1/s)
-const AIR_STEER := 2.5                   # air yaw response (1/s)
-const AIR_YAW_RATE := 1.0                # max air yaw rate from steering (rad/s)
+const AIR_PITCH_FOLLOW := 5.0            # nose follows the flight path (rad/s^2 per rad): dips into landings
+const AIR_GRAVITY_EXTRA := 0.35          # extra gravity while airborne (punchier, less floaty arcs)
+const AIR_STEER := 1.5                   # air yaw response (1/s)
+const AIR_YAW_RATE := 0.3                # max air yaw rate from steering (rad/s): a nudge, not a spin
+## Brake drift (Trackmania / NFS style): brake + steer at speed breaks the rear loose. The brakes
+## mostly stop scrubbing speed while it slides, and the drift assist carries the slide on throttle.
+const BRAKE_DRIFT_MIN_SPEED := 14.0      # m/s (~50 km/h)
+const BRAKE_DRIFT_REAR_GRIP := 0.55      # rear lateral grip factor at full brake drift
+const BRAKE_DRIFT_BRAKE := 0.3           # fraction of the braking force kept while brake-drifting
+## Barrier hits: keep the car on its wheels. Side contacts can't add roll/pitch spin or pop the car up.
+const WALL_SPIN_KEEP := 0.15             # fraction of the roll/pitch rate kept on a wall contact
+const WALL_YAW_MAX := 2.2                # rad/s yaw-rate cap right after a wall hit
 const BOOST_MAX_ACCEL := 60.0            # apply_boost clamps (m/s^2, s)
 const BOOST_MAX_TIME := 4.0
 const BOOST_FADE_FROM := 100.0           # boost fades from 360 km/h ...
@@ -76,6 +86,7 @@ var _hit_n: Array[Vector3] = [Vector3.UP, Vector3.UP, Vector3.UP, Vector3.UP]
 var _spin := PackedFloat32Array([0, 0, 0, 0])
 var _spin_vel := PackedFloat32Array([0, 0, 0, 0])
 var _queries: Array[PhysicsRayQueryParameters3D] = []
+var _land_q := PhysicsRayQueryParameters3D.new()
 
 var _gear := 1
 var _shift_timer := 0.0
@@ -94,6 +105,10 @@ var _air_time := 0.0
 var _upside_time := 0.0
 var _righting := 0.0
 var _hb_blend := 0.0
+## Brake + steer at speed starts a drift (players). Bots switch it off (AutoDriver).
+var brake_drift_enabled := true
+var _bd_blend := 0.0                     # brake-drift amount 0..1
+var _wall_timer := 0.0
 var _reversing := false
 var _braking := false
 var _fwd_speed := 0.0
@@ -210,6 +225,9 @@ func _ready() -> void:
 		_setup()
 	for q in _queries:
 		q.exclude = [get_rid()]
+	_land_q.collision_mask = 1
+	_land_q.collide_with_areas = false
+	_land_q.exclude = [get_rid()]
 
 
 # --- public API -----------------------------------------------------------------------------
@@ -368,6 +386,8 @@ func _reset_dynamics(v: Vector3) -> void:
 	_slip_angle = 0.0
 	_air_time = 0.0
 	_upside_time = 0.0
+	_bd_blend = 0.0
+	_wall_timer = 0.0
 	_land_timer = 0.0
 	_righting = 0.0
 	_hb_blend = 0.0
@@ -501,7 +521,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	# --- steering ---
 	var v_abs := absf(_fwd_speed)
 	var max_angle := max_steer_at(v_abs)
-	if handbrake or _drift > 0.3:
+	if handbrake or _drift > 0.3 or _bd_blend > 0.5:
 		max_angle = lerpf(max_angle, float(params["steer_max"]), 0.75)
 	var target_angle := steer_in * max_angle
 	var rate := 5.0 * float(params["steer_speed"])
@@ -551,10 +571,19 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_hb_blend = move_toward(_hb_blend, 1.0, dt / 0.08)
 	else:
 		_hb_blend = move_toward(_hb_blend, 0.0, dt / 0.45)
+	# --- brake drift: brake + steer at speed (keyboard: Down + Left/Right) ---
+	var bd_want := brake_drift_enabled and brake > 0.5 and absf(steer_in) > 0.35 and _fwd_speed > BRAKE_DRIFT_MIN_SPEED \
+		and not _reversing and not frozen_controls and _grounded >= 3
+	if bd_want:
+		_bd_blend = move_toward(_bd_blend, 1.0, dt / 0.12)
+	elif _drift > 0.25 and throttle > 0.3:
+		_bd_blend = move_toward(_bd_blend, 0.0, dt / 0.9)   # keep the slide alive on the throttle
+	else:
+		_bd_blend = move_toward(_bd_blend, 0.0, dt / 0.35)
 
 	# --- drift intent: handbrake, or heavy throttle (RWD power oversteer). Without intent the
 	# rear's sliding grip rises above the front's so a slide straightens itself out.
-	var intent_t := _hb_blend
+	var intent_t := maxf(_hb_blend, _bd_blend * 0.85)
 	if not drive_awd_flag():
 		intent_t = maxf(intent_t, clampf((throttle - 0.55) * 2.5, 0.0, 1.0) * clampf(_drift * 2.0, 0.0, 1.0))
 	else:
@@ -631,7 +660,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			f_long = signf(f_long) * drive_cap
 		var bf := 0.0
 		if brake_in > 0.0:
-			bf += brake_in * float(params["brake_decel"]) * m * (nload / maxf(total_load, 1.0))
+			bf += brake_in * float(params["brake_decel"]) * m * (nload / maxf(total_load, 1.0)) \
+				* lerpf(1.0, BRAKE_DRIFT_BRAKE, _bd_blend)
 		if handbrake and not front:
 			bf += 0.55 * CarPhysicsDefs.GRAVITY * cm * 2.0
 		if throttle < 0.05 and not _reversing and not frozen_controls:
@@ -650,6 +680,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			mu *= float(params["rear_grip_bias"])
 			slide = lerpf(minf(float(params["front_slide"]) + 0.14, 1.0), float(params["rear_slide"]), _intent)
 			mu *= lerpf(1.0, 0.42, _hb_blend)
+			mu *= lerpf(1.0, BRAKE_DRIFT_REAR_GRIP, _bd_blend)
 			mu *= 1.0 + spin_assist * 0.6
 			if _drift > 0.2 and throttle > 0.3 and not handbrake:
 				mu *= lerpf(1.0, 0.92, float(params["drift_assist"]) * _drift)
@@ -762,12 +793,25 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 				state.apply_torque(up.cross(up_t.normalized()) * AIR_LEVEL * inertia.z)
 			if speed > 8.0:
 				var vdir := lv / speed
-				var pitch_v := clampf(asin(clampf(vdir.y, -1.0, 1.0)), deg_to_rad(-30.0), deg_to_rad(25.0))
+				# the nose partly follows the flight path; close to the ground it lines up with the
+				# landing surface instead (downward probe), so landings are wheels-first, not nose-first
+				var pitch_v := clampf(asin(clampf(vdir.y, -1.0, 1.0)) * 0.6, deg_to_rad(-18.0), deg_to_rad(15.0))
 				var hz := Vector3(fwd.x, 0.0, fwd.z)
 				if hz.length_squared() > 1e-4:
 					hz = hz.normalized()
 					var f_t := (hz * cos(pitch_v) + Vector3.UP * sin(pitch_v)).normalized()
-					state.apply_torque(fwd.cross(f_t) * AIR_LEVEL * 0.7 * inertia.x)
+					_land_q.from = com
+					_land_q.to = com + Vector3.DOWN * 9.0
+					var lh := space.intersect_ray(_land_q)
+					if not lh.is_empty():
+						var ln: Vector3 = lh["normal"]
+						if ln.dot(Vector3.UP) > 0.5:
+							var on_plane := (hz - ln * hz.dot(ln)).normalized()
+							var near := clampf(1.0 - (com.distance_to(lh["position"]) - 1.5) / 6.0, 0.0, 1.0)
+							f_t = f_t.lerp(on_plane, near).normalized()
+					state.apply_torque(fwd.cross(f_t) * AIR_PITCH_FOLLOW * inertia.x)
+		if _air_time > 0.1:
+			state.apply_central_force(Vector3.DOWN * m * CarPhysicsDefs.GRAVITY * AIR_GRAVITY_EXTRA)
 		# light air steering: drive the yaw rate toward steer * AIR_YAW_RATE (also damps spins)
 		var yaw_rate := av.dot(up)
 		state.apply_torque(up * (steer_in * AIR_YAW_RATE - yaw_rate) * AIR_STEER * inertia.y)
@@ -819,6 +863,38 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			if axis.length_squared() < 1e-4:
 				axis = fwd
 			state.apply_torque(axis.normalized() * inertia.z * 12.0 - av * inertia.z * 4.0)
+
+	# --- barrier contacts: deflect along the wall, never roll/flip or pop up (arcade) ---
+	_wall_timer = maxf(_wall_timer - dt, 0.0)
+	if state.get_contact_count() > 0 and up.dot(Vector3.UP) > 0.2:
+		var ref_up := _ground_n if _grounded >= 2 else up
+		var wall := false
+		var lv_w := state.linear_velocity
+		for ci in state.get_contact_count():
+			var cn := state.get_contact_local_normal(ci)
+			if absf(cn.dot(ref_up)) > 0.6:
+				continue    # floor / ramp under the body: not a wall
+			var to_car := xf.origin - state.get_contact_local_position(ci)
+			if cn.dot(to_car) < 0.0:
+				cn = -cn
+			cn = (cn - ref_up * cn.dot(ref_up)).normalized()
+			var vn := lv_w.dot(cn)
+			if vn < 0.0:
+				lv_w -= cn * vn * 1.05   # remove the push into the wall (tiny bounce)
+			wall = true
+		if wall:
+			_wall_timer = 0.35
+			state.linear_velocity = lv_w
+	if _wall_timer > 0.0:
+		var ref := _ground_n if _grounded >= 2 else Vector3.UP
+		var av_w := state.angular_velocity
+		var yaw := ref * clampf(av_w.dot(ref), -WALL_YAW_MAX, WALL_YAW_MAX)
+		state.angular_velocity = yaw + (av_w - ref * av_w.dot(ref)) * WALL_SPIN_KEEP
+		# the hit must not throw the car upward (off a platform)
+		var lvv := state.linear_velocity
+		var rise := lvv.dot(ref) - _prev_vel.dot(ref)
+		if rise > 0.3 and _grounded > 0:
+			state.linear_velocity = lvv - ref * (rise - 0.3)
 
 	# --- wall hits ---
 	var lost := (_prev_vel - lv).length()

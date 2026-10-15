@@ -20,6 +20,8 @@ var use_nitro := true
 var lateral_offset := 0.0
 ## Fraction of the car's lateral grip the bot plans with (lower = more careful).
 var grip_margin := 0.72
+## True when a test feeds the bot's wishes through CarInput like a keyboard player (keeps brake drift on).
+var emulate_player := false
 var brake_accel := 9.0
 var stuck_timeout := 5.0
 ## Called (no arguments) instead of the built-in reset when the bot is stuck. Race can respawn.
@@ -74,6 +76,8 @@ func _wrap(d: float) -> float:
 
 func _physics_process(dt: float) -> void:
 	var car := get_parent() as Car
+	if car != null and car.brake_drift_enabled and not emulate_player:
+		car.brake_drift_enabled = false   # the bot brakes while steering; it must not drift by accident
 	if car == null or path == null:
 		return
 	if not enabled:
