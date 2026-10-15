@@ -13,7 +13,8 @@ docs/modules/weather.md). The web build in `server/public` is re-exported from t
 - Online: `game/tests/race/online_round_test.sh 3 40 --autodrive --track=downtown --weather=storm` PASS.
 - Lobby host picks track + length + **weather** (picking a track selects its signature weather;
   downtown = rain). Solo: AUTO/DRY/RAIN/STORM chips on the track select. PBs are per (track, weather).
-- `main` is still the bootstrap only. Ask the owner before merging `ccr-49301774-b5a4ns` into `main`.
+- **`main` now has everything** (owner asked, ~08:10 UTC; fast-forwarded from `ccr-49301774-b5a4ns`).
+  Work on `main` from here (or a branch merged back into it). Deploy from `main`.
 
 **Open items (priority order):**
 1. Keyboard-emulation falls (5/18 runs need 1–2 respawns). They're mostly at wall-ride exits and

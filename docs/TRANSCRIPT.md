@@ -130,3 +130,12 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
   are per weather. Verified in a real browser (WebGL2): an online round in the rain on Neon Downtown.
   Design rationale and the per-stage puddle list: DESIGN §4.1.
 
+### User (verbatim, ~08:10 UTC)
+
+> Can you push to main?
+
+### Claude
+
+- `main` was an ancestor of `ccr-49301774-b5a4ns`, so `main` was fast-forwarded to it (no merge
+  commit). HANDOFF and HOSTING now point to `main`.
+

@@ -48,7 +48,7 @@ Free, with HTTPS and WebSockets. The repo has a `render.yaml` blueprint, so ther
 1. Go to **render.com** → **Get Started** → sign up with **GitHub**. Allow Render to see the
    `khanhonthetrack/speedfest` repo, or all repos.
 2. Dashboard → **New +** → **Web Service** → pick `speedfest`, then fill in:
-   - **Branch:** `ccr-49301774-b5a4ns` (the integrated game; use `main` once it's merged there)
+   - **Branch:** `main` (the integrated game)
    - **Root Directory:** `server`
    - **Language / Runtime:** Node
    - **Build Command:** `npm install --omit=dev`
