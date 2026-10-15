@@ -379,3 +379,25 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - Stopped the research workflow; no report had finished. Wrote the handoff (HANDOFF.md "Latest
   ~21:40 UTC") with the M7 state, how to resume (the saved workflow script), research access notes
   and the pending Pi deploy.
+
+## Session 8 — 2026-10-15 (~21:45 UTC; orchestrating session on the owner's Raspberry Pi)
+
+### User (verbatim)
+
+> i want to deploy the newest version. so run  cd ~/speedfest && git pull && docker restart speedfest
+
+> Act like an experienced ful lstack game developer. Look at the newest state of the repo. Learn about handoff and new goals to achieve. Feel free to download the data (and commit) you may find useful.
+
+> Didnt you read this part?
+> (followed by the session-7 "unplayable" message quoted verbatim above: PC + RTX + no lag, Trackmania physics, barriers, wall rides, rails not magnetic, 30+ high-quality maps)
+
+### Claude
+
+- Deployed `main` on the Pi (server restarted on ce4dc66's export: interiors, driver, 16 liveries).
+- Missed the newest commits at first (interiors were already done in session 7); the duplicate
+  cabin attempt was parked on a local branch, not pushed to `main`.
+- Now on M7 in the owner's priority order. Gameplay first because it is what makes it
+  "unplayable" and it can be tested headless here: Trackmania-feel handling, barriers, wall
+  rides/loops, non-magnetic rails. Then PC: smoothness (physics interpolation, frame pacing),
+  Forward+ graphics presets, Windows/Linux builds served from the website, the optional RTX path.
+  Then new track pieces and 30+ maps. Research notes go to docs/research/ as they're written.
