@@ -53,11 +53,12 @@ func _physics_process(_delta: float) -> void:
 
 func _report() -> void:
 	print("RESULT input %s" % rec)
-	TestHooks.check(rec["ramp_6"] > 0.3 and rec["ramp_6"] < 0.8, "input_ramp_low_speed", str(rec["ramp_6"]))
+	# M7 (Trackmania feel): one quick ramp at every speed; the car limits the angle by grip
+	TestHooks.check(rec["ramp_6"] >= 0.9, "input_ramp_low_speed", str(rec["ramp_6"]))
 	TestHooks.check(absf(rec["full_low"] - 1.0) < 0.01, "input_full_lock_low_speed", str(rec["full_low"]))
 	TestHooks.check(rec["center_6"] < 0.35, "input_self_centers", str(rec["center_6"]))
 	TestHooks.check(rec["counter_6"] < 0.0, "input_fast_countersteer", str(rec["counter_6"]))
-	TestHooks.check(rec["ramp_6_fast"] < rec["ramp_6"], "input_slower_ramp_at_speed", "%.2f vs %.2f" % [rec["ramp_6_fast"], rec["ramp_6"]])
-	TestHooks.check(rec["full_fast"] < 0.9, "input_smaller_lock_at_speed", str(rec["full_fast"]))
+	TestHooks.check(rec["ramp_6_fast"] >= 0.9, "input_quick_ramp_at_speed", "%.2f" % rec["ramp_6_fast"])
+	TestHooks.check(rec["full_fast"] > 0.99, "input_full_lock_at_speed", str(rec["full_fast"]))
 	TestHooks.check(float(car.controls["steer"]) == inp.steer_value, "input_writes_controls")
 	TestHooks.finish()

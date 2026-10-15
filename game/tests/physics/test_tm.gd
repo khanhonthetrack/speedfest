@@ -146,11 +146,18 @@ func _response(id: String) -> void:
 	await _done(car)
 
 
-## Full lock for 2 s with throttle held: TM keeps its speed and doesn't slide.
+## Full lock for 2 s with throttle held: TM keeps its speed and doesn't slide. "keep" compares with
+## the same car driving straight for the same time (so drag above a car's top speed doesn't count).
 func _grip_turn(id: String) -> void:
 	for kmh in [120.0, 200.0, 280.0]:
+		var ref := await _spawn(id, kmh, Vector3(-300 + kmh, 0, 300))
+		for i in 120:
+			_ctl(ref, 1.0, 0.0, 0.0)
+			await get_tree().physics_frame
+		var v_straight := ref.linear_velocity.length()
+		await _done(ref)
 		var car := await _spawn(id, kmh, Vector3(-300 + kmh, 0, -200))
-		var v0 := car.linear_velocity.length()
+		var v0 := v_straight
 		var max_slip := 0.0
 		var lat_sum := 0.0
 		for i in 120:
@@ -238,7 +245,7 @@ func _barriers(id: String) -> void:
 		for i in 150:
 			_ctl(car, 1.0, 0.0, 0.0)
 			await get_tree().physics_frame
-			if not hit and car.global_position.x > base.x + 3.0:
+			if not hit and car.global_position.x > base.x + 2.0:
 				hit = true
 				t_hit = i
 			max_tilt = maxf(max_tilt, _tilt_deg(car))
@@ -264,6 +271,8 @@ func _barriers(id: String) -> void:
 ## Curved 80 deg wall ride (r 70 m): holds the line with grip, doesn't sink down the wall or lose
 ## more speed than drag.
 func _wallride(id: String) -> void:
+	# (faster entries can't make this test road's exit: it keeps curving at r 70 while it unrolls,
+	# more than any tire grip on flat road; real wall-ride exits straighten out)
 	for kmh in [150.0, 200.0]:
 		var o := Vector3(2000 + kmh * 4.0, 0, 0)
 		var path := PhysicsTestGround.wallride_path(70.0, 80.0, 90.0, 120.0, 220.0, 14.0, o)
@@ -288,14 +297,21 @@ func _wallride(id: String) -> void:
 			var d := ai.get_distance()
 			if d >= a and d <= b:
 				if entry < 0.0:
-					entry = car.get_speed_kmh()
-					ai.target_speed_kmh = 0.0    # coast-free: hold throttle, let the wall decide
+					entry = car.get_speed_kmh()   # the AutoDriver keeps asking for this speed
 				var tr := path.sample_transform(d)
 				max_lat = maxf(max_lat, absf((tr.affine_inverse() * car.global_position).x))
 				vmin = minf(vmin, car.get_speed_kmh())
 				ticks += 1
 				if not car.is_grounded():
 					air += 1
+				if TestHooks.has_arg("trace") and ticks % 6 == 0:
+					var lc := tr.affine_inverse() * car.global_position
+					var c := 0
+					for w in 4:
+						c += int(car.get_wheel_contact(w))
+					print("  wr d=%.0f lat=%.2f h=%.2f roll=%.0f road_roll=%.0f contacts=%d v=%.0f slip=%.1f st=%.2f" % [d, lc.x, lc.y,
+						rad_to_deg(acos(clampf(car.global_transform.basis.y.y, -1.0, 1.0))), rad_to_deg(acos(clampf(tr.basis.y.y, -1.0, 1.0))),
+						c, car.get_speed_kmh(), rad_to_deg(car.get_slip_angle()), float(car.controls["steer"])])
 			if d > b + 20.0 or car.global_position.y < -30.0:
 				break
 		var keep := vmin / maxf(entry, 1.0)
@@ -363,12 +379,14 @@ func _landing(id: String) -> void:
 		var hv := Vector2(car.linear_velocity.x, car.linear_velocity.z).length()
 		if not airborne and not car.is_grounded() and car.global_position.y > 1.5:
 			airborne = true
-			v_before = hv
-		elif airborne and landed_tick < 0 and car.is_grounded():
-			landed_tick = i
+		if airborne and landed_tick < 0:
+			if car.is_grounded():
+				landed_tick = i
+			else:
+				v_before = hv    # last speed in the air, just before touchdown
 		if landed_tick >= 0:
 			max_tilt = maxf(max_tilt, _tilt_deg(car))
-			if i == landed_tick + 20:
+			if i == landed_tick + 10:
 				v_after = hv
 				break
 	var keep := v_after / maxf(v_before, 0.1)

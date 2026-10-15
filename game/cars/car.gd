@@ -3,11 +3,13 @@ extends RigidBody3D
 ## Arcade raycast vehicle (Jolt, 60 Hz). API fixed by docs/ARCHITECTURE.md "Car".
 ##
 ## Four suspension rays (mask 1) at CarDefs.wheel_positions(); spring + damper + bump stop +
-## anti-roll per axle. Tires: slip-angle lateral grip with a breakaway curve, friction circle,
-## drive/brake/handbrake, rolling resistance. Engine: constant-power model with a torque-curve
-## shape (Tuning.drive_force), 6 gears + reverse, automatic gearbox. Aero downforce, a "stick"
-## force along the road normal on steep/inverted road (loops), air auto-levelling, anti-flip and
-## self-righting. All forces are applied in _integrate_forces.
+## anti-roll per axle. Handling (M7, Trackmania feel; docs/research/m7_physics.md): the steering
+## sets the yaw rate directly (capped by grip: no spins, no understeer), lateral grip cancels
+## sideways velocity in the road plane up to grip * load (the same rule on banks, wall rides and
+## loops: the springs' load includes cornering and downforce), a brake-tap/handbrake drift mode
+## where the steering sets the slide angle. Engine: constant-power model with a torque-curve
+## shape (Tuning.drive_force), 6 gears + reverse, automatic gearbox. Aero downforce, air
+## auto-levelling, anti-flip and self-righting. All forces are applied in _integrate_forces.
 ## See docs/modules/physics.md for the model and tuning knobs.
 
 signal landed(impact_speed: float)       # vertical speed (m/s) when touching down after > 0.25 s air
@@ -25,10 +27,10 @@ const BUMP_MULT := 6.0                  # bump-stop stiffness relative to the sp
 const BUMP_DAMP := 1.0                   # extra compression damping inside the bump-stop zone (x damper)
 const LAND_REBOUND_TIME := 0.35          # after a touchdown, cap the rebound speed for this long
 const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
+const GROUND_STICK_MAX := 0.6           # m/s away from the road while >= 2 wheels touch it (TM: glued;
+                                         # a road that twists or crests can't pop the car off; jump lips still launch)
 const LAND_ABSORB := 0.45                # fraction of the touchdown speed into the ground removed (rest: suspension squash)
 const MAX_WHEEL_G := 28.0                # cap on a single wheel's suspension force (in corner weights)
-const STICK_ACCEL := 13.0                # extra road-normal pull on steep/inverted road at speed
-const STICK_STEEP := 0.6                 # 1 - normal.y where the stick force is at full strength
 const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 per rad)
 const AIR_DAMP := 1.6                    # air pitch/roll rate damping (1/s)
 const AIR_PITCH_FOLLOW := 5.0            # nose follows the flight path (rad/s^2 per rad): dips into landings
@@ -38,31 +40,42 @@ const AIR_YAW_RATE := 0.3                # max air yaw rate from steering (rad/s
 ## Grass/gravel/sand rolling drag fades in with speed (full above this, 15% at a standstill), so a
 ## car that stops in a sand trap can still crawl out; at racing speed it bogs down as designed.
 const LOOSE_DRAG_FULL_SPEED := 15.0      # m/s (~54 km/h)
-## Brake drift (Trackmania / NFS style): brake + steer at speed breaks the rear loose. The brakes
-## mostly stop scrubbing speed while it slides, and the drift assist carries the slide on throttle.
-const BRAKE_DRIFT_MIN_SPEED := 14.0      # m/s (~50 km/h)
-const BRAKE_DRIFT_REAR_GRIP := 0.55      # rear lateral grip factor at full brake drift
-const BRAKE_DRIFT_BRAKE := 0.3           # fraction of the braking force kept while brake-drifting
+## Trackmania-feel handling (M7, docs/research/m7_physics.md): the steering sets the yaw rate,
+## lateral grip cancels sideways velocity in the road plane up to GRIP_SCALE * grip * load.
+const STEER_TAU := 0.04                  # steering smoothing (s, / steer_speed): ~0.09 s to 90%
+const YAW_TAU := 0.05                    # yaw-rate controller time constant (s)
+const GRIP_SCALE := 1.15                 # lateral grip = grip * GRIP_SCALE * suspension load
+const LAT_GAIN := 0.5                    # fraction of sideways velocity removed per tick (within grip)
+const TRACTION_SCALE := 1.0
+const RWD_TRACTION_SHARE := 0.75         # drive force cap share of the load for RWD (AWD: 1.0)
+const COAST_DECEL := 0.9                 # m/s^2 engine braking when off the throttle
+## Drift: brake tap / handbrake + steer above DRIFT_MIN_SPEED. The steering then sets the slide
+## angle (DRIFT_SLIP_MIN..MAX deg), lateral grip drops to the car's drift grip.
+const DRIFT_MIN_SPEED := 16.0            # m/s (~58 km/h)
+const DRIFT_ENTER := 0.08                # s
+const DRIFT_EXIT := 0.3                  # s for grip to come back
+const DRIFT_BRAKE_KEEP := 0.2            # fraction of the brake force kept while drifting
+const DRIFT_SLIP_MIN := 12.0
+const DRIFT_SLIP_MAX := 28.0
+const DRIFT_SLIP_GAIN := 6.0             # 1/s: how hard the body chases the slide angle
 ## Barrier hits: keep the car on its wheels. Side contacts can't add roll/pitch spin or pop the car up.
 const WALL_SPIN_KEEP := 0.15             # fraction of the roll/pitch rate kept on a wall contact
-const WALL_YAW_MAX := 2.2                # rad/s yaw-rate cap right after a wall hit
+const WALL_YAW_MAX := 2.6                # rad/s yaw-rate cap right after a wall hit
+## Barriers (M7, owner: "super annoying"): a glancing hit turns the nose along the wall and keeps
+## going; only the speed into the wall is lost, plus a little friction and a small bounce.
+const WALL_BOUNCE := 0.12                # fraction of the impact speed bounced back (capped 1.5 m/s)
+const WALL_FRICTION := 0.12              # speed lost along the wall per m/s of impact speed
+const WALL_ALIGN_TIME := 0.15            # s to turn the nose along the wall
 const BOOST_MAX_ACCEL := 60.0            # apply_boost clamps (m/s^2, s)
 const BOOST_MAX_TIME := 4.0
 const BOOST_FADE_FROM := 100.0           # boost fades from 360 km/h ...
 const BOOST_SPEED_CAP := 116.0           # ... to zero at ~420 km/h
 const MAX_SPEED := 125.0                 # hard cap, 450 km/h
-const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
-const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
-## Stability assist (easy handling, owner session 4): damps the tail stepping out on its own (slip
-## angle growing past ~2.5 deg), unless the player asks for a drift.
-const STAB_YAW := 4.0                    # rad/s^2 per rad/s of slip-angle growth (x params.yaw_damp)
-const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
 const BODY_FRICTION := 0.0
 const ROOF_DRAG := 9.0                   # m/s^2 deceleration while sliding on the roof or side
-const ROLL_DAMP := 2.5                   # roll-rate damping relative to the road's twist (1/s)
+const ROLL_DAMP := 8.0                   # roll-rate damping relative to the road's twist (1/s)
 const TWIST_SMOOTH := 0.05               # smoothing time of the measured road twist rate (s)
-const ROAD_ALIGN := 6.0                  # gentle torque aligning the car with the road normal (twists, wall rides)
-const FRICTION_CIRCLE := 0.5            # how much longitudinal force eats lateral grip (0..1)
+const ROAD_ALIGN := 14.0                  # gentle torque aligning the car with the road normal (twists, wall rides)
 
 var config: Dictionary = {}
 var visual: CarVisual
@@ -112,8 +125,12 @@ var _righting := 0.0
 var _hb_blend := 0.0
 ## Brake + steer at speed starts a drift (players). Bots switch it off (AutoDriver).
 var brake_drift_enabled := true
-var _bd_blend := 0.0                     # brake-drift amount 0..1
+var _bd_blend := 0.0                     # drift amount 0..1 (= _drift_mode, kept for callers)
+var _drift_mode := 0.0                   # 0 grip .. 1 drifting
+var _drift_dir := 0.0                    # +1 drifting right, -1 left
 var _wall_timer := 0.0
+var _wall_align_w := 0.0                 # yaw rate (about the ground normal) that lines the nose up with the wall
+var _wall_align_t := 0.0
 var _takeoff_up_y := 1.0                 # world-up component of the last ground normal (jump vs wall ride)
 var _prev_slip := 0.0                    # last tick's body slip angle (stability assist)
 var _prev_slip_ok := false
@@ -384,8 +401,8 @@ func max_steer_at(v: float) -> float:
 	if v < 4.0:
 		return smax
 	var m: float = params["mass"]
-	var a_lat := float(params["grip"]) * CarPhysicsDefs.GRAVITY * (1.0 + float(params["downforce"]) * v * v / (m * CarPhysicsDefs.GRAVITY))
-	var ang := atan(_wheelbase * a_lat / (v * v)) + float(params["slip_peak"]) * 1.1
+	var a_lat := float(params["grip"]) * GRIP_SCALE * CarPhysicsDefs.GRAVITY * (1.0 + float(params["downforce"]) * v * v / (m * CarPhysicsDefs.GRAVITY))
+	var ang := atan(_wheelbase * a_lat / (v * v))
 	return clampf(ang, deg_to_rad(4.0), smax)
 
 
@@ -413,7 +430,10 @@ func _reset_dynamics(v: Vector3) -> void:
 	_air_time = 0.0
 	_upside_time = 0.0
 	_bd_blend = 0.0
+	_drift_mode = 0.0
+	_drift_dir = 0.0
 	_wall_timer = 0.0
+	_wall_align_t = 0.0
 	_takeoff_up_y = 1.0
 	_prev_slip = 0.0
 	_prev_slip_ok = false
@@ -517,6 +537,20 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 				lv -= _ground_n * (vn2 - LAND_REBOUND_MAX)
 				state.linear_velocity = lv
 
+	# wheels on the road: the car can't spring away from it faster than GROUND_STICK_MAX
+	# (a redirect, not a brake: the speed is kept, only its direction follows the road; the
+	# triangle normals step every meter, so a plain clamp would bleed speed on every step)
+	# measured along the car's own up axis: smooth (the body is rigid), and equal to the road normal
+	# while the wheels are on it
+	if _grounded >= 2:
+		var vn_g := lv.dot(up)
+		if vn_g > GROUND_STICK_MAX:
+			var sp0 := lv.length()
+			lv -= up * (vn_g - GROUND_STICK_MAX)
+			if lv.length_squared() > 1e-4:
+				lv = lv.normalized() * sp0
+			state.linear_velocity = lv
+
 	# suspension forces (+ anti-roll)
 	var force := _force
 	for i in 4:
@@ -556,14 +590,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		total_load += f
 		state.apply_force(up * f, _hit_pos[i] - xf.origin)
 
-	# --- steering ---
+	# --- steering: direct, one quick smoothing step; the angle limit follows the grip so full
+	# lock sits just inside it (no understeer). A drift opens the lock up. ---
 	var v_abs := absf(_fwd_speed)
 	var max_angle := max_steer_at(v_abs)
-	if handbrake or _drift > 0.3 or _bd_blend > 0.5:
-		max_angle = lerpf(max_angle, float(params["steer_max"]), 0.75)
+	if _drift_mode > 0.3:
+		max_angle = lerpf(max_angle, float(params["steer_max"]), 0.6)
 	var target_angle := steer_in * max_angle
-	var rate := 5.0 * float(params["steer_speed"])
-	_steer_angle = move_toward(_steer_angle, target_angle, rate * dt)
+	_steer_angle = lerpf(_steer_angle, target_angle, 1.0 - exp(-dt * float(params["steer_speed"]) / STEER_TAU))
 
 	# --- gearbox / engine ---
 	_shift_timer = maxf(_shift_timer - dt, 0.0)
@@ -604,208 +638,141 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			drive_total = 0.0
 	_braking = (brake_in > 0.1 and absf(_fwd_speed) > 0.5) or (handbrake and v_abs > 1.0)
 
-	# --- handbrake blend ---
+	# --- handbrake blend (visual wheel lock, drift trigger) ---
 	if handbrake:
 		_hb_blend = move_toward(_hb_blend, 1.0, dt / 0.08)
 	else:
-		_hb_blend = move_toward(_hb_blend, 0.0, dt / 0.45)
-	# --- brake drift: brake + steer at speed (keyboard: Down + Left/Right) ---
-	var bd_want := brake_drift_enabled and brake > 0.5 and absf(steer_in) > 0.35 and _fwd_speed > BRAKE_DRIFT_MIN_SPEED \
-		and not _reversing and not frozen_controls and _grounded >= 3
-	if bd_want:
-		_bd_blend = move_toward(_bd_blend, 1.0, dt / 0.12)
-	elif _drift > 0.25 and throttle > 0.3:
-		_bd_blend = move_toward(_bd_blend, 0.0, dt / 0.9)   # keep the slide alive on the throttle
+		_hb_blend = move_toward(_hb_blend, 0.0, dt / 0.3)
+
+	# --- drift (Trackmania style): a brake tap or the handbrake while steering at speed breaks the
+	# car loose; the slide lasts while you keep steering into it and ends when the wheel is centred
+	# (or turned the other way), grip coming back over DRIFT_EXIT seconds ---
+	var drift_go := brake_drift_enabled and (brake > 0.5 or handbrake) and absf(steer_in) > 0.3 \
+		and v_abs > DRIFT_MIN_SPEED and not _reversing and not frozen_controls and _grounded >= 3
+	if drift_go:
+		_drift_dir = signf(steer_in)
+		_drift_mode = move_toward(_drift_mode, 1.0, dt / DRIFT_ENTER)
+	elif _drift_mode > 0.0 and steer_in * _drift_dir > 0.2 and v_abs > DRIFT_MIN_SPEED * 0.6 and _grounded >= 2:
+		pass   # holding the slide
 	else:
-		_bd_blend = move_toward(_bd_blend, 0.0, dt / 0.35)
+		_drift_mode = move_toward(_drift_mode, 0.0, dt / DRIFT_EXIT)
+	_bd_blend = _drift_mode
+	_intent = _drift_mode
+	# a brake tap that starts a drift shouldn't also kill the speed
+	brake_in *= lerpf(1.0, DRIFT_BRAKE_KEEP, _drift_mode)
 
-	# --- drift intent: handbrake or brake-drift (the player asks for it), plus a mild per-car
-	# power-oversteer once a slide is well under way. Without intent the rear's sliding grip rises
-	# above the front's so a slide straightens itself out. (Easy handling, owner session 4: a full
-	# throttle keyboard player used to turn every 7 deg slide into a snap drift.)
-	var intent_t := maxf(_hb_blend, _bd_blend * 0.85)
-	var pov: float = params.get("power_oversteer", 0.0)
-	if pov > 0.0:
-		intent_t = maxf(intent_t, clampf((throttle - 0.55) * 2.5, 0.0, 1.0) * clampf((_drift - 0.35) * 2.0, 0.0, 1.0) * pov)
-	_intent = move_toward(_intent, intent_t, dt * (6.0 if intent_t > _intent else 1.5))
-
-	# --- body slip angle / drift ---
-	var lv_g := lv - _ground_n * lv.dot(_ground_n)
+	# --- ground frame: the road plane under the car (works on banks, walls and loops alike) ---
+	var gn := _ground_n
+	var f_g := (fwd - gn * fwd.dot(gn))
+	f_g = f_g.normalized() if f_g.length_squared() > 1e-6 else fwd
+	var r_g := f_g.cross(gn)
+	var lv_g := lv - gn * lv.dot(gn)
+	var v_long := lv_g.dot(f_g)
+	var v_lat := lv_g.dot(r_g)
 	var slip := 0.0
-	if _grounded >= 2 and lv_g.length() > 6.0:
-		var fwd_g := (fwd - _ground_n * fwd.dot(_ground_n)).normalized()
-		var right_g := fwd_g.cross(_ground_n)
-		slip = atan2(lv_g.dot(right_g), absf(lv_g.dot(fwd_g)))
+	if _grounded >= 2 and lv_g.length() > 3.0:
+		slip = atan2(v_lat, absf(v_long))
 	_slip_angle = slip
-	var drift_target := 0.0
-	if _grounded >= 2 and speed > 8.0:
-		drift_target = clampf((absf(slip) - deg_to_rad(7.0)) / deg_to_rad(22.0), 0.0, 1.0)
-	_drift = move_toward(_drift, drift_target, dt * 4.0)
+	_drift = move_toward(_drift, clampf((absf(slip) - deg_to_rad(6.0)) / deg_to_rad(18.0), 0.0, 1.0), dt * 4.0)
 
-	# --- tires ---
-	var drive_awd := String(params["drive"]) == "awd"
-	var driven_n := 0
-	for i in 4:
-		if _contact[i] and (i >= 2 or drive_awd):
-			driven_n += 1
-	var grip: float = params["grip"]
-	var grip_long: float = params["grip_long"]
-	var traction: float = params["traction"]
-	var peak: float = params["slip_peak"]
-	var spin_assist := clampf((absf(slip) - deg_to_rad(50.0)) / deg_to_rad(30.0), 0.0, 1.0)
-	var scrub := 0.0
-	var spin_total := 0.0
+	# --- surface: weather (wet asphalt, puddles) and ground kind, averaged over the wheels down ---
+	var sgrip := 0.0
+	var sdrag := 0.0
 	var water_sum := 0.0
+	var touching := 0
 	for i in 4:
 		_water[i] = 0.0
 		_ground[i] = 0
 		if not _contact[i]:
 			continue
-		var front := i < 2
-		var n := _hit_n[i]
-		var wf := fwd
-		if front:
-			wf = fwd.rotated(up, -_steer_angle)
-		wf = (wf - n * wf.dot(n)).normalized()
-		var ws := wf.cross(n)
-		var rel := _hit_pos[i] - com
-		var vp := lv + av.cross(rel)
-		var v_long := vp.dot(wf)
-		var v_lat := vp.dot(ws)
-		var nload := _load[i]
-		var cm := _corner_mass[i]
-		# weather: wet asphalt + puddles (aquaplaning) scale every tire force at this wheel
-		var sgrip := 1.0
+		touching += 1
+		var wg := 1.0
 		if surface != null:
 			var water := surface.water_at(_hit_pos[i])
 			_water[i] = water
 			water_sum += water
-			sgrip = surface.grip_for_water(water)
-			# grass / gravel / sand (session 4): less grip, more rolling drag
+			wg = surface.grip_for_water(water)
+			sdrag += surface.drag_for_water(water)
 			if not surface.patches.is_empty():
 				_ground[i] = surface.kind_at(_hit_pos[i])
-				sgrip *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, _loose_grip)
-		# longitudinal
-		var f_long := 0.0
-		if i >= 2 or drive_awd:
-			if driven_n > 0:
-				var share := 1.0 / driven_n
-				if drive_awd:
-					var fronts := int(_contact[0]) + int(_contact[1])
-					var rears := int(_contact[2]) + int(_contact[3])
-					if fronts > 0 and rears > 0:
-						share = (0.4 / fronts) if front else (0.6 / rears)
-				f_long += drive_total * share
-		var long_cap := grip_long * nload * sgrip
-		var drive_cap := traction * nload * lerpf(1.0, sgrip, 0.8)
-		var spin_excess := 0.0
-		if absf(f_long) > drive_cap:
-			spin_excess = (absf(f_long) - drive_cap) / maxf(drive_cap, 1.0)
-			f_long = signf(f_long) * drive_cap
-		var bf := 0.0
-		if brake_in > 0.0:
-			bf += brake_in * float(params["brake_decel"]) * m * (nload / maxf(total_load, 1.0)) \
-				* lerpf(1.0, BRAKE_DRIFT_BRAKE, _bd_blend)
-		if handbrake and not front:
-			bf += 0.55 * CarPhysicsDefs.GRAVITY * cm * 2.0
-		if throttle < 0.05 and not _reversing and not frozen_controls:
-			bf += 0.9 * cm  # engine braking / coast drag
-		if bf > 0.0:
-			bf = minf(minf(bf, long_cap), absf(v_long) * cm / dt * 0.8)
-			f_long -= signf(v_long) * bf
-		if _water[i] > 0.0:
-			# water drag: a puddle scrubs a little speed
-			var wd := minf(surface.drag_for_water(_water[i]) * cm, absf(v_long) * cm / dt * 0.5)
-			f_long -= signf(v_long) * wd
-		if _ground[i] > 0:
-			var fade := clampf(absf(v_long) / LOOSE_DRAG_FULL_SPEED, 0.15, 1.0)
-			var gd := minf(TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * fade * cm, absf(v_long) * cm / dt * 0.5)
-			f_long -= signf(v_long) * gd
-		# lateral (slip-angle curve)
-		var mu := grip
-		var slide: float = params["front_slide"]
-		if not front:
-			mu *= float(params["rear_grip_bias"])
-			slide = lerpf(minf(float(params["front_slide"]) + 0.14, 1.0), float(params["rear_slide"]), _intent)
-			mu *= lerpf(1.0, 0.42, _hb_blend)
-			mu *= lerpf(1.0, BRAKE_DRIFT_REAR_GRIP, _bd_blend)
-			mu *= 1.0 + spin_assist * 0.6
-			if _drift > 0.2 and throttle > 0.3 and not handbrake:
-				mu *= lerpf(1.0, 0.92, float(params["drift_assist"]) * _drift)
-		mu *= sgrip
-		var alpha := atan2(v_lat, maxf(absf(v_long), 2.5))
-		var s := absf(alpha) / peak
-		var ratio := s if s < 1.0 else lerpf(1.0, slide, clampf((s - 1.0) / 2.5, 0.0, 1.0))
-		var lat_cap := mu * nload
-		var lr := f_long / maxf(long_cap, 1.0)
-		lat_cap *= sqrt(maxf(1.0 - FRICTION_CIRCLE * lr * lr, 0.05))
-		var f_lat := -signf(v_lat) * ratio * lat_cap
-		var cancel := absf(v_lat) * cm / dt * 0.9
-		if absf(f_lat) > cancel:
-			f_lat = signf(f_lat) * cancel
-		if s > 1.0:
-			scrub += absf(f_lat) * (1.0 - 1.0 / s)
-		var app := _hit_pos[i] + up * (_radius * 0.75) - xf.origin
-		state.apply_force(wf * f_long + ws * f_lat, app)
-		# wheel spin for visuals
-		var sv := v_long / _radius
-		if handbrake and not front:
-			sv = 0.0
-		elif spin_excess > 0.0:
-			sv += signf(f_long) * minf(spin_excess, 2.0) * 25.0
-		_spin_vel[i] = sv
-		spin_total += clampf(spin_excess, 0.0, 1.0) + clampf(s - 1.0, 0.0, 2.0) * 0.5
-	_wheelspin = move_toward(_wheelspin, clampf(spin_total / 4.0, 0.0, 1.0), dt * 5.0)
+				wg *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, _loose_grip)
+				if _ground[i] > 0:
+					var fade := clampf(v_abs / LOOSE_DRAG_FULL_SPEED, 0.15, 1.0)
+					sdrag += TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * fade
+		sgrip += wg
 	_water_avg = water_sum / 4.0
+	sgrip = sgrip / float(touching) if touching > 0 else 1.0
+	sdrag = sdrag / 4.0
+
+	var spin_total := 0.0
+	if _grounded >= 2:
+		var share := float(_grounded) / 4.0
+		# --- longitudinal: engine, brakes, coast, surface drag, all along the road ---
+		var drive_awd := String(params["drive"]) == "awd"
+		var drive_cap := float(params["traction"]) * TRACTION_SCALE * total_load * (1.0 if drive_awd else RWD_TRACTION_SHARE) \
+			* lerpf(1.0, sgrip, 0.8)
+		var f_long := drive_total
+		if absf(f_long) > drive_cap:
+			spin_total += clampf((absf(f_long) - drive_cap) / maxf(drive_cap, 1.0), 0.0, 1.0)
+			f_long = signf(f_long) * drive_cap
+		var bf := brake_in * float(params["brake_decel"]) * m * share
+		if handbrake:
+			bf += 0.35 * CarPhysicsDefs.GRAVITY * m * share
+		if throttle < 0.05 and not _reversing and not frozen_controls:
+			bf += COAST_DECEL * m * share
+		bf += sdrag * m
+		bf = minf(bf, absf(v_long) * m / dt * 0.8)
+		f_long -= signf(v_long) * bf
+		state.apply_central_force(f_g * f_long)
+
+		# --- lateral: cancel sideways velocity in the road plane, up to the grip limit. The force
+		# is perpendicular to the heading, so grip turns cost almost no speed. The load comes from the
+		# springs, so it includes gravity into the road, cornering (wall rides, loops) and downforce.
+		var mu := float(params["grip"]) * GRIP_SCALE * sgrip
+		var drift_grip := clampf(float(params["rear_slide"]) * 0.8, 0.42, 0.7)
+		var lat_cap := mu * total_load * lerpf(1.0, drift_grip, _drift_mode)
+		var f_req := -v_lat * m / dt * LAT_GAIN
+		var f_lat := clampf(f_req, -lat_cap, lat_cap)
+		state.apply_central_force(r_g * f_lat)
+		var sliding := 1.0 - absf(f_lat) / maxf(absf(f_req), 1.0)
+		spin_total += clampf(sliding * 2.0, 0.0, 1.0) * clampf(absf(v_lat) / 4.0, 0.0, 1.0)
+
+		# --- yaw: the steering sets the turn rate directly (v * tan(angle) / wheelbase). On grip it
+		# is capped at what the tires can follow, so the car never rotates away from its velocity
+		# (no spins, no understeer). In a drift the steering sets the slide angle instead.
+		var yaw := av.dot(gn)
+		var w_cap := (lat_cap / m) / maxf(v_abs, 1.0)
+		var w_des := -v_long * tan(_steer_angle) / _wheelbase
+		w_des = clampf(w_des, -w_cap * 1.02, w_cap * 1.02)
+		if _drift_mode > 0.0 and v_abs > 5.0:
+			# slide angle target: 28 deg with the wheel held into the turn, 12 deg when eased,
+			# 4 deg on counter-steer; the body turns at the velocity's rate plus a slip correction
+			var into := steer_in * _drift_dir
+			var target_slip := _drift_dir * deg_to_rad(lerpf(DRIFT_SLIP_MIN, DRIFT_SLIP_MAX, clampf(into, 0.0, 1.0)) if into >= 0.0 else 4.0)
+			var w_vel := -(f_lat / m) / maxf(v_abs, 1.0) * signf(v_long)
+			# slip > 0: velocity right of the nose; more slip to the right = nose turns left (+yaw)
+			var w_drift := w_vel - (target_slip - (-slip)) * DRIFT_SLIP_GAIN * float(params.get("drift_assist", 1.0))
+			w_des = lerpf(w_des, w_drift, _drift_mode)
+		if _wall_align_t > 0.0:
+			# nose into a barrier: turn it along the wall (steering away harder still wins)
+			if not (signf(w_des) == signf(_wall_align_w) and absf(w_des) > absf(_wall_align_w)):
+				w_des = _wall_align_w
+		var torque := (w_des - yaw) / YAW_TAU * inertia.y
+		state.apply_torque(gn * torque)
+	_wheelspin = move_toward(_wheelspin, clampf(spin_total, 0.0, 1.0), dt * 5.0)
+
+	# wheel spin for visuals
 	for i in 4:
-		if not _contact[i]:
-			if (i >= 2 or drive_awd) and throttle > 0.1:
-				_spin_vel[i] = move_toward(_spin_vel[i], 120.0 * throttle, 200.0 * dt)
-			else:
-				_spin_vel[i] *= 0.995
+		if _contact[i]:
+			var sv := _fwd_speed / _radius
+			if handbrake and i >= 2:
+				sv = 0.0
+			_spin_vel[i] = sv
+		elif throttle > 0.1 and (i >= 2 or String(params["drive"]) == "awd"):
+			_spin_vel[i] = move_toward(_spin_vel[i], 120.0 * throttle, 200.0 * dt)
+		else:
+			_spin_vel[i] *= 0.995
 		_spin[i] = fmod(_spin[i] + _spin_vel[i] * dt, TAU)
-
-	# --- drift speed keeping: give back part of the scrub as forward push ---
-	if _drift > 0.15 and throttle > 0.3 and _grounded >= 3 and lv_g.length() > 8.0:
-		var keep := minf(scrub * DRIFT_SPEED_KEEP * _drift * float(params["drift_assist"]), m * 6.0)
-		state.apply_central_force(lv_g.normalized() * keep)
-
-	# --- drift stabilizer: bound the body slip angle (no endless spins) ---
-	if _grounded >= 2 and lv_g.length() > 6.0 and not _reversing:
-		var fwd_s := (fwd - _ground_n * fwd.dot(_ground_n)).normalized()
-		var right_s := fwd_s.cross(_ground_n)
-		var full := atan2(lv_g.dot(right_s), lv_g.dot(fwd_s))
-		var a := absf(full)
-		var lim := deg_to_rad(DRIFT_MAX_DEG)
-		if a > lim and a < deg_to_rad(150.0):
-			var sgn := signf(full)
-			var yaw := av.dot(up)
-			# slip > 0: velocity right of the nose -> turn the nose right (negative yaw)
-			var t_yaw := -sgn * (a - lim) * DRIFT_STAB * (0.5 if handbrake else 1.0)
-			if yaw * sgn > 0.0:
-				t_yaw -= yaw * 5.0
-			state.apply_torque(up * t_yaw * inertia.y)
-
-	# --- stability assist (easy handling): when the tail steps out on its own (body slip angle
-	# beyond ~2.5 deg and still growing), damp the growth. Never resists turn-in (slip stays small)
-	# or a slide the player asked for. Ordinary road and banked turns only; off on loops, wall rides
-	# and while the car rolls fast with the road (they have their own stability code).
-	var flat := clampf((_ground_n.dot(Vector3.UP) - 0.85) / 0.1, 0.0, 1.0)
-	flat *= clampf(1.0 - (absf(av.dot(fwd)) - 0.3) / 0.4, 0.0, 1.0)
-	var slip_now := _slip_angle
-	if _grounded >= 3 and lv_g.length() > 10.0 and not _reversing and flat > 0.0 and _prev_slip_ok:
-		var slip_rate := clampf((slip_now - _prev_slip) / dt, -3.0, 3.0)
-		var growing := slip_now * slip_rate > 0.0
-		var amount := clampf((absf(slip_now) - deg_to_rad(2.5)) / deg_to_rad(2.5), 0.0, 1.0)
-		if growing and amount > 0.0:
-			# hands-off stability: strongest with the wheel centred, gone at ~2/3 lock, so it never
-			# fights a driver (or the AutoDriver) actively steering
-			var hands_off := clampf(1.0 - absf(steer_in) * 1.5, 0.0, 1.0)
-			var k := STAB_YAW * float(params.get("yaw_damp", 1.0)) * (1.0 - _intent) * amount * flat * hands_off
-			# slip > 0: velocity right of the nose; growing -> turn the nose right (negative yaw)
-			state.apply_torque(_ground_n * (-slip_rate * k * inertia.y))
-	_prev_slip = slip_now
-	_prev_slip_ok = _grounded >= 3 and lv_g.length() > 10.0
 
 	# --- aero, drag, rolling ---
 	if speed > 0.1:
@@ -817,12 +784,6 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.apply_central_force(-fwd_g2 * signf(_fwd_speed) * rr)
 		var df := float(params["downforce"]) * _fwd_speed * _fwd_speed * (float(_grounded) / 4.0)
 		state.apply_central_force(-up * df)
-		# stick: pull along the road normal on steep or inverted road at speed (loops, walls)
-		if _grounded >= 2:
-			var steep := clampf((1.0 - _ground_n.dot(Vector3.UP)) / STICK_STEEP, 0.0, 1.0)
-			var spd := clampf((speed - 12.0) / 15.0, 0.0, 1.0)
-			if steep > 0.0 and spd > 0.0:
-				state.apply_central_force(-_ground_n * m * STICK_ACCEL * steep * spd)
 
 	# --- nitro & boost ---
 	_nitro_active = false
@@ -936,6 +897,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 	# --- barrier contacts: deflect along the wall, never roll/flip or pop up (arcade) ---
 	_wall_timer = maxf(_wall_timer - dt, 0.0)
+	_wall_align_t = maxf(_wall_align_t - dt, 0.0)
 	# (not while self-righting: the tilted body resting on the ground is not a wall hit, and the
 	# anti-spin below would cancel the righting roll and leave the car stuck on its side)
 	if state.get_contact_count() > 0 and up.dot(Vector3.UP) > 0.2 and _righting <= 0.0:
@@ -952,7 +914,19 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			cn = (cn - ref_up * cn.dot(ref_up)).normalized()
 			var vn := lv_w.dot(cn)
 			if vn < 0.0:
-				lv_w -= cn * vn * 1.05   # remove the push into the wall (tiny bounce)
+				# lose the speed into the wall (small bounce) and a little along it
+				var tang := lv_w - cn * vn
+				var ts := tang.length()
+				if ts > 0.01:
+					tang *= maxf(ts - WALL_FRICTION * -vn, 0.0) / ts
+				lv_w = tang + cn * minf(-vn * WALL_BOUNCE, 1.5)
+				# nose pointing into the wall: line it up with the direction of travel along it
+				var f_r := (fwd - ref_up * fwd.dot(ref_up)).normalized()
+				var t_dir := tang - ref_up * tang.dot(ref_up)
+				if f_r.dot(cn) < -0.02 and t_dir.length() > 2.0:
+					var err := f_r.signed_angle_to(t_dir.normalized(), ref_up)
+					_wall_align_w = clampf(err / WALL_ALIGN_TIME, -WALL_YAW_MAX, WALL_YAW_MAX)
+					_wall_align_t = 0.25
 			wall = true
 		if wall:
 			_wall_timer = 0.35

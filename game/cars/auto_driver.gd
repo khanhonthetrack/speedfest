@@ -117,7 +117,7 @@ func _physics_process(dt: float) -> void:
 		var kappa := 2.0 * lx / l2
 		# kinematic angle + the tire slip angle needed for that lateral acceleration (feed-forward)
 		var p := car.params
-		var a_max := float(p["grip"]) * CarPhysicsDefs.GRAVITY * (1.0 + float(p["downforce"]) * speed * speed / (float(p["mass"]) * CarPhysicsDefs.GRAVITY))
+		var a_max := float(p["grip"]) * Car.GRIP_SCALE * CarPhysicsDefs.GRAVITY * (1.0 + float(p["downforce"]) * speed * speed / (float(p["mass"]) * CarPhysicsDefs.GRAVITY))
 		var frac := clampf(speed * speed * kappa / a_max, -1.0, 1.0)
 		var ang := atan(kappa * car.get_wheelbase()) + frac * float(p["slip_peak"])
 		steer = clampf(ang / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
@@ -263,7 +263,7 @@ func _build_profile(car: Car) -> void:
 	var p := car.params
 	var m: float = p["mass"]
 	# wet weather: plan with the wet-asphalt grip (puddles are left to the steering)
-	var mu0 := float(p["grip"]) * grip_margin * (car.surface.grip_for_water(0.0) if car.surface != null else 1.0)
+	var mu0 := float(p["grip"]) * Car.GRIP_SCALE * grip_margin * (car.surface.grip_for_water(0.0) if car.surface != null else 1.0)
 	var g := CarPhysicsDefs.GRAVITY
 	var dfm := float(p["downforce"]) / m
 	for i in n:

@@ -100,7 +100,7 @@ func _report_accel() -> void:
 		var id := cars[i].car_id
 		var st := Tuning.stats(id, tuning_arg)
 		print("RESULT %s 0-100=%.2fs (est %.2f) top=%.1f km/h (est %.1f) nitro_top=%.1f" % [id, t100[i], st["zero_to_100_s"], vmax[i], st["top_speed_kmh"], nitro_vmax[i]])
-		TestHooks.check(t100[i] > 2.2 and t100[i] < 4.2, "zero_to_100_%s" % id, "%.2f s" % t100[i])
+		TestHooks.check(t100[i] > 1.5 and t100[i] < 2.6, "zero_to_100_%s" % id, "%.2f s" % t100[i])   # M7: TM-quick launches
 		if tuning_arg.is_empty():
 			TestHooks.check(vmax[i] > 235.0 and vmax[i] < 330.0, "top_speed_%s" % id, "%.1f km/h" % vmax[i])
 		TestHooks.check(absf(vmax[i] - float(st["top_speed_kmh"])) < 12.0, "top_estimate_%s" % id, "measured %.1f est %.1f" % [vmax[i], st["top_speed_kmh"]])

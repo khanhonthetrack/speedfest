@@ -18,13 +18,14 @@ const G := CarPhysicsDefs.GRAVITY
 ## Normalization ranges for stats (fitted over every car with every slider at -1/0/+1;
 ## see tests/physics/test_tuning.gd which prints the observed ranges).
 const TOP_KMH_RANGE := Vector2(228.0, 330.0)
-const ACCEL_S_RANGE := Vector2(5.65, 4.2)       # slow .. quick (0-100 + 0-200 * ACCEL_200_WEIGHT)
+const ACCEL_S_RANGE := Vector2(4.35, 3.05)       # slow .. quick (0-100 + 0-200 * ACCEL_200_WEIGHT)
 const ACCEL_200_WEIGHT := 0.25
 const SHIFT_LOSS := 0.985                         # average drive loss from shift cuts (fitted)
 const HANDLING_RANGE := Vector2(0.1, 1.9)
 const DRIFT_RANGE := Vector2(-0.45, 1.7)
 const NITRO_RANGE := Vector2(3.5, 12.0)          # m/s^2
 const NITRO_TIME_RANGE := Vector2(2.0, 9.0)      # s
+const POWER_SCALE := 1.35
 
 
 static func _t(tuning: Dictionary, key: String) -> float:
@@ -44,6 +45,9 @@ static func physics_params(car_id: String, tuning: Dictionary) -> Dictionary:
 	var balance := _t(tuning, "balance")
 	var steering := _t(tuning, "steering")
 	var nitro := _t(tuning, "nitro")
+	# M7: more power for Trackmania-style acceleration; drag is calibrated from the same power,
+	# so every car keeps its top speed
+	b["power"] = float(b["power"]) * POWER_SCALE
 	var p := {}
 	p["car"] = car_id
 	p["drive"] = String(CarDefs.get_def(car_id).get("drive", "rwd"))
@@ -131,8 +135,9 @@ static func drag_force(p: Dictionary, v: float) -> float:
 static func traction_limit(p: Dictionary, v: float) -> float:
 	var m: float = p["mass"]
 	var df := float(p["downforce"]) * v * v
-	var share := 1.0 if p["drive"] == "awd" else (1.0 - float(p["weight_front"])) + 0.08
-	return float(p["traction"]) * (m * G + df) * share
+	# same rule as Car (M7): AWD can use the whole load, RWD a fixed share of it
+	var share := 1.0 if p["drive"] == "awd" else Car.RWD_TRACTION_SHARE
+	return float(p["traction"]) * Car.TRACTION_SCALE * (m * G + df) * share
 
 
 # --- estimates ----------------------------------------------------------------------------
