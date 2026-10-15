@@ -1,6 +1,17 @@
 # HANDOFF: start here
 
-## Latest (~19:20 UTC, session 7, cloud session)
+## Latest (~20:45 UTC, session 7, cloud session)
+
+- Owner (TRANSCRIPT session 7): "Put more patterns for cars to choose. Interiors suck, they look
+  weird. Put effort, put a driver inside as well." **Both done and on `main`:** 16 liveries (10
+  new) on a new garage VINYL tab, and real cabins with a driver in all six cars (PROGRESS ~20:20
+  and ~20:50 UTC, docs/modules/visuals.md "Cabin and driver"). `server/public` re-exported with
+  both (menu checked in Chromium, 0 errors). **The Pi still needs** `cd ~/speedfest && git pull &&
+  docker restart speedfest`.
+- Visual checks: `tools/run_scene.sh res://tests/visual/showcase.tscn -- --car=<id>
+  --angle=cabin|cabin_r|cockpit --style=livery:<name> --frames=30 --shot=/abs/x.png`.
+
+## Earlier (~19:20 UTC, session 7)
 
 - Fixed the inverted **air steering** (car.gd, `test_feel` direction checks) and the
   **test_weather** failures on the session-6 maps (PROGRESS ~17:20 UTC).

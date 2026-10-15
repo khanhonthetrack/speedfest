@@ -591,3 +591,5 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   lighter than before, so the cabin reads on the web renderer too.
 - Checked with new showcase angles `cabin`, `cabin_r` and `cockpit` (and `--tint=`) on all six
   cars, both renderers. test_build 56/56 (worst 25,988 tris; budget raised 25k → 28k), draws ≤ 10.
+- `server/public` re-exported (pck 8.76 MB). Chromium main menu: 0 errors, the driver shows
+  through the Kaze's windows. Pi deploy pending: `git pull && docker restart speedfest`.
