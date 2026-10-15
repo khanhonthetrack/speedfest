@@ -57,6 +57,7 @@ var leave_btn: Button
 
 var _room: Dictionary = {}
 var _starting := false
+var _esc_armed_leave := false   # Esc pressed once in the room view: Leave focused, next Esc leaves
 var _list_timer := 0.0
 var _status_timer := 0.0
 var _toast_tween: Tween
@@ -81,10 +82,19 @@ func _ready() -> void:
 
 ## Picks the initial view from the current Net state (we may come back from a race or the garage).
 func _enter() -> void:
+	if not leave_btn.focus_exited.is_connected(_disarm_leave):
+		leave_btn.focus_exited.connect(_disarm_leave)
 	match Net.connection_state():
 		"online":
 			if Net.in_room():
 				_on_room_changed(Net.room)
+				# A round that started while we were on our way back here (e.g. its round_start
+				# arrived during the race scene's exit): join it now instead of waiting for a click.
+				# A round we deliberately quit has round_id == Game.last_round_id and stays manual.
+				var ph := String(Net.room.get("phase", ""))
+				if (ph == "countdown" or ph == "racing") and not Net.current_round.is_empty() \
+						and int(Net.current_round.get("round_id", -1)) != Game.last_round_id:
+					_start_race(Net.current_round)
 			else:
 				show_view(VIEW_BROWSER)
 				Net.list_rooms()
@@ -95,6 +105,10 @@ func _enter() -> void:
 			show_view(VIEW_CONNECT)
 			if not TestHooks.has_arg("lobby_no_autoconnect"):
 				_do_connect()
+
+
+func _disarm_leave() -> void:
+	_esc_armed_leave = false
 
 
 func _process(delta: float) -> void:
@@ -115,12 +129,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	match current_view:
 		VIEW_ROOM:
-			# Leaving a room by accident is annoying: Esc only moves focus to the Leave button.
-			if leave_btn.has_focus():
+			# Leaving a room by accident is annoying: the first Esc only moves focus to the Leave
+			# button; a second Esc leaves. Hovering Leave with the mouse doesn't arm it.
+			if leave_btn.has_focus() and _esc_armed_leave:
 				_on_leave()
 			else:
 				Audio.play_ui("back")
 				leave_btn.grab_focus()
+				_esc_armed_leave = true
 		_:
 			_on_back_to_menu()
 

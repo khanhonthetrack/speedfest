@@ -11,6 +11,7 @@ const SCENE_RACE := "res://race/race.tscn"
 var mode: String = "solo"            # "solo" | "online"
 var track_id: String = "arena"
 var round_info: Dictionary = {}      # Net.round_started payload while online
+var last_round_id: int = -1          # round_id of the last online round this client entered
 var garage_return_scene: String = SCENE_MENU
 
 
@@ -30,6 +31,7 @@ func start_online_round(info: Dictionary) -> void:
 	mode = "online"
 	track_id = String(info.get("track", "arena"))
 	round_info = info
+	last_round_id = int(info.get("round_id", -1))
 	goto(SCENE_RACE)
 
 
@@ -51,6 +53,6 @@ func to_garage(return_to: String = "") -> void:
 
 func leave_garage() -> void:
 	Profile.save()
-	if Net.in_room():
+	if Net.is_online():   # the server keeps it for the next create/join too
 		Net.set_profile(Profile.player_name, Profile.get_config())
 	goto(garage_return_scene)

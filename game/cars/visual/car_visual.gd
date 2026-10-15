@@ -83,6 +83,16 @@ func build(p_car_id: String, p_style: Dictionary) -> void:
 	for c in get_children():
 		remove_child(c)
 		c.queue_free()
+	# The old nodes are freed: forget them so every builder makes fresh ones (a second build()
+	# used to leave the car without wheels, e.g. the PB ghost after a new PB).
+	_body = null
+	_wheels_mm = null
+	_calipers_mm = null
+	_glow = null
+	_glow_light = null
+	_plate = null
+	_flames = null
+	_particles = null
 	_head_spots.clear()
 	_built_body_key = ""
 	_rim_design = -1

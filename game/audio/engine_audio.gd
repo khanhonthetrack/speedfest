@@ -169,6 +169,13 @@ static func _load_stream(stream_name: String) -> AudioStream:
 func _process(delta: float) -> void:
 	if _players.is_empty() or not _has_params:
 		return
+	if not is_local and not is_visible_in_tree():
+		# Remote car hidden (no snapshots for a while): mute instead of droning at the last rpm,
+		# and snap (not glide) to the next params when it comes back.
+		for k in _players:
+			_mix(k, 0.0, 1.0)
+		_has_params = false
+		return
 	var dt := clampf(delta, 0.0, 0.1)
 	# --- smoothing (exponential, frame-rate independent)
 	_rpm = lerpf(_rpm, _t_rpm, 1.0 - exp(-dt * 14.0))

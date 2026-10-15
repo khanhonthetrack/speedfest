@@ -37,6 +37,8 @@ tools/check_scripts.sh                      # compile-check every .gd (must prin
 tools/run_scene.sh res://path/scene.tscn -- --frames=120 --shot=/abs/out.png    # Forward+ screenshot
 tools/run_scene.sh res://path/scene.tscn --compat -- --frames=120 --shot=/abs/out.png  # web renderer
 tools/run_scene.sh res://tests/x/test.tscn --headless -- --frames=600          # logic test
+tools/integration/check_all.sh [--quick]    # integration gate: compile + every test suite + server tests
+                                            # + AutoDriver finishes all tracks + online rounds (CHECK_ALL PASS)
 tools/export_web.sh                         # web build -> server/public (committed)
 cd server && npm install && npm start       # local server on :8080 (serves game + /ws)
 cd server && npm test                       # server unit tests

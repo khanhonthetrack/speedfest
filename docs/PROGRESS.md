@@ -87,3 +87,20 @@ date, who (module/agent), what changed, what's next or blocked.
   arena ~140 draw calls / 95k tris, downtown ~200 / 134k, coast ~380 / 290k (coast is near the
   budget). Web builds default to quality 1.
 - Visual note: a near-black car (brute's default paint) is hard to see at night on compat.
+
+## 2026-10-15 ~01:40 UTC — Review of merged UI/audio/visuals (orchestrator)
+
+- Adversarial review (3 finders + verifiers) of ui_menus, ui_hud, audio, visuals: 5 confirmed,
+  all fixed by the integrator (owning sessions had finished), with `tests/integration/test_review_fixes`
+  (fails 4/7 without the fixes):
+  - Hovering a button while typing in chat stole focus, so Space/Enter could press START/LEAVE.
+    `MenuKit.hover_focus` now skips while a text field is being edited; Esc in a room must be
+    pressed twice (first arms Leave).
+  - Garage/name changes made while connected but outside a room never reached the server.
+    `Game.leave_garage` now sends when online, and `Net.create_room/join_room` send the profile first.
+  - A hidden (stale) remote car kept droning at its last rpm: remote EngineAudio mutes while hidden.
+  - `CarVisual.build()` twice lost the wheels/calipers (PB ghost after a new PB): stale refs reset.
+  - A round started while returning from the results screen (hidden tab) is now joined automatically
+    on lobby entry (`Game.last_round_id`); a deliberately quit round stays manual.
+- New `tools/integration/check_all.sh` gate: CHECK_ALL PASS (24 suites + server + autodrive on 3
+  tracks + online rounds). `lobby_smoke.sh` (real lobby UI, 3 clients, real server) PASS.

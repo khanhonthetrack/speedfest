@@ -48,10 +48,24 @@ static func style_toggle(c: Button) -> void:
 	c.add_theme_color_override("font_focus_color", UITheme.CYAN)
 
 
+## True while the user is typing in a text field: hover must not steal its focus, or the next
+## Space/Enter would press whatever button the pointer crossed (e.g. START in the lobby).
+static func text_editing(c: Control) -> bool:
+	if not c.is_inside_tree():
+		return false
+	var f := c.get_viewport().gui_get_focus_owner()
+	return (f is LineEdit and (f as LineEdit).is_editing()) or f is TextEdit
+
+
+static func hover_focus(c: Control) -> void:
+	if c.is_visible_in_tree() and c.focus_mode != Control.FOCUS_NONE and not text_editing(c):
+		c.grab_focus()
+
+
 static func wire_button(b: BaseButton) -> void:
 	b.mouse_entered.connect(func() -> void:
-		if b.is_visible_in_tree() and not b.disabled and b.focus_mode != Control.FOCUS_NONE:
-			b.grab_focus())
+		if not b.disabled:
+			hover_focus(b))
 	b.pressed.connect(func() -> void: Audio.play_ui("click"))
 
 
@@ -158,7 +172,7 @@ static func swatch_row(colors: Array, on_pick: Callable) -> HFlowContainer:
 		sw.pressed.connect(func() -> void:
 			Audio.play_ui("click")
 			on_pick.call("#" + sw.color.to_html(false)))
-		sw.mouse_entered.connect(func() -> void: sw.grab_focus())
+		sw.mouse_entered.connect(func() -> void: hover_focus(sw))
 		row.add_child(sw)
 	var custom := Button.new()
 	custom.text = "+"
@@ -212,7 +226,7 @@ static func slider_row(title: String, left: String, right: String, min_v: float,
 	s.step = step
 	s.custom_minimum_size = Vector2(0, 26)
 	s.focus_mode = Control.FOCUS_ALL
-	s.mouse_entered.connect(func() -> void: s.grab_focus())
+	s.mouse_entered.connect(func() -> void: hover_focus(s))
 	root.add_child(s)
 	if left != "" or right != "":
 		var ends := HBoxContainer.new()

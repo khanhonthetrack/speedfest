@@ -142,11 +142,19 @@ func list_rooms() -> void:
 
 
 func create_room(room_name: String = "") -> void:
+	_send_profile_now()
 	_send({"type": "create_room", "name": room_name.strip_edges().substr(0, 24)})
 
 
 func join_room(code: String) -> void:
+	_send_profile_now()
 	_send({"type": "join_room", "code": code.strip_edges().to_upper()})
+
+
+## The garage/name may have changed since connecting: make sure the server has the latest
+## before we appear in a room (the socket keeps message order).
+func _send_profile_now() -> void:
+	_send({"type": "profile", "name": Profile.player_name, "car": Profile.get_config()})
 
 
 func leave_room() -> void:
