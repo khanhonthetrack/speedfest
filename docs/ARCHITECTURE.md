@@ -70,7 +70,7 @@ so players never collide.
   },
   "style": {
     "paint": "#ff6a00", "finish": "metallic",   // gloss|metallic|pearl|matte|chrome
-    "accent": "#111111", "livery": "none",      // none|racing_stripes|side_stripe|two_tone|fade|checker
+    "accent": "#111111", "livery": "none",      // CarDefs.LIVERIES: none|racing_stripes|side_stripe|two_tone|fade|checker|flames|bolt|retro|camo|tiger|hex|gradient|race|drip|circuit
     "hood": 0, "hood_carbon": false,            // hood 0..3
     "front": 0, "rear": 0, "skirts": 0,         // 0..2 each
     "spoiler": 0,                               // 0..4 (0 = none)

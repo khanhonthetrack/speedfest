@@ -5,9 +5,11 @@ extends Control
 ## "too complicated"); cars differ by their stock handling instead.
 ## Back -> Game.leave_garage() (saves and returns to where we came from).
 
-const TABS := ["PAINT", "BODY", "WHEELS", "LIGHTS", "PLATE"]
+const TABS := ["PAINT", "VINYL", "BODY", "WHEELS", "LIGHTS", "PLATE"]
 const STAT_KEYS := [["top_speed", "TOP SPEED"], ["accel", "ACCELERATION"], ["handling", "HANDLING"], ["drift", "DRIFT"], ["nitro", "NITRO"]]
-const LIVERY_NAMES := {"none": "None", "racing_stripes": "Stripes", "side_stripe": "Side stripe", "two_tone": "Two-tone", "fade": "Fade", "checker": "Checker"}
+const LIVERY_NAMES := {"none": "None", "racing_stripes": "Stripes", "side_stripe": "Side stripe", "two_tone": "Two-tone",
+	"fade": "Fade", "checker": "Checker", "flames": "Flames", "bolt": "Bolt", "retro": "Retro", "camo": "Camo",
+	"tiger": "Tiger", "hex": "Hex", "gradient": "Gradient", "race": "Race #", "drip": "Drip", "circuit": "Circuit"}
 ## Camera presets per tab: [car_yaw, pitch, distance]
 const TAB_VIEWS := [
 	[PI + 0.9, 0.22, 8.0], [0.75, 0.2, 8.2],
@@ -313,10 +315,11 @@ func _build() -> void:
 	tabs.add_theme_font_size_override("font_size", 13)
 	left.add_child(tabs)
 	_add_tab(TABS[0], _build_paint_tab())
-	_add_tab(TABS[1], _build_body_tab())
-	_add_tab(TABS[2], _build_wheels_tab())
-	_add_tab(TABS[3], _build_lights_tab())
-	_add_tab(TABS[4], _build_plate_tab())
+	_add_tab(TABS[1], _build_vinyl_tab())
+	_add_tab(TABS[2], _build_body_tab())
+	_add_tab(TABS[3], _build_wheels_tab())
+	_add_tab(TABS[4], _build_lights_tab())
+	_add_tab(TABS[5], _build_plate_tab())
 	tabs.tab_changed.connect(_on_tab_changed)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 12)
@@ -420,8 +423,15 @@ func _build_paint_tab() -> Control:
 	var v := _vbox()
 	_swatches(v, "Paint color", "paint", MenuKit.PAINT_SWATCHES)
 	_chips(v, "Finish", "finish", CarDefs.FINISHES.map(func(f: String) -> String: return f.capitalize()), Array(CarDefs.FINISHES))
-	_chips(v, "Livery", "livery", CarDefs.LIVERIES.map(func(l: String) -> String: return String(LIVERY_NAMES.get(l, l))), Array(CarDefs.LIVERIES))
-	_swatches(v, "Accent / livery color", "accent", MenuKit.SWATCHES)
+	return v
+
+
+## Vinyls (NFSU2-style): the livery pattern and its color. "Race #" takes its number from the plate.
+func _build_vinyl_tab() -> Control:
+	var v := _vbox()
+	_chips(v, "Pattern", "livery", CarDefs.LIVERIES.map(func(l: String) -> String: return String(LIVERY_NAMES.get(l, l))), Array(CarDefs.LIVERIES))
+	_swatches(v, "Vinyl color", "accent", MenuKit.SWATCHES)
+	v.add_child(UITheme.label("Race #: the number comes from the digits on your plate (PLATE tab).", "body", 15, UITheme.TEXT_DIM))
 	return v
 
 

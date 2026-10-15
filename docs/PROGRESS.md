@@ -558,3 +558,15 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   browser rounds need ~90 s per 6 s of driving.
 - **Not deployed:** the Pi serves `server/public` from its `~/speedfest` clone. To ship this build:
   on the Pi, `cd ~/speedfest && git pull && docker restart speedfest`.
+
+## 2026-10-15 ~20:20 UTC — Session 7: owner request "more patterns", 10 new liveries
+
+- `car_paint.gdshader`: 10 new procedural liveries in car-local space, so they fit all six bodies:
+  flames, bolt, retro, camo, tiger, hex, gradient, race (7-segment number roundels; the number comes
+  from the plate's digits via `CarVisual.race_number()`, else a default per car), drip and circuit.
+  `CarDefs.LIVERIES` has 16 entries now, and older clients sanitize unknown ones to the default.
+- Garage: a new **VINYL** tab (pattern + vinyl color) after PAINT, NFSU2-style; PAINT keeps color
+  and finish. The screenshots script covers 6 tabs. Showcase `--style=alt` no longer crashes on the
+  new cars.
+- Checked on compat screenshots for all six cars. test_build 56/56 (3240 part combos, worst 22,862
+  tris, budget 25,000), garage_test 15/15, nav_test 8/8, lobby_fake_test 23/23.

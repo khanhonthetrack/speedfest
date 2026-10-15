@@ -335,3 +335,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   puddle overlaps them sideways.
 - Next, per HANDOFF: finish M6-3 (the new car types on `wip/m6-cars`), then M6-4 graphics and
   M6-5 export + deploy. Working sequentially, pushing after each step (owner rule).
+
+### User (verbatim, ~19:45 UTC)
+
+> Put more patterns for cars to choose
+> Interiors suck, they look weird. Put effort, put a driver inside as well.
+
+### Claude
+
+- Plan (sequential, push after each step): (1) more livery patterns in the paint shader and the
+  garage; (2) a proper cabin (dashboard, steering wheel, seats, door cards, center console) and a
+  driver (helmet, suit, gloves on the wheel) visible through the glass, for every car.

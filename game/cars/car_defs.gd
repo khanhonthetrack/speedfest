@@ -20,7 +20,8 @@ const TUNING_LABELS := {
 }
 
 const FINISHES: Array[String] = ["gloss", "metallic", "pearl", "matte", "chrome"]
-const LIVERIES: Array[String] = ["none", "racing_stripes", "side_stripe", "two_tone", "fade", "checker"]
+const LIVERIES: Array[String] = ["none", "racing_stripes", "side_stripe", "two_tone", "fade", "checker",
+	"flames", "bolt", "retro", "camo", "tiger", "hex", "gradient", "race", "drip", "circuit"]
 const UNDERGLOW_MODES: Array[String] = ["off", "static", "pulse", "strobe", "rainbow"]
 
 ## Number of variants per part slot (index 0 = stock / none).

@@ -45,7 +45,7 @@ static func style_for(id: String, which: String) -> Dictionary:
 			"veloce": {"paint": "#ffd400", "finish": "gloss", "accent": "#111111", "livery": "racing_stripes", "hood": 1, "hood_carbon": true,
 				"front": 1, "rear": 1, "skirts": 1, "spoiler": 3, "rims": 1, "rim_color": "#b0b0b0", "underglow": "#ff6a00", "underglow_mode": "static"},
 		}
-		s.merge(alt[id], true)
+		s.merge(alt.get(id, {}), true)
 	elif which == "max":
 		s.merge({"hood": 3, "hood_carbon": true, "front": 2, "rear": 2, "skirts": 2, "spoiler": 4, "rims": 3,
 			"livery": "checker", "finish": "chrome", "underglow_mode": "rainbow", "ride_height": -1.0}, true)

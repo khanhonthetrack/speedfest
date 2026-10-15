@@ -99,8 +99,14 @@ top speed in km/h and an estimated 0–100 time.
 ### 3.2 Visual tuning (NFSU2 style)
 
 - **Paint**: body color plus finish (`gloss`, `metallic`, `pearl`, `matte`, `chrome`).
-- **Livery**: `none`, `racing_stripes`, `side_stripe`, `two_tone`, `fade`, `checker`, using an
-  **accent** color.
+- **Livery / vinyl** (garage VINYL tab, 16 patterns, all procedural in `car_paint.gdshader`, drawn
+  in the **accent** color): `none`, `racing_stripes`, `side_stripe`, `two_tone`, `fade`, `checker`,
+  and since session 7 `flames` (hot-rod flames from the nose), `bolt` (lightning bolt down the
+  sides), `retro` (80s triple stripes with a rear kick, graded tones), `camo` (digital, 3 tones),
+  `tiger`, `hex` (honeycomb growing toward the tail), `gradient` (smooth nose-to-tail fade), `race`
+  (number roundels on the doors and hood plus a roof stripe; the number is the plate's first digits,
+  otherwise a default per car), `drip` (paint dripping off the roof and shoulders), `circuit`
+  (circuit-board traces).
 - **Hood**: 4 variants (stock, vented, scoop, race/twin-scoop) plus a **carbon** toggle.
 - **Body kit**: front bumper, rear bumper, side skirts, 3 variants each (stock, street, race).
 - **Spoiler**: 5 variants (none, lip, ducktail, GT wing, high wing).

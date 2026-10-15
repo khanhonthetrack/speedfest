@@ -14,7 +14,7 @@ for r in fwd compat; do
   shot main_menu res://ui/main_menu.tscn $r
   shot main_menu_name res://ui/main_menu.tscn $r --name_prompt
   shot track_select res://ui/track_select.tscn $r
-  for t in 0 1 2 3 4; do shot garage_tab$t res://ui/garage.tscn $r --tab=$t; done
+  for t in 0 1 2 3 4 5; do shot garage_tab$t res://ui/garage.tscn $r --tab=$t; done
   shot settings res://ui/settings_menu.tscn $r
   shot lobby_connect res://ui/online_lobby.tscn $r --lobby_no_autoconnect
 done

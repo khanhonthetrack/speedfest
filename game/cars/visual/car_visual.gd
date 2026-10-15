@@ -574,6 +574,7 @@ func _apply_materials() -> void:
 	_paint_mat.set_shader_parameter("accent_color", Color(String(style["accent"])))
 	_paint_mat.set_shader_parameter("finish", maxi(CarDefs.FINISHES.find(String(style["finish"])), 0))
 	_paint_mat.set_shader_parameter("livery", maxi(CarDefs.LIVERIES.find(String(style["livery"])), 0))
+	_paint_mat.set_shader_parameter("race_number", race_number(car_id, String(style["plate"])))
 	_paint_mat.set_shader_parameter("carbon", bool(style["hood_carbon"]))
 	_paint_mat.set_shader_parameter("half_length", float(g["length"]) * 0.5)
 	_paint_mat.set_shader_parameter("half_width", float(g["width"]) * 0.5)
@@ -592,6 +593,22 @@ func _apply_materials() -> void:
 		sp.light_color = Color(String(style["headlight"]))
 	if _plate:
 		_plate.text = String(style["plate"])
+
+
+## Number in the "race" livery's roundels: the first one or two digits of the plate text (so a
+## player picks it on the PLATE tab), else a default per car.
+static func race_number(p_car_id: String, plate: String) -> int:
+	var digits := ""
+	for ch in plate:
+		if ch >= "0" and ch <= "9":
+			digits += ch
+			if digits.length() == 2:
+				break
+		elif digits != "":
+			break
+	if digits != "":
+		return int(digits)
+	return int({"kaze": 7, "brute": 8, "veloce": 1, "kitsune": 4, "pixie": 3, "goliath": 99}.get(p_car_id, 7))
 
 
 func _update_glow_mode() -> void:
