@@ -11,7 +11,7 @@ extends Node
 ##   --track=arena --duration=60 --weather=rain  host: round settings
 ##   --expect=3                 host: wait for this many players before starting (default 2)
 ##   --rounds=1                 host: how many rounds to start
-##   --code=ABCD                guest: room to join (default: first room found)
+##   --code=ABCD                guest: room to join (default: first private room found; LIVE only with --code=LIVE)
 ##   --auto_solo=rails          instead: start a solo run on that track right after boot (pair
 ##                              with --autodrive; static web build test, tools/integration/web_static_test.js)
 ## Prints "AUTOPILOT <event> ..." lines for test harnesses.
@@ -82,6 +82,9 @@ func _on_rooms(rooms: Array) -> void:
 		return
 	var want := String(TestHooks.arg("code", ""))
 	for r in rooms:
+		# the always-on LIVE room is listed first (session 6): join it only when asked (--code=LIVE)
+		if want == "" and bool(r.get("live", false)):
+			continue
 		if want == "" or String(r.get("code", "")) == want:
 			_say("joining %s" % r.get("code", ""))
 			Net.join_room(String(r.get("code", "")))
