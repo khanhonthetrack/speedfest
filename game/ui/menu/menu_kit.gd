@@ -123,8 +123,8 @@ static func select_chip(row: Container, index: int) -> void:
 ## `on_pick(color_html)` is called with "#rrggbb".
 static func swatch_row(colors: Array, on_pick: Callable) -> HFlowContainer:
 	var row := HFlowContainer.new()
-	row.add_theme_constant_override("h_separation", 6)
-	row.add_theme_constant_override("v_separation", 6)
+	row.add_theme_constant_override("h_separation", 5)
+	row.add_theme_constant_override("v_separation", 5)
 	for c in colors:
 		var sw := Swatch.new()
 		sw.color = Color(String(c))
@@ -136,7 +136,7 @@ static func swatch_row(colors: Array, on_pick: Callable) -> HFlowContainer:
 	var custom := Button.new()
 	custom.text = "+"
 	custom.tooltip_text = "Custom color"
-	custom.custom_minimum_size = Vector2(44, 36)
+	custom.custom_minimum_size = Vector2(40, 32)
 	custom.add_theme_font_size_override("font_size", 22)
 	wire_button(custom)
 	var popup := PopupPanel.new()
@@ -189,10 +189,11 @@ static func slider_row(title: String, left: String, right: String, min_v: float,
 	root.add_child(s)
 	if left != "" or right != "":
 		var ends := HBoxContainer.new()
-		var l := UITheme.label(left, "body", 16, UITheme.TEXT_DIM)
+		var l := UITheme.label(left, "body", 15, UITheme.TEXT_DIM)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		ends.add_child(l)
-		ends.add_child(UITheme.label(right, "body", 16, UITheme.TEXT_DIM))
+		ends.add_child(UITheme.label(right, "body", 15, UITheme.TEXT_DIM))
+		ends.add_theme_constant_override("separation", 0)
 		root.add_child(ends)
 	return {"root": root, "slider": s, "value": v}
 
@@ -282,7 +283,7 @@ class Swatch extends BaseButton:
 			queue_redraw()
 
 	func _init() -> void:
-		custom_minimum_size = Vector2(36, 36)
+		custom_minimum_size = Vector2(32, 32)
 		focus_mode = Control.FOCUS_ALL
 		focus_entered.connect(queue_redraw)
 		focus_exited.connect(queue_redraw)

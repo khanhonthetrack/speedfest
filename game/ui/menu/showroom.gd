@@ -24,6 +24,8 @@ var _ring_mat: StandardMaterial3D
 var _env: Environment
 var _accent := UITheme.MAGENTA
 var _t := 0.0
+var _hold := 0.0               # seconds before auto-rotation resumes after a drag / focus
+var _view_tween: Tween
 
 
 func _ready() -> void:
@@ -33,7 +35,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	if turntable:
+	_hold -= delta
+	if turntable and _hold <= 0.0:
 		turntable.rotation.y += auto_rotate * delta
 	if _ring_mat:
 		_ring_mat.emission_energy_multiplier = 2.2 + sin(_t * 1.6) * 0.5
@@ -64,7 +67,23 @@ func set_accent(c: Color) -> void:
 		_ring_mat.emission = c
 
 
+## Turns the car to `car_yaw` (radians, 0 = camera sees the front-left 3/4 view) and moves the
+## camera; auto-rotation pauses for `hold` seconds.
+func focus_view(car_yaw: float, p_pitch: float, p_distance: float, hold: float = 5.0) -> void:
+	_hold = hold
+	if _view_tween:
+		_view_tween.kill()
+	var cur := turntable.rotation.y
+	var goal := cur + wrapf(car_yaw - cur, -PI, PI)
+	_view_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_view_tween.tween_property(turntable, "rotation:y", goal, 0.7)
+	_view_tween.tween_property(self, "pitch", p_pitch, 0.7)
+	_view_tween.tween_property(self, "distance", p_distance, 0.7)
+	_view_tween.tween_property(self, "yaw", 0.0, 0.7)
+
+
 func orbit_drag(rel: Vector2) -> void:
+	_hold = 3.0
 	yaw -= rel.x * 0.008
 	pitch = clampf(pitch + rel.y * 0.005, -0.05, 0.75)
 
