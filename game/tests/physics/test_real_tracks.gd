@@ -21,6 +21,9 @@ var last_cp_xf: Transform3D
 var last_cp_vel := Vector3.ZERO
 var cam: Camera3D
 var runs := 1
+var keyboard := false
+var inp: CarInput
+const KeyEmu := preload("res://tests/physics/key_emulator.gd")
 var run_times: Array[float] = []
 
 
@@ -36,6 +39,17 @@ func _ready() -> void:
 	ai.path = track.path
 	ai.reset_callable = _respawn
 	car.add_child(ai)
+	if bool(TestHooks.arg("keyboard", false)):
+		# emulate a keyboard player: the bot's wishes become digital key presses that go through
+		# CarInput's steering ramp (tests that keyboard steering can take every corner)
+		keyboard = true
+		var emu := Node.new()
+		emu.set_script(KeyEmu)
+		emu.set("car", car)
+		car.add_child(emu)
+		inp = CarInput.new()
+		car.add_child(inp)
+		emu.set("inp", inp)
 	track.checkpoint_reached.connect(_on_cp)
 	track.finish_reached.connect(_on_finish)
 	_restart()
@@ -80,7 +94,7 @@ func _on_finish(body: Node) -> void:
 		return
 	var t := (tick - start_tick) / 60.0
 	run_times.append(t)
-	print("RESULT real %s %s run %d: %.2fs respawns=%d max=%.0f km/h" % [track_id, car_id, run_times.size(), t, respawns, max_kmh])
+	print("RESULT real%s %s %s run %d: %.2fs respawns=%d max=%.0f km/h" % ["_kb" if keyboard else "", track_id, car_id, run_times.size(), t, respawns, max_kmh])
 	if run_times.size() >= runs:
 		finished = true
 		TestHooks.check(respawns == 0, "real_%s_%s_no_respawn" % [track_id, car_id], "%d respawns" % respawns)
