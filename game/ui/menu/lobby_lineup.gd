@@ -19,6 +19,10 @@ var _cam_tween: Tween
 var _pool_mesh: Mesh
 var _pool_mat: StandardMaterial3D
 var _pool_me_mat: StandardMaterial3D
+## The lineup is static except while cars arrive/move or styles change: render only then (keeps
+## the last frame otherwise). Big win on weak GPUs / software rendering.
+var _awake := 0.0
+const AWAKE_S := 1.4
 
 
 func _init() -> void:
@@ -30,6 +34,7 @@ func _init() -> void:
 	viewport.transparent_bg = false
 	viewport.msaa_3d = Viewport.MSAA_DISABLED if Settings.is_compat() else Viewport.MSAA_2X
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_awake = AWAKE_S
 	add_child(viewport)
 	_stage = Node3D.new()
 	_stage.name = "Stage"
@@ -52,7 +57,21 @@ func shown_config(id: int) -> Dictionary:
 	return {"car": _slots[id]["car"], "style": JSON.parse_string(_slots[id]["style_json"])}
 
 
+func _process(delta: float) -> void:
+	if _awake > 0.0:
+		_awake -= delta
+		if _awake <= 0.0:
+			viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
+## Render continuously for a moment (animations, style changes), then freeze on the last frame.
+func wake(seconds: float = AWAKE_S) -> void:
+	_awake = maxf(_awake, seconds)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+
+
 func set_players(players: Array, my_id: int, host_id: int) -> void:
+	wake()
 	var ids: Array = []
 	for p in players:
 		if typeof(p) != TYPE_DICTIONARY:
@@ -187,6 +206,7 @@ func _pop(holder: Node3D) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and camera:
 		_frame_camera(_order.size())
+		wake()
 
 
 # --- stage -----------------------------------------------------------------------------------------
