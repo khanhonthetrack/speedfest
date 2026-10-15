@@ -18,12 +18,13 @@ Record new owner messages verbatim in `docs/TRANSCRIPT.md`.
 
 ## Environment setup (fresh container)
 ```bash
-# Godot 4.7.2 editor + export templates (downloads.godotengine.org is reachable)
+# Godot 4.7.2 editor + export templates. downloads.godotengine.org is blocked in some cloud
+# environments; the GitHub release mirror works everywhere:
 mkdir -p /opt/godot && cd /opt/godot
-curl -sSL -o godot.zip "https://downloads.godotengine.org/?version=4.7.2&flavor=stable&slug=linux.x86_64.zip"
+curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
 python3 -c "import zipfile;zipfile.ZipFile('godot.zip').extractall('.')"
 chmod +x Godot_v4.7.2-stable_linux.x86_64 && ln -sf $PWD/Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot
-# templates (~1.2 GB; use curl -C - to resume): slug=export_templates.tpz, then unzip web_* and
+# templates (~1.2 GB; curl -C - resumes): .../4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz, unzip web_* and
 # linux_*/windows_* into ~/.local/share/godot/export_templates/4.7.2.stable/
 # software Vulkan, so Forward+ renders under Xvfb:
 apt-get update && apt-get install -y mesa-vulkan-drivers
@@ -31,7 +32,7 @@ apt-get update && apt-get install -y mesa-vulkan-drivers
 
 ## Everyday commands
 ```bash
-tools/godot_import.sh                       # import assets (after adding fonts/audio/textures)
+tools/godot_import.sh                       # import assets; ALSO after adding a new class_name (registers it)
 tools/check_scripts.sh                      # compile-check every .gd (must print SCRIPT_ERRORS=0)
 tools/run_scene.sh res://path/scene.tscn -- --frames=120 --shot=/abs/out.png    # Forward+ screenshot
 tools/run_scene.sh res://path/scene.tscn --compat -- --frames=120 --shot=/abs/out.png  # web renderer

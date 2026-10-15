@@ -29,3 +29,19 @@ date, who (module/agent), what changed, what's next or blocked.
 - The full per-module specs given to the agents are in the workflow script. The essentials are in
   docs/ARCHITECTURE.md and docs/PLAN.md. Each module documents itself in `docs/modules/<key>.md`.
 - Next: merge all `module/*` branches into `main` (M2 integration).
+
+## 2026-10-15 ~00:05 UTC — Takeover (orchestrator #2, session_01FScTiQ4vwQQ8wktXzQJ6Ey)
+
+- The first orchestrator (session_01CMDh9pTv1h5xawNJJ9eFH2) stopped after pushing only
+  `module/networking` (last push 23:25). The owner said it got stuck and asked this session to continue.
+- Merged `module/networking`: Node server (rooms, round flow, static + gzip/br), real WebSocket
+  `Net` client. Verified: `npm test` 10/10, `tools/net_smoke_test.sh` PASS (3 headless clients, 81 checks).
+  Net also adds `player_checkpoint`, `finish_result` signals, `server_now_ms()`, `round_time_left_ms()`.
+- Environment note: `downloads.godotengine.org` is blocked here; Godot + templates come from the
+  GitHub release mirror (CLAUDE.md updated).
+- Added core `game/ui/ui_theme.gd` (`UITheme`: palette, fonts, shared Theme, time formatting) so
+  the UI work can be split into `ui_menus` and `ui_hud` without both touching a theme.
+- Relaunched the remaining M1 modules as parallel cloud sessions (this container has 4 CPUs):
+  physics, visuals, tracks, scenery, ui_menus, ui_hud, audio, race. Each starts from branch
+  `ccr-49301774-b5a4ns`, works only in its owned files, documents itself in `docs/modules/<key>.md`
+  and pushes to its own session branch. The orchestrator merges them into `ccr-49301774-b5a4ns`.
