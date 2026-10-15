@@ -44,6 +44,7 @@ Branch: `module/ui_menus`. All screens are built in code on top of the core `UIT
 ```bash
 tools/run_scene.sh res://tests/ui_menus/garage_test.tscn --headless -- --frames=600       # 17 checks
 tools/run_scene.sh res://tests/ui_menus/lobby_fake_test.tscn --headless -- --frames=600 --lobby_no_autoconnect  # 19 checks
+tools/run_scene.sh res://tests/ui_menus/nav_test.tscn --headless -- --frames=900          # 8 checks: keyboard focus/tab/car keys
 game/tests/ui_menus/lobby_smoke.sh 3      # real server + 3 headless clients press the real lobby buttons → race (PASS)
 game/tests/ui_menus/screenshots.sh [dir]  # every screen + every garage tab, Forward+ and Compatibility
 ```
@@ -57,8 +58,8 @@ game/tests/ui_menus/screenshots.sh [dir]  # every screen + every garage tab, For
 - Showroom calls `CarVisual.set_headlights_real(false)` if the method exists.
 
 ## Known issues
-- Screenshots used the stub `CarVisual` (a box) and stub `Tuning.stats` (all bars equal); camera
-  presets may need a small distance tweak once real car meshes land.
+- Verified in a local throwaway merge with `module/visuals`, `module/physics` and `module/audio` (no
+  conflicts, SCRIPT_ERRORS=0): real cars frame well in the main menu and garage, and stats move.
 - `Audio` is a stub here, so sounds were not heard; calls are `play_ui("hover"/"click"/"back"/"confirm"/"error")`
   and `play_music("menu")`.
 
