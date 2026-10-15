@@ -1,5 +1,47 @@
 # Module: physics (car physics, tuning, input, AutoDriver)
 
+## Handoff (2026-10-15)
+
+**State (branch `module/physics`, all pushed; `game/tests/physics/run_all.sh` → PHYSICS_ALL_OK):**
+- Car: arcade raycast vehicle. Warp-tolerant suspension (droop-soft springs, anti-roll bars on
+  average roll), roll damping relative to the road's twist, stick force on steep/inverted road,
+  touchdown absorber, roof/side drag + self-righting, boost clamps (≤ 60 m/s², ≤ 4 s, fade
+  360→420 km/h, 450 km/h hard cap).
+- Wall rides: `test_wallride` (R 55/70/220, entry 142–215 km/h) has 0 air ticks for all cars.
+- Jumps: 10–20° kickers at 150–230 km/h (≤ 4.5 s air) land upright with no bounce.
+- AutoDriver: pure pursuit plus slip feed-forward; Stanley (road frame) in loops, ±40 m around wall
+  rides and 45 m before jumps; banked-curve speed planning; full throttle 70 m before loops and jumps;
+  never steers in the air; stuck → `reset_callable`; `reset()`/`reset_tracking()`.
+
+**Envelope sent to tracks:** wall ride roll ≤ 85–90°, entry 140–215 km/h, full-roll radius
+≥ 55 m, roll ramp ≥ 80–100 m (smoothstep, peak twist ≤ ~1.2°/m), horizontal curvature following
+the roll (κ ≈ sin(roll)/R), linear tilt interpolation in TrackPath (the stock `_tilt_at`
+smoothsteps per segment). Loops r ≥ 18 m up to ~270 km/h. Boost pads yellow 22/1.4 and red
+34/2.2 are fine. Leave room after a red boost before a loop or wall ride.
+
+**Open issues:**
+1. Tracks part 2 (de1b225): the analog AutoDriver is 9/9 clean. Keyboard emulation is 4/9 clean.
+   Failures: arena brute flips at the wall-ride entry (~264 km/h, full curvature at roll 0); jumps
+   on arena (d≈899, 1348) and downtown (d≈1166); downtown boost before the loop (d≈678); coast
+   d≈1088 and its loop (1156–1304). The main cause is the wall-ride geometry
+   (`{"wallride", r 70, roll 75, ramp 62}` in all three defs), which is outside the envelope.
+   Fixes requested from tracks.
+2. Keyboard steering on walls above ~190 km/h is imprecise even inside the envelope (test_wallride
+   `--keyboard`). A "cancel lateral gravity" assist was tried and reverted: it breaks banked balance.
+3. TrackPath fixes (loop right-vector lock, linear tilt) live only in my test subclass
+   `tests/physics/test_path.gd`.
+
+**Next steps:** when tracks pushes new layouts, make a scratch worktree from origin/module/tracks,
+merge module/physics, run `game/tests/physics/run_real_tracks.sh` (3 cars × 3 tracks, analog and
+keyboard; it prints respawn locations with zone names), and report to tracks. If keyboard
+respawns stay at wall rides that are inside the envelope, look at CarInput steering rates at
+200+ km/h.
+
+**Verify:** `tools/godot_import.sh && tools/check_scripts.sh` (SCRIPT_ERRORS=0),
+`game/tests/physics/run_all.sh` (PHYSICS_ALL_OK), and with the real tracks merged,
+`game/tests/physics/run_real_tracks.sh`.
+
+
 Branch: `module/physics`. Owner files only (see the file map). All tests are headless and pass on
 all three cars (`game/tests/physics/run_all.sh` prints `PHYSICS_ALL_OK`).
 
