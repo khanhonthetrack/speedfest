@@ -69,6 +69,8 @@ online: local clock passes end_at, or room phase "results", or Net.round_ended -
 - Shake above 240 km/h and on landings after > 0.35 s airtime.
 - Collision: ray on layer 1 from the pivot to the camera; snaps in, eases out.
 - `camera_cycle` cycles modes and saves `Settings.camera_mode`; `look_back` (held) mirrors.
+- Intro: during the first countdown the camera orbits from the front three-quarter view around the
+  car and lands in the chase pose at GO (`start_intro(seconds)`; skipped on restarts, `--no_intro`).
 - Uses `get_global_transform_interpolated()`, so it's ready for physics interpolation.
 - Knobs: `CHASE_PRESETS`, `rot_follow`, `up_follow`, `air_follow_scale`, `accel_lag`,
   `speed_pullback`, `fov_speed_gain`, `nitro_fov_kick`, `shake_speed_kmh`, `shake_amount`.

@@ -106,6 +106,8 @@ func _ready() -> void:
 	else:
 		hud.set_round_time_left(-1)
 		_begin_countdown(FIRST_COUNTDOWN_MS)
+	if state == State.COUNTDOWN and not TestHooks.has_arg("no_intro"):
+		camera.start_intro(clampf(_countdown_remaining_ms() / 1000.0, 0.5, 3.5))
 	_log("ready mode=%s track=%s online=%s cps=%d" % [Game.mode, track.track_id, online, checkpoint_count])
 
 
@@ -468,6 +470,7 @@ func respawn() -> void:
 
 ## New run from the start line (1.5 s hold).
 func restart_run() -> void:
+	camera.stop_intro()
 	if state == State.ROUND_OVER or state == State.LOADING:
 		return
 	if state == State.COUNTDOWN and _sync_go_ms >= 0:

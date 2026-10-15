@@ -46,6 +46,8 @@ var _was_grounded := true
 var _air_time := 0.0
 var _noise_t := 0.0
 var _col_dist := -1.0                # smoothed collision-limited distance (-1 = free)
+var _intro_total := 0.0
+var _intro_left := 0.0
 var _snap_frames := 2               # frames left to snap (teleports may apply a tick later)
 
 
@@ -64,6 +66,16 @@ func set_target(node: Node3D) -> void:
 ## Instantly place the camera behind the target (after teleports).
 func snap() -> void:
 	_snap_frames = 2
+
+
+## Orbit around the car for `seconds`, ending exactly in the chase pose (first countdown).
+func start_intro(seconds: float) -> void:
+	_intro_total = maxf(seconds, 0.01)
+	_intro_left = _intro_total
+
+
+func stop_intro() -> void:
+	_intro_left = 0.0
 
 
 ## Extra shake impulse 0..1 (landings, wall hits). Decays over ~0.4 s.
@@ -208,6 +220,18 @@ func update_camera(delta: float) -> void:
 			sin(_noise_t * 41.0 + 0.6) + sin(_noise_t * 29.1 + 2.3) * 0.6,
 			0.0) * 0.5
 		cam_pos += frame_basis * (n * shake)
+
+	if _intro_left > 0.0:
+		_intro_left = maxf(0.0, _intro_left - delta)
+		var prog := 1.0 - _intro_left / _intro_total
+		var a := lerpf(PI * 1.15, 0.0, 1.0 - pow(1.0 - prog, 2.0))
+		var cb := xf.basis.orthonormalized()
+		var r := lerpf(6.5, 6.0, prog)
+		var orbit := xf.origin + cb * Vector3(sin(a) * r, lerpf(1.2, 2.0, prog), cos(a) * r)
+		var w := smoothstep(0.55, 1.0, prog)
+		cam_pos = orbit.lerp(cam_pos, w)
+		look_at_pos = (xf.origin + cb.y * 0.5).lerp(look_at_pos, w)
+		up_vec = cb.y.lerp(up_vec, w).normalized()
 
 	if cam_pos.is_equal_approx(look_at_pos):
 		return
