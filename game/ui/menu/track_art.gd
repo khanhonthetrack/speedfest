@@ -1,13 +1,18 @@
 class_name TrackArt
 extends Control
 ## Procedural poster art for a track theme ("city", "arena", "coast"), drawn with _draw so it
-## costs nothing on either renderer. Used by the track select cards.
+## costs nothing on either renderer. Used by the track select cards. `sprint` swaps the stunt
+## props (loop, cliff) for the short maps' ground: stadium lawn with a sand trap, or beach dunes.
 
 var theme_id := "city":
 	set(v):
 		theme_id = v
 		queue_redraw()
 var seed_value := 7
+var sprint := false:
+	set(v):
+		sprint = v
+		queue_redraw()
 
 
 func _init() -> void:
@@ -108,6 +113,9 @@ func _draw_arena() -> void:
 			if rng.randf() < 0.5:
 				var cc := [UITheme.MAGENTA, UITheme.CYAN, Color.WHITE, UITheme.AMBER][rng.randi() % 4] as Color
 				draw_rect(Rect2(i * 6 + 1, y + 1, 2, 3), Color(cc, 0.6))
+	if sprint:
+		_draw_lawn(w, h)
+		return
 	# the loop
 	var c := Vector2(w * 0.62, h * 0.6)
 	var r := h * 0.26
@@ -152,6 +160,9 @@ func _draw_coast() -> void:
 		var y := sea_y + 4 + i * 6
 		var len := rng.randf_range(20, 80) * (1.0 - i * 0.05)
 		draw_line(Vector2(sc.x - len * 0.5 + rng.randf_range(-10, 10), y), Vector2(sc.x + len * 0.5, y), Color(1.0, 0.7, 0.4, 0.5 - i * 0.03), 2.0)
+	if sprint:
+		_draw_dunes(w, h, rng)
+		return
 	# cliff + road
 	draw_colored_polygon(PackedVector2Array([Vector2(0, h * 0.3), Vector2(w * 0.12, h * 0.36), Vector2(w * 0.22, h * 0.6), Vector2(w * 0.3, h), Vector2(0, h)]), Color(0.08, 0.03, 0.1))
 	draw_line(Vector2(w * 0.05, h), Vector2(w * 1.0, h * 0.74), Color(0.1, 0.06, 0.12), 14.0)
@@ -162,4 +173,62 @@ func _draw_coast() -> void:
 	draw_line(pb, top, Color(0.06, 0.02, 0.08), 5.0)
 	for a in [-2.6, -2.2, -1.6, -1.0, -0.5]:
 		var d := Vector2(cos(a), sin(a) + 0.9) * 46.0
+		draw_polyline(PackedVector2Array([top, top + d * 0.5 + Vector2(0, -8), top + d]), Color(0.06, 0.02, 0.08), 4.0)
+
+
+## Short stadium map: striped infield lawn, a curving road, gravel and a sand trap under a jump.
+func _draw_lawn(w: float, h: float) -> void:
+	var g := h * 0.6
+	for i in 6:
+		var y0 := g + (h - g) * pow(i / 6.0, 1.6)
+		var y1 := g + (h - g) * pow((i + 1) / 6.0, 1.6)
+		draw_rect(Rect2(0, y0, w, y1 - y0 + 1), Color(0.09, 0.26, 0.08) if i % 2 == 0 else Color(0.12, 0.31, 0.1))
+	# sand trap
+	var sc := Vector2(w * 0.7, g + (h - g) * 0.55)
+	draw_set_transform(sc, 0.0, Vector2(1.0, 0.32))
+	draw_circle(Vector2.ZERO, w * 0.22, Color(0.72, 0.6, 0.4))
+	draw_set_transform(Vector2.ZERO)
+	# road sweeping in from the left, gravel run-off on its outside
+	var pts := PackedVector2Array()
+	for i in 13:
+		var t := i / 12.0
+		pts.append(Vector2(lerpf(-10.0, w * 0.55, t), lerpf(h + 6.0, g + 8.0, t) + sin(t * PI) * 16.0))
+	draw_polyline(pts, Color(0.45, 0.42, 0.38), 26.0)
+	draw_polyline(pts, Color(0.06, 0.06, 0.1), 18.0)
+	draw_polyline(pts, Color(UITheme.CYAN, 0.8), 2.0)
+	# jump ramp over the trap
+	var rb := Vector2(w * 0.5, g + 12.0)
+	draw_colored_polygon(PackedVector2Array([rb, rb + Vector2(36, 0), rb + Vector2(36, -16)]), Color(0.15, 0.1, 0.3))
+	draw_line(rb, rb + Vector2(36, -16), UITheme.LIME, 2.0)
+	draw_arc(Vector2(w * 0.72, g + 4.0), w * 0.2, PI * 1.08, PI * 1.92, 24, Color(1, 1, 1, 0.35), 2.0)
+
+
+## Short coast map: sand dunes in the foreground with a road over them and a dune jump.
+func _draw_dunes(w: float, h: float, rng: RandomNumberGenerator) -> void:
+	for k in 3:
+		var base := h * (0.66 + k * 0.12)
+		var pts := PackedVector2Array([Vector2(0, h)])
+		for i in 17:
+			var x := w * i / 16.0
+			pts.append(Vector2(x, base - (sin(x / w * TAU * (0.8 + k * 0.3) + k * 1.7) * 0.5 + 0.5) * (22.0 - k * 4.0)))
+		pts.append(Vector2(w, h))
+		var c := Color(0.55, 0.36, 0.3).lerp(Color(0.85, 0.62, 0.4), k / 2.0)
+		draw_colored_polygon(pts, c)
+		for i in 10:
+			var rx := rng.randf_range(0, w)
+			draw_line(Vector2(rx, base + 6), Vector2(rx + 18, base + 4), Color(1, 0.9, 0.7, 0.25), 1.0)
+	# road over the dunes, kicking up into a jump
+	var road := PackedVector2Array()
+	for i in 11:
+		var t := i / 10.0
+		road.append(Vector2(lerpf(-10.0, w * 0.62, t), lerpf(h * 0.98, h * 0.72, t) - sin(t * PI * 1.5) * 10.0))
+	draw_polyline(road, Color(0.08, 0.05, 0.1), 12.0)
+	draw_polyline(road, UITheme.AMBER, 2.0)
+	draw_arc(Vector2(w * 0.8, h * 0.74), w * 0.18, PI * 1.05, PI * 1.95, 24, Color(1, 1, 1, 0.4), 2.0)
+	# palm
+	var pb := Vector2(w * 0.9, h)
+	var top := Vector2(w * 0.86, h * 0.36)
+	draw_line(pb, top, Color(0.06, 0.02, 0.08), 5.0)
+	for a in [-2.6, -2.2, -1.6, -1.0, -0.5]:
+		var d := Vector2(cos(a), sin(a) + 0.9) * 40.0
 		draw_polyline(PackedVector2Array([top, top + d * 0.5 + Vector2(0, -8), top + d]), Color(0.06, 0.02, 0.08), 4.0)

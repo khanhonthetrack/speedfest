@@ -97,7 +97,7 @@ top speed in km/h and an estimated 0–100 time.
   under the car.
 - **Window tint** amount, **headlight** color, **ride height**, and a **license plate** text (≤ 8 chars).
 
-## 4. Tracks (3 originals): Trackmania-style stunt tracks
+## 4. Tracks: three Trackmania-style stunt tracks and two ground sprints
 
 > **Owner decision (2026-10-15):** *all three* tracks are Trackmania-style stunt tracks. The
 > themes stay as the **setting** around the track. Must-haves: floating roads and big jumps, loops and
@@ -123,6 +123,23 @@ Common style ("platform" roads, like Trackmania's stadium blocks):
 
 Roads are wide (14–20 m on platforms). Every stunt must be makeable by a keyboard player at
 a sensible speed (verified with the keyboard-emulation test). Turbo pads tell you where full speed is needed.
+
+**Sprints (owner, session 4: "2-3 short maps (around 10s) on the stadium or the coast which actually
+use grass, or gravel or sand").** Two ~12 s maps whose twist is the ground, not stunts. Ground patches
+lie on the road and change grip and rolling drag (TrackSurface `KIND_GRIP` / `KIND_DRAG`):
+
+| ground | grip | drag | feel |
+|---|---|---|---|
+| grass | x0.74 | light | slides a bit, keeps speed: a fair short cut |
+| gravel | x0.62 | medium | loose: brake, turn in, let it drift |
+| sand | x0.68 | heavy | bogs you down: fly over it or lose seconds |
+
+| id | Name | Setting | The choices |
+|---|---|---|---|
+| `infield` | **Infield Rush** | Stadium lawn at night | Banked 120° whose inside half is grass (short line, less grip) vs. the asphalt outside (long line, full grip; in rain it has a puddle). A full-width gravel flick. A kicker over a sand trap: carry speed or land in the sand. |
+| `dunes` | **Dune Dash** | Beach at dusk | A sweeper with loose sand on the inside (cut it, heavy drag) or the boardwalk outside. A dune jump with a sand landing. A banked gravel bend. A clifftop straight with grass verges into the finish jump. |
+
+Weather stacks with the ground (wet gravel is the worst). Rain and storm add puddles on the asphalt lines.
 
 ### 4.1 Weather: our twist on Trackmania (owner request, 2026-10-15)
 

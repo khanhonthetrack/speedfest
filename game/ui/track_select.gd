@@ -1,8 +1,10 @@
 extends Control
-## Solo track select: three track cards (art, name, theme, blurb, target time, your PB).
+## Solo track select: one card per track (art, name, theme, blurb, target time, your PB). Five cards
+## fit a 1280-wide screen; short maps (target under 15 s) are tagged SPRINT, the rest STUNT RUN.
 ## Enter/click starts Game.start_solo(id). Esc goes back to the main menu.
 
-const THEME_NAMES := {"city": "NIGHT CITY", "arena": "STUNT ARENA", "coast": "DUSK COAST"}
+const THEME_NAMES := {"city": "NIGHT CITY", "arena": "STADIUM", "coast": "COAST"}
+const SPRINT_MAX_S := 15
 const THEME_COLORS := {"city": Color("#ff2bd6"), "arena": Color("#00e5ff"), "coast": Color("#ffb300")}
 
 var cards: Array[Button] = []
@@ -66,7 +68,7 @@ func _build() -> void:
 	col.add_child(top)
 
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 26)
+	row.add_theme_constant_override("separation", 16)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_child(row)
 	for id in TrackDefs.IDS:
@@ -112,7 +114,7 @@ func _card(id: String) -> Button:
 	var b := Button.new()
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.focus_mode = Control.FOCUS_ALL
-	b.custom_minimum_size = Vector2(280, 420)
+	b.custom_minimum_size = Vector2(200, 420)
 	var normal := UITheme.panel_style(Color(UITheme.PANEL, 0.92), Color(accent, 0.35), 2, 0.0)
 	var hot := UITheme.panel_style(Color(UITheme.PANEL_LIGHT, 0.96), accent, 3, 0.0)
 	hot.shadow_color = Color(accent, 0.35)
@@ -123,7 +125,7 @@ func _card(id: String) -> Button:
 	b.add_theme_stylebox_override("pressed", hot)
 	MenuKit.wire_button(b)
 	b.pressed.connect(start.bind(id))
-	b.pivot_offset = Vector2(140, 210)
+	b.pivot_offset = Vector2(100, 210)
 	b.resized.connect(func() -> void: b.pivot_offset = b.size * 0.5)
 	b.focus_entered.connect(func() -> void:
 		Game.track_id = id
@@ -141,14 +143,13 @@ func _card(id: String) -> Button:
 	b.add_child(v)
 	var art := TrackArt.new()
 	art.theme_id = th
-	art.custom_minimum_size = Vector2(0, 190)
-	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	art.size_flags_stretch_ratio = 1.1
+	art.sprint = int(d["target_s"]) < SPRINT_MAX_S
+	art.custom_minimum_size = Vector2(0, 210)     # fixed, so every card's art lines up
 	v.add_child(art)
 	var info := MarginContainer.new()
 	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for side in ["left", "right"]:
-		info.add_theme_constant_override("margin_" + side, 20)
+		info.add_theme_constant_override("margin_" + side, 16)
 	info.add_theme_constant_override("margin_top", 10)
 	info.add_theme_constant_override("margin_bottom", 16)
 	info.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -157,17 +158,19 @@ func _card(id: String) -> Button:
 	iv.add_theme_constant_override("separation", 4)
 	iv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(iv)
-	var tag := UITheme.label("%s  ·  %s" % [THEME_NAMES.get(th, th.to_upper()), "STUNT RUN"], "head", 13, accent)
+	var kind := "SPRINT" if int(d["target_s"]) < SPRINT_MAX_S else "STUNT RUN"
+	var tag := UITheme.label("%s  ·  %s" % [kind, THEME_NAMES.get(th, th.to_upper())], "head", 12, accent)
+	tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	iv.add_child(tag)
-	var nm := UITheme.label(String(d["name"]).to_upper(), "heavy", 26, UITheme.TEXT)
+	var nm := UITheme.label(String(d["name"]).to_upper(), "heavy", 24, UITheme.TEXT)
 	nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	iv.add_child(nm)
-	var bl := UITheme.label(String(d["blurb"]), "body", 18, UITheme.TEXT_DIM)
+	var bl := UITheme.label(String(d["blurb"]), "body", 16, UITheme.TEXT_DIM)
 	bl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bl.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	iv.add_child(bl)
 	var stats := HBoxContainer.new()
-	stats.add_theme_constant_override("separation", 20)
+	stats.add_theme_constant_override("separation", 14)
 	stats.add_child(_stat("TARGET", "~%d s" % int(d["target_s"]), UITheme.TEXT))
 	var wx := _weather_for(id)
 	var pb := Profile.get_pb(Weather.pb_key(id, wx))

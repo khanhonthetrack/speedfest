@@ -307,3 +307,22 @@ date, who (module/agent), what changed, what's next or blocked.
   browser); `online_browser_test.js` times the round from its start (`LOAD_S`, default 420 s, for
   slow page loads on CPU-only boxes).
 - Contains everything up to the dark-trap music. Not yet: the short surface maps and the downtown rework.
+
+## 2026-10-15 ~11:40 UTC — M4.6 item 2: two short ground sprints (Infield Rush, Dune Dash)
+
+- Ground patches: layout marker `{"surface": kind, "len", "x0", "x1", "at"}`; TrackSurface kinds
+  grass / gravel / sand with grip x0.74 / x0.62 / x0.68 and rolling drag 2 / 3 / 7 m/s². Car applies
+  them per wheel on top of the weather grip; AutoDriver plans corner speed with `centerline_grip`.
+  `shaders/track_ground.gdshader` draws mown grass, gravel with ruts, rippled sand (ragged edges);
+  `DirtSpray` throws clippings/dust/sand from the rear tires.
+- **Infield Rush** (stadium lawn): banked 120° with a grass inside line vs. asphalt outside, a
+  full-width gravel flick, a kicker over a sand trap. **Dune Dash** (beach at dusk): sand short cut
+  on a sweeper, dune jump onto sand, banked gravel bend, grass verges on the clifftop straight, finish
+  jump. Both ~430–470 m, 2 checkpoints, target ~11 s; each beat reuses the arena / coast music.
+- Rain/storm puddles on both (on the asphalt lines, so rain changes the grass-vs-asphalt choice).
+- UI: track select fits 5 cards on 1280 px (narrower cards, fixed-height art, "SPRINT" vs. "STUNT
+  RUN" tag, lawn and dune poster art for the sprints). Lobby track chips use `TrackDefs.short_name`
+  so they stay on one row; lobby action buttons slightly shorter so nothing falls off at 720p.
+- Tests: check_scripts 0 errors; test_tracks 95/95; test_weather 48/48; nav 8/8, lobby_fake 23/23,
+  garage 15/15. Real tracks infield+dunes: default 12/12 clean; storm 11/12 (brute keyboard
+  emulation understeers on wet gravel, see modules/tracks.md).

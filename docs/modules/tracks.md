@@ -209,3 +209,22 @@ quality ≥ 2. `GateBody` (StaticBody3D, layer world) collides on pillars and fo
 crossbar unless `_near_jump(d)` (a gap or jump/loop zone from 10 m before to 60 m after). The trigger
 Area3D is unchanged (40 m tall, so cars flying over still count). View: `tests/tracks/track_view.tscn
 -- --views="cp:0;cp:finish"`.
+
+## Ground patches and sprint maps (session 4, owner: "short maps ... grass, or gravel or sand")
+- Marker `{"surface": "grass"|"gravel"|"sand", "len": m, "x0": m, "x1": m, "at": m}`: a patch from
+  `at` metres after the current distance, `len` long, laterally from `x0` to `x1` (metres, + = right).
+  Scaled like puddles. Parsed into `data["patches"]`; `Track._build_ground_patches()` registers each
+  one with `TrackSurface.add_patch` (5 m oriented boxes along the path) and draws it with
+  `shaders/track_ground.gdshader` (per-kind look, ragged alpha-scissor edges, 2.5 cm above the deck).
+- Physics: `TrackSurface.KIND_GRIP` / `KIND_DRAG` per wheel (car.gd), `centerline_grip(d)` in the
+  AutoDriver speed plan. Spray: `weather/dirt_spray.gd`.
+- Maps: `defs/infield.gd` (Infield Rush, arena theme) and `defs/dunes.gd` (Dune Dash, coast theme),
+  ~430/470 m, 2 checkpoints, target ~11 s (bot 12–14 s). Each has rain puddles on the asphalt lines
+  and one storm-only puddle (test_weather requires puddles on every track).
+- Verified (run_real_tracks.sh infield dunes): default weather 12/12 clean. Storm 11/12: the
+  keyboard emulator on brute (RWD, heavy) holds full lock on throttle through the wet gravel flick
+  on Infield, understeers into the wall and then misses the kicker; the analog bot and the other
+  cars are clean. Raising gravel grip to 0.68 fixed that run but made the Dune Dash keyboard runs
+  bang along the gravel bend's wall in dry (2 fails), so gravel stays at 0.62.
+- Infield's road stays 22 m wide from the gravel flick to the kicker (a 22→18 taper there caught
+  cars sliding off the gravel).

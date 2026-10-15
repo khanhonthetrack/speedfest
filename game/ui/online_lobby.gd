@@ -848,7 +848,7 @@ func _build_room_view() -> Control:
 	# right: settings + actions
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_theme_constant_override("separation", 12)
+	right.add_theme_constant_override("separation", 10)
 	h.add_child(right)
 	var sp := MenuKit.panel()
 	right.add_child(sp)
@@ -858,7 +858,7 @@ func _build_room_view() -> Control:
 	sv.add_child(MenuKit.caption("Track", UITheme.MAGENTA))
 	var tnames: Array = []
 	for id in TrackDefs.IDS:
-		tnames.append(TrackDefs.display_name(id))
+		tnames.append(TrackDefs.short_name(id))   # one row of chips; the full name is in track_info
 	track_row = MenuKit.chip_row(tnames, _on_pick_track)
 	sv.add_child(track_row)
 	sv.add_child(MenuKit.caption("Round length", UITheme.MAGENTA))
@@ -881,15 +881,15 @@ func _build_room_view() -> Control:
 	sv.add_child(host_hint)
 
 	right.add_child(MenuKit.spacer(0, 0, true))
-	rejoin_btn = MenuKit.button("JOIN THE RUNNING ROUND", 0, 54)
+	rejoin_btn = MenuKit.button("JOIN THE RUNNING ROUND", 0, 48)
 	rejoin_btn.add_theme_color_override("font_color", UITheme.LIME)
 	rejoin_btn.pressed.connect(_on_rejoin)
 	rejoin_btn.visible = false
 	right.add_child(rejoin_btn)
-	ready_btn = MenuKit.button("NOT READY", 0, 54)
+	ready_btn = MenuKit.button("NOT READY", 0, 48)
 	ready_btn.pressed.connect(_on_ready_toggle)
 	right.add_child(ready_btn)
-	start_btn = MenuKit.button("START RACE", 0, 60)
+	start_btn = MenuKit.button("START RACE", 0, 54)
 	start_btn.add_theme_font_override("font", UITheme.font("head"))
 	start_btn.add_theme_font_size_override("font_size", 22)
 	start_btn.add_theme_stylebox_override("normal", UITheme.panel_style(Color(UITheme.MAGENTA, 0.25), UITheme.MAGENTA, 2))
@@ -898,11 +898,11 @@ func _build_room_view() -> Control:
 	right.add_child(start_btn)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	garage_btn = MenuKit.button("GARAGE", 0, 48)
+	garage_btn = MenuKit.button("GARAGE", 0, 44)
 	garage_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	garage_btn.pressed.connect(_on_garage)
 	row.add_child(garage_btn)
-	leave_btn = MenuKit.button("LEAVE ROOM", 0, 48)
+	leave_btn = MenuKit.button("LEAVE ROOM", 0, 44)
 	leave_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	leave_btn.pressed.connect(_on_leave)
 	row.add_child(leave_btn)

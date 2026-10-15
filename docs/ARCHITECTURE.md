@@ -254,6 +254,7 @@ func refill_nitro() -> void
 func apply_boost(direction: Vector3, accel: float, duration: float) -> void   # boost pads
 var surface: TrackSurface                         # weather grip map (set by race = track.surface); null = dry
 func get_water_amount() -> float                  # 0..1 tire contact in puddles (spray, sound, flag 64)
+func get_ground_kind() -> int                     # TrackSurface kind under the rear wheels: 0 asphalt, 1 grass, 2 gravel, 3 sand
 ```
 Car reads `controls` every physics tick. `CarInput` (`res://cars/car_input.gd`, a Node child of
 the car) fills them from the InputMap for the local player. `AutoDriver`
@@ -302,12 +303,13 @@ var kill_y: float
 func get_start_transform() -> Transform3D               # car origin pose for a standing start
 func get_checkpoint_transform(index: int) -> Transform3D   # respawn pose at checkpoint (index -1 = start)
 func get_minimap_points() -> PackedVector2Array          # XZ centerline (the HUD minimap was removed in session 4)
-var surface: TrackSurface                                # puddles from the layout's {"puddle": ...} markers
+var surface: TrackSurface                                # puddles ({"puddle": ...}) and ground patches ({"surface": ...})
 var weather: String
 func apply_weather(mode: String) -> void                 # "dry"|"rain"|"storm": puddles, road wetness, grip
 ```
 Track signals fire for **any** `Car` body. `race.gd` filters for the local car.
-`TrackDefs` (`res://tracks/track_defs.gd`, core) has ids, display names, themes, and descriptions.
+`TrackDefs` (`res://tracks/track_defs.gd`, core) has ids, display names, `short_name(id)` (one word, for
+the lobby chips), themes, descriptions and target times (under 15 s = a "SPRINT" in the track select).
 
 ### Scenery & environment (`res://tracks/scenery/`, scenery module)
 ```gdscript
@@ -328,6 +330,12 @@ for example tunnel walls or overhead gantries. Collision is only needed on props
   rain). `water_at(pos)`, `grip_for_water(w)`, `grip_at(pos)`, `drag_for_water(w)`, `set_mode(m)`.
   Car samples it per wheel contact: lateral grip, traction and braking scale by the grip, and water
   drag scrubs a little speed.
+  Ground patches (session 4): `KINDS` asphalt/grass/gravel/sand with `KIND_GRIP` and `KIND_DRAG`,
+  `add_patch(kind, d0, d1, x0, x1, boxes)`, `kind_at(pos) -> int`, `centerline_grip(d)` (AutoDriver
+  plans corner speeds with it). Car multiplies each wheel's grip by `KIND_GRIP` and adds the drag.
+  Weather and ground stack (wet gravel = road_grip x 0.62).
+- `DirtSpray` (`res://weather/dirt_spray.gd`): grass clippings / gravel dust / sand from the rear
+  tires of the local car, driven by `Car.get_ground_kind()`.
 - `WeatherFX` (race scene): rain streaks on the camera (`SceneryRain.create(density)`), darker and
   foggier light for wet rounds on dry-themed stages, storm lightning + thunder, rain ambience.
 - `WaterSpray`: tire spray (splash in puddles, mist on wet asphalt) for local and remote cars.
