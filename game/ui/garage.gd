@@ -9,8 +9,8 @@ const STAT_KEYS := [["top_speed", "TOP SPEED"], ["accel", "ACCELERATION"], ["han
 const LIVERY_NAMES := {"none": "None", "racing_stripes": "Stripes", "side_stripe": "Side stripe", "two_tone": "Two-tone", "fade": "Fade", "checker": "Checker"}
 ## Camera presets per tab: [car_yaw, pitch, distance]
 const TAB_VIEWS := [
-	[PI + 0.65, 0.16, 9.4], [PI + 0.9, 0.22, 9.0], [0.75, 0.2, 9.2],
-	[PI / 2 + PI, 0.06, 8.6], [PI + 0.3, 0.12, 9.0], [0.15, 0.12, 8.4],
+	[PI + 0.65, 0.16, 8.4], [PI + 0.9, 0.22, 8.0], [0.75, 0.2, 8.2],
+	[PI / 2 + PI, 0.06, 7.8], [PI + 0.3, 0.12, 8.0], [0.15, 0.12, 7.4],
 ]
 
 var car_id := "kaze"
@@ -61,6 +61,11 @@ func _ready() -> void:
 	var tab := int(TestHooks.arg("tab", 0))
 	if tab != 0:
 		tabs.current_tab = clampi(tab, 0, TABS.size() - 1)
+	var v: Array = TAB_VIEWS[tabs.current_tab]
+	showroom.turntable.rotation.y = float(v[0])
+	showroom.pitch = float(v[1])
+	showroom.distance = float(v[2])
+	showroom.yaw = 0.0
 	_focus_first_in_tab.call_deferred()
 
 
@@ -277,7 +282,7 @@ static func _fmt_signed(v: float) -> String:
 func _build() -> void:
 	showroom = Showroom.new()
 	showroom.screen_offset = -1.9
-	showroom.distance = 9.4
+	showroom.distance = 8.4
 	showroom.auto_rotate = 0.15
 	showroom.set_accent(UITheme.CYAN)
 	add_child(showroom)

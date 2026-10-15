@@ -95,11 +95,12 @@ func _close_name_dialog(apply: bool) -> void:
 func _build() -> void:
 	showroom = Showroom.new()
 	showroom.screen_offset = -2.0
-	showroom.distance = 9.6
+	showroom.distance = 8.6
 	showroom.pitch = 0.2
 	showroom.yaw = 0.9
 	showroom.auto_rotate = 0.22
 	add_child(showroom)
+	showroom.turntable.rotation.y = PI - 0.5
 
 	# Left-side shade so the menu reads well over the 3D scene.
 	var shade := TextureRect.new()
