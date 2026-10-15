@@ -630,6 +630,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		elif z["kind"] == "tunnel":
 			tunnel_ranges.append([z["from"], z["to"]])
 	var nchunks := maxi(1, ceili(L / CHUNK))
+	var all_faces := PackedVector3Array()
 	var roads := Node3D.new()
 	roads.name = "Road"
 	root.add_child(roads)
@@ -739,17 +740,21 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		if not posts.is_empty():
 			_add_multimesh(roads, _box_mesh(Vector3(0.14, 1.0, 0.14)), posts, material("metal"), "Posts%d" % c)
 		if not col.is_empty():
-			var sb := StaticBody3D.new()
-			sb.name = "RoadBody%d" % c
-			sb.collision_layer = LAYER_WORLD
-			sb.collision_mask = 0
-			var cs := CollisionShape3D.new()
-			var shape := ConcavePolygonShape3D.new()
-			shape.backface_collision = true
-			shape.set_faces(col.faces())
-			cs.shape = shape
-			sb.add_child(cs)
-			roads.add_child(sb)
+			all_faces.append_array(col.faces())
+	# One seamless collision mesh for the whole road: separate per-chunk bodies left internal
+	# edges at the seams that cars could snag on under load (e.g. at the crown of the loop).
+	if not all_faces.is_empty():
+		var sb := StaticBody3D.new()
+		sb.name = "RoadBody"
+		sb.collision_layer = LAYER_WORLD
+		sb.collision_mask = 0
+		var cs := CollisionShape3D.new()
+		var shape := ConcavePolygonShape3D.new()
+		shape.backface_collision = true
+		shape.set_faces(all_faces)
+		cs.shape = shape
+		sb.add_child(cs)
+		roads.add_child(sb)
 	for t in tunnel_ranges:
 		_build_tunnel(root, path, t[0], t[1], style)
 

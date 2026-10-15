@@ -9,7 +9,9 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
 
 - **Road**: lofted along `TrackPath` frames in ~150 m chunks (one `MeshInstance3D` per chunk
   for frustum culling; surfaces: road shader, slab sides, barrier, neon/reflector strip).
-  Trimesh collision per chunk (`ConcavePolygonShape3D`, backface collision on) on layer 1.
+  Collision is **one seamless** `ConcavePolygonShape3D` (road top, slab edges, barriers;
+  backface collision on) on layer 1: per-chunk bodies left seams the car snagged on at the
+  loop crown.
   No road in jump gaps.
 - **Road shader** (`shaders/road.gdshader`): procedural asphalt grain + patches + worn racing
   lanes, edge lines, dashed lane lines (city) or double yellow (coast), red/white curbs on
@@ -122,9 +124,8 @@ visual barrier, so fast cars can't climb over.
 - `tools/run_scene.sh res://tests/tracks/drive_test.tscn --headless -- --track=id [--car=kaze] [--max_s=120] [--trace=true]`
   drives the real `Car` with the physics module's `AutoDriver` (needs `module/physics` merged),
   respawning at the last checkpoint below `kill_y` or when the bot reports stuck. Results with
-  physics as of 00:40 UTC (kaze): arena **45.4 s, 0 respawns** (loop, both jumps, banked 180 OK);
-  downtown 85.7 s, 0 respawns; coast 100.5 s, 0 respawns. Downtown/coast times are slow
-  because the bot scrapes walls and spins (see integration requests).
+  `module/physics` as of 00:58 UTC (kaze, AutoDriver): **arena 43.2 s, downtown 60.4 s,
+  coast 57.0 s, 0 respawns on all three** (targets 45 / 60 / 60 s).
 - `tools/run_scene.sh res://tests/tracks/track_view.tscn -- --track=id --views="overview;drive:120;chase:300;orbit:870;side:500" --out=/abs/dir --tag=x`
   screenshots (prints draw calls / primitives per view).
 - `tools/run_scene.sh res://tests/tracks/layout_map.tscn --headless -- --out=/abs/dir`: top-down
