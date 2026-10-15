@@ -99,6 +99,7 @@ static func _has_sea(n: Node) -> bool:
 func _build_geometry() -> void:
 	TrackBuilder.build_road(self, data, layout)
 	TrackBuilder.build_supports(self, data, layout)
+	TrackBuildings.build(self, data, layout)
 	match String(layout.get("ground", "none")):
 		"city", "arena":
 			TrackBuilder.build_flat_ground(self, data, layout)

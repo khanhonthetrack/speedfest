@@ -53,6 +53,7 @@ func build(p_field: SceneryField, rng_seed: int) -> Node3D:
 	batches.register("metal", SceneryMat.vcolor(0.45, 0.6), 600.0, true)
 	batches.register("screen", SceneryMat.shader_mat("screen", {"energy": 2.2}), 700.0, false)
 	_ground()
+	_reserve_track_buildings()
 	_frontage()
 	_backfill()
 	_skyline()
@@ -117,6 +118,15 @@ func _cells_of(c: Vector3, xd: Vector3, zd: Vector3, hx: float, hz: float) -> Ar
 			if absf(p.dot(xd)) <= hx + 1.0 and absf(p.dot(zd)) <= hz + 1.0:
 				out.append(Vector2i(i, j))
 	return out
+
+
+## Footprints of the track's own buildings (res://tracks/track_buildings.gd, path meta "reserved":
+## [[center, x_axis, z_axis, hx, hz], ...]): random buildings stay out of them.
+func _reserve_track_buildings() -> void:
+	if not field.path.has_meta("reserved"):
+		return
+	for r: Array in field.path.get_meta("reserved"):
+		_claim(_cells_of(r[0], r[1], r[2], float(r[3]) + 2.0, float(r[4]) + 2.0))
 
 
 func _free(cells: Array) -> bool:

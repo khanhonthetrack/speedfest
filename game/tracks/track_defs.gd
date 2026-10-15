@@ -11,7 +11,7 @@ const DEFS := {
 		"short": "Downtown",
 		"theme": "city",
 		"circuit": false,
-		"blurb": "Rooftop stunt run through a rainy neon city: a gap jump, a wall ride, a loop and a dive between towers.",
+		"blurb": "Rooftop run through a rainy neon city: a rooftop gap jump, a checkpoint inside a tower, wall rides on facades and a needle jump between towers.",
 		"target_s": 35,
 		"weather": "rain",
 	},
