@@ -92,6 +92,19 @@ nitro, C for the camera, Q to look back, Esc to pause. Gamepads work too.
 - **Low frame rate**: Settings → Quality: Low and Render scale 0.75.
 - **Server port in use**: `PORT=8081 npm start` (Windows PowerShell: `$env:PORT=8081; npm start`).
 
+### D. Raspberry Pi (owner's home server)
+
+The owner's Pi runs the repo's own Node server in Docker from a clone of `main`, published with
+Tailscale Funnel. Whatever is in `server/public` on `main` is what goes live after an update.
+- Container `speedfest` (`node:22-alpine`, restart `unless-stopped`) runs `node server.js` with
+  `~/speedfest/server` mounted read-only at `/app`.
+- Before the first start, dependencies are installed once with `npm ci --omit=dev` in a
+  `node:22-alpine` container.
+- It listens on `127.0.0.1:8095` and is published with
+  `tailscale funnel --bg --https=8443 http://127.0.0.1:8095`. WebSockets (`/ws`) work through Funnel.
+- Players open the Pi's Tailscale Funnel URL on port 8443.
+- Update: `cd ~/speedfest && git pull && docker restart speedfest`
+
 ## Server options (environment variables)
 
 `PORT` (8080), `HOST` (all interfaces), `PUBLIC_DIR` (./public), `MAX_PLAYERS` (8),

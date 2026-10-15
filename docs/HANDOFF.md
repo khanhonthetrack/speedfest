@@ -7,11 +7,11 @@
   map **Rail Rush** (`rails`: ledge jump → grind rail → finish platform; `TrackRail`,
   `tests/tracks/test_rail`), static web build on the orphan branch **`web-build`**
   (`tools/publish_web_build.sh --push`, docs/HOSTING.md "Static web build").
-- `server/public` (the build the Node server deploys) was **NOT** re-exported: it is still the
-  safe build from 339825c, because a push to `main` may redeploy tonight's game-night host.
-  To ship everything there (M4.6-4): `tools/export_web.sh` → run
-  `tools/integration/online_browser_test.js` against it → commit `server/public`.
-  State verified this session: `check_all.sh` CHECK_ALL PASS; static build WEB_STATIC_PASS.
+- **`server/public` re-exported (M4.6-4 done)** with everything above, per the orchestrating
+  session: the owner's Raspberry Pi runs the repo's Node server from `main` (docs/HOSTING.md
+  "D. Raspberry Pi"; update = `git pull && docker restart speedfest`). Verified: CHECK_ALL PASS,
+  `online_browser_test.js` 2 clients PASS on this build, static build WEB_STATIC_PASS.
+- The repo is PUBLIC: never commit secrets, hostnames or URLs of the Pi.
 - `web-build` branch = static build of main@eac62e7 (2133bb7).
 - Open: textures could be swapped for real CC0 scans (ambientCG/Poly Haven are blocked here; keep
   the file names). Why compat rendered textured albedo brighter in the full scene is unexplained

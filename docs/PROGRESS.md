@@ -410,3 +410,8 @@ date, who (module/agent), what changed, what's next or blocked.
 - Gate: `tools/integration/check_all.sh` **CHECK_ALL PASS** (after switching the grind sound to a
   one-shot; test_audio requires non-looping SFX). `web-build` = 2133bb7 (from main@eac62e7).
   `server/public` intentionally not re-exported (still 339825c; see HANDOFF).
+- ~13:45 UTC: orchestrator update: deploy = `server/public` on `main` (the owner's Pi runs the
+  repo's Node server from `main` via Docker + Tailscale Funnel). Re-exported `server/public` with
+  the downtown rework, textures and Rail Rush; `online_browser_test.js` (2 Chromium clients, Node
+  server, Rail Rush round) PASS. docs/HOSTING.md "D. Raspberry Pi"; owner's messages in TRANSCRIPT.
+  (The `web-build` branch stays as an extra static copy.)

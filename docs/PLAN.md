@@ -82,7 +82,7 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
       (SPRINT tag), lobby chips use short names
 - [x] 1. Neon Downtown rework that uses the buildings: a checkpoint inside a building, wall rides on
       facades, jumping and bouncing off buildings, rooftops
-- [ ] 4. Export the web build (server/public) and verify it in a browser (static build on the `web-build` branch is done, session 5; server/public not yet)
+- [x] 4. Export the web build (server/public) and verify it in a browser (session 5; also a static copy on the `web-build` branch)
 
 ### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
 Owner: "graphics ... kinda trivial and menu looks very mobiley and boring", so focus on real art
