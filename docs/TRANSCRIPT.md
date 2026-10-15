@@ -284,3 +284,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 
 - Yes: HANDOFF, PROGRESS, TRANSCRIPT and ASSETS were updated with the texture commit; this
   follow-up adds the passing browser run (Rail Rush finished at 6.55 s via the live URL).
+
+### User (verbatim, session 6, to the orchestrating session on the Raspberry Pi; sent twice)
+
+> Continue improving from the roadmap. This includes better graphics, server which rotates maps all the time instead of having a lobby and waitijg for players, more maps you can design (keep them between 10 and 30s). Different type of cars etc.
+> Continue improving from the roadmap. This includes better graphics, server which rotates maps all the time instead of having a lobby and waitijg for players, more maps you can design (keep them between 10 and 30s). Different type of cars etc. Keep it fun, and clever
+
+### Claude
+
+- Plan in PLAN.md "M6" (sequential, push after each step): an always-on LIVE server room that
+  rotates maps (no lobby, no waiting: join and you're in the current round), new 10–30 s maps,
+  new car types, better graphics, then export and deploy to the Pi.

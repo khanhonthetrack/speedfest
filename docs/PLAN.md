@@ -84,6 +84,20 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
       facades, jumping and bouncing off buildings, rooftops
 - [x] 4. Export the web build (server/public) and verify it in a browser (session 5; also a static copy on the `web-build` branch)
 
+### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
+Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
+instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.
+Keep it fun, and clever." Worked on the Pi (it can push and reach CC0 asset sites).
+- [ ] 1. **LIVE rotation**: an always-on public room that cycles maps (and weather) round after round.
+      Joining drops you straight into the current round; results → next map automatically; no host,
+      no ready-up. Private rooms stay as an option. Server + Net + menu + race flow, tests.
+- [ ] 2. **New maps (10–30 s)**, each built around one clever idea, AutoDriver-finishable, in the
+      rotation and the track select.
+- [ ] 3. **New car types** with clearly different handling (and looks): e.g. an AWD rally hatch that
+      rules gravel/grass, a light high-grip kart-like car, a heavy torquey truck.
+- [ ] 4. **Better graphics**: CC0 HDRI skies (Poly Haven) and lighting/post polish on both renderers.
+- [ ] 5. Export `server/public`, deploy on the Pi, verify in a browser.
+
 ### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
 Owner: "graphics ... kinda trivial and menu looks very mobiley and boring", so focus on real art
 and lighting on mainline Godot plus an NFSU2-style 3D front end (docs/RENDERING.md §3 items 1 and 5).
