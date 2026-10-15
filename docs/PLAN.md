@@ -19,12 +19,12 @@ Goal: a Trackmania-like racer with an NFSU2 vibe, eventually on Nintendo Switch 
 |---|---|---|---|
 | 1 | **networking** | `server/**`, `game/autoload/net.gd`, `game/tests/net/**`, `docs/HOSTING.md` | ✅ merged (server tests 10/10, 3-client smoke PASS) |
 | 2 | **car physics** | `game/cars/car.gd`, `game/cars/tuning.gd`, `game/cars/car_input.gd`, `game/cars/auto_driver.gd`, `game/cars/physics/**`, `game/tests/physics/**` | ☐ |
-| 3 | **car visuals** | `game/cars/visual/**`, `game/shaders/car_*.gdshader`, `game/tests/visual/**` | ☐ |
+| 3 | **car visuals** | `game/cars/visual/**`, `game/shaders/car_*.gdshader`, `game/tests/visual/**` | ✅ merged 00:55 (see docs/modules/visuals.md) |
 | 4 | **track builder** | `game/tracks/track.gd`, `game/tracks/track_builder.gd`, `game/tracks/defs/**`, `game/tracks/track_path.gd` (refine), `game/shaders/road*.gdshader`, `game/shaders/track_*.gdshader`, `game/tests/tracks/**` | ☐ |
 | 5 | **scenery & environment** | `game/tracks/scenery/**`, `game/shaders/env_*.gdshader`, `game/tests/scenery/**` | ☐ |
-| 6a | **ui_menus** | `game/ui/main_menu.*`, `garage.*`, `track_select.*`, `online_lobby.*`, `settings_menu.*`, `game/ui/menu/**`, `game/tests/ui_menus/**` | ☐ |
-| 6b | **ui_hud** | `game/ui/hud.*`, `pause_menu.*`, `results.*`, `game/ui/hud/**`, `game/shaders/ui_*.gdshader`, `game/tests/ui_hud/**` | ☐ |
-| 7 | **audio** | `game/audio/**`, `game/autoload/audio_manager.gd`, `tools/audio/**`, `game/tests/audio/**` | ☐ |
+| 6a | **ui_menus** | `game/ui/main_menu.*`, `garage.*`, `track_select.*`, `online_lobby.*`, `settings_menu.*`, `game/ui/menu/**`, `game/tests/ui_menus/**` | ✅ merged 00:55 (see docs/modules/ui_menus.md) |
+| 6b | **ui_hud** | `game/ui/hud.*`, `pause_menu.*`, `results.*`, `game/ui/hud/**`, `game/shaders/ui_*.gdshader`, `game/tests/ui_hud/**` | ✅ merged 00:55 (see docs/modules/ui_hud.md) |
+| 7 | **audio** | `game/audio/**`, `game/autoload/audio_manager.gd`, `tools/audio/**`, `game/tests/audio/**` | ✅ merged 00:55 (see docs/modules/audio.md) |
 | 8 | **race** | `game/race/**` (race.gd/tscn, chase camera, remote cars, ghosts, run state machine), `game/tests/race/**` | ☐ |
 
 Shared/core files (`project.godot`, `autoload/settings.gd`, `profile.gd`, `game.gd`, `test_hooks.gd`,

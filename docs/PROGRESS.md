@@ -52,3 +52,20 @@ date, who (module/agent), what changed, what's next or blocked.
   audio `session_018yYJrBdZh6uuXVdUQqViJH`, race `session_01UXTHDb9Svwh7v9CKVysey7`.
 - Next (orchestrator): web export pipeline check with stubs, HOSTING.md, ARCHITECTURE.md Net
   additions; then merge module branches as they land (M2).
+
+## 2026-10-15 ~00:50 UTC — Networking review (orchestrator)
+
+- Adversarial review workflow on the merged networking module (3 finders, verifier per finding):
+  7 findings verified, 4 confirmed (2 were the same bug), 3 refuted. Fixed:
+  - **Hidden web tab drops reliable messages**: Godot's web loop stops on a hidden tab while the
+    browser keeps queueing frames; relayed 20 Hz state filled the 4096-packet queue after ~50 s
+    (5 players), and then room/round_end/round_start were silently dropped. The server now
+    skips lossy state relays to clients silent for > 5 s (`STALE_RX_MS`), and Net raises its
+    inbound limits as a backstop.
+  - Reloading the page mid-round (same name, old socket not yet reaped) split a player's times;
+    the server now folds the old socket's times into the live player.
+  - Static cache keyed by `realpath`, so case variants on Windows/macOS hosts share one copy of the wasm.
+  - Server tests 12/12 (2 new regression tests fail without the fix), net smoke test PASS.
+- Trial merge of all 7 pushed module branches (local only): 1 compile error (race's test track
+  vs the real Track; sent to the race agent). The race scene runs with the real car/track/HUD,
+  but the AutoDriver can't finish the real tracks yet. Results sent to the physics and tracks agents.

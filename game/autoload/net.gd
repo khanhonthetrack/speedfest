@@ -93,9 +93,12 @@ func connect_to_server(url: String = "") -> void:
 		_teardown()
 	server_url = target
 	_ws = WebSocketPeer.new()
-	_ws.inbound_buffer_size = 1 << 20
+	# Generous inbound limits: on web, a hidden tab stops our main loop while the browser keeps
+	# queueing frames; when full, Godot drops the newest (reliable) messages. The server also stops
+	# relaying state to silent clients (server/lib/lobby.js STALE_RX_MS), so this is a backstop.
+	_ws.inbound_buffer_size = 1 << 22
 	_ws.outbound_buffer_size = 1 << 18
-	_ws.max_queued_packets = 4096
+	_ws.max_queued_packets = 1 << 14
 	_opened = false
 	_welcomed = false
 	_connect_started_ms = local_ms()
