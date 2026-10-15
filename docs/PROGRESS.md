@@ -638,3 +638,16 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   LIVE room (listed first) instead of the test's room. Guests now skip LIVE unless `--code=LIVE`;
   3-client round PASS.
 - Checks: PHYSICS_ALL_OK, test_tracks 203/203, check_all (full) all suites OK incl. online_round.
+## 2026-10-15 ~23:30 UTC — Session 9: reverse engineering TMNF (owner request)
+
+- Downloaded TMNF 2.11.26 from the official Ubisoft CDN (SHA-256 matches ModTMNF's list) and
+  unpacked it (7-Zip SFX → Inno Setup). It ships `TmForever.map`, so every function has its name.
+- REA (morluto/rea) + Ghidra 12.1.4 analyse `TmForever.exe` with the map as seeds; a small bridge
+  keeps one REA MCP session alive (tools/research/tmnf/).
+- Decrypted `StadiumCar.VehicleTunings.Gbx` from Stadium.pak (re-implemented GBX.NET's pak
+  format; found the reader buffering that drives the cipher's IV re-keying) and parsed it with the
+  chunk layout from `CSceneVehicleCarTuning::Chunk`. It holds 30 tunings, Nadeo's history of the
+  Stadium car from 26Nov2002 to 20juin2006; the game uses the last one (index 29).
+- That tuning selects force model 6 (`ComputeForcesModel6`). Decompiling it and its helpers next;
+  the write-up goes to docs/research/tmnf_physics.md. Only our own description and the numbers
+  go into the repo, no game files or decompiled code.
