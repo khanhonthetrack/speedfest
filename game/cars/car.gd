@@ -92,6 +92,9 @@ var _prev_vel := Vector3.ZERO
 var _ground_n := Vector3.UP
 var _land_timer := 0.0
 var _intent := 0.0
+var _force := PackedFloat32Array([0, 0, 0, 0])
+var _vis_spin_arr: Array = [0.0, 0.0, 0.0, 0.0]
+var _vis_susp_arr: Array = [0.0, 0.0, 0.0, 0.0]
 
 
 static func create(p_config: Dictionary) -> Car:
@@ -195,7 +198,7 @@ func get_rpm_ratio() -> float:
 func get_gear() -> int:
 	if _reversing:
 		return -1
-	if frozen_controls or (absf(_fwd_speed) < 0.3 and float(controls["throttle"]) < 0.05):
+	if frozen_controls or (absf(_fwd_speed) < 0.3 and float(controls.get("throttle", 0.0)) < 0.05):
 		return 0
 	return _gear
 
@@ -236,14 +239,17 @@ func get_net_state() -> Dictionary:
 	var p := global_position
 	var v := linear_velocity
 	return {"p": [p.x, p.y, p.z], "q": [q.x, q.y, q.z, q.w], "v": [v.x, v.y, v.z],
-		"st": float(controls["steer"]), "rpm": _rpm, "fl": get_flags()}
+		"st": float(controls.get("steer", 0.0)), "rpm": _rpm, "fl": get_flags()}
 
 
 func teleport(xform: Transform3D, p_linear_velocity: Vector3 = Vector3.ZERO) -> void:
 	_pending_teleport = true
 	_pending_xform = xform.orthonormalized()
 	_pending_vel = p_linear_velocity
-	global_transform = _pending_xform
+	if is_inside_tree():
+		global_transform = _pending_xform
+	else:
+		transform = _pending_xform
 	linear_velocity = p_linear_velocity
 	angular_velocity = Vector3.ZERO
 	_reset_dynamics(p_linear_velocity)
@@ -361,13 +367,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var com := xf.origin + state.center_of_mass
 	var speed := lv.length()
 	_fwd_speed = lv.dot(fwd)
-	var throttle := clampf(float(controls["throttle"]), 0.0, 1.0)
-	var brake := clampf(float(controls["brake"]), 0.0, 1.0)
-	var steer_in := clampf(float(controls["steer"]), -1.0, 1.0)
-	var handbrake := bool(controls["handbrake"])
-	var want_nitro := bool(controls["nitro"])
+	var throttle := clampf(float(controls.get("throttle", 0.0)), 0.0, 1.0)
+	var brake := clampf(float(controls.get("brake", 0.0)), 0.0, 1.0)
+	var steer_in := clampf(float(controls.get("steer", 0.0)), -1.0, 1.0)
+	var handbrake := bool(controls.get("handbrake", false))
+	var want_nitro := bool(controls.get("nitro", false))
 	if frozen_controls:
-		steer_in = steer_in * 0.0
+		steer_in = 0.0
 		handbrake = false
 		want_nitro = false
 
@@ -416,7 +422,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 				state.linear_velocity = lv
 
 	# suspension forces (+ anti-roll)
-	var force := PackedFloat32Array([0, 0, 0, 0])
+	var force := _force
+	for i in 4:
+		force[i] = 0.0
 	for i in 4:
 		if not _contact[i]:
 			continue
@@ -752,7 +760,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 func _process(_delta: float) -> void:
 	if visual == null:
 		return
-	visual.set_wheel_state(-_steer_angle, [_spin[0], _spin[1], _spin[2], _spin[3]],
-		[_vis_offset[0], _vis_offset[1], _vis_offset[2], _vis_offset[3]])
+	for i in 4:
+		_vis_spin_arr[i] = _spin[i]
+		_vis_susp_arr[i] = _vis_offset[i]
+	visual.set_wheel_state(-_steer_angle, _vis_spin_arr, _vis_susp_arr)
 	visual.set_lights(_braking, _reversing)
 	visual.set_nitro(_nitro_active)
