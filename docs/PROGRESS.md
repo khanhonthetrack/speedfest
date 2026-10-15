@@ -308,7 +308,7 @@ date, who (module/agent), what changed, what's next or blocked.
   slow page loads on CPU-only boxes).
 - Contains everything up to the dark-trap music. Not yet: the short surface maps and the downtown rework.
 
-## 2026-10-15 ~11:40 UTC — M4.6 item 2: two short ground sprints (Infield Rush, Dune Dash)
+## 2026-10-15 ~11:15 UTC — M4.6 item 2: two short ground sprints (Infield Rush, Dune Dash)
 
 - Ground patches: layout marker `{"surface": kind, "len", "x0", "x1", "at"}`; TrackSurface kinds
   grass / gravel / sand with grip x0.74 / x0.62 / x0.68 and rolling drag 2 / 3 / 7 m/s². Car applies
