@@ -1437,3 +1437,95 @@ static func build_corner_signs(root: Node3D, data: Dictionary, layout: Dictionar
 	mi.mesh = mesh
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(mi)
+
+
+
+# ----------------------------------------------------------------- stunt dressing
+
+## Hazard stripes on the last meters of each kicker and the first meters of each landing,
+## glowing bars along the lip and landing edges.
+static func build_jump_dressing(root: Node3D, data: Dictionary, layout: Dictionary) -> void:
+	if data["jumps"].is_empty():
+		return
+	var path: TrackPath = data["path"]
+	var neon_style: bool = layout.get("wall_style", "") == "neon"
+	var stripes := Acc.new()
+	var bars := Acc.new()
+	for j in data["jumps"]:
+		for rng in [[float(j["lip"]) - 7.0, float(j["lip"]) - 0.05], [float(j["land"]) + 0.05, float(j["land"]) + 5.0]]:
+			var ds := ring_ds(rng[0], rng[1], 0.5)
+			var frames: Array[Transform3D] = []
+			var prof: Array = []
+			for d in ds:
+				var f := path.sample_transform(d)
+				frames.append(Transform3D(f.basis, f.origin + f.basis.y * 0.03))
+				var hw := path.width_at(d) * 0.5 - 0.95
+				prof.append(PackedVector2Array([Vector2(-hw, 0), Vector2(hw, 0)]))
+			loft(stripes, frames, ds, prof)
+		for d in [float(j["lip"]) - 0.12, float(j["land"]) + 0.12]:
+			var f := path.sample_transform(d)
+			var hw := path.width_at(d) * 0.5
+			bars.box(Transform3D(f.basis, f.origin + f.basis.y * -0.2), Vector3(hw * 2.0 + 0.1, 0.3, 0.25))
+	var mesh := ArrayMesh.new()
+	stripes.commit(mesh, shader_material("res://shaders/track_stripes.gdshader", {
+		"color_a": Color(1.0, 0.15, 0.75) if neon_style else Color(1.0, 0.75, 0.05)}))
+	bars.commit(mesh, material("neon_magenta" if neon_style else "neon_amber"))
+	var mi := MeshInstance3D.new()
+	mi.name = "JumpDressing"
+	mi.mesh = mesh
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(mi)
+
+
+## A neon gantry over each vertical loop: two towers outside the entry/exit roads and a top
+## beam above the loop's crown, with hangers. Purely decorative (towers have collision).
+static func build_loop_gantries(root: Node3D, data: Dictionary, _layout: Dictionary) -> void:
+	var path: TrackPath = data["path"]
+	for l in data["loops"]:
+		var f0 := path.sample_transform(float(l["from"]))
+		var r: float = l["radius"]
+		var shift: float = l["shift"]
+		var hw := path.width_at(float(l["from"])) * 0.5
+		var right: Vector3 = l["axis"]
+		var fwd := Vector3(-f0.basis.z.x, 0, -f0.basis.z.z).normalized()
+		var base := f0.origin
+		var x_left := -hw - 3.5
+		var x_right := shift + hw + 3.5
+		var top := 2.0 * r + 4.0
+		var frame := Acc.new()
+		var neon := Acc.new()
+		var bas := Basis(right, Vector3.UP, -fwd)
+		var body := StaticBody3D.new()
+		body.name = "LoopGantry"
+		body.collision_layer = LAYER_WORLD
+		body.collision_mask = 0
+		for x in [x_left, x_right]:
+			var c: Vector3 = base + right * x + Vector3.UP * (top * 0.5)
+			frame.box(Transform3D(bas, c), Vector3(1.6, top + 1.0, 1.6))
+			for sz in [-1.0, 1.0]:
+				neon.box(Transform3D(bas, c + fwd * 0.82 * sz), Vector3(0.18, top, 0.06))
+			var cs := CollisionShape3D.new()
+			var bs := BoxShape3D.new()
+			bs.size = Vector3(1.6, top + 1.0, 1.6)
+			cs.shape = bs
+			cs.transform = Transform3D(bas, c)
+			body.add_child(cs)
+		var span := x_right - x_left
+		var bc := base + right * ((x_left + x_right) * 0.5) + Vector3.UP * (top + 0.4)
+		frame.box(Transform3D(bas, bc), Vector3(span + 1.6, 1.6, 2.2))
+		for sz in [-1.0, 1.0]:
+			neon.box(Transform3D(bas, bc + fwd * 1.12 * sz - Vector3.UP * 0.55), Vector3(span + 1.4, 0.14, 0.06))
+		# hangers down to the crown of the loop (outer surface ~ 2r + depth)
+		for k in [-1.0, 1.0]:
+			var x: float = shift * 0.5 + k * (hw - 0.5)
+			var hb := 2.0 * r + ROAD_DEPTH
+			var hc: Vector3 = base + right * x + Vector3.UP * ((hb + top) * 0.5)
+			frame.box(Transform3D(bas, hc), Vector3(0.3, top - hb, 0.3))
+		var mesh := ArrayMesh.new()
+		frame.commit(mesh, material("barrier_neon_body"))
+		neon.commit(mesh, material("neon_cyan"))
+		var mi := MeshInstance3D.new()
+		mi.name = "LoopGantryMesh"
+		mi.mesh = mesh
+		root.add_child(mi)
+		root.add_child(body)
