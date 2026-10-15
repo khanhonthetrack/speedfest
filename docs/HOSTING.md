@@ -106,3 +106,25 @@ tools/export_web.sh          # -> server/public
 ```
 Tests: `cd server && npm test`, `tools/net_smoke_test.sh` (3 headless Godot clients), and
 `tools/integration/online_browser_test.js` (N headless Chromium clients against a running server).
+
+## Static web build (no server needed, solo play)
+
+The branch **`web-build`** (orphan, files at the root, `index.html` at the root) holds a ready
+static build. Any static file server works, also from a sub-path (`/speedfest/`): GitHub Pages,
+Netlify, S3, nginx, `python3 -m http.server`. No special headers: the build is Godot's
+**single-threaded** web export (preset "Web", `variant/thread_support=false`), so it doesn't need
+SharedArrayBuffer or COOP/COEP cross-origin isolation. On a static host the game runs solo (menus,
+garage, every track, PBs and ghosts in the browser's storage); online rooms need the Node server
+above (the game connects to `/ws` on the same host).
+
+Rebuild and publish (on `main`, with Godot **4.7.2-stable** and its export templates installed per
+CLAUDE.md; templates `web_nothreads_release.zip` are the ones used):
+```bash
+tools/publish_web_build.sh --push   # = tools/export_web.sh <tmp> + commit to the web-build branch
+```
+Exact export command inside it: `godot --headless --path game --export-release "Web" <dir>/index.html`.
+Check a build in a real browser from a sub-path with a plain static server (headless Chromium via
+Playwright; starts a solo run on a track with the AutoDriver and waits for the finish):
+```bash
+NODE_PATH=$(npm root -g) node tools/integration/web_static_test.js <build_dir> <out_dir> rails 600
+```

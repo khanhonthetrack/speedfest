@@ -12,6 +12,8 @@ extends Node
 ##   --expect=3                 host: wait for this many players before starting (default 2)
 ##   --rounds=1                 host: how many rounds to start
 ##   --code=ABCD                guest: room to join (default: first room found)
+##   --auto_solo=rails          instead: start a solo run on that track right after boot (pair
+##                              with --autodrive; static web build test, tools/integration/web_static_test.js)
 ## Prints "AUTOPILOT <event> ..." lines for test harnesses.
 
 var role := ""
@@ -25,6 +27,14 @@ var _configured := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	role = String(TestHooks.arg("auto_online", ""))
+	if role == "" and TestHooks.has_arg("auto_solo"):
+		set_process(false)
+		if TestHooks.has_arg("car"):
+			Profile.set_selected_car(String(TestHooks.arg("car", "kaze")))
+		var tid := String(TestHooks.arg("auto_solo", "arena"))
+		_say("solo %s" % tid)
+		get_tree().create_timer(1.0).timeout.connect(func() -> void: Game.start_solo(tid, String(TestHooks.arg("weather", ""))))
+		return
 	if role == "":
 		set_process(false)
 		return
