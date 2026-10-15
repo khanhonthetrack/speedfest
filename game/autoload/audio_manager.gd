@@ -61,10 +61,24 @@ func _ready() -> void:
 		_sfx.append(_make_player("Sfx%d" % i, Settings.BUS_SFX))
 	for i in 2:
 		_music.append(_make_player("Music%d" % i, Settings.BUS_MUSIC))
+	_add_master_limiter()
 	# Browsers only start audio after a user gesture. Godot resumes the AudioContext itself;
 	# we restart the music once on the first gesture in case its start was swallowed.
 	_gesture_seen = not OS.has_feature("web")
 	set_process_input(not _gesture_seen)
+
+
+## Engines, SFX and music can stack up; a hard limiter on Master keeps the sum from clipping.
+## (Desktop/console only: the web build's sample playback bypasses bus effects.)
+func _add_master_limiter() -> void:
+	var mi := AudioServer.get_bus_index("Master")
+	for i in AudioServer.get_bus_effect_count(mi):
+		if AudioServer.get_bus_effect(mi, i) is AudioEffectHardLimiter:
+			return
+	var lim := AudioEffectHardLimiter.new()
+	lim.ceiling_db = -0.5
+	lim.release = 0.12
+	AudioServer.add_bus_effect(mi, lim)
 
 
 func _make_player(n: String, bus: String) -> AudioStreamPlayer:

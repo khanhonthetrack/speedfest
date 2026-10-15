@@ -89,7 +89,7 @@ Contract (ARCHITECTURE.md) unchanged. Additions:
 
 - `rpm_ratio` 0..1 is mapped to `lerp(idle_rpm, redline, ratio)` per car (audio rpm, not the
   physics rpm). So 0 = idle, 1 = redline. Values up to 1.05 are accepted.
-- Engine level: local -3 dB, remote -2 dB before distance attenuation. Music: menu -4 dB, race
+- Engine level: local -4.5 dB, remote -2 dB before distance attenuation. Music: menu -4 dB, race
   -6 dB (on top of the Music bus), so engines and SFX sit on top of the race music.
 - Vorbis quality 3 for SFX/engines, 2 for music (~80 kbps stereo) to keep the web download small.
 - Loops are mono except music (stereo).
@@ -117,3 +117,10 @@ Contract (ARCHITECTURE.md) unchanged. Additions:
   drive, per-layer variation) and the gains in `engine_audio.gd`.
 - Web: Godot's web "sample" playback mode (no threads) supports volume/pitch/3D panning per player
   but not bus effects; we use none. Not yet verified in a real browser by this module.
+
+## Previewing without the game
+
+`python3 tools/audio/preview_engine.py /abs/out_dir [car ...]` renders a 13 s drive per car
+(idle, three full-throttle pulls, limiter, lift + blow-off, nitro, drift) from the generated
+loops with the same mix logic as `EngineAudio` (a Python port: keep the two in sync when tuning),
+writes `preview_<car>.ogg` and a spectrogram PNG, and prints the peak level.

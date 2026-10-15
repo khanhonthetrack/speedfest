@@ -15,7 +15,7 @@ const Layers = preload("res://audio/engine_layers.gd")
 const GEN := "res://audio/generated/"
 
 ## Overall level of the local engine and of remote engines (dB).
-@export var local_engine_db := -3.0
+@export var local_engine_db := -4.5
 @export var remote_engine_db := -2.0
 ## Remote engines: distance (m) at which they are at full level, and cut-off distance.
 @export var remote_unit_size := 14.0
@@ -221,7 +221,7 @@ func _update_extras(dt: float, rn: float) -> void:
 	var want_boost := _throttle * smoothstep(0.25, 0.9, rn) if _t_throttle > 0.4 else 0.0
 	var rate := 1.6 if want_boost > _boost else 7.0
 	_boost = move_toward(_boost, want_boost, rate * dt)
-	_mix("turbo", pow(_boost, 1.5) * turbo_amt * 0.32, 0.55 + 0.75 * _boost)
+	_mix("turbo", pow(_boost, 1.5) * turbo_amt * 0.22, 0.55 + 0.75 * _boost)
 	# blow-off on a quick lift from high boost
 	_blowoff_cd = maxf(0.0, _blowoff_cd - dt)
 	_thr_peak = maxf(_t_throttle, _thr_peak - dt * 4.0)
@@ -241,7 +241,7 @@ func _update_extras(dt: float, rn: float) -> void:
 	_mix("squeal", _squeal_g * 0.42, 0.88 + 0.22 * _drift + clampf(_speed / 400.0, 0.0, 0.15))
 	# --- wind
 	var sp := clampf(_speed / 300.0, 0.0, 1.2)
-	_mix("wind", pow(sp, 1.6) * 0.55, 0.75 + 0.45 * sp)
+	_mix("wind", pow(sp, 1.6) * 0.45, 0.75 + 0.45 * sp)
 	# --- landing thud
 	if not _t_grounded:
 		_air_time += dt
