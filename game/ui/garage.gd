@@ -453,6 +453,7 @@ func _build_body_tab() -> Control:
 	carbon_check = CheckButton.new()
 	carbon_check.text = "Carbon fiber hood"
 	carbon_check.focus_mode = Control.FOCUS_ALL
+	MenuKit.style_toggle(carbon_check)
 	MenuKit.wire_button(carbon_check)
 	carbon_check.toggled.connect(func(on: bool) -> void: set_style_value("hood_carbon", on))
 	v.add_child(carbon_check)

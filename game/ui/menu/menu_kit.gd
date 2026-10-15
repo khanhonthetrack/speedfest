@@ -32,6 +32,22 @@ static func button(text: String, min_w: float = 0.0, min_h: float = 48.0) -> But
 	return b
 
 
+## Flat look for CheckButton/CheckBox rows (the theme's Button styles are meant for buttons).
+static func style_toggle(c: Button) -> void:
+	var flat := UITheme.panel_style(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 0.0)
+	flat.content_margin_left = 4
+	var hot := UITheme.panel_style(Color(UITheme.CYAN, 0.08), Color(UITheme.CYAN, 0.4), 1, 0.0)
+	hot.content_margin_left = 4
+	for st in ["normal", "pressed", "disabled"]:
+		c.add_theme_stylebox_override(st, flat)
+	for st in ["hover", "hover_pressed"]:
+		c.add_theme_stylebox_override(st, hot)
+	c.add_theme_stylebox_override("focus", UITheme.panel_style(Color(0, 0, 0, 0), UITheme.LIME, 2, 0.0))
+	c.add_theme_color_override("font_pressed_color", UITheme.TEXT)
+	c.add_theme_color_override("font_hover_pressed_color", UITheme.CYAN)
+	c.add_theme_color_override("font_focus_color", UITheme.CYAN)
+
+
 static func wire_button(b: BaseButton) -> void:
 	b.mouse_entered.connect(func() -> void:
 		if b.is_visible_in_tree() and not b.disabled and b.focus_mode != Control.FOCUS_NONE:
@@ -102,8 +118,19 @@ static func chip_row(labels: Array, on_pick: Callable, min_w: float = 0.0) -> HF
 		b.toggle_mode = true
 		b.button_group = group
 		b.custom_minimum_size = Vector2(min_w, 40)
-		b.add_theme_font_size_override("font_size", 19)
-		b.add_theme_stylebox_override("pressed", UITheme.panel_style(Color(UITheme.CYAN, 0.28), UITheme.CYAN, 2))
+		b.add_theme_font_size_override("font_size", 18)
+		var st_n := UITheme.panel_style(UITheme.PANEL, UITheme.CYAN.darkened(0.35), 2)
+		var st_h := UITheme.panel_style(UITheme.PANEL_LIGHT, UITheme.CYAN, 2)
+		var st_p := UITheme.panel_style(Color(UITheme.CYAN, 0.28), UITheme.CYAN, 2)
+		var st_d := UITheme.panel_style(Color(UITheme.PANEL, 0.5), Color(UITheme.TEXT_DIM, 0.3), 2)
+		for st in [st_n, st_h, st_p, st_d]:
+			st.content_margin_left = 13
+			st.content_margin_right = 13
+		b.add_theme_stylebox_override("normal", st_n)
+		b.add_theme_stylebox_override("hover", st_h)
+		b.add_theme_stylebox_override("pressed", st_p)
+		b.add_theme_stylebox_override("hover_pressed", st_p)
+		b.add_theme_stylebox_override("disabled", st_d)
 		b.add_theme_color_override("font_pressed_color", UITheme.TEXT)
 		wire_button(b)
 		b.pressed.connect(func() -> void: on_pick.call(i))
