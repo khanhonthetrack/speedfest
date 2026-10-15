@@ -431,3 +431,16 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 
 - Saved: the physics rewrite is on branch `m7-physics`; HANDOFF/PLAN/PROGRESS on `main` say what
   is done and the exact next steps.
+
+## Session 10 — 2026-10-15 (~22:50 UTC; cloud session)
+
+### User (verbatim)
+
+> claude agents pushed the current work - mainly physics update. read what’s new and continue the work. the other agent focuses on reverse engineering trackmania nations forever, let it do its work.
+
+### Claude
+
+- Read HANDOFF (session 8) and the branch `m7-physics`, and did its pre-merge list without touching
+  the TMNF reverse-engineering work (another session). Found and fixed a fast-loop body slam,
+  made rails non-magnetic, fixed a broken online test, ran the full matrices and merged the
+  physics into `main`. Next: the PC build (M7-1), then track pieces and 30+ maps (M7-6).

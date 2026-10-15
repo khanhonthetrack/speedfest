@@ -615,3 +615,26 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   50 vs 34 deg keeping 95%, wall ride drift 0.5-0.7 m with ~99% speed kept, barrier graze keeps
   96% with the nose aligned, landings keep 99.6%.
 - Pushed to branch `m7-physics` (87a4543); real tracks/AutoDriver not re-run yet (HANDOFF).
+
+## 2026-10-15 ~23:20 UTC — Session 10: M7 physics verified and merged into `main`; rails non-magnetic
+
+- **Real tracks with the new handling** (session 8's rewrite on `m7-physics`): AutoDriver 10 tracks
+  × 6 cars, analog **60/60** and keyboard emulation **60/60** with 0 respawns (session 3 keyboard:
+  13/18 on 3 tracks). Laps are faster: e.g. Rail Rush 5.6-6.0 s (was 6.2), Arena 28.8-30.5 s.
+- **Fast-loop body slam fixed**: the one failure (Twister, Veloce) entered a loop at 273 km/h (~30 g),
+  the springs ran out, the floor box hit the road, caught a triangle edge and the car stopped dead
+  (273 -> 15 km/h in one step). `car.gd` now has a hard stop at the end of the suspension travel
+  (`_hard_comp` = 4 cm before the floor would touch): no further velocity into the road, speed kept
+  while rolling; on a touchdown the vertical speed is only removed (no free boost). TM lab: new
+  `loop_fast` (r 18 m at 280 km/h: completes, < 15 km/h lost in any step, exit >= 85% of entry);
+  **336/336**.
+- **Rails not magnetic** (owner, M7-5): `track_rail.gd` catches only a car coming down onto the
+  rail: <= 0.45 m off the line (was 1.8), within 0.35 m of ride height (was -1.1/+0.7), not rising
+  (> 0.5 m/s; was 2.5), heading within ~26 deg (was 41). The catch blends the leftover offset out over
+  0.15 s instead of snapping. `test_rail` probes (a car 1 m beside it / rising through it / landing
+  0.3 m off-centre) fail on the old code and pass now; **37/37**, every Rail Rush run incl.
+  keyboard still lands the rail; the no-rail controls still fall.
+- **online_round_test** had been broken since session 6: autopilot guests joined the always-on
+  LIVE room (listed first) instead of the test's room. Guests now skip LIVE unless `--code=LIVE`;
+  3-client round PASS.
+- Checks: PHYSICS_ALL_OK, test_tracks 203/203, check_all (full) all suites OK incl. online_round.
