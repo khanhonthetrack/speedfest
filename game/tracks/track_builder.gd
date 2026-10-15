@@ -452,6 +452,9 @@ class Acc:
 	var uv := PackedVector2Array()
 	var uv2 := PackedVector2Array()
 	var idx := PackedInt32Array()
+	## Set before lofting to also emit tangents (normal-mapped road deck); loft() fills `tan`.
+	var use_tangents := false
+	var tan := PackedFloat32Array()
 
 	func add(p: Vector3, nn: Vector3, t: Vector2, t2 := Vector2.ZERO) -> int:
 		v.append(p)
@@ -459,6 +462,9 @@ class Acc:
 		uv.append(t)
 		uv2.append(t2)
 		return v.size() - 1
+
+	func add_tangent(tg: Vector3) -> void:
+		tan.append_array(PackedFloat32Array([tg.x, tg.y, tg.z, 1.0]))
 
 	## a = near start, b = far start, c = far end, d = near end (front face on the normal side).
 	func quad(a: int, b: int, c: int, d: int) -> void:
@@ -493,6 +499,8 @@ class Acc:
 		arr[Mesh.ARRAY_TEX_UV] = uv
 		arr[Mesh.ARRAY_TEX_UV2] = uv2
 		arr[Mesh.ARRAY_INDEX] = idx
+		if use_tangents and tan.size() == v.size() * 4:
+			arr[Mesh.ARRAY_TANGENT] = tan
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
 		mesh.surface_set_material(mesh.get_surface_count() - 1, mat)
 
@@ -529,6 +537,11 @@ static func loft(acc: Acc, frames: Array[Transform3D], ds: PackedFloat32Array, p
 			var t2 := uv2s[i] if uv2s.size() > i else Vector2.ZERO
 			var ia := acc.add(f * Vector3(a2.x, a2.y, 0.0), wn, Vector2(u0, ds[i]), t2)
 			var ib := acc.add(f * Vector3(b2.x, b2.y, 0.0), wn, Vector2(u0 + e.length(), ds[i]), t2)
+			if acc.use_tangents:
+				# U runs along the profile edge
+				var tg := (f.basis.x * e.x + f.basis.y * e.y).normalized()
+				acc.add_tangent(tg)
+				acc.add_tangent(tg)
 			if prev >= 0:
 				acc.quad(prev, ia, ib, prev2)
 			prev = ia
@@ -681,6 +694,23 @@ static func material(key: String) -> Material:
 			m = s
 		_:
 			m = null
+	if m is StandardMaterial3D:
+		var sm := m as StandardMaterial3D
+		match key:
+			"concrete":
+				_apply_pbr(sm, "concrete", Color(0.9, 0.9, 0.93), 4.0)
+			"concrete_dark":
+				_apply_pbr(sm, "concrete", Color(0.43, 0.43, 0.47), 4.0)
+			"tunnel":
+				_apply_pbr(sm, "concrete", Color(0.8, 0.75, 0.7), 4.0)
+			"sidewalk":
+				_apply_pbr(sm, "concrete", Color(0.64, 0.64, 0.66), 3.0, true, 0.6)
+			"barrier_neon_body", "metal_dark":
+				_apply_pbr(sm, "metal", Color(0.6, 0.6, 0.62), 2.0)
+			"metal":
+				_apply_pbr(sm, "metal", Color.WHITE, 2.0, false, 0.5)
+			"rock":
+				_apply_pbr(sm, "rock", Color(0.9, 0.85, 0.9), 6.0)
 	if m == null:
 		if key.begins_with("neon_"):
 			var s := ShaderMaterial.new()
@@ -694,6 +724,48 @@ static func material(key: String) -> Material:
 			m = s
 	_mat_cache[ck] = m
 	return m
+
+
+## Generated PBR texture set (res://assets/textures/<set>/<set>_<map>.*, tools/textures/gen_textures.py).
+## map: "albedo" | "normal" | "rough". Null when missing (the materials fall back to flat colors).
+static func pbr_texture(set_name: String, map: String) -> Texture2D:
+	var ext := "png" if map == "normal" else "jpg"
+	var p := "res://assets/textures/%s/%s_%s.%s" % [set_name, set_name, map, ext]
+	if not ResourceLoader.exists(p):
+		return null
+	return load(p) as Texture2D
+
+
+## Textures are skipped at quality 0 (weak devices keep the cheap flat materials).
+static func use_pbr() -> bool:
+	return Settings.quality >= 1
+
+
+## World-space triplanar PBR maps on a StandardMaterial3D. `tint` multiplies the texture albedo
+## (null albedo keeps the flat albedo color: normal + roughness detail only); `tile` in meters.
+static func _apply_pbr(s: StandardMaterial3D, set_name: String, tint: Color, tile: float, with_albedo := true, normal_scale := 1.0) -> void:
+	if not use_pbr():
+		return
+	var alb := pbr_texture(set_name, "albedo")
+	var nrm := pbr_texture(set_name, "normal")
+	var rgh := pbr_texture(set_name, "rough")
+	if alb == null or nrm == null or rgh == null:
+		return
+	if with_albedo:
+		s.albedo_texture = alb
+		s.albedo_color = tint
+	s.normal_enabled = true
+	s.normal_texture = nrm
+	s.normal_scale = normal_scale
+	s.roughness_texture = rgh
+	s.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+	# roughness_texture multiplies roughness: the maps average ~0.85, so scale back up
+	s.roughness = clampf(s.roughness / 0.85, 0.0, 1.0)
+	s.uv1_triplanar = true
+	s.uv1_world_triplanar = true
+	s.uv1_triplanar_sharpness = 4.0
+	s.uv1_scale = Vector3.ONE / tile
+	s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 
 
 static func _neon_color(name: String) -> Color:
@@ -748,6 +820,13 @@ static func road_material(style: String, wet: bool) -> ShaderMaterial:
 			s.set_shader_parameter("lane_count", 3)
 	var fake := 1.0 if (Settings.is_compat() or Settings.quality < 2) else 0.3
 	s.set_shader_parameter("tunnel_fake", 0.9 * fake)
+	var ta := pbr_texture("asphalt", "albedo") if use_pbr() else null
+	if ta != null:
+		s.set_shader_parameter("tex_albedo", ta)
+		s.set_shader_parameter("tex_normal", pbr_texture("asphalt", "normal"))
+		s.set_shader_parameter("tex_rough", pbr_texture("asphalt", "rough"))
+		s.set_shader_parameter("tex_amount", 0.75 if style == "neon" else 1.0)
+		s.set_shader_parameter("normal_depth", 0.8 if Settings.is_compat() else 1.2)
 	s.set_shader_parameter("paint_glow", 0.5 if style == "concrete" else 0.15)
 	_mat_cache[ck] = s
 	return s
@@ -794,6 +873,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		var c0 := c * L / nchunks
 		var c1 := (c + 1) * L / nchunks
 		var top := Acc.new()
+		top.use_tangents = true
 		var sides := Acc.new()
 		var wall := Acc.new()
 		var neon := Acc.new()

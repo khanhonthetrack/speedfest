@@ -17,6 +17,13 @@ static func shader_mat(shader_name: String, params := {}) -> ShaderMaterial:
 	m.shader = shader(shader_name)
 	for k in params:
 		m.set_shader_parameter(k, params[k])
+	if shader_name == "terrain" and TrackBuilder.use_pbr():
+		var ra := TrackBuilder.pbr_texture("rock", "albedo")
+		if ra != null:
+			m.set_shader_parameter("rock_albedo", ra)
+			m.set_shader_parameter("rock_rough", TrackBuilder.pbr_texture("rock", "rough"))
+			m.set_shader_parameter("asphalt_albedo", TrackBuilder.pbr_texture("asphalt", "albedo"))
+			m.set_shader_parameter("tex_amount", 1.0)
 	return m
 
 

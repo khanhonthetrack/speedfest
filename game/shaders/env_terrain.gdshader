@@ -12,6 +12,26 @@ uniform vec3 grid_color : source_color = vec3(0.0, 0.9, 1.0);
 uniform vec3 grid_color2 : source_color = vec3(1.0, 0.17, 0.84);
 uniform float grid_energy = 1.4;
 uniform float lawn_brightness = 1.0;    // compat has no volumetric fog lift at night: brighten the lawn
+// Generated PBR maps (tools/textures/gen_textures.py): rock on coast slopes and cliffs, asphalt
+// on city lots. tex_amount 0 = procedural only (quality 0 / textures missing).
+uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D rock_rough : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D asphalt_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float tex_amount = 0.0;
+
+// Triplanar rock (6 m tile; strata stay horizontal on the side projections).
+vec4 rock_tex(vec3 wp, vec3 wn) {
+	vec3 w = pow(abs(wn), vec3(4.0));
+	w /= (w.x + w.y + w.z);
+	vec2 ux = vec2(wp.z, -wp.y) / 6.0;
+	vec2 uz = vec2(wp.x, -wp.y) / 6.0;
+	vec2 uy = wp.xz / 6.0;
+	vec3 c = texture(rock_albedo, ux).rgb * w.x + texture(rock_albedo, uz).rgb * w.z + texture(rock_albedo, uy).rgb * w.y;
+	// relative to the texture's average (1x1 mip): sRGB decoding differs between drivers
+	c = c / max(textureLod(rock_albedo, vec2(0.5), 12.0).rgb, vec3(0.005)) * vec3(0.39, 0.33, 0.26);
+	float r = texture(rock_rough, ux).r * w.x + texture(rock_rough, uz).r * w.z + texture(rock_rough, uy).r * w.y;
+	return vec4(c, r);
+}
 
 
 float h21(vec2 p) {
@@ -73,6 +93,10 @@ void fragment() {
 		float line = smoothstep(0.0, tw.x * 1.5 + 0.02, tp.x) * smoothstep(0.0, tw.y * 1.5 + 0.02, tp.y);
 		float walk = 1.0 - smoothstep(4.0, 5.0, ed);
 		vec3 asphalt = vec3(0.035, 0.035, 0.042) * (0.7 + 0.6 * n);
+		if (tex_amount > 0.0) {
+			vec3 at = texture(asphalt_albedo, p * 0.5).rgb / max(textureLod(asphalt_albedo, vec2(0.5), 12.0).rgb, vec3(0.005));
+			asphalt = mix(asphalt, vec3(0.035, 0.035, 0.042) * at * (0.7 + 0.6 * n), tex_amount);
+		}
 		vec3 paving = vec3(0.09, 0.085, 0.09) * mix(0.55, 1.0, line) * (0.8 + 0.4 * h21(floor(p / 1.5)));
 		alb = mix(asphalt, paving, walk);
 		// curb line
@@ -97,8 +121,14 @@ void fragment() {
 		// darker scrub patches
 		alb *= 0.75 + 0.35 * smoothstep(0.3, 0.7, fbm(p * 0.06 + 3.0));
 		float rk = smoothstep(0.32, 0.5, slope + (n2 - 0.5) * 0.25);
+		float rock_r = 0.75;
+		if (tex_amount > 0.0) {
+			vec4 rt = rock_tex(wpos, wnrm);
+			rock = mix(rock, rt.rgb * 0.75 * (0.8 + 0.4 * n2), tex_amount);
+			rock_r = mix(rock_r, rt.a, tex_amount);
+		}
 		alb = mix(alb, rock, rk);
-		rough = mix(0.9, 0.75, rk);
+		rough = mix(0.9, rock_r, rk);
 		float hs = wpos.y - sea_level;
 		float beach = 1.0 - smoothstep(1.5, 4.5 + n * 3.0, hs);
 		alb = mix(alb, mix(sand, rock * 0.8, rk * 0.6), beach);

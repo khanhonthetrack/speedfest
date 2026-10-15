@@ -15,6 +15,13 @@ uniform float tech_panels = 0.0;   // arena: panel seams and a glowing center gu
 uniform float paint_glow = 0.1;    // retro-reflective paint: stays readable in the dark
 uniform vec4 tunnel_light : source_color = vec4(1.0, 0.62, 0.3, 1.0);
 uniform float tunnel_fake = 0.25;  // fake sodium bounce inside tunnels (UV2.y >= 2 marks tunnels)
+// PBR asphalt (tools/textures/gen_textures.py, 2 m tile). tex_amount 0 = procedural grain only.
+uniform sampler2D tex_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D tex_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D tex_rough : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float tex_amount = 0.0;
+uniform float tex_scale = 0.5;      // tiles per meter
+uniform float normal_depth = 1.0;
 
 varying vec2 v_world;
 
@@ -63,6 +70,18 @@ void fragment() {
 	float worn = exp(-pow((ax - hw * 0.4) / (hw * 0.18), 2.0));
 	col *= 1.0 - 0.12 * worn;
 	float rough = 0.82 - 0.1 * worn;
+	vec3 tex_n = vec3(0.5, 0.5, 1.0);
+	if (tex_amount > 0.0) {
+		vec2 tuv = UV * tex_scale;
+		// detail relative to the texture's own average (its 1x1 mip), so asphalt_color stays the
+		// tint and the result doesn't depend on how a driver decodes sRGB (compat/WebGL differ)
+		vec3 ta = texture(tex_albedo, tuv).rgb / max(textureLod(tex_albedo, vec2(0.5), 12.0).rgb, vec3(0.005));
+		vec3 tcol = asphalt_color.rgb * ta * (0.85 + 0.3 * patches) * (1.0 - 0.12 * worn);
+		col = mix(col, tcol, tex_amount);
+		// polished wheel tracks: smoother aggregate on the racing lanes
+		rough = mix(rough, texture(tex_rough, tuv).r * (1.0 - 0.12 * worn), tex_amount);
+		tex_n = mix(tex_n, texture(tex_normal, tuv).rgb, tex_amount);
+	}
 
 	vec3 paint = vec3(0.0);
 	float paint_a = 0.0;
@@ -113,11 +132,15 @@ void fragment() {
 	float wet = wetness * (0.65 + 0.35 * puddle);
 	col *= 1.0 - 0.35 * wet;
 	rough = mix(rough, 0.06, wet);
+	// water fills the texture: flatter normals where it's wet, flattest in the puddles
+	tex_n = mix(tex_n, vec3(0.5, 0.5, 1.0), wet * 0.75);
 
 	ALBEDO = col;
 	ROUGHNESS = rough;
 	METALLIC = 0.0;
 	SPECULAR = 0.5 + 0.3 * wet;
+	NORMAL_MAP = tex_n;
+	NORMAL_MAP_DEPTH = normal_depth;
 	EMISSION = edge_color.rgb * edge * edge_emission * (1.0 - curb_zone) + tech_glow * edge_emission * 0.5;
 	EMISSION += paint * paint_a * paint_glow;
 	EMISSION += tunnel_light.rgb * (0.16 + 0.6 * col) * tunnel_fake * in_tunnel * (1.0 - 0.4 * smoothstep(0.0, hw, ax));
