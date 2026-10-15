@@ -1374,3 +1374,59 @@ static func _build_arch_bridge(root: Node3D, path: TrackPath, d0: float, d1: flo
 	root.add_child(mi)
 	if not hangers.is_empty():
 		_add_multimesh(root, _box_mesh(Vector3.ONE), hangers, material("metal"), "Hangers")
+
+
+
+# ----------------------------------------------------------------- corner boards
+
+## Glowing chevron boards on the outside of tight corners (readability at night).
+static func build_corner_signs(root: Node3D, data: Dictionary, layout: Dictionary) -> void:
+	var style: String = layout.get("wall_style", "concrete")
+	var max_r: float = layout.get("sign_radius", 75.0)
+	var path: TrackPath = data["path"]
+	var acc := Acc.new()
+	var excl: Array = data["gaps"].duplicate()
+	for l in data["loops"]:
+		excl.append([l["from"] - 15.0, l["to"] + 15.0])
+	var d := 0.0
+	var last := -100.0
+	while d < path.length:
+		var a := path.sample_transform(d - 5.0).basis.z
+		var b := path.sample_transform(d + 5.0).basis.z
+		a.y = 0
+		b.y = 0
+		if a.length_squared() > 0.01 and b.length_squared() > 0.01 and not in_ranges(d, excl, 2.0):
+			a = a.normalized()
+			b = b.normalized()
+			var k := a.signed_angle_to(b, Vector3.UP) / 10.0   # + = left turn
+			if absf(k) > 1.0 / max_r and d - last > 9.0 and wall_mode_at(data, d) == "both":
+				last = d
+				var f := path.sample_transform(d)
+				var outside := 1.0 if k > 0.0 else -1.0     # left turn -> outside is right (+x)
+				var xo := (path.width_at(d) * 0.5 + WALL_GAP + 0.75) * outside
+				var y0 := 1.15
+				var y1 := 2.45
+				var z0 := 1.3    # behind (toward +z)
+				var z1 := -1.3   # ahead
+				var nrm := (f.basis.x * -outside).normalized()
+				var p0 := acc.add(f * Vector3(xo, y0, z0), nrm, Vector2(0, 1))
+				var p1 := acc.add(f * Vector3(xo, y1, z0), nrm, Vector2(0, 0))
+				var p2 := acc.add(f * Vector3(xo, y1, z1), nrm, Vector2(1, 0))
+				var p3 := acc.add(f * Vector3(xo, y0, z1), nrm, Vector2(1, 1))
+				acc.quad(p0, p1, p2, p3)
+		d += 1.0
+	if acc.is_empty():
+		return
+	var fg := Color(1.0, 0.72, 0.1)
+	match style:
+		"neon":
+			fg = Color(1.0, 0.15, 0.8)
+		"guardrail":
+			fg = Color(1.0, 0.85, 0.2)
+	var mesh := ArrayMesh.new()
+	acc.commit(mesh, shader_material("res://shaders/track_chevron.gdshader", {"fg": fg}))
+	var mi := MeshInstance3D.new()
+	mi.name = "CornerSigns"
+	mi.mesh = mesh
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(mi)

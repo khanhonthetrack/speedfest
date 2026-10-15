@@ -32,6 +32,11 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
   heightfield that hugs the road, rises into cliffs on the left, falls into the sea on the
   right, drops into the bay under the bridge and rises into a mountain over the tunnel
   (`shaders/track_terrain.gdshader`, no collision; the guardrails keep cars on the road).
+- **Corner boards**: glowing chevron boards (`shaders/track_chevron.gdshader`) on the outside
+  of corners tighter than `sign_radius` (default 75 m), pointing in the turn direction.
+- **City sidewalks**: raised 5 m sidewalks behind the barriers where the road is at street level.
+- **Arch bridge** (coast bridge zone): two orange steel arches with hangers and top bracing;
+  pillars only near the bridge ends.
 - **Gates**: checkpoint arches (cyan neon; orange on the coast) and a start/finish arch
   (magenta + checker banner + label), each with an `Area3D` (layer 3 = value 4, mask 2)
   spanning the road plus the barriers, 8 m high, 4 m deep. Checkered line on the road.
@@ -46,6 +51,9 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
 | downtown | 2070 m | 5 | grid corners r=32 (banked 3°), chicane, on-ramp to a 10 m elevated highway (bridge zone) that crosses over the return leg, off-ramp, 130 m tunnel; 16 m wide; wet |
 | arena | 1526 m | 4 | 4 boost pads, vertical loop r=20 (13 m wide, shifted 17 m), 180° banked 32°, gap jump (4 m kicker, 20 m gap), final jump (22 m gap) that lands on the start straight; 16 m wide |
 | coast | 3033 m | 5 | point to point, starts at 34 m and ends at 6 m, sweepers r=170..260 banked 4..8°, 340 m bridge over a bay (deck ~14 m), rock tunnel ~250 m with a curve; 14 m wide |
+
+Banked turns are lifted by `(width/2 + 1) * sin(bank)` so the low edge stays at the original
+height (otherwise the inner edge would sink into the ground).
 
 Start pose: circuits start 6 m **past** the start/finish line (the car never touches the finish
 trigger at spawn; a lap ends when it crosses the line). Point-to-point starts 6 m behind the
@@ -84,7 +92,7 @@ Zones on `path.zones`: `loop`, `jump`, `tunnel`, `bridge`, `boost` (and the jump
 - `get_start_pose_distance() -> float`
 
 `TrackBuilder` (static): `build_layout`, `build_road`, `build_supports`, `build_flat_ground`,
-`build_terrain`, `loft`, `material(key)`, `road_material(style, wet)`, `path_bbox`, `in_ranges`.
+`build_terrain`, `build_corner_signs`, `loft`, `material(key)`, `road_material(style, wet)`, `path_bbox`, `in_ranges`.
 
 `TrackPath`: unchanged.
 

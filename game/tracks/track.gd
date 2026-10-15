@@ -82,6 +82,7 @@ func _build_geometry() -> void:
 			TrackBuilder.build_flat_ground(self, data, layout)
 		"terrain":
 			TrackBuilder.build_terrain(self, data, layout)
+	TrackBuilder.build_corner_signs(self, data, layout)
 	_build_gates()
 	_build_boost_pads()
 
