@@ -123,3 +123,10 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
   (tracks/physics/scenery branches) and get the checks green; (2) add **weather** as a stage-design
   element (rain/storm, puddles that cut grip) — see DESIGN §4.1; (3) re-export the web build and
   update the docs.
+- Done (pushed to `ccr-49301774-b5a4ns`): rework merged (all suites pass; analog bot 9/9 clean,
+  keyboard emulation 13/18). **Weather** is a round setting (Dry / Rain / Storm, host-picked or
+  solo chips), with hand-placed puddles in every stage that cut grip. Storm adds bigger puddles,
+  storm-only puddles, lightning and thunder. There's rain, tire spray and splash sounds, and PBs
+  are per weather. Verified in a real browser (WebGL2): an online round in the rain on Neon Downtown.
+  Design rationale and the per-stage puddle list: DESIGN §4.1.
+

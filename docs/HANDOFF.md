@@ -25,6 +25,8 @@ docs/modules/weather.md). The web build in `server/public` is re-exported from t
 3. Real-GPU web frame rate is still unmeasured. The weather adds rain particles (CPU on web),
    spray and puddle meshes. Check with the perf probe on `--compat`.
 4. Adversarial review of race/physics/tracks/weather never ran.
+5. Housekeeping: the remote branch `integration/weather-trial` is a leftover backup (an ancestor of
+   this branch). It's safe to delete; this environment's git proxy refused the delete.
 
 ---
 
