@@ -56,9 +56,11 @@ func setup(id: int, display_name: String, config: Dictionary) -> void:
 	if visual == null:
 		visual = CarVisual.new()
 		add_child(visual)
+	# Up to 7 remote cars: on the web renderer each extra light costs a pass per lit object, so
+	# remote cars keep the emissive glow blob but only get a real underglow light on Forward+.
+	if "underglow_light_allowed" in visual:
+		visual.set("underglow_light_allowed", not Settings.is_compat() and Settings.quality >= 1)
 	visual.build(car_id, cfg["style"])
-	# Underglow lights are expensive on web: remote cars keep the glow blob but CarVisual decides
-	# about its light; we only turn it fully off on low quality.
 	visual.set_underglow_enabled(Settings.quality >= 1)
 	if name_tag == null:
 		name_tag = Label3D.new()
