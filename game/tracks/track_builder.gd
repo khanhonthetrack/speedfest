@@ -505,6 +505,11 @@ static func material(key: String) -> Material:
 			s.albedo_color = Color(0.36, 0.34, 0.32)
 			s.roughness = 0.8
 			m = s
+		"sidewalk":
+			var s := StandardMaterial3D.new()
+			s.albedo_color = Color(0.3, 0.3, 0.31)
+			s.roughness = 0.35
+			m = s
 		"rock":
 			var s := StandardMaterial3D.new()
 			s.albedo_color = Color(0.35, 0.28, 0.24)
@@ -625,6 +630,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		var col := Acc.new()
 		var posts: Array[Transform3D] = []
 		var loop_glow := Acc.new()
+		var walk := Acc.new()
 		for run in runs_excluding(c0, c1, gaps):
 			var step := RING
 			if in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 5.0):
@@ -695,7 +701,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				for sr: PackedFloat32Array in sub_runs:
 					if sr.size() < 2:
 						continue
-					_build_wall_run(path, sr, side, style, wall, neon, col, posts)
+					_build_wall_run(path, sr, side, style, wall, neon, col, posts, walk)
 		var mesh := ArrayMesh.new()
 		top.commit(mesh, road_mat)
 		sides.commit(mesh, side_mat)
@@ -709,6 +715,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 			_:
 				wall.commit(mesh, material("concrete"))
 				neon.commit(mesh, material("neon_amber"))
+				walk.commit(mesh, material("sidewalk"))
 		if mesh.get_surface_count() > 0:
 			var mi := MeshInstance3D.new()
 			mi.name = "Chunk%d" % c
@@ -732,7 +739,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		_build_tunnel(root, path, t[0], t[1], style)
 
 
-static func _build_wall_run(path: TrackPath, ds: PackedFloat32Array, side: float, style: String, wall: Acc, neon: Acc, col: Acc, posts: Array[Transform3D]) -> void:
+static func _build_wall_run(path: TrackPath, ds: PackedFloat32Array, side: float, style: String, wall: Acc, neon: Acc, col: Acc, posts: Array[Transform3D], walk: Acc = null) -> void:
 	var frames: Array[Transform3D] = []
 	var vis: Array = []
 	var strip: Array = []
@@ -763,6 +770,29 @@ static func _build_wall_run(path: TrackPath, ds: PackedFloat32Array, side: float
 		strip.append(s)
 	loft(wall, frames, ds, vis)
 	loft(col, frames, ds, cprof)
+	if style == "concrete" and walk != null:
+		# raised sidewalk behind the barrier, only where the road is at street level
+		var wf: Array[Transform3D] = []
+		var wds := PackedFloat32Array()
+		var wp: Array = []
+		for i in frames.size():
+			var f := frames[i]
+			if f.origin.y > 0.6 or f.basis.y.y < 0.97:
+				if wf.size() > 1:
+					loft(walk, wf, wds, wp)
+				wf = []
+				wds = PackedFloat32Array()
+				wp = []
+				continue
+			var o := path.width_at(ds[i]) * 0.5 + WALL_GAP + 0.7
+			var q := PackedVector2Array([Vector2(o, -0.2), Vector2(o, 0.18), Vector2(o + 5.0, 0.18), Vector2(o + 5.0, -0.2)])
+			if side < 0:
+				q = mirror_profile(q)
+			wf.append(f)
+			wds.append(ds[i])
+			wp.append(q)
+		if wf.size() > 1:
+			loft(walk, wf, wds, wp)
 	if style == "neon" or style == "concrete":
 		# reflector / neon strip: only every other piece for concrete (reflector dashes)
 		if style == "neon":
