@@ -7,8 +7,12 @@
   map **Rail Rush** (`rails`: ledge jump → grind rail → finish platform; `TrackRail`,
   `tests/tracks/test_rail`), static web build on the orphan branch **`web-build`**
   (`tools/publish_web_build.sh --push`, docs/HOSTING.md "Static web build").
-- `server/public` (the deployed build for the Node server) — see PROGRESS for whether it was
-  re-exported this session.
+- `server/public` (the build the Node server deploys) was **NOT** re-exported: it is still the
+  safe build from 339825c, because a push to `main` may redeploy tonight's game-night host.
+  To ship everything there (M4.6-4): `tools/export_web.sh` → run
+  `tools/integration/online_browser_test.js` against it → commit `server/public`.
+  State verified this session: `check_all.sh` CHECK_ALL PASS; static build WEB_STATIC_PASS.
+- `web-build` branch = static build of main@eac62e7 (2133bb7).
 - Open: textures could be swapped for real CC0 scans (ambientCG/Poly Haven are blocked here; keep
   the file names). Why compat rendered textured albedo brighter in the full scene is unexplained
   (worked around with the 1×1-mip normalization). Rail Rush has no ghost-specific handling (ghosts

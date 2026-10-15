@@ -407,3 +407,6 @@ date, who (module/agent), what changed, what's next or blocked.
   it from `/speedfest/` with a plain static server and plays Rail Rush in headless Chromium with
   `--auto_solo=rails --autodrive`: WEB_STATIC_PASS (finish 6.55 s, 0 errors, 0 404s,
   crossOriginIsolated=false). docs/HOSTING.md "Static web build".
+- Gate: `tools/integration/check_all.sh` **CHECK_ALL PASS** (after switching the grind sound to a
+  one-shot; test_audio requires non-looping SFX). `web-build` = 2133bb7 (from main@eac62e7).
+  `server/public` intentionally not re-exported (still 339825c; see HANDOFF).
