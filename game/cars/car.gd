@@ -43,6 +43,7 @@ const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
 const BODY_FRICTION := 0.0
+const ROOF_DRAG := 9.0                   # m/s^2 deceleration while sliding on the roof or side
 const ROLL_DAMP := 2.5                   # roll-rate damping relative to the road's twist (1/s)
 const TWIST_SMOOTH := 0.05               # smoothing time of the measured road twist rate (s)
 const ROAD_ALIGN := 6.0                  # gentle torque aligning the car with the road normal (twists, wall rides)
@@ -766,6 +767,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var lv_f := up * lv.dot(up)
 			state.linear_velocity = lv_f
 			state.angular_velocity = up * 0.0 + (av - up * av.dot(up)) * 0.6
+
+	# --- roof/side drag: the body has zero friction (clean wall scrapes), so a car sliding on its
+	# roof or side would never stop. Decelerate it so it settles and self-rights (or race respawns).
+	if _grounded < 2 and state.get_contact_count() > 0 and up.dot(Vector3.UP) < 0.4 and speed > 0.5:
+		var dec := minf(ROOF_DRAG, speed / dt)
+		state.apply_central_force(-lv / speed * m * dec)
+		state.apply_torque(-av * inertia.z * 2.0)
 
 	# --- self-righting when resting upside down / on the side ---
 	if up.dot(Vector3.UP) < 0.3 and _grounded < 2 and speed < 3.0:
