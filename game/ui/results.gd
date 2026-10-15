@@ -56,12 +56,24 @@ func show_results(results: Array, my_id: int) -> void:
 	_update_footer()
 	visible = true
 	set_process(true)
+	_set_sibling_hud_visible(false)
 	_animate_in()
 
 
 func hide_results() -> void:
 	visible = false
 	set_process(false)
+	_set_sibling_hud_visible(true)
+
+
+## The race adds the HUD next to us; hide it under the results so they read cleanly.
+func _set_sibling_hud_visible(v: bool) -> void:
+	var p := get_parent()
+	if p == null:
+		return
+	for c in p.get_children():
+		if c != self and c.has_method("set_hud_visible"):
+			c.call("set_hud_visible", v)
 
 
 static func _compare(a: Variant, b: Variant) -> bool:

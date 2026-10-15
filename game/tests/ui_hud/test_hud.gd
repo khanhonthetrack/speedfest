@@ -92,6 +92,14 @@ func _test_api() -> void:
 	Settings.units_mph = false
 	hud.set_speed(100.0)
 	TestHooks.check(tacho._speed_shown == 100, "kmh_display", str(tacho._speed_shown))
+	# Split label follows set_checkpoints in either call order.
+	hud.set_checkpoints(1, 5)
+	hud.show_split(1000, -5, true)
+	hud.set_checkpoints(2, 5)
+	TestHooks.check(hud._split._cp_text == "CP 2", "split_label_after", hud._split._cp_text)
+	hud.set_checkpoints(3, 5)
+	hud.show_split(2000, 5, true)
+	TestHooks.check(hud._split._cp_text == "CP 3", "split_label_before", hud._split._cp_text)
 	TestHooks.ok("api_complete")
 
 
@@ -224,10 +232,11 @@ func _test_results() -> void:
 	TestHooks.check(results.visible and box.get_child_count() == 7, "results_rows", str(box.get_child_count()))
 	TestHooks.check(results._car_name({"car": "brute"}) == CarDefs.display_name("brute").to_upper() and results._car_name("kaze") != "", "results_car_names")
 	TestHooks.check(results._sub.text.contains("P3 OF 7"), "results_my_position", results._sub.text)
+	TestHooks.check(not hud._root.visible, "results_hide_hud")
 	var many: Array = []
 	for i in 14:
 		many.append({"id": i, "name": "N%d" % i, "car": "veloce", "best_ms": 50000 + i, "runs": 1})
 	results.show_results(many, 13)
 	TestHooks.check(results._footer.text.begins_with("RETURNING"), "results_footer")
 	results.hide_results()
-	TestHooks.check(not results.visible, "results_hide")
+	TestHooks.check(not results.visible and hud._root.visible, "results_hide")

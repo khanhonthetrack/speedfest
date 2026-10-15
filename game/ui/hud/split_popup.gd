@@ -7,6 +7,8 @@ const W := 360.0
 const H := 40.0
 
 var _cp_text: String = ""
+var _cp_n: int = 0
+var _use_cp_number := true
 var _time_text: String = ""
 var _delta_text: String = ""
 var _color := UITheme.CYAN
@@ -29,8 +31,22 @@ func _ready() -> void:
 	visible = false
 
 
+## Keeps the "CP n" label in sync with the HUD checkpoint counter, whether the race
+## calls set_checkpoints before or after show_split.
+func set_cp_number(n: int) -> void:
+	if n == _cp_n:
+		return
+	_cp_n = n
+	if _use_cp_number:
+		_cp_text = "CP %d" % n
+		if visible:
+			queue_redraw()
+
+
+## `cp_label` = "" shows "CP n" from set_cp_number.
 func popup(cp_label: String, ms: int, delta_ms: int, has_delta: bool, hold: float = 2.6) -> void:
-	_cp_text = cp_label
+	_use_cp_number = cp_label == ""
+	_cp_text = "CP %d" % _cp_n if _use_cp_number else cp_label
 	_time_text = UITheme.format_time(ms)
 	if has_delta:
 		_delta_text = UITheme.format_delta(delta_ms)

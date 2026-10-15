@@ -60,14 +60,14 @@ Tweens only run on events (countdown, splits, banners).
 - HUD: `clear_banners()` hides the countdown, banners and split pop-up. `set_hud_visible(v: bool)` hides the whole HUD (e.g. under results).
 - HUD `set_minimap_cars(local_pos, others)`: each element of `others` can be a `Vector2` or `{"pos": Vector2, "color": Color}`.
 - Pause menu: `is_open() -> bool`. If nothing is connected to `quit_requested`, it calls `Game.to_lobby()` or `Game.to_menu()` itself.
-- Results: `hide_results()`, and `return_seconds: float = 12.0` (set it before `show_results` to change the countdown).
+- Results: `hide_results()` (also re-shows sibling HUDs), and `return_seconds: float = 12.0` (set it before `show_results` to change the countdown).
   `car` in a row can be an id string (as the server sends it) or a CarConfig dict.
 
 ## Notes for the race module (how to drive it)
-- Call `set_checkpoints(passed, total)` **before** `show_split(...)`, so the pop-up says the right "CP n".
+- The split pop-up's "CP n" follows `set_checkpoints`, in either call order.
 - `show_countdown(3)` also clears any FINISH banner left over from the previous run. `show_countdown(-1)` hides it.
 - `show_finish` holds about 3 s, which matches the 2.5 s FINISHED state.
-- When showing results, call `hud.set_hud_visible(false)` (the results dim is 84 % opaque, but a hidden HUD is cleaner).
+- `show_results` hides sibling HUDs automatically (any sibling node with `set_hud_visible`) and `hide_results` restores them.
 - The pause menu consumes the Esc that closes it (`set_input_as_handled`). The race should open it with
   `pause` in `_unhandled_input` and skip that if `pause_menu.is_open()`.
 
@@ -92,5 +92,4 @@ tools/run_scene.sh res://tests/ui_hud/hud_demo.tscn -- --show=pause --settings=1
 - The minimap has no car heading (the contract passes only positions), so the local car is a dot, not an arrow.
 
 ## Integration requests
-- None required. Optional for **race**: call `hud.set_hud_visible(false)` when the results overlay opens,
-  and order `set_checkpoints` before `show_split` (see above).
+- None. (Verified against `origin/module/race`: its call order and pause handling work with this module as is.)

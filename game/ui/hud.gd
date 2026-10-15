@@ -90,14 +90,14 @@ func set_best(ms: int) -> void:
 func set_checkpoints(passed: int, total: int) -> void:
 	_cp_total = total
 	_timer.set_checkpoints(passed, total)
+	_split.set_cp_number(passed)
 
 
 func show_split(ms: int, delta_ms: int, has_delta: bool) -> void:
 	var col := UITheme.CYAN
 	if has_delta:
 		col = UITheme.GOOD if delta_ms < 0 else (UITheme.BAD if delta_ms > 0 else UITheme.TEXT)
-	var passed := _timer._cp_passed
-	_split.popup("CP %d" % passed if passed > 0 else "SPLIT", ms, delta_ms, has_delta)
+	_split.popup("", ms, delta_ms, has_delta)
 	_timer.flash(col)
 	_show_banner("CHECKPOINT", 46, col if has_delta else UITheme.CYAN, "", "", Color.WHITE, 0.9)
 
