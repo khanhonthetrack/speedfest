@@ -31,7 +31,7 @@ Three procedural, original cars built entirely in code, with NFSU2-style customi
   GPUParticles3D on Forward+), world-space so they trail.
 - **Ghost**: `set_ghost(a < 1)` swaps body and wheels to one translucent paint-tinted material
   (works on both renderers; `GeometryInstance3D.transparency` does not affect ShaderMaterials on compat).
-- **Performance**: ≤ 22.6k triangles per car (worst part combo), ≤ 9 draw calls (body 5 surfaces,
+- **Performance**: ≤ 22.7k triangles per car (worst of all 1620 part combos), ≤ 9 draw calls (body 5 surfaces,
   wheels, calipers, glow, plate). Body/wheel meshes are cached per `car:parts` key and shared between
   cars; materials are per-instance surface overrides. Build ≈ 100 ms native (first time per key);
   paint/finish/livery/carbon/colors/tint/underglow/ride height changes are material/transform-only (0 ms).
@@ -68,6 +68,12 @@ tools/run_scene.sh res://tests/visual/showcase.tscn [--compat] -- --frames=12 --
 tools/run_scene.sh res://tests/visual/bench.tscn --headless -- --frames=5                         # build timings
 ```
 
+## Test results (last run)
+- `test_build` full: combos=1620, worst_tris=22718, worst_draws=9, `TEST_SUMMARY ok=29 fail=0`.
+- Screenshots checked on Forward+ and Compatibility (quality 1 and 2): all cars, front/rear/side/
+  three-quarter/chase/close/wheel angles, default/alt/max styles, all liveries, nitro, brake, ghost.
+- Stub `race.tscn` (Car.create → CarVisual) renders on Compatibility without errors.
+
 ## Tuning knobs
 - Shapes: keyframes in `CarShape._kaze/_brute/_veloce` (`bot`, `belt`, `crown`, `wmax`, `tuck`, greenhouse t keys, `style_k`).
 - Paint: `car_paint.gdshader` finish branch constants; lights energy in `car_lights.gdshader`
@@ -76,7 +82,8 @@ tools/run_scene.sh res://tests/visual/bench.tscn --headless -- --frames=5       
 
 ## Known issues
 - Ghost mode shows interior parts through the body (x-ray look).
-- Kaze pop-up pods are simple boxes; mirrors are simple blocks.
+- Kaze pop-up pods are simple boxes.
+- The underglow blob sits at rest ground height in car space (it floats slightly when the car is airborne).
 - Body build ~100 ms native per new part combo (cached afterwards); on web expect a few hundred ms
   for the first build of each combo.
 
