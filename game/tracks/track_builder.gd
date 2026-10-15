@@ -53,6 +53,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	var loops: Array = []
 	var jumps: Array = []
 	var walls: Array = []
+	var wallrides: Array = []
 	var widths: Array = [[0.0, width]]
 	var open_zones := {}
 	var wall_mode: String = layout.get("walls", "both")
@@ -84,7 +85,9 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			finish_d = d0
 			continue
 		if s.has("boost"):
-			boosts.append({"d": d0, "len": float(s["boost"]), "accel": float(s.get("accel", 22.0)), "dur": float(s.get("dur", 1.4))})
+			var sup: bool = s.get("super", false)
+			boosts.append({"d": d0, "len": float(s["boost"]), "super": sup,
+				"accel": float(s.get("accel", 34.0 if sup else 22.0)), "dur": float(s.get("dur", 2.2 if sup else 1.4))})
 			zones.append({"from": d0 - 2.0, "to": d0 + float(s["boost"]) + 2.0, "kind": "boost"})
 			continue
 		if s.has("walls") and s.size() == 1:
@@ -128,6 +131,8 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			# Banking rolls the road about its centerline; lift the centerline so the low
 			# (inner) edge stays at the original height instead of sinking into the ground.
 			var lift_w := cur_w * 0.5 + 1.0
+			if not bool(s.get("lift", layout.get("lift_banks", true))):
+				lift_w = 0.0
 			for i in range(1, n + 1):
 				var f := float(i) / n
 				var p := center + rel.rotated(Vector3.UP, -ang * f)
@@ -135,6 +140,32 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 				p.y = y0 + dy * smoothstep(0.0, 1.0, f) + lift_w * sin(absf(tilt))
 				emit.call(p, tilt)
 			yaw -= ang
+		elif s.has("wallride"):
+			# A curve whose road rolls up to `roll` degrees (the car rides the wall) and back.
+			# Roll ramps over `ramp` meters at each end (smoothstep) so the surface normal
+			# turns gently (<= ~4.5 deg/m). The road rotates about its centerline (no lift).
+			var ang := deg_to_rad(float(s["wallride"]))
+			var r: float = s.get("r", 60.0)
+			var dy: float = s.get("dy", 0.0)
+			var roll := deg_to_rad(float(s.get("roll", 80.0))) * signf(ang)
+			var center := start_p + right * r * signf(ang)
+			center.y = 0.0
+			var rel := start_p - center
+			rel.y = 0.0
+			var L := absf(ang) * r
+			var rl: float = minf(float(s.get("ramp", 40.0)), L * 0.42)
+			var n := maxi(2, ceili(L / 2.0))
+			var wf := d0
+			for i in range(1, n + 1):
+				var f := float(i) / n
+				var sl := f * L
+				var p := center + rel.rotated(Vector3.UP, -ang * f)
+				p.y = y0 + dy * smoothstep(0.0, 1.0, f)
+				var amt := smoothstep(0.0, rl, sl) * (1.0 - smoothstep(L - rl, L, sl))
+				emit.call(p, roll * amt)
+			yaw -= ang
+			wallrides.append({"from": wf, "to": dist[dist.size() - 1], "roll": rad_to_deg(absf(roll)), "radius": r})
+			zones.append({"from": wf, "to": dist[dist.size() - 1], "kind": "wallride"})
 		elif s.has("loop"):
 			var r: float = s["loop"]
 			var shift: float = s.get("shift", r * 0.85)
@@ -162,26 +193,44 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 				emit.call(p, 0.0)
 			var lip_d: float = dist[dist.size() - 1]
 			var slope0 := 2.0 * h / L1
-			var k := slope0 / gap
+			# landing starts `drop` m below the lip and eases down to base + `end_dy`
+			var drop: float = j.get("drop", 0.0)
+			var end_dy: float = j.get("end_dy", 0.0)
+			# The path through the gap (no road there) is a cubic that leaves the lip at the kicker's
+			# slope and meets the landing at the landing's slope, so the frames stay smooth.
+			# (Physics doesn't follow it; the ballistic numbers below use the real parabola.)
+			var y_l0 := y0 + h - drop
+			var y_e0 := minf(y0 + end_dy, y_l0)
+			var s_land := -2.0 * (y_l0 - y_e0) / L2
 			var n2 := ceili(gap / STEP)
 			for i in range(1, n2 + 1):
-				var x := gap * i / n2
-				var p := start_p + fwd * (L1 + x)
-				p.y = y0 + h + slope0 * x - k * x * x
+				var t := float(i) / n2
+				var t2 := t * t
+				var t3 := t2 * t
+				var p := start_p + fwd * (L1 + gap * t)
+				p.y = (2 * t3 - 3 * t2 + 1) * (y0 + h) + (t3 - 2 * t2 + t) * slope0 * gap \
+					+ (-2 * t3 + 3 * t2) * y_l0 + (t3 - t2) * s_land * gap
 				emit.call(p, 0.0)
 			var land_d: float = dist[dist.size() - 1]
 			var n3 := ceili(L2 / STEP)
+			var y_l := y0 + h - drop
+			var y_e := minf(y0 + end_dy, y_l)
 			for i in range(1, n3 + 1):
 				var x := L2 * i / n3
 				var p := start_p + fwd * (L1 + gap + x)
-				p.y = y0 + h * pow(1.0 - x / L2, 2.0)
+				p.y = y_e + (y_l - y_e) * pow(1.0 - x / L2, 2.0)
 				emit.call(p, 0.0)
 			var end_d: float = dist[dist.size() - 1]
 			gaps.append([lip_d, land_d])
+			if j.get("finish", false):
+				finish_d = land_d + 3.0   # the finish arch stands at the landing: jump through it
 			var theta := atan(slope0)
-			var v_min := sqrt(G * gap / sin(2.0 * theta))
+			# min speed to reach the landing start (drop m below the lip, gap m ahead)
+			var v_min := sqrt(G * gap * gap / (2.0 * cos(theta) * cos(theta) * (gap * tan(theta) + drop)))
 			jumps.append({"from": j0, "lip": lip_d, "land": land_d, "to": end_d, "h": h, "angle": theta,
-				"gap": gap, "ramp": L1, "land_len": L2, "v_min": v_min, "base_y": y0})
+				"gap": gap, "ramp": L1, "land_len": L2, "v_min": v_min, "base_y": y0, "drop": drop,
+				"lip_y": y0 + h, "land_y": y_l, "end_y": y_e, "check_kmh": float(j.get("check_kmh", 210.0)),
+				"finish": bool(j.get("finish", false))})
 			zones.append({"from": j0, "to": end_d, "kind": "jump"})
 		elif s.has("hermite") or s.has("close"):
 			var p1: Vector3
@@ -291,7 +340,25 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		for l in loops:
 			axes.append({"from": l["from"], "to": l["to"], "axis": l["axis"]})
 		path.set_loop_axes(axes)
+	for w in wallrides:
+		w["from"] = sc.call(w["from"])
+		w["to"] = sc.call(w["to"])
+	# "elevated" zones: deck more than 4 m above the ground (scenery keeps ground props down there)
+	var gy: float = layout.get("ground_y", 0.0)
+	var ez := -1.0
+	var dd := 0.0
+	while dd <= path.length:
+		var hi := path.sample_position(dd).y - gy > 4.0
+		if hi and ez < 0.0:
+			ez = dd
+		elif not hi and ez >= 0.0:
+			zones.append({"from": ez, "to": dd, "kind": "elevated"})
+			ez = -1.0
+		dd += 4.0
+	if ez >= 0.0:
+		zones.append({"from": ez, "to": path.length, "kind": "elevated"})
 	return {
+		"wallrides": wallrides,
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
 		"boosts": boosts, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
 		"points": PackedVector3Array(pts), "circuit": circuit,
@@ -613,9 +680,11 @@ static func shader_material(path: String, params := {}) -> ShaderMaterial:
 static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> void:
 	var path: TrackPath = data["path"]
 	var L := path.length
+	var platform: bool = layout.get("platform", false)
 	var style: String = layout.get("wall_style", "concrete")
-	var road_mat := road_material(style, layout.get("wet", false))
-	var side_mat := material("concrete_dark") if style != "neon" else material("barrier_neon_body")
+	var road_mat := road_material(String(layout.get("road_style", style)), layout.get("wet", false))
+	var side_mat := material("concrete_dark") if style != "neon" and not platform else material("barrier_neon_body")
+	var edge_key := "neon_" + String(layout.get("edge_neon", "magenta"))
 	var ground_y: float = layout.get("ground_y", 0.0)
 	var has_flat_ground: bool = layout.get("ground", "none") in ["city", "arena"]
 	var gaps: Array = data["gaps"]
@@ -644,6 +713,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		var col := Acc.new()
 		var posts: Array[Transform3D] = []
 		var loop_glow := Acc.new()
+		var curbs := Acc.new()
 		var walk := Acc.new()
 		for run in runs_excluding(c0, c1, gaps):
 			var step := RING
@@ -664,7 +734,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 					depth = 1.8
 				var bottom := -depth
 				# Skirt down to the ground on low ramps so they read as solid structures.
-				if has_flat_ground and f.basis.y.y > 0.8:
+				if has_flat_ground and not platform and f.basis.y.y > 0.8:
 					var above := f.origin.y - ground_y
 					if above > 0.3 and above < 7.0 and not in_ranges(d, loop_ranges, 2.0):
 						bottom = -(above + 0.3) / f.basis.y.y
@@ -679,7 +749,18 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				uv2s.append(Vector2(hw, curb))
 			loft(top, frames, ds, top_prof, uv2s)
 			loft(sides, frames, ds, side_prof)
-			if in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 12.0):
+			if platform:
+				# Trackmania-style platform edges: low curbs on the deck and neon on the deck sides
+				var cr: Array = []
+				var cl: Array = []
+				for i in frames.size():
+					var hw4: float = top_prof[i][1].x
+					var q := PackedVector2Array([Vector2(hw4 - 0.02, 0.0), Vector2(hw4 - 0.02, 0.26), Vector2(hw4 + 0.5, 0.26), Vector2(hw4 + 0.5, -0.3)])
+					cr.append(q)
+					cl.append(mirror_profile(q))
+				loft(curbs, frames, ds, cr)
+				loft(curbs, frames, ds, cl)
+			if platform or in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 12.0):
 				var glow_r: Array = []
 				var glow_l: Array = []
 				for i in frames.size():
@@ -717,12 +798,14 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				for sr: PackedFloat32Array in sub_runs:
 					if sr.size() < 2:
 						continue
-					_build_wall_run(path, sr, side, style, wall, neon, col, posts, walk)
+					_build_wall_run(path, sr, side, "neon" if platform else style, wall, neon, col, posts, walk)
 		var mesh := ArrayMesh.new()
 		top.commit(mesh, road_mat)
 		sides.commit(mesh, side_mat)
-		loop_glow.commit(mesh, material("neon_magenta"))
-		match style:
+		loop_glow.commit(mesh, material(edge_key if platform else "neon_magenta"))
+		curbs.commit(mesh, shader_material("res://shaders/track_stripes.gdshader", {
+			"color_a": Color(0.95, 0.95, 0.95), "color_b": Color(0.85, 0.05, 0.08), "energy": 0.9, "stripe": 2.4}))
+		match ("neon" if platform else style):
 			"neon":
 				wall.commit(mesh, material("barrier_neon_body"))
 				neon.commit(mesh, material("neon_cyan"))
@@ -968,6 +1051,10 @@ static func build_supports(root: Node3D, data: Dictionary, layout: Dictionary) -
 	var loops: Array = []
 	for l in data["loops"]:
 		loops.append([l["from"], l["to"]])
+	var platform: bool = layout.get("platform", false)
+	var wallrides: Array = []
+	for w in data.get("wallrides", []):
+		wallrides.append([w["from"], w["to"]])
 	# sample the path for "is there road below this point" checks
 	var samples: Array[Vector3] = []
 	var sw: Array[float] = []
@@ -988,7 +1075,9 @@ static func build_supports(root: Node3D, data: Dictionary, layout: Dictionary) -
 		var f := path.sample_transform(d)
 		var base_y := ground_y
 		var ok := false
-		if ground_kind == "terrain":
+		if platform:
+			ok = f.origin.y - ground_y > 3.0 and not in_ranges(d, wallrides, 4.0)
+		elif ground_kind == "terrain":
 			# pillars only near the ends; the arch carries the main span
 			ok = in_ranges(d, bridges) and not in_ranges(d, _shrink(bridges, ARCH_INSET + 8.0))
 			base_y = -9.0
@@ -1017,19 +1106,22 @@ static func build_supports(root: Node3D, data: Dictionary, layout: Dictionary) -
 					continue
 				var yaw_b := Basis.looking_at(Vector3(f.basis.z.x, 0, f.basis.z.z).normalized() * -1.0, Vector3.UP)
 				var thick := 1.4 if ground_kind != "terrain" else 2.4
+				if platform:
+					thick = 1.1
 				pillars.append(Transform3D(yaw_b.scaled_local(Vector3(thick, h, thick)), Vector3(top.x, base_y + h * 0.5, top.z)))
 				var cs := CollisionShape3D.new()
 				var bs := BoxShape3D.new()
 				bs.size = Vector3(thick, h, thick)
 				cs.shape = bs
 				cs.transform = Transform3D(yaw_b, Vector3(top.x, base_y + h * 0.5, top.z))
-				body.add_child(cs)
+				if not platform:   # falling off a platform should end in a respawn, not on a pillar
+					body.add_child(cs)
 				placed = true
 			if placed:
 				var cap_c := f * Vector3(0, -ROAD_DEPTH - 0.4, 0)
 				caps.append(Transform3D(f.basis.scaled_local(Vector3(hw * 1.6, 0.8, 1.8)), cap_c))
-		d += spacing if ground_kind != "terrain" else 34.0
-	if ground_kind == "terrain":
+		d += spacing if (ground_kind != "terrain" or platform) else 34.0
+	if ground_kind == "terrain" and not platform:
 		for b in bridges:
 			_build_arch_bridge(root, path, b[0] + ARCH_INSET, b[1] - ARCH_INSET)
 	if pillars.is_empty():
@@ -1068,7 +1160,7 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 	pit.resize(nx * nz)
 	pit.fill(0)
 	var any_pit := false
-	if kind == "arena":
+	if kind == "arena" and layout.get("ground_collision", true):
 		for g in data["gaps"]:
 			# mark tiles under the gap (and a margin) as pit
 			var d: float = g[0] - 6.0
@@ -1173,7 +1265,10 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 	# layout "ground_visual": false keeps only the collision (when scenery draws the ground)
 	mi.visible = layout.get("ground_visual", true)
 	root.add_child(mi)
-	root.add_child(body)
+	if layout.get("ground_collision", true):
+		root.add_child(body)
+	else:
+		body.free()
 
 
 ## Coast terrain: a heightfield that hugs the road, rises into cliffs on the left (land)

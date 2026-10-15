@@ -1,41 +1,59 @@
 extends RefCounted
-## Pulse Arena: neon stunt stadium circuit (~1.5 km). Boost pads, a vertical loop, a gap
-## jump, a steeply banked 180 and a final jump that lands on the start/finish straight.
+## Pulse Arena: classic Trackmania-style stadium run (~35 s, point to point). Floating platform
+## road with open edges: start ramp, turbo straight, banked turn, red super boost into a loop,
+## a wall ride, a gap jump, a banked half-pipe 180 and a final jump through the finish arch.
 
 
 func layout() -> Dictionary:
 	return {
-		"width": 16.0,
-		"circuit": true,
-		"start_pos": Vector3(0, 0, 0),
+		"width": 18.0,
+		"circuit": false,
+		"platform": true,
+		"start_pos": Vector3(0, 30, 0),
 		"start_yaw": 0.0,
-		"walls": "both",
+		"walls": "none",
 		"wall_style": "neon",
+		"road_style": "neon",
+		"edge_neon": "cyan",
 		"ground": "arena",
 		"ground_y": 0.0,
+		"ground_collision": false,
+		"lift_banks": false,
+		"kill_below": 7.0,
 		"wet": false,
 		"segments": [
-			{"s": 30}, {"start": true}, {"s": 40}, {"boost": 12}, {"s": 100},
-			{"t": 90, "r": 50, "bank": 10},
-			{"s": 20}, {"cp": true}, {"s": 20}, {"boost": 12},
-			{"s": 60, "w": 13.0},
-			{"loop": 20.0, "shift": 17.0},
-			{"s": 40, "w": 16.0}, {"cp": true}, {"s": 30},
-			{"t": 180, "r": 45, "bank": 32},
-			{"s": 20}, {"boost": 12}, {"s": 30},
-			{"t": -90, "r": 40, "bank": 8},
-			# long straight run-up (keyboard players need to settle the car after the S-bend)
-			# and a wider kicker + landing (22 m) that narrows back over the run-out
-			{"s": 80, "w": 22.0},
-			{"jump": {"ramp": 40.0, "h": 4.0, "gap": 20.0, "land": 60.0}},
-			{"cp": true},
-			{"s": 100, "w": 16.0},
-			{"t": 90, "r": 60, "bank": 10},
+			{"s": 15}, {"start": true}, {"s": 25},
+			# start ramp: dive from the start tower
+			{"s": 70, "dy": -12.0},
+			{"boost": 12}, {"s": 80},
+			{"walls": "both"},
+			{"t": 90, "r": 60, "bank": 24},
 			{"s": 10},
+			{"walls": "none"},
 			{"cp": true},
-			{"t": 90, "r": 60, "bank": 10},
+			{"s": 30}, {"boost": 12, "super": true}, {"s": 50, "w": 14.0},
+			{"loop": 20.0, "shift": 17.0},
+			{"s": 40, "w": 18.0},
+			{"cp": true},
+			{"s": 30},
+			# wall ride (left-hand): lips on both edges catch cars that come off the wall
+			{"walls": "both"},
+			{"wallride": -130, "r": 70, "roll": 75, "ramp": 62.0},
 			{"s": 40},
-			{"jump": {"ramp": 45.0, "h": 3.2, "gap": 20.0, "land": 55.0}},
-			{"close": true},
+			{"walls": "none"},
+			{"s": 60, "w": 22.0},
+			{"jump": {"ramp": 40.0, "h": 3.0, "gap": 26.0, "land": 70.0, "drop": 3.0, "end_dy": -4.0, "check_kmh": 220.0}, "w": 28.0},
+			{"cp": true},
+			{"s": 110, "w": 20.0},
+			# banked half-pipe 180 with walls on both sides
+			{"walls": "both"},
+			{"t": 180, "r": 50, "bank": 34},
+			{"s": 40},
+			{"cp": true},
+			{"boost": 12},
+			{"s": 60, "w": 22.0},
+			{"walls": "none"},
+			{"jump": {"ramp": 40.0, "h": 5.0, "gap": 24.0, "land": 60.0, "drop": 3.0, "end_dy": -3.0, "finish": true}},
+			{"s": 70},
 		],
 	}

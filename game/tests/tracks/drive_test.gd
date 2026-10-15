@@ -35,6 +35,15 @@ func _ready() -> void:
 	if "reset_callable" in bot:
 		bot.set("reset_callable", _respawn.bind("stuck"))
 	car.add_child(bot)
+	if TestHooks.arg("keyboard", false):
+		# physics module's keyboard-player emulation: bot wishes -> digital keys -> CarInput
+		var emu := Node.new()
+		emu.set_script(load("res://tests/physics/key_emulator.gd"))
+		emu.set("car", car)
+		car.add_child(emu)
+		var inp := CarInput.new()
+		car.add_child(inp)
+		emu.set("inp", inp)
 	track.checkpoint_reached.connect(_on_cp)
 	track.finish_reached.connect(_on_finish)
 	cam = Camera3D.new()
