@@ -13,6 +13,12 @@ var _menu_box: VBoxContainer
 
 
 func _ready() -> void:
+	# exported builds can't take a scene path on the command line: `-- --start_scene=res://race/
+	# race.tscn --track=arena --autodrive` lets tests and screenshots drive a shipped PC build
+	var start := String(TestHooks.arg("start_scene", ""))
+	if start.begins_with("res://") and ResourceLoader.exists(start):
+		get_tree().change_scene_to_file.call_deferred(start)
+		return
 	theme = UITheme.get_theme()
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build()
