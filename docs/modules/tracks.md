@@ -53,13 +53,34 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
   calls `car.apply_boost(forward, accel, duration)` for `Car` bodies.
 - Then `SceneryKit.build_environment(theme)` and `SceneryKit.build_props(theme, path, seed)`.
 
-## Layouts
+## Layouts (M3 rework: Trackmania-style, 2026-10-15)
 
-| id | length | CPs | features |
+All three tracks are short point-to-point stunt runs on **floating platform roads** (deck on slim
+pillars, red/white curbs, neon deck edges, low neon barriers, no ground collision; falling off
+respawns via `kill_y` / `kill_y_at`). Each starts with a red super-boost launch.
+
+| id | length | CPs | pieces (in order) |
 |---|---|---|---|
-| downtown | 2070 m | 5 | grid corners r=32 (banked 3°), chicane, on-ramp to a 10 m elevated highway (bridge zone) that crosses over the return leg, off-ramp, 130 m tunnel; 16 m wide; wet |
-| arena | ~1530 m | 4 | 3 boost pads, vertical loop r=20 (13 m wide, shifted 17 m), 180° banked 32°, gap jump (80 m straight run-up, 22 m wide kicker and landing, 4 m kicker, 20 m gap), final jump (3.2 m kicker, 20 m gap) that lands on the start straight; 16 m wide |
-| coast | 3254 m | 5 | point to point, starts at 34 m and ends at 6 m, sweepers r=220..260 banked 7..8°, 340 m arch bridge over a bay (deck ~14 m), rock tunnel ~250 m with a curve; 15 m wide |
+| arena | ~1.53 km | 4 | start tower dive, super boost, walled banked 90, yellow boost into a loop (r 20), wall ride (left, 75°, r 70), gap jump (26 m, 28 m wide landing), banked half-pipe 180 (34°), boost, final jump through the finish arch |
+| downtown | ~1.38 km | 4 | rooftop deck at y≈56: super boost, rooftop gap jump (30 m), banked 90, wall ride along a building face (left, 75°), boost into a loop (the "neon sign" gantry), dive between towers (−18 m), banked turn, final jump through the finish |
+| coast | ~1.54 km | 4 | cliff deck at y≈46: super boost, fast banked sweepers, wall ride along the cliff (right, 75°), long settle straight, the bay jump (45 m gap, 8 m drop, 40 m wide landing), banked turn, boost into a loop on the headland (left-shifted), drop, final jump through the finish |
+
+The previous long layouts (street circuit, highway sprint, first arena) are in git history
+(commit 0ad0ab7 era, `docs/modules/tracks.md` before the rework).
+
+Builder pieces added for the rework (all optional per layout/segment):
+- `"platform": true`: deck style (curbs, neon deck edges via `edge_neon`, slim pillars without
+  collision wherever the deck is > 3 m above `ground_y`, no skirts), `"ground_collision": false`,
+  `"lift_banks": false` (banked turns roll about the centerline), `"kill_below"` (kill_y = lowest
+  deck − this), `"road_style"` (road shader look independent of the barrier style),
+  `"terrain_clearance"` (coast terrain this far below the deck).
+- `{"wallride": deg, "r": m, "roll": deg, "ramp": m}`: a curve whose road rolls to `roll` and back
+  (smoothstep over `ramp` m; ≤ 4.5°/m incl. the turn). Zone `"wallride"`; `data["wallrides"]`.
+- `{"boost": len, "super": true}`: red super boost (accel 28, 1.8 s; yellow 20, 1.3 s).
+- jumps: `"drop"` (landing starts this far below the lip), `"end_dy"` (landing eases down to base +
+  end_dy), `"finish": true` (finish arch at the landing), `"check_kmh"` (run-out test speed).
+  The path through the gap is a smooth cubic (frames stay continuous); `v_min` is ballistic.
+- Zone `"elevated"` (deck > 4 m above ground_y) for scenery.
 
 Banked turns are lifted by `(width/2 + 1) * sin(bank)` so the low edge stays at the original
 height (otherwise the inner edge would sink into the ground).
@@ -100,6 +121,8 @@ Zones on `path.zones`: `loop`, `jump`, `tunnel`, `bridge`, `boost` (and the jump
 - `checkpoint_distances: Array[float]`, `start_distance`, `finish_distance`, `is_circuit`,
   `theme`, `layout`, `data` (gaps, loops, jumps, boosts), `gates`, `finish_gate`, `boost_pads`
 - `get_start_pose_distance() -> float`
+- `kill_y_at(pos: Vector3) -> float`: local fall height (lowest deck within ±30 m of the closest
+  path point − `kill_below`, never below `kill_y`) so falls from high decks respawn quickly.
 
 `TrackBuilder` (static): `build_layout`, `build_road`, `build_supports`, `build_flat_ground`,
 `build_terrain`, `build_corner_signs`, `loft`, `material(key)`, `road_material(style, wet)`, `path_bbox`, `in_ranges`.

@@ -32,11 +32,11 @@ func layout() -> Dictionary:
 			{"t": 90, "r": 60, "bank": 22},
 			{"s": 20},
 			# wall ride along a building face (left-hand)
-			{"wallride": -120, "r": 70, "roll": 75, "ramp": 62.0},
+			{"wallride": -120, "r": 70, "roll": 65, "ramp": 62.0},
 			{"s": 40},
 			{"walls": "both"},
 			{"cp": true},
-			{"s": 30}, {"boost": 12, "super": true}, {"s": 50, "w": 14.0},
+			{"s": 30}, {"boost": 12}, {"s": 50, "w": 16.0},
 			# loop around the giant neon sign
 			{"loop": 20.0, "shift": 17.0},
 			{"s": 40, "w": 18.0},
@@ -48,9 +48,9 @@ func layout() -> Dictionary:
 			{"s": 20},
 			{"walls": "both"},
 			{"cp": true},
-			{"boost": 12},
+			{"boost": 12, "super": true},
 			{"s": 60, "w": 22.0},
-			{"jump": {"ramp": 40.0, "h": 4.0, "gap": 24.0, "land": 60.0, "drop": 3.0, "end_dy": -3.0, "finish": true}},
+			{"jump": {"ramp": 40.0, "h": 4.0, "gap": 24.0, "land": 60.0, "drop": 3.0, "end_dy": -3.0, "finish": true}, "w": 30.0},
 			{"s": 70},
 		],
 	}

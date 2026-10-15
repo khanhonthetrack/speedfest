@@ -87,7 +87,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		if s.has("boost"):
 			var sup: bool = s.get("super", false)
 			boosts.append({"d": d0, "len": float(s["boost"]), "super": sup,
-				"accel": float(s.get("accel", 28.0 if sup else 20.0)), "dur": float(s.get("dur", 1.8 if sup else 1.3))})
+				"accel": float(s.get("accel", 26.0 if sup else 20.0)), "dur": float(s.get("dur", 1.6 if sup else 1.3))})
 			zones.append({"from": d0 - 2.0, "to": d0 + float(s["boost"]) + 2.0, "kind": "boost"})
 			continue
 		if s.has("walls") and s.size() == 1:
