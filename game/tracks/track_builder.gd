@@ -125,11 +125,15 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			var rel := start_p - center
 			rel.y = 0.0
 			var n := maxi(2, ceili(absf(ang) * r / STEP))
+			# Banking rolls the road about its centerline; lift the centerline so the low
+			# (inner) edge stays at the original height instead of sinking into the ground.
+			var lift_w := cur_w * 0.5 + 1.0
 			for i in range(1, n + 1):
 				var f := float(i) / n
 				var p := center + rel.rotated(Vector3.UP, -ang * f)
-				p.y = y0 + dy * smoothstep(0.0, 1.0, f)
-				emit.call(p, bank * _ease_bank(f))
+				var tilt := bank * _ease_bank(f)
+				p.y = y0 + dy * smoothstep(0.0, 1.0, f) + lift_w * sin(absf(tilt))
+				emit.call(p, tilt)
 			yaw -= ang
 		elif s.has("loop"):
 			var r: float = s["loop"]
@@ -560,6 +564,7 @@ static func road_material(style: String, wet: bool) -> ShaderMaterial:
 			s.set_shader_parameter("curb_a", Color(1.0, 0.1, 0.75))
 			s.set_shader_parameter("curb_b", Color(0.06, 0.06, 0.08))
 			s.set_shader_parameter("lane_count", 2)
+			s.set_shader_parameter("tech_panels", 1.0)
 		"guardrail":
 			s.set_shader_parameter("asphalt_color", Color(0.2, 0.19, 0.19))
 			s.set_shader_parameter("edge_color", Color(0.95, 0.95, 0.92))

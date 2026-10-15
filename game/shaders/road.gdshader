@@ -11,6 +11,7 @@ uniform vec4 curb_b : source_color = vec4(0.92, 0.92, 0.92, 1.0);
 uniform int center_mode = 1;      // 0 none, 1 dashed white lanes, 2 double yellow
 uniform int lane_count = 3;
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
+uniform float tech_panels = 0.0;   // arena: panel seams and a glowing center guide
 
 varying vec2 v_world;
 
@@ -90,6 +91,16 @@ void fragment() {
 	rough = mix(rough, 0.5, paint_a);
 	rough = mix(rough, 0.45, curb_zone);
 
+	// arena tech panels: seams every 6 m across and at lane thirds, faint glowing center dashes
+	vec3 tech_glow = vec3(0.0);
+	if (tech_panels > 0.5) {
+		float seam = band(fract(d / 6.0), 0.0, 0.012, aay / 6.0) + band(ax, hw * 0.33 - 0.03, hw * 0.33 + 0.03, aa);
+		col *= 1.0 - 0.45 * clamp(seam, 0.0, 1.0) * (1.0 - curb_zone);
+		float cdash = band(ax, 0.0, 0.1, aa) * band(fract(d / 12.0), 0.0, 0.3, aay / 12.0);
+		tech_glow = edge_color.rgb * cdash * 0.8;
+		col += tech_glow * 0.2;
+	}
+
 	// wet: darker, glossy, puddles
 	float puddle = smoothstep(0.55, 0.72, vnoise(v_world * 0.09) * 0.7 + vnoise(v_world * 0.31) * 0.3);
 	float wet = wetness * (0.65 + 0.35 * puddle);
@@ -100,5 +111,5 @@ void fragment() {
 	ROUGHNESS = rough;
 	METALLIC = 0.0;
 	SPECULAR = 0.5 + 0.3 * wet;
-	EMISSION = edge_color.rgb * edge * edge_emission * (1.0 - curb_zone);
+	EMISSION = edge_color.rgb * edge * edge_emission * (1.0 - curb_zone) + tech_glow * edge_emission * 0.5;
 }

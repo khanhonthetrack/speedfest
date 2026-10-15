@@ -119,15 +119,23 @@ func _make_gate(parent: Node3D, d: float, kind: String, with_area := true) -> Ar
 	var frame := TrackBuilder.Acc.new()
 	var neon := TrackBuilder.Acc.new()
 	var banner := TrackBuilder.Acc.new()
-	var px := hw + TrackBuilder.WALL_GAP + 1.2
-	var top := 7.4
+	var px := hw + TrackBuilder.WALL_GAP + 1.5
+	var top := 7.6
+	var pw := 1.5
+	var bh := 2.2
 	for sx in [-1.0, 1.0]:
-		frame.box(Transform3D(Basis.IDENTITY, Vector3(sx * px, top * 0.5 - 0.4, 0)), Vector3(1.0, top + 0.8, 1.0))
-		neon.box(Transform3D(Basis.IDENTITY, Vector3(sx * (px - 0.52), top * 0.5 - 0.4, 0)), Vector3(0.08, top + 0.4, 0.5))
-	frame.box(Transform3D(Basis.IDENTITY, Vector3(0, top + 0.5, 0)), Vector3(px * 2.0 + 1.0, 1.6, 1.0))
-	neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top - 0.32, 0)), Vector3(px * 2.0 - 1.0, 0.08, 0.5))
+		frame.box(Transform3D(Basis.IDENTITY, Vector3(sx * px, top * 0.5 - 0.6, 0)), Vector3(pw, top + 1.2, pw))
+		# neon on the inner face and on the front/back edges of each pillar
+		neon.box(Transform3D(Basis.IDENTITY, Vector3(sx * (px - pw * 0.5 - 0.02), top * 0.5 - 0.4, 0)), Vector3(0.06, top + 0.2, 0.35))
+		for sz in [-1.0, 1.0]:
+			neon.box(Transform3D(Basis.IDENTITY, Vector3(sx * (px - pw * 0.5 + 0.08), top * 0.5 - 0.4, sz * (pw * 0.5 + 0.02))), Vector3(0.14, top + 0.2, 0.06))
+	frame.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh * 0.5 - 0.2, 0)), Vector3(px * 2.0 + pw, bh, pw))
+	neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top - 0.24, 0)), Vector3(px * 2.0 - pw, 0.06, 0.6))
+	for sz in [-1.0, 1.0]:
+		neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh - 0.32, sz * (pw * 0.5 + 0.02))), Vector3(px * 2.0 + pw - 0.2, 0.12, 0.06))
+		neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top - 0.08, sz * (pw * 0.5 + 0.02))), Vector3(px * 2.0 + pw - 0.2, 0.12, 0.06))
 	if kind != "cp":
-		banner.box(Transform3D(Basis.IDENTITY, Vector3(0, top + 0.5, 0)), Vector3(px * 2.0 - 0.6, 1.3, 1.04), 1.0)
+		banner.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh * 0.5 - 0.2, 0)), Vector3(px * 2.0 - pw - 0.4, bh - 0.6, pw + 0.06), 1.0)
 	var mesh := ArrayMesh.new()
 	frame.commit(mesh, TrackBuilder.material("metal_dark"))
 	var neon_key := "neon_cyan" if kind == "cp" else "neon_magenta"
@@ -145,11 +153,11 @@ func _make_gate(parent: Node3D, d: float, kind: String, with_area := true) -> Ar
 		var lbl := Label3D.new()
 		lbl.text = "FINISH" if (kind == "finish" and not is_circuit) else ("START" if kind == "start" else "START  ·  FINISH")
 		lbl.font_size = 96
-		lbl.pixel_size = 0.012
+		lbl.pixel_size = 0.016
 		lbl.outline_size = 18
 		lbl.modulate = Color(1, 1, 1)
 		lbl.outline_modulate = Color(0.05, 0.0, 0.1)
-		lbl.position = Vector3(0, top + 0.5, 0.56)
+		lbl.position = Vector3(0, top + bh * 0.5 - 0.2, pw * 0.5 + 0.08)
 		root.add_child(lbl)
 	if not with_area:
 		return null
