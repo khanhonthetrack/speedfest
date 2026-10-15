@@ -1531,3 +1531,28 @@ static func build_loop_gantries(root: Node3D, data: Dictionary, _layout: Diction
 		mi.mesh = mesh
 		root.add_child(mi)
 		root.add_child(body)
+
+
+
+## Simple sea plane at y = 0 around the track (only used when scenery doesn't add a sea).
+static func build_fallback_sea(path: TrackPath) -> MeshInstance3D:
+	var rect := path_bbox(path, 2500.0)
+	var acc := Acc.new()
+	var n := 8
+	var step := rect.size / n
+	for iz in n:
+		for ix in n:
+			var x0 := rect.position.x + ix * step.x
+			var z0 := rect.position.y + iz * step.y
+			var a := acc.add(Vector3(x0, 0, z0 + step.y), Vector3.UP, Vector2(x0, z0 + step.y))
+			var b := acc.add(Vector3(x0, 0, z0), Vector3.UP, Vector2(x0, z0))
+			var c := acc.add(Vector3(x0 + step.x, 0, z0), Vector3.UP, Vector2(x0 + step.x, z0))
+			var d := acc.add(Vector3(x0 + step.x, 0, z0 + step.y), Vector3.UP, Vector2(x0 + step.x, z0 + step.y))
+			acc.quad(a, b, c, d)
+	var mesh := ArrayMesh.new()
+	acc.commit(mesh, shader_material("res://shaders/track_sea.gdshader"))
+	var mi := MeshInstance3D.new()
+	mi.name = "TrackSeaFallback"
+	mi.mesh = mesh
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi

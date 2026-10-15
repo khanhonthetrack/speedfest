@@ -72,7 +72,21 @@ static func build(p_track_id: String, with_scenery := true) -> Track:
 		var props := SceneryKit.build_props(t.theme, t.path, hash(t.track_id))
 		if props != null:
 			t.add_child(props)
+		if t.layout.get("ground", "") == "terrain" and not _has_sea(env) and not _has_sea(props):
+			t.add_child(TrackBuilder.build_fallback_sea(t.path))
 	return t
+
+
+## True when the scenery provides its own sea (any node whose name contains "sea").
+static func _has_sea(n: Node) -> bool:
+	if n == null:
+		return false
+	if String(n.name).to_lower().contains("sea"):
+		return true
+	for c in n.get_children():
+		if _has_sea(c):
+			return true
+	return false
 
 
 func _build_geometry() -> void:

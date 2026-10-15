@@ -136,7 +136,10 @@ visual barrier, so fast cars can't climb over.
   better, set `"ground_visual": false` in `defs/downtown.gd` (keeps the collision). The coast
   terrain (cliffs, bay, mountain over the tunnel) is the track's; the scenery coast kit should
   only add the sea, palms, rocks, etc.
-- **scenery**: sea plane at **y = 0** for `coast`. Ground (city pavement, arena floor, coast
+- **scenery**: sea plane at **y = 0** for `coast`. Until scenery provides one, `Track.build`
+  adds a fallback sea (`TrackSeaFallback`, `shaders/track_sea.gdshader`) for terrain tracks
+  when no environment/props node has "sea" in its name. Name your sea node e.g. `Sea` and the
+  fallback disappears automatically. Ground (city pavement, arena floor, coast
   terrain) is built by the track; don't add another ground plane under the road. Use
   `path.zones` (`tunnel`, `bridge`, `loop`, `jump`, `boost`) and `edge_clearance()`.
 - **race**: circuits start past the line (see above). Pits under arena jumps rely on the
