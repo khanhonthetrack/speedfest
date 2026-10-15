@@ -1,5 +1,32 @@
 # Module: scenery (environments and props)
 
+## Handoff (2026-10-15)
+
+**State:** `module/scenery` has Trackmania-style elevated-deck support (8421aee and later). Ground props sit on the
+ground/terrain, never at deck height; nothing intersects the deck/pillar volume; downtown towers stand
+below/beside/above the deck with deck-level neon; arena stands grow with deck height; coast terrain stays
+≥ 14 m under decks. Headless test 45/45 (all themes flat + raised). Verified on the new **arena** layout
+(`module/tracks` @ 38fba67) on Forward+ and Compatibility (compat 69–148 draw calls, track + scenery).
+
+**Still to check:** the new **downtown** (decks ~35–60 m) and **coast** (decks over cliffs/bay, sea y = 0)
+layouts, once tracks pushes them. Open question with tracks: on the coast, my `SceneryRoot` hides the
+track's visual `Terrain` and draws the scenery terrain (palms/rocks/lighthouse/towns sit on it). Tracks said
+"coast keeps my terrain"; one of the two must win (see `scenery_root.gd`).
+
+**Next steps:**
+1. `git fetch origin module/tracks`; make a throwaway worktree of it and copy in `game/tracks/scenery/**`
+   and `game/shaders/env_*` from `module/scenery` (don't merge tracks into this branch).
+2. Screenshot each track on both renderers:
+   `xvfb-run -a -s "-screen 0 1280x720x24" godot --path game --rendering-method forward_plus|gl_compatibility
+   --resolution 1280x720 --fixed-fps 60 res://tests/tracks/track_view.tscn -- --track=<id> --quality=1|2
+   --views="overview;chase:150;chase:450;orbit:700" --out=/abs/dir --tag=x`. Check: no prop inside a
+   deck/pillar, towers above and below the downtown deck, neon readable from the deck, coast terrain/sea
+   below decks, one terrain only, compat draw calls < ~400.
+3. Fix in `city_kit.gd` / `coast_kit.gd` as needed, run
+   `tools/run_scene.sh res://tests/scenery/test_scenery.tscn --headless -- --frames=5` (expect 45/45) and
+   `tools/check_scripts.sh`, commit `scenery: ...`, push `module/scenery`.
+
+
 Branch: `module/scenery`. Owner files: `game/tracks/scenery/**`, `game/shaders/env_*.gdshader`,
 `game/tests/scenery/**`, this doc.
 
