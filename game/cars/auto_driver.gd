@@ -28,6 +28,7 @@ var reset_callable: Callable
 const PROFILE_STEP := 2.0
 const ZONE_LEAD := 70.0            # full throttle this many meters before loop/jump zones
 const STANLEY_K := 1.6
+const WALL_LEAD := 40.0             # Stanley + full throttle this far around wall-ride zones
 const STANLEY_JUMP_LEAD := 45.0     # Stanley steering this many meters before a jump (clean takeoff)
 
 var _d := -1.0
@@ -286,6 +287,9 @@ func _build_profile(car: Car) -> void:
 				full = 1
 			if kind == "loop" and d >= float(z["from"]) - 5.0 and d <= float(z["to"]) + 5.0:
 				stan = 1
+			if kind == "wallride" and d >= float(z["from"]) - WALL_LEAD and d <= float(z["to"]) + WALL_LEAD:
+				stan = 1
+				full = 1
 			if kind == "jump" and d >= float(z["from"]) - STANLEY_JUMP_LEAD and d <= float(z["to"]) + 5.0:
 				stan = 1
 		_stan[i] = stan

@@ -159,6 +159,62 @@ static func loop_path(r: float = 18.0, lead: float = 220.0, tail: float = 150.0,
 	return p
 
 
+## Straight lead along -Z, then a LEFT-turning wall ride whose roll ramps 0 -> roll_deg -> 0
+## (smoothstep ramps of ramp_len, hold_len at full roll), then a straight exit. The horizontal
+## curvature follows the roll: kappa(s) = sin(roll(s)) / r, so the turn tightens only as the
+## wall rises (a car never needs flat-road grip for a wall-ride radius). The wall is on the outside
+## (right); the road normal leans toward the curve center. Zone "wallride" = roll > 30 deg.
+static func wallride_path(r: float = 70.0, roll_deg: float = 85.0, ramp_len: float = 50.0, hold_len: float = 120.0,
+		lead: float = 260.0, width: float = 12.0, origin: Vector3 = Vector3.ZERO) -> TrackPath:
+	var c := Curve3D.new()
+	c.bake_interval = 0.5
+	c.add_point(origin)
+	c.add_point(origin + Vector3(0, 0, -lead * 0.5))
+	var arc := ramp_len * 2.0 + hold_len
+	var tilts: Array[float] = [0.0, 0.0]
+	var pos := origin + Vector3(0, 0, -lead)
+	var psi := 0.0          # heading, + = left
+	var step := 1.0
+	var s := 0.0
+	var next_pt := 0.0
+	var zfrom := -1.0
+	var zto := -1.0
+	while s <= arc + 0.001:
+		var f := 1.0
+		if s < ramp_len:
+			f = s / ramp_len
+		elif s > ramp_len + hold_len:
+			f = (arc - s) / ramp_len
+		f = clampf(f, 0.0, 1.0)
+		f = f * f * (3.0 - 2.0 * f)
+		var roll := deg_to_rad(roll_deg) * f
+		if roll > deg_to_rad(30.0):
+			if zfrom < 0.0:
+				zfrom = s
+			zto = s
+		if s >= next_pt - 0.001:
+			c.add_point(pos)
+			tilts.append(-roll)
+			next_pt += 5.0
+		psi += sin(roll) / r * step
+		pos += Vector3(-sin(psi), 0, -cos(psi)) * step
+		s += step
+	var end_dir := Vector3(-sin(psi), 0, -cos(psi))
+	c.add_point(pos + end_dir * 80.0)
+	c.add_point(pos + end_dir * 200.0)
+	tilts.append(0.0)
+	tilts.append(0.0)
+	for i in c.point_count:
+		c.set_point_tilt(i, tilts[i])
+	_smooth(c)
+	var p := PhysicsTestPath.new(c, false, width)
+	var d0 := p.closest_distance(origin + Vector3(0, 0, -lead))
+	p.zones = [{"from": d0 + zfrom, "to": d0 + zto, "kind": "wallride"}]
+	p.set_meta("wall_start", d0)
+	p.set_meta("wall_end", d0 + arc)
+	return p
+
+
 ## Straight -> ramp (angle_deg, ramp_len) -> gap -> landing down-ramp -> straight.
 static func jump_ramp(angle_deg: float = 12.0, ramp_len: float = 22.0, origin: Vector3 = Vector3.ZERO) -> Node3D:
 	var root := Node3D.new()

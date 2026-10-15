@@ -19,6 +19,7 @@ const SHIFT_HOLD := 0.35                 # minimum time between shifts
 const REVERSE_DELAY := 0.12              # brake held this long at a standstill engages reverse
 const SUSP_UP := 0.30                    # ray origin above the wheel center
 const SUSP_DROOP := 0.20                 # max droop below rest
+const DROOP_SOFT := 0.45                 # spring rate factor while extending below rest
 const BUMP_START := 0.085                # compression where the bump stop starts
 const BUMP_MULT := 6.0                  # bump-stop stiffness relative to the spring
 const BUMP_DAMP := 1.0                   # extra compression damping inside the bump-stop zone (x damper)
@@ -27,6 +28,7 @@ const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
 const LAND_ABSORB := 0.7                 # fraction of the touchdown speed into the ground removed
 const MAX_WHEEL_G := 28.0                # cap on a single wheel's suspension force (in corner weights)
 const STICK_ACCEL := 13.0                # extra road-normal pull on steep/inverted road at speed
+const STICK_STEEP := 0.6                 # 1 - normal.y where the stick force is at full strength
 const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 per rad)
 const AIR_DAMP := 1.6                    # air pitch/roll rate damping (1/s)
 const AIR_STEER := 2.5                   # air yaw response (1/s)
@@ -36,6 +38,9 @@ const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
 const BODY_FRICTION := 0.0
+const ROLL_DAMP := 2.5                   # roll-rate damping relative to the road's twist (1/s)
+const TWIST_SMOOTH := 0.05               # smoothing time of the measured road twist rate (s)
+const ROAD_ALIGN := 6.0                  # gentle torque aligning the car with the road normal (twists, wall rides)
 const FRICTION_CIRCLE := 0.5            # how much longitudinal force eats lateral grip (0..1)
 
 var config: Dictionary = {}
@@ -93,6 +98,8 @@ var _pending_vel := Vector3.ZERO
 var _prev_vel := Vector3.ZERO
 var _ground_n := Vector3.UP
 var _land_timer := 0.0
+var _prev_ground_n := Vector3.UP
+var _ground_roll_rate := 0.0
 var _intent := 0.0
 var _rev_timer := 0.0
 var _force := PackedFloat32Array([0, 0, 0, 0])
@@ -413,6 +420,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 				n_sum += n
 		if not _contact[i]:
 			_comp[i] = -SUSP_DROOP
+	_prev_ground_n = _ground_n
 	_ground_n = n_sum.normalized() if _grounded > 0 else up
 	# touchdown after real air time: soak up most of the impact (arcade, no bounce)
 	if _grounded > 0 and was_grounded == 0 and _air_time > 0.2:
@@ -443,18 +451,24 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var vp := lv + av.cross(rel)
 		var comp_vel := -vp.dot(up)
 		var c := _comp[i]
-		var f := _preload[i] + _k[i] * c + _c[i] * comp_vel
+		# droop-soft spring: extending side has a lower rate, so the wheel follows twisted road
+		# (wall-ride entries/exits) further before unloading. Static height is unchanged.
+		var f := _preload[i] + _k[i] * (c if c >= 0.0 else c * DROOP_SOFT) + _c[i] * comp_vel
 		if c > BUMP_START:
 			var over := c - BUMP_START
 			f += _k[i] * BUMP_MULT * over + _c[i] * BUMP_DAMP * maxf(comp_vel, 0.0)
 		force[i] = f
+	# anti-roll bars react to the AVERAGE roll of both axles: they resist body roll but not warp
+	# (front and rear rolled opposite ways on a twisting road), so diagonals stay loaded
+	var roll_f := _comp[0] - _comp[1]
+	var roll_r := _comp[2] - _comp[3]
+	var roll_avg := (roll_f + roll_r) * 0.5 if (_contact[0] or _contact[1]) and (_contact[2] or _contact[3]) else (roll_f if _contact[0] or _contact[1] else roll_r)
 	for axle in 2:
 		var l := axle * 2
 		var r := l + 1
 		if _contact[l] or _contact[r]:
-			var diff := _comp[l] - _comp[r]
-			force[l] += _k_arb[axle] * diff
-			force[r] -= _k_arb[axle] * diff
+			force[l] += _k_arb[axle] * roll_avg
+			force[r] -= _k_arb[axle] * roll_avg
 	var total_load := 0.0
 	for i in 4:
 		if not _contact[i]:
@@ -671,7 +685,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.apply_central_force(-up * df)
 		# stick: pull along the road normal on steep or inverted road at speed (loops, walls)
 		if _grounded >= 2:
-			var steep := clampf((1.0 - _ground_n.dot(Vector3.UP)) / 0.6, 0.0, 1.0)
+			var steep := clampf((1.0 - _ground_n.dot(Vector3.UP)) / STICK_STEEP, 0.0, 1.0)
 			var spd := clampf((speed - 12.0) / 15.0, 0.0, 1.0)
 			if steep > 0.0 and spd > 0.0:
 				state.apply_central_force(-_ground_n * m * STICK_ACCEL * steep * spd)
@@ -716,10 +730,18 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if was_grounded == 0 and _air_time > 0.25:
 			landed.emit(absf(_prev_vel.dot(_ground_n)))
 		_air_time = 0.0
-		# anti-flip: damp roll rate, and push back when rolled far relative to the ground
-		var roll_rate := av.dot(fwd)
-		state.apply_torque(-fwd * roll_rate * inertia.z * 2.5)
+		# anti-flip: damp the roll rate RELATIVE to the road's own twist (so the car follows wall-ride
+		# entries/exits), gently align with the road, and push back hard when rolled far off it
+		var gr := 0.0
+		if was_grounded > 0 and _grounded >= 2:
+			gr = _prev_ground_n.cross(_ground_n).dot(fwd) / dt
+		# triangle normals step every meter: smooth the road's twist rate before using it
+		_ground_roll_rate = lerpf(_ground_roll_rate, gr, clampf(dt / TWIST_SMOOTH, 0.0, 1.0))
+		var roll_rate := av.dot(fwd) - _ground_roll_rate
+		state.apply_torque(-fwd * roll_rate * inertia.z * ROLL_DAMP)
 		var tilt := up.cross(_ground_n)
+		if _grounded >= 2:
+			state.apply_torque(tilt * inertia.z * ROAD_ALIGN)
 		if up.dot(_ground_n) < cos(deg_to_rad(25.0)):
 			state.apply_torque(tilt * inertia.z * 9.0)
 		if frozen_controls:
