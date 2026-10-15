@@ -80,7 +80,7 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
       surface physics (grip, drag, spray) and clever choices (shortcut vs. grip). Done: Infield Rush
       and Dune Dash (~12 s), TrackSurface ground patches, DirtSpray, track select fits 5 cards
       (SPRINT tag), lobby chips use short names
-- [ ] 1. Neon Downtown rework that uses the buildings: a checkpoint inside a building, wall rides on
+- [x] 1. Neon Downtown rework that uses the buildings: a checkpoint inside a building, wall rides on
       facades, jumping and bouncing off buildings, rooftops
 - [ ] 4. Export the web build (server/public) and verify it in a browser
 

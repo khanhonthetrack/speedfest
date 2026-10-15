@@ -359,3 +359,23 @@ date, who (module/agent), what changed, what's next or blocked.
      test_collision_faces, test_road_smooth, run_real_tracks.sh downtown (default + WEATHER=storm),
      compat + Forward+ screenshots (tests/tracks/track_view.gd `cp:N`).
 - Then M4.6-4: export (worktree check_all, tools/export_web.sh, browser online test, commit server/public).
+
+## 2026-10-15 ~12:00 UTC — M4.6 item 1 DONE: Neon Downtown rebuilt around real buildings
+
+- New `res://tracks/track_buildings.gd` (`TrackBuildings.build`, called from `Track._build_geometry()`
+  after the supports) builds the `{"building": ...}` markers: "roof" (tower under the road, neon
+  roof edge, rooftop clutter), "through" (wings + block over the tunnel + block under the road,
+  collision on wings/top, neon portal frame and a sign over the entry), "facade" (12 m facets that
+  stand just beyond the barrier at every point, so they follow a wall ride's raised edge; collision;
+  neon bands). Drawn with the city facade shader (unit-box MultiMesh, same look as the city).
+  Footprints go to path meta "reserved"; `SceneryCityKit._reserve_track_buildings()` claims them.
+- New downtown layout: helipad-roof start → turbo → rooftop gap jump (roofs under take-off and
+  landing) → through the HOTEL ORBIT tower with cp1 inside → banked right 90 → left wall ride along
+  a facade → cp2 → "needle" gap jump between two towers → right wall ride around a tower facade →
+  cp3 → dive between towers + banked 75 → cp4 → super boost → finish jump onto a rooftop. The loop
+  is gone (it was entered at ~284 km/h after the boost).
+- Verified: check_scripts 0 errors; test_tracks 117/117 (needle run-out lengthened to pass
+  `jump_runout`); test_weather 48/48; test_collision_faces 10/10; test_road_smooth 15/15;
+  test_scenery 45/45. Real-track matrix downtown, default + storm: **12/12 clean, 0 respawns**,
+  30–37 s (was 25–27 s, now inside the 30–45 s target). Screenshots on Forward+ and compat look
+  right (tower sign and portal, wall-ride facades, finish roof); compat ≤ 235 draw calls.
