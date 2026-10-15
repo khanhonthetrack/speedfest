@@ -415,3 +415,27 @@ date, who (module/agent), what changed, what's next or blocked.
   the downtown rework, textures and Rail Rush; `online_browser_test.js` (2 Chromium clients, Node
   server, Rail Rush round) PASS. docs/HOSTING.md "D. Raspberry Pi"; owner's messages in TRANSCRIPT.
   (The `web-build` branch stays as an extra static copy.)
+
+## 2026-10-15 ~13:50 UTC — Session 5 (Pi): CC0 scanned textures, Pi can push
+
+- **The Raspberry Pi pushes now** (deploy key for this repo; the orchestrating session on the Pi
+  works in `~/speedfest`). Godot 4.7.2 linux.arm64 + the web_nothreads templates are installed
+  there, so the Pi can import, test and export (`tools/export_web.sh` takes ~15 s).
+- **Textures: CC0 scans replace the generated sets** (M5 world "CC0 PBR textures"). New
+  `tools/textures/fetch_cc0.py` downloads ambientCG Asphalt031 / Concrete034 / Metal038 / Rock022
+  (1K-JPG, plus 2K with `--hd`) and writes the same file names. Calibration: albedo scaled per
+  channel to the generated sets' mean color, roughness to their mean (the materials were tuned
+  against those), and asphalt (contrast ×1.6, normal ×2) and metal (×2, ×2.5) are boosted because
+  the fine scans otherwise read flat at driving distance. `gen_textures.py` stays as the fallback.
+- **2K desktop sets** in `game/assets/hd/textures/` (16 MB; normals as JPEG q95). The Web preset
+  already excludes `assets/hd/*` (checked: 0 hd paths in `index.pck`).
+  `TrackBuilder.pbr_texture()` prefers them on Forward+ at quality ≥ 2 and also accepts a
+  `.jpg` normal map. Import: VRAM compressed, high quality, mipmaps. `project.godot` now sets
+  `textures/vram_compression/import_s3tc_bptc` and `import_etc2_astc` to true, so the committed
+  `.import` files work on x86 and ARM editors (and ASTC is ready for Switch).
+- Checks on the Pi: check_scripts SCRIPT_ERRORS=0; test_tracks 130/130; test_rail 33/33. Before/after
+  screenshots on compat: the road shows real fine aggregate instead of the round "pebbles", the concrete
+  barriers and walls show real concrete. Forward+ (llvmpipe) renders with the 2K sets, no load errors.
+- `server/public` re-exported with the scans: `index.pck` 6.6 → 8.4 MB (wasm unchanged). Live on the
+  Pi; headless Chromium loads it through the Funnel URL and `--auto_solo=rails` reaches the start
+  countdown (0 errors).

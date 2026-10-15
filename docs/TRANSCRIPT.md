@@ -260,3 +260,20 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   map Rail Rush (ledge jump → grind rail → finish platform, grind mechanic `TrackRail`).
 - Export: `server/public` on `main` re-exported (the Pi runs the repo's Node server from `main`;
   docs/HOSTING.md "Raspberry Pi"). A static build is also on the `web-build` branch.
+
+### User (verbatim, session 5, to the orchestrating session on the Raspberry Pi)
+
+> How can i make you push on pi and use assets (for high quality)?
+
+### Claude
+
+- Push from the Pi: a deploy key for this repo only (write access), created on the Pi after the
+  owner approved it; the owner added it under the repo's Settings → Deploy keys.
+- Assets: the Pi can reach ambientCG / Poly Haven (the cloud environment can't), so the generated
+  textures are replaced there by CC0 scans (1K for every build, 2K under `assets/hd/` for desktop).
+
+### User (verbatim)
+
+> Go
+
+> Done

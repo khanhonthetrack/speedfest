@@ -1,5 +1,17 @@
 # HANDOFF: start here
 
+## Latest (~13:50 UTC, session 5, orchestrating session on the owner's Raspberry Pi)
+
+- **Textures are now CC0 scans from ambientCG** (Asphalt031, Concrete034, Metal038, Rock022),
+  fetched by `tools/textures/fetch_cc0.py` (same file names; calibrated to the tuned means). 2K
+  desktop sets in `game/assets/hd/textures/` (Forward+, quality ≥ 2; excluded from web). Details:
+  docs/ASSETS.md, PROGRESS ~13:50 UTC. Cloud environments can't reach ambientcg.com: re-run the
+  fetch script on the Pi (or anywhere with open internet).
+- `server/public` re-exported with the scans (pck 8.4 MB) and live on the Pi.
+- The Pi can push to `main` (deploy key) and has Godot 4.7.2 arm64 + web templates.
+- Still open from below: the compat brightness quirk (1×1-mip normalization), M5 visual tracks.
+  Poly Haven HDRI skies for desktop (`assets/hd/hdri/`) would be the next "high quality" step.
+
 ## Latest (~13:30 UTC, session 5)
 
 - **Done (on `main`):** M4.6-1 downtown rework around real buildings (`TrackBuildings`), generated
