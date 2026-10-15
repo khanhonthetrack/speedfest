@@ -191,7 +191,10 @@ func _draw_nitro() -> void:
 	var cell_w := 14.0
 	var gap := 2.5
 	var h := 16.0
-	var label_col := UITheme.MAGENTA if nitro_active else Color(UITheme.TEXT_DIM, 0.9)
+	# Dark backing so the bar reads on bright scenery too.
+	HudText.skew_quad(Rect2(left - 14.0, top - 22.0, NITRO_CELLS * (cell_w + gap) + 26.0, h + 30.0), 6.0, _quad)
+	draw_colored_polygon(_quad, Color(0.02, 0.035, 0.09, 0.7))
+	var label_col := UITheme.MAGENTA if nitro_active else UITheme.TEXT
 	draw_string(_font_head, Vector2(left - 2.0, top - 6.0), "NOS", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, label_col)
 	var pct := int(nitro * 100.0 + 0.5)
 	var pulse := 0.5 + 0.5 * sin(_time * 22.0)
