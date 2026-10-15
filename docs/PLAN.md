@@ -38,7 +38,8 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 - [ ] Web export runs in Chromium (Playwright) under the Compatibility renderer at a playable frame rate.
 - [x] AutoDriver can finish every track (all checkpoints, loop, jumps). arena 39.6 s, downtown 60.3 s, coast 54.0 s.
 
-### M3 — Review & polish ☐
+### M3 — Review & polish (in progress; see docs/HANDOFF.md)
+- [ ] **Trackmania-style rework of all 3 tracks** (owner decision 2026-10-15): new arena on module/tracks; downtown and coast to do
 - [ ] Adversarial bug review (networking edge cases, race logic, physics exploits)
 - [ ] Visual critique from screenshots of each track and car (Forward+ and Compatibility)
 - [ ] Performance pass for web (draw calls, lights, physics)

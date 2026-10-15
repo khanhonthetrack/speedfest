@@ -4,6 +4,7 @@ SpeedFest is a Trackmania-style time-attack racer with a Need for Speed Undergro
 built in **Godot 4.7.2**. The web build comes first; Nintendo Switch / Switch 2 is the long-term target.
 
 ## Read first
+0. **`docs/HANDOFF.md`**: current state, work in progress, and how to continue (start here).
 1. `docs/PLAN.md`: roadmap, milestone status, and who owns which files.
 2. `docs/ARCHITECTURE.md`: **interface contracts** between modules (the source of truth).
 3. `docs/DESIGN.md`: game design (modes, cars, tuning, tracks, controls, look).

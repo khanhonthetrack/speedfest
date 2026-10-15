@@ -114,3 +114,13 @@ date, who (module/agent), what changed, what's next or blocked.
   (static) is set by race.gd per theme (city 1.0, arena 0.5, coast 0) and reset on exit, so the garage is
   unaffected. Dark cars are now readable on Neon Downtown.
 - Owner feedback: the tracks look like normal tracks, not Trackmania-style. See TRANSCRIPT.
+
+## 2026-10-15 ~06:40 UTC — Handoff (orchestrator #2)
+
+- Trackmania rework started ~06:15: physics (wall rides, super boost, jumps) and scenery (elevated
+  decks) are done on their module branches; tracks pushed the new Pulse Arena (keyboard wall-ride exit
+  still open); downtown and coast are not rebuilt yet. None of it is merged into the integration branch.
+- race.gd uses `track.kill_y_at(pos)` when available (faster respawn after falls from high decks).
+- Hosting: `render.yaml` + Render steps in docs/HOSTING.md.
+- The owner hit ~90% of the usage limit: every agent stopped and wrote a Handoff section. Next agent:
+  **docs/HANDOFF.md**.

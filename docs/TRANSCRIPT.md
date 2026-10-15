@@ -90,3 +90,21 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
 
 - Plan: DESIGN §4 rewritten, and rework specs appended to docs/M1_SPECS.md ("M3 rework"). The tracks,
   physics and scenery sessions do the rework; the current tracks stay playable until the new ones pass.
+
+### User (verbatim, ~06:25 UTC)
+
+> Can you instruct me or do it yourself how to put all this on a website?
+
+### Claude
+
+- Can't create hosting accounts for the owner, so added a Render blueprint (`render.yaml`) and step-by-step
+  instructions (docs/HOSTING.md, option C); deploy from branch `ccr-49301774-b5a4ns`, Auto-Deploy off during play.
+
+### User (verbatim, ~06:35 UTC)
+
+> Im at 90% usage limit. Can you tell your subagents to record their work for my another claude agent to pick up later?
+
+### Claude
+
+- Told the running sessions (tracks, physics, scenery) to commit, push and write a Handoff section, then
+  stop. Did not wake the finished sessions. Cancelled scheduled check-ins. Wrote docs/HANDOFF.md.
