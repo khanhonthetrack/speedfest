@@ -156,3 +156,15 @@ date, who (module/agent), what changed, what's next or blocked.
   CarVisual API), `visual/world` (reflections, PBR textures, facades, HDRI, GI/fog, grade and post,
   presets), `visual/frontend` (3D garage front end). Integration follows.
 
+
+## 2026-10-15 ~09:20 UTC — Session 4 (orchestrator #4): M5 restarted as cloud sessions
+
+- Owner: "Look at the current state of speedfest, read from memory and continue working."
+- Found that orchestrator #3's three M5 agents (local worktrees) had never pushed: no `visual/*`
+  branches exist, so that work was lost with the container. `main` (b76a750, handling-feel pass)
+  is intact.
+- Fresh container set up (Godot 4.7.2 + templates, mesa Vulkan): 117 scripts compile.
+  Baseline Ultra (Forward+) perf_probe: arena ~320 draw calls / 195k tris, downtown ~410 / 385k.
+- Wrote **docs/M5_SPECS.md** (per-track scope, file ownership, budgets, asset rules, verification,
+  push-after-every-step rule). Web export preset now excludes `assets/hd/*`.
+- Spawning three cloud sessions: `visual/cars`, `visual/world`, `visual/frontend` (IDs below).

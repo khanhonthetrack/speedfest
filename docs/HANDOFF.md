@@ -1,6 +1,32 @@
 # HANDOFF: start here
 
-## Latest (2026-10-15 ~08:00 UTC, orchestrator #3, session 3)
+## Latest (2026-10-15 ~09:20 UTC, orchestrator #4, session 4)
+
+**State:** `main` has the integrated game (Trackmania-style tracks, weather, the handling-feel pass)
+and tonight's web build in `server/public`. **M5 visual upgrade restarted**: orchestrator #3's
+local worktree agents (visual/cars, visual/world, visual/frontend) never pushed, so their work was
+lost. This time each track runs as its own **cloud session** that pushes to its branch after every
+step. Specs: **`docs/M5_SPECS.md`**. Module docs: `docs/modules/visuals.md` (cars),
+`docs/modules/scenery.md` (world), `docs/modules/ui_menus.md` (frontend), each with a "Handoff" section.
+
+| track | branch | session |
+|---|---|---|
+| cars | `visual/cars` | (see PROGRESS.md, 09:20 UTC entry) |
+| world | `visual/world` | (see PROGRESS.md) |
+| frontend | `visual/frontend` | (see PROGRESS.md) |
+
+- The orchestrator merges `visual/*` into `main` after checks (order world → cars → frontend), and
+  re-exports `server/public` only after the upgrade is verified on both renderers.
+- **Game night is tonight.** If the host uses Render with Auto-Deploy on, every push to `main`
+  redeploys. Don't push `server/public` changes to `main` late in the day unless they're verified.
+- Web export now excludes `assets/hd/*` (desktop-only large assets).
+
+Open items from session 3 (below) still apply: keyboard-emulation falls, downtown length, web
+frame rate on a real GPU, and the adversarial review.
+
+---
+
+## Session 3 (2026-10-15 ~08:00 UTC, orchestrator #3)
 
 **State:** branch `ccr-49301774-b5a4ns` has the **Trackmania-style rework of all three tracks**
 merged (tracks + physics + scenery module branches). It also has the new **weather** system:

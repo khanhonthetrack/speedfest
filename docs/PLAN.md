@@ -55,7 +55,8 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 ### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
 Owner: "graphics ... kinda trivial and menu looks very mobiley and boring", so focus on real art
 and lighting on mainline Godot plus an NFSU2-style 3D front end (docs/RENDERING.md §3 items 1 and 5).
-Path tracing is parked until the owner is at their RTX PC. Three parallel tracks, each on its own branch:
+Path tracing is parked until the owner is at their RTX PC. Three parallel tracks, each on its own branch
+(specs: **docs/M5_SPECS.md**; restarted 09:20 UTC as cloud sessions after the first attempt's local work was lost):
 | track | branch | scope |
 |---|---|---|
 | cars | `visual/cars` | Blender-scripted hero car models (glTF, all customization slots, LODs) behind the unchanged CarVisual API; better paint, glass, chrome, tire and light materials |

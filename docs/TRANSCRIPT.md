@@ -192,3 +192,15 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
   gravity, nose follows the arc and lines up with the landing, softer landing absorb, and barrier
   collision tops that slope back toward the road.
 
+
+## Session 4 — 2026-10-15 (orchestrator #4)
+
+### User (verbatim, ~08:57 UTC)
+
+> Look at the current state of speedfest, read from memory and continue working.
+
+### Claude
+
+- Read HANDOFF/PLAN/PROGRESS/TRANSCRIPT. The M5 visual upgrade's three local agents from session 3
+  never pushed, so their work was lost. Restarted M5 as three cloud sessions (cars, world,
+  frontend) that push to `visual/*` after every step. Specs: docs/M5_SPECS.md.
