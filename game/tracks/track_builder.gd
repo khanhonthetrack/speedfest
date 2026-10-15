@@ -16,6 +16,12 @@ extends RefCounted
 ##   {"puddle": 14, "w": 7, "x": -4, "at": 0, "storm": false} (weather puddle, see res://weather/weather.gd)
 ##   {"surface": "grass"|"gravel"|"sand", "len": 60, "x0": -9, "x1": 2, "at": 0} (ground patch on the
 ##     road from at..at+len, lateral x0..x1 m (+ right); grip and drag in res://weather/track_surface.gd)
+##   {"building": "roof"|"through"|"facade", "len": 60, "at": 0, ...} (real buildings that are part of
+##     the track, res://tracks/track_buildings.gd): "roof" = tower under the road (rooftop), "through"
+##     = the road drives through a tower (adds a tunnel zone; keep that stretch straight and level),
+##     "facade" = tower wall beside the road ("side": "left"|"right"|"both", follows wall-ride roll).
+##     Options: "margin" (m beyond the road edge), "height" (m above the road), "gap" (facade: m from
+##     the road edge), "sign" (text on the entry facade of a "through" tower).
 ## Any segment may also carry "zone": "tunnel"|"bridge"|"no_props" which covers just that segment.
 
 const STEP := 2.5
@@ -53,6 +59,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	var boosts: Array = []
 	var puddles: Array = []
 	var patches: Array = []
+	var buildings: Array = []
 	var zones: Array = []
 	var gaps: Array = []
 	var loops: Array = []
@@ -104,6 +111,15 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		if s.has("surface"):
 			patches.append({"d": d0 + float(s.get("at", 0.0)), "len": float(s.get("len", 30.0)),
 				"x0": float(s.get("x0", -50.0)), "x1": float(s.get("x1", 50.0)), "kind": String(s["surface"])})
+			continue
+		if s.has("building"):
+			var bd := s.duplicate()
+			bd["kind"] = String(s["building"])
+			bd["d"] = d0 + float(s.get("at", 0.0))
+			bd["len"] = float(s.get("len", 40.0))
+			buildings.append(bd)
+			if bd["kind"] == "through":
+				zones.append({"from": bd["d"], "to": bd["d"] + bd["len"], "kind": "tunnel"})
 			continue
 		if s.has("walls") and s.size() == 1:
 			if d0 > wall_from:
@@ -351,6 +367,9 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		pd["d"] = sc.call(pd["d"])
 	for pt in patches:
 		pt["d"] = sc.call(pt["d"])
+	for bd in buildings:
+		bd["d"] = sc.call(bd["d"])
+		bd["len"] = sc.call(bd["len"])
 	for z in zones:
 		z["from"] = sc.call(z["from"])
 		z["to"] = sc.call(z["to"])
@@ -396,7 +415,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		"wallrides": wallrides,
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
 		"boosts": boosts, "puddles": puddles, "patches": patches, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
-		"points": PackedVector3Array(pts), "circuit": circuit,
+		"buildings": buildings, "points": PackedVector3Array(pts), "circuit": circuit,
 	}
 
 

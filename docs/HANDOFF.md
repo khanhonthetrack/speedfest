@@ -1,5 +1,15 @@
 # HANDOFF: start here
 
+## Latest (~11:30 UTC, session 4): STOPPED for the usage limit, continue here
+
+- Done today (all pushed): M4.5 (all six owner items), M4.6-3 dark-trap music, M4.6-2 two ground
+  sprints (Infield Rush, Dune Dash) with grass/gravel/sand physics, 5-card track select, lobby fix.
+- **server/public is the safe build from 339825c** (no sprints, no music changes after it). It
+  is still what's deployed; the sprints need a new export (M4.6-4).
+- **Next: downtown rework (M4.6-1)**, only started: the builder parses `{"building": ...}` markers.
+  The full plan is in docs/PROGRESS.md (~11:30 UTC entry). Then export (M4.6-4).
+- Work sequentially (owner rule). Commit and push after every step.
+
 ## Latest (2026-10-15 ~10:30 UTC, orchestrator #4, session 4)
 
 **Rule from the owner: no parallel sessions or subagents.** Work one item at a time and push

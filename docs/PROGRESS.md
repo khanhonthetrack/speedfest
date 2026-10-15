@@ -326,3 +326,36 @@ date, who (module/agent), what changed, what's next or blocked.
 - Tests: check_scripts 0 errors; test_tracks 95/95; test_weather 48/48; nav 8/8, lobby_fake 23/23,
   garage 15/15. Real tracks infield+dunes: default 12/12 clean; storm 11/12 (brute keyboard
   emulation understeers on wet gravel, see modules/tracks.md).
+
+## 2026-10-15 ~11:30 UTC — M4.6 item 1 (downtown rework) STARTED, stopped for the usage limit
+
+- Done so far: `track_builder.gd` parses a new `{"building": "roof"|"through"|"facade", "len", "at", ...}`
+  marker into `data["buildings"]` (scaled like puddles; "through" adds a tunnel zone). Nothing builds
+  them yet and no layout uses them, so the game is unchanged.
+- Plan (next agent, continue here; see HANDOFF "Next: downtown rework"):
+  1. New `res://tracks/track_buildings.gd` (`class_name TrackBuildings`, run tools/godot_import.sh),
+     `static func build(track, data, layout)`, called from `Track._build_geometry()` after the road:
+     - "roof": tower under the road (top = min deck y over the piece − 0.9 m, width road + 2×margin),
+       roof boxes + neon roof-edge strip, no collision (falling cars still reach kill_y).
+     - "through": tower around the road; blocks left/right of the tunnel outer box (half width
+       road/2 + 2.8), a top block from 9.4 m above the road, a bottom block below the slab
+       (−0.6 m); the existing tunnel shell is the interior. Collision boxes on left/right/top.
+       Neon sign over the entry portal ("sign"). Keep the road straight and level inside.
+     - "facade": facet boxes every ~12 m along the road side, face at lateral
+       half_width·cos(roll(d)) + gap so it follows a wall ride's raised edge; collision boxes.
+     - Visuals: one SceneryMesh per building (boxes in building-local metres) committed to a mesh
+       and drawn through `SceneryInstances(mesh, SceneryMat.shader_mat("building", ...), ..., custom=true)`
+       with one instance, so env_building.gdshader windows line up across blocks.
+     - `path.set_meta("reserved", [[center, x_axis, z_axis, hx, hz], ...])`; city_kit.gd `build()`
+       claims those cells (`_claim(_cells_of(...))`) so random buildings don't overlap.
+  2. New downtown layout (remove the loop: it was entered at ~284 km/h and the body bottomed out):
+     start helipad roof → boost → rooftop gap jump (roofs under takeoff and landing) → drive THROUGH a
+     tower with cp1 inside → banked right 90 → left wall ride along a crescent tower facade (facade on
+     the right) → cp2 → "needle" gap jump between two towers (facades both sides) landing into a right
+     wall ride around a tower ("bounce off a building"; no boost before it, wall rides want
+     140–215 km/h) → cp3 → dive between towers + banked 75 → cp4 → super boost → finish jump onto a
+     rooftop. ~1600 m, ~35 s.
+  3. Verify: check_scripts, test_tracks (update downtown RANGES if needed), test_weather (puddles),
+     test_collision_faces, test_road_smooth, run_real_tracks.sh downtown (default + WEATHER=storm),
+     compat + Forward+ screenshots (tests/tracks/track_view.gd `cp:N`).
+- Then M4.6-4: export (worktree check_all, tools/export_web.sh, browser online test, commit server/public).
