@@ -125,7 +125,8 @@ visual barrier, so fast cars can't climb over.
   drives the real `Car` with the physics module's `AutoDriver` (needs `module/physics` merged),
   respawning at the last checkpoint below `kill_y` or when the bot reports stuck. Results with
   `module/physics` as of 00:58 UTC (kaze, AutoDriver): **arena 43.2 s, downtown 60.4 s,
-  coast 57.0 s, 0 respawns on all three** (targets 45 / 60 / 60 s).
+  coast 57.0 s, 0 respawns on all three** (targets 45 / 60 / 60 s). brute: 41.7 / 60.3 / 56.8 s,
+  veloce: 40.6 / 58.7 / 53.1 s, also 0 respawns.
 - `tools/run_scene.sh res://tests/tracks/track_view.tscn -- --track=id --views="overview;drive:120;chase:300;orbit:870;side:500" --out=/abs/dir --tag=x`
   screenshots (prints draw calls / primitives per view).
 - `tools/run_scene.sh res://tests/tracks/layout_map.tscn --headless -- --out=/abs/dir`: top-down
