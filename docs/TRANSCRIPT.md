@@ -346,3 +346,26 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - Plan (sequential, push after each step): (1) more livery patterns in the paint shader and the
   garage; (2) a proper cabin (dashboard, steering wheel, seats, door cards, center console) and a
   driver (helmet, suit, gloves on the wheel) visible through the glass, for every car.
+
+### User (verbatim, ~21:10 UTC; sent with the /workflow-authoring command, "ultracode" on)
+
+> I had a pass. This game is unplayable.
+>
+> 1. Focus now on making this game run on a PC. I want the engine to run good graphics from Godot. I want optional RTX, as many of us have RTX cards. This game looks like 2005. It’s laggy as well.
+> 2. The physics is horrible. There is no feel. CAn’t you learn or copy from Trackmania (any trackmania) how car behaves?
+> 3. The barriers are super annoying.
+> 4. The wall rides are terrible. It slows you down, pulls you down. These cars don’t have any grip? It sucks.
+> 5. The maps are literally copy paste of each other. Rails should not be magnetic to the car. It should stay and its the players job to land there. Can’t you get inspiration from 10000+ maps from trackmania? https://trackmania.exchange/mapsearch You could literally copypaste them if you want. I want 30+ HIGH QUALITY, different maps.
+>
+> Record my request for the hand off and continue.
+
+### Claude
+
+- Recorded as milestone **M7** in PLAN.md (PC first, Trackmania-grade handling, barriers, wall
+  rides, non-magnetic rails, 30+ distinct maps). The owner opted into multi-agent workflows with
+  this message. That overrides the earlier "no parallel agents" rule for M7, with a mitigation:
+  research agents only read and their reports are committed at once; implementing agents push to
+  their own branches after every step.
+- Maps: TMX maps are their authors' work, so the 30+ maps are original designs that borrow the
+  map *styles* the community plays most (tech, fullspeed, dirt, ice, bobsleigh, platform,
+  wallride/loop, trial...), not copies of specific maps.

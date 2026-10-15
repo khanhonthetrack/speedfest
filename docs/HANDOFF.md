@@ -1,5 +1,13 @@
 # HANDOFF: start here
 
+## Latest (~21:15 UTC, session 7): NEW OWNER PRIORITY, M7 (see PLAN.md "M7")
+
+The owner played it and called it "unplayable". The M7 list in PLAN.md is now the priority, ahead of
+everything below: PC build with good graphics + optional RTX, no lag, Trackmania-like handling,
+barriers, wall rides, non-magnetic rails, 30+ distinct high-quality maps. Verbatim request:
+TRANSCRIPT session 7, last entry. Work runs as research workflow → plan → implementation; the
+reports land in docs/research/ (M7) as they finish.
+
 ## Latest (~20:45 UTC, session 7, cloud session)
 
 - Owner (TRANSCRIPT session 7): "Put more patterns for cars to choose. Interiors suck, they look

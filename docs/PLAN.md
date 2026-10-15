@@ -84,6 +84,26 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
       facades, jumping and bouncing off buildings, rooftops
 - [x] 4. Export the web build (server/public) and verify it in a browser (session 5; also a static copy on the `web-build` branch)
 
+### M7 — "Unplayable" pass: PC, feel, maps (owner, session 7, 2026-10-15 ~21:10 UTC) ☐
+Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
+- [ ] 1. **PC first**: native desktop build (Windows + Linux) on Forward+ with real Godot graphics
+      (GI, reflections, AO, volumetrics, TAA/upscaling, better materials and lighting). It should
+      not look like 2005, and it must run smoothly (frame pacing / physics interpolation, perf
+      budget). **Optional RTX**: a path-traced mode when the game runs on NVIDIA's RTX Godot fork,
+      plus whatever mainline offers for RTX cards.
+- [ ] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
+      acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
+      measurable targets and tests.
+- [ ] 3. **Barriers**: hits should not ruin a run (glance off and keep going, no snagging, no flips).
+- [ ] 4. **Wall rides and loops**: full grip on walls and loops, no speed loss or pulling down at
+      sensible speeds.
+- [ ] 5. **Rails not magnetic**: the car must not be pulled onto a rail; landing on it is the
+      player's job.
+- [ ] 6. **30+ high-quality, distinct maps** in original designs that borrow from the most-played
+      TM map styles (TMX). This needs new track pieces and mechanics so maps don't repeat.
+Process: research workflow → plan → implement in sequence (physics → barriers/walls/rails → PC
+graphics/perf → track pieces → maps in parallel batches) → verify (tests, AutoDriver, screenshots).
+
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
 instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.
