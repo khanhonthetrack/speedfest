@@ -91,15 +91,16 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       not look like 2005, and it must run smoothly (frame pacing / physics interpolation, perf
       budget). **Optional RTX**: a path-traced mode when the game runs on NVIDIA's RTX Godot fork,
       plus whatever mainline offers for RTX cards.
-- [ ] 2. **Handling with Trackmania feel** (implemented on branch `m7-physics`, items 2-4; real-track
-      verification + merge pending, see HANDOFF): research how TM cars behave (grip, steering,
+- [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
-      measurable targets and tests.
-- [ ] 3. **Barriers**: hits should not ruin a run (glance off and keep going, no snagging, no flips).
-- [ ] 4. **Wall rides and loops**: full grip on walls and loops, no speed loss or pulling down at
-      sensible speeds.
-- [ ] 5. **Rails not magnetic**: the car must not be pulled onto a rail; landing on it is the
-      player's job.
+      measurable targets and tests. Done (sessions 8 + 10, merged into `main`): TM lab 336/336,
+      AutoDriver 60/60 analog + 60/60 keyboard. A TMNF reverse-engineering session may refine it.
+- [x] 3. **Barriers**: hits should not ruin a run (glance off and keep going, no snagging, no
+      flips). Done (session 8): glancing hits keep the speed and the nose turns along the wall.
+- [x] 4. **Wall rides and loops**: full grip on walls and loops, no speed loss or pulling down at
+      sensible speeds. Done (session 8; session 10 added a suspension hard stop for fast loops).
+- [x] 5. **Rails not magnetic**: the car must not be pulled onto a rail; landing on it is the
+      player's job. Done (session 10).
 - [ ] 6. **30+ high-quality, distinct maps** in original designs that borrow from the most-played
       TM map styles (TMX). This needs new track pieces and mechanics so maps don't repeat.
 Process: research workflow → plan → implement in sequence (physics → barriers/walls/rails → PC
