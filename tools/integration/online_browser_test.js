@@ -57,13 +57,20 @@ function urlFor(i) {
     await page.waitForTimeout(i === 0 ? 8000 : 2000);
   }
 
+  // Loading N software-rendered pages can take minutes on a CPU-only box: give the clients up to
+  // LOAD_S to connect and start the round, then the round itself (duration + margin) from its start.
   const t0 = Date.now();
-  const timeoutMs = (duration + 120) * 1000;
+  const loadMs = Number(process.env.LOAD_S || 420) * 1000;
+  const roundMs = (duration + 120) * 1000;
+  let tStart = 0;
   let shotTaken = false;
-  while (Date.now() - t0 < timeoutMs) {
+  while (Date.now() - t0 < loadMs + roundMs) {
     await new Promise((r) => setTimeout(r, 2000));
     const started = clients.every((c) => c.events.round_start);
-    if (started && !shotTaken && Date.now() - t0 > 25000) {
+    if (started && !tStart) tStart = Date.now();
+    if (!started && Date.now() - t0 > loadMs) break;
+    if (tStart && Date.now() - tStart > roundMs) break;
+    if (started && !shotTaken && Date.now() - tStart > 25000) {
       shotTaken = true;
       for (const c of clients) await c.page.screenshot({ path: path.join(outDir, `client${c.i + 1}_race.png`) });
     }

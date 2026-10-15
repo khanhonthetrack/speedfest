@@ -295,3 +295,15 @@ date, who (module/agent), what changed, what's next or blocked.
 - `Audio.race_music(track_id)`: each track plays its own beat (fallback "race"). test_audio 64/64.
 - I can't listen in this container: checked structure with a spectrogram (intro → drop → break →
   drop) and levels (intro −17 dB, beats −10 dB RMS, 808 sub-bass dominant in the beats).
+
+## 2026-10-15 ~11:00 UTC — Safe web build for tonight (server/public)
+
+- Built from ab1429a in a separate worktree: `tools/integration/check_all.sh` → **CHECK_ALL PASS**
+  (all suites, server 12/12, autodrive finishes arena/downtown/coast, net smoke, 3-client online
+  round). Web export: index.pck 4.4 MB (+1.3 MB music).
+- Real-browser test (headless Chromium, WebGL2, 2 clients, Neon Downtown): **PASS** (connect, join,
+  round start, race, round end; 0 script errors). The lobby lineup shows both cars on the web build.
+- The lobby lineup now renders only while something changes (it starved a second software-rendered
+  browser); `online_browser_test.js` times the round from its start (`LOAD_S`, default 420 s, for
+  slow page loads on CPU-only boxes).
+- Contains everything up to the dark-trap music. Not yet: the short surface maps and the downtown rework.
