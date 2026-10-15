@@ -45,15 +45,24 @@ Confirmed by the owner: **Time Attack only**. Cars are ghosts and never collide.
 **Solo Time Attack** (offline practice): pick a track, no time limit, with your PB ghost. PBs are saved
 locally per track.
 
-## 3. Cars (3 originals)
+## 3. Cars (6 originals)
 
 | id | Name | Archetype | Drive | Personality |
 |---|---|---|---|---|
 | `kaze` | **Kaze RS** | JDM tuner coupe (pop-up-lamp-era rotary-coupe vibe, original design) | RWD | Light and rev-happy. Easiest to drift. Balanced. |
 | `brute` | **Brute V8** | American muscle (long hood, fastback, wide hips) | RWD | Huge torque and acceleration. Heavy, loose rear, great nitro. |
 | `veloce` | **Veloce GT** | Euro mid-engine supercar (low wedge, big intakes) | AWD | Highest grip and top speed. Stable, least drifty. |
+| `kitsune` | **Kitsune R4** (session 6) | Rally hatch (raised, box flares, roof wing) | AWD | Quickest launch, long soft travel. Rally tires: grass, gravel and sand barely slow it (`loose_grip` 0.75). Turbo I4 with anti-lag pops. |
+| `pixie` | **Pixie S** (session 6) | Kei roadster (tiny, round, frog-eye lamps) | RWD | Featherweight: the most grip, the sharpest turn-in, the lowest top speed (~245 km/h). High-revving I3. |
+| `goliath` | **Goliath HD** (session 6) | Pickup truck (tall nose, upright cab, open bed) | AWD | 2.25 t: the biggest nitro tank (8 s), soft but well-damped springs that land anything, turns in late. Some loose-surface grip (0.45). Supercharged V8. |
 
-All three are competitive and **easy to drive** (owner, session 4: "Remove tuning, it's too
+The session-6 types answer the owner's "different type of cars": each has a place where it wins
+(Kitsune on the ground sprints, Pixie in tight technical bits, Goliath on boost-and-jump maps).
+`loose_grip` (0..1) wins back that fraction of the grip lost on grass/gravel/sand and 60% of the
+rolling drag (`tests/physics/test_loose`). On every loose surface the drag fades in with speed
+(full above ~54 km/h), so any car that stops in a sand trap can crawl out.
+
+All six are competitive and **easy to drive** (owner, session 4: "Remove tuning, it's too
 complicated. Make handling easy (but different for different cars)"). There is **no performance
 tuning** any more: every car drives stock, and the cars differ by their stock character:
 
@@ -62,6 +71,9 @@ tuning** any more: every car drives stock, and the cars differ by their stock ch
 | Kaze RS | lightest and quickest to turn; slides grow into drifts most easily on throttle (`power_oversteer` 0.4), lively stability assist (`yaw_damp` 1.0) |
 | Brute V8 | heavy, huge acceleration and the biggest nitro tank; neutral rear grip now (no snap oversteer), firmer assist (1.2) |
 | Veloce GT | AWD grip and the highest top speed; no power oversteer, firmest assist (1.3) |
+| Kitsune R4 | AWD with a hint of power oversteer (0.2); soft long-travel springs; neutral assist (1.05) |
+| Pixie S | most grip (1.82) and the quickest steering; light assist (1.1); slowest top end |
+| Goliath HD | heavy and slow to turn in (steer speed 0.8, assist 1.45), but planted and stable; huge nitro |
 
 Easy handling = slides happen when you ask for them (handbrake, or brake + steer for a brake drift)
 and a hands-off stability assist catches the tail stepping out when you aren't steering. Measured by

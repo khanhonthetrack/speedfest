@@ -17,14 +17,14 @@ const G := CarPhysicsDefs.GRAVITY
 
 ## Normalization ranges for stats (fitted over every car with every slider at -1/0/+1;
 ## see tests/physics/test_tuning.gd which prints the observed ranges).
-const TOP_KMH_RANGE := Vector2(250.0, 330.0)
-const ACCEL_S_RANGE := Vector2(5.45, 4.2)       # slow .. quick (0-100 + 0-200 * ACCEL_200_WEIGHT)
+const TOP_KMH_RANGE := Vector2(228.0, 330.0)
+const ACCEL_S_RANGE := Vector2(5.65, 4.2)       # slow .. quick (0-100 + 0-200 * ACCEL_200_WEIGHT)
 const ACCEL_200_WEIGHT := 0.25
 const SHIFT_LOSS := 0.985                         # average drive loss from shift cuts (fitted)
-const HANDLING_RANGE := Vector2(0.3, 1.48)
+const HANDLING_RANGE := Vector2(0.1, 1.9)
 const DRIFT_RANGE := Vector2(-0.45, 1.7)
 const NITRO_RANGE := Vector2(3.5, 12.0)          # m/s^2
-const NITRO_TIME_RANGE := Vector2(1.5, 7.0)      # s
+const NITRO_TIME_RANGE := Vector2(2.0, 9.0)      # s
 
 
 static func _t(tuning: Dictionary, key: String) -> float:

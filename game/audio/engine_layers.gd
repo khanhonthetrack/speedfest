@@ -6,4 +6,7 @@ const CARS := {
 	"kaze": {"idle_rpm": 1100.0, "redline": 9000.0, "turbo": 1.0, "layers": {"idle": 1099.99, "mid": 3200.0, "high": 7200.0, "off": 4200.0}},
 	"brute": {"idle_rpm": 800.0, "redline": 6800.0, "turbo": 0.25, "layers": {"idle": 800.0, "mid": 2400.0, "high": 5400.0, "off": 3200.01}},
 	"veloce": {"idle_rpm": 1200.0, "redline": 8800.0, "turbo": 0.55, "layers": {"idle": 1200.0, "mid": 3400.0, "high": 7400.06, "off": 4399.99}},
+	"kitsune": {"idle_rpm": 950.0, "redline": 7800.0, "turbo": 1.3, "layers": {"idle": 950.0, "mid": 3000.0, "high": 6600.0, "off": 4000.0}},
+	"pixie": {"idle_rpm": 1300.0, "redline": 10500.0, "turbo": 0.2, "layers": {"idle": 1300.0, "mid": 4200.0, "high": 9000.0, "off": 5199.98}},
+	"goliath": {"idle_rpm": 650.0, "redline": 5600.0, "turbo": 0.1, "layers": {"idle": 650.0, "mid": 2000.0, "high": 4599.95, "off": 2800.0}},
 }

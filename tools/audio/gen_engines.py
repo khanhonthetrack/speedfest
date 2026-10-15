@@ -23,6 +23,8 @@ SR = S.SR
 V8_CROSSPLANE = [(i * 90.0, b) for i, b in enumerate([0, 1, 1, 0, 1, 0, 0, 1])]  # 1-8-4-3-6-5-7-2, GM banks
 V12_FLAT = [(i * 60.0, i % 2) for i in range(12)]
 ROTARY_2 = [(i * 180.0, i % 2) for i in range(4)]  # two rotors, one power pulse per rotor per shaft turn
+INLINE_4 = [(i * 180.0, 0) for i in range(4)]       # even 180-degree firing, one exhaust
+INLINE_3 = [(i * 240.0, 0) for i in range(3)]       # 240-degree firing: the off-beat triple thrum
 
 
 CARS = {
@@ -79,6 +81,63 @@ CARS = {
 		"sub": 0.1,
 		"whine": (12.0, 0.08),
 		"turbo": 0.55,
+	},
+	# Kitsune: rally hatch, turbo inline-4 -> gruff, boomy, anti-lag pops off throttle
+	"kitsune": {
+		"zero_start": True,
+		"events": INLINE_4,
+		"idle_rpm": 950.0, "redline": 7800.0,
+		"bases": {"idle": 950.0, "mid": 3000.0, "high": 6600.0, "off": 4000.0},
+		"bright_hz": 1800.0,
+		"reso": [(300.0, 2.5, 1.0), (850.0, 3.5, 0.8), (2000.0, 4.0, 0.5), (4200.0, 3.0, 0.25)],
+		"bank_delay": [0.0, 0.0],
+		"bank_gain": [1.0, 1.0],
+		"tilt_hz": 1800.0,
+		"rasp": 0.35, "rasp_band": (1600.0, 1.2), "rasp_tau": 0.2,
+		"drive": 2.6,
+		"var": {"idle": 0.3, "mid": 0.12, "high": 0.06, "off": 0.7},
+		"jitter": 0.006,
+		"sub": 0.25,
+		"whine": (0.0, 0.0),
+		"turbo": 1.3,
+	},
+	# Pixie: kei roadster, high-revving inline-3 -> light, buzzy, loves the limiter
+	"pixie": {
+		"zero_start": True,
+		"events": INLINE_3,
+		"idle_rpm": 1300.0, "redline": 10500.0,
+		"bases": {"idle": 1300.0, "mid": 4200.0, "high": 9000.0, "off": 5200.0},
+		"bright_hz": 2400.0,
+		"reso": [(450.0, 3.0, 1.0), (1200.0, 4.0, 0.7), (2600.0, 5.0, 0.45), (4800.0, 4.0, 0.25)],
+		"bank_delay": [0.0, 0.0],
+		"bank_gain": [1.0, 1.0],
+		"tilt_hz": 2400.0,
+		"rasp": 0.25, "rasp_band": (2600.0, 1.4), "rasp_tau": 0.15,
+		"drive": 2.0,
+		"var": {"idle": 0.25, "mid": 0.1, "high": 0.05, "off": 0.55},
+		"jitter": 0.005,
+		"sub": 0.2,
+		"whine": (0.0, 0.0),
+		"turbo": 0.2,
+	},
+	# Goliath: pickup, big low-revving cross-plane V8 with a supercharger -> deep rumble + whine
+	"goliath": {
+		"zero_start": True,
+		"events": V8_CROSSPLANE,
+		"idle_rpm": 650.0, "redline": 5600.0,
+		"bases": {"idle": 650.0, "mid": 2000.0, "high": 4600.0, "off": 2800.0},
+		"bright_hz": 450.0,
+		"reso": [(70.0, 2.0, 1.0), (180.0, 2.5, 0.85), (480.0, 3.0, 0.45), (1000.0, 3.0, 0.2)],
+		"bank_delay": [0.0, 0.0024],
+		"bank_gain": [1.0, 0.7],
+		"tilt_hz": 650.0,
+		"rasp": 0.15, "rasp_band": (700.0, 1.0), "rasp_tau": 0.35,
+		"drive": 3.0,
+		"var": {"idle": 0.5, "mid": 0.25, "high": 0.12, "off": 0.8},
+		"jitter": 0.014,
+		"sub": 0.65,
+		"whine": (24.0, 0.06),
+		"turbo": 0.1,
 	},
 }
 
@@ -182,6 +241,10 @@ def render_layer(car: str, layer: str, seed: int) -> tuple[np.ndarray, float]:
 	mix = S.soft_clip(mix * 0.9, c["drive"])
 	mix = S.normalize_peak(mix, -1.0)
 	gain = {"idle": 0.62, "mid": 0.85, "high": 1.0, "off": 0.6}[layer]
+	if c.get("zero_start", False):
+		# start the loop at its quietest sample (a circular shift keeps it seamless): Vorbis can
+		# leave a click at the seam of a loop that starts mid-swing
+		mix = np.roll(mix, -int(np.argmin(np.abs(mix))))
 	return mix * gain, rpm
 
 
@@ -189,7 +252,7 @@ def _crackles(n: int, seed: int, car: str) -> np.ndarray:
 	"""Sparse overrun pops for the off-throttle layer."""
 	r = S.rng(seed)
 	out = np.zeros(n)
-	count = {"kaze": 9, "brute": 7, "veloce": 4}[car]
+	count = {"kaze": 9, "brute": 7, "veloce": 4, "kitsune": 12, "pixie": 5, "goliath": 8}[car]
 	for _ in range(count):
 		ln = int(SR * r.uniform(0.006, 0.02))
 		pop = S.noise(ln, int(r.integers(1 << 30))) * S.env_ad(ln, 0.0005, ln / SR / 4)

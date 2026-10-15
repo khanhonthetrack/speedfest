@@ -211,7 +211,9 @@ func _check_jump() -> void:
 		"approach":
 			if z < jump_ramp_z + 2.0:
 				jump_launch_kmh = jump_car.get_speed_kmh()
-			if not g and z < jump_ramp_z - 15.0:
+			# airborne past the ramp lip (20 m ramp at 10 deg ends ~19.7 m on); a light car may skip
+			# on the ramp itself, which is not the jump
+			if not g and z < jump_ramp_z - 19.5:
 				jump_state = "air"
 				jump_air_start = tick
 		"air":

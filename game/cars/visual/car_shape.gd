@@ -134,7 +134,7 @@ func _goliath() -> void:
 		"roof_y": g["height"], "roof_w": 0.8, "base_inset": 0.05, "roof_crown": 0.02,
 		"notch": true, "side_glass_top": 0.88, "b_pillar": 0.5}
 	style_k = {"flare": 0.05, "flare_box": true, "mid_frac": 0.5, "hood_from": 0.04, "hood_to": 0.33,
-		"intake": false, "shoulder_r": 0.03, "nose_bulge": 0.03, "tail_bulge": 0.01}
+		"intake": false, "shoulder_r": 0.03, "nose_bulge": 0.03, "tail_bulge": 0.01, "dip_pow": 14.0}
 
 
 ## How far the body surface bulges out beyond the end stations (rounded nose/tail in plan view
@@ -297,7 +297,11 @@ func deck_y(x: float, t: float) -> float:
 	var w := wsh(t) - float(style_k["shoulder_r"])
 	var u := clampf(absf(x) / maxf(w, 0.01), 0.0, 1.0)
 	var b := belt(t)
-	return b + (crown(t) - b) * (1.0 - pow(u, 2.4))
+	var c := crown(t)
+	# where the deck dips below the belt (a pickup bed) a car may ask for a flat floor with steep
+	# inner walls ("dip_pow"); otherwise the usual rounded crown
+	var e: float = float(style_k.get("dip_pow", 2.4)) if c < b - 0.05 else 2.4
+	return b + (c - b) * (1.0 - pow(u, e))
 
 
 # --- greenhouse ---------------------------------------------------------------

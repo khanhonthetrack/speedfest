@@ -35,6 +35,9 @@ const AIR_PITCH_FOLLOW := 5.0            # nose follows the flight path (rad/s^2
 const AIR_GRAVITY_EXTRA := 0.35          # extra gravity while airborne (punchier, less floaty arcs)
 const AIR_STEER := 1.5                   # air yaw response (1/s)
 const AIR_YAW_RATE := 0.3                # max air yaw rate from steering (rad/s): a nudge, not a spin
+## Grass/gravel/sand rolling drag fades in with speed (full above this, 15% at a standstill), so a
+## car that stops in a sand trap can still crawl out; at racing speed it bogs down as designed.
+const LOOSE_DRAG_FULL_SPEED := 15.0      # m/s (~54 km/h)
 ## Brake drift (Trackmania / NFS style): brake + steer at speed breaks the rear loose. The brakes
 ## mostly stop scrubbing speed while it slides, and the drift assist carries the slide on throttle.
 const BRAKE_DRIFT_MIN_SPEED := 14.0      # m/s (~50 km/h)
@@ -715,7 +718,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var wd := minf(surface.drag_for_water(_water[i]) * cm, absf(v_long) * cm / dt * 0.5)
 			f_long -= signf(v_long) * wd
 		if _ground[i] > 0:
-			var gd := minf(TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * cm, absf(v_long) * cm / dt * 0.5)
+			var fade := clampf(absf(v_long) / LOOSE_DRAG_FULL_SPEED, 0.15, 1.0)
+			var gd := minf(TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * fade * cm, absf(v_long) * cm / dt * 0.5)
 			f_long -= signf(v_long) * gd
 		# lateral (slip-angle curve)
 		var mu := grip

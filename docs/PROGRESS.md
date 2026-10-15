@@ -493,3 +493,31 @@ date, who (module/agent), what changed, what's next or blocked.
   test counts a side pad (`"pw"`) only where the puddle overlaps it sideways. Result: 73/73.
   AutoDriver in storm with no respawns: cliff 16.2 s, rooftop 14.3 s, pipes 20.3 s.
 - Checks: PHYSICS_ALL_OK; check_all --quick all suites OK except test_weather (fixed above).
+
+## 2026-10-15 ~18:45 UTC — Session 7: M6-3 DONE, three new car types merged
+
+Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
+- **Looks:** screenshots of all three on Forward+ and compat. Goliath's bed was a smooth bowl that
+  read as a dome. `CarShape.deck_y` now takes an optional `dip_pow` where the deck dips below the
+  belt (Goliath 14), so the bed has a flat floor and steep walls. Kitsune and Pixie were fine.
+- **Engine sounds:** `gen_engines.py` adds Kitsune (turbo I4, anti-lag pops), Pixie (high-rev I3)
+  and Goliath (low-revving cross-plane V8 with supercharger whine). Their loops start at the
+  quietest sample (`zero_start`), because Vorbis left a click at the seam of the Goliath high loop.
+  check_loops 0 failures. The existing engine files are byte-identical.
+- **Stats:** `Tuning` display ranges widened for six cars: top 228–330 km/h, accel 5.65–4.2,
+  handling 0.1–1.9, nitro time 2–9 s. test_tuning 9/9.
+- **Physics fixes from testing:** Goliath damping 0.44 → 0.50, because it bounced on a rolled
+  landing on Dusk Coast and the AutoDriver fell off once. Goliath grip 1.40 → 1.46, because it slid
+  4.66 m sideways on the fast wall ride (limit 4.5; downforce and steer speed didn't help).
+  **Loose-surface drag now fades in with speed** (full above 54 km/h, 15% at a standstill). Before,
+  a road car that stopped on sand could not move: 1 km/h after 4 s at full throttle.
+- **Tests:** new `tests/physics/test_loose` (8 checks). After 4 s of full throttle every car gets
+  out of a sand trap (road cars 40–48 km/h, Goliath 84, Kitsune 99). Entering sand at 120 km/h,
+  Kitsune keeps 82% of its asphalt speed, Goliath 76%, road cars 63–70%.
+  `run_all.sh` runs every per-car test for all six cars, and PHYSICS_ALL_OK. Test fixes:
+  test_straight spaced its cars 60 m apart, so the sixth spawned off the 400 m pad. Its top-speed
+  floor is now 235 km/h (the Pixie is the slowest by design). test_stunts started timing the jump
+  15 m up the ramp, so the light Pixie's skip on the ramp counted as the jump; it now starts at the
+  lip. `run_real_tracks.sh` takes `CARS=` and `KB=`.
+- **AutoDriver:** the 3 new cars × 10 tracks finish with 0 respawns (e.g. coast 28.6–29.6 s,
+  rooftop 14.3–17.6 s, rails 6.2–6.4 s). CHECK_ALL PASS (--quick).

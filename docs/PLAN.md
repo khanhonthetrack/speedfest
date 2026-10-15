@@ -96,9 +96,11 @@ Keep it fun, and clever." Worked on the Pi (it can push and reach CC0 asset site
 - [x] 2. **New maps (10–30 s)**, each built around one clever idea, AutoDriver-finishable, in the
       rotation and the track select. Done: Rooftop Rush, Cliff Hanger, Twister, Pipe Dream (14–20 s);
       side boost pads (`"x"`, `"pw"`); track select is a carousel; LIVE playlist has all 10 tracks
-- [ ] 3. **New car types** with clearly different handling (and looks): e.g. an AWD rally hatch that
-      rules gravel/grass, a light high-grip kart-like car, a heavy torquey truck. **In progress on
-      branch `wip/m6-cars`** (Kitsune R4, Pixie S, Goliath HD; written, untested; see HANDOFF)
+- [x] 3. **New car types** with clearly different handling (and looks): Kitsune R4 (AWD rally
+      hatch, rally tires on grass/gravel/sand), Pixie S (kei roadster: most grip, sharpest turn-in),
+      Goliath HD (pickup: 2.25 t, biggest nitro). Merged in session 7: engine sounds, stat ranges,
+      flat pickup bed, `test_loose`, PHYSICS_ALL_OK with all 6 cars, AutoDriver 30/30 clean
+      (3 new cars × 10 tracks)
 - [ ] 4. **Better graphics**: CC0 HDRI skies (Poly Haven) and lighting/post polish on both renderers.
 - [ ] 5. Export `server/public`, deploy on the Pi, verify in a browser.
 

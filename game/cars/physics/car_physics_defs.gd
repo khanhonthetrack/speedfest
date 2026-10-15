@@ -174,7 +174,7 @@ const BASE := {
 		"torque_low": 1.10,         # diesel-ish wall of torque
 		"torque_peak_u": 0.38,
 		"weight_front": 0.56,
-		"grip": 1.40,
+		"grip": 1.46,
 		"grip_long": 1.62,
 		"traction": 1.28,
 		"slip_peak_deg": 9.0,
@@ -183,7 +183,7 @@ const BASE := {
 		"rear_grip_bias": 1.0,
 		"downforce": 1.20,
 		"spring_hz": 1.45,          # soft and tall: lands anything
-		"damping": 0.44,
+		"damping": 0.50,            # well damped: big landings settle at once
 		"anti_roll": 0.55,
 		"steer_max_deg": 30.0,
 		"steer_speed": 0.8,         # turns in late

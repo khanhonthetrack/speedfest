@@ -63,7 +63,7 @@ so players never collide.
 
 ```jsonc
 {
-  "car": "kaze",                 // "kaze" | "brute" | "veloce"
+  "car": "kaze",                 // CarDefs.IDS: "kaze" | "brute" | "veloce" | "kitsune" | "pixie" | "goliath"
   "tuning": {                    // floats in [-1, 1]; ALWAYS 0 since session 4 (tuning removed, DESIGN §3.1)
     "gearing": 0, "turbo": 0, "downforce": 0, "suspension": 0,
     "balance": 0, "steering": 0, "nitro": 0
@@ -337,7 +337,9 @@ for example tunnel walls or overhead gantries. Collision is only needed on props
   Ground patches (session 4): `KINDS` asphalt/grass/gravel/sand with `KIND_GRIP` and `KIND_DRAG`,
   `add_patch(kind, d0, d1, x0, x1, boxes)`, `kind_at(pos) -> int`, `centerline_grip(d)` (AutoDriver
   plans corner speeds with it). Car multiplies each wheel's grip by `KIND_GRIP` and adds the drag.
-  Weather and ground stack (wet gravel = road_grip x 0.62).
+  Weather and ground stack (wet gravel = road_grip x 0.62). Per-car physics param `loose_grip`
+  (0..1, session 6; Kitsune 0.75, Goliath 0.45) lerps `KIND_GRIP` toward 1 and cuts the drag by
+  60% of it. The drag fades in with speed (`Car.LOOSE_DRAG_FULL_SPEED` 15 m/s; 15% at standstill).
 - `DirtSpray` (`res://weather/dirt_spray.gd`): grass clippings / gravel dust / sand from the rear
   tires of the local car, driven by `Car.get_ground_kind()`.
 - `WeatherFX` (race scene): rain streaks on the camera (`SceneryRain.create(density)`), darker and

@@ -6,7 +6,8 @@ run() { local out; out=$("$ROOT/tools/run_scene.sh" "$@" 2>&1); echo "$out" | gr
 run res://tests/physics/test_straight.tscn --headless -- --frames=6000
 run res://tests/physics/test_tuning.tscn --headless -- --frames=10
 run res://tests/physics/test_input.tscn --headless -- --frames=400
-for c in kaze brute veloce; do
+run res://tests/physics/test_loose.tscn --headless -- --frames=600
+for c in kaze brute veloce kitsune pixie goliath; do
   run res://tests/physics/test_stunts.tscn --headless -- --car=$c
   run res://tests/physics/test_handling.tscn --headless -- --car=$c
   run res://tests/physics/test_circuit.tscn --headless -- --car=$c

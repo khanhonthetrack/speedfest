@@ -30,7 +30,7 @@ func _ready() -> void:
 				tuning_arg[k] = cfg["tuning"][k]
 		var car := Car.create(cfg)
 		add_child(car)
-		car.teleport(Transform3D(Basis.IDENTITY, Vector3(-60 + i * 60, 0.6, 0)))
+		car.teleport(Transform3D(Basis.IDENTITY, Vector3((i - (ids.size() - 1) * 0.5) * 50.0, 0.6, 0)))   # all on the 400 m pad
 		car.frozen_controls = true
 		cars.append(car)
 		t100.append(-1.0)
@@ -78,7 +78,7 @@ func _physics_process(_delta: float) -> void:
 					car.controls["nitro"] = false
 					car.controls["throttle"] = 0.0
 					car.controls["brake"] = 1.0
-					car.teleport(Transform3D(Basis.IDENTITY, Vector3(-60 + i * 60, cars[i].get_wheelbase() * 0.0 + CarDefs.geometry(car.car_id)["wheel_radius"], 0)), Vector3(0, 0, -100.0 / 3.6))
+					car.teleport(Transform3D(Basis.IDENTITY, Vector3((i - (cars.size() - 1) * 0.5) * 50.0, CarDefs.geometry(car.car_id)["wheel_radius"], 0)), Vector3(0, 0, -100.0 / 3.6))
 					brake_start[i] = car.global_position
 				phase = "brake"
 				phase_tick = 0
@@ -102,7 +102,7 @@ func _report_accel() -> void:
 		print("RESULT %s 0-100=%.2fs (est %.2f) top=%.1f km/h (est %.1f) nitro_top=%.1f" % [id, t100[i], st["zero_to_100_s"], vmax[i], st["top_speed_kmh"], nitro_vmax[i]])
 		TestHooks.check(t100[i] > 2.2 and t100[i] < 4.2, "zero_to_100_%s" % id, "%.2f s" % t100[i])
 		if tuning_arg.is_empty():
-			TestHooks.check(vmax[i] > 245.0 and vmax[i] < 330.0, "top_speed_%s" % id, "%.1f km/h" % vmax[i])
+			TestHooks.check(vmax[i] > 235.0 and vmax[i] < 330.0, "top_speed_%s" % id, "%.1f km/h" % vmax[i])
 		TestHooks.check(absf(vmax[i] - float(st["top_speed_kmh"])) < 12.0, "top_estimate_%s" % id, "measured %.1f est %.1f" % [vmax[i], st["top_speed_kmh"]])
 		TestHooks.check(absf(t100[i] - float(st["zero_to_100_s"])) < 0.45, "accel_estimate_%s" % id, "measured %.2f est %.2f" % [t100[i], st["zero_to_100_s"]])
 		TestHooks.check(nitro_vmax[i] > vmax[i] + 8.0, "nitro_raises_top_%s" % id, "%.1f vs %.1f" % [nitro_vmax[i], vmax[i]])

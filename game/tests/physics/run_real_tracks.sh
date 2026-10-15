@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Integration matrix (needs the real tracks module): every car on every track, analog AutoDriver
 # and keyboard emulation. Prints one line per run and REAL_TRACKS_ALL_OK when all have 0 respawns.
-# usage: [WEATHER=dry|rain|storm] game/tests/physics/run_real_tracks.sh [tracks...]   (default: arena downtown coast;
-#        WEATHER unset = each stage's own weather)
+# usage: [WEATHER=dry|rain|storm] [CARS="kitsune pixie"] [KB="false"] game/tests/physics/run_real_tracks.sh [tracks...]
+#        (default: arena downtown coast; kaze brute veloce; analog + keyboard; WEATHER unset = each
+#        stage's own weather)
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 TRACKS=("$@"); [[ ${#TRACKS[@]} -eq 0 ]] && TRACKS=(arena downtown coast)
+read -r -a CAR_LIST <<< "${CARS:-kaze brute veloce}"
+read -r -a KB_LIST <<< "${KB:-false true}"
 FAIL=0
-for t in "${TRACKS[@]}"; do for c in kaze brute veloce; do for kb in false true; do
+for t in "${TRACKS[@]}"; do for c in "${CAR_LIST[@]}"; do for kb in "${KB_LIST[@]}"; do
   out=$("$ROOT/tools/run_scene.sh" res://tests/physics/test_real_tracks.tscn --headless --timeout 400 -- --track=$t --car=$c --keyboard=$kb ${WEATHER:+--weather=$WEATHER} 2>&1)
   line=$(echo "$out" | grep -E "^RESULT" | tail -1)
   where=$(echo "$out" | grep -E "respawn #" | sed -E 's/.*at cp (-?[0-9]+) \(pos \(([^)]*)\)\)/cp\1@(\2)/' | tr '\n' ' ')
