@@ -99,7 +99,7 @@ func _ready() -> void:
 	_build_world()
 	_build_ui()
 	_connect_signals()
-	Audio.play_music("race")
+	Audio.play_music(Audio.race_music(Game.track_id))
 	pb_ms = Profile.get_pb(pb_key)
 	_load_ghost()
 	hud.set_best(pb_ms if not online else -1)

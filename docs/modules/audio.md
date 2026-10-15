@@ -26,13 +26,18 @@ scipy) and committed as Ogg Vorbis under `game/audio/generated/` (~2.1 MB in tot
   otherwise round-robin steal). The same sound is not retriggered within 45 ms (hover spam).
   Runs with `PROCESS_MODE_ALWAYS` (pause menu clicks work, music continues while paused).
   Unknown names warn once and do nothing. Missing files warn once and do nothing.
-- **Music**: two original synthwave loops, rendered circularly so they loop seamlessly.
-  - `music_menu`: 96 BPM, A minor, 32 bars (80 s). Intro (pads + arp + hats) → groove (kick/snare
-    backbeat, 8th bass) → bridge with lead melody (F G Em Am F G E E) → groove with high arp and
-    a snare fill back into the intro.
-  - `music_race`: 128 BPM, E minor, 40 bars (75 s). Four-on-the-floor, rolling 16th octave bass,
-    claps, arps, pads, lead hook (Em C G D), a half-time break (C D Em Em C D B B) and a final
-    section with risers and crashes. Heavier sidechain pumping.
+- **Music** (session 4, owner: "dark trap, Future / Southside / 808 Mafia type beat"): five original
+  dark-trap loops from `tools/audio/gen_trap.py`, synthesized from scratch (no samples), so they are
+  fully original and royalty-free. 32 bars each (~51–57 s), rendered circularly (seamless loop):
+  intro (muffled melody + choir) → beat (kick + gliding saturated 808, half-time clap, 808-style
+  hats with 1/16, triplet and 1/32 rolls) → break (sparse hats, riser, reverse cymbal) → beat with a
+  counter line.
+  - `music_menu` 140 BPM C# minor, dark FM bell + choir
+  - `music_arena` 150 BPM F minor, synth brass stabs + bell (hype)
+  - `music_downtown` 142 BPM A minor with the phrygian b2, felt piano + choir (rainy night)
+  - `music_coast` 136 BPM E minor, breathy flute + dark pluck
+  - `music_race` 144 BPM G minor, bell (any track without its own beat)
+  `Audio.race_music(track_id)` → `"track_<id>"` if present, else `"race"`; race.gd uses it.
 - **Web**: browsers start audio only after a user gesture. Godot resumes the AudioContext by
   itself; the Audio autoload additionally restarts the current music once on the first
   key/mouse/touch/joypad press (web only), in case the start was swallowed. Nothing errors before.
@@ -49,7 +54,7 @@ scipy) and committed as Ogg Vorbis under `game/audio/generated/` (~2.1 MB in tot
 | `tools/audio/synth.py` | numpy synthesis toolkit (circular FFT filters, band-limited wavetables, reverb, ogg out, spectrograms) |
 | `tools/audio/gen_engines.py` | engine model + car loops |
 | `tools/audio/gen_sfx.py` | UI, race and car one-shots |
-| `tools/audio/gen_music.py` | the two synthwave tracks (composition is in code) |
+| `tools/audio/gen_trap.py` | the dark-trap beats (composition is in code) |
 | `tools/audio/gen_all.py` | runs all generators, writes `engine_layers.gd` |
 | `tools/audio/fix_loops.py` | sets `loop=true` in `.import` of loops, forces reimport |
 | `tools/audio/build.sh` | generate + import + fix loops + reimport |

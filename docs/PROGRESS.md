@@ -284,3 +284,14 @@ date, who (module/agent), what changed, what's next or blocked.
   17/18). The remaining failures are loop/wall-ride entries far above the envelope after boosts
   (downtown loop at 284 km/h, arena loop exit landing on the wall-ride entry at 275 km/h): to be
   fixed in the layouts (downtown rework, arena tweak). docs/modules/physics.md "High-load loop entries".
+
+## 2026-10-15 ~10:45 UTC — M4.6 item 3: dark-trap music
+
+- `tools/audio/gen_trap.py` (replaces gen_music.py's synthwave): five original loops synthesized from
+  scratch: gliding saturated 808s, punchy kick, layered clap, metallic 808-style hats with rolls, FM
+  bell / felt piano / breathy flute / synth brass leads, formant choir pads, reverse cymbals and
+  risers. Menu 140 BPM C# minor; arena 150 F minor (hype); downtown 142 A minor phrygian (piano);
+  coast 136 E minor (flute); generic race 144 G minor. 32-bar seamless loops, ~550 KB each (Vorbis q2).
+- `Audio.race_music(track_id)`: each track plays its own beat (fallback "race"). test_audio 64/64.
+- I can't listen in this container: checked structure with a spectrogram (intro → drop → break →
+  drop) and levels (intro −17 dB, beats −10 dB RMS, 808 sub-bass dominant in the beats).

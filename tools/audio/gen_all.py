@@ -65,7 +65,7 @@ def gen_weather(png_dir: str | None) -> int:
 
 
 def gen_music(png_dir: str | None) -> int:
-	import gen_music as M
+	import gen_trap as M   # dark-trap beats (session 4); gen_music.py held the old synthwave loops
 	total = 0
 	for name, fn in M.ALL.items():
 		x = fn()
