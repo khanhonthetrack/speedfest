@@ -68,6 +68,9 @@ const CACHE_MAX := 48
 
 static var _trim_mat: StandardMaterial3D
 static var _chrome_mat: StandardMaterial3D
+## Night readability for every CarVisual built from now on (0 = off). The race scene sets it per
+## track theme (dark city/arena) and resets it on exit, so garage/menu cars are unaffected.
+static var night_rim := 0.0
 
 
 func _init() -> void:
@@ -566,6 +569,7 @@ func _make_materials() -> void:
 
 func _apply_materials() -> void:
 	var g := shape.g
+	_paint_mat.set_shader_parameter("night_rim", night_rim)
 	_paint_mat.set_shader_parameter("paint_color", Color(String(style["paint"])))
 	_paint_mat.set_shader_parameter("accent_color", Color(String(style["accent"])))
 	_paint_mat.set_shader_parameter("finish", maxi(CarDefs.FINISHES.find(String(style["finish"])), 0))

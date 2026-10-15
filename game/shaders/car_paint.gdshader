@@ -13,6 +13,11 @@ uniform float half_length = 2.2;
 uniform float half_width = 0.88;
 uniform float belt_y = 0.8;   // ground-space height of the shoulder line
 uniform float sill_y = 0.16;
+// Night readability (set by the race scene for dark themes, 0 elsewhere): a cool self-lit rim on
+// silhouette edges plus a faint "sky" sheen on upward-facing panels, so the body shape reads from the
+// chase camera even where no light reaches the car. No extra lights; works on both renderers.
+uniform float night_rim = 0.0;
+uniform vec3 rim_color : source_color = vec3(0.42, 0.58, 1.0);
 
 varying vec3 lpos;
 varying vec3 lnrm;
@@ -145,6 +150,13 @@ void fragment() {
 		metal = 0.35;
 		rough = 0.22;
 		coat = 1.0;
+	}
+	if (night_rim > 0.0) {
+		vec3 wn = normalize((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
+		float up = clamp(wn.y, 0.0, 1.0);
+		float edge = pow(1.0 - NdotV, 2.2);
+		vec3 sheen = rim_color * (edge * 0.55 + up * 0.10) + base * 0.06;
+		EMISSION = sheen * night_rim;
 	}
 	ALBEDO = base;
 	METALLIC = metal;

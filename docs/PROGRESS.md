@@ -104,3 +104,13 @@ date, who (module/agent), what changed, what's next or blocked.
     on lobby entry (`Game.last_round_id`); a deliberately quit round stays manual.
 - New `tools/integration/check_all.sh` gate: CHECK_ALL PASS (24 suites + server + autodrive on 3
   tracks + online rounds). `lobby_smoke.sh` (real lobby UI, 3 clients, real server) PASS.
+
+## 2026-10-15 ~06:20 UTC — Resumed after the usage limit (orchestrator)
+
+- The account hit its usage limit ~02:20 UTC; this session and the module sessions paused (the
+  visuals session failed before doing the night-visibility fix). The owner said "Continue".
+- Night readability fix (integrator): `car_paint.gdshader` gets a `night_rim` term (cool self-lit
+  edge rim + faint sky sheen on upward panels, no extra lights, both renderers). `CarVisual.night_rim`
+  (static) is set by race.gd per theme (city 1.0, arena 0.5, coast 0) and reset on exit, so the garage is
+  unaffected. Dark cars are now readable on Neon Downtown.
+- Owner feedback: the tracks look like normal tracks, not Trackmania-style. See TRANSCRIPT.

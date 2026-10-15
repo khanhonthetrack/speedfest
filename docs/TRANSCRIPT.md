@@ -63,3 +63,16 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
 
 - Took over as orchestrator: merged networking, then relaunched the remaining modules in parallel
   (see PROGRESS.md).
+
+### User (verbatim, ~06:00 UTC, after the account hit its usage limit around 02:20 and sessions paused)
+
+> Continue
+
+### Claude
+
+- Resumed as orchestrator. The module sessions had stopped on the usage limit, so the remaining polish
+  is done directly in this session.
+
+### User (verbatim, ~06:20 UTC)
+
+> As of now these tracks look like normal tracks. But i wanted trackmania style tracks. Is there a misunderstsnding?

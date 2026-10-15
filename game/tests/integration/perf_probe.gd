@@ -11,6 +11,8 @@ func _ready() -> void:
 	Game.mode = "solo"
 	Game.track_id = String(TestHooks.arg("track", "arena"))
 	Settings.quality = int(TestHooks.arg("quality", Settings.quality))
+	if TestHooks.has_arg("car"):
+		Profile.set_selected_car(String(TestHooks.arg("car", "kaze")))
 	_race = (load(Game.SCENE_RACE) as PackedScene).instantiate()
 	add_child(_race)
 
