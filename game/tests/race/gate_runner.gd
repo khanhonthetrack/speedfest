@@ -19,6 +19,7 @@ func _physics_process(delta: float) -> void:
 	var running: bool = int(race.get("state")) == 2 # State.RUNNING
 	if running and not _running:
 		_d = track.path.closest_distance(car.global_position)
+		print("GATE_RUNNER start d=%.1f length=%.1f zones=%s" % [_d, track.path.length, str(track.path.zones)])
 	_running = running
 	if not running:
 		return
