@@ -49,8 +49,8 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
 | id | length | CPs | features |
 |---|---|---|---|
 | downtown | 2070 m | 5 | grid corners r=32 (banked 3°), chicane, on-ramp to a 10 m elevated highway (bridge zone) that crosses over the return leg, off-ramp, 130 m tunnel; 16 m wide; wet |
-| arena | 1526 m | 4 | 4 boost pads, vertical loop r=20 (13 m wide, shifted 17 m), 180° banked 32°, gap jump (4 m kicker, 20 m gap), final jump (22 m gap) that lands on the start straight; 16 m wide |
-| coast | 3033 m | 5 | point to point, starts at 34 m and ends at 6 m, sweepers r=170..260 banked 4..8°, 340 m bridge over a bay (deck ~14 m), rock tunnel ~250 m with a curve; 14 m wide |
+| arena | ~1530 m | 4 | 3 boost pads, vertical loop r=20 (13 m wide, shifted 17 m), 180° banked 32°, gap jump (4 m kicker, 20 m gap), final jump (3.2 m kicker, 20 m gap) that lands on the start straight; 16 m wide |
+| coast | 3254 m | 5 | point to point, starts at 34 m and ends at 6 m, sweepers r=220..260 banked 7..8°, 340 m arch bridge over a bay (deck ~14 m), rock tunnel ~250 m with a curve; 15 m wide |
 
 Banked turns are lifted by `(width/2 + 1) * sin(bank)` so the low edge stays at the original
 height (otherwise the inner edge would sink into the ground).
@@ -94,17 +94,29 @@ Zones on `path.zones`: `loop`, `jump`, `tunnel`, `bridge`, `boost` (and the jump
 `TrackBuilder` (static): `build_layout`, `build_road`, `build_supports`, `build_flat_ground`,
 `build_terrain`, `build_corner_signs`, `loft`, `material(key)`, `road_material(style, wet)`, `path_bbox`, `in_ranges`.
 
-`TrackPath`: unchanged.
+`TrackPath`: API unchanged. Added `loop_axes` + `set_loop_axes(axes)`: inside a loop the road's
+right vector is the loop's fixed lateral axis, so laterally shifted loops have no twist (plain
+parallel transport accumulated ~53° of roll and snapped back at the exit: a 53°/m kink).
+
+Gate triggers are 40 m tall (`Track.GATE_TRIGGER_H`) so a car flying over an arch after a jump
+still counts. Barrier collision is 2.6 m tall (`TrackBuilder.WALL_COLLISION_H`), taller than the
+visual barrier, so fast cars can't climb over.
 
 ## Tests
 
 - `tools/run_scene.sh res://tests/tracks/test_tracks.tscn --headless -- [--track=id]`
-  (68 checks): length and CP-count ranges, CP order, continuity (≤ 1.3 m/m, ≤ 4.5°/m),
-  circuit closure, no self-intersections outside loops (bridges cross > 6.5 m apart), kill_y,
+  (71 checks): length and CP-count ranges, CP order, continuity (≤ 1.3 m/m, ≤ 4.5°/m),
+  surface twist (≤ 4.5°/m of the road normal), circuit closure, no self-intersections outside loops (bridges cross > 6.5 m apart), kill_y,
   spawn poses 0.6 m above the road by raycast and facing forward, gates span the road, loop
   radius and shape, jump min speed (< 110 km/h), run-out straight for a 210 km/h flight,
   landing reached at 150 km/h, and a frozen probe `Car` pushed along the path triggers every
   checkpoint in order and then the finish (nothing else).
+- `tools/run_scene.sh res://tests/tracks/drive_test.tscn --headless -- --track=id [--car=kaze] [--max_s=120] [--trace=true]`
+  drives the real `Car` with the physics module's `AutoDriver` (needs `module/physics` merged),
+  respawning at the last checkpoint below `kill_y` or when the bot reports stuck. Results with
+  physics as of 00:40 UTC (kaze): arena **45.4 s, 0 respawns** (loop, both jumps, banked 180 OK);
+  downtown 85.7 s, 0 respawns; coast 100.5 s, 0 respawns. Downtown/coast times are slow
+  because the bot scrapes walls and spins (see integration requests).
 - `tools/run_scene.sh res://tests/tracks/track_view.tscn -- --track=id --views="overview;drive:120;chase:300;orbit:870;side:500" --out=/abs/dir --tag=x`
   screenshots (prints draw calls / primitives per view).
 - `tools/run_scene.sh res://tests/tracks/layout_map.tscn --headless -- --out=/abs/dir`: top-down
@@ -123,3 +135,9 @@ Zones on `path.zones`: `loop`, `jump`, `tunnel`, `bridge`, `boost` (and the jump
   `path.zones` (`tunnel`, `bridge`, `loop`, `jump`, `boost`) and `edge_clearance()`.
 - **race**: circuits start past the line (see above). Pits under arena jumps rely on the
   `kill_y` auto-respawn.
+- **physics** (from `drive_test` with the AutoDriver): (1) the bot rides the barriers at speed on
+  downtown corners and coast sweepers (lateral offset ±6 m on a 16 m road) and sometimes spins
+  (signed speed flips to −40..−70 km/h, e.g. downtown off-ramp at ~150 km/h, arena after the
+  first jump landing); (2) after landing a long jump the car sometimes yaws 180°. The track
+  geometry there is smooth (continuity and twist tests pass), so this looks like bot speed
+  planning / landing stability.
