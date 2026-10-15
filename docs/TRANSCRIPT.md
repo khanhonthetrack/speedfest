@@ -401,3 +401,33 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   rides/loops, non-magnetic rails. Then PC: smoothness (physics interpolation, frame pacing),
   Forward+ graphics presets, Windows/Linux builds served from the website, the optional RTX path.
   Then new track pieces and 30+ maps. Research notes go to docs/research/ as they're written.
+
+## Session 9 — 2026-10-15 (~22:35 UTC; cloud session)
+
+### User (verbatim)
+
+> Look at this: https://github.com/pixeltris/ModTMNF/tree/master
+> Look at this: https://github.com/morluto/rea
+>
+> Then, reverse engineer Trackmania Nations Forever
+
+### Claude
+
+- ModTMNF: a C# runtime-modding framework for TMNF. Its main value here: TMNF ships with a linker
+  map (`TmForever.map`) that names every function, and ModTMNF's `Generated.zip` dumps the game's
+  reflection data (class members, offsets, types). The car simulation is in `CSceneVehicleCar`
+  (`ComputeForces` → `ComputeForcesModel3..6`, `ApplyFrictionForces`, `GetLateralFriction`,
+  `GetSlopeAdherence`, `ComputeAirControl`, `EngineIntegrate`, `UpdateTurbo`), its parameters in
+  `CSceneVehicleCarTuning` (201 reflected members), collisions in `CHmsZoneDynamic`.
+- REA ("Reverse Engineer Anything"): an MCP server/CLI that drives Ghidra/IDA/Hopper/Rizin and
+  returns pseudocode with evidence.
+- Goal for SpeedFest (M7 item 2, "learn from how TM cars behave"): replace the guessed targets in
+  docs/research/m7_physics.md with TMNF's real car model and tuning values, then rebuild the
+  handling on them. Rule for the public repo: only our own write-up and numbers (facts) go in;
+  no Nadeo binaries, assets or decompiled code.
+> approaching limit. stop what you're doing and save your progress in a document NOW
+
+### Claude
+
+- Saved: the physics rewrite is on branch `m7-physics`; HANDOFF/PLAN/PROGRESS on `main` say what
+  is done and the exact next steps.
