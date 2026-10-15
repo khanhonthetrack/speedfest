@@ -5,6 +5,7 @@ extends Node3D
 
 const ALPHA := 0.35
 const MAX_STEER_RAD := 0.55
+const TELEPORT_DIST := 25.0          # m between 20 Hz samples (~1800 km/h): a respawn, not driving
 
 var ghost: Dictionary = {}
 var visual: CarVisual
@@ -123,6 +124,14 @@ func sample(ms: float) -> Transform3D:
 	var p1 := _pos[i]
 	var p2 := _pos[i + 1]
 	var p3 := _pos[mini(i + 2, n - 1)]
+	# Respawn teleports: don't smooth across jumps.
+	if p1.distance_to(p2) > TELEPORT_DIST:
+		var k := 0 if f < 0.5 else 1
+		return Transform3D(Basis(_rot[i + k]), _pos[i + k])
+	if p0.distance_to(p1) > TELEPORT_DIST:
+		p0 = p1
+	if p3.distance_to(p2) > TELEPORT_DIST:
+		p3 = p2
 	var pos := _catmull(p0, p1, p2, p3, f)
 	var rot := _rot[i].slerp(_rot[i + 1], f)
 	return Transform3D(Basis(rot), pos)

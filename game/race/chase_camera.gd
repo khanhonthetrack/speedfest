@@ -34,6 +34,7 @@ var fov_speed_gain := 20.0      # extra fov degrees at 300 km/h
 var nitro_fov_kick := 7.0
 var shake_speed_kmh := 240.0    # shake starts above this speed
 var shake_amount := 0.035
+var auto_landing_shake := true  # detect landings from is_grounded(); off when the race feeds add_shake()
 var collision_mask := 1
 
 var _frame := Quaternion.IDENTITY   # smoothed follow orientation
@@ -63,6 +64,11 @@ func set_target(node: Node3D) -> void:
 ## Instantly place the camera behind the target (after teleports).
 func snap() -> void:
 	_snap_frames = 2
+
+
+## Extra shake impulse 0..1 (landings, wall hits). Decays over ~0.4 s.
+func add_shake(amount: float) -> void:
+	_shake = clampf(maxf(_shake, amount), 0.0, 1.0)
 
 
 func cycle_mode() -> int:
@@ -120,7 +126,7 @@ func update_camera(delta: float) -> void:
 
 	# Landing shake: impulse scaled by airtime.
 	if grounded:
-		if not _was_grounded and _air_time > 0.35:
+		if not _was_grounded and _air_time > 0.35 and auto_landing_shake:
 			_shake = maxf(_shake, clampf(_air_time * 0.6, 0.2, 1.0))
 		_air_time = 0.0
 	else:

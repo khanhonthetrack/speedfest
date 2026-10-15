@@ -81,6 +81,7 @@ var _leaving := false
 var _get_ready_shown := false
 var _leaderboard: Array = []
 var _minimap_others: Array = []
+var _last_wall_sfx_ms := -100000
 
 
 # --- setup ----------------------------------------------------------------------------------------
@@ -148,6 +149,11 @@ func _build_world() -> void:
 	camera.name = "ChaseCamera"
 	add_child(camera)
 	camera.set_target(car)
+	if car.has_signal("landed"):
+		car.connect("landed", _on_car_landed)
+		camera.auto_landing_shake = false
+	if car.has_signal("wall_hit"):
+		car.connect("wall_hit", _on_car_wall_hit)
 
 	ghost_player = GhostPlayer.new()
 	ghost_player.name = "PBGhost"
@@ -477,6 +483,20 @@ func _check_auto_respawn(dt: float) -> void:
 			respawn()
 	else:
 		_upside_down_s = 0.0
+
+
+func _on_car_landed(impact_speed: float) -> void:
+	camera.add_shake(clampf((impact_speed - 3.0) / 12.0, 0.0, 1.0))
+
+
+func _on_car_wall_hit(strength: float) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_wall_sfx_ms < 150:
+		return
+	_last_wall_sfx_ms = now
+	var k := clampf(strength / 20.0, 0.0, 1.0)
+	Audio.play_sfx("wall_hit", lerpf(-14.0, 0.0, k), randf_range(0.9, 1.1))
+	camera.add_shake(k * 0.6)
 
 
 func _on_autodriver_stuck() -> void:
