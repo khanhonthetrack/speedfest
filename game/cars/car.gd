@@ -19,8 +19,8 @@ const SHIFT_HOLD := 0.35                 # minimum time between shifts
 const SUSP_UP := 0.30                    # ray origin above the wheel center
 const SUSP_DROOP := 0.20                 # max droop below rest
 const BUMP_START := 0.085                # compression where the bump stop starts
-const BUMP_MULT := 13.0                  # bump-stop stiffness relative to the spring
-const BUMP_DAMP := 1.5                   # extra compression damping inside the bump-stop zone (x damper)
+const BUMP_MULT := 6.0                  # bump-stop stiffness relative to the spring
+const BUMP_DAMP := 1.0                   # extra compression damping inside the bump-stop zone (x damper)
 const LAND_REBOUND_TIME := 0.35          # after a touchdown, cap the rebound speed for this long
 const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
 const LAND_ABSORB := 0.7                 # fraction of the touchdown speed into the ground removed
@@ -33,7 +33,7 @@ const NITRO_REFILL := 1.0 / 28.0         # tank fraction per second while drivin
 const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
-const BODY_FRICTION := 0.04
+const BODY_FRICTION := 0.0
 const FRICTION_CIRCLE := 0.5            # how much longitudinal force eats lateral grip (0..1)
 
 var config: Dictionary = {}
@@ -140,11 +140,18 @@ func _setup() -> void:
 	inertia = Vector3(m * (1.0 + length * length) / 12.0 * 1.1,
 		m * (width * width + length * length) / 12.0 * 1.15,
 		m * (width * width + 1.0) / 12.0 * 1.2)
-	# collision: lower body + cabin, kept above the wheels' contact patch
+	# collision: a floor box over the wheelbase, raised nose/tail boxes (approach/departure angles,
+	# so overhangs don't scrape in loops or on ramps) and a cabin. All above the contact patches.
 	var y0: float = -_radius + float(g["ground_clearance"]) + 0.07
 	var y_belt: float = y0 + (height - float(g["ground_clearance"])) * 0.5
 	var y1: float = -_radius + height
-	_add_box(Vector3(width * 0.94, y_belt - y0, length * 0.96), Vector3(0, (y0 + y_belt) * 0.5, 0))
+	var core_len := _wheelbase + 0.5
+	var over_len := maxf((length * 0.97 - core_len) * 0.5, 0.05)
+	var y_over := y0 + 0.2
+	_add_box(Vector3(width * 0.94, y_belt - y0, core_len), Vector3(0, (y0 + y_belt) * 0.5, 0))
+	for sgn in [-1.0, 1.0]:
+		_add_box(Vector3(width * 0.9, y_belt - y_over + 0.1, over_len),
+			Vector3(0, (y_over + y_belt + 0.1) * 0.5, sgn * (core_len + over_len) * 0.5))
 	_add_box(Vector3(width * 0.78, y1 - y_belt, length * 0.5), Vector3(0, (y_belt + y1) * 0.5, length * 0.03))
 	# suspension constants
 	var omega := TAU * float(params["spring_hz"])
@@ -435,7 +442,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var f := _preload[i] + _k[i] * c + _c[i] * comp_vel
 		if c > BUMP_START:
 			var over := c - BUMP_START
-			f += _k[i] * BUMP_MULT * over * (1.0 + over * 8.0) + _c[i] * BUMP_DAMP * maxf(comp_vel, 0.0)
+			f += _k[i] * BUMP_MULT * over + _c[i] * BUMP_DAMP * maxf(comp_vel, 0.0)
 		force[i] = f
 	for axle in 2:
 		var l := axle * 2

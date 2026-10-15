@@ -4,7 +4,7 @@ extends Node3D
 ## Run headless:  tools/run_scene.sh res://tests/physics/test_stunts.tscn --headless -- --frames=2400
 ## Screenshot:    tools/run_scene.sh res://tests/physics/test_stunts.tscn -- --frames=2400 --shotdir=/abs/dir --car=veloce
 
-const LOOP_R := 18.0
+var LOOP_R := 18.0
 
 var car_id := "kaze"
 var loop_path: TrackPath
@@ -43,6 +43,7 @@ var shotdir := ""
 func _ready() -> void:
 	car_id = String(TestHooks.arg("car", "kaze"))
 	shotdir = String(TestHooks.arg("shotdir", ""))
+	LOOP_R = float(TestHooks.arg("r", 18.0))
 	# loop at x = 0
 	loop_path = PhysicsTestGround.loop_path(LOOP_R, 220.0, 160.0, 12.0)
 	add_child(PhysicsTestGround.road_from_path(loop_path))
@@ -50,7 +51,10 @@ func _ready() -> void:
 	loop_to = float(loop_path.zones[0]["to"])
 	loop_car = _spawn(Transform3D(Basis.IDENTITY, Vector3(0, 0.6, -2)))
 	loop_ai = _driver(loop_car, loop_path)
-	for spec in [["slow", -200.0, 143.0, false], ["fast", -400.0, 0.0, true]]:
+	var specs := [["slow", -200.0, 143.0, false], ["fast", -400.0, 0.0, true]]
+	if not bool(TestHooks.arg("fast", true)):
+		specs.pop_back()   # r < 18 at 250+ km/h (> 30 g) is outside the supported envelope
+	for spec in specs:
 		var o := Vector3(spec[1], 0, 0)
 		var lp := PhysicsTestGround.loop_path(LOOP_R, 260.0, 160.0, 12.0, o)
 		add_child(PhysicsTestGround.road_from_path(lp))
@@ -134,7 +138,10 @@ func _check_loop() -> void:
 	if TestHooks.has_arg("lat") and tick % 6 == 0 and loop_ai.get_distance() > 205.0:
 		var lt := loop_path.sample_transform(loop_ai.get_distance())
 		var lc := lt.affine_inverse() * loop_car.global_position
-		print("  d=%.1f lat=%.2f h=%.2f v=%.0f st=%.2f gnd=%d" % [loop_ai.get_distance(), lc.x, lc.y, loop_car.get_speed_kmh(), loop_car.controls["steer"], int(loop_car.is_grounded())])
+		var cf := -loop_car.global_transform.basis.z
+		var pf := -lt.basis.z
+		var vd := loop_car.linear_velocity.normalized()
+		print("  d=%.1f lat=%.2f h=%.2f v=%.0f st=%.2f wheel=%.1f gnd=%d head=%.1f vel=%.1f slip=%.1f load=%s" % [loop_ai.get_distance(), lc.x, lc.y, loop_car.get_speed_kmh(), loop_car.controls["steer"], rad_to_deg(loop_car.get_steer_angle()), int(loop_car.is_grounded()), rad_to_deg(atan2(cf.dot(lt.basis.x), cf.dot(pf))), rad_to_deg(atan2(vd.dot(lt.basis.x), vd.dot(pf))), rad_to_deg(loop_car.get_slip_angle()), loop_car._load])
 	if TestHooks.has_arg("trace") and (tick % 20 == 0 or (TestHooks.has_arg("fine") and loop_ai.get_distance() > 200.0)):
 		print("  t=%.2f d=%.1f pos=%s v=%.0f st=%.2f up=%s comp=%s load=%s av=%s" % [tick / 60.0, loop_ai.get_distance(), loop_car.global_position, loop_car.get_speed_kmh(), loop_car.controls["steer"], loop_car.global_transform.basis.y, loop_car._comp, loop_car._load, loop_car.angular_velocity])
 	var d := loop_ai.get_distance()
@@ -182,6 +189,8 @@ func _check_extra(e: Dictionary) -> void:
 		TestHooks.check(e["air"] < e["ticks"] * 0.1 and car.global_transform.basis.y.y > 0.9, "loop_%s_%s" % [n, car_id], "air %d/%d" % [e["air"], e["ticks"]])
 		if n == "slow":
 			TestHooks.check(e["entry"] < 150.0, "loop_slow_entry_%s" % car_id, "%.0f km/h" % e["entry"])
+	if TestHooks.has_arg("etrace") and e["name"] == "fast" and d > 250.0 and d < 400.0 and tick % 3 == 0:
+		print("  E d=%.1f v=%.0f gnd=%d%d%d%d comp=%s load=%s up=%s" % [d, car.get_speed_kmh(), int(car.get_wheel_contact(0)), int(car.get_wheel_contact(1)), int(car.get_wheel_contact(2)), int(car.get_wheel_contact(3)), car._comp, car._load, car.global_transform.basis.y])
 	elif tick > 60 * 35:
 		e["done"] = true
 		TestHooks.fail("loop_%s_complete_%s" % [e["name"], car_id], "d=%.0f pos=%s" % [d, car.global_position])
