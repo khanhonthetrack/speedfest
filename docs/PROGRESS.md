@@ -261,7 +261,7 @@ date, who (module/agent), what changed, what's next or blocked.
 - Real-track matrix (default + storm) for this exact state: running at commit time; result in the
   next entry.
 
-## 2026-10-15 ~11:30 UTC — Matrix follow-up: suspension end stop
+## 2026-10-15 ~10:30 UTC — Matrix follow-up: suspension end stop
 
 - The matrix for the easy-handling commit (82bd701): physics/unit tests all pass; real tracks default
   16/18 (downtown veloce fell through the loop twice, coast brute fell once), storm 17/18 (arena kaze
@@ -269,6 +269,9 @@ date, who (module/agent), what changed, what's next or blocked.
   body bottomed out on the deck, caught a fold edge or got a back-face contact.
 - Tried and rejected: road backface collision off (4 + 3 failures, one car ejected 142 m up); a 40×
   hard-stop spring (rang at 60 Hz, the brute bounced out of loops).
-- Fix: velocity end stop past 0.13 m compression (docs/modules/physics.md "Suspension end stop").
-  The five failing cases are clean and faster (downtown brute keyboard 27.5 s). New guard test
-  `tests/tracks/test_collision_faces.tscn` (deck/barrier winding, 6/6). Full verification running.
+- First fix (velocity end stop, ff618b4) failed the physics suite (cars slid off tight wall rides).
+  Final fix: the body collision floor is lifted 0.12 m (`BODY_LIFT`) so the body can't bottom out;
+  dynamics unchanged (docs/modules/physics.md "Body collision lift"). Wall rides 24/24 for all cars;
+  the downtown loop and coast cases are clean. New guard test `tests/tracks/test_collision_faces`.
+- Remaining known case: arena, kaze keyboard in storm, lands on the wall-ride entry at ~275 km/h after
+  flying off the loop exit (track layout issue, session 3 open item #1).

@@ -395,12 +395,14 @@ players are always at full throttle, so every small slide snapped.
 - Track side (track_builder): deck rings inside loops are 1 m wherever the ring falls (`LOOP_RING`);
   a loop half-covered by a chunk used 1.5 m rings, and at 260+ km/h the body hit a deck fold edge.
 
-## Suspension end stop (session 4)
-Loop entries reached 260–285 km/h after the easier handling (20–23 m loops: 25–30 g). The soft bump
-stop then compressed ~0.26 m, past the body's 0.18–0.21 m ground clearance: the body box touched the
-deck, caught a fold edge (the car stopped dead) or got a back-face contact and was pushed through the
-loop. Fix: past `HARD_START` (0.13 m) compression with ≥ 3 wheels down, the car's velocity into the
-road is removed each tick, a rigid stop as a velocity constraint (a 40× stiffer spring was tried and
-rang at 60 Hz: the heavy brute bounced out of loops). Backface collision on the road trimesh stays
-on; `tests/tracks/test_collision_faces.tscn` checks that the deck and barrier faces are wound
-toward the driving side anyway (turning backface collision off was tried and made things worse).
+## Body collision lift (session 4)
+Loop entries reached 260–285 km/h after the easier handling (20–23 m loops: 25–30 g). At the
+suspension force cap the springs compress ~0.26 m, past the body's 0.18–0.21 m clearance: the body
+box touched the deck, caught a fold edge (car stopped dead) or got a back-face contact and was pushed
+through the loop. Fix: the body collision floor sits `BODY_LIFT` (0.12 m) above the visual floor, so
+the body box can't reach the road even at the cap; dynamics are unchanged. Tried and rejected:
+backface collision off on the road (more failures, one car ejected 142 m), a 40× hard-stop spring
+(rang at 60 Hz, the brute bounced out of loops), and a velocity end stop (cars slid off tight wall
+rides). `tests/tracks/test_collision_faces.tscn` checks deck/barrier winding (6/6).
+Known track issue: on Pulse Arena the car leaves the loop airborne and lands on the wall-ride entry at
+~275 km/h (envelope 140–215); keyboard emulation in storm can lose it there (fix in the layout).
