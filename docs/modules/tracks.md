@@ -37,6 +37,13 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
 - **City sidewalks**: raised 5 m sidewalks behind the barriers where the road is at street level.
 - **Arch bridge** (coast bridge zone): two orange steel arches with hangers and top bracing;
   pillars only near the bridge ends.
+- **Jump dressing**: hazard stripes (`shaders/track_stripes.gdshader`) on the last 7 m of each
+  kicker and first 5 m of each landing, glowing bars along the lip and landing edges.
+- **Loop gantry** (arena): two neon towers outside the entry/exit roads and a beam over the
+  loop's crown with hangers (towers have collision).
+- **Night readability**: lane paint has a faint retro-reflective glow (`paint_glow`), and tunnels
+  get fake sodium bounce light on the road and walls (stronger on Compatibility / quality < 2,
+  where there are no real tunnel lights).
 - **Gates**: checkpoint arches (cyan neon; orange on the coast) and a start/finish arch
   (magenta + checker banner + label), each with an `Area3D` (layer 3 = value 4, mask 2)
   spanning the road plus the barriers, 8 m high, 4 m deep. Checkered line on the road.
