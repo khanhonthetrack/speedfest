@@ -133,7 +133,9 @@ func _build_world() -> void:
 		var drv := AutoDriver.new()
 		drv.path = track.path
 		input_node = drv
-		if drv.has_signal("stuck"):
+		if "reset_callable" in drv:
+			drv.set("reset_callable", _on_autodriver_stuck) # replaces its own self-reset
+		elif drv.has_signal("stuck"):
 			drv.connect("stuck", _on_autodriver_stuck)
 	else:
 		input_node = CarInput.new()
@@ -247,6 +249,7 @@ func _begin_countdown(duration_ms: int, sync_go_ms: int = -1) -> void:
 	_respawn_vel = Vector3.ZERO
 	car.teleport(_respawn_xf)
 	car.frozen_controls = true
+	_reset_driver_tracking()
 	if car.has_method("refill_nitro"):
 		car.refill_nitro()
 	camera.snap()
@@ -455,6 +458,7 @@ func respawn() -> void:
 	if state != State.RUNNING:
 		return
 	car.teleport(_respawn_xf, _respawn_vel)
+	_reset_driver_tracking()
 	camera.snap()
 	_upside_down_s = 0.0
 	Audio.play_sfx("respawn")
@@ -470,6 +474,11 @@ func restart_run() -> void:
 		return # synchronized round start: everyone waits for GO
 	_begin_countdown(RESTART_HOLD_MS)
 	_log("restart")
+
+
+func _reset_driver_tracking() -> void:
+	if input_node and input_node.has_method("reset_tracking"):
+		input_node.call("reset_tracking")
 
 
 func _check_auto_respawn(dt: float) -> void:
@@ -529,6 +538,8 @@ func _update_input_enabled() -> void:
 		return
 	if input_node is CarInput:
 		(input_node as CarInput).enabled = on
+	elif "enabled" in input_node:
+		input_node.set("enabled", on)
 	else:
 		input_node.set_physics_process(on)
 		if not on:
