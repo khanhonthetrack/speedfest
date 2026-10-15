@@ -27,7 +27,7 @@ void fragment() {
 		alb = vec3(0.35, 0.0, 0.01);
 	} else if (type > 0.4) {
 		em = vec3(1.0, 0.98, 0.95) * reverse * 3.5;
-		alb = vec3(0.8);
+		alb = vec3(0.35);
 	} else if (type > 0.15) {
 		em = vec3(1.0, 0.45, 0.02) * 0.9;
 		alb = vec3(0.6, 0.3, 0.02);

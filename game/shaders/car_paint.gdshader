@@ -109,10 +109,13 @@ void fragment() {
 	float spec = 0.6;
 	float coat = 1.0;
 	if (finish == 1) {
-		float fl = hash3(floor(lpos * 520.0));
+		// metallic flake, faded out with distance so it never turns into noise
+		vec3 fp = lpos * 520.0;
+		float fade = 1.0 - smoothstep(0.35, 1.0, length(fwidth(fp)));
+		float fl = mix(0.5, hash3(floor(fp)), fade);
 		metal = 0.72;
-		rough = 0.36 - fl * 0.16;
-		base *= 0.9 + 0.22 * fl;
+		rough = 0.34 - (fl - 0.5) * 0.18;
+		base *= 0.95 + 0.12 * fl;
 	} else if (finish == 2) {
 		vec3 shift = hue_shift(base, -0.09) * 1.1 + vec3(0.03);
 		base = mix(base, shift, clamp(fres * 1.6, 0.0, 1.0));

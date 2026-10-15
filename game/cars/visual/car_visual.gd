@@ -46,7 +46,9 @@ var _wheel_mat: ShaderMaterial
 var _glass_mat: StandardMaterial3D
 var _glow_mat: ShaderMaterial
 var _flame_mat: ShaderMaterial
+var _ghost_mat: StandardMaterial3D
 var _wheel_base: Array[Vector3] = []
+var _wheel_xf: Array[Transform3D] = [Transform3D(), Transform3D(), Transform3D(), Transform3D()]
 var _steer := 0.0
 var _spin: Array = [0.0, 0.0, 0.0, 0.0]
 var _susp: Array = [0.0, 0.0, 0.0, 0.0]
@@ -58,6 +60,11 @@ var _reversing := false
 var _headlights_real := false
 var _rim_design := -1
 var _built_body_key := ""
+
+## Geometry cache shared by all CarVisuals: "car:parts" -> body mesh (+ info), "car:rim" -> wheel meshes.
+## Materials are per instance (surface overrides), so cars with the same parts share meshes.
+static var _mesh_cache: Dictionary = {}
+const CACHE_MAX := 48
 
 static var _trim_mat: StandardMaterial3D
 static var _chrome_mat: StandardMaterial3D
@@ -153,7 +160,8 @@ func set_wheel_state(steer_angle_rad: float, spin_rad: Array, susp_offsets: Arra
 		var wb := hub * Basis(Vector3.RIGHT, -spin)
 		if side < 0.0:
 			wb = wb * Basis(Vector3.UP, PI)
-		mm.set_instance_transform(i, Transform3D(wb, pos))
+		_wheel_xf[i] = Transform3D(wb, pos)
+		mm.set_instance_transform(i, _wheel_xf[i])
 		var cal_off := hub * Vector3(side * dx, 0, 0)
 		var cal_b := hub
 		if i >= 2:
@@ -184,14 +192,24 @@ func set_nitro(active: bool) -> void:
 
 func set_ghost(alpha: float) -> void:
 	_ghost = clampf(alpha, 0.0, 1.0)
-	var tr := 1.0 - _ghost
+	var ghosted := _ghost < 0.999
+	if ghosted:
+		if _ghost_mat == null:
+			_ghost_mat = StandardMaterial3D.new()
+			_ghost_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			_ghost_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
+			_ghost_mat.roughness = 0.25
+			_ghost_mat.metallic = 0.3
+			_ghost_mat.emission_enabled = true
+		var pc := Color(String(style.get("paint", "#ffffff")))
+		_ghost_mat.albedo_color = Color(pc.r, pc.g, pc.b, _ghost * 0.85)
+		_ghost_mat.emission = pc * 0.25
 	for gi in [_body, _wheels_mm, _calipers_mm]:
 		if gi:
-			(gi as GeometryInstance3D).transparency = tr
-			(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if _ghost > 0.95 else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			(gi as GeometryInstance3D).material_override = _ghost_mat if ghosted else (_wheel_mat if gi != _body else null)
+			(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if ghosted else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	if _plate:
-		_plate.modulate.a = _ghost
-		_plate.outline_modulate.a = 0.0
+		_plate.visible = not ghosted or _ghost > 0.7
 	visible = _ghost > 0.01
 	set_underglow_enabled(_underglow_on)
 	set_nitro(_nitro)
@@ -246,6 +264,11 @@ func set_headlights_real(on: bool) -> void:
 		_head_spots.append(sp)
 
 
+## Current transform of wheel i (FL, FR, RL, RR) in CarVisual space.
+func get_wheel_transform(i: int) -> Transform3D:
+	return _wheel_xf[clampi(i, 0, 3)]
+
+
 func get_triangle_count() -> int:
 	return triangle_count
 
@@ -268,14 +291,25 @@ func _body_key() -> String:
 
 
 func _build_body() -> void:
-	var kit := MeshKit.new()
-	CarBody.build_shell(shape, kit)
-	CarBody.build_greenhouse(shape, kit)
-	info = CarParts.build(shape, kit, style)
+	var key := car_id + ":" + _body_key()
+	var entry: Dictionary = _mesh_cache.get(key, {})
+	if entry.is_empty():
+		var kit := MeshKit.new()
+		CarBody.build_shell(shape, kit)
+		CarBody.build_greenhouse(shape, kit)
+		var inf := CarParts.build(shape, kit, style)
+		entry = {"mesh": kit.commit({}), "info": inf, "tris": kit.tri_count()}
+		if _mesh_cache.size() >= CACHE_MAX:
+			_mesh_cache.clear()
+		_mesh_cache[key] = entry
+	info = (entry["info"] as Dictionary).duplicate(true)
+	var mesh: ArrayMesh = entry["mesh"]
+	_body.mesh = mesh
 	var mats := {"paint": _paint_mat, "glass": _glass_mat, "trim": _trim_mat, "chrome": _chrome_mat, "lights": _lights_mat}
-	_body.mesh = kit.commit(mats)
+	for i in mesh.get_surface_count():
+		_body.set_surface_override_material(i, mats.get(mesh.surface_get_name(i)))
 	_built_body_key = _body_key()
-	_body_tris = kit.tri_count()
+	_body_tris = int(entry["tris"])
 	triangle_count = _body_tris + _wheel_tris
 	# license plate
 	_plate.text = String(style["plate"])
@@ -291,10 +325,12 @@ var _wheel_tris := 0
 func _build_wheels() -> void:
 	_rim_design = int(style["rims"])
 	var g := shape.g
-	var wheel := CarWheels.build_wheel(g["wheel_radius"], g["wheel_width"], _rim_design)
-	wheel.surface_set_material(0, _wheel_mat)
-	var cal := CarWheels.build_caliper(g["wheel_radius"])
-	cal.surface_set_material(0, _wheel_mat)
+	var wkey := car_id + ":" + str(_rim_design)
+	if not _mesh_cache.has(wkey):
+		_mesh_cache[wkey] = {"wheel": CarWheels.build_wheel(g["wheel_radius"], g["wheel_width"], _rim_design),
+			"cal": CarWheels.build_caliper(g["wheel_radius"])}
+	var wheel: ArrayMesh = _mesh_cache[wkey]["wheel"]
+	var cal: ArrayMesh = _mesh_cache[wkey]["cal"]
 	if _wheels_mm == null:
 		_wheels_mm = MultiMeshInstance3D.new()
 		_wheels_mm.name = "Wheels"
@@ -308,6 +344,7 @@ func _build_wheels() -> void:
 		mm.mesh = pair[1]
 		mm.instance_count = 4
 		(pair[0] as MultiMeshInstance3D).multimesh = mm
+		(pair[0] as MultiMeshInstance3D).material_override = _wheel_mat
 	_wheel_base = CarDefs.wheel_positions(car_id)
 	var tw := 0
 	for m in [wheel, cal]:
@@ -346,7 +383,7 @@ func _build_glow() -> void:
 func _build_nitro() -> void:
 	if Settings.is_compat():
 		var cp := CPUParticles3D.new()
-		cp.amount = 40
+		cp.amount = 56
 		cp.lifetime = 0.35
 		cp.local_coords = false
 		cp.direction = Vector3(0, 0, 1)
@@ -365,7 +402,7 @@ func _build_nitro() -> void:
 		_particles = cp
 	else:
 		var gp := GPUParticles3D.new()
-		gp.amount = 64
+		gp.amount = 80
 		gp.lifetime = 0.4
 		gp.local_coords = false
 		var pm := ParticleProcessMaterial.new()
@@ -393,7 +430,7 @@ func _build_nitro() -> void:
 
 func _particle_mesh() -> QuadMesh:
 	var q := QuadMesh.new()
-	q.size = Vector2(0.22, 0.22)
+	q.size = Vector2(0.16, 0.16)
 	var m := StandardMaterial3D.new()
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
