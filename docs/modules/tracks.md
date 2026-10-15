@@ -58,7 +58,7 @@ Owner: tracks module agent. Status: M1 (three drivable layouts, tested).
 | id | length | CPs | features |
 |---|---|---|---|
 | downtown | 2070 m | 5 | grid corners r=32 (banked 3°), chicane, on-ramp to a 10 m elevated highway (bridge zone) that crosses over the return leg, off-ramp, 130 m tunnel; 16 m wide; wet |
-| arena | ~1530 m | 4 | 3 boost pads, vertical loop r=20 (13 m wide, shifted 17 m), 180° banked 32°, gap jump (4 m kicker, 20 m gap), final jump (3.2 m kicker, 20 m gap) that lands on the start straight; 16 m wide |
+| arena | ~1530 m | 4 | 3 boost pads, vertical loop r=20 (13 m wide, shifted 17 m), 180° banked 32°, gap jump (80 m straight run-up, 22 m wide kicker and landing, 4 m kicker, 20 m gap), final jump (3.2 m kicker, 20 m gap) that lands on the start straight; 16 m wide |
 | coast | 3254 m | 5 | point to point, starts at 34 m and ends at 6 m, sweepers r=220..260 banked 7..8°, 340 m arch bridge over a bay (deck ~14 m), rock tunnel ~250 m with a curve; 15 m wide |
 
 Banked turns are lifted by `(width/2 + 1) * sin(bank)` so the low edge stays at the original
@@ -126,7 +126,9 @@ visual barrier, so fast cars can't climb over.
   respawning at the last checkpoint below `kill_y` or when the bot reports stuck. Results with
   `module/physics` as of 00:58 UTC (kaze, AutoDriver): **arena 43.2 s, downtown 60.4 s,
   coast 57.0 s, 0 respawns on all three** (targets 45 / 60 / 60 s). brute: 41.7 / 60.3 / 56.8 s,
-  veloce: 40.6 / 58.7 / 53.1 s, also 0 respawns.
+  veloce: 40.6 / 58.7 / 53.1 s, also 0 respawns. After the arena jump-1 rework (longer run-up,
+  wider landing) the physics keyboard-player emulation (`tests/physics/test_real_tracks.tscn
+  --keyboard`) finishes all 3 tracks × 3 cars with 0 respawns (arena ~40–41.5 s).
 - `tools/run_scene.sh res://tests/tracks/track_view.tscn -- --track=id --views="overview;drive:120;chase:300;orbit:870;side:500" --out=/abs/dir --tag=x`
   screenshots (prints draw calls / primitives per view).
 - `tools/run_scene.sh res://tests/tracks/layout_map.tscn --headless -- --out=/abs/dir`: top-down
