@@ -25,7 +25,7 @@ func _ready() -> void:
 
 
 func _add(n: String, pos: Vector3) -> void:
-	var car := Car.create(CarDefs.default_config(car_id))
+	var car := Car.create(PhysicsTestGround.test_config(car_id))
 	add_child(car)
 	var r: float = CarDefs.geometry(car_id)["wheel_radius"]
 	car.teleport(Transform3D(Basis.IDENTITY, pos + Vector3(0, r + 0.05, 0)))
@@ -221,7 +221,8 @@ func _s_nitro(s: Dictionary, car: Car) -> void:
 				TestHooks.check(car.is_nitro_active() and (car.get_flags() & 2) != 0, "nitro_active_flag_%s" % car_id)
 			if s["t"] >= 90:
 				s["after_burn"] = car.get_nitro_amount()
-				TestHooks.check(car.get_nitro_amount() < 0.75, "nitro_drains_%s" % car_id, "%.2f" % car.get_nitro_amount())
+				var expect := 1.0 - 1.5 / float(car.params["nitro_time"])
+				TestHooks.check(absf(car.get_nitro_amount() - expect) < 0.05, "nitro_drains_%s" % car_id, "%.2f (expected %.2f)" % [car.get_nitro_amount(), expect])
 				_phase(s, "refill")
 		"refill":
 			_ctl(car, 0.6, 0.0, 0.0, false, false)

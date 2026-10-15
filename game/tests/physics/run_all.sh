@@ -12,6 +12,11 @@ for c in kaze brute veloce; do
   run res://tests/physics/test_circuit.tscn --headless -- --car=$c
 done
 run res://tests/physics/test_stunts.tscn --headless -- --car=kaze --r=25
+for t in min max; do
+  run res://tests/physics/test_stunts.tscn --headless -- --car=brute --tune=$t
+  run res://tests/physics/test_handling.tscn --headless -- --car=brute --tune=$t
+  run res://tests/physics/test_circuit.tscn --headless -- --car=kaze --tune=$t
+done
 run res://tests/physics/test_stunts.tscn --headless -- --car=brute --r=15 --fast=false
 [[ $FAIL -eq 0 ]] && echo "PHYSICS_ALL_OK" || echo "PHYSICS_SOME_FAILED"
 exit $FAIL

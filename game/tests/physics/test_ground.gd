@@ -121,6 +121,20 @@ static func wall(a: Vector3, b: Vector3, h: float = 2.0) -> StaticBody3D:
 	return body
 
 
+## CarConfig for tests: --tune=min|max sets every slider to -1/+1, --<slider>=v sets one.
+static func test_config(car_id: String) -> Dictionary:
+	var cfg := CarDefs.default_config(car_id)
+	var tune := String(TestHooks.arg("tune", ""))
+	for k in CarDefs.TUNING_KEYS:
+		if tune == "min":
+			cfg["tuning"][k] = -1.0
+		elif tune == "max":
+			cfg["tuning"][k] = 1.0
+		if TestHooks.has_arg(k):
+			cfg["tuning"][k] = float(TestHooks.arg(k, 0.0))
+	return cfg
+
+
 # --- sample paths -----------------------------------------------------------------------------
 
 ## Straight -> vertical loop of radius r (with a lateral shift) -> straight. Starts at `origin`, heading -Z.

@@ -93,7 +93,7 @@ func _ready() -> void:
 
 
 func _spawn(xf: Transform3D) -> Car:
-	var car := Car.create(CarDefs.default_config(car_id))
+	var car := Car.create(PhysicsTestGround.test_config(car_id))
 	add_child(car)
 	car.teleport(xf)
 	return car
