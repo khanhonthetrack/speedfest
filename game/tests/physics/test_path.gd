@@ -40,3 +40,20 @@ func _bake_frames() -> void:
 		var r := t.cross(u).normalized()
 		u = r.cross(t).normalized()
 		_frames.append(Transform3D(Basis(r, u, -t), pos))
+
+
+## Linear tilt between control points. The stock _tilt_at smoothsteps inside every segment, so
+## dense tilt points (wall rides) become a staircase twist: zero roll rate at each point and
+## double in between, a washboard the suspension feels at speed.
+func _tilt_at(d: float) -> float:
+	var n := curve.point_count
+	if n == 0:
+		return 0.0
+	if d <= _point_offsets[0]:
+		return curve.get_point_tilt(0)
+	for i in range(1, n):
+		if d <= _point_offsets[i]:
+			var span := _point_offsets[i] - _point_offsets[i - 1]
+			var f := 0.0 if span <= 0.0001 else (d - _point_offsets[i - 1]) / span
+			return lerpf(curve.get_point_tilt(i - 1), curve.get_point_tilt(i), f)
+	return curve.get_point_tilt(n - 1)

@@ -112,13 +112,40 @@ static func coast() -> TrackPath:
 	return p
 
 
-static func for_theme(theme: String) -> TrackPath:
+static func for_theme(theme: String, raised := false) -> TrackPath:
+	var p: TrackPath
 	match theme:
 		"arena":
-			return arena()
+			p = arena()
 		"coast":
-			return coast()
-	return city()
+			p = coast()
+		_:
+			p = city()
+	if raised:
+		raise_path(p, theme)
+	return p
+
+
+## Trackmania-style stand-in: lift the road onto decks 20-40 m up and mark "elevated" zones.
+static func raise_path(p: TrackPath, theme: String) -> void:
+	var c := p.curve
+	var lift := {"city": 32.0, "arena": 22.0, "coast": 18.0}.get(theme, 25.0) as float
+	for i in c.point_count:
+		c.set_point_position(i, c.get_point_position(i) + Vector3(0, lift, 0))
+	p.rebake()
+	p.set_meta("ground_y", 0.0)
+	var zs: Array = []
+	for z in p.zones:
+		if String(z["kind"]) != "bridge" and String(z["kind"]) != "tunnel":
+			zs.append(z)
+	p.zones = zs
+	if theme == "coast":
+		# decks over the cliffs and the bay in the middle third, at-grade elsewhere
+		p.zones.append({"from": p.length * 0.3, "to": p.length * 0.65, "kind": "elevated"})
+		p.zones.append({"from": p.length * 0.7, "to": p.length * 0.74, "kind": "wallride"})
+	else:
+		p.zones.append({"from": 0.0, "to": p.length, "kind": "elevated"})
+		p.zones.append({"from": p.length * 0.55, "to": p.length * 0.62, "kind": "wallride"})
 
 
 ## Simple road strip with trimesh collision (the real road comes from the tracks module).

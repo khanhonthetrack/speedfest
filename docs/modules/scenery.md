@@ -1,5 +1,32 @@
 # Module: scenery (environments and props)
 
+## Handoff (2026-10-15)
+
+**State:** `module/scenery` has Trackmania-style elevated-deck support (8421aee and later). Ground props sit on the
+ground/terrain, never at deck height; nothing intersects the deck/pillar volume; downtown towers stand
+below/beside/above the deck with deck-level neon; arena stands grow with deck height; coast terrain stays
+≥ 14 m under decks. Headless test 45/45 (all themes flat + raised). Verified on the new **arena** layout
+(`module/tracks` @ 38fba67) on Forward+ and Compatibility (compat 69–148 draw calls, track + scenery).
+
+**Still to check:** the new **downtown** (decks ~35–60 m) and **coast** (decks over cliffs/bay, sea y = 0)
+layouts, once tracks pushes them. Open question with tracks: on the coast, my `SceneryRoot` hides the
+track's visual `Terrain` and draws the scenery terrain (palms/rocks/lighthouse/towns sit on it). Tracks said
+"coast keeps my terrain"; one of the two must win (see `scenery_root.gd`).
+
+**Next steps:**
+1. `git fetch origin module/tracks`; make a throwaway worktree of it and copy in `game/tracks/scenery/**`
+   and `game/shaders/env_*` from `module/scenery` (don't merge tracks into this branch).
+2. Screenshot each track on both renderers:
+   `xvfb-run -a -s "-screen 0 1280x720x24" godot --path game --rendering-method forward_plus|gl_compatibility
+   --resolution 1280x720 --fixed-fps 60 res://tests/tracks/track_view.tscn -- --track=<id> --quality=1|2
+   --views="overview;chase:150;chase:450;orbit:700" --out=/abs/dir --tag=x`. Check: no prop inside a
+   deck/pillar, towers above and below the downtown deck, neon readable from the deck, coast terrain/sea
+   below decks, one terrain only, compat draw calls < ~400.
+3. Fix in `city_kit.gd` / `coast_kit.gd` as needed, run
+   `tools/run_scene.sh res://tests/scenery/test_scenery.tscn --headless -- --frames=5` (expect 45/45) and
+   `tools/check_scripts.sh`, commit `scenery: ...`, push `module/scenery`.
+
+
 Branch: `module/scenery`. Owner files: `game/tracks/scenery/**`, `game/shaders/env_*.gdshader`,
 `game/tests/scenery/**`, this doc.
 
@@ -84,6 +111,29 @@ Verified by rendering the real `Track.build()` for all three tracks with this sc
 and Compatibility (quality 1, chase views): Compatibility draw calls downtown 89–133, arena
 46–59, coast 228–262 (whole track + scenery, no cars/HUD).
 
+## M3 rework: Trackmania-style elevated decks
+
+- **Ground level** (city/arena): `path.get_meta("ground_y")` if the track sets it, else
+  `min(0, 20th percentile of road heights)` (`SceneryField.ground_level()`). Decks float above it.
+- **Decks**: a sample is a deck if it is in an `elevated`, `bridge`, `loop`, `jump` or `wallride`
+  zone (`SceneryField.DECK_BITS`), or (city/arena) its low edge is > 3 m above the ground. The
+  ground never follows a deck; it stays ≥ 2 m (city/arena) / 6 m (coast) under it and slopes away.
+- **Nothing intersects the deck volume**: every prop footprint keeps XZ clearance from the road
+  (tested: `SceneryField.query` > 1.5 m and `edge_clearance` > 2 m at all footprint corners), so
+  nothing stands under, over or into a deck or its pillars (pillars are under the deck).
+- **city**: towers beside the deck are 55% taller than the deck (+8..70 m) and 45% below it, so the
+  deck runs at rooftop height between and over towers. Facades next to a deck get big neon signs at
+  deck height (and neon bands); lower buildings get rooftop signs tilted towards the deck.
+  No lamp posts on decks; gantry posts run down to the street; billboards stand at deck height.
+- **arena**: the floor sits at the ground level; stands get taller with the deck height
+  (16–40 rows), floodlight towers/jumbotrons/searchlights follow; arch legs are columns down to the floor.
+- **coast**: under decks the terrain uses a ground reference interpolated from the neighbouring
+  at-grade sections (kept ≥ 14 m under the deck): cliffs and sea below, hills on the land side.
+  No reflector posts or lamps on decks; palms never brush a deck.
+- Wall rides: no gantries, arches, pylons or puddles near `wallride` zones.
+- Test fixture: `--raised` in the demo lifts the sample paths 18–32 m and marks `elevated` /
+  `wallride` zones; the headless test runs every theme flat and raised (45 checks).
+
 ## How it decides heights
 
 - city/arena: the ground is flat at the 20th/10th percentile of road heights and rises/falls to
@@ -154,6 +204,8 @@ duplicate instances, rain helper.
 
 - **tracks / integrator**: for the coast, `"ground_visual": false` in `defs/coast.gd` would skip
   building the hidden terrain mesh (saves ~0.3 s of build time); not required.
+- **tracks (rework)**: please `path.set_meta("ground_y", layout.ground_y)` and mark decks with
+  `"elevated"` zones (and `"wallride"`), as in the M3 spec.
 - **tracks**: call `SceneryKit.build_environment(TrackDefs.theme(id))` and
   `SceneryKit.build_props(TrackDefs.theme(id), path, seed)`; fill `path.zones` (`tunnel`, `bridge`,
   `loop`, `jump`, `boost`, `no_props`) so props avoid stunts and the coast terrain opens bays and

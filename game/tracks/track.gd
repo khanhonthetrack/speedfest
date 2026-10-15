@@ -63,7 +63,8 @@ static func build(p_track_id: String, with_scenery := true) -> Track:
 	while d <= t.path.length:
 		min_y = minf(min_y, t.path.sample_position(d).y)
 		d += 5.0
-	t.kill_y = float(t.layout.get("kill_y", min_y - 12.0))
+	t.kill_y = float(t.layout.get("kill_y", min_y - float(t.layout.get("kill_below", 12.0))))
+	t._build_kill_profile()
 	t._build_geometry()
 	if with_scenery:
 		var env := SceneryKit.build_environment(t.theme)
@@ -235,6 +236,11 @@ func _build_boost_pads() -> void:
 	root.name = "BoostPads"
 	add_child(root)
 	var mat := TrackBuilder.shader_material("res://shaders/track_boost.gdshader")
+	# red super boost: hotter colors and faster chevrons
+	var mat_super := TrackBuilder.shader_material("res://shaders/track_boost.gdshader", {
+		"color_a": Color(1.0, 0.08, 0.04), "color_b": Color(1.0, 0.35, 0.05), "speed": 16.0})
+	var mat_boost := TrackBuilder.shader_material("res://shaders/track_boost.gdshader", {
+		"color_a": Color(1.0, 0.85, 0.05), "color_b": Color(1.0, 0.55, 0.0)})
 	for b in data["boosts"]:
 		var d0: float = b["d"]
 		var len: float = b["len"]
@@ -253,7 +259,12 @@ func _build_boost_pads() -> void:
 			dsl.append(dd - d0)
 		TrackBuilder.loft(acc, frames, dsl, prof)
 		var mesh := ArrayMesh.new()
-		acc.commit(mesh, mat)
+		var pad_mat := mat
+		if bool(b.get("super", false)):
+			pad_mat = mat_super
+		elif layout.get("platform", false):
+			pad_mat = mat_boost
+		acc.commit(mesh, pad_mat)
 		var mi := MeshInstance3D.new()
 		mi.mesh = mesh
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -311,3 +322,34 @@ func get_minimap_points() -> PackedVector2Array:
 		var p := path.sample_position(path.length * i / n)
 		pts.append(Vector2(p.x, p.z))
 	return pts
+
+
+
+# ---------------------------------------------------------------- respawn height
+
+## Lowest deck height in 20 m buckets along the path (for kill_y_at).
+var _kill_profile := PackedFloat32Array()
+const KILL_BUCKET := 20.0
+
+
+func _build_kill_profile() -> void:
+	var below: float = layout.get("kill_below", 12.0)
+	var n := ceili(path.length / KILL_BUCKET) + 1
+	_kill_profile.resize(n)
+	for i in n:
+		var lo := 1e9
+		var d := (i - 1.5) * KILL_BUCKET
+		while d <= (i + 1.5) * KILL_BUCKET:
+			lo = minf(lo, path.sample_position(clampf(d, 0.0, path.length)).y)
+			d += 4.0
+		_kill_profile[i] = maxf(lo - below, kill_y)
+
+
+## Height below which a car at `p` has fallen off the track (respawn). Follows the deck height
+## locally, so a fall from a high platform respawns quickly; never lower than kill_y.
+## (Extra API; race may use it instead of kill_y when present.)
+func kill_y_at(p: Vector3) -> float:
+	if _kill_profile.is_empty():
+		return kill_y
+	var i := clampi(int(round(path.closest_distance(p) / KILL_BUCKET)), 0, _kill_profile.size() - 1)
+	return _kill_profile[i]

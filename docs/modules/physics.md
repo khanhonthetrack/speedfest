@@ -1,5 +1,47 @@
 # Module: physics (car physics, tuning, input, AutoDriver)
 
+## Handoff (2026-10-15)
+
+**State (branch `module/physics`, all pushed; `game/tests/physics/run_all.sh` → PHYSICS_ALL_OK):**
+- Car: arcade raycast vehicle. Warp-tolerant suspension (droop-soft springs, anti-roll bars on
+  average roll), roll damping relative to the road's twist, stick force on steep/inverted road,
+  touchdown absorber, roof/side drag + self-righting, boost clamps (≤ 60 m/s², ≤ 4 s, fade
+  360→420 km/h, 450 km/h hard cap).
+- Wall rides: `test_wallride` (R 55/70/220, entry 142–215 km/h) has 0 air ticks for all cars.
+- Jumps: 10–20° kickers at 150–230 km/h (≤ 4.5 s air) land upright with no bounce.
+- AutoDriver: pure pursuit plus slip feed-forward; Stanley (road frame) in loops, ±40 m around wall
+  rides and 45 m before jumps; banked-curve speed planning; full throttle 70 m before loops and jumps;
+  never steers in the air; stuck → `reset_callable`; `reset()`/`reset_tracking()`.
+
+**Envelope sent to tracks:** wall ride roll ≤ 85–90°, entry 140–215 km/h, full-roll radius
+≥ 55 m, roll ramp ≥ 80–100 m (smoothstep, peak twist ≤ ~1.2°/m), horizontal curvature following
+the roll (κ ≈ sin(roll)/R), linear tilt interpolation in TrackPath (the stock `_tilt_at`
+smoothsteps per segment). Loops r ≥ 18 m up to ~270 km/h. Boost pads yellow 22/1.4 and red
+34/2.2 are fine. Leave room after a red boost before a loop or wall ride.
+
+**Open issues:**
+1. Tracks part 2 (de1b225): the analog AutoDriver is 9/9 clean. Keyboard emulation is 4/9 clean.
+   Failures: arena brute flips at the wall-ride entry (~264 km/h, full curvature at roll 0); jumps
+   on arena (d≈899, 1348) and downtown (d≈1166); downtown boost before the loop (d≈678); coast
+   d≈1088 and its loop (1156–1304). The main cause is the wall-ride geometry
+   (`{"wallride", r 70, roll 75, ramp 62}` in all three defs), which is outside the envelope.
+   Fixes requested from tracks.
+2. Keyboard steering on walls above ~190 km/h is imprecise even inside the envelope (test_wallride
+   `--keyboard`). A "cancel lateral gravity" assist was tried and reverted: it breaks banked balance.
+3. TrackPath fixes (loop right-vector lock, linear tilt) live only in my test subclass
+   `tests/physics/test_path.gd`.
+
+**Next steps:** when tracks pushes new layouts, make a scratch worktree from origin/module/tracks,
+merge module/physics, run `game/tests/physics/run_real_tracks.sh` (3 cars × 3 tracks, analog and
+keyboard; it prints respawn locations with zone names), and report to tracks. If keyboard
+respawns stay at wall rides that are inside the envelope, look at CarInput steering rates at
+200+ km/h.
+
+**Verify:** `tools/godot_import.sh && tools/check_scripts.sh` (SCRIPT_ERRORS=0),
+`game/tests/physics/run_all.sh` (PHYSICS_ALL_OK), and with the real tracks merged,
+`game/tests/physics/run_real_tracks.sh`.
+
+
 Branch: `module/physics`. Owner files only (see the file map). All tests are headless and pass on
 all three cars (`game/tests/physics/run_all.sh` prints `PHYSICS_ALL_OK`).
 
@@ -233,6 +275,50 @@ Per-tick cost of `Car._integrate_forces`: ~70 µs on desktop (AutoDriver ~80 µs
 - AutoDriver speed planning ignores banking beyond a small bonus. It is conservative
   (`grip_margin 0.72`); bots could go faster.
 - Wheel `spin` for the visuals is integrated per physics tick (not interpolated).
+
+
+## M3 rework support (Trackmania-style tracks)
+
+Supported piece envelope (all 3 cars, 0 air ticks in tests). Sent to the tracks session:
+
+| piece | limits |
+|---|---|
+| wall ride | roll ≤ 85–90°, entry 140–215 km/h (≈ 250 on the wall), full-roll radius ≥ 55 m, roll ramp ≥ 100 m smoothstep (peak twist ≤ ~1.2°/m), horizontal curvature κ(s) ≈ sin(roll(s))/R, linear tilt interpolation |
+| loop | r ≥ 18 m up to ~270 km/h entry (r = 15 m up to ~200) |
+| gap jump | kickers 10–20° at 150–230 km/h, up to 4.5 s of air / 25 m drops, land upright with no bounce even on flat ground |
+| boost pads | `apply_boost` clamps accel ≤ 60 m/s², duration ≤ 4 s, pushes along the road plane, fades 360→420 km/h; hard cap 450 km/h (2.1 m/tick, below the 4 m gate depth; CCD for walls) |
+
+Physics changes for it:
+- **Warp-tolerant suspension**: on a twisting road the front and rear axles sit at different roll
+  angles (twist × wheelbase). Springs are droop-soft (`DROOP_SOFT` = 0.45× rate while extending,
+  same static height), and the anti-roll bars act on the average roll of both axles, so they resist
+  body roll but not warp. Without this, diagonal wheels unloaded and the car got launched on
+  wall-ride entries and exits.
+- **Roll damping relative to the road's twist rate** (smoothed, `ROLL_DAMP`, `TWIST_SMOOTH`) plus a
+  gentle `ROAD_ALIGN` torque, so the car follows wall-ride twists instead of resisting them.
+- **apply_boost**: clamps and fade above. A stronger pad overrides a weaker one, and a weaker pad
+  touched during a strong boost doesn't cut it short.
+- **AutoDriver speed planning** uses the banked-curve limit
+  v² = g/κ·(sinθ + μ cosθ)/(cosθ − μ sinθ), with world-horizontal curvature κ, bank θ toward the
+  turn's center and μ including downforce. Steep wall-ride sections are unlimited (full throttle);
+  low-roll entries get a sane speed. In `wallride` zones (±40 m) it steers with Stanley in the
+  road frame.
+- **Roof/side drag** (`ROOF_DRAG` 9 m/s²): a flipped car sliding on its frictionless body slows
+  down, stops and self-rights. Before this it could slide off a deck at 100 km/h on its roof.
+
+Real tracks, rework part 2 (tracks de1b225 + module/physics), `run_real_tracks.sh`:
+analog AutoDriver 9/9 with 0 respawns (arena 32–37 s, downtown 25–27 s, coast 31–33 s).
+Keyboard emulation 4/9 clean. The rest has 1–2 respawns, mostly at the wall rides, whose
+geometry (62 m ramp, full horizontal curvature from roll 0) is outside the envelope; reported to
+tracks.
+
+Tests: `test_wallride.tscn` (`--car`, `--roll`, `--ramp`, `--tight_r`, `--fastcap`; four variants:
+R 70 at 142 and 215 km/h entry, R 220 at 150, R 55 at 142), superboost and boost-into-wall cases
+in `test_handling`, and jump variants `--jump_angle`, `--jump_nitro`, `--jump_zone` in `test_stunts`.
+
+TrackPath notes for tracks (my tests override these in `test_path.gd`): lock the right vector
+through steep sections (loop frame twist), and interpolate tilt linearly between control points.
+The stock `_tilt_at` smoothsteps inside every segment, which makes dense tilt points a washboard.
 
 ## Integration requests
 

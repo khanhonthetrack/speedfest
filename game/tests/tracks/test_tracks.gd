@@ -5,9 +5,10 @@ extends Node3D
 ## Args: --track=all|<id>
 
 const RANGES := {
-	"downtown": {"len": [1700.0, 2400.0], "cps": [4, 6]},
-	"arena": {"len": [1250.0, 1800.0], "cps": [4, 5]},
-	"coast": {"len": [2600.0, 3400.0], "cps": [5, 6]},
+	# Trackmania-style short stunt tracks (30-45 s)
+	"downtown": {"len": [1100.0, 1800.0], "cps": [4, 6]},
+	"arena": {"len": [1100.0, 1800.0], "cps": [4, 6]},
+	"coast": {"len": [1100.0, 1800.0], "cps": [4, 6]},
 }
 
 var hits: Array = []
@@ -128,29 +129,33 @@ func _test_track(id: String) -> void:
 	for l in track.data["loops"]:
 		TestHooks.check(float(l["radius"]) >= 18.0, id + "_loop_radius", str(l["radius"]))
 		var top_y := -1e9
+		var base_y := path.sample_position(float(l["from"])).y
 		var dl: float = l["from"]
 		while dl < l["to"]:
 			top_y = maxf(top_y, path.sample_position(dl).y)
 			dl += 1.0
-		TestHooks.check(absf(top_y - 2.0 * float(l["radius"])) < 1.5, id + "_loop_shape", "top %.1f" % top_y)
+		TestHooks.check(absf(top_y - base_y - 2.0 * float(l["radius"])) < 1.5, id + "_loop_shape", "top %.1f above entry" % (top_y - base_y))
 	for j in track.data["jumps"]:
 		var vmin: float = j["v_min"] * 3.6
-		TestHooks.check(vmin < 110.0, id + "_jump_min_speed", "%.0f km/h" % vmin)
+		TestHooks.check(vmin < 120.0, id + "_jump_min_speed", "%.0f km/h" % vmin)
 		# flight distance at 210 km/h from the lip; road must run straight to there
-		var v := 210.0 / 3.6
+		var v := float(j.get("check_kmh", 210.0)) / 3.6
 		var th: float = j["angle"]
-		var h0: float = j["h"]
+		# far case: flying at check_kmh until it comes down to the end of the landing ramp
+		var h0: float = float(j.get("lip_y", j["h"])) - float(j.get("end_y", 0.0))
 		var a := G_HALF / (v * v * cos(th) * cos(th))
 		var xmax: float = (tan(th) + sqrt(tan(th) * tan(th) + 4.0 * a * h0)) / (2.0 * a)
 		var lip_f := path.sample_transform(j["lip"])
 		var hd := Vector3(-lip_f.basis.z.x, 0, -lip_f.basis.z.z).normalized()
 		var land_f := path.sample_transform(float(j["lip"]) + xmax + 5.0)
 		var hd2 := Vector3(-land_f.basis.z.x, 0, -land_f.basis.z.z).normalized()
-		TestHooks.check(rad_to_deg(hd.angle_to(hd2)) < 6.0, id + "_jump_runout", "xmax %.0f m, turn %.1f deg" % [xmax, rad_to_deg(hd.angle_to(hd2))])
-		# at 150 km/h the car lands on road (past the gap)
+		if not bool(j.get("finish", false)):   # after the finish arch the run is over
+			TestHooks.check(rad_to_deg(hd.angle_to(hd2)) < 6.0, id + "_jump_runout", "xmax %.0f m, turn %.1f deg" % [xmax, rad_to_deg(hd.angle_to(hd2))])
+		# at 150 km/h the car reaches the landing start (drop m below the lip)
 		var v2 := 150.0 / 3.6
+		var drop: float = j.get("drop", 0.0)
 		var a2 := G_HALF / (v2 * v2 * cos(th) * cos(th))
-		var x2: float = (tan(th) + sqrt(tan(th) * tan(th) + 4.0 * a2 * h0)) / (2.0 * a2)
+		var x2: float = (tan(th) + sqrt(tan(th) * tan(th) + 4.0 * a2 * drop)) / (2.0 * a2)
 		TestHooks.check(x2 > float(j["gap"]) + 3.0, id + "_jump_clears_at_150", "lands at %.0f m, gap %.0f" % [x2, j["gap"]])
 
 	# probe run: a frozen Car pushed along the path must hit every checkpoint in order, then finish

@@ -1,6 +1,6 @@
 extends Node3D
 ## Scenery showcase: a sample TrackPath + simple road, the theme environment and props.
-## Args: --theme=city|arena|coast  --cam=driver|chase|overview|high  --d=<m along path>
+## Args: --theme=city|arena|coast  --raised (decks 20-40 m up, Trackmania style)  --cam=driver|chase|overview|high  --d=<m along path>
 ##       --lat=<m lateral>  --yaw=<deg>  --fly=<m/s> (camera drives along the path)  --stats_frame=N
 
 var theme: String
@@ -16,7 +16,7 @@ var stats_frame: int
 func _ready() -> void:
 	theme = String(TestHooks.arg("theme", "city"))
 	cam_mode = String(TestHooks.arg("cam", "driver"))
-	path = SceneryDemoPaths.for_theme(theme)
+	path = SceneryDemoPaths.for_theme(theme, TestHooks.has_arg("raised"))
 	d = float(TestHooks.arg("d", path.length * 0.08))
 	fly = float(TestHooks.arg("fly", 0.0))
 	stats_frame = int(TestHooks.arg("stats_frame", 30))

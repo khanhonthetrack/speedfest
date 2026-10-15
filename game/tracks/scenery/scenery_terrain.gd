@@ -17,6 +17,8 @@ var elevated_above: float = 2.5    # road higher than (far + this) is not follow
 var hole_below: float = 1.2        # road lower than base - this cuts a hole (underpass)
 var hole_margin: float = 3.0
 var shoulder_drop: float = 0.3
+var deck_clear: float = 5.0        # unfollowed (elevated) road: ground stays this far under the deck...
+var deck_slope: float = 1.0        # ...plus this much per metre of distance from the road edge
 var chunk_cells: int = 32
 var far_fn: Callable               # func(x: float, z: float, side: float, road_y: float, edge_dist: float, sample: int) -> float
 var follow_fn: Callable            # optional func(sample: int) -> float (1 = follow road, 0 = don't)
@@ -150,6 +152,9 @@ func compute() -> void:
 				var t2 := clampf((ed - flat_margin) / maxf(blend, 0.01), 0.0, 1.0)
 				t2 = t2 * t2 * (3.0 - 2.0 * t2)
 				h = lerpf(lerpf(far, near_h, follow), far, t2)
+			# never rise into an elevated deck
+			if follow <= 0.0:
+				h = minf(h, low - deck_clear + maxf(ed - 2.0, 0.0) * deck_slope)
 			# never poke through the road surface
 			if ed < 1.5 and h > near_h:
 				h = near_h

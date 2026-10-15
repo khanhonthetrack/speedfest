@@ -22,6 +22,9 @@ func _ready() -> void:
 	_add("nitro", Vector3(0, 0, 300))
 	_add("skidpad", Vector3(500, 0, -400))
 	_add("reverse", Vector3(100, 0, 300))
+	_add("superboost", Vector3(-1300, 0, 400))
+	_add("boostwall", Vector3(-1400, 0, -500))
+	_add("roofslide", Vector3(-1200, 0, -900))
 
 
 func _add(n: String, pos: Vector3) -> void:
@@ -280,4 +283,62 @@ func _s_reverse(s: Dictionary, car: Car) -> void:
 			_ctl(car, 1.0, 0.0, 0.0)
 			if s["t"] >= 120:
 				TestHooks.check(car.get_gear() >= 1 and car.get_speed_kmh() > 10.0, "throttle_leaves_reverse_%s" % car_id, "gear %d v %.1f" % [car.get_gear(), car.get_speed_kmh()])
+				s["done"] = true
+
+
+# --- red super boost: strong, long, but capped -------------------------------------------------
+func _s_superboost(s: Dictionary, car: Car) -> void:
+	match s["state"]:
+		"start":
+			_ctl(car, 1.0, 0.0, 0.0, false, true)
+			if car.get_speed_kmh() >= 150.0:
+				s["v0"] = car.get_speed_kmh()
+				s["vmax"] = 0.0
+				car.apply_boost(-car.global_transform.basis.z, 40.0, 3.0)
+				car.apply_boost(-car.global_transform.basis.z, 15.0, 1.0)   # weaker pad must not cut it
+				car.apply_boost(Vector3.DOWN, 9999.0, 99.0)                  # absurd input is clamped
+				_phase(s, "boost")
+		"boost":
+			s["vmax"] = maxf(s["vmax"], car.linear_velocity.length() * 3.6)
+			if s["t"] >= 240:
+				print("RESULT superboost %s from %.0f -> max %.0f km/h, up_y=%.2f grounded=%s" % [car_id, s["v0"], s["vmax"], car.global_transform.basis.y.y, car.is_grounded()])
+				TestHooks.check(s["vmax"] > s["v0"] + 120.0, "superboost_strong_%s" % car_id, "%.0f" % s["vmax"])
+				TestHooks.check(s["vmax"] <= Car.MAX_SPEED * 3.6 + 1.0, "superboost_capped_%s" % car_id, "%.0f" % s["vmax"])
+				TestHooks.check(car.is_grounded() and car.global_transform.basis.y.y > 0.95, "superboost_stays_on_road_%s" % car_id)
+				s["done"] = true
+
+
+# --- max-speed boost straight into a wall: no tunnelling ----------------------------------------
+func _s_boostwall(s: Dictionary, car: Car) -> void:
+	match s["state"]:
+		"start":
+			if s["t"] == 2:
+				var o: Vector3 = s["origin"]
+				add_child(PhysicsTestGround.wall(o + Vector3(-15, 0, -300), o + Vector3(15, 0, -300), 3.0))
+				var r: float = CarDefs.geometry(car_id)["wheel_radius"]
+				car.teleport(Transform3D(Basis.IDENTITY, o + Vector3(0, r, 0)), Vector3(0, 0, -Car.MAX_SPEED))
+				car.apply_boost(Vector3.FORWARD, 60.0, 4.0)
+				_phase(s, "go")
+		"go":
+			_ctl(car, 1.0, 0.0, 0.0, false, true)
+			if s["t"] >= 120:
+				var z := car.global_position.z - float(s["origin"].z)
+				TestHooks.check(z > -300.0, "boost_no_wall_tunnel_%s" % car_id, "z=%.1f" % z)
+				s["done"] = true
+
+
+# --- a car sliding on its roof stops and self-rights --------------------------------------------
+func _s_roofslide(s: Dictionary, car: Car) -> void:
+	match s["state"]:
+		"start":
+			if s["t"] == 2:
+				var o: Vector3 = s["origin"]
+				car.teleport(Transform3D(Basis(Vector3.FORWARD, PI), o + Vector3(0, 1.2, 0)), Vector3(0, 0, -30.0))
+				_phase(s, "slide")
+		"slide":
+			_ctl(car, 0.0, 0.0, 0.0)
+			if s["t"] == 240:
+				TestHooks.check(car.linear_velocity.length() < 3.0, "roof_slide_stops_%s" % car_id, "%.1f m/s" % car.linear_velocity.length())
+			if s["t"] >= 480:
+				TestHooks.check(car.global_transform.basis.y.y > 0.9, "roof_slide_rights_%s" % car_id, "up_y %.2f" % car.global_transform.basis.y.y)
 				s["done"] = true
