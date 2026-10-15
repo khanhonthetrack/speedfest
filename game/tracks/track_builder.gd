@@ -1308,8 +1308,10 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 	var mesh := ArrayMesh.new()
 	var fm := shader_material("res://shaders/track_floor.gdshader", {
 		"base_color": Color(0.05, 0.05, 0.07) if kind == "arena" else Color(0.07, 0.07, 0.08),
-		"grid_color": Color(0.45, 0.15, 1.0) if kind == "arena" else Color(0.0, 0.0, 0.0),
-		"grid_energy": 0.7 if kind == "arena" else 0.0,
+		"grid_color": Color(0.0, 0.0, 0.0),
+		"grid_energy": 0.0,
+		"style": 1 if kind == "arena" else 0,   # stadium lawn (owner, session 4: no neon grids)
+		"lawn_brightness": 1.7 if Settings.is_compat() else 1.0,
 		"wetness": 0.8 if layout.get("wet", false) else 0.15,
 		"tile": 20.0 if kind == "arena" else 6.0,
 	})

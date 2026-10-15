@@ -14,7 +14,7 @@ var yaw := 0.6
 var pitch := 0.18
 var distance := 7.2
 var target := Vector3(0, 0.55, 0)
-var auto_rotate := 0.12        # rad/s applied to the turntable
+var auto_rotate := 0.0         # rad/s applied to the turntable (menus are static: owner, session 4)
 var min_distance := 4.2
 var max_distance := 11.0
 ## Shifts the car sideways on screen (camera h_offset in meters; negative = car to the right).
@@ -38,8 +38,6 @@ func _process(delta: float) -> void:
 	_hold -= delta
 	if turntable and _hold <= 0.0:
 		turntable.rotation.y += auto_rotate * delta
-	if _ring_mat:
-		_ring_mat.emission_energy_multiplier = 2.2 + sin(_t * 1.6) * 0.5
 	_update_camera()
 
 
@@ -142,14 +140,14 @@ func _build_stage() -> void:
 	add_child(key)
 	var rim1 := OmniLight3D.new()
 	rim1.position = Vector3(-4.5, 2.6, -3.5)
-	rim1.light_color = UITheme.CYAN
-	rim1.light_energy = 3.0
+	rim1.light_color = Color(0.75, 0.85, 1.0)   # neutral studio rims (no neon)
+	rim1.light_energy = 2.4
 	rim1.omni_range = 11.0
 	add_child(rim1)
 	var rim2 := OmniLight3D.new()
 	rim2.position = Vector3(4.5, 2.2, 3.0)
-	rim2.light_color = UITheme.MAGENTA
-	rim2.light_energy = 2.4
+	rim2.light_color = Color(1.0, 0.88, 0.75)
+	rim2.light_energy = 1.8
 	rim2.omni_range = 10.0
 	add_child(rim2)
 
@@ -190,12 +188,14 @@ func _build_stage() -> void:
 	tm.ring_segments = 8
 	ring.mesh = tm
 	ring.position.y = 0.06
+	# brushed-metal turntable edge with a faint accent glow (was a pulsing neon ring)
 	_ring_mat = StandardMaterial3D.new()
-	_ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_ring_mat.albedo_color = _accent
+	_ring_mat.albedo_color = Color(0.55, 0.57, 0.6)
+	_ring_mat.metallic = 0.9
+	_ring_mat.roughness = 0.35
 	_ring_mat.emission_enabled = true
 	_ring_mat.emission = _accent
-	_ring_mat.emission_energy_multiplier = 2.5
+	_ring_mat.emission_energy_multiplier = 0.15
 	ring.material_override = _ring_mat
 	add_child(ring)
 	# Inner thin cyan line on the disc
@@ -209,7 +209,7 @@ func _build_stage() -> void:
 	ring2.position.y = 0.08
 	var r2m := StandardMaterial3D.new()
 	r2m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	r2m.albedo_color = Color(UITheme.CYAN, 1.0) * 1.6
+	r2m.albedo_color = Color(0.5, 0.52, 0.56)
 	ring2.material_override = r2m
 	turntable.add_child(ring2)
 

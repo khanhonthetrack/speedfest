@@ -98,7 +98,7 @@ func _build() -> void:
 	showroom.distance = 8.6
 	showroom.pitch = 0.2
 	showroom.yaw = 0.9
-	showroom.auto_rotate = 0.22
+	showroom.auto_rotate = 0.0   # static hero shot (owner, session 4)
 	add_child(showroom)
 	showroom.turntable.rotation.y = PI - 0.5
 
@@ -146,7 +146,7 @@ func _build() -> void:
 	left.add_child(_menu_box)
 	_add_menu_button("SOLO TIME ATTACK", "Beat your best on any track", _on_solo)
 	_add_menu_button("ONLINE", "Race your friends in a room", _on_online)
-	_add_menu_button("GARAGE", "Tune and style your ride", _on_garage)
+	_add_menu_button("GARAGE", "Style your ride", _on_garage)
 	_add_menu_button("SETTINGS", "Graphics, sound, controls", _on_settings)
 	if not Settings.is_web():
 		_add_menu_button("QUIT", "", _on_quit)

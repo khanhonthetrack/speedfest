@@ -142,25 +142,26 @@ func _city() -> void:
 
 
 func _arena() -> void:
-	# Night stadium: deep purple sky, cyan/magenta haze, strong bloom from floodlights.
+	# Night stadium (session 4: a real stadium with a lawn, not synthwave): navy sky with a warm
+	# floodlight halo, neutral haze, white floodlights so the grass reads green.
 	var key_dir := Vector3(-0.4, 0.75, 0.5).normalized()
 	_sky({
-		"zenith_color": Color(0.01, 0.006, 0.03), "sky_color": Color(0.035, 0.015, 0.07),
-		"horizon_color": Color(0.12, 0.04, 0.2), "ground_color": Color(0.02, 0.01, 0.04),
-		"horizon_falloff": 5.0, "glow_color": Color(0.2, 0.45, 1.0), "glow_strength": 0.4,
+		"zenith_color": Color(0.006, 0.01, 0.025), "sky_color": Color(0.02, 0.03, 0.06),
+		"horizon_color": Color(0.07, 0.075, 0.1), "ground_color": Color(0.02, 0.02, 0.025),
+		"horizon_falloff": 5.0, "glow_color": Color(0.95, 0.85, 0.65), "glow_strength": 0.3,
 		"glow_height": 0.06, "sun_dir": key_dir, "sun_color": Color(0.7, 0.8, 1.0),
 		"sun_strength": 0.0, "halo_strength": 0.0,
 		"cloud_cover": 0.35, "cloud_sharpness": 2.0, "cloud_scale": 0.5,
-		"cloud_dark": Color(0.02, 0.01, 0.05), "cloud_lit": Color(0.25, 0.08, 0.35),
+		"cloud_dark": Color(0.02, 0.02, 0.03), "cloud_lit": Color(0.16, 0.16, 0.19),
 		"cloud_lit_from_below": 1.0, "star_amount": 1.0, "energy": 1.0,
 	})
-	sun.light_color = Color(0.8, 0.85, 1.0)
-	sun.light_energy = 0.75
+	sun.light_color = Color(0.95, 0.96, 1.0)
+	sun.light_energy = 0.9
 	sun.basis = Basis.looking_at(-key_dir, Vector3.UP)
 	env.ambient_light_sky_contribution = 0.7
-	env.ambient_light_color = Color(0.25, 0.12, 0.4)
-	env.ambient_light_energy = 1.4
-	env.fog_light_color = Color(0.16, 0.07, 0.26)
+	env.ambient_light_color = Color(0.22, 0.24, 0.28)
+	env.ambient_light_energy = 1.25
+	env.fog_light_color = Color(0.1, 0.11, 0.14)
 	env.fog_light_energy = 1.0
 	env.fog_density = 0.0028
 	env.fog_sky_affect = 0.25
@@ -178,12 +179,12 @@ func _arena() -> void:
 	env.ssr_fade_out = 2.0
 	env.ssao_enabled = true
 	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.01
-	env.volumetric_fog_albedo = Color(0.7, 0.6, 0.9)
+	env.volumetric_fog_density = 0.006
+	env.volumetric_fog_albedo = Color(0.8, 0.8, 0.85)
 	env.volumetric_fog_length = 200.0
 	env.volumetric_fog_ambient_inject = 0.3
 	env.adjustment_contrast = 1.1
-	env.adjustment_saturation = 1.2
+	env.adjustment_saturation = 1.08
 	env.tonemap_exposure = 1.0
 	env.tonemap_white = 6.0
 

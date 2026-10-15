@@ -125,8 +125,15 @@ func _physics_process(_delta: float) -> void:
 	max_kmh = maxf(max_kmh, car.get_speed_kmh())
 	if car.global_position.y < track.kill_y:
 		_respawn()
-	if TestHooks.has_arg("trace") and tick % 30 == 0:
-		print("  t=%.1f d=%.0f v=%.0f pos=%s gnd=%s st=%.2f" % [(tick - start_tick) / 60.0, ai.get_distance(), car.get_speed_kmh(), car.global_position.snapped(Vector3.ONE * 0.1), car.is_grounded(), car.controls["steer"]])
+	if TestHooks.has_arg("trace") and tick % int(TestHooks.arg("trace_every", 30)) == 0 \
+			and ai.get_distance() >= float(TestHooks.arg("trace_from", -1e9)) and ai.get_distance() <= float(TestHooks.arg("trace_to", 1e9)):
+		var wc := "%d%d%d%d" % [int(car.get_wheel_contact(0)), int(car.get_wheel_contact(1)), int(car.get_wheel_contact(2)), int(car.get_wheel_contact(3))]
+		var contacts := ""
+		var st := PhysicsServer3D.body_get_direct_state(car.get_rid())
+		for ci in st.get_contact_count():
+			var co: Object = st.get_contact_collider_object(ci)
+			contacts += " [%s n=%s]" % [co.get_parent().name + "/" + co.name if co and co.get_parent() else str(co), st.get_contact_local_normal(ci).snapped(Vector3.ONE * 0.01)]
+		print("  t=%.2f d=%.1f v=%.0f pos=%s up=%s wheels=%s st=%.2f%s" % [(tick - start_tick) / 60.0, ai.get_distance(), car.get_speed_kmh(), car.global_position.snapped(Vector3.ONE * 0.1), car.global_transform.basis.y.snapped(Vector3.ONE * 0.01), wc, car.controls["steer"], contacts])
 	if tick > 60 * 200 and not finished:
 		TestHooks.fail("real_%s_%s_finished" % [track_id, car_id], "next cp %d/%d, respawns %d, d=%.0f" % [next_cp, track.checkpoint_count, respawns, ai.get_distance()])
 		TestHooks.finish()

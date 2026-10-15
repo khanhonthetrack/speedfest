@@ -1,7 +1,8 @@
 shader_type spatial;
 // Ground for all themes. UV = world XZ, UV2.x = distance to the road edge (m).
 // mode 0 city: wet asphalt lots + paved sidewalks with puddles.
-// mode 1 arena: glossy dark stadium floor with a neon grid.
+// mode 1 arena: stadium lawn with mowing stripes and a dark apron along the road (no neon grid:
+//        owner, session 4).
 // mode 2 coast: grass, dry brush, rock on slopes, sand and surf near sea level.
 
 uniform int mode = 0;
@@ -10,6 +11,7 @@ uniform float wetness = 1.0;
 uniform vec3 grid_color : source_color = vec3(0.0, 0.9, 1.0);
 uniform vec3 grid_color2 : source_color = vec3(1.0, 0.17, 0.84);
 uniform float grid_energy = 1.4;
+uniform float lawn_brightness = 1.0;    // compat has no volumetric fog lift at night: brighten the lawn
 
 
 float h21(vec2 p) {
@@ -34,6 +36,22 @@ float fbm(vec2 p) {
 		a *= 0.5;
 	}
 	return s;
+}
+
+// Stadium lawn: alternating mowing stripes (12 m), soft patchiness and blade-scale noise that
+// fades with distance (no shimmer), and a dark rubber apron within ~4 m of the road edge.
+vec3 stadium_lawn(vec2 p, float ed) {
+	float n = fbm(p * 0.035);
+	float fw = max(fwidth(p.x), fwidth(p.y));
+	float sx = fract(p.x / 24.0);
+	float stripe = smoothstep(0.48, 0.52, sx) * (1.0 - smoothstep(0.98, 1.0, sx));
+	vec3 g1 = vec3(0.055, 0.15, 0.045);
+	vec3 g2 = vec3(0.085, 0.2, 0.065);
+	vec3 c = mix(g1, g2, stripe) * (0.82 + 0.3 * n);
+	float blades = vnoise(p * 6.0) * 0.5 + vnoise(p * 17.0) * 0.5;
+	c *= 1.0 + (blades - 0.5) * 0.35 * (1.0 - clamp(fw * 4.0, 0.0, 1.0));
+	float apron = 1.0 - smoothstep(1.0, 4.0, ed);
+	return mix(c, vec3(0.075, 0.075, 0.085) * (0.85 + 0.3 * n), apron);
 }
 
 void fragment() {
@@ -65,24 +83,8 @@ void fragment() {
 		alb *= mix(1.0, 0.45, puddle);
 		metal = 0.0;
 	} else if (mode == 1) {
-		float n = fbm(p * 0.05);
-		alb = vec3(0.012, 0.012, 0.02) * (0.8 + 0.4 * n);
-		rough = 0.18 + 0.12 * n;
-		// neon grid: thin lines every 10 m, brighter every 50 m
-		vec2 g = p / 10.0;
-		vec2 fw = fwidth(g);
-		vec2 gl = abs(fract(g - 0.5) - 0.5) / max(fw, vec2(0.0001));
-		float l1 = 1.0 - min(min(gl.x, gl.y), 1.0);
-		vec2 g2 = p / 50.0;
-		vec2 fw2 = fwidth(g2);
-		vec2 gl2 = abs(fract(g2 - 0.5) - 0.5) / max(fw2 * 1.6, vec2(0.0001));
-		float l2 = 1.0 - min(min(gl2.x, gl2.y), 1.0);
-		float fade = clamp(1.0 - max(fw.x, fw.y) * 3.0, 0.0, 1.0);
-		float t = 0.5 + 0.5 * sin(p.x * 0.004 + p.y * 0.003);
-		vec3 gc = mix(grid_color, grid_color2, t);
-		float near_road = smoothstep(1.0, 6.0, ed);
-		emit = gc * grid_energy * (l1 * 0.25 * fade + l2 * 0.9) * near_road;
-		alb = mix(alb, vec3(0.03), 1.0 - near_road);
+		alb = stadium_lawn(p, ed) * lawn_brightness;
+		rough = 0.88;
 	} else {
 		float slope = 1.0 - clamp(wnrm.y, 0.0, 1.0);
 		float n = fbm(p * 0.02);

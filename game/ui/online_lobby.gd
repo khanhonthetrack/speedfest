@@ -41,7 +41,7 @@ var room_view: Control
 var room_title: Label
 var room_code_label: Label
 var phase_label: Label
-var player_list: VBoxContainer
+var lineup: LobbyLineup
 var player_count_label: Label
 var chat_text: RichTextLabel
 var chat_edit: LineEdit
@@ -381,9 +381,7 @@ func _refresh_room() -> void:
 	var players: Array = r.get("players", [])
 	var host_id := int(r.get("host", -1))
 	player_count_label.text = "%d / %d" % [players.size(), int(r.get("max_players", 8))]
-	_clear(player_list)
-	for p in players:
-		player_list.add_child(_player_row(p, host_id))
+	lineup.set_players(players, Net.my_id, host_id)
 	_refresh_settings()
 	_refresh_ready_button()
 	var phase := String(r.get("phase", "lobby"))
@@ -446,52 +444,6 @@ func _refresh_ready_button() -> void:
 	ready_btn.add_theme_stylebox_override("normal", UITheme.panel_style(
 		Color(UITheme.LIME, 0.18) if _my_ready else UITheme.PANEL,
 		UITheme.LIME if _my_ready else UITheme.CYAN.darkened(0.35), 2))
-
-
-func _player_row(p: Dictionary, host_id: int) -> Control:
-	var id := int(p.get("id", -1))
-	var me := id == Net.my_id
-	var pc := PanelContainer.new()
-	var sb := UITheme.panel_style(Color(UITheme.CYAN, 0.12) if me else Color(UITheme.PANEL_LIGHT, 0.7),
-		UITheme.CYAN if me else Color(1, 1, 1, 0.08), 1, UITheme.SKEW * 0.5)
-	sb.content_margin_top = 4
-	sb.content_margin_bottom = 4
-	pc.add_theme_stylebox_override("panel", sb)
-	var h := HBoxContainer.new()
-	h.add_theme_constant_override("separation", 12)
-	pc.add_child(h)
-	var cfg: Dictionary = CarDefs.sanitize_config(p.get("car", {}))
-	var paint := Panel.new()
-	var psb := StyleBoxFlat.new()
-	psb.bg_color = Color(String(cfg["style"]["paint"]))
-	psb.border_color = Color(String(cfg["style"]["accent"])).lerp(Color.WHITE, 0.35)
-	psb.set_border_width_all(1)
-	paint.add_theme_stylebox_override("panel", psb)
-	paint.custom_minimum_size = Vector2(10, 30)
-	h.add_child(paint)
-	var nm := UITheme.label(String(p.get("name", "?")), "body_bold", 23, UITheme.LIME if me else UITheme.TEXT)
-	nm.clip_text = true
-	nm.custom_minimum_size = Vector2(150, 0)
-	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	h.add_child(nm)
-	if id == host_id:
-		h.add_child(_badge("HOST", UITheme.AMBER))
-	if me:
-		h.add_child(_badge("YOU", UITheme.CYAN))
-	var car := UITheme.label(CarDefs.display_name(String(cfg["car"])), "body", 19, UITheme.TEXT_DIM)
-	car.custom_minimum_size = Vector2(110, 0)
-	h.add_child(car)
-	var best := int(p.get("best_ms", -1))
-	var bl := UITheme.label(UITheme.format_time(best) if best >= 0 else "--:--.---", "num", 15,
-		UITheme.TEXT if best >= 0 else UITheme.TEXT_DIM)
-	bl.custom_minimum_size = Vector2(100, 0)
-	bl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	h.add_child(bl)
-	var rdy := bool(p.get("ready", false))
-	var rb := _badge("READY" if rdy else "...", UITheme.LIME if rdy else UITheme.TEXT_DIM)
-	rb.custom_minimum_size = Vector2(76, 0)
-	h.add_child(rb)
-	return pc
 
 
 func _badge(text: String, color: Color) -> Label:
@@ -860,14 +812,13 @@ func _build_room_view() -> Control:
 	player_count_label = UITheme.label("0 / 8", "num", 14, UITheme.TEXT_DIM)
 	ph.add_child(player_count_label)
 	pv.add_child(ph)
-	var ps := ScrollContainer.new()
-	ps.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	ps.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	pv.add_child(ps)
-	player_list = VBoxContainer.new()
-	player_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	player_list.add_theme_constant_override("separation", 6)
-	ps.add_child(player_list)
+	# Rocket League-style lineup: everyone's car, live (owner, session 4)
+	lineup = LobbyLineup.new()
+	lineup.name = "Lineup"
+	lineup.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	lineup.size_flags_stretch_ratio = 2.2
+	lineup.custom_minimum_size = Vector2(0, 200)
+	pv.add_child(lineup)
 
 	var cp := MenuKit.panel()
 	cp.size_flags_vertical = Control.SIZE_EXPAND_FILL

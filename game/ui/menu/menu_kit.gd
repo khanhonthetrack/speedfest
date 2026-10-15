@@ -239,7 +239,7 @@ static func slider_row(title: String, left: String, right: String, min_v: float,
 	return {"root": root, "slider": s, "value": v}
 
 
-## Full-screen dark backdrop with an animated neon grid/glow shader (cheap on both renderers).
+## Full-screen static dark backdrop (graphite gradient + soft light pool; no grid, no animation).
 static func backdrop(tint: Color = UITheme.MAGENTA) -> ColorRect:
 	var r := ColorRect.new()
 	r.set_anchors_preset(Control.PRESET_FULL_RECT)

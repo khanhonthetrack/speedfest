@@ -25,7 +25,21 @@ func _ready() -> void:
 	Net.room_changed.emit(Net.room)
 	TestHooks.check(lobby.current_view == "room", "lobby_room_view_on_room_changed", lobby.current_view)
 	TestHooks.check(lobby.room_code_label.text == "ABCD", "lobby_shows_code")
-	TestHooks.check(lobby.player_list.get_child_count() == 2, "lobby_player_rows", str(lobby.player_list.get_child_count()))
+	TestHooks.check(lobby.lineup.car_count() == 2 and lobby.lineup.has_player(4), "lobby_lineup_cars", str(lobby.lineup.car_count()))
+	TestHooks.check(lobby.lineup.shown_config(4)["car"] == "brute", "lobby_lineup_car_model")
+	# a friend changes car and paint in their garage: the lineup follows live; a newcomer appears
+	var live := _room(3)
+	live["players"][1]["car"] = CarDefs.default_config("kaze")
+	live["players"][1]["car"]["style"]["paint"] = "#a6ff00"
+	live["players"].append({"id": 9, "name": "Late", "car": CarDefs.default_config("veloce"), "ready": false, "best_ms": -1, "runs": 0})
+	Net.room = live
+	Net.room_changed.emit(Net.room)
+	var shown: Dictionary = lobby.lineup.shown_config(4)
+	TestHooks.check(shown["car"] == "kaze" and String(shown["style"]["paint"]) == "#a6ff00", "lobby_lineup_live_update", str(shown))
+	TestHooks.check(lobby.lineup.car_count() == 3 and lobby.lineup.has_player(9), "lobby_lineup_newcomer")
+	Net.room = _room(3)
+	Net.room_changed.emit(Net.room)
+	TestHooks.check(lobby.lineup.car_count() == 2 and not lobby.lineup.has_player(9), "lobby_lineup_leaver_removed")
 	TestHooks.check(lobby.start_btn.visible and not lobby.start_btn.disabled, "lobby_host_can_start")
 	TestHooks.check(lobby.start_btn.text.contains("1/2"), "lobby_ready_count", lobby.start_btn.text)
 	TestHooks.check((lobby.track_row.get_child(2) as Button).button_pressed, "lobby_track_chip_reflects_settings")

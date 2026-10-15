@@ -27,7 +27,9 @@ func get_config(car_id: String = "") -> Dictionary:
 	if car_id == "":
 		car_id = selected_car
 	var entry: Dictionary = cars.get(car_id, {})
-	return CarDefs.sanitize_config({"car": car_id, "tuning": entry.get("tuning", {}), "style": entry.get("style", {})})
+	# Performance tuning was removed (owner, session 4: "too complicated"): every car drives stock.
+	# Old profiles may still hold tuning values; they are ignored.
+	return CarDefs.sanitize_config({"car": car_id, "tuning": CarDefs.default_tuning(), "style": entry.get("style", {})})
 
 
 func set_selected_car(car_id: String) -> void:
@@ -36,10 +38,9 @@ func set_selected_car(car_id: String) -> void:
 		changed.emit()
 
 
-func set_tuning(car_id: String, tuning: Dictionary) -> void:
-	var cfg := CarDefs.sanitize_config({"car": car_id, "tuning": tuning, "style": get_config(car_id)["style"]})
-	cars[car_id] = {"tuning": cfg["tuning"], "style": cfg["style"]}
-	changed.emit()
+## Deprecated: tuning was removed (session 4). Kept so old callers don't break; it stores nothing.
+func set_tuning(_car_id: String, _tuning: Dictionary) -> void:
+	pass
 
 
 func set_style(car_id: String, style: Dictionary) -> void:

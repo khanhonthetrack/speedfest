@@ -63,10 +63,13 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
       collision except near jumps/loops), light strips, and a road light on Forward+ q≥2
 - [x] 4. Smaller speedometer/NOS panel (70%). **NOS is a fixed tank per run, not recharged** (strategy):
       kaze 5.5 s, brute 6.5 s, veloce 5.0 s of nitro per run; respawn keeps the tank, restart refills
-- [ ] 5. No neon futuristic grids: the stadium gets grass (or similar) instead of the neon grid; the
+- [x] 5. No neon futuristic grids: the stadium gets grass (or similar) instead of the neon grid; the
       menu background is static; the online lobby shows every player's car as soon as they join and
-      updates live when they change car or style (like Rocket League's lobby)
-- [ ] 6. Remove performance tuning (too complicated). Easy handling that still differs per car
+      updates live when they change car or style (like Rocket League's lobby). **Done:** mown stadium
+      lawn + neutral night-stadium light; static graphite menu backdrop, no auto-spinning car, no neon
+      rings; `LobbyLineup` (3D car lineup in the room view, live updates, arrival animation)
+- [ ] 6. Remove performance tuning (too complicated). Easy handling that still differs per car.
+      **Tuning removed** (garage TUNE tab gone; `Profile.get_config()` always stock). Handling: in progress
 
 ### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
 Owner: "graphics ... kinda trivial and menu looks very mobiley and boring", so focus on real art

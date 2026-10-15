@@ -225,3 +225,22 @@ date, who (module/agent), what changed, what's next or blocked.
   analog 9/9 clean; keyboard emulation 7/9 clean (arena kaze stalls entering the loop; downtown veloce
   falls off between cp3 and the finish). Both also happen with the old gates and with nitro refills
   on, so they're the known keyboard-emulation margins, not the gates.
+
+## 2026-10-15 (session 4) — M4.5 item 5 and the tuning half of item 6
+
+- **Tuning removed**: no TUNE tab or RESET TUNING in the garage; `Profile.get_config()` always returns
+  stock tuning (old saved values are ignored; `Profile.set_tuning` is a no-op). The CarConfig schema
+  keeps `tuning` (all 0) so the network protocol and the physics tests are unchanged. The garage
+  stat bars now show each car's stock character. garage_test 15/15 (checks tuning is always stock).
+- **Lobby lineup** (`ui/menu/lobby_lineup.gd`, `LobbyLineup`): Rocket League-style 3D lineup in the
+  room view. Every player's car parked side by side (own World3D sub-viewport), name + HOST/READY
+  above it; a newcomer's car rolls in, leavers' cars disappear and the rest slide together; car or
+  style changes from a player's garage show up live (the server already rebroadcasts profiles).
+  Replaces the text player list. lobby_fake_test 23/23 (live update, newcomer, leaver).
+  Screenshot helper: `tests/ui_menus/lobby_room_shot.tscn`.
+- **No neon grids, static menus**: `menu_backdrop.gdshader` is a static graphite gradient (no grid,
+  no animated streaks); the showroom turntable lost its pulsing neon rings (brushed metal, neutral
+  studio rims); the car no longer auto-spins in the main menu or garage.
+- **Stadium lawn**: the arena's ground (`env_terrain` mode 1 and `track_floor` style 1) is a mown
+  lawn with 12 m stripes and a dark apron by the road; the arena light is a neutral night stadium
+  (navy sky, white floodlights, neutral haze) instead of purple synthwave. Compat arena ~220 draw calls.

@@ -65,7 +65,7 @@ func _floor() -> void:
 	t.hole_below = 1.2
 	t.far_fn = func(_x: float, _z: float, _s: float, _ry: float, _ed: float, _i: int) -> float: return floor_y - 0.3
 	t.compute()
-	t.build_meshes(root, SceneryMat.shader_mat("terrain", {"mode": 1}), "Floor")
+	t.build_meshes(root, SceneryMat.shader_mat("terrain", {"mode": 1, "lawn_brightness": 1.7 if Settings.is_compat() else 1.0}), "Floor")
 	var far := MeshInstance3D.new()
 	far.name = "GroundFar"
 	var pm := PlaneMesh.new()

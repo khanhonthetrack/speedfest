@@ -54,7 +54,8 @@ func _ready() -> void:
 	add_child(g)
 	for i in 3:
 		await get_tree().process_frame
-	TestHooks.check(_focus() == g.sliders["gearing"], "nav_garage_initial_focus", str(_focus()))
+	var f0 := _focus()
+	TestHooks.check(f0 != null and g.tabs.get_current_tab_control().is_ancestor_of(f0), "nav_garage_initial_focus", str(f0))
 	await _key(KEY_E)
 	TestHooks.check(g.tabs.current_tab == 1, "nav_garage_tab_key")
 	var car_before: String = g.car_id

@@ -1,6 +1,6 @@
 extends Node
-## Headless: garage changes go to Profile (tuning, style, selected car), sanitize the plate,
-## reset works, and the values survive a save + reload of the profile.
+## Headless: garage changes go to Profile (style, selected car), sanitize the plate, reset works,
+## the values survive a save + reload of the profile, and tuning is gone (always stock).
 
 
 var _backup := ""
@@ -16,12 +16,12 @@ func _ready() -> void:
 	# car selection
 	g.select_car("brute")
 	TestHooks.check(Profile.selected_car == "brute", "garage_select_car")
-	# tuning through the real slider signal
-	(g.sliders["gearing"] as HSlider).value = 0.7
-	TestHooks.check(is_equal_approx(float(Profile.get_config("brute")["tuning"]["gearing"]), 0.7), "garage_tuning_slider",
+	# tuning was removed (session 4): no TUNE tab, and old profile values are ignored
+	TestHooks.check(not "TUNE" in g.TABS and not g.has_method("set_tuning_value"), "garage_no_tuning_ui")
+	Profile.cars["brute"] = {"tuning": {"gearing": 0.7, "balance": -0.3}, "style": Profile.get_config("brute")["style"]}
+	Profile.set_tuning("brute", {"gearing": 1.0})
+	TestHooks.check(Profile.get_config("brute")["tuning"] == CarDefs.default_tuning(), "garage_tuning_always_stock",
 		str(Profile.get_config("brute")["tuning"]))
-	g.set_tuning_value("balance", -0.33)
-	TestHooks.check(is_equal_approx(float(Profile.get_config("brute")["tuning"]["balance"]), -0.3), "garage_tuning_snapped")
 	# style through chips and swatches (press the actual buttons)
 	var finish_row: Container = g.chip_rows["finish"]
 	(finish_row.get_child(4) as Button).pressed.emit()
@@ -47,9 +47,8 @@ func _ready() -> void:
 	# per-car independence
 	g.select_car("kaze")
 	TestHooks.check(Profile.get_config("kaze")["style"]["finish"] == CarDefs.default_style("kaze")["finish"], "garage_cars_independent")
-	TestHooks.check(is_equal_approx((g.sliders["gearing"] as HSlider).value, float(Profile.get_config("kaze")["tuning"]["gearing"])), "garage_controls_reload")
 	g.select_car("brute")
-	TestHooks.check(is_equal_approx((g.sliders["gearing"] as HSlider).value, 0.7), "garage_controls_show_brute")
+	TestHooks.check(Profile.get_config("brute")["style"]["finish"] == "chrome", "garage_controls_show_brute")
 	# save + reload
 	Profile.save()
 	var saved := Profile.get_config("brute")
@@ -59,8 +58,6 @@ func _ready() -> void:
 	TestHooks.check(JSON.stringify(loaded, "", true) == JSON.stringify(saved, "", true) and Profile.selected_car == "brute", "garage_persisted",
 		"%s\nvs\n%s (selected %s)" % [JSON.stringify(loaded, "", true), JSON.stringify(saved, "", true), Profile.selected_car])
 	# reset
-	g.reset_tuning()
-	TestHooks.check(Profile.get_config("brute")["tuning"] == CarDefs.default_tuning(), "garage_reset_tuning")
 	g.reset_style()
 	TestHooks.check(Profile.get_config("brute")["style"] == CarDefs.sanitize_config(CarDefs.default_config("brute"))["style"], "garage_reset_style")
 	# stats respond (with real Tuning: gearing toward top speed raises top_speed)

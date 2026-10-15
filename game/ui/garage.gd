@@ -1,20 +1,20 @@
 extends Control
-## Garage: 3D preview (drag to orbit, wheel to zoom, auto-rotate), car selection and tabs for
-## performance tuning (7 sliders + live stats) and visual style (paint, body, wheels, lights,
-## stance & plate). Every change updates the preview and Profile immediately.
+## Garage: 3D preview (drag to orbit, wheel to zoom, auto-rotate), car selection with each car's
+## stats, and tabs for visual style (paint, body, wheels, lights, stance & plate). Every change
+## updates the preview and Profile immediately. Performance tuning was removed (owner, session 4:
+## "too complicated"); cars differ by their stock handling instead.
 ## Back -> Game.leave_garage() (saves and returns to where we came from).
 
-const TABS := ["TUNE", "PAINT", "BODY", "WHEELS", "LIGHTS", "PLATE"]
+const TABS := ["PAINT", "BODY", "WHEELS", "LIGHTS", "PLATE"]
 const STAT_KEYS := [["top_speed", "TOP SPEED"], ["accel", "ACCELERATION"], ["handling", "HANDLING"], ["drift", "DRIFT"], ["nitro", "NITRO"]]
 const LIVERY_NAMES := {"none": "None", "racing_stripes": "Stripes", "side_stripe": "Side stripe", "two_tone": "Two-tone", "fade": "Fade", "checker": "Checker"}
 ## Camera presets per tab: [car_yaw, pitch, distance]
 const TAB_VIEWS := [
-	[PI + 0.65, 0.16, 8.4], [PI + 0.9, 0.22, 8.0], [0.75, 0.2, 8.2],
+	[PI + 0.9, 0.22, 8.0], [0.75, 0.2, 8.2],
 	[PI / 2 + PI, 0.06, 7.8], [PI + 0.3, 0.12, 8.0], [0.15, 0.12, 7.4],
 ]
 
 var car_id := "kaze"
-var tuning: Dictionary = {}
 var style: Dictionary = {}
 
 var showroom: Showroom
@@ -23,8 +23,6 @@ var car_name_label: Label
 var car_arch_label: Label
 var car_blurb_label: Label
 var car_dots: HBoxContainer
-var sliders: Dictionary = {}          # tuning key -> HSlider
-var slider_values: Dictionary = {}    # tuning key -> Label
 var chip_rows: Dictionary = {}        # style key -> HFlowContainer
 var swatch_rows: Dictionary = {}      # style key -> HFlowContainer
 var style_sliders: Dictionary = {}    # "tint"/"ride_height" -> HSlider
@@ -112,7 +110,6 @@ func select_car(id: String) -> void:
 	car_id = id
 	Profile.set_selected_car(id)
 	var cfg := Profile.get_config(id)
-	tuning = cfg["tuning"].duplicate()
 	style = cfg["style"].duplicate()
 	var d := CarDefs.get_def(id)
 	car_name_label.text = String(d["name"]).to_upper()
@@ -128,17 +125,6 @@ func select_car(id: String) -> void:
 	_schedule_save()
 
 
-func set_tuning_value(key: String, v: float) -> void:
-	if _loading or not key in CarDefs.TUNING_KEYS:
-		return
-	tuning[key] = snappedf(clampf(v, -1.0, 1.0), 0.1)
-	Profile.set_tuning(car_id, tuning)
-	tuning = Profile.get_config(car_id)["tuning"].duplicate()
-	slider_values[key].text = _fmt_signed(float(tuning[key]))
-	_update_stats()
-	_schedule_save()
-
-
 func set_style_value(key: String, v: Variant) -> void:
 	if _loading:
 		return
@@ -147,14 +133,6 @@ func set_style_value(key: String, v: Variant) -> void:
 	style = Profile.get_config(car_id)["style"].duplicate()
 	showroom.show_car(car_id, style)
 	_reflect_style_key(key)
-	_schedule_save()
-
-
-func reset_tuning() -> void:
-	Profile.set_tuning(car_id, CarDefs.default_tuning())
-	tuning = Profile.get_config(car_id)["tuning"].duplicate()
-	_load_controls()
-	_update_stats()
 	_schedule_save()
 
 
@@ -217,13 +195,12 @@ func _focus_first_in_tab() -> void:
 
 
 func _update_stats() -> void:
-	var s := Tuning.stats(car_id, tuning)
-	var stock := Tuning.stats(car_id, CarDefs.default_tuning())
+	var s := Tuning.stats(car_id, CarDefs.default_tuning())
 	for pair in STAT_KEYS:
 		var k: String = pair[0]
 		var bar: StatBar = stat_bars[k]
 		bar.value = float(s.get(k, 0.5))
-		bar.stock = float(stock.get(k, -1.0))
+		bar.stock = -1.0
 	var kmh := float(s.get("top_speed_kmh", 0.0))
 	if Settings.units_mph:
 		top_speed_label.text = "%d mph" % roundi(kmh * 0.621371)
@@ -234,9 +211,6 @@ func _update_stats() -> void:
 
 func _load_controls() -> void:
 	_loading = true
-	for k in CarDefs.TUNING_KEYS:
-		(sliders[k] as HSlider).set_value_no_signal(float(tuning.get(k, 0.0)))
-		slider_values[k].text = _fmt_signed(float(tuning.get(k, 0.0)))
 	for k in style:
 		_reflect_style_key(String(k))
 	_loading = false
@@ -283,7 +257,7 @@ func _build() -> void:
 	showroom = Showroom.new()
 	showroom.screen_offset = -1.9
 	showroom.distance = 8.4
-	showroom.auto_rotate = 0.15
+	showroom.auto_rotate = 0.0   # static; drag to orbit
 	showroom.set_accent(UITheme.CYAN)
 	add_child(showroom)
 
@@ -330,12 +304,11 @@ func _build() -> void:
 	tabs.tab_focus_mode = Control.FOCUS_ALL
 	tabs.add_theme_font_size_override("font_size", 13)
 	left.add_child(tabs)
-	_add_tab(TABS[0], _build_perf_tab())
-	_add_tab(TABS[1], _build_paint_tab())
-	_add_tab(TABS[2], _build_body_tab())
-	_add_tab(TABS[3], _build_wheels_tab())
-	_add_tab(TABS[4], _build_lights_tab())
-	_add_tab(TABS[5], _build_plate_tab())
+	_add_tab(TABS[0], _build_paint_tab())
+	_add_tab(TABS[1], _build_body_tab())
+	_add_tab(TABS[2], _build_wheels_tab())
+	_add_tab(TABS[3], _build_lights_tab())
+	_add_tab(TABS[4], _build_plate_tab())
 	tabs.tab_changed.connect(_on_tab_changed)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 12)
@@ -346,10 +319,6 @@ func _build() -> void:
 	rs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rs.pressed.connect(reset_style)
 	bottom.add_child(rs)
-	var rt := MenuKit.button("RESET TUNING", 0, 48)
-	rt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rt.pressed.connect(reset_tuning)
-	bottom.add_child(rt)
 	left.add_child(bottom)
 
 	# right column: hints on top, stats at the bottom
@@ -422,23 +391,6 @@ func _build_car_picker() -> Control:
 	next_car_btn.pressed.connect(_cycle_car.bind(1))
 	h.add_child(next_car_btn)
 	return p
-
-
-func _build_perf_tab() -> Control:
-	var v := _vbox()
-	v.add_theme_constant_override("separation", 14)
-	for k in CarDefs.TUNING_KEYS:
-		var labels: Array = CarDefs.TUNING_LABELS[k]
-		var row := MenuKit.slider_row(String(labels[0]), String(labels[1]), String(labels[2]), -1.0, 1.0, 0.1)
-		var s: HSlider = row["slider"]
-		s.value_changed.connect(func(val: float) -> void: set_tuning_value(k, val))
-		sliders[k] = s
-		slider_values[k] = row["value"]
-		v.add_child(row["root"])
-	var note := UITheme.label("Every setting is a trade-off. The white tick on each stat bar is stock.", "body", 16, UITheme.TEXT_DIM)
-	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(note)
-	return v
 
 
 func _swatches(v: VBoxContainer, title: String, key: String, colors: Array) -> void:
