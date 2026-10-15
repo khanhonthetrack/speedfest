@@ -221,10 +221,18 @@ static func _mirrors(s: CarShape, kit: MeshKit) -> void:
 	kit.mirror_x = true
 	kit.color = BLACK
 	kit.box("trim", Vector3(x - 0.05, y - 0.045, z + 0.02), Vector3(0.12, 0.05, 0.06))
+	var shell := PackedVector2Array()
+	var lens := PackedVector2Array()
+	for k in 12:
+		var a := TAU * float(k) / 12.0
+		var e := Vector2(cos(a), sin(a))
+		e = e.sign() * Vector2(pow(absf(e.x), 0.7), pow(absf(e.y), 0.7))
+		shell.append(Vector2(x + 0.03 + e.x * 0.078, y + e.y * 0.045))
+		lens.append(Vector2(x + 0.03 + e.x * 0.066, y + e.y * 0.035))
 	kit.color = PAINT
-	kit.box("paint", Vector3(x + 0.03, y, z), Vector3(0.15, 0.085, 0.1), Basis(Vector3.UP, -0.12))
+	kit.prism("paint", Vector3(0, 0, z), shell, Vector3.RIGHT, Vector3.UP, Vector3.BACK, 0.1, true, true)
 	kit.color = CHROME
-	kit.box("chrome", Vector3(x + 0.03, y, z + 0.052), Vector3(0.13, 0.065, 0.006), Basis(Vector3.UP, -0.12))
+	kit.prism("chrome", Vector3(0, 0, z + 0.05), lens, Vector3.RIGHT, Vector3.UP, Vector3.BACK, 0.008, true, false)
 	kit.mirror_x = false
 
 
@@ -386,6 +394,17 @@ static func _veloce_front(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
 	kit.mirror_x = false
 	kit.color = DARK
 	face_patch(s, kit, "trim", false, -0.16, 0.16, yb + 0.04, lerpf(yb, yt, 0.6), 0.004, 2, 1)
+	# slats across the side intakes
+	var it: Array = s.style_k["intake_t"]
+	var ta: float = float(it[0]) + 0.075
+	var tb: float = float(it[1]) - 0.02
+	var tm := (ta + tb) * 0.5
+	kit.mirror_x = true
+	kit.color = GREY
+	for yy in [0.36, 0.44]:
+		var xo := s.side_x(yy, tm) + s.intake_depth(yy, tm) - 0.025
+		kit.box("trim", Vector3(xo, yy, s.z_of(tm)), Vector3(0.03, 0.014, s.z_of(tb) - s.z_of(ta)))
+	kit.mirror_x = false
 	info["headlights"].append(Vector3(-0.68, s.deck_y(0.68, 0.06), s.z_of(0.04)))
 	info["headlights"].append(Vector3(0.68, s.deck_y(0.68, 0.06), s.z_of(0.04)))
 

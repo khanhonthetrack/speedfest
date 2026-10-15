@@ -375,7 +375,7 @@ func _build_glow() -> void:
 		_glow_light.omni_attenuation = 1.2
 		_glow_light.light_energy = 2.0
 		_glow_light.shadow_enabled = false
-		_glow_light.light_specular = 0.2
+		_glow_light.light_specular = 0.05
 		add_child(_glow_light)
 	_update_glow_mode()
 
