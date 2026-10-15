@@ -234,6 +234,39 @@ Per-tick cost of `Car._integrate_forces`: ~70 µs on desktop (AutoDriver ~80 µs
   (`grip_margin 0.72`); bots could go faster.
 - Wheel `spin` for the visuals is integrated per physics tick (not interpolated).
 
+
+## M3 rework support (Trackmania-style tracks)
+
+Supported piece envelope (all 3 cars, 0 air ticks in tests). Sent to the tracks session:
+
+| piece | limits |
+|---|---|
+| wall ride | roll ≤ 85–90°, entry 140–215 km/h (≈ 250 on the wall), full-roll radius ≥ 55 m, roll ramp ≥ 100 m smoothstep (peak twist ≤ ~1.2°/m), horizontal curvature κ(s) ≈ sin(roll(s))/R, linear tilt interpolation |
+| loop | r ≥ 18 m up to ~270 km/h entry (r = 15 m up to ~200) |
+| gap jump | kickers 10–20° at 150–230 km/h, up to 4.5 s of air / 25 m drops, land upright with no bounce even on flat ground |
+| boost pads | `apply_boost` clamps accel ≤ 60 m/s², duration ≤ 4 s, pushes along the road plane, fades 360→420 km/h; hard cap 450 km/h (2.1 m/tick, below the 4 m gate depth; CCD for walls) |
+
+Physics changes for it:
+- **Warp-tolerant suspension**: on a twisting road the front and rear axles sit at different roll
+  angles (twist × wheelbase). Springs are droop-soft (`DROOP_SOFT` = 0.45× rate while extending,
+  same static height), and the anti-roll bars act on the average roll of both axles, so they resist
+  body roll but not warp. Without this, diagonal wheels unloaded and the car got launched on
+  wall-ride entries and exits.
+- **Roll damping relative to the road's twist rate** (smoothed, `ROLL_DAMP`, `TWIST_SMOOTH`) plus a
+  gentle `ROAD_ALIGN` torque, so the car follows wall-ride twists instead of resisting them.
+- **apply_boost**: clamps and fade above. A stronger pad overrides a weaker one, and a weaker pad
+  touched during a strong boost doesn't cut it short.
+- **AutoDriver**: in `wallride` zones (±40 m) it uses Stanley steering and full throttle (it plans
+  speed from road-plane curvature, so a wall ride doesn't ask for braking).
+
+Tests: `test_wallride.tscn` (`--car`, `--roll`, `--ramp`, `--tight_r`, `--fastcap`; four variants:
+R 70 at 142 and 215 km/h entry, R 220 at 150, R 55 at 142), superboost and boost-into-wall cases
+in `test_handling`, and jump variants `--jump_angle`, `--jump_nitro`, `--jump_zone` in `test_stunts`.
+
+TrackPath notes for tracks (my tests override these in `test_path.gd`): lock the right vector
+through steep sections (loop frame twist), and interpolate tilt linearly between control points.
+The stock `_tilt_at` smoothsteps inside every segment, which makes dense tilt points a washboard.
+
 ## Integration requests
 
 1. **TrackPath loop frames (tracks / core, `track_path.gd`)**: on a loop with a lateral shift,
