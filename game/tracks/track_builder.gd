@@ -619,6 +619,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		var neon := Acc.new()
 		var col := Acc.new()
 		var posts: Array[Transform3D] = []
+		var loop_glow := Acc.new()
 		for run in runs_excluding(c0, c1, gaps):
 			var step := RING
 			if in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 5.0):
@@ -633,7 +634,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				frames.append(f)
 				var hw := path.width_at(d) * 0.5
 				top_prof.append(PackedVector2Array([Vector2(-hw, 0), Vector2(hw, 0)]))
-				var depth := ROAD_DEPTH
+				var depth: float = layout.get("road_depth", ROAD_DEPTH)
 				if in_ranges(d, bridge_ranges):
 					depth = 1.8
 				var bottom := -depth
@@ -651,6 +652,15 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				uv2s.append(Vector2(hw, curb))
 			loft(top, frames, ds, top_prof, uv2s)
 			loft(sides, frames, ds, side_prof)
+			if in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 12.0):
+				var glow_r: Array = []
+				var glow_l: Array = []
+				for i in frames.size():
+					var hw3: float = top_prof[i][1].x + 0.02
+					glow_r.append(PackedVector2Array([Vector2(hw3, -0.35), Vector2(hw3, -0.12)]))
+					glow_l.append(PackedVector2Array([Vector2(-hw3, -0.12), Vector2(-hw3, -0.35)]))
+				loft(loop_glow, frames, ds, glow_r)
+				loft(loop_glow, frames, ds, glow_l)
 			loft(col, frames, ds, top_prof)
 			# collision for the slab sides (short) so cars don't snag on edges
 			var cside: Array = []
@@ -684,6 +694,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		var mesh := ArrayMesh.new()
 		top.commit(mesh, road_mat)
 		sides.commit(mesh, side_mat)
+		loop_glow.commit(mesh, material("neon_magenta"))
 		match style:
 			"neon":
 				wall.commit(mesh, material("barrier_neon_body"))
@@ -796,16 +807,20 @@ static func _build_tunnel(root: Node3D, path: TrackPath, d0: float, d1: float, s
 	var lights_r: Array = []
 	for d in ds:
 		frames.append(path.sample_transform(d))
-		var hw := path.width_at(d) * 0.5 + 1.2
+		var rw := path.width_at(d) * 0.5
+		var hw := rw + 1.2
 		var ip := PackedVector2Array()
-		# inner arch, ordered so normals face inward (right wall bottom -> top -> left wall bottom)
-		ip.append(Vector2(hw, -0.3))
+		# inner arch, ordered so normals face inward: right shoulder -> right wall -> over the
+		# top -> left wall -> left shoulder. The shoulders close the gap to the road edge.
+		ip.append(Vector2(rw - 0.05, -0.02))
+		ip.append(Vector2(hw, -0.02))
 		ip.append(Vector2(hw, 5.0))
 		for k in range(1, 8):
 			var a := PI * k / 8.0
 			ip.append(Vector2(hw * cos(a), 5.0 + 3.2 * sin(a)))
 		ip.append(Vector2(-hw, 5.0))
-		ip.append(Vector2(-hw, -0.3))
+		ip.append(Vector2(-hw, -0.02))
+		ip.append(Vector2(-rw + 0.05, -0.02))
 		inner.append(ip)
 		var oh := hw + 1.6
 		outer.append(PackedVector2Array([Vector2(-oh, -0.5), Vector2(-oh, 9.4), Vector2(oh, 9.4), Vector2(oh, -0.5)]))
@@ -839,10 +854,10 @@ static func _build_tunnel(root: Node3D, path: TrackPath, d0: float, d1: float, s
 		var top := 9.4
 		# collect quads as (x0, y0_low, x1, y1_low) -> top; plus side columns
 		var cols := []
-		for k in range(1, ip.size() - 2):
+		for k in range(2, ip.size() - 3):
 			cols.append([ip[k], ip[k + 1]])
-		cols.append([Vector2(-oh, -0.5), Vector2(ip[ip.size() - 1].x, -0.5)])
-		cols.append([Vector2(ip[0].x, -0.5), Vector2(oh, -0.5)])
+		cols.append([Vector2(-oh, -0.5), Vector2(ip[ip.size() - 2].x, -0.5)])
+		cols.append([Vector2(ip[1].x, -0.5), Vector2(oh, -0.5)])
 		for cpair in cols:
 			var p0: Vector2 = cpair[0]
 			var p1: Vector2 = cpair[1]
@@ -918,7 +933,8 @@ static func build_supports(root: Node3D, data: Dictionary, layout: Dictionary) -
 		var base_y := ground_y
 		var ok := false
 		if ground_kind == "terrain":
-			ok = in_ranges(d, bridges)
+			# pillars only near the ends; the arch carries the main span
+			ok = in_ranges(d, bridges) and not in_ranges(d, _shrink(bridges, ARCH_INSET + 8.0))
 			base_y = -9.0
 		else:
 			ok = f.origin.y - ground_y > 6.0
@@ -957,6 +973,9 @@ static func build_supports(root: Node3D, data: Dictionary, layout: Dictionary) -
 				var cap_c := f * Vector3(0, -ROAD_DEPTH - 0.4, 0)
 				caps.append(Transform3D(f.basis.scaled_local(Vector3(hw * 1.6, 0.8, 1.8)), cap_c))
 		d += spacing if ground_kind != "terrain" else 34.0
+	if ground_kind == "terrain":
+		for b in bridges:
+			_build_arch_bridge(root, path, b[0] + ARCH_INSET, b[1] - ARCH_INSET)
 	if pillars.is_empty():
 		body.free()
 		return
@@ -1083,8 +1102,8 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 	var mesh := ArrayMesh.new()
 	var fm := shader_material("res://shaders/track_floor.gdshader", {
 		"base_color": Color(0.05, 0.05, 0.07) if kind == "arena" else Color(0.07, 0.07, 0.08),
-		"grid_color": Color(0.35, 0.1, 1.0) if kind == "arena" else Color(0.0, 0.0, 0.0),
-		"grid_energy": 1.6 if kind == "arena" else 0.0,
+		"grid_color": Color(0.45, 0.15, 1.0) if kind == "arena" else Color(0.0, 0.0, 0.0),
+		"grid_energy": 0.7 if kind == "arena" else 0.0,
 		"wetness": 0.8 if layout.get("wet", false) else 0.15,
 		"tile": 20.0 if kind == "arena" else 6.0,
 	})
@@ -1104,7 +1123,7 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 ## and a mountain covers the tunnel.
 static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) -> void:
 	var path: TrackPath = data["path"]
-	var rect := path_bbox(path, 320.0)
+	var rect := path_bbox(path, 300.0)
 	var cell := 10.0
 	var nx := ceili(rect.size.x / cell) + 1
 	var nz := ceili(rect.size.y / cell) + 1
@@ -1118,7 +1137,7 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 	lat.resize(count)
 	var dd := PackedFloat32Array()
 	dd.resize(count)
-	var radius := 330.0
+	var radius := 320.0
 	var rc := ceili(radius / cell)
 	var d := 0.0
 	while d <= path.length:
@@ -1166,9 +1185,10 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 			var hw := path.width_at(dd[k]) * 0.5
 			var e := maxf(0.0, dist - hw - 4.0)
 			var base: float = ry[k] - 1.6
+			var fall := 1.0 - smoothstep(radius - 110.0, radius - 10.0, dist)
 			if lat[k] < 0.0:
-				h = base + e * 0.62 + absf(n) * minf(e, 60.0) * 0.5
-				h = minf(h, base + 90.0 + n * 20.0)
+				var rise := 78.0 * (1.0 - exp(-e / 70.0)) + absf(n) * minf(e, 60.0) * 0.55
+				h = lerpf(-14.0, base + rise, fall) if fall < 1.0 else base + rise
 			else:
 				h = base - e * 0.55 + n * minf(e, 40.0) * 0.2
 				h = maxf(h, -12.0 + n * 3.0)
@@ -1180,8 +1200,8 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 				bf = maxf(bf, smoothstep(b[0] - 30.0, b[0] + 30.0, dd[k]) * (1.0 - smoothstep(b[1] - 30.0, b[1] + 30.0, dd[k])))
 			if bf > 0.0:
 				var bay := -10.0 + n * 2.0
-				if lat[k] < 0.0 and e > 160.0:
-					bay = h
+				if lat[k] < 0.0:
+					bf *= 1.0 - smoothstep(90.0, 230.0, e)
 				h = lerpf(h, bay, bf)
 			# mountain over the tunnel
 			for t in zones_t:
@@ -1190,9 +1210,21 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 					var m: float = ry[k] + 14.0 + absf(n) * 18.0 + e * 0.3
 					h = lerpf(h, maxf(h, m), tf)
 		heights[k] = h
+	# smooth seams between path sections, keeping the road bed fixed
+	for _pass in 3:
+		var src := heights.duplicate()
+		for iz in range(1, nz - 1):
+			for ix in range(1, nx - 1):
+				var k := iz * nx + ix
+				if best[k] > 1e11:
+					continue
+				var hwk := path.width_at(dd[k]) * 0.5 + 6.0
+				if best[k] < hwk * hwk:
+					continue
+				heights[k] = (src[k] * 4.0 + src[k - 1] + src[k + 1] + src[k - nx] + src[k + nx]) / 8.0
 	# chunked mesh
 	var mat := shader_material("res://shaders/track_terrain.gdshader")
-	var csz := 24
+	var csz := 40
 	var terr := Node3D.new()
 	terr.name = "Terrain"
 	root.add_child(terr)
@@ -1215,11 +1247,95 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 			for iz in range(0, ez - bz):
 				for ix in range(0, ex - bx):
 					var a := iz * w + ix
+					var k0 := (bz + iz) * nx + bx + ix
+					if best[k0] > 1e11 or best[k0 + 1] > 1e11 or best[k0 + nx] > 1e11 or best[k0 + nx + 1] > 1e11:
+						continue
 					# a=(x,z) b=(x,z+1) ... clockwise from above: (x,z+1),(x,z),(x+1,z),(x+1,z+1)
 					acc.quad(a + w, a, a + 1, a + w + 1)
+			if acc.is_empty():
+				continue
 			var mesh := ArrayMesh.new()
 			acc.commit(mesh, mat)
 			var mi := MeshInstance3D.new()
 			mi.mesh = mesh
 			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			terr.add_child(mi)
+
+
+
+const ARCH_INSET := 14.0
+
+
+static func _shrink(ranges: Array, by: float) -> Array:
+	var out := []
+	for r in ranges:
+		if r[1] - r[0] > by * 2.0:
+			out.append([r[0] + by, r[1] - by])
+	return out
+
+
+## Two steel arches over the deck with hangers and top bracing (tied-arch bridge).
+static func _build_arch_bridge(root: Node3D, path: TrackPath, d0: float, d1: float) -> void:
+	var span := d1 - d0
+	var rise := clampf(span * 0.13, 18.0, 46.0)
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = Color(0.78, 0.24, 0.1)
+	steel.metallic = 0.35
+	steel.roughness = 0.45
+	var acc := Acc.new()
+	var hangers: Array[Transform3D] = []
+	var n := 64
+	var arch_pts := {}
+	for side in [-1.0, 1.0]:
+		var pts: Array[Vector3] = []
+		for i in n + 1:
+			var t := float(i) / n
+			var d := lerpf(d0, d1, t)
+			var f := path.sample_transform(d)
+			var off := path.width_at(d) * 0.5 + 1.4
+			pts.append(f.origin + f.basis.x * off * side + Vector3.UP * (rise * 4.0 * t * (1.0 - t) - 0.8))
+		arch_pts[side] = pts
+		var frames: Array[Transform3D] = []
+		var ds := PackedFloat32Array()
+		var profs: Array = []
+		for i in pts.size():
+			var tan := (pts[mini(i + 1, n)] - pts[maxi(i - 1, 0)]).normalized()
+			var right := tan.cross(Vector3.UP).normalized()
+			var up := right.cross(tan).normalized()
+			frames.append(Transform3D(Basis(right, up, -tan), pts[i]))
+			ds.append(float(i))
+			var thick := lerpf(2.2, 1.3, sin(PI * float(i) / n))
+			profs.append(PackedVector2Array([Vector2(-0.6, -thick * 0.5), Vector2(-0.6, thick * 0.5), Vector2(0.6, thick * 0.5), Vector2(0.6, -thick * 0.5)]))
+		loft(acc, frames, ds, profs, PackedVector2Array(), true)
+		# hangers every 4th sample (skip the ends)
+		for i in range(4, n - 3, 3):
+			var top: Vector3 = pts[i]
+			var d := lerpf(d0, d1, float(i) / n)
+			var f := path.sample_transform(d)
+			var off := path.width_at(d) * 0.5 + 1.4
+			var foot: Vector3 = f.origin + f.basis.x * off * side
+			var h: float = top.y - foot.y
+			if h < 2.0:
+				continue
+			hangers.append(Transform3D(Basis.IDENTITY.scaled(Vector3(0.18, h, 0.18)), (top + foot) * 0.5))
+	# top bracing between the arches where they are high enough to clear traffic
+	var left: Array = arch_pts[-1.0]
+	var right_pts: Array = arch_pts[1.0]
+	for i in range(10, n - 9, 6):
+		var a: Vector3 = left[i]
+		var b: Vector3 = right_pts[i]
+		if a.y - path.sample_position(lerpf(d0, d1, float(i) / n)).y < 9.0:
+			continue
+		var c := (a + b) * 0.5
+		var x := (b - a)
+		var bas := Basis(x.normalized(), Vector3.UP, x.normalized().cross(Vector3.UP)).orthonormalized()
+		acc.box(Transform3D(bas, c), Vector3(x.length(), 0.8, 0.8))
+		# X bracing between consecutive braces is omitted for the triangle budget
+	var mesh := ArrayMesh.new()
+	acc.commit(mesh, steel)
+	var mi := MeshInstance3D.new()
+	mi.name = "ArchBridge"
+	mi.mesh = mesh
+	root.add_child(mi)
+	if not hangers.is_empty():
+		_add_multimesh(root, _box_mesh(Vector3.ONE), hangers, material("metal"), "Hangers")

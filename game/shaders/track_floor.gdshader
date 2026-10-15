@@ -24,15 +24,15 @@ void fragment() {
 	vec2 p = UV;
 	vec2 g = abs(fract(p / tile - 0.5) - 0.5) * tile;
 	vec2 fw = max(fwidth(p), vec2(0.001));
-	float line = 1.0 - smoothstep(0.0, fw.x * 1.5 + 0.06, min(g.x, g.y));
+	float line = 1.0 - smoothstep(0.0, fw.x * 1.2 + 0.03, min(g.x, g.y));
 	float n = vnoise(p * 0.15) * 0.6 + vnoise(p * 1.3) * 0.4;
 	vec3 col = base_color.rgb * (0.8 + 0.4 * n);
 	float slab = 1.0 - smoothstep(0.0, fw.x * 1.5 + 0.04, min(g.x, g.y));
 	col *= 1.0 - 0.35 * slab;
-	float puddle = smoothstep(0.5, 0.7, vnoise(p * 0.07));
-	float wet = wetness * (0.6 + 0.4 * puddle);
-	ALBEDO = col * (1.0 - 0.3 * wet);
-	ROUGHNESS = mix(0.85, 0.08, wet);
-	float fade = 1.0 - smoothstep(150.0, 600.0, length(VERTEX));
-	EMISSION = grid_color.rgb * line * grid_energy * (0.6 + 0.4 * fade);
+	float puddle = smoothstep(0.55, 0.75, vnoise(p * 0.11) * 0.7 + vnoise(p * 0.5) * 0.3);
+	float wet = wetness * (0.75 + 0.25 * puddle);
+	ALBEDO = col * (1.0 - 0.25 * wet);
+	ROUGHNESS = mix(0.85, 0.18, wet) - 0.1 * puddle * wetness;
+	float fade = 1.0 - smoothstep(60.0, 420.0, length(VERTEX));
+	EMISSION = grid_color.rgb * line * grid_energy * fade;
 }

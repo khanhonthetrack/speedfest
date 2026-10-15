@@ -3,8 +3,8 @@ shader_type spatial;
 // UV = world XZ.
 
 uniform vec4 sand : source_color = vec4(0.72, 0.6, 0.42, 1.0);
-uniform vec4 grass : source_color = vec4(0.32, 0.36, 0.17, 1.0);
-uniform vec4 scrub : source_color = vec4(0.2, 0.25, 0.12, 1.0);
+uniform vec4 grass : source_color = vec4(0.42, 0.4, 0.2, 1.0);
+uniform vec4 scrub : source_color = vec4(0.22, 0.26, 0.13, 1.0);
 uniform vec4 rock : source_color = vec4(0.42, 0.34, 0.29, 1.0);
 uniform vec4 rock_dark : source_color = vec4(0.24, 0.2, 0.18, 1.0);
 

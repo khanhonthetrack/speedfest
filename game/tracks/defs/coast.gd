@@ -13,6 +13,7 @@ func layout() -> Dictionary:
 		"wall_style": "guardrail",
 		"ground": "terrain",
 		"kill_y": -3.0,
+		"road_depth": 2.6,
 		"ground_y": 0.0,
 		"wet": false,
 		"segments": [
