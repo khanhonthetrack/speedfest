@@ -139,3 +139,20 @@ date, who (module/agent), what changed, what's next or blocked.
   spray, splash sounds.
 - Results: analog AutoDriver 9/9 clean in default weather and in storm; keyboard emulation 13/18
   (unchanged); online 3-client storm round PASS; server tests 12/12; weather test 38/38.
+
+## 2026-10-15 ~08:40 UTC — M5 visual upgrade started (orchestrator #3)
+
+- Owner: the graphics look trivial and the menus look "mobiley". Path tracing is parked until
+  they're at their RTX PC; focus on real art + lighting (mainline Godot) and an NFSU2-style 3D front end.
+- Baseline at Ultra (Forward+): faceted procedural cars with flat paint, box buildings with pasted
+  window squares, a black wet road with no visible reflections, and a black-void showroom
+  behind flat chip panels.
+- Fixed on `main` for tonight (web build re-exported): tire-spray mist drew as grey squares (now
+  soft round puffs), and the PB ghost filled the screen when right behind the camera (now fades
+  within ~12 m).
+- Tooling: Blender 5.2.2 as a Python module in `/opt/bpyenv` (headless Cycles renders + glTF export
+  verified). CC0 sources ambientCG and Poly Haven are reachable. docs/ASSETS.md tracks every asset.
+- Launched 3 parallel agents (own worktrees): `visual/cars` (Blender hero cars behind the
+  CarVisual API), `visual/world` (reflections, PBR textures, facades, HDRI, GI/fog, grade and post,
+  presets), `visual/frontend` (3D garage front end). Integration follows.
+
