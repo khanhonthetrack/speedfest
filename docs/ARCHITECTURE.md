@@ -188,7 +188,19 @@ func send_chat(text: String) -> void
 func local_ms() -> int                                 # Time.get_ticks_msec()
 func server_to_local_ms(server_ms: int) -> int
 func get_player(id: int) -> Dictionary
+# --- additions (networking module, merged) ---
+signal player_checkpoint(id: int, cp: int, ms: int)                         # another player passed a checkpoint
+signal finish_result(accepted: bool, ms: int, best_ms: int, reason: String)  # server verdict on send_finish
+var current_round: Dictionary                      # last round_started payload ({} when none)
+var leaderboard: Array                             # last leaderboard entries
+var last_results: Array                            # last round_ended results
+var ping_ms: int                                   # smoothed round-trip time, -1 until measured
+func connection_state() -> String                  # "offline" | "connecting" | "online"
+func server_now_ms() -> int                        # current server time estimate
+func round_time_left_ms() -> int                   # ms left in the round (0 = over, -1 = no round)
 ```
+`player_state` snapshots also carry `"rx_ms"` (the local receive time) for interpolation.
+`rooms_listed` entries also carry `max_players` and `host_name`.
 
 ### Audio (audio module)
 ```gdscript
