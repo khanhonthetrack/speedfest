@@ -137,6 +137,7 @@ var surface: TrackSurface = null
 var grind: TrackRail = null
 var _water := PackedFloat32Array([0, 0, 0, 0])
 var _ground := PackedInt32Array([0, 0, 0, 0])      # TrackSurface kind under each wheel (0 asphalt)
+var _loose_grip := 0.0                               # params "loose_grip": rally tires on grass/gravel/sand
 var _water_avg := 0.0
 
 
@@ -154,6 +155,7 @@ static func create(p_config: Dictionary) -> Car:
 func _setup() -> void:
 	car_id = String(config["car"])
 	params = Tuning.physics_params(car_id, config["tuning"])
+	_loose_grip = float(params.get("loose_grip", 0.0))
 	var g := CarDefs.geometry(car_id)
 	_radius = g["wheel_radius"]
 	_wheelbase = g["wheelbase"]
@@ -679,7 +681,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			# grass / gravel / sand (session 4): less grip, more rolling drag
 			if not surface.patches.is_empty():
 				_ground[i] = surface.kind_at(_hit_pos[i])
-				sgrip *= TrackSurface.KIND_GRIP[_ground[i]]
+				sgrip *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, _loose_grip)
 		# longitudinal
 		var f_long := 0.0
 		if i >= 2 or drive_awd:
@@ -713,7 +715,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var wd := minf(surface.drag_for_water(_water[i]) * cm, absf(v_long) * cm / dt * 0.5)
 			f_long -= signf(v_long) * wd
 		if _ground[i] > 0:
-			var gd := minf(TrackSurface.KIND_DRAG[_ground[i]] * cm, absf(v_long) * cm / dt * 0.5)
+			var gd := minf(TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * cm, absf(v_long) * cm / dt * 0.5)
 			f_long -= signf(v_long) * gd
 		# lateral (slip-angle curve)
 		var mu := grip

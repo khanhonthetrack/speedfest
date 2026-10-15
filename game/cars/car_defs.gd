@@ -1,10 +1,11 @@
 class_name CarDefs
 extends RefCounted
-## Static definitions of the three cars: identity, shared geometry, part counts, default style.
+## Static definitions of the cars: identity, shared geometry, part counts, default style.
+## kaze/brute/veloce (M1) + kitsune/pixie/goliath (session 6: "different types of cars").
 ## Geometry is shared by physics (cars/car.gd) and visuals (cars/visual/). Changing it requires
 ## updating both. See docs/ARCHITECTURE.md "Coordinate conventions".
 
-const IDS: Array[String] = ["kaze", "brute", "veloce"]
+const IDS: Array[String] = ["kaze", "brute", "veloce", "kitsune", "pixie", "goliath"]
 
 const TUNING_KEYS: Array[String] = ["gearing", "turbo", "downforce", "suspension", "balance", "steering", "nitro"]
 
@@ -90,6 +91,63 @@ const DEFS := {
 			"rims": 3, "rim_color": "#2b2b2b", "caliper": "#ffd400",
 			"underglow": "#a6ff00", "underglow_mode": "off", "tint": 0.5,
 			"headlight": "#dfe9ff", "ride_height": -0.1, "plate": "VELOCE",
+		},
+	},
+	"kitsune": {
+		"name": "Kitsune R4",
+		"archetype": "Rally Hatch",
+		"blurb": "Turbo AWD hatch on long-travel springs. Grass, gravel and sand barely slow it.",
+		"drive": "awd",
+		"geometry": {
+			"length": 4.10, "width": 1.80, "height": 1.44,
+			"wheelbase": 2.50, "track_front": 1.54, "track_rear": 1.54,
+			"wheel_radius": 0.33, "wheel_width": 0.225,
+			"ground_clearance": 0.19,
+		},
+		"default_style": {
+			"paint": "#f2f4f7", "finish": "gloss", "accent": "#1446d8", "livery": "side_stripe",
+			"hood": 2, "hood_carbon": false, "front": 1, "rear": 1, "skirts": 0, "spoiler": 3,
+			"rims": 1, "rim_color": "#d9a400", "caliper": "#1446d8",
+			"underglow": "#00e5ff", "underglow_mode": "off", "tint": 0.55,
+			"headlight": "#fff6d8", "ride_height": 0.6, "plate": "KITSUNE",
+		},
+	},
+	"pixie": {
+		"name": "Pixie S",
+		"archetype": "Kei Roadster",
+		"blurb": "Tiny, featherweight and glued to the road. The lowest top speed, the sharpest turn-in.",
+		"drive": "rwd",
+		"geometry": {
+			"length": 3.60, "width": 1.62, "height": 1.14,
+			"wheelbase": 2.28, "track_front": 1.40, "track_rear": 1.40,
+			"wheel_radius": 0.29, "wheel_width": 0.205,
+			"ground_clearance": 0.11,
+		},
+		"default_style": {
+			"paint": "#36d6a0", "finish": "pearl", "accent": "#f4f1e6", "livery": "two_tone",
+			"hood": 0, "hood_carbon": false, "front": 0, "rear": 0, "skirts": 1, "spoiler": 1,
+			"rims": 4, "rim_color": "#f0f0f0", "caliper": "#d01010",
+			"underglow": "#ff2bd6", "underglow_mode": "static", "tint": 0.4,
+			"headlight": "#e6f2ff", "ride_height": -0.3, "plate": "PIXIE",
+		},
+	},
+	"goliath": {
+		"name": "Goliath HD",
+		"archetype": "Pickup Truck",
+		"blurb": "Two tons of 4x4 torque with the biggest nitro tank. Lands anything, turns in late.",
+		"drive": "awd",
+		"geometry": {
+			"length": 5.30, "width": 2.04, "height": 1.80,
+			"wheelbase": 3.30, "track_front": 1.72, "track_rear": 1.72,
+			"wheel_radius": 0.42, "wheel_width": 0.31,
+			"ground_clearance": 0.27,
+		},
+		"default_style": {
+			"paint": "#7a1418", "finish": "metallic", "accent": "#1a1a1a", "livery": "fade",
+			"hood": 2, "hood_carbon": false, "front": 1, "rear": 0, "skirts": 0, "spoiler": 0,
+			"rims": 2, "rim_color": "#2a2a2a", "caliper": "#ffb300",
+			"underglow": "#ffb300", "underglow_mode": "off", "tint": 0.7,
+			"headlight": "#fff3d6", "ride_height": 0.5, "plate": "GOLIATH",
 		},
 	},
 }

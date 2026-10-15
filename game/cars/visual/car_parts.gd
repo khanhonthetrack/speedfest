@@ -34,6 +34,15 @@ static func build(s: CarShape, kit: MeshKit, style: Dictionary) -> Dictionary:
 		"veloce":
 			_veloce_front(s, kit, info)
 			_veloce_rear(s, kit, info)
+		"kitsune":
+			_kitsune_front(s, kit, info)
+			_kitsune_rear(s, kit, info)
+		"pixie":
+			_pixie_front(s, kit, info)
+			_pixie_rear(s, kit, info)
+		"goliath":
+			_goliath_front(s, kit, info)
+			_goliath_rear(s, kit, info)
 		_:
 			_kaze_front(s, kit, info)
 			_kaze_rear(s, kit, info)
@@ -429,6 +438,134 @@ static func _veloce_rear(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
 	s.style_k["plate_y"] = lerpf(yb, yt, 0.3)
 	for xo in [-0.075, 0.075]:
 		_exhaust(s, kit, info, xo, lerpf(yb, yt, 0.69), 0.05)
+
+
+static func _kitsune_front(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
+	# twin round headlights, a black mesh grille and the rally signature: four spot lamps on a bar
+	var yb := s.bot(0.0)
+	var yt := s.crown(0.0)
+	var ly := lerpf(yb, yt, 0.72)
+	kit.color = BLACK
+	face_patch(s, kit, "trim", false, -0.38, 0.38, lerpf(yb, yt, 0.5), lerpf(yb, yt, 0.86), 0.005, 6, 1)
+	for side in [-1.0, 1.0]:
+		round_lamp(s, kit, false, side * 0.6, ly, 0.075, L_HEAD)
+		info["headlights"].append(Vector3(side * 0.6, ly, face_z(s, false, 0.6, ly) - 0.02))
+	# lamp bar across the lower bumper with four round spots
+	var by := yb + 0.1
+	kit.color = DARK
+	face_patch(s, kit, "trim", false, -0.62, 0.62, by - 0.05, by + 0.05, 0.03, 8, 1)
+	for xo in [-0.45, -0.15, 0.15, 0.45]:
+		round_lamp(s, kit, false, xo, by, 0.052, L_HEAD)
+	kit.mirror_x = true
+	kit.color = L_AMBER
+	face_patch(s, kit, "lights", false, 0.7, 0.8, lerpf(yb, yt, 0.55), lerpf(yb, yt, 0.68), 0.008, 1, 1)
+	kit.mirror_x = false
+
+
+static func _kitsune_rear(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
+	var yb := s.bot(1.0)
+	var yt := s.belt(1.0)
+	# tall taillights up the hatch corners, a black bumper strip and one big exhaust
+	kit.mirror_x = true
+	kit.color = L_TAIL
+	face_patch(s, kit, "lights", true, 0.58, 0.78, lerpf(yb, yt, 0.45), lerpf(yb, yt, 0.95), 0.008, 2, 2)
+	kit.color = L_REV
+	face_patch(s, kit, "lights", true, 0.5, 0.57, lerpf(yb, yt, 0.45), lerpf(yb, yt, 0.6), 0.008, 1, 1)
+	kit.mirror_x = false
+	kit.color = BLACK
+	face_patch(s, kit, "trim", true, -0.84, 0.84, yb + 0.02, yb + 0.12, 0.012, 8, 1)
+	s.style_k["plate_y"] = lerpf(yb, yt, 0.38)
+	_exhaust(s, kit, info, 0.45, yb + 0.05, 0.06)
+
+
+static func _pixie_front(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
+	# frog-eye lamps high on the nose and a small smiling grille
+	var yb := s.bot(0.0)
+	var yt := s.crown(0.0)
+	var ly := lerpf(yb, yt, 0.82)
+	for side in [-1.0, 1.0]:
+		round_lamp(s, kit, false, side * 0.46, ly, 0.08, L_HEAD)
+		info["headlights"].append(Vector3(side * 0.46, ly, face_z(s, false, 0.46, ly) - 0.02))
+	kit.color = BLACK
+	face_patch(s, kit, "trim", false, -0.26, 0.26, lerpf(yb, yt, 0.32), lerpf(yb, yt, 0.5), 0.005, 6, 1)
+	kit.color = CHROME
+	face_patch(s, kit, "chrome", false, -0.28, 0.28, lerpf(yb, yt, 0.3), lerpf(yb, yt, 0.33), 0.008, 6, 1)
+	kit.mirror_x = true
+	kit.color = L_AMBER
+	face_patch(s, kit, "lights", false, 0.5, 0.62, lerpf(yb, yt, 0.36), lerpf(yb, yt, 0.46), 0.006, 1, 1)
+	kit.mirror_x = false
+
+
+static func _pixie_rear(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
+	var yb := s.bot(1.0)
+	var yt := s.belt(1.0)
+	var ly := lerpf(yb, yt, 0.7)
+	kit.mirror_x = true
+	for xo in [0.56, 0.38]:
+		round_lamp(s, kit, true, xo, ly, 0.055, L_TAIL, false)
+	kit.color = L_REV
+	face_patch(s, kit, "lights", true, 0.2, 0.28, lerpf(yb, yt, 0.62), lerpf(yb, yt, 0.76), 0.008, 1, 1)
+	kit.mirror_x = false
+	kit.color = CHROME
+	face_patch(s, kit, "chrome", true, -0.7, 0.7, yb + 0.05, yb + 0.08, 0.012, 6, 1)
+	s.style_k["plate_y"] = lerpf(yb, yt, 0.35)
+	_exhaust(s, kit, info, -0.4, yb + 0.04, 0.035)
+
+
+static func _goliath_front(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
+	# tall chrome grille with heavy bars, square headlights, a steel bumper and a roof light bar
+	var yb := s.bot(0.0)
+	var yt := s.belt(0.0)
+	var g0 := lerpf(yb, yt, 0.42)
+	var g1 := lerpf(yb, yt, 0.92)
+	kit.color = CHROME
+	face_patch(s, kit, "chrome", false, -0.62, 0.62, g0 - 0.03, g1 + 0.03, 0.004, 8, 1)
+	kit.color = DARK
+	face_patch(s, kit, "trim", false, -0.58, 0.58, g0, g1, 0.008, 8, 1)
+	kit.color = CHROME
+	for k in 3:
+		var yy := lerpf(g0, g1, (float(k) + 1.0) / 4.0)
+		face_patch(s, kit, "chrome", false, -0.58, 0.58, yy - 0.012, yy + 0.012, 0.016, 6, 1)
+	var ly := lerpf(g0, g1, 0.62)
+	kit.mirror_x = true
+	kit.color = L_HEAD
+	face_patch(s, kit, "lights", false, 0.66, 0.9, ly - 0.07, ly + 0.07, 0.008, 2, 1)
+	kit.color = L_AMBER
+	face_patch(s, kit, "lights", false, 0.66, 0.9, ly - 0.13, ly - 0.09, 0.008, 2, 1)
+	kit.mirror_x = false
+	for side in [-1.0, 1.0]:
+		info["headlights"].append(Vector3(side * 0.78, ly, face_z(s, false, 0.78, ly) - 0.02))
+	# steel bumper
+	kit.color = GREY
+	face_patch(s, kit, "trim", false, -0.98, 0.98, yb + 0.02, g0 - 0.06, 0.05, 10, 1)
+	# roof light bar (above the windshield)
+	var tr := float(s.gh["ws_top"]) + 0.012
+	var ry := float(s.gh["roof_y"]) + 0.05
+	kit.color = DARK
+	kit.box("trim", Vector3(0, ry, s.z_of(tr)), Vector3(1.2, 0.07, 0.1))
+	kit.color = L_HEAD
+	for k in 6:
+		var x := -0.5 + 0.2 * float(k)
+		kit.box("lights", Vector3(x, ry, s.z_of(tr) - 0.052), Vector3(0.14, 0.045, 0.01))
+
+
+static func _goliath_rear(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
+	var yb := s.bot(1.0)
+	var yt := s.belt(1.0)
+	# tall taillights on the bed corners, a dark tailgate band and twin pipes under the bumper
+	kit.mirror_x = true
+	kit.color = L_TAIL
+	face_patch(s, kit, "lights", true, 0.82, 0.96, lerpf(yb, yt, 0.45), lerpf(yb, yt, 0.95), 0.008, 1, 3)
+	kit.color = L_REV
+	face_patch(s, kit, "lights", true, 0.82, 0.96, lerpf(yb, yt, 0.36), lerpf(yb, yt, 0.44), 0.008, 1, 1)
+	kit.mirror_x = false
+	kit.color = DARK
+	face_patch(s, kit, "trim", true, -0.6, 0.6, lerpf(yb, yt, 0.78), lerpf(yb, yt, 0.84), 0.004, 6, 1)
+	kit.color = GREY
+	face_patch(s, kit, "trim", true, -0.98, 0.98, yb + 0.02, yb + 0.14, 0.04, 10, 1)
+	s.style_k["plate_y"] = lerpf(yb, yt, 0.42)
+	for side in [-1.0, 1.0]:
+		_exhaust(s, kit, info, side * 0.62, yb + 0.03, 0.05)
 
 
 # --- style parts --------------------------------------------------------------

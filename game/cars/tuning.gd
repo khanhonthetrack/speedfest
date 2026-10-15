@@ -86,6 +86,7 @@ static func physics_params(car_id: String, tuning: Dictionary) -> Dictionary:
 	p["nitro_accel"] = float(b["nitro_accel"]) * (1.0 + 0.35 * nitro)
 	p["nitro_time"] = float(b["nitro_time"]) * (1.0 - 0.45 * nitro)
 	p["cg_height"] = b["cg_height"]
+	p["loose_grip"] = clampf(float(b.get("loose_grip", 0.0)), 0.0, 1.0)
 	return p
 
 

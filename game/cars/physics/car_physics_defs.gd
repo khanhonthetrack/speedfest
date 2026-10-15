@@ -104,6 +104,98 @@ const BASE := {
 		"power_oversteer": 0.0,
 		"cg_height": 0.06,
 	},
+	# session 6: three new types. "loose_grip" (0..1) wins back that fraction of the grip lost on
+	# grass/gravel/sand and 60% of it as drag (res://weather/track_surface.gd KIND_GRIP/KIND_DRAG).
+	"kitsune": {
+		"mass": 1250.0,
+		"power": 300000.0,
+		"v_top": 74.5,              # ~268 km/h: a rally car, not a missile
+		"gear6_over_top": 1.02,
+		"torque_low": 0.95,         # anti-lag turbo: pulls from nothing
+		"torque_peak_u": 0.52,
+		"weight_front": 0.58,
+		"grip": 1.52,
+		"grip_long": 1.75,
+		"traction": 1.30,
+		"slip_peak_deg": 8.5,
+		"rear_slide": 0.72,
+		"front_slide": 0.86,
+		"rear_grip_bias": 0.98,
+		"downforce": 1.05,
+		"spring_hz": 1.65,          # long, soft travel: soaks up landings
+		"damping": 0.40,
+		"anti_roll": 0.42,
+		"steer_max_deg": 35.0,
+		"steer_speed": 1.1,
+		"brake_g": 1.28,
+		"nitro_accel": 7.0,
+		"nitro_time": 5.5,
+		"drift_assist": 1.15,
+		"yaw_damp": 1.05,
+		"power_oversteer": 0.2,
+		"cg_height": 0.16,
+		"loose_grip": 0.75,
+	},
+	"pixie": {
+		"mass": 820.0,
+		"power": 205000.0,
+		"v_top": 71.0,              # ~256 km/h: the slowest top end
+		"gear6_over_top": 1.02,
+		"torque_low": 0.78,
+		"torque_peak_u": 0.70,
+		"weight_front": 0.50,
+		"grip": 1.82,               # the most grip ...
+		"grip_long": 1.88,
+		"traction": 1.85,
+		"slip_peak_deg": 7.0,
+		"rear_slide": 0.78,
+		"front_slide": 0.90,
+		"rear_grip_bias": 1.03,
+		"downforce": 0.95,
+		"spring_hz": 2.5,
+		"damping": 0.46,
+		"anti_roll": 0.62,
+		"steer_max_deg": 36.0,      # ... and the sharpest steering
+		"steer_speed": 1.3,
+		"brake_g": 1.48,
+		"nitro_accel": 6.0,
+		"nitro_time": 7.0,          # small bottle, long burn
+		"drift_assist": 0.9,
+		"yaw_damp": 1.1,
+		"power_oversteer": 0.15,
+		"cg_height": 0.03,
+		"loose_grip": 0.0,
+	},
+	"goliath": {
+		"mass": 2250.0,
+		"power": 520000.0,
+		"v_top": 73.0,              # ~263 km/h
+		"gear6_over_top": 1.02,
+		"torque_low": 1.10,         # diesel-ish wall of torque
+		"torque_peak_u": 0.38,
+		"weight_front": 0.56,
+		"grip": 1.40,
+		"grip_long": 1.62,
+		"traction": 1.28,
+		"slip_peak_deg": 9.0,
+		"rear_slide": 0.72,
+		"front_slide": 0.86,
+		"rear_grip_bias": 1.0,
+		"downforce": 1.20,
+		"spring_hz": 1.45,          # soft and tall: lands anything
+		"damping": 0.44,
+		"anti_roll": 0.55,
+		"steer_max_deg": 30.0,
+		"steer_speed": 0.8,         # turns in late
+		"brake_g": 1.12,
+		"nitro_accel": 9.5,
+		"nitro_time": 8.0,          # the biggest tank
+		"drift_assist": 0.9,
+		"yaw_damp": 1.45,
+		"power_oversteer": 0.1,
+		"cg_height": 0.22,
+		"loose_grip": 0.45,
+	},
 }
 
 

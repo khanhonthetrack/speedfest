@@ -35,6 +35,12 @@ func _init(p_car_id: String) -> void:
 			_brute()
 		"veloce":
 			_veloce()
+		"kitsune":
+			_kitsune()
+		"pixie":
+			_pixie()
+		"goliath":
+			_goliath()
 		_:
 			_kaze()
 
@@ -82,6 +88,53 @@ func _veloce() -> void:
 		"notch": false, "side_glass_top": 0.0, "b_pillar": 0.0}
 	style_k = {"flare": 0.0, "flare_box": false, "mid_frac": 0.38, "hood_from": 0.06, "hood_to": 0.22,
 		"intake": true, "intake_t": [0.53, 0.68], "intake_y": [0.28, 0.6], "shoulder_r": 0.05}
+
+
+func _kitsune() -> void:
+	# Rally hatch: raised, short nose, tall greenhouse that runs to a near-vertical hatch, box flares.
+	p["bot"] = [[0.0, 0.32], [0.05, 0.26], [0.14, 0.23], [0.86, 0.23], [0.95, 0.27], [1.0, 0.34]]
+	p["belt"] = [[0.0, 0.66], [0.04, 0.74], [0.12, 0.82], [0.25, 0.86], [0.5, 0.89], [0.8, 0.92], [0.95, 0.93], [1.0, 0.9]]
+	p["crown"] = [[0.0, 0.68], [0.04, 0.76], [0.12, 0.84], [0.25, 0.88], [0.32, 0.9], [0.85, 0.95], [0.97, 0.95], [1.0, 0.92]]
+	p["wmax"] = [[0.0, 0.8], [0.015, 0.84], [0.05, 0.87], [0.12, 0.885], [0.5, 0.875], [0.88, 0.885], [0.95, 0.87], [0.985, 0.84], [1.0, 0.8]]
+	p["tuck"] = [[0.0, 0.04], [0.4, 0.05], [0.7, 0.07], [1.0, 0.05]]
+	p["wlow"] = [[0.0, 0.02], [1.0, 0.025]]
+	gh = {"cowl": 0.3, "ws_top": 0.46, "roof_end": 0.86, "back_end": 0.965,
+		"roof_y": g["height"], "roof_w": 0.64, "base_inset": 0.07, "roof_crown": 0.025,
+		"notch": false, "side_glass_top": 0.85, "b_pillar": 0.6}
+	style_k = {"flare": 0.045, "flare_box": true, "mid_frac": 0.5, "hood_from": 0.06, "hood_to": 0.29,
+		"intake": false, "shoulder_r": 0.04, "tail_bulge": 0.02}
+
+
+func _pixie() -> void:
+	# Kei roadster: tiny and round, frog-eye lamps, short hardtop, stubby tail.
+	p["bot"] = [[0.0, 0.22], [0.06, 0.17], [0.15, 0.15], [0.85, 0.15], [0.94, 0.18], [1.0, 0.24]]
+	p["belt"] = [[0.0, 0.5], [0.05, 0.6], [0.14, 0.68], [0.3, 0.72], [0.55, 0.74], [0.8, 0.77], [0.93, 0.78], [1.0, 0.74]]
+	p["crown"] = [[0.0, 0.52], [0.05, 0.62], [0.14, 0.69], [0.3, 0.73], [0.6, 0.76], [0.85, 0.79], [0.95, 0.79], [1.0, 0.75]]
+	p["wmax"] = [[0.0, 0.72], [0.02, 0.77], [0.06, 0.8], [0.15, 0.81], [0.5, 0.8], [0.85, 0.81], [0.94, 0.8], [0.98, 0.77], [1.0, 0.72]]
+	p["tuck"] = [[0.0, 0.04], [0.5, 0.05], [1.0, 0.04]]
+	p["wlow"] = [[0.0, 0.02], [1.0, 0.02]]
+	gh = {"cowl": 0.4, "ws_top": 0.54, "roof_end": 0.7, "back_end": 0.82,
+		"roof_y": g["height"], "roof_w": 0.56, "base_inset": 0.08, "roof_crown": 0.03,
+		"notch": true, "side_glass_top": 0.85, "b_pillar": 0.0}
+	style_k = {"flare": 0.0, "flare_box": false, "mid_frac": 0.45, "hood_from": 0.06, "hood_to": 0.36,
+		"intake": false, "shoulder_r": 0.05, "nose_bulge": 0.12, "tail_bulge": 0.08}
+
+
+func _goliath() -> void:
+	# Pickup truck: tall flat nose, long hood, upright cab, and a bed: behind the cab the deck
+	# drops to the bed floor between the body sides, then rises to the tailgate.
+	p["bot"] = [[0.0, 0.48], [0.05, 0.4], [0.13, 0.36], [0.87, 0.36], [0.95, 0.4], [1.0, 0.46]]
+	p["belt"] = [[0.0, 1.08], [0.03, 1.13], [0.15, 1.16], [0.3, 1.17], [0.55, 1.18], [0.97, 1.18], [1.0, 1.16]]
+	p["crown"] = [[0.0, 1.1], [0.03, 1.15], [0.15, 1.19], [0.3, 1.21], [0.555, 1.22], [0.6, 0.84], [0.95, 0.82],
+		[0.975, 0.86], [0.99, 1.12], [1.0, 1.14]]
+	p["wmax"] = [[0.0, 0.94], [0.012, 0.98], [0.05, 1.0], [0.2, 1.02], [0.5, 1.01], [0.8, 1.02], [0.95, 1.01], [0.985, 0.99], [1.0, 0.96]]
+	p["tuck"] = [[0.0, 0.02], [0.5, 0.03], [1.0, 0.02]]
+	p["wlow"] = [[0.0, 0.02], [1.0, 0.02]]
+	gh = {"cowl": 0.36, "ws_top": 0.43, "roof_end": 0.535, "back_end": 0.56,
+		"roof_y": g["height"], "roof_w": 0.8, "base_inset": 0.05, "roof_crown": 0.02,
+		"notch": true, "side_glass_top": 0.88, "b_pillar": 0.5}
+	style_k = {"flare": 0.05, "flare_box": true, "mid_frac": 0.5, "hood_from": 0.04, "hood_to": 0.33,
+		"intake": false, "shoulder_r": 0.03, "nose_bulge": 0.03, "tail_bulge": 0.01}
 
 
 ## How far the body surface bulges out beyond the end stations (rounded nose/tail in plan view
