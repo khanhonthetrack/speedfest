@@ -93,3 +93,9 @@ tools/run_scene.sh res://tests/ui_hud/hud_demo.tscn -- --show=pause --settings=1
 
 ## Integration requests
 - None. (Verified against `origin/module/race`: its call order and pause handling work with this module as is.)
+
+## Session 4 (owner feedback)
+- Minimap removed (`HudMinimap`, `set_minimap*`, race.gd's per-tick updates).
+- Checkpoints no longer show the big centred "CHECKPOINT" banner; the split pop-up under the timer
+  ("CP n  time  ±delta") and the timer flash are the checkpoint feedback. FINISH / NEW PB! unchanged.
+- Tachometer + NOS cluster scaled to `TACHO_SCALE` = 0.7 (pivot at its bottom-right corner).

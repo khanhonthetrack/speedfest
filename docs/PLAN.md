@@ -56,10 +56,11 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item.
 - [x] 1. "On the road it feels bumpy, is it a bug?" **Yes, a bug**: twisting full-width deck quads folded into a
       ±12 cm washboard on bank ramps. Deck now 8 cells across with finer rings where it twists (`test_road_smooth`)
-- [ ] 2. "Remove a map, no one cares." Remove the HUD minimap (read as the minimap, not a track)
-- [ ] 3. Checkpoints: much smaller "CHECKPOINT" text; checkpoints must not look see-through (you
+- [x] 2. "Remove a map, no one cares." Removed the HUD minimap (read as the minimap, not a track)
+- [ ] 3. Checkpoints: much smaller "CHECKPOINT" text (done: only the compact split pop-up now); checkpoints must not look see-through (you
       "fly past it like a ghost"); a better, solid gate design
-- [ ] 4. Smaller speedometer/NOS panel. **NOS is a fixed amount per run, not recharged** (strategy)
+- [x] 4. Smaller speedometer/NOS panel (70%). **NOS is a fixed tank per run, not recharged** (strategy):
+      kaze 5.5 s, brute 6.5 s, veloce 5.0 s of nitro per run; respawn keeps the tank, restart refills
 - [ ] 5. No neon futuristic grids: the stadium gets grass (or similar) instead of the neon grid; the
       menu background is static; the online lobby shows every player's car as soon as they join and
       updates live when they change car or style (like Rocket League's lobby)

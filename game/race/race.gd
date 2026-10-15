@@ -85,7 +85,6 @@ var _results_shown := false
 var _leaving := false
 var _get_ready_shown := false
 var _leaderboard: Array = []
-var _minimap_others: Array = []
 var _last_wall_sfx_ms := -100000
 var _last_boost_sfx_ms := -100000
 
@@ -104,7 +103,6 @@ func _ready() -> void:
 	pb_ms = Profile.get_pb(pb_key)
 	_load_ghost()
 	hud.set_best(pb_ms if not online else -1)
-	hud.set_minimap(track.get_minimap_points())
 	hud.set_checkpoints(0, checkpoint_count)
 	hud.set_run_time(-1)
 	if online:
@@ -381,7 +379,6 @@ func _process(_delta: float) -> void:
 		ghost_player.set_time(run_ticks * TICK_MS)
 	elif ghost_player.visible:
 		ghost_player.hide_ghost()
-	_update_minimap()
 	spray.update_spray(car.get_water_amount(), speed)
 	for rc in remote_cars.values():
 		var rs: WaterSpray = (rc as Node).get_meta("spray", null)
@@ -403,15 +400,6 @@ func _resolve_weather() -> String:
 	if Game.weather != "":
 		return Weather.sanitize(Game.weather)
 	return Weather.default_for(track.track_id)
-
-
-func _update_minimap() -> void:
-	_minimap_others.clear()
-	for id in remote_cars:
-		var rc: RemoteCar = remote_cars[id]
-		if rc.visible:
-			_minimap_others.append(Vector2(rc.global_position.x, rc.global_position.z))
-	hud.set_minimap_cars(Vector2(car.global_position.x, car.global_position.z), _minimap_others)
 
 
 # --- checkpoints and finish ------------------------------------------------------------------------

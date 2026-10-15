@@ -301,7 +301,7 @@ var checkpoint_count: int
 var kill_y: float
 func get_start_transform() -> Transform3D               # car origin pose for a standing start
 func get_checkpoint_transform(index: int) -> Transform3D   # respawn pose at checkpoint (index -1 = start)
-func get_minimap_points() -> PackedVector2Array          # XZ centerline, for HUD minimap
+func get_minimap_points() -> PackedVector2Array          # XZ centerline (the HUD minimap was removed in session 4)
 var surface: TrackSurface                                # puddles from the layout's {"puddle": ...} markers
 var weather: String
 func apply_weather(mode: String) -> void                 # "dry"|"rain"|"storm": puddles, road wetness, grip
@@ -367,8 +367,6 @@ func show_countdown(n: int) -> void           # 3,2,1 then 0 = "GO!"
 func show_message(text: String, seconds := 2.0) -> void
 func set_round_time_left(ms: int) -> void     # -1 hides (solo)
 func set_leaderboard(entries: Array, my_id: int) -> void
-func set_minimap(points: PackedVector2Array) -> void
-func set_minimap_cars(local_pos: Vector2, others: Array) -> void
 ```
 `pause_menu.tscn`: signals `resumed`, `restart_requested`, `quit_requested`. `results.tscn`:
 `show_results(results: Array, my_id: int)`.

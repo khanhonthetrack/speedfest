@@ -1,6 +1,6 @@
 extends Node
 ## Headless logic test for the HUD, pause menu and results:
-## API coverage, formatting, leaderboard compaction, minimap fit, no per-tick allocations
+## API coverage, formatting, leaderboard compaction, no per-tick allocations
 ## (node/object counts stay flat), and the per-tick setter cost.
 
 var hud: Node
@@ -19,7 +19,6 @@ func _ready() -> void:
 	_test_formatting()
 	_test_api()
 	_test_leaderboard()
-	_test_minimap()
 	await _test_per_tick_cost()
 	await _test_pause()
 	_test_results()
@@ -80,9 +79,6 @@ func _test_api() -> void:
 	hud.set_round_time_left(0)
 	hud.set_round_time_left(300000)
 	hud.set_leaderboard([], 1)
-	hud.set_minimap(PackedVector2Array())
-	hud.set_minimap_cars(Vector2.ZERO, [])
-	hud.set_minimap_cars(Vector2(1, 2), [Vector2(3, 4), {"pos": Vector2(5, 6)}, {"pos": Vector2(1, 1), "color": Color.RED}, 42])
 	hud.clear_banners()
 	var tacho: HudTachometer = hud._tacho
 	TestHooks.check(tacho.rpm == 1.0 and tacho.nitro == 1.0 and tacho.gear == 7, "setters_clamp", "%s %s %s" % [tacho.rpm, tacho.nitro, tacho.gear])
@@ -126,29 +122,8 @@ func _test_leaderboard() -> void:
 	TestHooks.check(not lb.visible, "leaderboard_hidden_when_empty")
 
 
-func _test_minimap() -> void:
-	var mm: HudMinimap = hud._minimap
-	var pts := PackedVector2Array()
-	for i in 65:
-		var a := TAU * i / 64.0
-		pts.append(Vector2(1000.0 + cos(a) * 400.0, -300.0 + sin(a) * 90.0))
-	hud.set_minimap(pts)
-	var ok := mm.visible
-	var mn := Vector2(INF, INF)
-	var mx := Vector2(-INF, -INF)
-	for p in mm._line:
-		mn = mn.min(p)
-		mx = mx.max(p)
-	ok = ok and mn.x >= HudMinimap.PAD - 0.5 and mn.y >= HudMinimap.PAD - 0.5
-	ok = ok and mx.x <= HudMinimap.SIZE.x - HudMinimap.PAD + 0.5 and mx.y <= HudMinimap.SIZE.y - HudMinimap.PAD + 0.5
-	# Fills the box along at least one axis.
-	ok = ok and ((mx.x - mn.x) > HudMinimap.SIZE.x - HudMinimap.PAD * 2.0 - 2.0 or (mx.y - mn.y) > HudMinimap.SIZE.y - HudMinimap.PAD * 2.0 - 2.0)
-	TestHooks.check(ok, "minimap_fits_box", "%s %s" % [mn, mx])
-
-
 func _test_per_tick_cost() -> void:
 	hud.set_leaderboard(_board(6), 2)
-	hud.set_minimap(PackedVector2Array([Vector2(0, 0), Vector2(100, 0), Vector2(100, 50), Vector2(0, 0)]))
 	var others: Array = [Vector2(10, 10), Vector2(20, 5)]
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -178,7 +153,6 @@ func _tick(i: int, others: Array) -> void:
 	hud.set_run_time(i * 17)
 	hud.set_round_time_left(300000 - i * 17)
 	hud.set_checkpoints(i / 500, 6)
-	hud.set_minimap_cars(Vector2(float(i % 100), 0.0), others)
 
 
 func _test_pause() -> void:

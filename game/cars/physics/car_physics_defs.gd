@@ -40,7 +40,7 @@ const BASE := {
 		"steer_speed": 1.0,
 		"brake_g": 1.30,
 		"nitro_accel": 7.0,
-		"nitro_time": 4.0,
+		"nitro_time": 5.5,   # one fixed tank per run (owner: NOS is strategy, no refill)
 		"drift_assist": 1.0,
 		"yaw_damp": 1.0,
 		"cg_height": 0.12,          # center of mass height above the wheel centers (negative = lower)
@@ -68,7 +68,7 @@ const BASE := {
 		"steer_speed": 0.9,
 		"brake_g": 1.25,
 		"nitro_accel": 8.5,
-		"nitro_time": 4.5,
+		"nitro_time": 6.5,   # one fixed tank per run (owner: NOS is strategy, no refill)
 		"drift_assist": 1.0,
 		"yaw_damp": 0.9,
 		"cg_height": 0.14,
@@ -96,7 +96,7 @@ const BASE := {
 		"steer_speed": 1.05,
 		"brake_g": 1.40,
 		"nitro_accel": 6.5,
-		"nitro_time": 3.8,
+		"nitro_time": 5.0,   # one fixed tank per run (owner: NOS is strategy, no refill)
 		"drift_assist": 0.8,
 		"yaw_damp": 1.1,
 		"cg_height": 0.06,

@@ -182,7 +182,9 @@ Keyboard steering is smoothed: ramp speed depends on vehicle speed, and steering
 
 ## 7. HUD (NFSU2-inspired)
 
-- Bottom-right: tachometer arc, digital speed, gear, nitro bar.
+- Bottom-right: tachometer arc, digital speed, gear, nitro bar (compact, 70% scale). No minimap (owner: "no one cares").
+- **Nitro is a fixed tank per run** (owner, session 4): it never refills while driving, so when to
+  spend it is a strategic choice. Respawn keeps the current amount; restart refills.
 - Top-center: run time, checkpoint counter, split pop-ups (blue/red), round time left (online).
 - Top-right: live leaderboard (rank, name, best).
 - Center: countdown, "CHECKPOINT", "FINISH", "NEW PB!" banners.

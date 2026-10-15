@@ -6,12 +6,13 @@ extends CanvasLayer
 ## Layout (1280x720 base, canvas_items stretch scales it up):
 ##   top-center   run time, CP counter, best, round clock, split pop-ups
 ##   top-right    live leaderboard (hold `leaderboard` to expand)
-##   center       countdown, CHECKPOINT / FINISH / NEW PB! banners, toasts
-##   bottom-left  minimap
-##   bottom-right tachometer, speed, gear, nitro
+##   center       countdown, FINISH / NEW PB! banners, toasts (checkpoints only show the
+##                compact split pop-up under the timer: owner found the big banner too loud)
+##   bottom-right tachometer, speed, gear, nitro (scaled down to TACHO_SCALE)
 ##   overlay      speed lines above ~200 km/h (Settings.quality >= 2)
 
 const SPEED_LINES_FROM := 200.0
+const TACHO_SCALE := 0.7
 const SPEED_LINES_FULL := 330.0
 
 var _root: Control
@@ -19,7 +20,6 @@ var _tacho: HudTachometer
 var _timer: HudTimerPanel
 var _split: HudSplitPopup
 var _board: HudLeaderboard
-var _minimap: HudMinimap
 var _speed_lines: ColorRect
 var _speed_mat: ShaderMaterial
 var _fps: Label
@@ -99,7 +99,6 @@ func show_split(ms: int, delta_ms: int, has_delta: bool) -> void:
 		col = UITheme.GOOD if delta_ms < 0 else (UITheme.BAD if delta_ms > 0 else UITheme.TEXT)
 	_split.popup("", ms, delta_ms, has_delta)
 	_timer.flash(col)
-	_show_banner("CHECKPOINT", 46, col if has_delta else UITheme.CYAN, "", "", Color.WHITE, 0.9)
 
 
 func show_finish(ms: int, is_pb: bool, delta_ms: int, has_delta: bool) -> void:
@@ -179,13 +178,6 @@ func set_round_time_left(ms: int) -> void:
 func set_leaderboard(entries: Array, my_id: int) -> void:
 	_board.set_entries(entries, my_id)
 
-
-func set_minimap(points: PackedVector2Array) -> void:
-	_minimap.set_points(points)
-
-
-func set_minimap_cars(local_pos: Vector2, others: Array) -> void:
-	_minimap.set_cars(local_pos, others)
 
 
 # --- additions (documented in docs/modules/ui_hud.md) -----------------------
@@ -273,12 +265,9 @@ func _build() -> void:
 	_tacho = HudTachometer.new()
 	_tacho.name = "Tachometer"
 	_root.add_child(_tacho)
-	_place(_tacho, Control.PRESET_BOTTOM_RIGHT, Vector2(-14, -8))
-
-	_minimap = HudMinimap.new()
-	_minimap.name = "Minimap"
-	_root.add_child(_minimap)
-	_place(_minimap, Control.PRESET_BOTTOM_LEFT, Vector2(20, -20))
+	_place(_tacho, Control.PRESET_BOTTOM_RIGHT, Vector2(-10, -6))
+	_tacho.pivot_offset = _tacho.size     # shrink toward the bottom-right corner
+	_tacho.scale = Vector2(TACHO_SCALE, TACHO_SCALE)
 
 	# Center: countdown.
 	_count_box = _center_box(Vector2(600, 260), Vector2(0, -60))

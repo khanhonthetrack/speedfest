@@ -232,7 +232,8 @@ func _s_nitro(s: Dictionary, car: Car) -> void:
 		"refill":
 			_ctl(car, 0.6, 0.0, 0.0, false, false)
 			if s["t"] >= 120:
-				TestHooks.check(car.get_nitro_amount() > s["after_burn"], "nitro_refills_%s" % car_id, "%.2f" % car.get_nitro_amount())
+				# fixed tank per run (owner, session 4): driving never refills it, only a restart does
+				TestHooks.check(car.get_nitro_amount() <= float(s["after_burn"]) + 0.0001, "nitro_no_refill_%s" % car_id, "%.3f vs %.3f" % [car.get_nitro_amount(), s["after_burn"]])
 				car.refill_nitro()
 				TestHooks.check(car.get_nitro_amount() == 1.0, "nitro_refill_call_%s" % car_id)
 				s["done"] = true

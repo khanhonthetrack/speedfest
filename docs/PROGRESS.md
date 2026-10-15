@@ -204,3 +204,12 @@ date, who (module/agent), what changed, what's next or blocked.
   any airtime, including the spawn drop, which tipped a marginal 250 km/h wall-ride exit. The extra
   gravity now applies only to jumps: speed > 15 m/s and taking off from road whose normal is mostly up.
 - `game/tests/physics/run_all.sh` → PHYSICS_ALL_OK; test_feel 84/84 (barrier no-flip checks intact).
+
+## 2026-10-15 ~11:00 UTC — M4.5 items 2, 3 (text), 4: HUD and fixed NOS
+
+- HUD: minimap removed; no full-screen CHECKPOINT banner (the compact split pop-up stays);
+  tachometer/NOS cluster at 70%. ARCHITECTURE HUD API: `set_minimap*` removed.
+- NOS: fixed tank per run, no refill while driving (`NITRO_REFILL` removed). Tanks: kaze 5.5 s,
+  brute 6.5 s, veloce 5.0 s (was ~4 s plus refills, ~9 s per run). Respawn keeps the tank, restart refills.
+- Tests: test_hud 33/33, test_handling 32/32 ×3 cars (`nitro_no_refill_*` replaces `nitro_refills_*`),
+  race logic 41/41, review fixes 7/7.

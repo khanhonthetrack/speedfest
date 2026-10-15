@@ -31,7 +31,6 @@ func _ready() -> void:
 	for i in 97:
 		var a := TAU * i / 96.0
 		oval.append(Vector2(cos(a) * 220.0 + sin(a * 2.0) * 30.0, sin(a) * 110.0))
-	hud.set_minimap(oval)
 	hud.set_best(62345)
 	hud.set_checkpoints(0, 5)
 	hud.set_run_time(-1)
@@ -114,7 +113,6 @@ func _physics_process(_delta: float) -> void:
 	others.clear()
 	for k in 3:
 		others.append({"pos": oval[(idx + 10 + k * 23) % 96], "color": [UITheme.MAGENTA, UITheme.AMBER, UITheme.CYAN][k]})
-	hud.set_minimap_cars(oval[idx], others)
 
 
 func _build_backdrop() -> void:

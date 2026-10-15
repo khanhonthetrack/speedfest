@@ -48,7 +48,6 @@ const BOOST_MAX_TIME := 4.0
 const BOOST_FADE_FROM := 100.0           # boost fades from 360 km/h ...
 const BOOST_SPEED_CAP := 116.0           # ... to zero at ~420 km/h
 const MAX_SPEED := 125.0                 # hard cap, 450 km/h
-const NITRO_REFILL := 1.0 / 28.0         # tank fraction per second while driving
 const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
@@ -768,8 +767,6 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if _grounded >= 2:
 			nd = (fwd - _ground_n * fwd.dot(_ground_n)).normalized()
 		state.apply_central_force(nd * m * float(params["nitro_accel"]))
-	elif _grounded >= 2 and speed > 8.0 and not frozen_controls:
-		_nitro = minf(_nitro + dt * NITRO_REFILL, 1.0)
 	if _boost_time > 0.0:
 		_boost_time -= dt
 		var bd := _boost_dir
