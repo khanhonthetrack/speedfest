@@ -35,6 +35,14 @@ func _ready() -> void:
 		ai.use_nitro = sp[4]
 		ai.target_speed_kmh = sp[3]
 		car.add_child(ai)
+		if bool(TestHooks.arg("keyboard", false)):
+			var emu := Node.new()
+			emu.set_script(load("res://tests/physics/key_emulator.gd"))
+			emu.set("car", car)
+			car.add_child(emu)
+			var inp := CarInput.new()
+			car.add_child(inp)
+			emu.set("inp", inp)
 		var z: Dictionary = path.zones[0]
 		runs.append({"name": sp[0], "car": car, "ai": ai, "path": path, "from": float(path.get_meta("wall_start")),
 			"to": float(path.get_meta("wall_end")), "zfrom": float(z["from"]), "zto": float(z["to"]), "cap": sp[3],
