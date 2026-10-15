@@ -23,13 +23,11 @@ func _ready() -> void:
 	var only := String(TestHooks.arg("car", ""))
 	if only != "":
 		ids = [only]
-	for k in CarDefs.TUNING_KEYS:
-		if TestHooks.has_arg(k):
-			tuning_arg[k] = float(TestHooks.arg(k, 0.0))
 	for i in ids.size():
-		var cfg := CarDefs.default_config(ids[i])
-		for k in tuning_arg:
-			cfg["tuning"][k] = tuning_arg[k]
+		var cfg := PhysicsTestGround.test_config(ids[i])
+		for k in CarDefs.TUNING_KEYS:
+			if float(cfg["tuning"][k]) != 0.0:
+				tuning_arg[k] = cfg["tuning"][k]
 		var car := Car.create(cfg)
 		add_child(car)
 		car.teleport(Transform3D(Basis.IDENTITY, Vector3(-60 + i * 60, 0.6, 0)))
