@@ -109,6 +109,7 @@ var _hb_blend := 0.0
 var brake_drift_enabled := true
 var _bd_blend := 0.0                     # brake-drift amount 0..1
 var _wall_timer := 0.0
+var _takeoff_up_y := 1.0                 # world-up component of the last ground normal (jump vs wall ride)
 var _reversing := false
 var _braking := false
 var _fwd_speed := 0.0
@@ -388,6 +389,7 @@ func _reset_dynamics(v: Vector3) -> void:
 	_upside_time = 0.0
 	_bd_blend = 0.0
 	_wall_timer = 0.0
+	_takeoff_up_y = 1.0
 	_land_timer = 0.0
 	_righting = 0.0
 	_hb_blend = 0.0
@@ -461,6 +463,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_comp[i] = -SUSP_DROOP
 	_prev_ground_n = _ground_n
 	_ground_n = n_sum.normalized() if _grounded > 0 else up
+	if _grounded >= 2:
+		_takeoff_up_y = _ground_n.dot(Vector3.UP)
 	# touchdown after real air time: soak up most of the impact (arcade, no bounce)
 	if _grounded > 0 and was_grounded == 0 and _air_time > 0.2:
 		var vn := lv.dot(_ground_n)
@@ -810,7 +814,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 							var near := clampf(1.0 - (com.distance_to(lh["position"]) - 1.5) / 6.0, 0.0, 1.0)
 							f_t = f_t.lerp(on_plane, near).normalized()
 					state.apply_torque(fwd.cross(f_t) * AIR_PITCH_FOLLOW * inertia.x)
-		if _air_time > 0.1:
+		# punchier jump arcs, but only for jumps: at speed and off ordinary road (a car that lifts off
+		# a wall ride or loop for a moment must not be pulled off it harder; spawn drops stay plain)
+		if _air_time > 0.1 and _takeoff_up_y > 0.8 and speed > 15.0:
 			state.apply_central_force(Vector3.DOWN * m * CarPhysicsDefs.GRAVITY * AIR_GRAVITY_EXTRA)
 		# light air steering: drive the yaw rate toward steer * AIR_YAW_RATE (also damps spins)
 		var yaw_rate := av.dot(up)
@@ -866,13 +872,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 	# --- barrier contacts: deflect along the wall, never roll/flip or pop up (arcade) ---
 	_wall_timer = maxf(_wall_timer - dt, 0.0)
-	if state.get_contact_count() > 0 and up.dot(Vector3.UP) > 0.2:
+	# (not while self-righting: the tilted body resting on the ground is not a wall hit, and the
+	# anti-spin below would cancel the righting roll and leave the car stuck on its side)
+	if state.get_contact_count() > 0 and up.dot(Vector3.UP) > 0.2 and _righting <= 0.0:
 		var ref_up := _ground_n if _grounded >= 2 else up
 		var wall := false
 		var lv_w := state.linear_velocity
 		for ci in state.get_contact_count():
 			var cn := state.get_contact_local_normal(ci)
-			if absf(cn.dot(ref_up)) > 0.6:
+			if absf(cn.dot(ref_up)) > 0.6 or (_grounded < 2 and absf(cn.dot(Vector3.UP)) > 0.7):
 				continue    # floor / ramp under the body: not a wall
 			var to_car := xf.origin - state.get_contact_local_position(ci)
 			if cn.dot(to_car) < 0.0:
@@ -885,7 +893,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if wall:
 			_wall_timer = 0.35
 			state.linear_velocity = lv_w
-	if _wall_timer > 0.0:
+	if _wall_timer > 0.0 and _righting <= 0.0:
 		var ref := _ground_n if _grounded >= 2 else Vector3.UP
 		var av_w := state.angular_velocity
 		var yaw := ref * clampf(av_w.dot(ref), -WALL_YAW_MAX, WALL_YAW_MAX)

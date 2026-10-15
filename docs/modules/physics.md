@@ -366,3 +366,10 @@ using back and left/right arrow at the same time. Jumping physics looks very fak
 - Test: `tests/physics/test_feel.tscn` covers 3 cars × wall hits at 150/250 km/h and 12/25/45°,
   with and without steering away, plus brake drift and air spin (84 checks). `tests/physics/jump_view.tscn`
   gives side-view frames and a per-frame trace of a real track jump (`--trace_from/--trace_to`).
+
+## Session 4 fixes to the handling-feel pass
+- Barrier anti-spin (`WALL_SPIN_KEEP`) is skipped while self-righting (`_righting > 0`), and a body
+  contact whose normal is within ~45° of world-up never counts as a wall when fewer than 2 wheels touch.
+- `AIR_GRAVITY_EXTRA` applies only when `speed > 15 m/s` and `_takeoff_up_y > 0.8` (the last ground
+  normal's world-up component while ≥ 2 wheels touched): jumps get punchier arcs, wall-ride and loop
+  lift-offs and spawn drops don't. Wall-ride exits above ~240 km/h remain marginal (chaotic in tests).

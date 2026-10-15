@@ -194,3 +194,13 @@ date, who (module/agent), what changed, what's next or blocked.
   brute (the car that used to fall): arena 34.2 s, downtown 33.0 s, coast 30.1 s, **0 respawns**.
 - Integration gate on `main` before this change: everything passed except
   `test_handling self_righting_kaze` (up_y=0.82), a regression from the handling-feel pass. Next.
+
+## 2026-10-15 ~10:40 UTC — Two regressions from the handling-feel pass fixed (car.gd)
+
+- `test_handling self_righting_kaze` (stuck at up_y 0.82): the new barrier-contact code treated the
+  tilted body resting on the ground as a wall hit and cancelled 85% of the righting roll each tick.
+  Barrier anti-spin now pauses while self-righting, and contacts facing world-up never count as walls.
+- `test_wallride` fast veloce (airborne 38 ticks, 5.6 m off line): the +35% air gravity applied to
+  any airtime, including the spawn drop, which tipped a marginal 250 km/h wall-ride exit. The extra
+  gravity now applies only to jumps: speed > 15 m/s and taking off from road whose normal is mostly up.
+- `game/tests/physics/run_all.sh` → PHYSICS_ALL_OK; test_feel 84/84 (barrier no-flip checks intact).
