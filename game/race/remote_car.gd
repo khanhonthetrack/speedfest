@@ -14,9 +14,9 @@ const SILENCE_HIDE_MS := 3000
 const BUFFER_SIZE := 32
 const MAX_STEER_RAD := 0.55
 const TELEPORT_DIST := 30.0          # jumps bigger than this between snapshots snap (respawn/restart)
-const FADE_NEAR := 2.5               # camera distance (m) where the car is most transparent
-const FADE_FAR := 7.0                # camera distance (m) where the car is fully opaque
-const FADE_MIN_ALPHA := 0.18
+const FADE_NEAR := 3.0               # camera distance (m) where the car is most transparent
+const FADE_FAR := 9.0                # camera distance (m) where the car is fully opaque
+const FADE_MIN_ALPHA := 0.08
 
 var player_id := -1
 var player_name := ""
@@ -56,9 +56,11 @@ func setup(id: int, display_name: String, config: Dictionary) -> void:
 	if visual == null:
 		visual = CarVisual.new()
 		add_child(visual)
+	# Up to 7 remote cars: on the web renderer each extra light costs a pass per lit object, so
+	# remote cars keep the emissive glow blob but only get a real underglow light on Forward+.
+	if "underglow_light_allowed" in visual:
+		visual.set("underglow_light_allowed", not Settings.is_compat() and Settings.quality >= 1)
 	visual.build(car_id, cfg["style"])
-	# Underglow lights are expensive on web: remote cars keep the glow blob but CarVisual decides
-	# about its light; we only turn it fully off on low quality.
 	visual.set_underglow_enabled(Settings.quality >= 1)
 	if name_tag == null:
 		name_tag = Label3D.new()
@@ -90,7 +92,10 @@ func set_engine_audio(node: Node3D) -> void:
 func update_config(display_name: String, config: Dictionary) -> void:
 	var cfg := CarDefs.sanitize_config(config)
 	if cfg["car"] != car_id or display_name != player_name:
+		var car_changed: bool = cfg["car"] != car_id
 		setup(player_id, display_name, cfg)
+		if car_changed and engine_audio and engine_audio.has_method("setup"):
+			engine_audio.call("setup", car_id, false)
 
 
 func _now_ms() -> float:
@@ -271,7 +276,9 @@ func _update_fade() -> void:
 		if visual:
 			visual.set_ghost(a)
 		if name_tag:
-			name_tag.modulate.a = clampf(a * 1.5, 0.3, 1.0)
+			# Very close: the tag would float at the horizon over the road, hide it.
+			name_tag.visible = a > 0.35
+			name_tag.modulate.a = clampf(a * 1.5, 0.0, 1.0)
 
 
 static func _vec3(v: Variant) -> Variant:

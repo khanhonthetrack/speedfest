@@ -189,6 +189,9 @@ tools/run_scene.sh res://tests/physics/test_stunts.tscn --timeout 900 -- --car=v
 - **test_straight**: rest height = wheel radius, 0-100 in 2.2–4.2 s, top speed 245–330 km/h,
   estimate vs measured (±12 km/h, ±0.45 s), nitro raises top speed, brute quickest launch, veloce
   fastest, braking 100→0 < 45 m. Accepts tuning args to check estimates at extreme settings.
+- All scenario tests accept `--tune=min|max` (every slider at −1/+1) or `--<slider>=v`.
+  `run_all.sh` also runs stunts/handling/circuit at both extremes, and test_straight confirms the
+  estimator at the extremes (within 0.12 s and 1.5 km/h).
 - **test_tuning**: stats in 0..1, monotonic, trade-offs, ranges, determinism, bad input.
 - **test_stunts**: AutoDriver through a vertical loop (r = 18 m, 14 m lateral shift) at ~182 km/h,
   at a capped 143 km/h entry and at ~250–270 km/h with nitro: < 10% air ticks (measured 0), upright
@@ -205,6 +208,21 @@ tools/run_scene.sh res://tests/physics/test_stunts.tscn --timeout 900 -- --car=v
 - **test_input**: CarInput keyboard ramp, self-centering, counter-steer, smaller/slower steering at speed.
 - **test_circuit**: AutoDriver, 2 laps on a 1.56 km circuit without walls (hairpin, sweepers,
   banked turn, elevation): never leaves the road, never gets stuck. Laps ~40 s (≈140 km/h average).
+
+## Real tracks through race.tscn (module/physics with origin/module/tracks + race merged in)
+
+`tools/run_scene.sh res://race/race.tscn --headless -- --frames=5400 --track=<id> --autodrive`
+(kaze, default config): **arena 39.63 s** (second run 39.90 s), **downtown 60.30 s**,
+**coast 53.95 s**. Every checkpoint in order, finish, no respawns. `AutoDriver.reset()` exists
+(an alias of `reset_tracking()`) for race.gd between runs.
+
+## Integrated check (scratch merge of all module branches, not pushed)
+
+`race.tscn --track=arena --autodrive` with the real tracks, visuals, scenery, HUD and audio
+renders correctly: the car sits on the road at the right height and the wheels line up. The visuals
+module's `set_wheel_state` conventions match (steer = `rotation.y`, spin + = forward roll, offset + =
+compressed). The race module has also verified its state machine and online rounds against this branch.
+Per-tick cost of `Car._integrate_forces`: ~70 µs on desktop (AutoDriver ~80 µs when used).
 
 ## Known issues / notes
 

@@ -21,7 +21,7 @@ func _ready() -> void:
 	car_id = String(TestHooks.arg("car", "kaze"))
 	path = PhysicsTestGround.circuit_path(14.0)
 	add_child(PhysicsTestGround.road_from_path(path))
-	car = Car.create(CarDefs.default_config(car_id))
+	car = Car.create(PhysicsTestGround.test_config(car_id))
 	add_child(car)
 	var t := path.sample_transform(0.0)
 	t.origin += t.basis.y * 0.6

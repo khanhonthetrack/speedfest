@@ -82,6 +82,7 @@ var _get_ready_shown := false
 var _leaderboard: Array = []
 var _minimap_others: Array = []
 var _last_wall_sfx_ms := -100000
+var _last_boost_sfx_ms := -100000
 
 
 # --- setup ----------------------------------------------------------------------------------------
@@ -106,6 +107,8 @@ func _ready() -> void:
 	else:
 		hud.set_round_time_left(-1)
 		_begin_countdown(FIRST_COUNTDOWN_MS)
+	if state == State.COUNTDOWN and not TestHooks.has_arg("no_intro"):
+		camera.start_intro(clampf(_countdown_remaining_ms() / 1000.0, 0.5, 3.5))
 	_log("ready mode=%s track=%s online=%s cps=%d" % [Game.mode, track.track_id, online, checkpoint_count])
 
 
@@ -190,6 +193,11 @@ func _build_ui() -> void:
 func _connect_signals() -> void:
 	track.checkpoint_reached.connect(_on_checkpoint_reached)
 	track.finish_reached.connect(_on_finish_reached)
+	# Boost pads (tracks module exposes them as Area3Ds): whoosh for the local car.
+	if "boost_pads" in track:
+		for pad in track.get("boost_pads"):
+			if pad is Area3D:
+				(pad as Area3D).body_entered.connect(_on_boost_pad_body)
 	if pause_menu.has_signal("resumed"):
 		pause_menu.connect("resumed", close_pause)
 	if pause_menu.has_signal("restart_requested"):
@@ -442,7 +450,9 @@ func _finish_run() -> void:
 		hud.set_best(pb_ms)
 	hud.set_run_time(ms)
 	hud.show_finish(ms, is_pb, delta, has_delta)
-	Audio.play_sfx("pb" if is_pb else "finish")
+	Audio.play_sfx("finish")
+	if is_pb:
+		get_tree().create_timer(0.5).timeout.connect(func() -> void: Audio.play_sfx("pb"))
 	_finish_ticks = int(ceil(FINISH_SHOW_MS / TICK_MS))
 	_set_state(State.FINISHED)
 	_log("finish ms=%d pb=%s delta=%s" % [ms, is_pb, str(delta) if has_delta else "-"])
@@ -468,6 +478,7 @@ func respawn() -> void:
 
 ## New run from the start line (1.5 s hold).
 func restart_run() -> void:
+	camera.stop_intro()
 	if state == State.ROUND_OVER or state == State.LOADING:
 		return
 	if state == State.COUNTDOWN and _sync_go_ms >= 0:
@@ -503,9 +514,19 @@ func _on_car_wall_hit(strength: float) -> void:
 	if now - _last_wall_sfx_ms < 150:
 		return
 	_last_wall_sfx_ms = now
-	var k := clampf(strength / 20.0, 0.0, 1.0)
-	Audio.play_sfx("wall_hit", lerpf(-14.0, 0.0, k), randf_range(0.9, 1.1))
-	camera.add_shake(k * 0.6)
+	Audio.play_sfx("wall_hit", linear_to_db(clampf(strength / 15.0, 0.15, 1.0)), randf_range(0.9, 1.1))
+	camera.add_shake(clampf(strength / 20.0, 0.0, 1.0) * 0.6)
+
+
+func _on_boost_pad_body(body: Node3D) -> void:
+	if body != car:
+		return
+	var now := Time.get_ticks_msec()
+	if now - _last_boost_sfx_ms < 300:
+		return
+	_last_boost_sfx_ms = now
+	Audio.play_sfx("boost")
+	_log("boost_pad")
 
 
 func _on_autodriver_stuck() -> void:

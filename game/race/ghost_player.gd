@@ -55,6 +55,8 @@ func load_ghost(g: Dictionary) -> bool:
 	_wheel_radius = float(CarDefs.geometry(cfg["car"])["wheel_radius"])
 	if visual == null:
 		visual = CarVisual.new()
+		if "underglow_light_allowed" in visual:
+			visual.set("underglow_light_allowed", false)
 		add_child(visual)
 	visual.build(cfg["car"], cfg["style"])
 	visual.set_underglow_enabled(false)
