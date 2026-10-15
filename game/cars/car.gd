@@ -111,6 +111,10 @@ var _rev_timer := 0.0
 var _force := PackedFloat32Array([0, 0, 0, 0])
 var _vis_spin_arr: Array = [0.0, 0.0, 0.0, 0.0]
 var _vis_susp_arr: Array = [0.0, 0.0, 0.0, 0.0]
+## Weather surface map (wet asphalt + puddles), set by the race scene. null = dry everywhere.
+var surface: TrackSurface = null
+var _water := PackedFloat32Array([0, 0, 0, 0])
+var _water_avg := 0.0
 
 
 static func create(p_config: Dictionary) -> Car:
@@ -254,6 +258,8 @@ func get_flags() -> int:
 		f |= 8
 	if is_grounded():
 		f |= 16
+	if _water_avg > 0.2:
+		f |= 64
 	return f
 
 
@@ -312,6 +318,11 @@ func get_wheel_contact(i: int) -> bool:
 ## Wheelspin / tire-slip intensity 0..1 (for smoke, squeal).
 func get_wheelspin() -> float:
 	return _wheelspin
+
+
+## 0..1: how much of the car's tire contact is in a puddle (spray, splash sound, net flag).
+func get_water_amount() -> float:
+	return _water_avg
 
 
 func get_slip_angle() -> float:
@@ -576,7 +587,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var spin_assist := clampf((absf(slip) - deg_to_rad(50.0)) / deg_to_rad(30.0), 0.0, 1.0)
 	var scrub := 0.0
 	var spin_total := 0.0
+	var water_sum := 0.0
 	for i in 4:
+		_water[i] = 0.0
 		if not _contact[i]:
 			continue
 		var front := i < 2
@@ -592,6 +605,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var v_lat := vp.dot(ws)
 		var nload := _load[i]
 		var cm := _corner_mass[i]
+		# weather: wet asphalt + puddles (aquaplaning) scale every tire force at this wheel
+		var sgrip := 1.0
+		if surface != null:
+			var water := surface.water_at(_hit_pos[i])
+			_water[i] = water
+			water_sum += water
+			sgrip = surface.grip_for_water(water)
 		# longitudinal
 		var f_long := 0.0
 		if i >= 2 or drive_awd:
@@ -603,8 +623,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 					if fronts > 0 and rears > 0:
 						share = (0.4 / fronts) if front else (0.6 / rears)
 				f_long += drive_total * share
-		var long_cap := grip_long * nload
-		var drive_cap := traction * nload
+		var long_cap := grip_long * nload * sgrip
+		var drive_cap := traction * nload * lerpf(1.0, sgrip, 0.8)
 		var spin_excess := 0.0
 		if absf(f_long) > drive_cap:
 			spin_excess = (absf(f_long) - drive_cap) / maxf(drive_cap, 1.0)
@@ -619,6 +639,10 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if bf > 0.0:
 			bf = minf(minf(bf, long_cap), absf(v_long) * cm / dt * 0.8)
 			f_long -= signf(v_long) * bf
+		if _water[i] > 0.0:
+			# water drag: a puddle scrubs a little speed
+			var wd := minf(surface.drag_for_water(_water[i]) * cm, absf(v_long) * cm / dt * 0.5)
+			f_long -= signf(v_long) * wd
 		# lateral (slip-angle curve)
 		var mu := grip
 		var slide: float = params["front_slide"]
@@ -629,6 +653,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			mu *= 1.0 + spin_assist * 0.6
 			if _drift > 0.2 and throttle > 0.3 and not handbrake:
 				mu *= lerpf(1.0, 0.92, float(params["drift_assist"]) * _drift)
+		mu *= sgrip
 		var alpha := atan2(v_lat, maxf(absf(v_long), 2.5))
 		var s := absf(alpha) / peak
 		var ratio := s if s < 1.0 else lerpf(1.0, slide, clampf((s - 1.0) / 2.5, 0.0, 1.0))
@@ -652,6 +677,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_spin_vel[i] = sv
 		spin_total += clampf(spin_excess, 0.0, 1.0) + clampf(s - 1.0, 0.0, 2.0) * 0.5
 	_wheelspin = move_toward(_wheelspin, clampf(spin_total / 4.0, 0.0, 1.0), dt * 5.0)
+	_water_avg = water_sum / 4.0
 	for i in 4:
 		if not _contact[i]:
 			if (i >= 2 or drive_awd) and throttle > 0.1:

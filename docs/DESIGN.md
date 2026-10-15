@@ -110,6 +110,51 @@ Common style ("platform" roads, like Trackmania's stadium blocks):
 Roads are wide (14–20 m on platforms). Every stunt must be makeable by a keyboard player at
 a sensible speed (verified with the keyboard-emulation test). Turbo pads tell you where full speed is needed.
 
+### 4.1 Weather: our twist on Trackmania (owner request, 2026-10-15)
+
+> Owner: *"consider weather and how this can be different from trackmania. E.g. when in the rain,
+> there are puddles which makes cars slide more. Include this in the stage design."*
+
+In Trackmania a track's surfaces are fixed: a block is road, dirt, grass, ice or water forever.
+Here **weather is a round setting**, so the same stage plays three ways. The host picks it in
+the lobby. Solo players pick it on the track card ("Auto" means the stage's signature weather).
+
+| Weather | Asphalt grip | Puddles | Looks and sound |
+|---|---|---|---|
+| **Dry** | 100% | none, they've dried up | the stage's normal light |
+| **Rain** | 94% everywhere | the stage's rain puddles fill (grip ×0.5 in the middle, small water drag) | rain streaks, wet glossy road, rippling puddles, tire spray, rain ambience. Arena and coast get darker and foggier |
+| **Storm** | 90% everywhere | rain puddles grow ~30% **plus storm-only puddles** (grip ×0.42) | heavier, slanted rain, lightning flashes that light up the world, thunder |
+
+**Puddles are stage design, not decoration.** Each one is placed by hand in the layout
+(`{"puddle": len, "w": width, "x": lateral, "at": offset, "storm": bool}`) as a **line choice**:
+- the **dry line** is longer or tighter, or the **wet line** is faster if you keep the car straight,
+  because a puddle mostly punishes steering, braking and throttle while you're in it (aquaplaning);
+- water collects where it would in real life: apexes and the bottoms of banked turns, landing
+  zones, runoff on downhill dives;
+- **never** on a kicker, loop, wall ride or boost pad (tested): weather must never make a stunt
+  impossible, only make the line around it matter;
+- puddles read at speed: dark mirror water, a bright rim, rain ripples and a fake reflection of the
+  stage's lights (real SSR reflections on Forward+).
+
+Stage by stage:
+- **Neon Downtown** (signature weather **rain**): a "rooftop pool" on the turn-in line of the
+  first right-hander after the gap jump; a flooded apex in that turn; a **dive slalom**, with
+  puddles alternating sides down the tower dive (thread the dry centre or drive straight through);
+  in a storm, runoff on the last banked exit and standing water before the final super boost.
+- **Pulse Arena** (signature **dry**): a stadium-floor pool on the outside line into the first
+  banked 90; water at the bottom of the banked half-pipe. Storm adds a flooded gap-jump landing and
+  the half-pipe's outside line.
+- **Sunset Coast** (signature **dry**): both fast-sweeper apexes hold water; a pool on the turn-in
+  line before the left 70. Storm adds water on the bay-jump landing and runoff down the final drop.
+
+Fairness and records: weather is the **same for everyone in a round** (it comes with `round_start`).
+**PBs and PB ghosts are kept per stage *and* weather** (`arena@rain`), so a wet run never competes
+with a dry one.
+
+Future weather ideas (not built yet): crosswind gusts on the coast bay jump (air drift),
+coast fog banks, a drying line (puddles shrink over a long round after the rain stops),
+night/day per round, a snow/ice winter stage.
+
 ## 5. Controls (keyboard first; gamepad also mapped)
 
 | Action | Keyboard | Gamepad |

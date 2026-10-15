@@ -29,6 +29,12 @@ var theme: String = "arena"
 var gates: Array[Area3D] = []          # checkpoint gates in order
 var finish_gate: Area3D
 var boost_pads: Array[Area3D] = []
+## Weather (see res://weather/weather.gd): grip map with the stage's puddles, current mode.
+var surface: TrackSurface = TrackSurface.new()
+var weather: String = "dry"
+var _puddle_root: Node3D
+var _puddle_meshes: Array[MeshInstance3D] = []
+var _puddle_mat: ShaderMaterial
 
 
 static func load_layout(p_track_id: String) -> Dictionary:
@@ -103,6 +109,8 @@ func _build_geometry() -> void:
 	TrackBuilder.build_loop_gantries(self, data, layout)
 	_build_gates()
 	_build_boost_pads()
+	_build_puddles()
+	apply_weather("dry")
 
 
 # ---------------------------------------------------------------- gates
@@ -291,6 +299,97 @@ func _build_boost_pads() -> void:
 func _on_boost_body(body: Node3D, fwd: Vector3, accel: float, dur: float) -> void:
 	if body is Car:
 		(body as Car).apply_boost(fwd, accel, dur)
+
+
+# ---------------------------------------------------------------- weather / puddles
+
+## Fake puddle reflection per theme: [horizon glow, light streaks].
+const PUDDLE_SHEEN := {
+	"city": [Color(0.7, 0.3, 0.95), Color(0.15, 0.9, 1.0)],
+	"arena": [Color(0.35, 0.55, 1.0), Color(0.95, 0.95, 1.0)],
+	"coast": [Color(1.0, 0.55, 0.3), Color(1.0, 0.85, 0.55)],
+}
+
+
+func _build_puddles() -> void:
+	var pds: Array = data.get("puddles", [])
+	if pds.is_empty():
+		return
+	_puddle_root = Node3D.new()
+	_puddle_root.name = "Puddles"
+	add_child(_puddle_root)
+	var sh: Array = PUDDLE_SHEEN.get(theme, PUDDLE_SHEEN["arena"])
+	# where Forward+ SSR mirrors the real world, the fake reflection only fills in
+	var ssr := not Settings.is_compat() and Settings.quality >= 2
+	_puddle_mat = TrackBuilder.shader_material("res://shaders/track_puddle.gdshader", {
+		"sheen_color": sh[0], "light_color": sh[1], "sheen": 0.45 if ssr else 1.0})
+	var k := 0
+	for pd in pds:
+		var d0: float = pd["d"]
+		var len: float = pd["len"]
+		var w: float = pd["w"]
+		var x: float = pd["x"]
+		var mid := path.sample_transform(d0 + len * 0.5)
+		surface.add_puddle(Transform3D(mid.basis, mid.origin + mid.basis.x * x), w * 0.5, len * 0.5, bool(pd["storm"]))
+		var mi := MeshInstance3D.new()
+		mi.name = "Puddle%d" % k
+		mi.mesh = _puddle_mesh(d0, len, w, x)
+		mi.material_override = _puddle_mat
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.set_instance_shader_parameter("seed", float(k) * 0.37 + 0.11)
+		mi.set_meta("storm_only", bool(pd["storm"]))
+		_puddle_root.add_child(mi)
+		_puddle_meshes.append(mi)
+		k += 1
+
+
+## A grid lying on the road from d0 to d0+len, `w` wide, centered `x` m right of the centerline.
+## UV = [-1, 1]^2 over the puddle, UV2 = meters.
+func _puddle_mesh(d0: float, len: float, w: float, x: float) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var nx := 6
+	var nz := maxi(4, ceili(len / 1.5))
+	for j in nz + 1:
+		var fz := float(j) / nz
+		var f := path.sample_transform(d0 + len * fz)
+		for i in nx + 1:
+			var fx := float(i) / nx
+			var u := fx * 2.0 - 1.0
+			st.set_uv(Vector2(u, fz * 2.0 - 1.0))
+			st.set_uv2(Vector2(u * w * 0.5, fz * len))
+			st.set_normal(f.basis.y)
+			st.add_vertex(f.origin + f.basis.x * (x + u * w * 0.5) + f.basis.y * 0.035)
+	for j in nz:
+		for i in nx:
+			var a := j * (nx + 1) + i
+			var b := a + 1
+			var c := a + nx + 1
+			var d := c + 1
+			# road frame: +x right, -z forward; keep the faces pointing up (basis.y)
+			st.add_index(a)
+			st.add_index(c)
+			st.add_index(b)
+			st.add_index(b)
+			st.add_index(c)
+			st.add_index(d)
+	st.generate_tangents()
+	return st.commit()
+
+
+## Switch the track to a weather mode: puddles fill or dry up, the road gets wet or dry, and
+## `surface` (shared with Car.surface) changes grip. Cheap, so it can be called any time.
+func apply_weather(mode: String) -> void:
+	weather = Weather.sanitize(mode)
+	surface.set_mode(weather)
+	if _puddle_mat != null:
+		_puddle_mat.set_shader_parameter("extent", maxf(Weather.puddle_extent(weather), 0.01))
+		_puddle_mat.set_shader_parameter("rain", Weather.rain_density(weather))
+	for mi in _puddle_meshes:
+		mi.visible = weather == "storm" or (weather == "rain" and not bool(mi.get_meta("storm_only", false)))
+	var style: String = layout.get("wall_style", "concrete")
+	var road_mat := TrackBuilder.road_material(String(layout.get("road_style", style)), layout.get("wet", false))
+	road_mat.set_shader_parameter("wetness", Weather.road_wetness(weather))
 
 
 # ---------------------------------------------------------------- API

@@ -13,7 +13,7 @@ GEN = os.path.abspath(os.path.join(HERE, "..", "..", "game", "audio", "generated
 
 IMPORTED = os.path.abspath(os.path.join(GEN, "..", "..", ".godot", "imported"))
 
-LOOP_PREFIXES = ("eng_", "music_", "car_turbo", "car_nitro.", "car_squeal", "car_wind")
+LOOP_PREFIXES = ("eng_", "music_", "amb_", "car_turbo", "car_nitro.", "car_squeal", "car_wind")
 
 
 def is_loop(name: str) -> bool:

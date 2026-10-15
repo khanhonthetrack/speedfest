@@ -176,13 +176,15 @@ func set_ready(ready: bool) -> void:
 	_send({"type": "ready", "ready": ready})
 
 
-## Host only. Keys are optional: {"track": String, "duration_s": int}.
+## Host only. Keys are optional: {"track": String, "duration_s": int, "weather": "dry"|"rain"|"storm"}.
 func host_set_settings(settings: Dictionary) -> void:
 	var msg := {"type": "settings"}
 	if settings.has("track"):
 		msg["track"] = String(settings["track"])
 	if settings.has("duration_s"):
 		msg["duration_s"] = int(settings["duration_s"])
+	if settings.has("weather"):
+		msg["weather"] = Weather.sanitize(settings["weather"])
 	_send(msg)
 
 
@@ -512,6 +514,7 @@ func _on_round_start(m: Dictionary) -> void:
 		"round_id": _int(m.get("round_id"), 0),
 		"track": _str(m.get("track"), "arena"),
 		"duration_s": _int(m.get("duration_s"), 0),
+		"weather": Weather.sanitize(m.get("weather", "dry")),
 		"start_at_local_ms": server_to_local_ms(start_at),
 		"end_at_local_ms": server_to_local_ms(end_at),
 		# additive

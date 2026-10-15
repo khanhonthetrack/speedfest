@@ -150,6 +150,14 @@ describe('speedfest server', () => {
     A.send({ type: 'settings', track: 'coast', duration_s: 2 });
     room = await C.room((r) => r.settings.track === 'coast');
     assert.equal(room.settings.duration_s, 2);
+    assert.equal(room.settings.weather, 'dry', 'weather defaults to dry');
+    A.send({ type: 'settings', weather: 'monsoon' });
+    assert.equal((await A.next('error')).code, 'bad_value');
+    A.send({ type: 'settings', weather: 'Storm' });
+    room = await C.room((r) => r.settings.weather === 'storm');
+    assert.equal(room.settings.track, 'coast', 'weather change keeps the track');
+    A.send({ type: 'settings', weather: 'rain' });
+    room = await C.room((r) => r.settings.weather === 'rain');
 
     // chat
     B.send({ type: 'chat', text: '  gl\u0000 hf  ' + 'x'.repeat(400) });
@@ -165,6 +173,7 @@ describe('speedfest server', () => {
     C.drain();
     A.send({ type: 'start' });
     const starts = await Promise.all([A, B, C].map((c) => c.next('round_start')));
+    for (const st of starts) assert.equal(st.weather, 'rain', 'round_start carries the weather');
     for (const s of starts) {
       assert.equal(s.round_id, starts[0].round_id);
       assert.equal(s.track, 'coast');

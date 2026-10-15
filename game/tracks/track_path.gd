@@ -81,19 +81,28 @@ func _tangent_at(d: float) -> Vector3:
 	return t.normalized()
 
 
+## Linear tilt between control points (binary search). Layouts emit dense points (~2.5 m), so a
+## per-segment smoothstep would turn wall-ride roll into a staircase twist (zero roll rate at every
+## point, double in between) that the suspension feels as a washboard at speed.
 func _tilt_at(d: float) -> float:
 	var n := curve.point_count
 	if n == 0:
 		return 0.0
 	if d <= _point_offsets[0]:
 		return curve.get_point_tilt(0)
-	for i in range(1, n):
-		if d <= _point_offsets[i]:
-			var span := _point_offsets[i] - _point_offsets[i - 1]
-			var f := 0.0 if span <= 0.0001 else (d - _point_offsets[i - 1]) / span
-			f = f * f * (3.0 - 2.0 * f)
-			return lerpf(curve.get_point_tilt(i - 1), curve.get_point_tilt(i), f)
-	return curve.get_point_tilt(n - 1)
+	if d >= _point_offsets[n - 1]:
+		return curve.get_point_tilt(n - 1)
+	var lo := 0
+	var hi := n - 1
+	while hi - lo > 1:
+		var mid := (lo + hi) >> 1
+		if _point_offsets[mid] < d:
+			lo = mid
+		else:
+			hi = mid
+	var span := _point_offsets[hi] - _point_offsets[lo]
+	var f := 0.0 if span <= 0.0001 else (d - _point_offsets[lo]) / span
+	return lerpf(curve.get_point_tilt(lo), curve.get_point_tilt(hi), clampf(f, 0.0, 1.0))
 
 
 func _bake_frames() -> void:

@@ -94,7 +94,7 @@ configs received from the network.
   "p": [x, y, z], "q": [x, y, z, w], "v": [vx, vy, vz],
   "st": 0.0,                     // steer -1..1
   "rpm": 0.0,                    // 0..1
-  "fl": 0 }                      // flags: 1 braking, 2 nitro, 4 drifting, 8 reversing, 16 grounded, 32 finished-display
+  "fl": 0 }                      // flags: 1 braking, 2 nitro, 4 drifting, 8 reversing, 16 grounded, 32 finished-display, 64 in a puddle
 ```
 
 ## Autoload singletons (`game/autoload/`)
@@ -147,7 +147,8 @@ var mode: String            # "solo" | "online"
 var track_id: String
 var round_info: Dictionary  # from Net.round_started (online)
 func goto(scene_path: String) -> void
-func start_solo(track_id: String) -> void
+var weather: String          # solo pick; online = round_info.weather ("" = Weather.default_for(track))
+func start_solo(track_id: String, weather := "") -> void
 func start_online_round(info: Dictionary) -> void
 func to_menu() -> void; func to_lobby() -> void; func to_garage(return_to := "") -> void
 var garage_return_scene: String
@@ -159,7 +160,7 @@ signal connected
 signal disconnected(reason: String)
 signal rooms_listed(rooms: Array)                  # [{code, name, players, phase, track}]
 signal room_changed(room: Dictionary)              # full room state, see protocol
-signal round_started(info: Dictionary)             # {round_id, track, duration_s, start_at_local_ms, end_at_local_ms}
+signal round_started(info: Dictionary)             # {round_id, track, duration_s, weather, start_at_local_ms, end_at_local_ms}
 signal round_ended(results: Array)                 # [{id, name, car, best_ms, runs}] sorted
 signal leaderboard_changed(entries: Array)         # same shape as results, live
 signal player_state(id: int, state: Dictionary)    # snapshot (see schema) from another player
@@ -179,7 +180,7 @@ func join_room(code: String) -> void
 func leave_room() -> void
 func set_profile(player_name: String, car_config: Dictionary) -> void
 func set_ready(ready: bool) -> void
-func host_set_settings(settings: Dictionary) -> void   # {track, duration_s}
+func host_set_settings(settings: Dictionary) -> void   # {track, duration_s, weather} (all optional)
 func host_start_round() -> void
 func send_state(state: Dictionary) -> void             # call every physics tick; Net throttles to ~20 Hz
 func send_checkpoint(round_id: int, cp_index: int, time_ms: int) -> void
@@ -207,6 +208,8 @@ func round_time_left_ms() -> int                   # ms left in the round (0 = o
 func play_ui(name: String) -> void        # "click","hover","back","confirm","error"
 func play_sfx(name: String, volume_db := 0.0, pitch := 1.0) -> void   # "checkpoint","finish","pb","countdown","go","respawn"
 func play_music(name: String) -> void     # "menu","race"; ""/stop_music() to stop
+func play_ambience(name: String, volume_db := 0.0) -> void   # looping bed: "rain"; stop_ambience()
+# sfx also: "thunder", "splash"
 func stop_music() -> void
 ```
 `EngineAudio` (`res://audio/engine_audio.gd`, `class_name EngineAudio extends Node3D`):
@@ -249,6 +252,8 @@ func get_net_state() -> Dictionary                # snapshot schema (without "t"
 func teleport(xform: Transform3D, linear_velocity := Vector3.ZERO) -> void
 func refill_nitro() -> void
 func apply_boost(direction: Vector3, accel: float, duration: float) -> void   # boost pads
+var surface: TrackSurface                         # weather grip map (set by race = track.surface); null = dry
+func get_water_amount() -> float                  # 0..1 tire contact in puddles (spray, sound, flag 64)
 ```
 Car reads `controls` every physics tick. `CarInput` (`res://cars/car_input.gd`, a Node child of
 the car) fills them from the InputMap for the local player. `AutoDriver`
@@ -297,6 +302,9 @@ var kill_y: float
 func get_start_transform() -> Transform3D               # car origin pose for a standing start
 func get_checkpoint_transform(index: int) -> Transform3D   # respawn pose at checkpoint (index -1 = start)
 func get_minimap_points() -> PackedVector2Array          # XZ centerline, for HUD minimap
+var surface: TrackSurface                                # puddles from the layout's {"puddle": ...} markers
+var weather: String
+func apply_weather(mode: String) -> void                 # "dry"|"rain"|"storm": puddles, road wetness, grip
 ```
 Track signals fire for **any** `Car` body. `race.gd` filters for the local car.
 `TrackDefs` (`res://tracks/track_defs.gd`, core) has ids, display names, themes, and descriptions.
@@ -310,6 +318,20 @@ static func build_props(theme: String, path: TrackPath, rng_seed: int) -> Node3D
 ```
 Props must not intrude on the road: keep `path.edge_clearance(p) > 2` unless intentional,
 for example tunnel walls or overhead gantries. Collision is only needed on props a car can reach.
+
+## Weather (`res://weather/`, core)
+
+- `Weather` (static rules): `MODES` dry/rain/storm, `default_for(track_id)` (TrackDefs "weather"),
+  `road_grip`, `puddle_grip`, `puddle_drag`, `puddle_extent`, `road_wetness`, `rain_density`,
+  `pb_key(track_id, mode)` → `"arena@rain"` (PBs and ghosts are per weather).
+- `TrackSurface`: puddle ellipses (built at storm size, shrunk in rain, storm-only ones inactive in
+  rain). `water_at(pos)`, `grip_for_water(w)`, `grip_at(pos)`, `drag_for_water(w)`, `set_mode(m)`.
+  Car samples it per wheel contact: lateral grip, traction and braking scale by the grip, and water
+  drag scrubs a little speed.
+- `WeatherFX` (race scene): rain streaks on the camera (`SceneryRain.create(density)`), darker and
+  foggier light for wet rounds on dry-themed stages, storm lightning + thunder, rain ambience.
+- `WaterSpray`: tire spray (splash in puddles, mist on wet asphalt) for local and remote cars.
+- Design and stage placement: DESIGN §4.1. Tests: `tests/weather/test_weather.tscn`.
 
 ## Race (`res://race/`, race module)
 
@@ -366,7 +388,7 @@ Client → Server:
 | `leave_room` | | |
 | `profile` | `name`, `car` (CarConfig) | |
 | `ready` | `ready` (bool) | |
-| `settings` | `track`, `duration_s` | host only |
+| `settings` | `track`, `duration_s`, `weather` (each optional) | host only; weather ∈ dry/rain/storm |
 | `start` | | host only; needs ≥ 1 player |
 | `state` | snapshot fields | relayed to the room as `state {id, ...}` |
 | `cp` | `round_id`, `cp`, `ms` | relayed as `cp {id, cp, ms}` |
@@ -374,7 +396,7 @@ Client → Server:
 | `chat` | `text` (≤ 200 chars) | relayed as `chat {id, name, text}` |
 
 Server → Client: `welcome {id, server_t, version}`, `pong {t, server_t}`, `rooms {rooms:[…]}`,
-`room {room}`, `round_start {round_id, track, duration_s, start_at, end_at}`
+`room {room}`, `round_start {round_id, track, duration_s, weather, start_at, end_at}`
 (server ms; the client converts to local with its clock offset), `round_end {results}`,
 `leaderboard {entries}`, `state {id, …}`, `cp {id, cp, ms}`, `left {id}`, `chat {id, name, text}`,
 `error {message}`.
@@ -382,7 +404,7 @@ Server → Client: `welcome {id, server_t, version}`, `pong {t, server_t}`, `roo
 Room object:
 ```jsonc
 { "code": "ABCD", "name": "...", "host": 3, "phase": "lobby",   // lobby|countdown|racing|results
-  "settings": {"track": "arena", "duration_s": 300},
+  "settings": {"track": "arena", "duration_s": 300, "weather": "dry"},
   "players": [{"id": 3, "name": "Khanh", "car": {CarConfig}, "ready": true, "best_ms": -1, "runs": 0}],
   "round": {"round_id": 2, "track": "arena", "start_at": 0, "end_at": 0} }
 ```

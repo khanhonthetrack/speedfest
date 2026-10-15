@@ -258,7 +258,8 @@ func _build_profile(car: Car) -> void:
 	_stan.resize(n)
 	var p := car.params
 	var m: float = p["mass"]
-	var mu := float(p["grip"]) * grip_margin
+	# wet weather: plan with the wet-asphalt grip (puddles are left to the steering)
+	var mu := float(p["grip"]) * grip_margin * (car.surface.grip_for_water(0.0) if car.surface != null else 1.0)
 	var g := CarPhysicsDefs.GRAVITY
 	var dfm := float(p["downforce"]) / m
 	for i in n:

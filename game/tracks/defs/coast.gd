@@ -27,6 +27,9 @@ func layout() -> Dictionary:
 			{"boost": 12}, {"s": 50},
 			# fast banked sweepers
 			{"walls": "both"},
+			# WEATHER: both sweeper apexes hold water (left, then right)
+			{"puddle": 24, "w": 6.0, "x": -5.0, "at": 26.0},
+			{"puddle": 24, "w": 6.0, "x": 5.0, "at": 107.0},
 			{"t": -40, "r": 110, "bank": 16},
 			{"t": 45, "r": 110, "bank": 16},
 			{"walls": "both"},
@@ -34,7 +37,7 @@ func layout() -> Dictionary:
 			{"s": 40},
 			# wall ride along the cliff face (right-hand)
 			{"walls": "both"},
-			{"wallride": 110, "r": 70, "roll": 65, "ramp": 62.0},
+			{"wallride": 110, "r": 70, "roll": 65, "ramp": 95.0},
 			{"s": 40},
 			{"walls": "both"},
 			{"cp": true},
@@ -42,7 +45,11 @@ func layout() -> Dictionary:
 			# the huge jump across the bay: a wide landing pad well below the lip, long run-out
 			{"jump": {"ramp": 45.0, "h": 3.0, "gap": 45.0, "land": 90.0, "drop": 8.0, "end_dy": -10.0, "check_kmh": 260.0}, "w": 40.0, "zone": "bridge"},
 			{"cp": true},
+			# WEATHER (storm): spray and standing water on the bay-jump landing
+			{"puddle": 18, "w": 14.0, "x": 0.0, "at": 10.0, "storm": true},
 			{"s": 120, "w": 30.0},
+			# WEATHER: a pool on the outside (right) turn-in line for the left 70
+			{"puddle": 18, "w": 8.0, "x": 4.5, "at": 22.0},
 			{"s": 50, "w": 18.0},
 			{"walls": "both"},
 			{"t": -70, "r": 80, "bank": 20},
@@ -53,6 +60,9 @@ func layout() -> Dictionary:
 			{"s": 40, "w": 18.0},
 			{"cp": true},
 			# drop toward the beach
+			# WEATHER (storm): runoff streams down the drop
+			{"puddle": 14, "w": 7.0, "x": 4.5, "at": 30.0, "storm": true},
+			{"puddle": 14, "w": 7.0, "x": -4.5, "at": 70.0, "storm": true},
 			{"s": 120, "dy": -16.0},
 			{"boost": 12, "super": true},
 			{"s": 60, "w": 22.0},

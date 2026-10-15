@@ -12,7 +12,8 @@ extends RefCounted
 ##   {"hermite": [Vector3 end, yaw_deg], "len_scale": 1.0}  smooth connector to a pose
 ##   {"close": true}                     circuits: smooth connector back to the start pose
 ## Markers (zero length): {"cp": true}, {"start": true}, {"finish": true},
-##   {"boost": 10} (pad length), {"zone": "tunnel", "on": true/false}, {"walls": "both"|"left"|"right"|"none"}
+##   {"boost": 10} (pad length), {"zone": "tunnel", "on": true/false}, {"walls": "both"|"left"|"right"|"none"},
+##   {"puddle": 14, "w": 7, "x": -4, "at": 0, "storm": false} (weather puddle, see res://weather/weather.gd)
 ## Any segment may also carry "zone": "tunnel"|"bridge"|"no_props" which covers just that segment.
 
 const STEP := 2.5
@@ -48,6 +49,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	var dist: Array[float] = [0.0]
 	var cps: Array[float] = []
 	var boosts: Array = []
+	var puddles: Array = []
 	var zones: Array = []
 	var gaps: Array = []
 	var loops: Array = []
@@ -89,6 +91,12 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			boosts.append({"d": d0, "len": float(s["boost"]), "super": sup,
 				"accel": float(s.get("accel", 26.0 if sup else 20.0)), "dur": float(s.get("dur", 1.6 if sup else 1.3))})
 			zones.append({"from": d0 - 2.0, "to": d0 + float(s["boost"]) + 2.0, "kind": "boost"})
+			continue
+		if s.has("puddle"):
+			# weather puddle (only wet in rain/storm): {"puddle": length, "w": width, "x": lateral
+			# offset (+ = right), "at": start offset along the path, "storm": storm-only}
+			puddles.append({"d": d0 + float(s.get("at", 0.0)), "len": float(s["puddle"]),
+				"w": float(s.get("w", 8.0)), "x": float(s.get("x", 0.0)), "storm": bool(s.get("storm", false))})
 			continue
 		if s.has("walls") and s.size() == 1:
 			if d0 > wall_from:
@@ -142,27 +150,43 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			yaw -= ang
 		elif s.has("wallride"):
 			# A curve whose road rolls up to `roll` degrees (the car rides the wall) and back.
-			# Roll ramps over `ramp` meters at each end (smoothstep) so the surface normal
-			# turns gently (<= ~4.5 deg/m). The road rotates about its centerline (no lift).
+			# Roll ramps over `ramp` meters at each end (smoothstep) and the CURVATURE ramps with it
+			# (clothoid-like): the car is never asked to turn hard while the road is still flat, and
+			# the surface normal turns gently. `r` is the radius at full roll; the total turn is
+			# exactly `wallride` degrees, so the piece is `ramp` m longer than a plain arc.
+			# The road rotates about its centerline (no lift).
 			var ang := deg_to_rad(float(s["wallride"]))
 			var r: float = s.get("r", 60.0)
 			var dy: float = s.get("dy", 0.0)
 			var roll := deg_to_rad(float(s.get("roll", 80.0))) * signf(ang)
-			var center := start_p + right * r * signf(ang)
-			center.y = 0.0
-			var rel := start_p - center
-			rel.y = 0.0
-			var L := absf(ang) * r
-			var rl: float = minf(float(s.get("ramp", 40.0)), L * 0.42)
-			var n := maxi(2, ceili(L / 2.0))
+			var sg := signf(ang)
+			var rl: float = float(s.get("ramp", 40.0))
+			# "clothoid": curvature follows the roll; otherwise a constant-radius arc whose roll
+			# ramps in and out (curvature is full while the road is still flat at both ends).
+			var clothoid: bool = s.get("clothoid", false)
+			var L := absf(ang) * r + (rl if clothoid else 0.0)
+			rl = minf(rl, L * (0.45 if clothoid else 0.42))
+			var n := maxi(4, ceili(L / 2.0))
+			var ds := L / n
+			var prof := func(x: float) -> float:
+				return smoothstep(0.0, rl, x) * (1.0 - smoothstep(L - rl, L, x))
+			var kprof := func(x: float) -> float:
+				return float(prof.call(x)) if clothoid else 1.0
+			var tot := 0.0
+			for i in n:
+				tot += float(kprof.call((i + 0.5) * ds)) * ds
+			var kmax := absf(ang) / maxf(tot, 0.001)
 			var wf := d0
+			var p := start_p
+			var h := yaw
 			for i in range(1, n + 1):
-				var f := float(i) / n
-				var sl := f * L
-				var p := center + rel.rotated(Vector3.UP, -ang * f)
-				p.y = y0 + dy * smoothstep(0.0, 1.0, f)
-				var amt := smoothstep(0.0, rl, sl) * (1.0 - smoothstep(L - rl, L, sl))
-				emit.call(p, roll * amt)
+				var dh := sg * kmax * float(kprof.call((i - 0.5) * ds)) * ds
+				var h_new := h - dh
+				p += forward_of((h + h_new) * 0.5) * ds
+				h = h_new
+				var q := p
+				q.y = y0 + dy * smoothstep(0.0, 1.0, float(i) / n)
+				emit.call(q, roll * float(prof.call(i * ds)))
 			yaw -= ang
 			wallrides.append({"from": wf, "to": dist[dist.size() - 1], "roll": rad_to_deg(absf(roll)), "radius": r})
 			zones.append({"from": wf, "to": dist[dist.size() - 1], "kind": "wallride"})
@@ -316,6 +340,8 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		cps[i] = sc.call(cps[i])
 	for b in boosts:
 		b["d"] = sc.call(b["d"])
+	for pd in puddles:
+		pd["d"] = sc.call(pd["d"])
 	for z in zones:
 		z["from"] = sc.call(z["from"])
 		z["to"] = sc.call(z["to"])
@@ -360,7 +386,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	return {
 		"wallrides": wallrides,
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
-		"boosts": boosts, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
+		"boosts": boosts, "puddles": puddles, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
 		"points": PackedVector3Array(pts), "circuit": circuit,
 	}
 

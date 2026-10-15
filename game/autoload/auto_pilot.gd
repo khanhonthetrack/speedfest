@@ -8,7 +8,7 @@ extends Node
 ##   --auto_online=host|guest   role
 ##   --url=ws://...             server (default Settings.resolve_server_url())
 ##   --name=Bot1 --car=brute    profile overrides
-##   --track=arena --duration=60  host: round settings
+##   --track=arena --duration=60 --weather=rain  host: round settings
 ##   --expect=3                 host: wait for this many players before starting (default 2)
 ##   --rounds=1                 host: how many rounds to start
 ##   --code=ABCD                guest: room to join (default: first room found)
@@ -94,6 +94,7 @@ func _on_room(room: Dictionary) -> void:
 			Net.host_set_settings({
 				"track": String(TestHooks.arg("track", "arena")),
 				"duration_s": int(TestHooks.arg("duration", 60)),
+				"weather": String(TestHooks.arg("weather", "dry")),
 			})
 		var players: int = room.get("players", []).size()
 		if players >= int(TestHooks.arg("expect", 2)) and _rounds_started < int(TestHooks.arg("rounds", 1)) and not _start_pending:

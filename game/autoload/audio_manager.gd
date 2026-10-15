@@ -28,6 +28,12 @@ const SFX := {
 	"land": ["car_land", -3.0],
 	"blowoff": ["car_blowoff", -5.0],
 	"nitro": ["car_nitro_start", -5.0],
+	"thunder": ["sfx_thunder", -2.0],
+	"splash": ["sfx_splash", -4.0],
+}
+## Looping ambience beds (weather).
+const AMBIENCE := {
+	"rain": ["amb_rain", -9.0],
 }
 const MUSIC := {
 	"menu": ["music_menu", -4.0],
@@ -50,6 +56,9 @@ var _music_active := 0               # index of the player that is (or will be) 
 var _music_name := ""
 var _music_tween: Tween = null
 var _gesture_seen := false
+var _amb: AudioStreamPlayer
+var _amb_name := ""
+var _amb_tween: Tween = null
 var _warned: Dictionary = {}
 
 
@@ -61,6 +70,7 @@ func _ready() -> void:
 		_sfx.append(_make_player("Sfx%d" % i, Settings.BUS_SFX))
 	for i in 2:
 		_music.append(_make_player("Music%d" % i, Settings.BUS_MUSIC))
+	_amb = _make_player("Ambience", Settings.BUS_SFX)
 	_add_master_limiter()
 	# Browsers only start audio after a user gesture. Godot resumes the AudioContext itself;
 	# we restart the music once on the first gesture in case its start was swallowed.
@@ -135,6 +145,45 @@ func stop_music() -> void:
 	_fade_music(null, 0.0, _music[_music_active])
 
 
+## Looping ambience (e.g. "rain"), faded in over ~1 s; "" or stop_ambience() fades it out.
+func play_ambience(bed: String, volume_db := 0.0) -> void:
+	if bed == "":
+		stop_ambience()
+		return
+	var e: Array = AMBIENCE.get(bed, [])
+	if e.is_empty():
+		_warn_once("Audio.play_ambience: unknown bed '%s'" % bed)
+		return
+	var stream := _stream(e[0], true)
+	if stream == null:
+		return
+	if _amb_tween and _amb_tween.is_valid():
+		_amb_tween.kill()
+	var target := float(e[1]) + volume_db
+	if _amb_name != bed or not _amb.playing:
+		_amb.stream = stream
+		_amb.volume_db = -40.0
+		_amb.play()
+	_amb_name = bed
+	_amb_tween = create_tween()
+	_amb_tween.tween_property(_amb, "volume_db", target, 1.0)
+
+
+func stop_ambience() -> void:
+	_amb_name = ""
+	if _amb == null or not _amb.playing:
+		return
+	if _amb_tween and _amb_tween.is_valid():
+		_amb_tween.kill()
+	_amb_tween = create_tween()
+	_amb_tween.tween_property(_amb, "volume_db", -50.0, 0.8)
+	_amb_tween.tween_callback(_amb.stop)
+
+
+func current_ambience() -> String:
+	return _amb_name
+
+
 ## Name of the music that is playing ("" = none).
 func current_music() -> String:
 	return _music_name
@@ -146,7 +195,7 @@ func is_music_playing() -> bool:
 
 ## Number of pooled players (for tests: pools never grow).
 func get_player_count() -> int:
-	return _ui.size() + _sfx.size() + _music.size()
+	return _ui.size() + _sfx.size() + _music.size() + 1
 
 
 # --------------------------------------------------------------------------- internals
@@ -159,6 +208,8 @@ func _input(event: InputEvent) -> void:
 		set_process_input(false)
 		if _music_name != "":
 			_music[_music_active].play()
+		if _amb_name != "" and not _amb.playing:
+			_amb.play()
 
 
 func _play_pooled(pool: Array[AudioStreamPlayer], is_ui: bool, file: String, volume_db: float, pitch: float) -> void:

@@ -34,6 +34,10 @@ func _ready() -> void:
 	track = Track.build(track_id)
 	add_child(track)
 	car = Car.create(CarDefs.default_config(car_id))
+	# --weather=dry|rain|storm (default: the stage's own weather, like a solo run)
+	var wx := Weather.sanitize(TestHooks.arg("weather", Weather.default_for(track_id)))
+	track.apply_weather(wx)
+	car.surface = track.surface
 	add_child(car)
 	ai = AutoDriver.new()
 	ai.path = track.path

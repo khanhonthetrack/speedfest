@@ -63,6 +63,15 @@ function cleanTrackId(v) {
   return s;
 }
 
+const WEATHERS = ['dry', 'rain', 'storm'];
+
+/** Round weather: one of WEATHERS, or null. */
+function cleanWeather(v) {
+  if (typeof v !== 'string') return null;
+  const s = v.trim().toLowerCase();
+  return WEATHERS.includes(s) ? s : null;
+}
+
 /** Car config is opaque to the server (clients run CarDefs.sanitize_config); keep it small. */
 function cleanCarConfig(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
@@ -135,6 +144,8 @@ module.exports = {
   toInt,
   clamp,
   cleanTrackId,
+  cleanWeather,
+  WEATHERS,
   cleanCarConfig,
   carIdOf,
   cleanState,

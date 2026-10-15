@@ -1,6 +1,6 @@
 """Generate every SpeedFest sound into game/audio/generated/ (Ogg Vorbis).
 
-usage: python3 tools/audio/gen_all.py [--only engines|sfx|music] [--png DIR]
+usage: python3 tools/audio/gen_all.py [--only engines|sfx|weather|music] [--png DIR]
 Then run tools/audio/build.sh (or tools/godot_import.sh + fix_loops.py) so Godot imports them.
 
 Deterministic: fixed seeds everywhere, so re-running produces the same audio.
@@ -16,6 +16,7 @@ sys.path.insert(0, HERE)
 
 import gen_engines as E  # noqa: E402
 import gen_sfx as X  # noqa: E402
+import gen_weather as W  # noqa: E402
 import synth as S  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -52,6 +53,13 @@ def gen_engines(png_dir: str | None) -> int:
 def gen_sfx(png_dir: str | None) -> int:
 	total = 0
 	for name, fn in X.ALL.items():
+		total += _save(name, fn(), Q_SFX, png_dir)
+	return total
+
+
+def gen_weather(png_dir: str | None) -> int:
+	total = 0
+	for name, fn in W.ALL.items():
 		total += _save(name, fn(), Q_SFX, png_dir)
 	return total
 
@@ -96,7 +104,7 @@ def _write_layers_gd(layers: dict, turbo_f0: float) -> None:
 
 def main() -> None:
 	ap = argparse.ArgumentParser()
-	ap.add_argument("--only", choices=["engines", "sfx", "music"], default=None)
+	ap.add_argument("--only", choices=["engines", "sfx", "weather", "music"], default=None)
 	ap.add_argument("--png", default=None, help="write spectrogram PNGs into this directory")
 	a = ap.parse_args()
 	os.makedirs(OUT, exist_ok=True)
@@ -105,6 +113,8 @@ def main() -> None:
 		total += gen_engines(a.png)
 	if a.only in (None, "sfx"):
 		total += gen_sfx(a.png)
+	if a.only in (None, "weather"):
+		total += gen_weather(a.png)
 	if a.only in (None, "music"):
 		total += gen_music(a.png)
 	print(f"TOTAL {total / 1024:.1f} KB")

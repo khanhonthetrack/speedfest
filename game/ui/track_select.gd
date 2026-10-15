@@ -8,6 +8,10 @@ const THEME_COLORS := {"city": Color("#ff2bd6"), "arena": Color("#00e5ff"), "coa
 var cards: Array[Button] = []
 var car_label: Label
 var _starting := false
+## "" = each stage's signature weather (Weather.default_for), else "dry"/"rain"/"storm".
+var weather_pick := ""
+var weather_row: HFlowContainer
+var _pb_labels := {}            # track id -> Label
 
 
 func _ready() -> void:
@@ -32,7 +36,7 @@ func start(track_id: String) -> void:
 		return
 	_starting = true
 	Audio.play_ui("confirm")
-	Game.start_solo(track_id)
+	Game.start_solo(track_id, weather_pick)
 
 
 func _build() -> void:
@@ -81,6 +85,15 @@ func _build() -> void:
 	garage.pressed.connect(func() -> void: Game.to_garage(Game.SCENE_TRACK_SELECT))
 	bottom.add_child(garage)
 	bottom.add_child(MenuKit.spacer(0, 0, true))
+	var wl := UITheme.label("WEATHER", "head", 13, UITheme.TEXT_DIM)
+	wl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bottom.add_child(wl)
+	weather_row = MenuKit.chip_row(["AUTO", "DRY", "RAIN", "STORM"], _on_pick_weather, 76)
+	weather_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	weather_row.custom_minimum_size.x = 4 * 96
+	bottom.add_child(weather_row)
+	MenuKit.select_chip(weather_row, 0)
+	bottom.add_child(MenuKit.spacer(24, 0))
 	var hints := MenuKit.key_hints([["← →", "Track"], ["ENTER", "Race"], ["ESC", "Back"]])
 	hints.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	bottom.add_child(hints)
@@ -144,7 +157,7 @@ func _card(id: String) -> Button:
 	iv.add_theme_constant_override("separation", 4)
 	iv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(iv)
-	var tag := UITheme.label("%s  ·  %s" % [THEME_NAMES.get(th, th.to_upper()), "CIRCUIT" if bool(d["circuit"]) else "SPRINT"], "head", 13, accent)
+	var tag := UITheme.label("%s  ·  %s" % [THEME_NAMES.get(th, th.to_upper()), "STUNT RUN"], "head", 13, accent)
 	iv.add_child(tag)
 	var nm := UITheme.label(String(d["name"]).to_upper(), "heavy", 26, UITheme.TEXT)
 	nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -156,12 +169,32 @@ func _card(id: String) -> Button:
 	var stats := HBoxContainer.new()
 	stats.add_theme_constant_override("separation", 20)
 	stats.add_child(_stat("TARGET", "~%d s" % int(d["target_s"]), UITheme.TEXT))
-	var pb := Profile.get_pb(id)
-	stats.add_child(_stat("YOUR PB", UITheme.format_time(pb), UITheme.LIME if pb >= 0 else UITheme.TEXT_DIM))
+	var wx := _weather_for(id)
+	var pb := Profile.get_pb(Weather.pb_key(id, wx))
+	var pbs := _stat("PB · %s" % Weather.display_name(wx).to_upper(), UITheme.format_time(pb), UITheme.LIME if pb >= 0 else UITheme.TEXT_DIM)
+	stats.add_child(pbs)
+	_pb_labels[id] = pbs
 	iv.add_child(stats)
 	for c in [art, info, iv, tag, nm, bl, stats]:
 		(c as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return b
+
+
+func _weather_for(id: String) -> String:
+	return weather_pick if weather_pick != "" else Weather.default_for(id)
+
+
+func _on_pick_weather(i: int) -> void:
+	weather_pick = "" if i == 0 else Weather.MODES[i - 1]
+	Audio.play_ui("click")
+	for id in _pb_labels:
+		var box: VBoxContainer = _pb_labels[id]
+		var wx := _weather_for(id)
+		var pb := Profile.get_pb(Weather.pb_key(id, wx))
+		(box.get_child(0) as Label).text = "PB · %s" % Weather.display_name(wx).to_upper()
+		var val := box.get_child(1) as Label
+		val.text = UITheme.format_time(pb)
+		val.add_theme_color_override("font_color", UITheme.LIME if pb >= 0 else UITheme.TEXT_DIM)
 
 
 func _stat(key: String, value: String, color: Color) -> Control:

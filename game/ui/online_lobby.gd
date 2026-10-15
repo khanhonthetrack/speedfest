@@ -47,6 +47,7 @@ var chat_text: RichTextLabel
 var chat_edit: LineEdit
 var track_row: HFlowContainer
 var duration_row: HFlowContainer
+var weather_row: HFlowContainer
 var track_info: Label
 var host_hint: Label
 var ready_btn: Button
@@ -268,7 +269,15 @@ func _on_pick_track(i: int) -> void:
 	if not Net.is_host():
 		_refresh_settings()
 		return
-	Net.host_set_settings({"track": TrackDefs.IDS[i]})
+	# picking a stage also picks its signature weather (downtown = rain); the host can change it
+	Net.host_set_settings({"track": TrackDefs.IDS[i], "weather": Weather.default_for(TrackDefs.IDS[i])})
+
+
+func _on_pick_weather(i: int) -> void:
+	if not Net.is_host():
+		_refresh_settings()
+		return
+	Net.host_set_settings({"weather": Weather.MODES[i]})
 
 
 func _on_pick_duration(i: int) -> void:
@@ -401,7 +410,7 @@ func _refresh_room() -> void:
 		"results":
 			phase_label.text = "RESULTS  ·  BACK TO LOBBY SOON"
 			phase_label.add_theme_color_override("font_color", UITheme.MAGENTA)
-	host_hint.text = "You are the host: pick the track and round length, then start." if am_host \
+	host_hint.text = "You are the host: pick the track, round length and weather, then start." if am_host \
 		else "The host picks the track and starts the round."
 
 
@@ -409,7 +418,9 @@ func _refresh_settings() -> void:
 	var s: Dictionary = _room.get("settings", {})
 	var tid := String(s.get("track", "arena"))
 	var dur := int(s.get("duration_s", TrackDefs.DEFAULT_DURATION_S))
+	var wx := Weather.sanitize(s.get("weather", "dry"))
 	MenuKit.select_chip(track_row, TrackDefs.IDS.find(tid))
+	MenuKit.select_chip(weather_row, Weather.MODES.find(wx))
 	var di := TrackDefs.DURATIONS_S.find(dur)
 	MenuKit.select_chip(duration_row, di)
 	var am_host := Net.is_host() or int(_room.get("host", -1)) == Net.my_id
@@ -417,11 +428,14 @@ func _refresh_settings() -> void:
 		(c as BaseButton).disabled = not am_host and not (c as BaseButton).button_pressed
 	for c in duration_row.get_children():
 		(c as BaseButton).disabled = not am_host and not (c as BaseButton).button_pressed
+	for c in weather_row.get_children():
+		(c as BaseButton).disabled = not am_host and not (c as BaseButton).button_pressed
 	var d := TrackDefs.get_def(tid)
-	var pb := Profile.get_pb(tid)
+	var pb := Profile.get_pb(Weather.pb_key(tid, wx))
 	var dur_txt := "%d min" % (dur / 60) if dur % 60 == 0 else "%d s" % dur
-	track_info.text = "%s  ·  %s  ·  ~%d s per run\nYour PB %s  ·  round %s" % [
-		String(d["name"]), "Circuit" if bool(d["circuit"]) else "Sprint", int(d["target_s"]),
+	track_info.text = "%s  ·  %s  ·  ~%d s per run\n%s: %s\nYour PB (%s) %s  ·  round %s" % [
+		String(d["name"]), "Circuit" if bool(d["circuit"]) else "Stunt run", int(d["target_s"]),
+		Weather.display_name(wx), String(Weather.BLURBS[wx]), Weather.display_name(wx).to_lower(),
 		UITheme.format_time(pb), dur_txt]
 
 
@@ -902,6 +916,12 @@ func _build_room_view() -> Control:
 		dnames.append("%d MIN" % (d / 60))
 	duration_row = MenuKit.chip_row(dnames, _on_pick_duration, 80)
 	sv.add_child(duration_row)
+	sv.add_child(MenuKit.caption("Weather", UITheme.MAGENTA))
+	var wnames: Array = []
+	for m in Weather.MODES:
+		wnames.append(Weather.display_name(m).to_upper())
+	weather_row = MenuKit.chip_row(wnames, _on_pick_weather, 80)
+	sv.add_child(weather_row)
 	track_info = UITheme.label("", "body", 18, UITheme.TEXT_DIM)
 	track_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sv.add_child(track_info)

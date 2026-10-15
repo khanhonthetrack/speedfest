@@ -72,10 +72,10 @@ class Room {
     this.name = name;
     this.hostId = -1;
     this.phase = 'lobby';
-    this.settings = { track: 'arena', duration_s: 300 };
+    this.settings = { track: 'arena', duration_s: 300, weather: 'dry' };
     this.players = []; // Client[], join order (host migration picks players[0])
     this.roundCounter = 0;
-    this.round = { round_id: 0, track: 'arena', duration_s: 300, start_at: 0, end_at: 0 };
+    this.round = { round_id: 0, track: 'arena', duration_s: 300, weather: 'dry', start_at: 0, end_at: 0 };
     this.finalized = true; // round_end sent for the current round
     this.phaseEndAt = 0;
     this.timer = null;
@@ -254,7 +254,7 @@ class Lobby {
       name: room.name,
       host: room.hostId,
       phase: room.phase,
-      settings: { track: room.settings.track, duration_s: room.settings.duration_s },
+      settings: { track: room.settings.track, duration_s: room.settings.duration_s, weather: room.settings.weather },
       players: room.players.map((p) => ({
         id: p.id,
         name: p.name,
@@ -267,6 +267,7 @@ class Lobby {
         round_id: room.round.round_id,
         track: room.round.track,
         duration_s: room.round.duration_s,
+        weather: room.round.weather,
         start_at: room.round.start_at,
         end_at: room.round.end_at,
       },
@@ -284,6 +285,7 @@ class Lobby {
       players: room.players.length,
       phase: room.phase,
       track: room.settings.track,
+      weather: room.settings.weather,
       max_players: this.maxPlayers,
       host_name: host ? host.name : '',
     };
@@ -295,6 +297,7 @@ class Lobby {
       round_id: room.round.round_id,
       track: room.round.track,
       duration_s: room.round.duration_s,
+      weather: room.round.weather,
       start_at: room.round.start_at,
       end_at: room.round.end_at,
       server_t: this.now(),
@@ -452,6 +455,7 @@ class Lobby {
       round_id: room.roundCounter,
       track: room.settings.track,
       duration_s: room.settings.duration_s,
+      weather: room.settings.weather,
       start_at: startAt,
       end_at: startAt + room.settings.duration_s * 1000,
     };
@@ -466,7 +470,7 @@ class Lobby {
     room.phaseEndAt = startAt;
     this._broadcastRoom(room);
     this._broadcast(room, this._roundStartMsg(room));
-    log(`> room ${room.code}: round ${room.round.round_id} on ${room.round.track} for ${room.round.duration_s}s, ${room.players.length} player(s)`);
+    log(`> room ${room.code}: round ${room.round.round_id} on ${room.round.track} (${room.round.weather}) for ${room.round.duration_s}s, ${room.players.length} player(s)`);
     this._schedule(room, startAt, this._toRacing);
   }
 
@@ -619,6 +623,11 @@ class Lobby {
     if (m.duration_s !== undefined) {
       if (!V.isFiniteNumber(m.duration_s)) return this._error(c, 'Invalid duration', 'bad_value');
       next.duration_s = V.clamp(Math.round(m.duration_s), V.LIMITS.MIN_DURATION_S, V.LIMITS.MAX_DURATION_S);
+    }
+    if (m.weather !== undefined) {
+      const weather = V.cleanWeather(m.weather);
+      if (!weather) return this._error(c, 'Invalid weather', 'bad_value');
+      next.weather = weather;
     }
     room.settings = next;
     this._broadcastRoom(room);

@@ -7,11 +7,14 @@ extends Node3D
 const BOX := Vector3(36, 16, 36)
 
 var particles: Node3D
+var density := 1.0
 
 
-static func create() -> SceneryRain:
+## density: 1 = rain, ~1.6 = storm (Weather.rain_density).
+static func create(p_density: float = 1.0) -> SceneryRain:
 	var r := SceneryRain.new()
 	r.name = "Rain"
+	r.density = maxf(p_density, 0.1)
 	r._build()
 	return r
 
@@ -40,12 +43,12 @@ static func streak_material() -> StandardMaterial3D:
 
 
 func _build() -> void:
-	var amount: int = [600, 1400, 2600, 4000][Settings.quality]
+	var amount: int = int([600, 1400, 2600, 4000][Settings.quality] * density)
 	var mesh := streak_mesh()
 	var mat := streak_material()
-	var vel := Vector3(1.5, -22.0, 0.0)
+	var vel := Vector3(1.5 + 3.0 * (density - 1.0), -22.0 - 6.0 * (density - 1.0), 0.0)
 	if Settings.is_compat():
-		amount = [300, 700, 1100, 1500][Settings.quality]
+		amount = int([300, 700, 1100, 1500][Settings.quality] * density)
 		var cp := CPUParticles3D.new()
 		cp.amount = amount
 		cp.lifetime = 0.9

@@ -49,6 +49,11 @@ var input_node: Node                     # CarInput or AutoDriver
 var autodrive := false
 var recorder := GhostRecorder.new()
 var remote_cars: Dictionary = {}         # player id -> RemoteCar
+## Round weather ("dry"/"rain"/"storm", see res://weather/weather.gd) and the PB key it implies.
+var weather := "dry"
+var pb_key := ""
+var weather_fx: WeatherFX
+var spray: WaterSpray
 
 var online := false
 var round_id := 0
@@ -96,7 +101,7 @@ func _ready() -> void:
 	_build_ui()
 	_connect_signals()
 	Audio.play_music("race")
-	pb_ms = Profile.get_pb(track.track_id)
+	pb_ms = Profile.get_pb(pb_key)
 	_load_ghost()
 	hud.set_best(pb_ms if not online else -1)
 	hud.set_minimap(track.get_minimap_points())
@@ -107,9 +112,11 @@ func _ready() -> void:
 	else:
 		hud.set_round_time_left(-1)
 		_begin_countdown(FIRST_COUNTDOWN_MS)
+	if Weather.is_wet(weather):
+		hud.show_message("%s: PUDDLES CUT GRIP" % Weather.display_name(weather).to_upper(), 2.8)
 	if state == State.COUNTDOWN and not TestHooks.has_arg("no_intro"):
 		camera.start_intro(clampf(_countdown_remaining_ms() / 1000.0, 0.5, 3.5))
-	_log("ready mode=%s track=%s online=%s cps=%d" % [Game.mode, track.track_id, online, checkpoint_count])
+	_log("ready mode=%s track=%s weather=%s online=%s cps=%d" % [Game.mode, track.track_id, weather, online, checkpoint_count])
 
 
 func _build_world() -> void:
@@ -123,11 +130,17 @@ func _build_world() -> void:
 	if track.get_parent() == null:
 		add_child(track)
 	checkpoint_count = track.checkpoint_count
+	weather = _resolve_weather()
+	if track.has_method("apply_weather"):
+		track.apply_weather(weather)
+	pb_key = Weather.pb_key(track.track_id, weather)
 	# Dark themes: give car paint a self-lit rim so cars read at night (see car_paint.gdshader).
 	CarVisual.night_rim = {"city": 1.0, "arena": 0.5}.get(TrackDefs.theme(Game.track_id), 0.0)
 
 	car = Car.create(Profile.get_config())
 	car.name = "LocalCar"
+	if "surface" in track and track.get("surface") != null:
+		car.surface = track.get("surface")
 	add_child(car)
 	car.teleport(track.get_start_transform())
 	car.frozen_controls = true
@@ -147,6 +160,10 @@ func _build_world() -> void:
 	input_node.name = "Input"
 	car.add_child(input_node)
 
+	spray = WaterSpray.create(String(car.config.get("car", "kaze")), Weather.is_wet(weather))
+	spray.play_sound = true
+	car.add_child(spray)
+
 	engine_audio = EngineAudio.new()
 	engine_audio.name = "EngineAudio"
 	car.add_child(engine_audio)
@@ -165,6 +182,9 @@ func _build_world() -> void:
 	ghost_player = GhostPlayer.new()
 	ghost_player.name = "PBGhost"
 	add_child(ghost_player)
+
+	weather_fx = WeatherFX.create(track, weather, camera)
+	add_child(weather_fx)
 
 	if TestHooks.has_arg("gate_runner"):
 		var runner_script: Script = load("res://tests/race/gate_runner.gd")
@@ -362,9 +382,26 @@ func _process(_delta: float) -> void:
 	elif ghost_player.visible:
 		ghost_player.hide_ghost()
 	_update_minimap()
+	spray.update_spray(car.get_water_amount(), speed)
+	for rc in remote_cars.values():
+		var rs: WaterSpray = (rc as Node).get_meta("spray", null)
+		if rs:
+			rs.update_spray(1.0 if int(rc.last_flags) & 64 != 0 else 0.0, float(rc.current_speed_kmh))
 	if engine_audio:
 		engine_audio.call("set_params", car.get_rpm_ratio(), float(car.controls.get("throttle", 0.0)),
 			absf(speed), car.get_drift_amount(), car.is_nitro_active(), car.is_grounded())
+
+
+## Weather for this run: test override, else the online round's, else the solo pick, else the
+## stage's signature weather.
+func _resolve_weather() -> String:
+	if TestHooks.has_arg("weather"):
+		return Weather.sanitize(TestHooks.arg("weather", "dry"))
+	if online:
+		return Weather.sanitize(Game.round_info.get("weather", "dry"))
+	if Game.weather != "":
+		return Weather.sanitize(Game.weather)
+	return Weather.default_for(track.track_id)
 
 
 func _update_minimap() -> void:
@@ -426,9 +463,9 @@ func _on_finish_reached(body: Node) -> void:
 
 func _finish_run() -> void:
 	var ms := get_run_ms()
-	var prev_pb := Profile.get_pb(track.track_id)
+	var prev_pb := Profile.get_pb(pb_key)
 	var car_id := String(car.config.get("car", "kaze"))
-	var is_pb := Profile.submit_time(track.track_id, ms, car_id)
+	var is_pb := Profile.submit_time(pb_key, ms, car_id)
 	var has_delta := prev_pb > 0
 	var delta := ms - prev_pb if has_delta else 0
 	var ghost := recorder.finish(ms, car, splits, track.track_id, car.config,
@@ -438,7 +475,7 @@ func _finish_run() -> void:
 		pb_splits = splits.duplicate()
 		if ghost.is_empty():
 			ghost = {"version": GhostRecorder.VERSION, "track": track.track_id, "car": car.config, "ms": ms, "splits": pb_splits.duplicate(), "samples": []}
-		Profile.save_ghost(track.track_id, ghost)
+		Profile.save_ghost(pb_key, ghost)
 		_load_ghost_dict(ghost)
 	runs_finished += 1
 	last_finish_ms = ms
@@ -635,7 +672,7 @@ func _on_settings_changed() -> void:
 # --- ghost --------------------------------------------------------------------------------------------
 
 func _load_ghost() -> void:
-	_load_ghost_dict(Profile.load_ghost(track.track_id))
+	_load_ghost_dict(Profile.load_ghost(pb_key))
 
 
 func _load_ghost_dict(g: Dictionary) -> void:
@@ -674,6 +711,9 @@ func _add_remote_car(id: int) -> RemoteCar:
 	var rc := RemoteCar.new()
 	add_child(rc)
 	rc.setup(id, String(p.get("name", "Player %d" % id)), p.get("car", CarDefs.default_config("kaze")))
+	var rs := WaterSpray.create(rc.car_id, Weather.is_wet(weather))
+	rc.add_child(rs)
+	rc.set_meta("spray", rs)
 	var ea := EngineAudio.new()
 	rc.set_engine_audio(ea)
 	ea.call("setup", rc.car_id, false)

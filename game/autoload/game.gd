@@ -11,6 +11,7 @@ const SCENE_RACE := "res://race/race.tscn"
 var mode: String = "solo"            # "solo" | "online"
 var track_id: String = "arena"
 var round_info: Dictionary = {}      # Net.round_started payload while online
+var weather: String = ""             # solo weather pick ("" = the stage's default, Weather.default_for)
 var last_round_id: int = -1          # round_id of the last online round this client entered
 var garage_return_scene: String = SCENE_MENU
 
@@ -20,9 +21,10 @@ func goto(scene_path: String) -> void:
 	get_tree().call_deferred("change_scene_to_file", scene_path)
 
 
-func start_solo(p_track_id: String) -> void:
+func start_solo(p_track_id: String, p_weather: String = "") -> void:
 	mode = "solo"
 	track_id = p_track_id
+	weather = Weather.sanitize(p_weather) if p_weather != "" else Weather.default_for(p_track_id)
 	round_info = {}
 	goto(SCENE_RACE)
 
@@ -30,6 +32,7 @@ func start_solo(p_track_id: String) -> void:
 func start_online_round(info: Dictionary) -> void:
 	mode = "online"
 	track_id = String(info.get("track", "arena"))
+	weather = Weather.sanitize(info.get("weather", "dry"))
 	round_info = info
 	last_round_id = int(info.get("round_id", -1))
 	goto(SCENE_RACE)
