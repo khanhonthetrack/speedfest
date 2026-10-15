@@ -12,12 +12,16 @@ const GRAVITY := 9.8
 ## Gear top speeds as a fraction of 6th gear's top speed.
 const GEAR_SPREAD: Array[float] = [0.24, 0.38, 0.52, 0.67, 0.83, 1.0]
 
+const TOP_FALL := 0.55      # torque at the limiter relative to peak
+const TURBO_PIVOT := 0.86
+const TURBO_AMOUNT := 0.45
+
 const BASE := {
 	"kaze": {
 		"mass": 1180.0,
 		"power": 315000.0,          # W at the wheels (peak)
-		"v_top": 79.0,              # drag-limited stock top speed target, m/s (~284 km/h)
-		"gear6_over_top": 1.07,     # 6th-gear limiter speed / v_top
+		"v_top": 81.8,              # drag-limited top speed at peak power, m/s (stock tops out ~3.5% lower on the limiter)
+		"gear6_over_top": 1.02,     # stock 6th-gear limiter speed / v_top
 		"torque_low": 0.80,         # torque-curve shape at idle (relative)
 		"torque_peak_u": 0.62,      # rpm ratio of peak torque
 		"weight_front": 0.52,       # static weight on the front axle
@@ -44,8 +48,8 @@ const BASE := {
 	"brute": {
 		"mass": 1480.0,
 		"power": 400000.0,
-		"v_top": 75.5,              # ~272 km/h
-		"gear6_over_top": 1.07,
+		"v_top": 78.3,
+		"gear6_over_top": 1.02,
 		"torque_low": 1.00,         # big-block: flat, fat low end
 		"torque_peak_u": 0.45,
 		"weight_front": 0.54,
@@ -72,8 +76,8 @@ const BASE := {
 	"veloce": {
 		"mass": 1340.0,
 		"power": 430000.0,
-		"v_top": 86.5,              # ~311 km/h
-		"gear6_over_top": 1.07,
+		"v_top": 89.5,
+		"gear6_over_top": 1.02,
 		"torque_low": 0.70,
 		"torque_peak_u": 0.70,
 		"weight_front": 0.43,
@@ -104,7 +108,7 @@ static func base(car_id: String) -> Dictionary:
 	return BASE.get(car_id, BASE["kaze"]).duplicate(true)
 
 
-## Torque-curve shape: 1.0 at the peak, `low` at idle, falling to ~0.72 at the limiter.
+## Torque-curve shape: 1.0 at the peak, `low` at idle, falling to TOP_FALL at the limiter.
 ## `turbo` (-1..1) moves torque from the low end to the top end.
 static func torque_shape(u: float, low: float, peak_u: float, turbo: float) -> float:
 	u = clampf(u, 0.0, 1.0)
@@ -114,9 +118,9 @@ static func torque_shape(u: float, low: float, peak_u: float, turbo: float) -> f
 		t = lerpf(low, 1.0, f * (2.0 - f))
 	else:
 		var f := (u - peak_u) / maxf(1.0 - peak_u, 0.01)
-		t = lerpf(1.0, 0.72, f * f)
-	# turbo: + = less low end, more top end
-	t *= 1.0 + turbo * 0.32 * (u - 0.55)
+		t = lerpf(1.0, TOP_FALL, f * f)
+	# turbo: + = top-end power (above TURBO_PIVOT), - = fatter mid-range
+	t *= 1.0 + turbo * TURBO_AMOUNT * (u - TURBO_PIVOT)
 	return maxf(t, 0.05)
 
 

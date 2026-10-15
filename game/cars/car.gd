@@ -34,6 +34,7 @@ const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
 const BODY_FRICTION := 0.04
+const FRICTION_CIRCLE := 0.5            # how much longitudinal force eats lateral grip (0..1)
 
 var config: Dictionary = {}
 var visual: CarVisual
@@ -587,7 +588,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var ratio := s if s < 1.0 else lerpf(1.0, slide, clampf((s - 1.0) / 2.5, 0.0, 1.0))
 		var lat_cap := mu * nload
 		var lr := f_long / maxf(long_cap, 1.0)
-		lat_cap *= sqrt(maxf(1.0 - 0.7 * lr * lr, 0.05))
+		lat_cap *= sqrt(maxf(1.0 - FRICTION_CIRCLE * lr * lr, 0.05))
 		var f_lat := -signf(v_lat) * ratio * lat_cap
 		var cancel := absf(v_lat) * cm / dt * 0.9
 		if absf(f_lat) > cancel:

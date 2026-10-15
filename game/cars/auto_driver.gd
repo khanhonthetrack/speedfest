@@ -19,7 +19,7 @@ var use_nitro := true
 ## Racing-line offset from the centerline (m, + = right). Bots can vary it.
 var lateral_offset := 0.0
 ## Fraction of the car's lateral grip the bot plans with (lower = more careful).
-var grip_margin := 0.82
+var grip_margin := 0.72
 var brake_accel := 9.0
 var stuck_timeout := 5.0
 ## Called (no arguments) instead of the built-in reset when the bot is stuck. Race can respawn.
@@ -96,7 +96,11 @@ func _physics_process(dt: float) -> void:
 	else:
 		var l2 := lx * lx + lz * lz
 		var kappa := 2.0 * lx / l2
-		var ang := atan(kappa * car.get_wheelbase())
+		# kinematic angle + the tire slip angle needed for the lateral acceleration (feed-forward)
+		var p := car.params
+		var a_max := float(p["grip"]) * CarPhysicsDefs.GRAVITY * (1.0 + float(p["downforce"]) * speed * speed / (float(p["mass"]) * CarPhysicsDefs.GRAVITY))
+		var frac := clampf(speed * speed * kappa / a_max, -1.0, 1.0)
+		var ang := atan(kappa * car.get_wheelbase()) + frac * float(p["slip_peak"])
 		steer = clampf(ang / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
 
 	# --- speed target ---
@@ -112,6 +116,9 @@ func _physics_process(dt: float) -> void:
 		brake = clampf((v - vt) / 8.0, 0.25, 1.0)
 	else:
 		throttle = 0.35
+	# traction control: ease off when the car starts to slide
+	if not full and (car.get_drift_amount() > 0.1 or absf(car.get_slip_angle()) > deg_to_rad(7.0)):
+		throttle = minf(throttle, 0.45)
 	var nitro := false
 	if use_nitro and car.is_grounded() and speed > 22.0 and absf(steer) < 0.3:
 		if full or vt > speed + 25.0:

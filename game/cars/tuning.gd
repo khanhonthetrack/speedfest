@@ -17,11 +17,14 @@ const G := CarPhysicsDefs.GRAVITY
 
 ## Normalization ranges for stats (fitted over every car with every slider at -1/0/+1;
 ## see tests/physics/test_tuning.gd which prints the observed ranges).
-const TOP_KMH_RANGE := Vector2(240.0, 335.0)
-const ACCEL_S_RANGE := Vector2(3.9, 2.3)        # slow .. quick 0-100 time
-const HANDLING_RANGE := Vector2(0.55, 1.45)
-const DRIFT_RANGE := Vector2(0.15, 1.25)
+const TOP_KMH_RANGE := Vector2(250.0, 330.0)
+const ACCEL_S_RANGE := Vector2(5.45, 4.2)       # slow .. quick (0-100 + 0-200 * ACCEL_200_WEIGHT)
+const ACCEL_200_WEIGHT := 0.25
+const SHIFT_LOSS := 0.985                         # average drive loss from shift cuts (fitted)
+const HANDLING_RANGE := Vector2(0.3, 1.48)
+const DRIFT_RANGE := Vector2(-0.45, 1.7)
 const NITRO_RANGE := Vector2(3.5, 12.0)          # m/s^2
+const NITRO_TIME_RANGE := Vector2(1.5, 7.0)      # s
 
 
 static func _t(tuning: Dictionary, key: String) -> float:
@@ -45,21 +48,18 @@ static func physics_params(car_id: String, tuning: Dictionary) -> Dictionary:
 	p["car"] = car_id
 	p["drive"] = String(CarDefs.get_def(car_id).get("drive", "rwd"))
 	p["mass"] = b["mass"]
-	p["power"] = b["power"]
+	p["power"] = float(b["power"]) * (1.0 - 0.06 * minf(gearing, 0.0) - 0.025 * maxf(gearing, 0.0))   # short gears: more wheel torque
 	p["shape_low"] = b["torque_low"]
 	p["shape_peak_u"] = b["torque_peak_u"]
 	p["turbo"] = turbo
 	p["shape_norm"] = CarPhysicsDefs.shape_norm(b["torque_low"], b["torque_peak_u"])
-	# drag calibrated so the stock car tops out at v_top in 6th
+	# drag calibrated so that peak power balances drag + rolling at v_top
 	var v_top: float = b["v_top"]
-	var g6_stock: float = v_top * float(b["gear6_over_top"])
-	var u_top := v_top / g6_stock
-	var p_wheel_top: float = float(b["power"]) * u_top * CarPhysicsDefs.torque_shape(u_top, b["torque_low"], b["torque_peak_u"], 0.0) / float(p["shape_norm"])
 	var rolling: float = 0.015 * float(b["mass"]) * G
-	var drag_stock := (p_wheel_top - rolling * v_top) / pow(v_top, 3.0)
+	var drag_stock := (float(b["power"]) - rolling * v_top) / pow(v_top, 3.0)
 	p["rolling"] = rolling
 	p["drag"] = drag_stock * (1.0 + 0.085 * downforce)
-	var g6 := g6_stock * (1.0 + 0.11 * gearing)
+	var g6 := v_top * float(b["gear6_over_top"]) * (1.0 + 0.11 * gearing)
 	var tops: Array[float] = []
 	for f in CarPhysicsDefs.GEAR_SPREAD:
 		tops.append(g6 * f)
@@ -151,31 +151,35 @@ static func estimate(p: Dictionary) -> Dictionary:
 		else:
 			hi = mid
 	var v_top := lo
-	# 0-100: integrate at 60 Hz with the same gear logic and shift cuts as the car
+	# 0-100 and 0-200: integrate at 60 Hz with the same gear logic and shift cuts as the car
 	var dt := 1.0 / 60.0
 	var v := 0.0
 	var t := 0.0
 	var gear := 1
-	var cut := 0.0
-	while v < 27.78 and t < 20.0:
-		var ng := best_gear(p, v, gear)
-		if ng != gear:
-			gear = ng
-			cut = Car.SHIFT_TIME
-		var f := minf(drive_force(p, gear, v), traction_limit(p, v))
-		if cut > 0.0:
-			f *= Car.SHIFT_CUT
-			cut -= dt
-		v += (f - drag_force(p, v)) / m * dt
+	var t100 := -1.0
+	var t200 := 30.0
+	while t < 30.0:
+		# ideal gear choice (smooth in the params); shift cuts are folded into SHIFT_LOSS
+		gear = best_gear(p, v, gear)
+		var f := minf(drive_force(p, gear, v), traction_limit(p, v)) * SHIFT_LOSS
+		var a := (f - drag_force(p, v)) / m
+		var v0 := v
+		v += a * dt
 		t += dt
-	return {"top_speed_kmh": v_top * 3.6, "zero_to_100_s": t}
+		if t100 < 0.0 and v >= 27.78:
+			t100 = t - dt * (v - 27.78) / maxf(v - v0, 1e-4)
+		if v >= 55.56:
+			t200 = t - dt * (v - 55.56) / maxf(v - v0, 1e-4)
+			break
+	return {"top_speed_kmh": v_top * 3.6, "zero_to_100_s": t100 if t100 > 0.0 else 30.0, "zero_to_200_s": t200}
 
 
 static func _norm(x: float, r: Vector2) -> float:
 	return clampf((x - r.x) / (r.y - r.x), 0.0, 1.0)
 
 
-## Normalized stats for the garage UI. Extra keys: nitro_duration_s, handling_raw, drift_raw.
+## Normalized stats for the garage UI. Extra keys: zero_to_200_s, nitro_duration_s (and
+## nitro_duration 0..1), handling_raw, drift_raw.
 static func stats(car_id: String, tuning: Dictionary) -> Dictionary:
 	var p := physics_params(car_id, tuning)
 	var e := estimate(p)
@@ -196,13 +200,16 @@ static func stats(car_id: String, tuning: Dictionary) -> Dictionary:
 		+ (0.2 if p["drive"] == "rwd" else 0.0)
 	return {
 		"top_speed": _norm(e["top_speed_kmh"], TOP_KMH_RANGE),
-		"accel": _norm(e["zero_to_100_s"], ACCEL_S_RANGE),
+		"accel": _norm(float(e["zero_to_100_s"]) + float(e["zero_to_200_s"]) * ACCEL_200_WEIGHT, ACCEL_S_RANGE),
 		"handling": _norm(handling, HANDLING_RANGE),
 		"drift": _norm(drift, DRIFT_RANGE),
 		"nitro": _norm(float(p["nitro_accel"]), NITRO_RANGE),
 		"top_speed_kmh": snappedf(e["top_speed_kmh"], 0.1),
 		"zero_to_100_s": snappedf(e["zero_to_100_s"], 0.01),
+		"zero_to_200_s": snappedf(e["zero_to_200_s"], 0.01),
 		"nitro_duration_s": snappedf(float(p["nitro_time"]), 0.1),
+		"nitro_duration": _norm(float(p["nitro_time"]), NITRO_TIME_RANGE),
+		"accel_raw": float(e["zero_to_100_s"]) + float(e["zero_to_200_s"]) * ACCEL_200_WEIGHT,
 		"handling_raw": handling,
 		"drift_raw": drift,
 	}
