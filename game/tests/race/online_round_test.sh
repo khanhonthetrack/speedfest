@@ -7,6 +7,7 @@
 #   so it works while Car/Track are stubs). Pass e.g. "--autodrive" with real modules merged:
 #   game/tests/race/online_round_test.sh 2 45 --autodrive --track=arena
 #   env RACE_TEST_OUT=/dir keeps logs there.
+#   env ROUNDS=2 plays several rounds (race -> lobby scene -> next round), needs the real lobby.
 #   env LATE=1 adds one more guest that joins ~8 s after the round started (late joiner).
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
@@ -31,7 +32,7 @@ TMO=$((DUR + 60))
 client() { # role name car
   timeout "$TMO" godot --headless --path "$ROOT/game" --audio-driver Dummy -- \
     --auto_online="$1" --url="$URL" --name="$2" --car="$3" --expect="$N" --duration="$DUR" --code="${CODE:-}" \
-    --quit_after_round "${EXTRA[@]}" >"$OUT/client_$2.log" 2>&1
+    --rounds="${ROUNDS:-1}" --quit_after_round="${ROUNDS:-1}" "${EXTRA[@]}" >"$OUT/client_$2.log" 2>&1
 }
 CARS=(kaze brute veloce)
 client host Host kaze & PIDS+=($!)
@@ -70,6 +71,7 @@ for n in "${NAMES[@]}"; do
   check "round over" "$L" "^RACE state ROUND_OVER"
   check "results" "$L" "^RACE results \[.*best_ms"
   check "to lobby" "$L" "^RACE to_lobby"
+  R=$(grep -c "^RACE to_lobby" "$L"); [[ "$R" -ge "${ROUNDS:-1}" ]] && echo "  ok   rounds $R" || { echo "  FAIL rounds $R/${ROUNDS:-1}"; FAIL=1; }
   grep -E "SCRIPT ERROR|^ERROR" "$L" | grep -v "online_lobby" | head -5 && { echo "  (errors above)"; }
 done
 DNF=$(grep -h "^RACE results" "$OUT"/client_Host.log | grep -o '"best_ms":-1' | wc -l)

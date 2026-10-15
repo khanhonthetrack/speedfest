@@ -737,7 +737,12 @@ func _go_lobby() -> void:
 	_log("to_lobby")
 	Game.to_lobby()
 	if TestHooks.has_arg("quit_after_round"):
-		TestHooks.finish()
+		# --quit_after_round[=N]: quit when going back to the lobby after the N-th round (default 1).
+		var done := int(Engine.get_meta("race_rounds_done", 0)) + 1
+		Engine.set_meta("race_rounds_done", done)
+		var want := maxi(1, int(TestHooks.arg("quit_after_round", 1)) if TestHooks.arg("quit_after_round", "") != "true" else 1)
+		if done >= want:
+			TestHooks.finish()
 
 
 func _exit_tree() -> void:
