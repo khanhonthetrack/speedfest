@@ -11,9 +11,16 @@ goal is Nintendo Switch / Switch 2.
 
 > Status: under construction. See [docs/PLAN.md](docs/PLAN.md) and [docs/PROGRESS.md](docs/PROGRESS.md).
 
-## Play (once released)
-See [docs/HOSTING.md](docs/HOSTING.md). In short, one person runs the server, which also serves
-the game, and everyone opens the URL in a desktop browser.
+## Play
+One person hosts (full guide: [docs/HOSTING.md](docs/HOSTING.md)):
+```bash
+git clone https://github.com/khanhonthetrack/speedfest.git
+cd speedfest/server && npm install && npm start          # http://localhost:8080
+cloudflared tunnel --url http://localhost:8080          # optional: public https URL for friends
+```
+Everyone else opens the URL in desktop Chrome, Edge or Firefox. Pick **Online**, then join the
+host's room. Keys: W/S drive and brake, A/D steer, Space handbrake, Shift nitro, R respawn,
+Enter restart, C camera, Tab leaderboard, Esc pause.
 
 ## Develop
 Open `game/project.godot` in Godot 4.7.2. Agents and contributors: read [CLAUDE.md](CLAUDE.md) first.

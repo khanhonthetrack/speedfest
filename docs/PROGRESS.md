@@ -45,3 +45,10 @@ date, who (module/agent), what changed, what's next or blocked.
   physics, visuals, tracks, scenery, ui_menus, ui_hud, audio, race. Each starts from branch
   `ccr-49301774-b5a4ns`, works only in its owned files, documents itself in `docs/modules/<key>.md`
   and pushes to its own session branch. The orchestrator merges them into `ccr-49301774-b5a4ns`.
+- Module sessions (spawned 00:11 UTC, each pushes to its own `ccr-*` branch; specs in `docs/M1_SPECS.md`):
+  physics `session_01DrvZUyYAM3oczRVDW1o8Nf`, visuals `session_012FyHiPM6GP1ACSFBLqmWJV`,
+  tracks `session_01XWgKiHbRtgKdaQBXSuzZm7`, scenery `session_019ZpoTQnjd2NsrKfAdGeECh`,
+  ui_menus `session_018sRqzobba64dP5Ld7SByiE`, ui_hud `session_015JD5jMrvZQVTcVqfNyySq9`,
+  audio `session_018yYJrBdZh6uuXVdUQqViJH`, race `session_01UXTHDb9Svwh7v9CKVysey7`.
+- Next (orchestrator): web export pipeline check with stubs, HOSTING.md, ARCHITECTURE.md Net
+  additions; then merge module branches as they land (M2).
