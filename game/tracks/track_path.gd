@@ -49,11 +49,25 @@ func _loop_axis_at(d: float) -> Vector3:
 ## Recompute frames (call after editing the curve).
 func rebake() -> void:
 	length = curve.get_baked_length()
-	_point_offsets.resize(curve.point_count)
-	for i in curve.point_count:
-		_point_offsets[i] = curve.get_closest_offset(curve.get_point_position(i))
-	if is_circuit and curve.point_count > 1:
-		_point_offsets[curve.point_count - 1] = length
+	# Distance of each control point along the curve (for tilt interpolation). Integrate the
+	# Bezier segments (8 sub-steps each) and rescale to the baked length: O(n), unlike
+	# get_closest_offset() per point, which is O(n^2) on long dense curves.
+	var n := curve.point_count
+	_point_offsets.resize(n)
+	if n > 0:
+		_point_offsets[0] = 0.0
+	var acc := 0.0
+	for i in range(1, n):
+		var prev := curve.get_point_position(i - 1)
+		for k in range(1, 9):
+			var q := curve.sample(i - 1, k / 8.0)
+			acc += q.distance_to(prev)
+			prev = q
+		_point_offsets[i] = acc
+	if acc > 0.0:
+		var k_scale := length / acc
+		for i in n:
+			_point_offsets[i] *= k_scale
 	_bake_frames()
 
 

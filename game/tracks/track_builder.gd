@@ -1165,7 +1165,7 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 ## and a mountain covers the tunnel.
 static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) -> void:
 	var path: TrackPath = data["path"]
-	var rect := path_bbox(path, 300.0)
+	var rect := path_bbox(path, 280.0)
 	var cell := 10.0
 	var nx := ceili(rect.size.x / cell) + 1
 	var nz := ceili(rect.size.y / cell) + 1
@@ -1179,7 +1179,7 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 	lat.resize(count)
 	var dd := PackedFloat32Array()
 	dd.resize(count)
-	var radius := 320.0
+	var radius := 290.0
 	var rc := ceili(radius / cell)
 	var d := 0.0
 	while d <= path.length:
@@ -1201,7 +1201,7 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 					ry[k] = p.y
 					lat[k] = dx * right.x + dz * right.z
 					dd[k] = d
-		d += 6.0
+		d += 9.0
 	var zones_b: Array = []
 	var zones_t: Array = []
 	for z in path.zones:
