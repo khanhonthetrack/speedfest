@@ -209,6 +209,13 @@ tools/run_scene.sh res://tests/physics/test_stunts.tscn --timeout 900 -- --car=v
 - **test_circuit**: AutoDriver, 2 laps on a 1.56 km circuit without walls (hairpin, sweepers,
   banked turn, elevation): never leaves the road, never gets stuck. Laps ~40 s (≈140 km/h average).
 
+## Real tracks through race.tscn (module/physics with origin/module/tracks + race merged in)
+
+`tools/run_scene.sh res://race/race.tscn --headless -- --frames=5400 --track=<id> --autodrive`
+(kaze, default config): **arena 39.63 s** (second run 39.90 s), **downtown 60.30 s**,
+**coast 53.95 s**. Every checkpoint in order, finish, no respawns. `AutoDriver.reset()` exists
+(an alias of `reset_tracking()`) for race.gd between runs.
+
 ## Integrated check (scratch merge of all module branches, not pushed)
 
 `race.tscn --track=arena --autodrive` with the real tracks, visuals, scenery, HUD and audio
