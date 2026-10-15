@@ -7,7 +7,10 @@
   desktop sets in `game/assets/hd/textures/` (Forward+, quality ≥ 2; excluded from web). Details:
   docs/ASSETS.md, PROGRESS ~13:50 UTC. Cloud environments can't reach ambientcg.com: re-run the
   fetch script on the Pi (or anywhere with open internet).
-- `server/public` re-exported with the scans (pck 8.4 MB) and live on the Pi.
+- `server/public` re-exported with the scans (pck 8.4 MB) and live on the Pi. Verified in headless
+  Chromium through the public URL: AutoDriver finishes Rail Rush at 6.55 s, 0 errors.
+- Cloud session for this round is finished (idle). The orphan `web-build` branch (2133bb7) is an
+  extra static copy of an older build; deleting it is the owner's call.
 - The Pi can push to `main` (deploy key) and has Godot 4.7.2 arm64 + web templates.
 - Still open from below: the compat brightness quirk (1×1-mip normalization), M5 visual tracks.
   Poly Haven HDRI skies for desktop (`assets/hd/hdri/`) would be the next "high quality" step.

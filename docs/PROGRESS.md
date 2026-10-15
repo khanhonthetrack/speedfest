@@ -437,5 +437,6 @@ date, who (module/agent), what changed, what's next or blocked.
   screenshots on compat: the road shows real fine aggregate instead of the round "pebbles", the concrete
   barriers and walls show real concrete. Forward+ (llvmpipe) renders with the 2K sets, no load errors.
 - `server/public` re-exported with the scans: `index.pck` 6.6 → 8.4 MB (wasm unchanged). Live on the
-  Pi; headless Chromium loads it through the Funnel URL and `--auto_solo=rails` reaches the start
-  countdown (0 errors).
+  Pi. Headless Chromium (SwiftShader) on the Pi, through the public Funnel URL,
+  `?arg=--auto_solo=rails&arg=--autodrive`: AutoDriver finishes Rail Rush 3× at 6550 ms, 0 errors
+  (same time as the cloud static test).

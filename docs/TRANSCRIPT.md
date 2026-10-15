@@ -277,3 +277,10 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 > Go
 
 > Done
+
+> Have u updated handoff etc?
+
+### Claude
+
+- Yes: HANDOFF, PROGRESS, TRANSCRIPT and ASSETS were updated with the texture commit; this
+  follow-up adds the passing browser run (Rail Rush finished at 6.55 s via the live URL).
