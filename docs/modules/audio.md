@@ -65,6 +65,7 @@ tools/audio/build.sh                       # everything (~45 s, music is the slo
 tools/audio/build.sh --only engines        # or sfx / music
 python3 tools/audio/gen_all.py --only sfx --png /abs/dir   # + spectrogram PNGs to look at
 tools/run_scene.sh res://tests/audio/test_audio.tscn --headless -- --frames=5000
+python3 tools/audio/check_loops.py            # seams of the encoded loops (no clicks)
 ```
 The test prints `TEST_OK`/`TEST_FAIL`: every stream loads with the right loop flag and length;
 per car (local) idle → full-throttle rpm sweep (gains finite, pitch in range, total power never
