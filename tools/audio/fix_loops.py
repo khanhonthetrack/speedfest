@@ -11,6 +11,8 @@ import re
 HERE = os.path.dirname(os.path.abspath(__file__))
 GEN = os.path.abspath(os.path.join(HERE, "..", "..", "game", "audio", "generated"))
 
+IMPORTED = os.path.abspath(os.path.join(GEN, "..", "..", ".godot", "imported"))
+
 LOOP_PREFIXES = ("eng_", "music_", "car_turbo", "car_nitro.", "car_squeal", "car_wind")
 
 
@@ -28,6 +30,9 @@ def main() -> None:
 		if s2 != s:
 			open(imp, "w").write(s2)
 			changed += 1
+			# Godot does not notice a params-only change: drop the cached import to force it
+			for f in glob.glob(os.path.join(IMPORTED, name + "-*")):
+				os.remove(f)
 	print(f"fix_loops: {changed} .import files updated")
 
 
