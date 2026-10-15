@@ -373,3 +373,24 @@ using back and left/right arrow at the same time. Jumping physics looks very fak
 - `AIR_GRAVITY_EXTRA` applies only when `speed > 15 m/s` and `_takeoff_up_y > 0.8` (the last ground
   normal's world-up component while ≥ 2 wheels touched): jumps get punchier arcs, wall-ride and loop
   lift-offs and spawn drops don't. Wall-ride exits above ~240 km/h remain marginal (chaotic in tests).
+
+## Easy handling (session 4, owner: "Make handling easy, but different for different cars")
+Baseline (`tests/physics/test_easy.tscn`, real key presses through CarInput): the brute snapped to
+43 deg of slip on a 200 km/h flick (1.5 s to settle) and kaze slid 43 deg in a slalom, because on RWD
+cars full throttle plus any slide over ~7 deg counted as drift intent and dropped rear grip. Keyboard
+players are always at full throttle, so every small slide snapped.
+- **Drift intent** now comes from the handbrake and brake-drift (the player asks), plus a mild per-car
+  `power_oversteer` (kaze 0.4, brute 0.25, veloce 0) that only starts once a slide is well under way
+  (`_drift > 0.35`).
+- **Stability assist** (`STAB_YAW` × `params.yaw_damp`: kaze 1.0, brute 1.2, veloce 1.3; `yaw_damp`
+  was unused before): when the body slip angle is beyond 2.5 deg and still growing, damp its growth.
+  Scaled by `1 - _intent` (never fights a requested slide) and by "hands off" (`1 - 1.5·|steer|`: gone
+  at 2/3 lock, so it never fights a driver or the AutoDriver steering). Off on steep road (loops,
+  wall rides) and while the car rolls faster than ~0.3 rad/s with the road (wall-ride entries/exits).
+  Earlier variants that damped all yaw (or measured against the per-wheel ground normal) made cars run
+  wide at wall-ride exits and lose loops; the real-track matrix caught it.
+- brute `rear_grip_bias` 0.97 → 1.0 (neutral).
+- Result: flick slip 7–12 deg and settles in 0.2–0.4 s for all cars; slalom slip ≤ 13 deg; brake drift
+  still slides 32–40 deg (test_feel).
+- Track side (track_builder): deck rings inside loops are 1 m wherever the ring falls (`LOOP_RING`);
+  a loop half-covered by a chunk used 1.5 m rings, and at 260+ km/h the body hit a deck fold edge.

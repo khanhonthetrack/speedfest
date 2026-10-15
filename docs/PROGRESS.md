@@ -177,7 +177,7 @@ date, who (module/agent), what changed, what's next or blocked.
   and archived the three M5 sessions (none had pushed) and stopped the local review agents.
 - New plan section **M4.5** (PLAN.md) with the six items. CLAUDE.md now has a "Work sequentially" rule.
 
-## 2026-10-15 ~10:00 UTC — M4.5 item 1: the bumpy road was a bug (fixed)
+## 2026-10-15 ~09:20 UTC — M4.5 item 1: the bumpy road was a bug (fixed)
 
 - Probe `tests/physics/probe_road_bumps.tscn` (diagnostic): suspension high-frequency jitter was
   55 mm RMS (tick-to-tick second difference) on downtown versus 0.14 mm on a flat plane.
@@ -195,7 +195,7 @@ date, who (module/agent), what changed, what's next or blocked.
 - Integration gate on `main` before this change: everything passed except
   `test_handling self_righting_kaze` (up_y=0.82), a regression from the handling-feel pass. Next.
 
-## 2026-10-15 ~10:40 UTC — Two regressions from the handling-feel pass fixed (car.gd)
+## 2026-10-15 ~09:30 UTC — Two regressions from the handling-feel pass fixed (car.gd)
 
 - `test_handling self_righting_kaze` (stuck at up_y 0.82): the new barrier-contact code treated the
   tilted body resting on the ground as a wall hit and cancelled 85% of the righting roll each tick.
@@ -205,7 +205,7 @@ date, who (module/agent), what changed, what's next or blocked.
   gravity now applies only to jumps: speed > 15 m/s and taking off from road whose normal is mostly up.
 - `game/tests/physics/run_all.sh` → PHYSICS_ALL_OK; test_feel 84/84 (barrier no-flip checks intact).
 
-## 2026-10-15 ~11:00 UTC — M4.5 items 2, 3 (text), 4: HUD and fixed NOS
+## 2026-10-15 ~09:30 UTC — M4.5 items 2, 3 (text), 4: HUD and fixed NOS
 
 - HUD: minimap removed; no full-screen CHECKPOINT banner (the compact split pop-up stays);
   tachometer/NOS cluster at 70%. ARCHITECTURE HUD API: `set_minimap*` removed.
@@ -214,7 +214,7 @@ date, who (module/agent), what changed, what's next or blocked.
 - Tests: test_hud 33/33, test_handling 32/32 ×3 cars (`nitro_no_refill_*` replaces `nitro_refills_*`),
   race logic 41/41, review fixes 7/7.
 
-## 2026-10-15 ~11:40 UTC — M4.5 item 3: solid checkpoint gates
+## 2026-10-15 ~09:40 UTC — M4.5 item 3: solid checkpoint gates
 
 - Old gates were dark frames outlined with thin neon and no collision: at night only the outline
   read (a "see-through" hologram) and cars passed through the pillars. New gates: solid light
@@ -226,7 +226,7 @@ date, who (module/agent), what changed, what's next or blocked.
   falls off between cp3 and the finish). Both also happen with the old gates and with nitro refills
   on, so they're the known keyboard-emulation margins, not the gates.
 
-## 2026-10-15 (session 4) — M4.5 item 5 and the tuning half of item 6
+## 2026-10-15 ~10:10 UTC — M4.5 item 5 and the tuning half of item 6
 
 - **Tuning removed**: no TUNE tab or RESET TUNING in the garage; `Profile.get_config()` always returns
   stock tuning (old saved values are ignored; `Profile.set_tuning` is a no-op). The CarConfig schema
@@ -244,3 +244,19 @@ date, who (module/agent), what changed, what's next or blocked.
 - **Stadium lawn**: the arena's ground (`env_terrain` mode 1 and `track_floor` style 1) is a mown
   lawn with 12 m stripes and a dark apron by the road; the arena light is a neutral night stadium
   (navy sky, white floodlights, neutral haze) instead of purple synthwave. Compat arena ~220 draw calls.
+
+## 2026-10-15 ~10:30 UTC — M4.5 item 6: easy handling (car.gd), loop deck rings, live garage updates
+
+- Easy handling (details: docs/modules/physics.md "Easy handling"): drift intent only from handbrake /
+  brake-drift plus a mild per-car `power_oversteer`; hands-off stability assist (`STAB_YAW` ×
+  `yaw_damp`) that damps a growing tail slide when the driver isn't steering. New
+  `tests/physics/test_easy.tscn` (keyboard flick/slalom/lock): flick slip 43 → 7–12 deg, settle
+  1.5 → 0.2–0.4 s; brake drift still 32–40 deg.
+- Several assist variants were tried and rejected by the synthetic stunt tests or the real-track
+  matrix (damping all yaw made cars run wide at wall-ride exits; the per-wheel ground normal made
+  loop entries jumpy). Final variant: run_all PHYSICS_ALL_OK, test_easy 15/15, test_feel 56/56.
+- track_builder: deck rings inside loops are 1 m per ring (`LOOP_RING`), also when a chunk only half
+  covers the loop (arena: 1.5 m rings in the loop's first part let a 260+ km/h car catch a fold edge).
+- Garage pushes the profile to the room 1 s after each change (others' lobby lineup updates live).
+- Real-track matrix (default + storm) for this exact state: running at commit time; result in the
+  next entry.

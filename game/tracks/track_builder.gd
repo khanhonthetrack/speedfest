@@ -406,6 +406,7 @@ const CHUNK := 150.0
 const RING := 1.5
 const DECK_CELLS := 8            # deck quads across the road (see deck_ring_ds)
 const DECK_TWIST_FINE := 0.004   # |change of right.y| per meter above which deck rings are halved
+const LOOP_RING := 1.0           # deck ring step inside loops
 const ROAD_DEPTH := 1.0
 const WALL_GAP := 0.15          # space between road edge and barrier foot
 const WALL_COLLISION_H := 2.6   # invisible collision height of barriers above the road
@@ -550,16 +551,18 @@ static func ring_ds(a: float, b: float, step: float) -> PackedFloat32Array:
 ## Ring distances for the road deck: `step` apart, halved where the road twists (bank ramps into
 ## banked turns and wall rides), so the deck's quads stay nearly flat. A twisting quad folds along
 ## its diagonal; across a full-width quad that was a ±12 cm ridge every ring (a washboard at speed).
-static func deck_ring_ds(path: TrackPath, a: float, b: float, step: float) -> PackedFloat32Array:
+## Inside loops (`loop_ranges`, ±5 m) the step is LOOP_RING wherever the ring falls, even when the
+## chunk only partly covers the loop (a coarse loop deck folds 3.7 deg per ring at 23 m radius).
+static func deck_ring_ds(path: TrackPath, a: float, b: float, step: float, loop_ranges: Array = []) -> PackedFloat32Array:
 	var out := PackedFloat32Array()
 	var d := a
 	out.append(d)
 	while d < b - 0.01:
-		var st := step
+		var st := LOOP_RING if in_ranges(d, loop_ranges, 5.0) else step
 		var x0 := path.sample_transform(d).basis.x
-		var x1 := path.sample_transform(minf(d + step, b)).basis.x
-		if absf(x1.y - x0.y) > DECK_TWIST_FINE * step:
-			st = step * 0.5
+		var x1 := path.sample_transform(minf(d + st, b)).basis.x
+		if absf(x1.y - x0.y) > DECK_TWIST_FINE * st:
+			st *= 0.5
 		d = minf(d + st, b)
 		if b - d < st * 0.3 and d < b:
 			d = b
@@ -775,7 +778,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 			var step := RING
 			if in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 5.0):
 				step = 1.0
-			var ds := deck_ring_ds(path, run[0], run[1], step)
+			var ds := deck_ring_ds(path, run[0], run[1], step, loop_ranges)
 			var frames: Array[Transform3D] = []
 			var top_prof: Array = []
 			var side_prof: Array = []

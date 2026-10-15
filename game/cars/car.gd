@@ -50,6 +50,9 @@ const BOOST_SPEED_CAP := 116.0           # ... to zero at ~420 km/h
 const MAX_SPEED := 125.0                 # hard cap, 450 km/h
 const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
+## Stability assist (easy handling, owner session 4): damps the tail stepping out on its own (slip
+## angle growing past ~2.5 deg), unless the player asks for a drift.
+const STAB_YAW := 4.0                    # rad/s^2 per rad/s of slip-angle growth (x params.yaw_damp)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
 const BODY_FRICTION := 0.0
 const ROOF_DRAG := 9.0                   # m/s^2 deceleration while sliding on the roof or side
@@ -109,6 +112,8 @@ var brake_drift_enabled := true
 var _bd_blend := 0.0                     # brake-drift amount 0..1
 var _wall_timer := 0.0
 var _takeoff_up_y := 1.0                 # world-up component of the last ground normal (jump vs wall ride)
+var _prev_slip := 0.0                    # last tick's body slip angle (stability assist)
+var _prev_slip_ok := false
 var _reversing := false
 var _braking := false
 var _fwd_speed := 0.0
@@ -389,6 +394,8 @@ func _reset_dynamics(v: Vector3) -> void:
 	_bd_blend = 0.0
 	_wall_timer = 0.0
 	_takeoff_up_y = 1.0
+	_prev_slip = 0.0
+	_prev_slip_ok = false
 	_land_timer = 0.0
 	_righting = 0.0
 	_hb_blend = 0.0
@@ -584,13 +591,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	else:
 		_bd_blend = move_toward(_bd_blend, 0.0, dt / 0.35)
 
-	# --- drift intent: handbrake, or heavy throttle (RWD power oversteer). Without intent the
-	# rear's sliding grip rises above the front's so a slide straightens itself out.
+	# --- drift intent: handbrake or brake-drift (the player asks for it), plus a mild per-car
+	# power-oversteer once a slide is well under way. Without intent the rear's sliding grip rises
+	# above the front's so a slide straightens itself out. (Easy handling, owner session 4: a full
+	# throttle keyboard player used to turn every 7 deg slide into a snap drift.)
 	var intent_t := maxf(_hb_blend, _bd_blend * 0.85)
-	if not drive_awd_flag():
-		intent_t = maxf(intent_t, clampf((throttle - 0.55) * 2.5, 0.0, 1.0) * clampf(_drift * 2.0, 0.0, 1.0))
-	else:
-		intent_t = maxf(intent_t, clampf((throttle - 0.7) * 2.0, 0.0, 1.0) * clampf(_drift * 2.0, 0.0, 1.0) * 0.6)
+	var pov: float = params.get("power_oversteer", 0.0)
+	if pov > 0.0:
+		intent_t = maxf(intent_t, clampf((throttle - 0.55) * 2.5, 0.0, 1.0) * clampf((_drift - 0.35) * 2.0, 0.0, 1.0) * pov)
 	_intent = move_toward(_intent, intent_t, dt * (6.0 if intent_t > _intent else 1.5))
 
 	# --- body slip angle / drift ---
@@ -740,6 +748,27 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			if yaw * sgn > 0.0:
 				t_yaw -= yaw * 5.0
 			state.apply_torque(up * t_yaw * inertia.y)
+
+	# --- stability assist (easy handling): when the tail steps out on its own (body slip angle
+	# beyond ~2.5 deg and still growing), damp the growth. Never resists turn-in (slip stays small)
+	# or a slide the player asked for. Ordinary road and banked turns only; off on loops, wall rides
+	# and while the car rolls fast with the road (they have their own stability code).
+	var flat := clampf((_ground_n.dot(Vector3.UP) - 0.85) / 0.1, 0.0, 1.0)
+	flat *= clampf(1.0 - (absf(av.dot(fwd)) - 0.3) / 0.4, 0.0, 1.0)
+	var slip_now := _slip_angle
+	if _grounded >= 3 and lv_g.length() > 10.0 and not _reversing and flat > 0.0 and _prev_slip_ok:
+		var slip_rate := clampf((slip_now - _prev_slip) / dt, -3.0, 3.0)
+		var growing := slip_now * slip_rate > 0.0
+		var amount := clampf((absf(slip_now) - deg_to_rad(2.5)) / deg_to_rad(2.5), 0.0, 1.0)
+		if growing and amount > 0.0:
+			# hands-off stability: strongest with the wheel centred, gone at ~2/3 lock, so it never
+			# fights a driver (or the AutoDriver) actively steering
+			var hands_off := clampf(1.0 - absf(steer_in) * 1.5, 0.0, 1.0)
+			var k := STAB_YAW * float(params.get("yaw_damp", 1.0)) * (1.0 - _intent) * amount * flat * hands_off
+			# slip > 0: velocity right of the nose; growing -> turn the nose right (negative yaw)
+			state.apply_torque(_ground_n * (-slip_rate * k * inertia.y))
+	_prev_slip = slip_now
+	_prev_slip_ok = _grounded >= 3 and lv_g.length() > 10.0
 
 	# --- aero, drag, rolling ---
 	if speed > 0.1:

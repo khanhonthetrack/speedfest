@@ -1,24 +1,28 @@
 # HANDOFF: start here
 
-## Latest (2026-10-15 ~09:30 UTC, orchestrator #4, session 4)
+## Latest (2026-10-15 ~10:30 UTC, orchestrator #4, session 4)
 
 **Rule from the owner: no parallel sessions or subagents.** Work one item at a time and push
 after each step (CLAUDE.md "Work sequentially").
 
-**State:** `main` has the integrated game (Trackmania-style tracks, weather, the handling-feel pass)
-and tonight's web build in `server/public`. The M5 cloud sessions started at 09:13 were stopped
-and archived at the owner's request (nothing had been pushed). M5 (docs/M5_SPECS.md) is paused.
+**Done today on `main`** (owner feedback list = PLAN.md "M4.5"; details in PROGRESS.md):
+1. Bumpy road fixed (twisting full-width deck quads made a washboard; deck now 8 cells across with
+   finer rings on twists and 1 m rings in loops). `tests/tracks/test_road_smooth`.
+2. HUD minimap removed. 3. Small checkpoint feedback + solid Trackmania-style checkpoint gates.
+4. Compact tachometer; NOS is a fixed tank per run (no refill).
+5. Stadium lawn instead of the neon grid, static menus (no grid, no spinning car), Rocket
+   League-style live car lineup in the online lobby (`LobbyLineup`).
+6. Tuning removed (garage + Profile). **Easy handling**: drift only when asked + hands-off stability
+   assist, per-car character (`power_oversteer`, `yaw_damp`), `tests/physics/test_easy`.
+Also fixed two regressions from session 3's handling pass (self-righting, fast wall-ride exits).
 
-**Now:** the owner's six feedback items, **PLAN.md "M4.5"**, in order: bumpy road, remove the
-HUD minimap, checkpoint gates and text, smaller HUD + fixed NOS, no neon grids (stadium grass,
-static menu, lobby that shows everyone's car live), remove tuning with easy per-car handling.
-Then M5, sequentially (world → cars → frontend).
+**Next:** re-run `tools/integration/check_all.sh`, export the web build (`tools/export_web.sh`),
+run the browser online test, commit `server/public`. Then M5 (docs/M5_SPECS.md), sequentially.
 
 - **Game night is tonight.** If the host uses Render with Auto-Deploy on, every push to `main`
   redeploys. Re-export `server/public` only with verified changes, and not late in the day.
 - Web export now excludes `assets/hd/*` (desktop-only large assets).
-- Open items from session 3 (below) still apply: keyboard-emulation falls, downtown length, web
-  frame rate on a real GPU, and the adversarial review.
+- Still open: web frame rate on a real GPU, downtown length (~26 s), adversarial review.
 
 ---|---|---|
 | cars | `visual/cars` | session_01U5u2g2MGdocygvQu5vrKc2 |

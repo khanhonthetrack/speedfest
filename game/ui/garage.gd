@@ -49,6 +49,7 @@ func _ready() -> void:
 	_save_timer.one_shot = true
 	_save_timer.wait_time = 1.0
 	_save_timer.timeout.connect(Profile.save)
+	_save_timer.timeout.connect(_push_profile_online)
 	add_child(_save_timer)
 	_build()
 	MenuKit.wire_focus_sounds(self)
@@ -163,6 +164,13 @@ func _on_round_started(info: Dictionary) -> void:
 
 func _schedule_save() -> void:
 	_save_timer.start()
+
+
+## In an online room, everyone's lobby lineup shows this car: send changes as they happen (1 s
+## debounce via the save timer) instead of only when leaving the garage.
+func _push_profile_online() -> void:
+	if Net.in_room():
+		Net.set_profile(Profile.player_name, Profile.get_config())
 
 
 func _cycle_tab(dir: int) -> void:

@@ -80,6 +80,7 @@ static func physics_params(car_id: String, tuning: Dictionary) -> Dictionary:
 	p["steer_max"] = deg_to_rad(float(b["steer_max_deg"]) * (1.0 + 0.10 * steering))
 	p["steer_speed"] = float(b["steer_speed"]) * (1.0 + 0.35 * steering)
 	p["yaw_damp"] = float(b["yaw_damp"]) * (1.0 - 0.30 * steering)
+	p["power_oversteer"] = float(b.get("power_oversteer", 0.0))
 	p["drift_assist"] = float(b["drift_assist"]) * (1.0 + 0.35 * balance) * (1.0 - 0.15 * susp)
 	p["brake_decel"] = float(b["brake_g"]) * G
 	p["nitro_accel"] = float(b["nitro_accel"]) * (1.0 + 0.35 * nitro)

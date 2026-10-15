@@ -53,9 +53,23 @@ locally per track.
 | `brute` | **Brute V8** | American muscle (long hood, fastback, wide hips) | RWD | Huge torque and acceleration. Heavy, loose rear, great nitro. |
 | `veloce` | **Veloce GT** | Euro mid-engine supercar (low wedge, big intakes) | AWD | Highest grip and top speed. Stable, least drifty. |
 
-All three are competitive. Tuning moves each one along trade-offs instead of making it strictly better.
+All three are competitive and **easy to drive** (owner, session 4: "Remove tuning, it's too
+complicated. Make handling easy (but different for different cars)"). There is **no performance
+tuning** any more: every car drives stock, and the cars differ by their stock character:
 
-### 3.1 Performance tuning ("Dyno" sliders, each −1 … +1, 0 = stock)
+| car | handling character |
+|---|---|
+| Kaze RS | lightest and quickest to turn; slides grow into drifts most easily on throttle (`power_oversteer` 0.4), lively stability assist (`yaw_damp` 1.0) |
+| Brute V8 | heavy, huge acceleration and the biggest nitro tank; neutral rear grip now (no snap oversteer), firmer assist (1.2) |
+| Veloce GT | AWD grip and the highest top speed; no power oversteer, firmest assist (1.3) |
+
+Easy handling = slides happen when you ask for them (handbrake, or brake + steer for a brake drift)
+and a hands-off stability assist catches the tail stepping out when you aren't steering. Measured by
+`tests/physics/test_easy.tscn` (keyboard flick, slalom, full lock).
+
+### 3.1 Performance tuning (removed in session 4; kept for reference)
+The physics code still supports these sliders (`Tuning.physics_params`), but `Profile.get_config()`
+always returns 0 for all of them and the garage has no tuning UI.
 
 | key | −1 | +1 |
 |---|---|---|
@@ -67,8 +81,8 @@ All three are competitive. Tuning moves each one along trade-offs instead of mak
 | `steering` | stable, slower | sharp, faster |
 | `nitro` | long and gentle | short and strong |
 
-The garage shows live stat bars (Top Speed, Acceleration, Handling, Drift, Nitro), plus a top speed in
-km/h and an estimated 0–100 time.
+The garage shows each car's stock stat bars (Top Speed, Acceleration, Handling, Drift, Nitro), plus a
+top speed in km/h and an estimated 0–100 time.
 
 ### 3.2 Visual tuning (NFSU2 style)
 

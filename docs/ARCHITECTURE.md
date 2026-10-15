@@ -64,7 +64,7 @@ so players never collide.
 ```jsonc
 {
   "car": "kaze",                 // "kaze" | "brute" | "veloce"
-  "tuning": {                    // floats in [-1, 1], 0 = stock. See DESIGN §3.1
+  "tuning": {                    // floats in [-1, 1]; ALWAYS 0 since session 4 (tuning removed, DESIGN §3.1)
     "gearing": 0, "turbo": 0, "downforce": 0, "suspension": 0,
     "balance": 0, "steering": 0, "nitro": 0
   },
@@ -127,7 +127,7 @@ signal changed
 var player_name: String
 var selected_car: String
 func get_config(car_id := "") -> Dictionary      # CarConfig for car (default = selected)
-func set_tuning(car_id: String, tuning: Dictionary) -> void
+func set_tuning(car_id: String, tuning: Dictionary) -> void   # deprecated no-op (tuning removed); get_config() returns stock tuning
 func set_style(car_id: String, style: Dictionary) -> void
 func get_pb(track_id: String) -> int             # ms, -1 if none
 func submit_time(track_id: String, ms: int, car_id: String) -> bool   # true if new PB

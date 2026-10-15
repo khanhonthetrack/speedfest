@@ -42,7 +42,8 @@ const BASE := {
 		"nitro_accel": 7.0,
 		"nitro_time": 5.5,   # one fixed tank per run (owner: NOS is strategy, no refill)
 		"drift_assist": 1.0,
-		"yaw_damp": 1.0,
+		"yaw_damp": 1.0,            # stability assist strength (Car.STAB_YAW); lively but catchable
+		"power_oversteer": 0.4,     # throttle-held slides grow into drifts (0 = only on handbrake/brake-drift)
 		"cg_height": 0.12,          # center of mass height above the wheel centers (negative = lower)
 	},
 	"brute": {
@@ -59,7 +60,7 @@ const BASE := {
 		"slip_peak_deg": 8.0,
 		"rear_slide": 0.66,
 		"front_slide": 0.86,
-		"rear_grip_bias": 0.97,
+		"rear_grip_bias": 1.0,
 		"downforce": 1.30,
 		"spring_hz": 1.9,
 		"damping": 0.40,
@@ -70,7 +71,8 @@ const BASE := {
 		"nitro_accel": 8.5,
 		"nitro_time": 6.5,   # one fixed tank per run (owner: NOS is strategy, no refill)
 		"drift_assist": 1.0,
-		"yaw_damp": 0.9,
+		"yaw_damp": 1.2,
+		"power_oversteer": 0.25,
 		"cg_height": 0.14,
 	},
 	"veloce": {
@@ -98,7 +100,8 @@ const BASE := {
 		"nitro_accel": 6.5,
 		"nitro_time": 5.0,   # one fixed tank per run (owner: NOS is strategy, no refill)
 		"drift_assist": 0.8,
-		"yaw_damp": 1.1,
+		"yaw_damp": 1.3,
+		"power_oversteer": 0.0,
 		"cg_height": 0.06,
 	},
 }
