@@ -276,6 +276,8 @@ func _tick_countdown() -> void:
 
 
 func _go() -> void:
+	if _sync_go_ms >= 0:
+		_log("go synced late_ms=%d" % (Net.local_ms() - _sync_go_ms))
 	_sync_go_ms = -1
 	run_ticks = 0
 	car.frozen_controls = false
@@ -677,6 +679,8 @@ func _begin_round_over() -> void:
 	_set_state(State.ROUND_OVER)
 	hud.set_round_time_left(0)
 	hud.show_message("TIME UP!", 3.0)
+	for id in remote_cars:
+		_log("remote_stats id=%d snapshots=%d" % [id, (remote_cars[id] as RemoteCar).snapshot_count])
 	Audio.play_sfx("finish")
 	round_over.emit()
 
