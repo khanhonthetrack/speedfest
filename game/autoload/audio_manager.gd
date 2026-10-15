@@ -30,6 +30,7 @@ const SFX := {
 	"nitro": ["car_nitro_start", -5.0],
 	"thunder": ["sfx_thunder", -2.0],
 	"splash": ["sfx_splash", -4.0],
+	"grind": ["car_squeal", -4.0],
 }
 ## Looping ambience beds (weather).
 const AMBIENCE := {
@@ -45,6 +46,7 @@ const MUSIC := {
 	"track_coast": ["music_coast", -7.0],
 	"track_infield": ["music_arena", -7.0],
 	"track_dunes": ["music_coast", -7.0],
+	"track_rails": ["music_arena", -7.0],
 }
 const UI_POOL := 4
 const SFX_POOL := 8

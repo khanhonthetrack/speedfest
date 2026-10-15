@@ -13,6 +13,11 @@ var sprint := false:
 	set(v):
 		sprint = v
 		queue_redraw()
+## Rail Rush art: the start ledge, the grind rail with sparks and the finish platform.
+var rail := false:
+	set(v):
+		rail = v
+		queue_redraw()
 
 
 func _init() -> void:
@@ -113,6 +118,9 @@ func _draw_arena() -> void:
 			if rng.randf() < 0.5:
 				var cc := [UITheme.MAGENTA, UITheme.CYAN, Color.WHITE, UITheme.AMBER][rng.randi() % 4] as Color
 				draw_rect(Rect2(i * 6 + 1, y + 1, 2, 3), Color(cc, 0.6))
+	if rail:
+		_draw_rail(w, h)
+		return
 	if sprint:
 		_draw_lawn(w, h)
 		return
@@ -201,6 +209,51 @@ func _draw_lawn(w: float, h: float) -> void:
 	draw_colored_polygon(PackedVector2Array([rb, rb + Vector2(36, 0), rb + Vector2(36, -16)]), Color(0.15, 0.1, 0.3))
 	draw_line(rb, rb + Vector2(36, -16), UITheme.LIME, 2.0)
 	draw_arc(Vector2(w * 0.72, g + 4.0), w * 0.2, PI * 1.08, PI * 1.92, 24, Color(1, 1, 1, 0.35), 2.0)
+
+
+## Rail Rush: lawn far below, the start ledge on the left, a glowing rail bending away with
+## sparks under a flying car, and the finish platform on the right.
+func _draw_rail(w: float, h: float) -> void:
+	var g := h * 0.62
+	for i in 6:
+		var y0 := g + (h - g) * pow(i / 6.0, 1.6)
+		var y1 := g + (h - g) * pow((i + 1) / 6.0, 1.6)
+		draw_rect(Rect2(0, y0, w, y1 - y0 + 1), Color(0.07, 0.2, 0.07) if i % 2 == 0 else Color(0.09, 0.24, 0.08))
+	# start ledge (left) on a pillar
+	var ly := h * 0.5
+	draw_rect(Rect2(-4, ly, w * 0.24, 10), Color(0.08, 0.07, 0.16))
+	draw_line(Vector2(-4, ly), Vector2(w * 0.24 - 4, ly), UITheme.CYAN, 2.0)
+	draw_rect(Rect2(w * 0.08, ly + 10, 8, h), Color(0.06, 0.05, 0.12))
+	# the rail: a curve from under the ledge lip to the right, with posts
+	var pts := PackedVector2Array()
+	for i in 17:
+		var t := i / 16.0
+		pts.append(Vector2(lerpf(w * 0.26, w * 0.74, t), ly + 14.0 + t * 18.0 - sin(t * PI) * 6.0 + t * t * 6.0))
+	for i in range(2, 16, 4):
+		draw_line(pts[i], Vector2(pts[i].x, h), Color(0.1, 0.1, 0.14), 2.0)
+	draw_polyline(pts, Color(UITheme.AMBER, 0.35), 7.0)
+	draw_polyline(pts, Color(0.9, 0.9, 0.95), 2.5)
+	# sparks behind the car halfway along
+	var sp := pts[8]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value + 5
+	for i in 14:
+		var d := Vector2(-rng.randf_range(6, 26), -rng.randf_range(-2, 12))
+		draw_line(sp, sp + d, Color(1.0, rng.randf_range(0.55, 0.9), 0.2, 0.9), 1.5)
+	# car (simple wedge) on the rail
+	var cb := sp + Vector2(4, -4)
+	draw_colored_polygon(PackedVector2Array([cb + Vector2(-14, 0), cb + Vector2(14, 0), cb + Vector2(10, -7), cb + Vector2(-6, -9)]), UITheme.MAGENTA)
+	draw_line(cb + Vector2(-14, 1), cb + Vector2(14, 1), Color(UITheme.CYAN, 0.8), 2.0)
+	# finish platform (right) with a little checkered arch
+	var fy := pts[16].y + 10.0
+	draw_rect(Rect2(w * 0.8, fy, w * 0.24, 10), Color(0.08, 0.07, 0.16))
+	draw_line(Vector2(w * 0.8, fy), Vector2(w, fy), UITheme.LIME, 2.0)
+	var ax := w * 0.86
+	draw_line(Vector2(ax, fy), Vector2(ax, fy - 30), Color.WHITE, 2.0)
+	draw_line(Vector2(ax + 28, fy), Vector2(ax + 28, fy - 30), Color.WHITE, 2.0)
+	for k in 7:
+		draw_rect(Rect2(ax + k * 4, fy - 34, 4, 4), Color.WHITE if k % 2 == 0 else Color(0.05, 0.05, 0.08))
+	draw_arc(Vector2(w * 0.77, pts[16].y - 4.0), w * 0.06, PI * 1.1, PI * 1.9, 12, Color(1, 1, 1, 0.4), 2.0)
 
 
 ## Short coast map: sand dunes in the foreground with a road over them and a dune jump.

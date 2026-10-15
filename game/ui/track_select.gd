@@ -1,5 +1,5 @@
 extends Control
-## Solo track select: one card per track (art, name, theme, blurb, target time, your PB). Five cards
+## Solo track select: one card per track (art, name, theme, blurb, target time, your PB). Six cards
 ## fit a 1280-wide screen; short maps (target under 15 s) are tagged SPRINT, the rest STUNT RUN.
 ## Enter/click starts Game.start_solo(id). Esc goes back to the main menu.
 
@@ -114,7 +114,7 @@ func _card(id: String) -> Button:
 	var b := Button.new()
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.focus_mode = Control.FOCUS_ALL
-	b.custom_minimum_size = Vector2(200, 420)
+	b.custom_minimum_size = Vector2(166, 420)
 	var normal := UITheme.panel_style(Color(UITheme.PANEL, 0.92), Color(accent, 0.35), 2, 0.0)
 	var hot := UITheme.panel_style(Color(UITheme.PANEL_LIGHT, 0.96), accent, 3, 0.0)
 	hot.shadow_color = Color(accent, 0.35)
@@ -144,12 +144,13 @@ func _card(id: String) -> Button:
 	var art := TrackArt.new()
 	art.theme_id = th
 	art.sprint = int(d["target_s"]) < SPRINT_MAX_S
-	art.custom_minimum_size = Vector2(0, 210)     # fixed, so every card's art lines up
+	art.rail = id == "rails"
+	art.custom_minimum_size = Vector2(0, 196)     # fixed, so every card's art lines up
 	v.add_child(art)
 	var info := MarginContainer.new()
 	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for side in ["left", "right"]:
-		info.add_theme_constant_override("margin_" + side, 16)
+		info.add_theme_constant_override("margin_" + side, 13)
 	info.add_theme_constant_override("margin_top", 10)
 	info.add_theme_constant_override("margin_bottom", 16)
 	info.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -162,10 +163,10 @@ func _card(id: String) -> Button:
 	var tag := UITheme.label("%s  ·  %s" % [kind, THEME_NAMES.get(th, th.to_upper())], "head", 12, accent)
 	tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	iv.add_child(tag)
-	var nm := UITheme.label(String(d["name"]).to_upper(), "heavy", 24, UITheme.TEXT)
+	var nm := UITheme.label(String(d["name"]).to_upper(), "heavy", 21, UITheme.TEXT)
 	nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	iv.add_child(nm)
-	var bl := UITheme.label(String(d["blurb"]), "body", 16, UITheme.TEXT_DIM)
+	var bl := UITheme.label(String(d["blurb"]), "body", 15, UITheme.TEXT_DIM)
 	bl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bl.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	iv.add_child(bl)

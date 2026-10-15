@@ -27,6 +27,7 @@ var layout: Dictionary = {}
 var data: Dictionary = {}
 var theme: String = "arena"
 var gates: Array[Area3D] = []          # checkpoint gates in order
+var rails: Array[TrackRail] = []       # grind rails (layout "rail": true segments)
 var finish_gate: Area3D
 var boost_pads: Array[Area3D] = []
 ## Weather (see res://weather/weather.gd): grip map with the stage's puddles, current mode.
@@ -100,6 +101,7 @@ func _build_geometry() -> void:
 	TrackBuilder.build_road(self, data, layout)
 	TrackBuilder.build_supports(self, data, layout)
 	TrackBuildings.build(self, data, layout)
+	_build_rails()
 	match String(layout.get("ground", "none")):
 		"city", "arena":
 			TrackBuilder.build_flat_ground(self, data, layout)
@@ -113,6 +115,14 @@ func _build_geometry() -> void:
 	_build_puddles()
 	_build_ground_patches()
 	apply_weather("dry")
+
+
+func _build_rails() -> void:
+	for r in data.get("rails", []):
+		var rail := TrackRail.new()
+		rail.setup(path, float(r["from"]), float(r["to"]))
+		add_child(rail)
+		rails.append(rail)
 
 
 # ---------------------------------------------------------------- gates

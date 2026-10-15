@@ -66,6 +66,6 @@ func _check(track: Track, id: String) -> void:
 					wall_miss.append("%.0f%s" % [d, "R" if side > 0.0 else "L"])
 		d += 3.0
 	print("%s deck rays=%d miss=%d %s | wall rays=%d miss=%d %s" % [id, deck_n, deck_miss.size(), str(deck_miss.slice(0, 8)), wall_n, wall_miss.size(), str(wall_miss.slice(0, 8))])
-	TestHooks.check(deck_n > 300 and deck_miss.is_empty(), id + "_deck_faces_up", "%d of %d miss: %s" % [deck_miss.size(), deck_n, str(deck_miss.slice(0, 8))])
+	TestHooks.check(deck_n > minf(300.0, path.length * 0.5) and deck_miss.is_empty(), id + "_deck_faces_up", "%d of %d miss: %s" % [deck_miss.size(), deck_n, str(deck_miss.slice(0, 8))])
 	# a few misses can be legit openings (barrier gaps at ramps); more means flipped faces
 	TestHooks.check(wall_n > 50 and wall_miss.size() <= wall_n / 50, id + "_barrier_faces_in", "%d of %d miss: %s" % [wall_miss.size(), wall_n, str(wall_miss.slice(0, 8))])

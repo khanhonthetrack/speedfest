@@ -23,6 +23,9 @@ extends RefCounted
 ##     Options: "margin" (m beyond the road edge), "height" (m above the road), "gap" (facade: m from
 ##     the road edge), "sign" (text on the entry facade of a "through" tower).
 ## Any segment may also carry "zone": "tunnel"|"bridge"|"no_props" which covers just that segment.
+## Any geometry segment may carry "nodeck": true (no road there: a gap to fly over) or "rail": true
+##   (no road, a grind rail along the centerline at path height instead; consecutive rail segments
+##   form one rail; res://tracks/track_rail.gd). Rails go to data["rails"]: [{from, to}].
 
 const STEP := 2.5
 const LOOP_STEP := 1.6
@@ -66,6 +69,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	var jumps: Array = []
 	var walls: Array = []
 	var wallrides: Array = []
+	var rails: Array = []
 	var widths: Array = [[0.0, width]]
 	var open_zones := {}
 	var wall_mode: String = layout.get("walls", "both")
@@ -320,6 +324,17 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			widths.append([d1, cur_w])
 		if s.has("zone"):
 			zones.append({"from": d0, "to": d1, "kind": s["zone"]})
+		if bool(s.get("nodeck", false)) or bool(s.get("rail", false)):
+			if not gaps.is_empty() and absf(float(gaps[gaps.size() - 1][1]) - d0) < 0.01:
+				gaps[gaps.size() - 1][1] = d1
+			else:
+				gaps.append([d0, d1])
+		if bool(s.get("rail", false)):
+			if not rails.is_empty() and absf(float(rails[rails.size() - 1]["to"]) - d0) < 0.01:
+				rails[rails.size() - 1]["to"] = d1
+			else:
+				rails.append({"from": d0, "to": d1})
+			zones.append({"from": d0, "to": d1, "kind": "rail"})
 		if layout.get("debug", false):
 			print("  seg %s -> pos %s yaw %.0f d %.0f" % [str(s).left(40), str(pts[pts.size() - 1].snapped(Vector3.ONE)), rad_to_deg(yaw), d1])
 
@@ -397,6 +412,9 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	for w in wallrides:
 		w["from"] = sc.call(w["from"])
 		w["to"] = sc.call(w["to"])
+	for r in rails:
+		r["from"] = sc.call(r["from"])
+		r["to"] = sc.call(r["to"])
 	# "elevated" zones: deck more than 4 m above the ground (scenery keeps ground props down there)
 	var gy: float = layout.get("ground_y", 0.0)
 	var ez := -1.0
@@ -412,7 +430,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	if ez >= 0.0:
 		zones.append({"from": ez, "to": path.length, "kind": "elevated"})
 	return {
-		"wallrides": wallrides,
+		"wallrides": wallrides, "rails": rails,
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
 		"boosts": boosts, "puddles": puddles, "patches": patches, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
 		"buildings": buildings, "points": PackedVector3Array(pts), "circuit": circuit,

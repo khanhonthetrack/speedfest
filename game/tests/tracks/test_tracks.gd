@@ -12,6 +12,8 @@ const RANGES := {
 	# ~10 s sprints on grass / gravel / sand (session 4)
 	"infield": {"len": [300.0, 700.0], "cps": [1, 3]},
 	"dunes": {"len": [300.0, 700.0], "cps": [1, 3]},
+	# start-ledge jump onto a grind rail (session 5)
+	"rails": {"len": [200.0, 500.0], "cps": [1, 2]},
 }
 
 var hits: Array = []

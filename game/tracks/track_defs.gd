@@ -2,8 +2,9 @@ class_name TrackDefs
 extends RefCounted
 ## Static metadata for the tracks. Layouts live in res://tracks/defs/<id>.gd.
 ## infield / dunes: ~10 s sprints that use grass, gravel and sand (owner, session 4).
+## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "infield", "dunes"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "infield", "dunes", "rails"]
 
 const DEFS := {
 	"downtown": {
@@ -11,7 +12,7 @@ const DEFS := {
 		"short": "Downtown",
 		"theme": "city",
 		"circuit": false,
-		"blurb": "Rooftop run through a rainy neon city: a rooftop gap jump, a checkpoint inside a tower, wall rides on facades and a needle jump between towers.",
+		"blurb": "Rainy rooftop run: a checkpoint inside a tower, wall rides on facades, a needle jump between towers.",
 		"target_s": 35,
 		"weather": "rain",
 	},
@@ -20,7 +21,7 @@ const DEFS := {
 		"short": "Arena",
 		"theme": "arena",
 		"circuit": false,
-		"blurb": "Classic night stadium: tower dive, turbo, loop, wall ride, gap jump, half-pipe and a big final jump.",
+		"blurb": "Night stadium: tower dive, loop, wall ride, gap jump, half-pipe and a big final jump.",
 		"target_s": 32,
 		"weather": "dry",
 	},
@@ -49,6 +50,15 @@ const DEFS := {
 		"circuit": false,
 		"blurb": "10-second beach sprint: a sand short cut, a dune jump, a gravel hairpin and grass on the clifftop.",
 		"target_s": 11,
+		"weather": "dry",
+	},
+	"rails": {
+		"name": "Rail Rush",
+		"short": "Rails",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Fly off the start ledge, land on the rail and grind it round the bend to the finish.",
+		"target_s": 7,
 		"weather": "dry",
 	},
 }

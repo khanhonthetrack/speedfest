@@ -133,6 +133,8 @@ var _vis_spin_arr: Array = [0.0, 0.0, 0.0, 0.0]
 var _vis_susp_arr: Array = [0.0, 0.0, 0.0, 0.0]
 ## Weather surface map (wet asphalt + puddles), set by the race scene. null = dry everywhere.
 var surface: TrackSurface = null
+## Rail grind: while set, that TrackRail drives the body (grind_step from _integrate_forces).
+var grind: TrackRail = null
 var _water := PackedFloat32Array([0, 0, 0, 0])
 var _ground := PackedInt32Array([0, 0, 0, 0])      # TrackSurface kind under each wheel (0 asphalt)
 var _water_avg := 0.0
@@ -296,6 +298,9 @@ func get_net_state() -> Dictionary:
 
 
 func teleport(xform: Transform3D, p_linear_velocity: Vector3 = Vector3.ZERO) -> void:
+	if grind != null:
+		grind.release(self)
+		grind = null
 	_pending_teleport = true
 	_pending_xform = xform.orthonormalized()
 	_pending_vel = p_linear_velocity
@@ -431,6 +436,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.linear_velocity = _pending_vel
 		state.angular_velocity = Vector3.ZERO
 		return
+	if grind != null:
+		if grind.grind_step(self, state):
+			_grounded = 0
+			_air_time = 0.0
+			_boost_time = 0.0
+			return
+		grind = null
 	var dt := state.step
 	var xf := state.transform
 	var b := xf.basis
