@@ -87,8 +87,9 @@ Contract (ARCHITECTURE.md) unchanged. Additions:
 
 ## Decisions / assumptions
 
-- `rpm_ratio` 0..1 is mapped to `lerp(idle_rpm, redline, ratio)` per car (audio rpm, not the
-  physics rpm). So 0 = idle, 1 = redline. Values up to 1.05 are accepted.
+- `rpm_ratio` is mapped to audio rpm per car: `[0.12, 1]` → `[idle_rpm, redline]` (physics
+  reports ~0.12 at idle and never less while running; `EngineAudio.IDLE_RATIO`). Below 0.12 is
+  idle. Values up to 1.05 are accepted.
 - Engine level: local -4.5 dB, remote -2 dB before distance attenuation. Music: menu -4 dB, race
   -6 dB (on top of the Music bus), so engines and SFX sit on top of the race music.
 - Vorbis quality 3 for SFX/engines, 2 for music (~80 kbps stereo) to keep the web download small.
@@ -104,6 +105,14 @@ Contract (ARCHITECTURE.md) unchanged. Additions:
   `"go"`, `"checkpoint"`, `"finish"` (and `"pb"` ~0.4 s later when it's a PB), `"respawn"`,
   `"boost"` on boost pads, `"wall_hit"` on hard wall impacts (volume_db by impact speed, e.g.
   `linear_to_db(clamp(impact / 20.0, 0.2, 1.0))`, pitch `randf_range(0.9, 1.1)`).
+- **race** (checked against `origin/module/race` and `origin/module/physics` at the time of
+  writing): EngineAudio setup/set_params, countdown/go/checkpoint/finish/pb/respawn and
+  `play_music("race")` are already wired. Still missing:
+  - wall hits: `car.wall_hit.connect(func(lost: float) -> void: Audio.play_sfx("wall_hit", linear_to_db(clampf(lost / 15.0, 0.15, 1.0)), randf_range(0.9, 1.1)))`
+  - boost pads: `Audio.play_sfx("boost")` when a pad fires.
+  - `RemoteCar.update_config()` with a different car should call `engine_audio.setup(new_car_id, false)`
+    (otherwise a remote player who switched cars keeps the old engine sound).
+  - a finish that is a PB currently plays only `"pb"`; consider `"finish"` then `"pb"` 0.5 s later.
 - **ui_menus / ui_hud**: `Audio.play_ui("hover")` on focus/hover, `"click"` on press, `"confirm"`
   on accept/start, `"back"` on back/cancel, `"error"` on invalid action.
   `Audio.play_music("menu")` in the main menu (calling it again while it plays is a no-op).

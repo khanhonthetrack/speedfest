@@ -80,7 +80,7 @@ def render(car: str) -> np.ndarray:
 	sq_g = 0.0
 	dt = 1.0 / FPS
 	for i, (rr, t_thr, t_sp, t_dr, t_ni, t_gr) in enumerate(frames):
-		t_rpm = idle + (red - idle) * rr
+		t_rpm = idle + (red - idle) * min(1.05, max(0.0, (rr - 0.12) / 0.88))
 		rpm += (t_rpm - rpm) * (1 - np.exp(-dt * 14))
 		thr += (t_thr - thr) * (1 - np.exp(-dt * 12))
 		speed += (t_sp - speed) * (1 - np.exp(-dt * 8))

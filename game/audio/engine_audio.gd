@@ -13,6 +13,9 @@ extends Node3D
 
 const Layers = preload("res://audio/engine_layers.gd")
 const GEN := "res://audio/generated/"
+## Car physics reports rpm_ratio ~0.12 at idle (and never less while running), so the audio
+## maps [IDLE_RATIO, 1] onto [idle_rpm, redline]. Anything below IDLE_RATIO is idle.
+const IDLE_RATIO := 0.12
 
 ## Overall level of the local engine and of remote engines (dB).
 @export var local_engine_db := -4.5
@@ -69,7 +72,7 @@ func set_params(rpm_ratio: float, throttle: float, speed_kmh: float, drift: floa
 		return
 	var idle: float = _def["idle_rpm"]
 	var red: float = _def["redline"]
-	_t_rpm = lerpf(idle, red, clampf(rpm_ratio, 0.0, 1.05))
+	_t_rpm = lerpf(idle, red, clampf((rpm_ratio - IDLE_RATIO) / (1.0 - IDLE_RATIO), 0.0, 1.05))
 	_t_throttle = clampf(throttle, 0.0, 1.0)
 	_t_speed = absf(speed_kmh)
 	_t_drift = clampf(drift, 0.0, 1.0)
