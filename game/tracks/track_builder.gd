@@ -744,14 +744,23 @@ static func material(key: String) -> Material:
 	return m
 
 
-## Generated PBR texture set (res://assets/textures/<set>/<set>_<map>.*, tools/textures/gen_textures.py).
+## PBR texture set (res://assets/textures/<set>/<set>_<map>.*: CC0 scans from
+## tools/textures/fetch_cc0.py, or the generated fallback from tools/textures/gen_textures.py).
+## Desktop High/Ultra prefers the 2K sets in res://assets/hd/textures/ (not in the web export).
 ## map: "albedo" | "normal" | "rough". Null when missing (the materials fall back to flat colors).
 static func pbr_texture(set_name: String, map: String) -> Texture2D:
-	var ext := "png" if map == "normal" else "jpg"
-	var p := "res://assets/textures/%s/%s_%s.%s" % [set_name, set_name, map, ext]
-	if not ResourceLoader.exists(p):
-		return null
-	return load(p) as Texture2D
+	var exts: Array[String] = ["jpg"]
+	if map == "normal":
+		exts = ["png", "jpg"]
+	var bases: Array[String] = ["res://assets/textures"]
+	if not Settings.is_compat() and Settings.quality >= 2:
+		bases.push_front("res://assets/hd/textures")
+	for base in bases:
+		for ext in exts:
+			var p := "%s/%s/%s_%s.%s" % [base, set_name, set_name, map, ext]
+			if ResourceLoader.exists(p):
+				return load(p) as Texture2D
+	return null
 
 
 ## Textures are skipped at quality 0 (weak devices keep the cheap flat materials).
