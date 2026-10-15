@@ -167,4 +167,6 @@ date, who (module/agent), what changed, what's next or blocked.
   Baseline Ultra (Forward+) perf_probe: arena ~320 draw calls / 195k tris, downtown ~410 / 385k.
 - Wrote **docs/M5_SPECS.md** (per-track scope, file ownership, budgets, asset rules, verification,
   push-after-every-step rule). Web export preset now excludes `assets/hd/*`.
-- Spawning three cloud sessions: `visual/cars`, `visual/world`, `visual/frontend` (IDs below).
+- Spawned three cloud sessions (09:13 UTC): cars `session_01U5u2g2MGdocygvQu5vrKc2`,
+  world `session_01VVtY7M5SnVMaLCbswNq3ku`, frontend `session_01CxwrXhBdpNbub4Uzv8brw7`.
+  Each pushes to `visual/<key>` and keeps a Handoff section in its module doc.

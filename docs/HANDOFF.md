@@ -11,9 +11,10 @@ step. Specs: **`docs/M5_SPECS.md`**. Module docs: `docs/modules/visuals.md` (car
 
 | track | branch | session |
 |---|---|---|
-| cars | `visual/cars` | (see PROGRESS.md, 09:20 UTC entry) |
-| world | `visual/world` | (see PROGRESS.md) |
-| frontend | `visual/frontend` | (see PROGRESS.md) |
+| cars | `visual/cars` | session_01U5u2g2MGdocygvQu5vrKc2 |
+| world | `visual/world` | session_01VVtY7M5SnVMaLCbswNq3ku |
+| frontend | `visual/frontend` | session_01CxwrXhBdpNbub4Uzv8brw7 |
+| orchestrator #4 | `main` | session_01B2557cfMsCmUR7NCyj37k8 |
 
 - The orchestrator merges `visual/*` into `main` after checks (order world → cars → frontend), and
   re-exports `server/public` only after the upgrade is verified on both renderers.
