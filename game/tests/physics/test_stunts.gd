@@ -67,15 +67,17 @@ func _ready() -> void:
 	# kicker jump at x = 400 on a flat pad
 	var jo := Vector3(400, 0, 0)
 	add_child(PhysicsTestGround.flat_pad(60, 800, jo + Vector3(0, 0, -380)))
-	var ramp := PhysicsTestGround.jump_ramp(10.0, 20.0, jo + Vector3(0, 0, jump_ramp_z))
+	var ramp := PhysicsTestGround.jump_ramp(float(TestHooks.arg("jump_angle", 10.0)), 20.0, jo + Vector3(0, 0, jump_ramp_z))
 	add_child(ramp)
 	var c := Curve3D.new()
 	c.add_point(jo + Vector3(0, 0, 0))
 	c.add_point(jo + Vector3(0, 0, -750))
 	jump_path = TrackPath.new(c, false, 14.0)
-	jump_path.zones = [{"from": 100.0, "to": 260.0, "kind": "jump"}]
+	jump_path.zones = [{"from": float(TestHooks.arg("jump_zone", 100.0)), "to": 260.0, "kind": "jump"}]
 	jump_car = _spawn(Transform3D(Basis.IDENTITY, jo + Vector3(0, 0.6, -2)))
 	jump_ai = _driver(jump_car, jump_path)
+	jump_ai.use_nitro = bool(TestHooks.arg("jump_nitro", false))
+	jump_ai.target_speed_kmh = float(TestHooks.arg("jump_cap", 0.0))
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50, 30, 0)
 	add_child(sun)

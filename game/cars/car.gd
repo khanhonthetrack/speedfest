@@ -33,6 +33,11 @@ const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 
 const AIR_DAMP := 1.6                    # air pitch/roll rate damping (1/s)
 const AIR_STEER := 2.5                   # air yaw response (1/s)
 const AIR_YAW_RATE := 1.0                # max air yaw rate from steering (rad/s)
+const BOOST_MAX_ACCEL := 60.0            # apply_boost clamps (m/s^2, s)
+const BOOST_MAX_TIME := 4.0
+const BOOST_FADE_FROM := 100.0           # boost fades from 360 km/h ...
+const BOOST_SPEED_CAP := 116.0           # ... to zero at ~420 km/h
+const MAX_SPEED := 125.0                 # hard cap, 450 km/h
 const NITRO_REFILL := 1.0 / 28.0         # tank fraction per second while driving
 const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
@@ -282,8 +287,10 @@ func apply_boost(direction: Vector3, accel: float, duration: float) -> void:
 	if direction.length_squared() < 1e-6:
 		return
 	_boost_dir = direction.normalized()
-	_boost_accel = maxf(accel, 0.0)
-	_boost_time = maxf(_boost_time, duration)
+	# a stronger pad wins; a weaker pad touched during a strong boost doesn't cut it short
+	if _boost_time <= 0.0 or accel >= _boost_accel:
+		_boost_accel = clampf(accel, 0.0, BOOST_MAX_ACCEL)
+	_boost_time = clampf(maxf(_boost_time, duration), 0.0, BOOST_MAX_TIME)
 
 
 # --- extra API (documented in docs/modules/physics.md) --------------------------------------
@@ -703,7 +710,18 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_nitro = minf(_nitro + dt * NITRO_REFILL, 1.0)
 	if _boost_time > 0.0:
 		_boost_time -= dt
-		state.apply_central_force(_boost_dir * m * _boost_accel)
+		var bd := _boost_dir
+		if _grounded >= 2:
+			# push along the road, never into or off it
+			bd = bd - _ground_n * bd.dot(_ground_n)
+			bd = bd.normalized() if bd.length_squared() > 1e-4 else fwd
+		# fade out approaching the boost speed cap
+		var fade := 1.0 - clampf((lv.dot(bd) - BOOST_FADE_FROM) / (BOOST_SPEED_CAP - BOOST_FADE_FROM), 0.0, 1.0)
+		state.apply_central_force(bd * m * _boost_accel * fade)
+	# hard speed cap (2.1 m per tick at 60 Hz, less than a gate trigger's 4 m depth; walls use CCD)
+	var sp2 := state.linear_velocity.length_squared()
+	if sp2 > MAX_SPEED * MAX_SPEED:
+		state.linear_velocity = state.linear_velocity * (MAX_SPEED / sqrt(sp2))
 
 	# --- air control & stability ---
 	if _grounded == 0:
