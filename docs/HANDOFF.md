@@ -1,5 +1,40 @@
 # HANDOFF: start here
 
+## Latest (~23:00 UTC, session 8, Pi): STOPPED on owner request. M7 physics done on branch `m7-physics`
+
+- **Branch `m7-physics` (87a4543, NOT merged):** M7 items 2-4 (Trackmania handling, barriers,
+  wall rides) are implemented in `game/cars/car.gd`, `car_input.gd`, `tuning.gd`,
+  `auto_driver.gd` and `car_physics_defs.gd` (Veloce and Goliath traction). Design, diagnosis and
+  numbers: `docs/research/m7_physics.md` (on `main` too).
+  - Handling: the steering sets the yaw rate (v*tan(angle)/wheelbase, capped by grip: no spins, no
+    understeer); a lateral force cancels sideways velocity in the road plane up to
+    grip * GRIP_SCALE(1.15) * spring load (the same rule on banks, wall rides and loops); drift
+    mode on brake tap/handbrake + steer (the steering sets the slide angle 12-28 deg). Removed:
+    slip-curve tires, friction circle, stability assist, drift stabilizer/speed-keep, power
+    oversteer, the steep-road "stick" force.
+  - GROUND_STICK_MAX 0.6 m/s: while >= 2 wheels touch, the car can't spring away from the road
+    (velocity redirected along the car's up axis, speed kept). ROAD_ALIGN 14, ROLL_DAMP 8.
+  - Barriers: speed into the wall removed, 12% bounce (cap 1.5 m/s), small friction, the nose
+    yaws along the wall in ~0.15 s (feeds the yaw controller; steering away still wins).
+  - Keyboard steering: one ramp (12/s, centre 16/s), no lock cap at speed. Power x1.35 with drag
+    calibrated from it (top speeds unchanged). AutoDriver plans with GRIP_SCALE.
+  - Tests: new `tests/physics/test_tm` (Trackmania lab, all 6 cars) **312/312**;
+    `tests/physics/run_all.sh` **PHYSICS_ALL_OK** (tests that encoded the old feel were updated:
+    0-100 range, input ramp, tuning ranges; the tuning trade-off check is now a note).
+- **Before merging into `main` (next steps, in order):**
+  1. `tools/run_scene.sh res://tests/tracks/test_tracks.tscn --headless -- --track=all`, then
+     AutoDriver on every track and car (`tools/run_scene.sh res://race/race.tscn --headless --
+     --track=<id> --autodrive --car=<id>`, or `game/tests/physics/run_real_tracks.sh`, also with
+     `KB=true` keyboard emulation). Retune the AutoDriver where it now goes off (corners are faster).
+  2. Rails non-magnetic (M7-5): `game/tracks/track_rail.gd` captures from 1.8 m away; make it
+     catch only a car actually coming down onto the rail, then re-run `tests/tracks/test_rail`.
+  3. `tools/integration/check_all.sh`, merge to `main`, `tools/export_web.sh`, commit
+     `server/public`, then on the Pi `git pull && docker restart speedfest`.
+- Then M7-1 (PC build: physics interpolation, Forward+ presets, Windows/Linux exports, optional
+  RTX path) and M7-6 (new track pieces, 30+ maps), per PLAN.md "M7".
+- The Pi serves `main`'s ce4dc66 export (interiors, liveries). A duplicate Pi-side cabin attempt
+  sits on the local, unpushed branch `wip/pi-cabin-duplicate`; ignore it.
+
 ## Latest (~21:40 UTC, session 7): STOPPED on owner request. M7 not started, continue here
 
 **Priority: M7 (PLAN.md "M7").** The owner played it and called it "unplayable". The verbatim

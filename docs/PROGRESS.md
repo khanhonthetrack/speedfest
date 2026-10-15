@@ -602,3 +602,16 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   the owner's "STOP WHAT YOU'RE DOING AND WRITE DOWN HANDOFF" before any report was finished.
   The script is saved as docs/research/m7_research_workflow.js for the next session. No game code
   changed after ce4dc66.
+
+## 2026-10-15 ~23:00 UTC — Session 8 (Pi): M7 physics rewrite (branch m7-physics)
+
+- Trackmania-feel lab `tests/physics/test_tm` (acceleration, steering response, grip turns, slalom,
+  drift, barriers 15/30/45/90 deg, 80 deg wall ride, loop, landing, air gravity; all 6 cars).
+  Baseline kaze: 17/52 failed (13-19 deg slide in every turn, 41 deg slalom slip, wall ride slid
+  8 m and went airborne, 15 deg barrier graze bounced off with the nose 20 deg out, 0-100 3.1 s).
+- New handling in car.gd (yaw-rate steering + lateral grip cancellation + drift mode, glancing
+  barriers, ground stick, fast keyboard steering, +35% power): lab 312/312, PHYSICS_ALL_OK.
+  Kaze now: 0-100 2.3 s, turn-in 0.13 s, release 0.22 s, ~1 deg slip at 2.1-2.9 g, drift turns
+  50 vs 34 deg keeping 95%, wall ride drift 0.5-0.7 m with ~99% speed kept, barrier graze keeps
+  96% with the nose aligned, landings keep 99.6%.
+- Pushed to branch `m7-physics` (87a4543); real tracks/AutoDriver not re-run yet (HANDOFF).

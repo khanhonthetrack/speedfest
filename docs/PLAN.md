@@ -91,7 +91,8 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       not look like 2005, and it must run smoothly (frame pacing / physics interpolation, perf
       budget). **Optional RTX**: a path-traced mode when the game runs on NVIDIA's RTX Godot fork,
       plus whatever mainline offers for RTX cards.
-- [ ] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
+- [ ] 2. **Handling with Trackmania feel** (implemented on branch `m7-physics`, items 2-4; real-track
+      verification + merge pending, see HANDOFF): research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
       measurable targets and tests.
 - [ ] 3. **Barriers**: hits should not ruin a run (glance off and keep going, no snagging, no flips).
