@@ -139,7 +139,7 @@ static func loop_path(r: float = 18.0, lead: float = 220.0, tail: float = 150.0,
 	c.add_point(origin + Vector3(shift, 0, -lead - tail * 0.5))
 	c.add_point(origin + Vector3(shift, 0, -lead - tail))
 	_smooth(c)
-	var p := TrackPath.new(c, false, width)
+	var p := PhysicsTestPath.new(c, false, width)
 	var loop_from := p.closest_distance(origin + Vector3(0, 0, -lead)) - 5.0
 	p.zones = [{"from": loop_from, "to": loop_from + TAU * r + 15.0, "kind": "loop"}]
 	return p
@@ -150,7 +150,7 @@ static func jump_ramp(angle_deg: float = 12.0, ramp_len: float = 22.0, origin: V
 	var root := Node3D.new()
 	var a := deg_to_rad(angle_deg)
 	var h := sin(a) * ramp_len
-	var ramp := _slab(Vector3(14, 0.5, ramp_len), -a, origin + Vector3(0, h * 0.5 - 0.25 * cos(a), -ramp_len * 0.5 * cos(a)))
+	var ramp := _slab(Vector3(14, 0.5, ramp_len), a, origin + Vector3(0, h * 0.5 - 0.25 * cos(a), -ramp_len * 0.5 * cos(a)))
 	root.add_child(ramp)
 	return root
 
@@ -191,20 +191,24 @@ static func circuit_path(width: float = 14.0) -> TrackPath:
 	c.set_point_tilt(4, 0.12)
 	c.set_point_tilt(5, 0.15)
 	_smooth(c, 0.35)
-	return TrackPath.new(c, true, width)
+	return PhysicsTestPath.new(c, true, width)
 
 
-## Catmull-Rom style handles so the curve is smooth through its points.
+## Catmull-Rom style handles so the curve is smooth through its points (handles scaled by the
+## adjacent segment lengths, so uneven spacing doesn't overshoot).
 static func _smooth(c: Curve3D, k: float = 0.3) -> void:
 	var n := c.point_count
+	var closed := c.get_point_position(0).distance_to(c.get_point_position(n - 1)) < 0.01
 	for i in n:
+		var p := c.get_point_position(i)
 		var prev := c.get_point_position(maxi(i - 1, 0))
 		var next := c.get_point_position(mini(i + 1, n - 1))
-		if i == 0 or i == n - 1:
-			var closed := c.get_point_position(0).distance_to(c.get_point_position(n - 1)) < 0.01
-			if closed:
-				prev = c.get_point_position(n - 2)
-				next = c.get_point_position(1)
-		var tan := (next - prev) * k * 0.5
-		c.set_point_in(i, -tan)
-		c.set_point_out(i, tan)
+		if closed and (i == 0 or i == n - 1):
+			prev = c.get_point_position(n - 2)
+			next = c.get_point_position(1)
+		var dir := next - prev
+		if dir.length_squared() < 1e-8:
+			continue
+		dir = dir.normalized()
+		c.set_point_in(i, -dir * p.distance_to(prev) * k)
+		c.set_point_out(i, dir * p.distance_to(next) * k)

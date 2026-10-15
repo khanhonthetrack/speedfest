@@ -20,6 +20,10 @@ const SUSP_UP := 0.30                    # ray origin above the wheel center
 const SUSP_DROOP := 0.20                 # max droop below rest
 const BUMP_START := 0.085                # compression where the bump stop starts
 const BUMP_MULT := 13.0                  # bump-stop stiffness relative to the spring
+const BUMP_DAMP := 1.5                   # extra compression damping inside the bump-stop zone (x damper)
+const LAND_REBOUND_TIME := 0.35          # after a touchdown, cap the rebound speed for this long
+const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
+const LAND_ABSORB := 0.7                 # fraction of the touchdown speed into the ground removed
 const MAX_WHEEL_G := 28.0                # cap on a single wheel's suspension force (in corner weights)
 const STICK_ACCEL := 13.0                # extra road-normal pull on steep/inverted road at speed
 const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 per rad)
@@ -83,6 +87,7 @@ var _pending_xform := Transform3D.IDENTITY
 var _pending_vel := Vector3.ZERO
 var _prev_vel := Vector3.ZERO
 var _ground_n := Vector3.UP
+var _land_timer := 0.0
 
 
 static func create(p_config: Dictionary) -> Car:
@@ -313,6 +318,7 @@ func _reset_dynamics(v: Vector3) -> void:
 	_slip_angle = 0.0
 	_air_time = 0.0
 	_upside_time = 0.0
+	_land_timer = 0.0
 	_righting = 0.0
 	_hb_blend = 0.0
 	_reversing = false
@@ -382,6 +388,23 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if not _contact[i]:
 			_comp[i] = -SUSP_DROOP
 	_ground_n = n_sum.normalized() if _grounded > 0 else up
+	# touchdown after real air time: soak up most of the impact (arcade, no bounce)
+	if _grounded > 0 and was_grounded == 0 and _air_time > 0.2:
+		var vn := lv.dot(_ground_n)
+		if vn < -2.0:
+			lv -= _ground_n * (vn + 2.0) * LAND_ABSORB
+			var pr0 := av - up * av.dot(up)
+			av -= pr0 * 0.6
+			state.linear_velocity = lv
+			state.angular_velocity = av
+			_land_timer = LAND_REBOUND_TIME
+	if _land_timer > 0.0:
+		_land_timer -= dt
+		if _grounded > 0:
+			var vn2 := lv.dot(_ground_n)
+			if vn2 > LAND_REBOUND_MAX:
+				lv -= _ground_n * (vn2 - LAND_REBOUND_MAX)
+				state.linear_velocity = lv
 
 	# suspension forces (+ anti-roll)
 	var force := PackedFloat32Array([0, 0, 0, 0])
@@ -395,7 +418,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var f := _preload[i] + _k[i] * c + _c[i] * comp_vel
 		if c > BUMP_START:
 			var over := c - BUMP_START
-			f += _k[i] * BUMP_MULT * over * (1.0 + over * 8.0) + _c[i] * 1.5 * maxf(comp_vel, 0.0)
+			f += _k[i] * BUMP_MULT * over * (1.0 + over * 8.0) + _c[i] * BUMP_DAMP * maxf(comp_vel, 0.0)
 		force[i] = f
 	for axle in 2:
 		var l := axle * 2
