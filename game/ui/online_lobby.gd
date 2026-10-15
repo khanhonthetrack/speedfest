@@ -314,8 +314,7 @@ func _on_chat(from_name: String, text: String) -> void:
 
 
 func _on_rooms_listed(rooms: Array) -> void:
-	for c in room_list.get_children():
-		c.queue_free()
+	_clear(room_list)
 	room_list_empty.visible = rooms.is_empty()
 	for r in rooms:
 		if typeof(r) == TYPE_DICTIONARY:
@@ -328,6 +327,8 @@ func _on_room_changed(room: Dictionary) -> void:
 		if Net.is_online():
 			show_view(VIEW_BROWSER)
 			Net.list_rooms()
+		else:
+			show_view(VIEW_CONNECT)
 		return
 	var first := _room.is_empty() or String(_room.get("code", "")) != String(room.get("code", ""))
 	_room = room
@@ -354,8 +355,7 @@ func _refresh_room() -> void:
 	var players: Array = r.get("players", [])
 	var host_id := int(r.get("host", -1))
 	player_count_label.text = "%d / %d" % [players.size(), int(r.get("max_players", 8))]
-	for c in player_list.get_children():
-		c.queue_free()
+	_clear(player_list)
 	for p in players:
 		player_list.add_child(_player_row(p, host_id))
 	_refresh_settings()
@@ -523,6 +523,12 @@ func _room_entry(r: Dictionary) -> Control:
 	cnt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	h.add_child(cnt)
 	return b
+
+
+static func _clear(box: Node) -> void:
+	for c in box.get_children():
+		box.remove_child(c)
+		c.queue_free()
 
 
 # --- chat / toast ---------------------------------------------------------------------------------

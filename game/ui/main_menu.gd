@@ -246,9 +246,9 @@ func _add_menu_button(text: String, sub: String, cb: Callable) -> void:
 func _build_name_dialog() -> Control:
 	var dim := ColorRect.new()
 	dim.color = Color(0, 0, 0.02, 0.72)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.add_child(center)
 	var p := MenuKit.panel(Color(UITheme.NAVY, 0.97), UITheme.MAGENTA)
 	p.custom_minimum_size = Vector2(560, 0)

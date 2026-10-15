@@ -9,8 +9,8 @@ const STAT_KEYS := [["top_speed", "TOP SPEED"], ["accel", "ACCELERATION"], ["han
 const LIVERY_NAMES := {"none": "None", "racing_stripes": "Stripes", "side_stripe": "Side stripe", "two_tone": "Two-tone", "fade": "Fade", "checker": "Checker"}
 ## Camera presets per tab: [car_yaw, pitch, distance]
 const TAB_VIEWS := [
-	[PI + 0.65, 0.16, 8.2], [PI + 0.9, 0.22, 7.6], [0.75, 0.2, 7.8],
-	[PI / 2 + PI, 0.06, 7.4], [PI + 0.3, 0.1, 7.6], [0.15, 0.12, 6.4],
+	[PI + 0.65, 0.16, 9.4], [PI + 0.9, 0.22, 9.0], [0.75, 0.2, 9.2],
+	[PI / 2 + PI, 0.06, 8.6], [PI + 0.3, 0.12, 9.0], [0.15, 0.12, 8.4],
 ]
 
 var car_id := "kaze"
@@ -28,6 +28,7 @@ var slider_values: Dictionary = {}    # tuning key -> Label
 var chip_rows: Dictionary = {}        # style key -> HFlowContainer
 var swatch_rows: Dictionary = {}      # style key -> HFlowContainer
 var style_sliders: Dictionary = {}    # "tint"/"ride_height" -> HSlider
+var style_slider_values: Dictionary = {}
 var carbon_check: CheckButton
 var plate_edit: LineEdit
 var stat_bars: Dictionary = {}
@@ -55,6 +56,8 @@ func _ready() -> void:
 	MenuKit.wire_focus_sounds(self)
 	Audio.play_music("menu")
 	select_car(Profile.selected_car)
+	# Online: if the host starts a round while we're tuning, save and go race.
+	Net.round_started.connect(_on_round_started)
 	var tab := int(TestHooks.arg("tab", 0))
 	if tab != 0:
 		tabs.current_tab = clampi(tab, 0, TABS.size() - 1)
@@ -166,6 +169,15 @@ func _on_back() -> void:
 	Game.leave_garage()
 
 
+func _on_round_started(info: Dictionary) -> void:
+	if not Net.in_room():
+		return
+	_save_timer.stop()
+	Profile.save()
+	Net.set_profile(Profile.player_name, Profile.get_config())
+	Game.start_online_round(info)
+
+
 func _schedule_save() -> void:
 	_save_timer.start()
 
@@ -234,6 +246,7 @@ func _reflect_style_key(key: String) -> void:
 		MenuKit.select_chip(chip_rows[key], idx)
 	if style_sliders.has(key):
 		(style_sliders[key] as HSlider).set_value_no_signal(float(v))
+		style_slider_values[key].text = ("%d%%" % roundi(float(v) * 100.0)) if key == "tint" else ("%+.2f" % float(v))
 	if key == "hood_carbon" and carbon_check:
 		carbon_check.set_pressed_no_signal(bool(v))
 	if key == "plate" and plate_edit and plate_edit.text != String(v):
@@ -264,7 +277,7 @@ static func _fmt_signed(v: float) -> String:
 func _build() -> void:
 	showroom = Showroom.new()
 	showroom.screen_offset = -1.9
-	showroom.distance = 8.2
+	showroom.distance = 9.4
 	showroom.auto_rotate = 0.15
 	showroom.set_accent(UITheme.CYAN)
 	add_child(showroom)
@@ -483,6 +496,7 @@ func _build_lights_tab() -> Control:
 		row["value"].text = "%d%%" % roundi(val * 100.0)
 		set_style_value("tint", val))
 	style_sliders["tint"] = s
+	style_slider_values["tint"] = row["value"]
 	v.add_child(row["root"])
 	return v
 
@@ -495,6 +509,7 @@ func _build_plate_tab() -> Control:
 		row["value"].text = "%+.2f" % val
 		set_style_value("ride_height", val))
 	style_sliders["ride_height"] = s
+	style_slider_values["ride_height"] = row["value"]
 	v.add_child(row["root"])
 	v.add_child(MenuKit.spacer(0, 8))
 	v.add_child(MenuKit.caption("License plate"))

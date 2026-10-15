@@ -3,7 +3,13 @@ extends Node
 ## reset works, and the values survive a save + reload of the profile.
 
 
+var _backup := ""
+
+
 func _ready() -> void:
+	# The test edits the real profile; restore it afterwards.
+	if FileAccess.file_exists(Profile.SAVE_PATH):
+		_backup = FileAccess.get_file_as_string(Profile.SAVE_PATH)
 	var g: Control = load("res://ui/garage.tscn").instantiate()
 	add_child(g)
 	await get_tree().process_frame
@@ -60,4 +66,10 @@ func _ready() -> void:
 	# stats respond (with real Tuning: gearing toward top speed raises top_speed)
 	var s0 := Tuning.stats("brute", CarDefs.default_tuning())
 	TestHooks.check(s0.has("top_speed_kmh") and s0.has("zero_to_100_s"), "garage_stats_shape")
+	if _backup != "":
+		var f := FileAccess.open(Profile.SAVE_PATH, FileAccess.WRITE)
+		f.store_string(_backup)
+		f = null
+	else:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(Profile.SAVE_PATH))
 	TestHooks.finish()
