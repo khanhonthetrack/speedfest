@@ -30,6 +30,8 @@ const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 
 const AIR_DAMP := 1.6                    # air pitch/roll rate damping (1/s)
 const AIR_STEER := 2.2                   # air yaw authority (rad/s^2)
 const NITRO_REFILL := 1.0 / 28.0         # tank fraction per second while driving
+const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
+const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
 const DRIFT_SPEED_KEEP := 0.55           # fraction of drift scrub given back as forward push
 const BODY_FRICTION := 0.04
 
@@ -88,6 +90,7 @@ var _pending_vel := Vector3.ZERO
 var _prev_vel := Vector3.ZERO
 var _ground_n := Vector3.UP
 var _land_timer := 0.0
+var _intent := 0.0
 
 
 static func create(p_config: Dictionary) -> Car:
@@ -299,6 +302,10 @@ func max_steer_at(v: float) -> float:
 	return clampf(ang, deg_to_rad(4.0), smax)
 
 
+func drive_awd_flag() -> bool:
+	return String(params.get("drive", "rwd")) == "awd"
+
+
 func get_wheelbase() -> float:
 	return _wheelbase
 
@@ -321,6 +328,7 @@ func _reset_dynamics(v: Vector3) -> void:
 	_land_timer = 0.0
 	_righting = 0.0
 	_hb_blend = 0.0
+	_intent = 0.0
 	_reversing = false
 	_braking = false
 	_shift_timer = 0.0
@@ -486,6 +494,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	else:
 		_hb_blend = move_toward(_hb_blend, 0.0, dt / 0.45)
 
+	# --- drift intent: handbrake, or heavy throttle (RWD power oversteer). Without intent the
+	# rear's sliding grip rises above the front's so a slide straightens itself out.
+	var intent_t := _hb_blend
+	if not drive_awd_flag():
+		intent_t = maxf(intent_t, clampf((throttle - 0.55) * 2.5, 0.0, 1.0) * clampf(_drift * 2.0, 0.0, 1.0))
+	else:
+		intent_t = maxf(intent_t, clampf((throttle - 0.7) * 2.0, 0.0, 1.0) * clampf(_drift * 2.0, 0.0, 1.0) * 0.6)
+	_intent = move_toward(_intent, intent_t, dt * (6.0 if intent_t > _intent else 1.5))
+
 	# --- body slip angle / drift ---
 	var lv_g := lv - _ground_n * lv.dot(_ground_n)
 	var slip := 0.0
@@ -560,7 +577,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var slide: float = params["front_slide"]
 		if not front:
 			mu *= float(params["rear_grip_bias"])
-			slide = params["rear_slide"]
+			slide = lerpf(minf(float(params["front_slide"]) + 0.14, 1.0), float(params["rear_slide"]), _intent)
 			mu *= lerpf(1.0, 0.42, _hb_blend)
 			mu *= 1.0 + spin_assist * 0.6
 			if _drift > 0.2 and throttle > 0.3 and not handbrake:
@@ -601,12 +618,21 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var keep := minf(scrub * DRIFT_SPEED_KEEP * _drift * float(params["drift_assist"]), m * 6.0)
 		state.apply_central_force(lv_g.normalized() * keep)
 
-	# --- spin-out protection: damp yaw that increases an already large slip ---
-	if _grounded >= 2 and spin_assist > 0.0:
-		var yaw := av.dot(up)
-		# slip > 0: velocity points right of the nose -> nose rotating left (yaw > 0) increases it
-		if yaw * slip > 0.0:
-			state.apply_torque(-up * yaw * inertia.y * 4.0 * spin_assist)
+	# --- drift stabilizer: bound the body slip angle (no endless spins) ---
+	if _grounded >= 2 and lv_g.length() > 6.0 and not _reversing:
+		var fwd_s := (fwd - _ground_n * fwd.dot(_ground_n)).normalized()
+		var right_s := fwd_s.cross(_ground_n)
+		var full := atan2(lv_g.dot(right_s), lv_g.dot(fwd_s))
+		var a := absf(full)
+		var lim := deg_to_rad(DRIFT_MAX_DEG)
+		if a > lim and a < deg_to_rad(150.0):
+			var sgn := signf(full)
+			var yaw := av.dot(up)
+			# slip > 0: velocity right of the nose -> turn the nose right (negative yaw)
+			var t_yaw := -sgn * (a - lim) * DRIFT_STAB * (0.5 if handbrake else 1.0)
+			if yaw * sgn > 0.0:
+				t_yaw -= yaw * 5.0
+			state.apply_torque(up * t_yaw * inertia.y)
 
 	# --- aero, drag, rolling ---
 	if speed > 0.1:
@@ -683,11 +709,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_righting = 1.0
 	if _righting > 0.0:
 		_righting -= dt
-		state.apply_central_force(Vector3.UP * m * CarPhysicsDefs.GRAVITY * 1.25)
-		var axis := up.cross(Vector3.UP)
-		if axis.length_squared() < 1e-4:
-			axis = fwd
-		state.apply_torque(axis.normalized() * inertia.z * 14.0 - av * inertia.z * 4.0)
+		if up.dot(Vector3.UP) > 0.92:
+			_righting = 0.0
+		else:
+			if up.dot(Vector3.UP) < 0.5 and _righting > 0.4:
+				state.apply_central_force(Vector3.UP * m * CarPhysicsDefs.GRAVITY * 1.2)
+			var axis := up.cross(Vector3.UP)
+			if axis.length_squared() < 1e-4:
+				axis = fwd
+			state.apply_torque(axis.normalized() * inertia.z * 12.0 - av * inertia.z * 4.0)
 
 	# --- wall hits ---
 	var lost := (_prev_vel - lv).length()
