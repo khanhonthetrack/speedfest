@@ -52,6 +52,10 @@ func _ready() -> void:
 		emu.set("inp", inp)
 	track.checkpoint_reached.connect(_on_cp)
 	track.finish_reached.connect(_on_finish)
+	if TestHooks.has_arg("dump_from"):
+		_dump_frames(float(TestHooks.arg("dump_from", 0.0)), float(TestHooks.arg("dump_to", 100.0)))
+		TestHooks.finish()
+		return
 	_restart()
 	print("track %s length %.0f m, %d checkpoints, kill_y %.1f, zones %s" % [track_id, track.path.length, track.checkpoint_count, track.kill_y, track.path.zones])
 	if not DisplayServer.get_name() == "headless":
@@ -74,7 +78,12 @@ func _restart() -> void:
 
 func _respawn() -> void:
 	respawns += 1
-	print("  respawn #%d at cp %d (pos %s)" % [respawns, next_cp - 1, car.global_position])
+	var dd := ai.get_distance()
+	var kinds := []
+	for z in track.path.zones:
+		if dd >= float(z["from"]) - 30.0 and dd <= float(z["to"]) + 10.0 and String(z["kind"]) not in ["elevated", "no_props"]:
+			kinds.append("%s[%.0f-%.0f]" % [z["kind"], z["from"], z["to"]])
+	print("  respawn #%d at cp %d (pos %s) d=%.0f near %s v=%.0f" % [respawns, next_cp - 1, car.global_position, dd, kinds, car.get_speed_kmh()])
 	car.teleport(last_cp_xf, last_cp_vel)
 	ai.reset_tracking()
 
@@ -123,3 +132,20 @@ func _process(_delta: float) -> void:
 		var b := car.global_transform.basis
 		cam.global_position = car.global_position + b.z * 8.0 + b.y * 3.0
 		cam.look_at(car.global_position + b.y * 1.0, b.y)
+
+
+## Debug: print the path frames (roll, normal change per meter) over [a, b].
+func _dump_frames(a: float, b: float) -> void:
+	var p := track.path
+	var prev := p.sample_transform(a)
+	var d := a
+	var maxrate := 0.0
+	while d <= b:
+		var t := p.sample_transform(d)
+		var rate := rad_to_deg(prev.basis.y.angle_to(t.basis.y))
+		maxrate = maxf(maxrate, rate)
+		if int(round(d)) % 4 == 0:
+			print("  FRAME d=%.0f roll=%.1f normal_rate=%.2f deg/m pos=%s" % [d, rad_to_deg(acos(clampf(t.basis.y.y, -1, 1))), rate, t.origin.snapped(Vector3.ONE * 0.1)])
+		prev = t
+		d += 1.0
+	print("  FRAME max normal rate %.2f deg/m" % maxrate)

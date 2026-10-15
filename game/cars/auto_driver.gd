@@ -271,13 +271,34 @@ func _build_profile(car: Car) -> void:
 		var kappa_s := (f2 - f0).dot(t1.basis.x) / 8.0
 		_kappa[i] = kappa_s
 		var kappa := absf(kappa_s)
-		# banking helps: lean of the road normal into the turn
-		var bank := clampf(t1.basis.y.dot(Vector3.UP), 0.0, 1.0)
-		var a_scale := 1.0 + clampf(1.0 - bank, 0.0, 0.5)
 		var vmax := 200.0
-		var denom := kappa - mu * dfm * a_scale
-		if denom > 1e-5:
-			vmax = sqrt(mu * g * a_scale / denom)
+		# turning measured in the WORLD horizontal plane, banking = road normal leaning toward the
+		# turn's center (wall rides and banked turns), standard banked-curve limit with downforce
+		var h0 := Vector3(f0.x, 0.0, f0.z)
+		var h2 := Vector3(f2.x, 0.0, f2.z)
+		var nrm := t1.basis.y
+		if absf(f0.y) < 0.7 and absf(f2.y) < 0.7 and h0.length() > 0.3 and h2.length() > 0.3:
+			h0 = h0.normalized()
+			h2 = h2.normalized()
+			var dh := h2 - h0
+			var kh := dh.length() / 8.0
+			if kh > 1e-5:
+				var c := dh.normalized()                     # horizontal unit toward the turn's center
+				var sin_b := nrm.dot(c)
+				var cos_b := maxf(nrm.y, 0.0)
+				var v2 := 200.0 * 200.0
+				for _it in 3:
+					var mu_eff := mu * (1.0 + dfm * minf(v2, 120.0 * 120.0) / g)
+					var den := cos_b - mu_eff * sin_b
+					if den <= 1e-4:
+						v2 = 200.0 * 200.0
+						break
+					v2 = clampf(g / kh * (sin_b + mu_eff * cos_b) / den, 0.0, 200.0 * 200.0)
+				vmax = sqrt(v2)
+		elif kappa > 1e-5:
+			var denom := kappa - mu * dfm
+			if denom > 1e-5:
+				vmax = sqrt(mu * g / denom)
 		_profile[i] = minf(vmax, 200.0)
 		var full := 0
 		var stan := 0
@@ -288,8 +309,7 @@ func _build_profile(car: Car) -> void:
 			if kind == "loop" and d >= float(z["from"]) - 5.0 and d <= float(z["to"]) + 5.0:
 				stan = 1
 			if kind == "wallride" and d >= float(z["from"]) - WALL_LEAD and d <= float(z["to"]) + WALL_LEAD:
-				stan = 1
-				full = 1
+				stan = 1   # speed comes from the banked-curve limit (unlimited once the wall is steep)
 			if kind == "jump" and d >= float(z["from"]) - STANLEY_JUMP_LEAD and d <= float(z["to"]) + 5.0:
 				stan = 1
 		_stan[i] = stan
