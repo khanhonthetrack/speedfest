@@ -347,7 +347,8 @@ def write_ogg(path: str, x: np.ndarray, quality: float = 3.0, sr: int = SR) -> i
 		wav = os.path.join(td, "x.wav")
 		write_wav(wav, x, sr)
 		subprocess.run(
-			["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "libvorbis", "-q:a", str(quality), path],
+			["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "libvorbis", "-q:a", str(quality),
+				"-fflags", "+bitexact", "-flags:a", "+bitexact", "-serial_offset", "1", path],
 			check=True,
 		)
 	return os.path.getsize(path)
