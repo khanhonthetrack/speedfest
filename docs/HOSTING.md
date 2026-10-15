@@ -26,7 +26,7 @@ To use a specific branch: `git checkout <branch>` after cloning (`git pull` upda
 
 Pick one option. **C (Render)** gives a permanent website and needs no PC running.
 
-### A. Cloudflare quick tunnel (recommended: free, no account, works through any router)
+### A. Cloudflare quick tunnel (free, no account; your PC must keep running the server)
 1. Install `cloudflared`:
    - Windows: `winget install --id Cloudflare.cloudflared` (or download it from Cloudflare's site)
    - macOS: `brew install cloudflared`
