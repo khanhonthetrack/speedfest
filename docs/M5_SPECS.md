@@ -4,7 +4,9 @@ Owner request (2026-10-15, TRANSCRIPT): the graphics are "kinda trivial" and the
 mobiley and boring". Path tracing is parked (docs/RENDERING.md). Focus on **real art and lighting
 on mainline Godot 4.7.2** (RENDERING §3 item 1) and an **NFSU2-style 3D front end** (RENDERING §4).
 
-Three sessions work in parallel, each on its own branch, and the orchestrator merges them into
+**Update (09:30 UTC): the owner asked for no parallel sessions.** One agent does these three tracks one
+after another (world → cars → frontend), after PLAN.md M4.5. The file ownership below still helps keep
+each track's changes contained. Originally: three sessions, each on its own branch, merged into
 `main`. First attempt (orchestrator #3, ~08:35 UTC) used local worktree agents whose work never
 reached GitHub and was lost. **So: commit and push to your branch after every meaningful step
 (at least every ~30–45 min of work), not just at the end.**

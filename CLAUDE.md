@@ -17,6 +17,11 @@ Every step, plan and piece of progress must be saved to the GitHub repo
 update `docs/PROGRESS.md` (and `docs/PLAN.md` checkboxes), then commit and push.
 Record new owner messages verbatim in `docs/TRANSCRIPT.md`.
 
+## Work sequentially (owner rule, 2026-10-15)
+**Don't run parallel sessions or parallel subagents.** When the account hits its usage limit, all of
+their unpushed work is lost. One agent works through the plan one item at a time, commits and pushes
+after every meaningful step, and records progress in `docs/PROGRESS.md` and `docs/HANDOFF.md`.
+
 ## Environment setup (fresh container)
 ```bash
 # Godot 4.7.2 editor + export templates. downloads.godotengine.org is blocked in some cloud

@@ -170,3 +170,9 @@ date, who (module/agent), what changed, what's next or blocked.
 - Spawned three cloud sessions (09:13 UTC): cars `session_01U5u2g2MGdocygvQu5vrKc2`,
   world `session_01VVtY7M5SnVMaLCbswNq3ku`, frontend `session_01CxwrXhBdpNbub4Uzv8brw7`.
   Each pushes to `visual/<key>` and keeps a Handoff section in its module doc.
+
+## 2026-10-15 ~09:30 UTC — Owner feedback; parallel sessions stopped
+
+- Owner sent six feedback items and asked not to run in parallel (TRANSCRIPT session 4). Interrupted
+  and archived the three M5 sessions (none had pushed) and stopped the local review agents.
+- New plan section **M4.5** (PLAN.md) with the six items. CLAUDE.md now has a "Work sequentially" rule.

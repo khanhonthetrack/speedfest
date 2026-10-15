@@ -52,11 +52,24 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 - [ ] `docs/HOSTING.md`: run locally + Cloudflare quick tunnel, or deploy to Render
 - [ ] README quick start for friends
 
+### M4.5 — Owner feedback, session 4 (2026-10-15 ~09:20 UTC; do these first, one at a time)
+Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item.
+- [ ] 1. "On the road it feels bumpy, is it a bug?" Investigate the road surface and suspension; fix
+- [ ] 2. "Remove a map, no one cares." Remove the HUD minimap (read as the minimap, not a track)
+- [ ] 3. Checkpoints: much smaller "CHECKPOINT" text; checkpoints must not look see-through (you
+      "fly past it like a ghost"); a better, solid gate design
+- [ ] 4. Smaller speedometer/NOS panel. **NOS is a fixed amount per run, not recharged** (strategy)
+- [ ] 5. No neon futuristic grids: the stadium gets grass (or similar) instead of the neon grid; the
+      menu background is static; the online lobby shows every player's car as soon as they join and
+      updates live when they change car or style (like Rocket League's lobby)
+- [ ] 6. Remove performance tuning (too complicated). Easy handling that still differs per car
+
 ### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
 Owner: "graphics ... kinda trivial and menu looks very mobiley and boring", so focus on real art
 and lighting on mainline Godot plus an NFSU2-style 3D front end (docs/RENDERING.md §3 items 1 and 5).
 Path tracing is parked until the owner is at their RTX PC. Three parallel tracks, each on its own branch
-(specs: **docs/M5_SPECS.md**; restarted 09:20 UTC as cloud sessions after the first attempt's local work was lost):
+(specs: **docs/M5_SPECS.md**). **Paused until M4.5 is done.** The owner said not to run parallel sessions
+(work is lost when the usage limit hits), so one agent does these tracks one after another on `main`:
 | track | branch | scope |
 |---|---|---|
 | cars | `visual/cars` | Blender-scripted hero car models (glTF, all customization slots, LODs) behind the unchanged CarVisual API; better paint, glass, chrome, tire and light materials |

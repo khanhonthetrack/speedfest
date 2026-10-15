@@ -204,3 +204,25 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
 - Read HANDOFF/PLAN/PROGRESS/TRANSCRIPT. The M5 visual upgrade's three local agents from session 3
   never pushed, so their work was lost. Restarted M5 as three cloud sessions (cars, world,
   frontend) that push to `visual/*` after every step. Specs: docs/M5_SPECS.md.
+
+### User (verbatim, ~09:20 UTC)
+
+> also, don’t know if these have been done yet but more TODOs (record progress, remember):
+>
+> 	1.	I’m on the road and feels bumpy, is it a bug?
+> 	2.	Remove a map, no one cares.
+> 	3.	Checkpoint text maybe should be written smaller, not like THE WHOLE SCREEN. The checkpoint should not be see through - for now i can fly past it like a ghost. The design of it is also lame.
+> 	4.	The screen with speed and NOS could be smaller. NOS should be fixed, not charged (for strategy).
+> 	5.	I don’t like neon futuristic grids. For stadium swap it with grass or something. For menu make it static. For lobby it would be great when a new person comes, we can see their car immediately (and if they change the car or change settings we can also see that, similar to the menu in Rocket League)
+> 6. Remove tuning, it’s too complicated. Make handling easy (but different for different cars).
+> I would suggest not using 3 parallel sessions as when usage limit hits then all work is lost
+> don’t run in parallel!!
+
+### Claude
+
+- Stopped and archived the three M5 cloud sessions (none had pushed yet; ~15 min of setup lost)
+  and the local review agents. From now on one agent works sequentially and pushes after every
+  step (rule added to CLAUDE.md).
+- Read "Remove a map" as the HUD **minimap** (not a track). Owner can correct this.
+- The six items are tracked in PLAN.md "M4.5 Owner feedback" and done one at a time, before the
+  M5 visual upgrade resumes.

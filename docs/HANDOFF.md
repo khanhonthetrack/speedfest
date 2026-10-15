@@ -1,16 +1,26 @@
 # HANDOFF: start here
 
-## Latest (2026-10-15 ~09:20 UTC, orchestrator #4, session 4)
+## Latest (2026-10-15 ~09:30 UTC, orchestrator #4, session 4)
+
+**Rule from the owner: no parallel sessions or subagents.** Work one item at a time and push
+after each step (CLAUDE.md "Work sequentially").
 
 **State:** `main` has the integrated game (Trackmania-style tracks, weather, the handling-feel pass)
-and tonight's web build in `server/public`. **M5 visual upgrade restarted**: orchestrator #3's
-local worktree agents (visual/cars, visual/world, visual/frontend) never pushed, so their work was
-lost. This time each track runs as its own **cloud session** that pushes to its branch after every
-step. Specs: **`docs/M5_SPECS.md`**. Module docs: `docs/modules/visuals.md` (cars),
-`docs/modules/scenery.md` (world), `docs/modules/ui_menus.md` (frontend), each with a "Handoff" section.
+and tonight's web build in `server/public`. The M5 cloud sessions started at 09:13 were stopped
+and archived at the owner's request (nothing had been pushed). M5 (docs/M5_SPECS.md) is paused.
 
-| track | branch | session |
-|---|---|---|
+**Now:** the owner's six feedback items, **PLAN.md "M4.5"**, in order: bumpy road, remove the
+HUD minimap, checkpoint gates and text, smaller HUD + fixed NOS, no neon grids (stadium grass,
+static menu, lobby that shows everyone's car live), remove tuning with easy per-car handling.
+Then M5, sequentially (world → cars → frontend).
+
+- **Game night is tonight.** If the host uses Render with Auto-Deploy on, every push to `main`
+  redeploys. Re-export `server/public` only with verified changes, and not late in the day.
+- Web export now excludes `assets/hd/*` (desktop-only large assets).
+- Open items from session 3 (below) still apply: keyboard-emulation falls, downtown length, web
+  frame rate on a real GPU, and the adversarial review.
+
+---|---|---|
 | cars | `visual/cars` | session_01U5u2g2MGdocygvQu5vrKc2 |
 | world | `visual/world` | session_01VVtY7M5SnVMaLCbswNq3ku |
 | frontend | `visual/frontend` | session_01CxwrXhBdpNbub4Uzv8brw7 |
