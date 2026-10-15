@@ -481,7 +481,7 @@ date, who (module/agent), what changed, what's next or blocked.
   tested or reviewed visually; engine sounds not generated yet. Next steps listed in HANDOFF.
 - The live Pi site still runs the 5236df9 build (before LIVE and the new maps).
 
-## 2026-10-15 ~17:30 UTC — Session 7: air steering fix, weather test on the new maps
+## 2026-10-15 ~17:20 UTC — Session 7: air steering fix, weather test on the new maps
 
 - **Air steering was inverted** (owner, session 3: "when in the air, when I move my car left it
   runs right"). The air yaw torque drove the yaw rate toward `+steer * AIR_YAW_RATE`, but steer
@@ -494,7 +494,7 @@ date, who (module/agent), what changed, what's next or blocked.
   AutoDriver in storm with no respawns: cliff 16.2 s, rooftop 14.3 s, pipes 20.3 s.
 - Checks: PHYSICS_ALL_OK; check_all --quick all suites OK except test_weather (fixed above).
 
-## 2026-10-15 ~18:45 UTC — Session 7: M6-3 DONE, three new car types merged
+## 2026-10-15 ~17:50 UTC — Session 7: M6-3 DONE, three new car types merged
 
 Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - **Looks:** screenshots of all three on Forward+ and compat. Goliath's bed was a smooth bowl that
@@ -522,7 +522,7 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - **AutoDriver:** the 3 new cars × 10 tracks finish with 0 respawns (e.g. coast 28.6–29.6 s,
   rooftop 14.3–17.6 s, rails 6.2–6.4 s). CHECK_ALL PASS (--quick).
 
-## 2026-10-15 ~20:00 UTC — Session 7: M6-4 step 1, photographed skies (CC0 HDRIs)
+## 2026-10-15 ~19:15 UTC — Session 7: M6-4 step 1, photographed skies (CC0 HDRIs)
 
 - `tools/textures/fetch_hdri.py` fetches three Poly Haven CC0 "pure sky" HDRIs: Kloppenheim 07
   (city, overcast night), Kloppenheim 02 (stadium, clear moonlit night) and Belfast Sunset (coast).
@@ -542,3 +542,19 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   Lesson: the "real" HDR exposure is ~4× brighter than the hand-tuned procedural skies; match the
   average instead (coast 0.08, city 0.3, stadium 0.32 of real).
 - Checks: test_scenery 45/45, test_weather 73/73, check_scripts 0 errors. Asset list: docs/ASSETS.md.
+
+## 2026-10-15 ~19:35 UTC — Session 7: M6-5 web export (Pi deploy pending)
+
+- `server/public` re-exported from `main`: new cars, air steering fix, sand drag fade, photographed
+  skies, weather puddle fixes. The pck grows 8.41 → 8.74 MB (12 engine loops + three 1K skies).
+- Web-only bug fixed: Orbitron (headings) has no "·", and the web has no system fonts to fall back
+  on, so "ONLINE · LIVE" and "STREET · STUNT · TIME ATTACK" drew a box. `UITheme.font()` now gives
+  the Orbitron faces Rajdhani as a fallback.
+- Browser checks (headless Chromium, SwiftShader WebGL2, local server on this export): the menu
+  loads with 0 console errors. `online_browser_test.js` with 1 client: connect → round → finish
+  (Goliath on Rail Rush 6.183 s, accepted by the server; Kitsune drove the same map in an earlier
+  round). The script takes `CARS=`. Two clients don't fit in this 4-CPU container: they hadn't
+  loaded within 7 minutes. Software rendering also runs the race ~7× slower than real time, so
+  browser rounds need ~90 s per 6 s of driving.
+- **Not deployed:** the Pi serves `server/public` from its `~/speedfest` clone. To ship this build:
+  on the Pi, `cd ~/speedfest && git pull && docker restart speedfest`.

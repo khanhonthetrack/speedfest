@@ -3,7 +3,7 @@
 // online round with --autodrive. Prints PASS/FAIL plus per-client AUTOPILOT events, and saves
 // screenshots of every client during the race.
 //
-// usage: NODE_PATH=$(npm root -g) node tools/integration/online_browser_test.js <base_url> <out_dir> [clients=3] [track=arena] [duration_s=60]
+// usage: [CARS=kitsune,goliath] NODE_PATH=$(npm root -g) node tools/integration/online_browser_test.js <base_url> <out_dir> [clients=3] [track=arena] [duration_s=60]
 // e.g.   PUBLIC_DIR=/tmp/web COUNTDOWN_MS=2000 RESULTS_MS=4000 PORT=8090 node server/server.js &
 //        NODE_PATH=$(npm root -g) node tools/integration/online_browser_test.js http://127.0.0.1:8090 /tmp/out 3 arena 45
 //
@@ -23,12 +23,15 @@ if (!base || !outDir) {
 }
 fs.mkdirSync(outDir, { recursive: true });
 
+// CARS=goliath,pixie picks the clients' cars (default kaze, brute, veloce)
+const CAR_LIST = (process.env.CARS || 'kaze,brute,veloce').split(',').map((c) => c.trim()).filter(Boolean);
+
 function urlFor(i) {
   const args = [
     `--auto_online=${i === 0 ? 'host' : 'guest'}`,
     '--autodrive',
     `--name=Bot${i + 1}`,
-    `--car=${['kaze', 'brute', 'veloce'][i % 3]}`,
+    `--car=${CAR_LIST[i % CAR_LIST.length]}`,
   ];
   if (i === 0) args.push(`--track=${track || 'arena'}`, `--duration=${duration}`, `--expect=${N}`);
   return `${base.replace(/\/$/, '')}/index.html?` + args.map((a) => 'arg=' + encodeURIComponent(a)).join('&');

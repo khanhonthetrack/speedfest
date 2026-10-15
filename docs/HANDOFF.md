@@ -1,17 +1,20 @@
 # HANDOFF: start here
 
-## Latest (~17:30 UTC, session 7, cloud session)
+## Latest (~19:20 UTC, session 7, cloud session)
 
 - Fixed the inverted **air steering** (car.gd, `test_feel` direction checks) and the
-  **test_weather** failures on the session-6 maps (PROGRESS ~17:30 UTC).
-- **M6-3 done (~18:45 UTC):** Kitsune R4, Pixie S and Goliath HD are merged into `main` (PROGRESS
-  ~18:45 UTC). The session-6 step list below for `wip/m6-cars` is finished; that branch is now
+  **test_weather** failures on the session-6 maps (PROGRESS ~17:20 UTC).
+- **M6-3 done (~17:50 UTC):** Kitsune R4, Pixie S and Goliath HD are merged into `main` (PROGRESS
+  ~17:50 UTC). The session-6 step list below for `wip/m6-cars` is finished; that branch is now
   merged.
-- **M6-4 step 1 done (~20:00 UTC):** photographed CC0 skies for city/stadium/coast (PROGRESS
-  ~20:00 UTC, ASSETS "Sky panoramas"). This cloud environment reaches polyhaven.com and ambientcg.com.
-- Next: M6-5 export + deploy. Further M6-4 polish (an overcast photo for rain/storm rounds,
-  lighting/post) can follow. The deploy itself happens on the Pi: `git pull && docker restart speedfest`.
-  `server/public` still has the session-6 build, without the new cars or the air-steer fix.
+- **M6-4 step 1 done (~19:15 UTC):** photographed CC0 skies for city/stadium/coast (PROGRESS
+  ~19:15 UTC, ASSETS "Sky panoramas"). This cloud environment reaches polyhaven.com and ambientcg.com.
+- **M6-5 export done (~19:35 UTC):** `server/public` has everything above, browser-checked (PROGRESS
+  ~19:35 UTC). **Deploy is pending:** on the Pi run `cd ~/speedfest && git pull && docker restart
+  speedfest` (restarting drops anyone playing).
+- Open: further M6-4 polish (an overcast photo sky for rain/storm rounds, lighting/post), the
+  keyboard-emulation matrix for the new cars (`KB=true CARS="kitsune pixie goliath"
+  game/tests/physics/run_real_tracks.sh ...`), and the adversarial review that never ran.
 
 ## Latest (~16:00 UTC, session 6, orchestrating session on the Pi): STOPPED for the usage limit
 

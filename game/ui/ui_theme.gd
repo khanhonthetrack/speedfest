@@ -41,6 +41,12 @@ static func font(kind: String = "body") -> Font:
 	var f: Font = load(path) as Font
 	if f == null:
 		f = ThemeDB.fallback_font
+	elif kind in ["head", "heavy", "num"] and f.fallbacks.is_empty():
+		# Orbitron's latin subset has no "·" (and a few other symbols): on the web there are no
+		# system fonts to fall back on, so it drew a box. Rajdhani covers them.
+		var fb := load(FONT_BODY_BOLD_PATH) as Font
+		if fb != null:
+			f.fallbacks = [fb]
 	_fonts[kind] = f
 	return f
 
