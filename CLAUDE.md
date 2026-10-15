@@ -39,6 +39,10 @@ tools/run_scene.sh res://path/scene.tscn --compat -- --frames=120 --shot=/abs/ou
 tools/run_scene.sh res://tests/x/test.tscn --headless -- --frames=600          # logic test
 tools/export_web.sh                         # web build -> server/public (committed)
 cd server && npm install && npm start       # local server on :8080 (serves game + /ws)
+cd server && npm test                       # server unit tests
+tools/net_smoke_test.sh                     # 3 headless Godot clients play an online round
+NODE_PATH=$(npm root -g) node tools/integration/online_browser_test.js http://127.0.0.1:8090 /abs/out 3 arena 45
+                                            # N headless Chromium clients vs a running server (PUBLIC_DIR=web export)
 ```
 - `run_scene.sh` forces `--fixed-fps 60`, so simulation is deterministic regardless of the slow
   software renderer. Look at screenshots with the Read tool. They are your eyes for visuals.

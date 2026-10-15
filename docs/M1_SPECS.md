@@ -52,8 +52,9 @@ Export templates are only needed for the web export (integrator).
   `tools/run_scene.sh ... -- --frames=N --shot=/abs/path.png` on **both** renderers (`--compat`).
   **Look at them with the Read tool** and iterate until they look good. Visual quality matters
   ("focus on beautiful graphics" — owner).
-- Commit often (`<key>: <what>`), and push to **your session's designated branch only**
-  (`git push -u origin <branch>`). Never push to `main` or other branches. No PRs.
+- Work on branch **`module/<key>`** (`git checkout -b module/<key>` before the first commit) and
+  push only that branch (`git push -u origin module/<key>`). Never push to `main` or to the
+  orchestrator's integration branch `ccr-49301774-b5a4ns`. Commit often (`<key>: <what>`). No PRs.
 - Finish with a final push and a last message that summarizes: branch, what works, tests and
   their results, known issues, integration requests.
 
