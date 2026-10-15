@@ -64,7 +64,8 @@ start arch (which has no trigger). `get_start_pose_distance()` returns that dist
 A script with `func layout() -> Dictionary`:
 ```
 width, circuit, start_pos, start_yaw (deg), walls ("both"), wall_style (concrete|neon|guardrail),
-ground (city|arena|terrain|none), ground_y, wet, kill_y (optional), segments: [...]
+ground (city|arena|terrain|none), ground_y, ground_visual (default true; false = collision only),
+road_depth, sign_radius, wet, kill_y (optional), segments: [...]
 ```
 Segments (driven in order, turtle-style):
 - `{"s": L, "dy": climb, "w": end_width}` straight (climb eased with smoothstep)
@@ -130,6 +131,11 @@ visual barrier, so fast cars can't climb over.
 
 ## Integration requests
 
+- **scenery / integrator**: the scenery city kit also builds a ground at `ground_y - 0.3`, under
+  the track's city ground (y = -0.12, wet pavement with collision). If the scenery ground looks
+  better, set `"ground_visual": false` in `defs/downtown.gd` (keeps the collision). The coast
+  terrain (cliffs, bay, mountain over the tunnel) is the track's; the scenery coast kit should
+  only add the sea, palms, rocks, etc.
 - **scenery**: sea plane at **y = 0** for `coast`. Ground (city pavement, arena floor, coast
   terrain) is built by the track; don't add another ground plane under the road. Use
   `path.zones` (`tunnel`, `bridge`, `loop`, `jump`, `boost`) and `edge_clearance()`.

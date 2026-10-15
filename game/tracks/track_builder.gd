@@ -1156,6 +1156,8 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 	mi.name = "GroundMesh"
 	mi.mesh = mesh
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# layout "ground_visual": false keeps only the collision (when scenery draws the ground)
+	mi.visible = layout.get("ground_visual", true)
 	root.add_child(mi)
 	root.add_child(body)
 
