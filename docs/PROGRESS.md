@@ -124,3 +124,18 @@ date, who (module/agent), what changed, what's next or blocked.
 - Hosting: `render.yaml` + Render steps in docs/HOSTING.md.
 - The owner hit ~90% of the usage limit: every agent stopped and wrote a Handoff section. Next agent:
   **docs/HANDOFF.md**.
+
+## 2026-10-15 ~07:00–08:00 UTC — Session 3 (orchestrator #3): rework integrated + weather
+
+- Picked up from docs/HANDOFF.md. Merged `module/physics`, `module/scenery` and `module/tracks`
+  (Trackmania-style rework of all 3 tracks) on a trial branch. All test suites pass.
+- Wall rides: roll ramps 62 → 95 m (the physics envelope asked for ≥ 80–100 m). TrackPath tilt is now
+  linear (binary search) instead of a smoothstep per dense point. A clothoid option
+  (`"clothoid": true`, curvature follows roll) was tried and made the keyboard runs worse at
+  ~250 km/h entries, so it is off by default.
+- **Weather (owner request): dry / rain / storm rounds with stage-designed puddles that cut grip.**
+  See DESIGN §4.1 and docs/modules/weather.md. Server/Net/lobby carry `weather`. Solo has weather
+  chips. PBs are per (track, weather). Puddles are in all 3 layouts. Rain, lightning, thunder,
+  spray, splash sounds.
+- Results: analog AutoDriver 9/9 clean in default weather and in storm; keyboard emulation 13/18
+  (unchanged); online 3-client storm round PASS; server tests 12/12; weather test 38/38.

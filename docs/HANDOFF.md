@@ -1,4 +1,35 @@
-# HANDOFF: start here (written 2026-10-15 ~06:35 UTC by orchestrator #2)
+# HANDOFF: start here
+
+## Latest (2026-10-15 ~08:00 UTC, orchestrator #3, session 3)
+
+**State:** branch `ccr-49301774-b5a4ns` has the **Trackmania-style rework of all three tracks**
+merged (tracks + physics + scenery module branches). It also has the new **weather** system:
+dry / rain / storm rounds with stage-designed puddles that cut grip (owner request; DESIGN §4.1,
+docs/modules/weather.md). The web build in `server/public` is re-exported from this state.
+
+- Gate: `tools/integration/check_all.sh`. Weather: `tests/weather/test_weather.tscn` (38 checks).
+  Matrix: `[WEATHER=storm] game/tests/physics/run_real_tracks.sh` (analog bot 9/9 clean in default
+  and storm weather; keyboard emulation 13/18).
+- Online: `game/tests/race/online_round_test.sh 3 40 --autodrive --track=downtown --weather=storm` PASS.
+- Lobby host picks track + length + **weather** (picking a track selects its signature weather;
+  downtown = rain). Solo: AUTO/DRY/RAIN/STORM chips on the track select. PBs are per (track, weather).
+- `main` is still the bootstrap only. Ask the owner before merging `ccr-49301774-b5a4ns` into `main`.
+
+**Open items (priority order):**
+1. Keyboard-emulation falls (5/18 runs need 1–2 respawns). They're mostly at wall-ride exits and
+   jumps entered at ~250+ km/h after boosts (outside physics' 140–215 km/h wall-ride envelope).
+   Options: move or trim the boost before each wall ride, add a slight climb before the wall
+   ride, or lower roll. `"clothoid": true` on a wallride segment was tried and was worse.
+2. Downtown runs ~26–28 s, below the 35–45 s target (DESIGN §4). Add a piece (e.g. a second
+   rooftop jump).
+3. Real-GPU web frame rate is still unmeasured. The weather adds rain particles (CPU on web),
+   spray and puddle meshes. Check with the perf probe on `--compat`.
+4. Adversarial review of race/physics/tracks/weather never ran.
+
+---
+
+# Earlier handoff (orchestrator #2, ~06:35 UTC), kept for history
+
 
 The owner is near the account usage limit, so all agents stopped and recorded their state. This page
 is the entry point for the next agent. Read it first, then `CLAUDE.md`, `docs/PLAN.md`, the end of

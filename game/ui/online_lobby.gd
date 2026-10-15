@@ -48,6 +48,7 @@ var chat_edit: LineEdit
 var track_row: HFlowContainer
 var duration_row: HFlowContainer
 var weather_row: HFlowContainer
+const WEATHER_HINT := {"dry": "Dry: full grip", "rain": "Rain: puddles cut grip", "storm": "Storm: big puddles + lightning"}
 var track_info: Label
 var host_hint: Label
 var ready_btn: Button
@@ -410,7 +411,7 @@ func _refresh_room() -> void:
 		"results":
 			phase_label.text = "RESULTS  ·  BACK TO LOBBY SOON"
 			phase_label.add_theme_color_override("font_color", UITheme.MAGENTA)
-	host_hint.text = "You are the host: pick the track, round length and weather, then start." if am_host \
+	host_hint.text = "You're the host: pick track, length and weather, then start." if am_host \
 		else "The host picks the track and starts the round."
 
 
@@ -433,10 +434,9 @@ func _refresh_settings() -> void:
 	var d := TrackDefs.get_def(tid)
 	var pb := Profile.get_pb(Weather.pb_key(tid, wx))
 	var dur_txt := "%d min" % (dur / 60) if dur % 60 == 0 else "%d s" % dur
-	track_info.text = "%s  ·  %s  ·  ~%d s per run\n%s: %s\nYour PB (%s) %s  ·  round %s" % [
-		String(d["name"]), "Circuit" if bool(d["circuit"]) else "Stunt run", int(d["target_s"]),
-		Weather.display_name(wx), String(Weather.BLURBS[wx]), Weather.display_name(wx).to_lower(),
-		UITheme.format_time(pb), dur_txt]
+	track_info.text = "%s  ·  ~%d s per run  ·  round %s\n%s  ·  your PB %s" % [
+		String(d["name"]), int(d["target_s"]), dur_txt,
+		WEATHER_HINT.get(wx, ""), UITheme.format_time(pb)]
 
 
 func _refresh_ready_button() -> void:

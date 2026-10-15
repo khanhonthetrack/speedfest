@@ -184,3 +184,13 @@ visual barrier, so fast cars can't climb over.
   first jump landing); (2) after landing a long jump the car sometimes yaws 180°. The track
   geometry there is smooth (continuity and twist tests pass), so this looks like bot speed
   planning / landing stability.
+
+## Session 3 changes (integrator, 2026-10-15)
+- Wall rides: `ramp` 62 → 95 m in all three layouts. The new optional `"clothoid": true` makes
+  curvature follow the roll, so the piece is `ramp` m longer. It was worse for keyboard runs at
+  ~250 km/h entries, so it is off by default.
+- `TrackPath._tilt_at` is linear (binary search over the control-point offsets) instead of a
+  smoothstep per segment.
+- **Weather puddles**: the `{"puddle": len, "w", "x", "at", "storm"}` marker, `data["puddles"]`,
+  `Track.surface` (TrackSurface), `Track.apply_weather(mode)` and the puddle meshes
+  (`shaders/track_puddle.gdshader`). See docs/modules/weather.md and DESIGN §4.1.

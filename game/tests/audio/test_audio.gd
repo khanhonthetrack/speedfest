@@ -40,7 +40,10 @@ func _test_streams() -> void:
 	for f in musics:
 		bad += _check_stream(f, true, 50.0, 100.0)
 	for f in oneshots:
-		bad += _check_stream(f, false, 0.03, 3.0)
+		# thunder is a long one-shot (crack + rolling rumble)
+		bad += _check_stream(f, false, 0.03, 6.0 if f == "sfx_thunder" else 3.0)
+	for k in _audio.AMBIENCE:
+		bad += _check_stream(String(_audio.AMBIENCE[k][0]), true, 2.0, 8.0)
 	TestHooks.check(bad == 0, "streams_all_ok", "%d bad" % bad)
 	# engine layer table is sane
 	for car in Layers.CARS:

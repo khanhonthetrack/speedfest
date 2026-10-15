@@ -392,13 +392,14 @@ func _process(_delta: float) -> void:
 			absf(speed), car.get_drift_amount(), car.is_nitro_active(), car.is_grounded())
 
 
-## Weather for this run: test override, else the online round's, else the solo pick, else the
+## Weather for this run: the online round's, else a test override, else the solo pick, else the
 ## stage's signature weather.
 func _resolve_weather() -> String:
+	if online:
+		# everyone in the round races the same weather: always the server's
+		return Weather.sanitize(Game.round_info.get("weather", "dry"))
 	if TestHooks.has_arg("weather"):
 		return Weather.sanitize(TestHooks.arg("weather", "dry"))
-	if online:
-		return Weather.sanitize(Game.round_info.get("weather", "dry"))
 	if Game.weather != "":
 		return Weather.sanitize(Game.weather)
 	return Weather.default_for(track.track_id)

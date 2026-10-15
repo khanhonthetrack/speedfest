@@ -3,6 +3,7 @@ extends Node
 ## Run: tools/run_scene.sh res://tests/race/test_race_logic.tscn --headless -- --frames=4000
 
 const TRACK_ID := "race_test"
+const PB_KEY := "race_test@dry"
 
 var race: Node
 var track: Track
@@ -44,8 +45,10 @@ func through_gate(i: int) -> void:
 
 func _run() -> void:
 	# Clean slate for the test track.
-	Profile.pbs.erase(TRACK_ID)
-	Profile.save_ghost(TRACK_ID, {})
+	# PBs/ghosts are keyed per weather (Weather.pb_key); this test runs dry
+	Game.weather = "dry"
+	Profile.pbs.erase(PB_KEY)
+	Profile.save_ghost(PB_KEY, {})
 	Game.mode = "solo"
 	Game.round_info = {}
 	Game.track_id = TRACK_ID
@@ -118,8 +121,8 @@ func _run() -> void:
 	TestHooks.check(int(race.get("state")) == 3, "finished", "state=%d" % int(race.get("state")))
 	TestHooks.check(finish_events.size() == 1 and finish_events[0][1] == true, "first_finish_is_pb", str(finish_events))
 	var run1: int = finish_events[0][0] if finish_events.size() > 0 else -1
-	TestHooks.check(Profile.get_pb(TRACK_ID) == run1, "pb_saved", "%d vs %d" % [Profile.get_pb(TRACK_ID), run1])
-	var ghost := Profile.load_ghost(TRACK_ID)
+	TestHooks.check(Profile.get_pb(PB_KEY) == run1, "pb_saved", "%d vs %d" % [Profile.get_pb(PB_KEY), run1])
+	var ghost := Profile.load_ghost(PB_KEY)
 	TestHooks.check(GhostRecorder.is_valid_ghost(ghost), "ghost_saved", "keys=%s" % str(ghost.keys()))
 	TestHooks.check(ghost.get("splits", []).size() == 3 and int(ghost.get("ms", 0)) == run1, "ghost_splits")
 	var expect_samples := run1 / 50
@@ -158,7 +161,7 @@ func _run() -> void:
 		await through_gate(i)
 	await through_gate(-2)
 	TestHooks.check(finish_events.size() == 2 and finish_events[1][1] == true and finish_events[1][0] < run1, "second_run_pb", str(finish_events))
-	TestHooks.check(Profile.get_pb(TRACK_ID) == finish_events[1][0], "pb_updated")
+	TestHooks.check(Profile.get_pb(PB_KEY) == finish_events[1][0], "pb_updated")
 	# Slower run is not a PB.
 	await until(func() -> bool: return int(race.get("state")) == 2, 400)
 	await ticks(600)
@@ -166,7 +169,7 @@ func _run() -> void:
 		await through_gate(i)
 	await through_gate(-2)
 	TestHooks.check(finish_events.size() == 3 and finish_events[2][1] == false, "slower_not_pb", str(finish_events))
-	TestHooks.check(Profile.get_pb(TRACK_ID) == finish_events[1][0], "pb_kept")
+	TestHooks.check(Profile.get_pb(PB_KEY) == finish_events[1][0], "pb_kept")
 
 	# Pause (solo pauses the tree).
 	race.call("open_pause")
@@ -175,6 +178,6 @@ func _run() -> void:
 	TestHooks.check(not get_tree().paused, "unpause")
 
 	# Cleanup
-	Profile.pbs.erase(TRACK_ID)
+	Profile.pbs.erase(PB_KEY)
 	Profile.save()
 	TestHooks.finish()

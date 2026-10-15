@@ -18,14 +18,15 @@ Goal: a Trackmania-like racer with an NFSU2 vibe, eventually on Nintendo Switch 
 | # | Module | Owns (files/dirs) | Status |
 |---|---|---|---|
 | 1 | **networking** | `server/**`, `game/autoload/net.gd`, `game/tests/net/**`, `docs/HOSTING.md` | ✅ merged (server tests 10/10, 3-client smoke PASS) |
-| 2 | **car physics** | `game/cars/car.gd`, `game/cars/tuning.gd`, `game/cars/car_input.gd`, `game/cars/auto_driver.gd`, `game/cars/physics/**`, `game/tests/physics/**` | ☐ |
+| 2 | **car physics** | `game/cars/car.gd`, `game/cars/tuning.gd`, `game/cars/car_input.gd`, `game/cars/auto_driver.gd`, `game/cars/physics/**`, `game/tests/physics/**` | ✅ merged |
 | 3 | **car visuals** | `game/cars/visual/**`, `game/shaders/car_*.gdshader`, `game/tests/visual/**` | ✅ merged 00:55 (see docs/modules/visuals.md) |
-| 4 | **track builder** | `game/tracks/track.gd`, `game/tracks/track_builder.gd`, `game/tracks/defs/**`, `game/tracks/track_path.gd` (refine), `game/shaders/road*.gdshader`, `game/shaders/track_*.gdshader`, `game/tests/tracks/**` | ☐ |
-| 5 | **scenery & environment** | `game/tracks/scenery/**`, `game/shaders/env_*.gdshader`, `game/tests/scenery/**` | ☐ |
+| 4 | **track builder** | `game/tracks/track.gd`, `game/tracks/track_builder.gd`, `game/tracks/defs/**`, `game/tracks/track_path.gd` (refine), `game/shaders/road*.gdshader`, `game/shaders/track_*.gdshader`, `game/tests/tracks/**` | ✅ merged (incl. Trackmania rework) |
+| 5 | **scenery & environment** | `game/tracks/scenery/**`, `game/shaders/env_*.gdshader`, `game/tests/scenery/**` | ✅ merged |
 | 6a | **ui_menus** | `game/ui/main_menu.*`, `garage.*`, `track_select.*`, `online_lobby.*`, `settings_menu.*`, `game/ui/menu/**`, `game/tests/ui_menus/**` | ✅ merged 00:55 (see docs/modules/ui_menus.md) |
 | 6b | **ui_hud** | `game/ui/hud.*`, `pause_menu.*`, `results.*`, `game/ui/hud/**`, `game/shaders/ui_*.gdshader`, `game/tests/ui_hud/**` | ✅ merged 00:55 (see docs/modules/ui_hud.md) |
 | 7 | **audio** | `game/audio/**`, `game/autoload/audio_manager.gd`, `tools/audio/**`, `game/tests/audio/**` | ✅ merged 00:55 (see docs/modules/audio.md) |
-| 8 | **race** | `game/race/**` (race.gd/tscn, chase camera, remote cars, ghosts, run state machine), `game/tests/race/**` | ☐ |
+| 8 | **race** | `game/race/**` (race.gd/tscn, chase camera, remote cars, ghosts, run state machine), `game/tests/race/**` | ✅ merged |
+| 9 | **weather** (session 3) | `game/weather/**`, `game/shaders/track_puddle.gdshader`, `game/tests/weather/**`, `tools/audio/gen_weather.py`, `docs/modules/weather.md` | ✅ (DESIGN §4.1) |
 
 Shared/core files (`project.godot`, `autoload/settings.gd`, `profile.gd`, `game.gd`, `test_hooks.gd`,
 `cars/car_defs.gd`, `tracks/track_defs.gd`, `ui/ui_theme.gd`, `docs/ARCHITECTURE.md`, `docs/PLAN.md`, `docs/PROGRESS.md`)
@@ -39,7 +40,8 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 - [x] AutoDriver can finish every track (all checkpoints, loop, jumps). arena 39.6 s, downtown 60.3 s, coast 54.0 s.
 
 ### M3 — Review & polish (in progress; see docs/HANDOFF.md)
-- [ ] **Trackmania-style rework of all 3 tracks** (owner decision 2026-10-15): new arena on module/tracks; downtown and coast to do
+- [x] **Trackmania-style rework of all 3 tracks** (owner decision 2026-10-15): merged in session 3. Analog bot 9/9 clean; keyboard emulation 13/18 (open: high-speed wall-ride exits / jumps)
+- [x] **Weather** (owner request 2026-10-15): dry/rain/storm rounds, stage-designed puddles that cut grip (DESIGN §4.1)
 - [ ] Adversarial bug review (networking edge cases, race logic, physics exploits)
 - [ ] Visual critique from screenshots of each track and car (Forward+ and Compatibility)
 - [ ] Performance pass for web (draw calls, lights, physics)

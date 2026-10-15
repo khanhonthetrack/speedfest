@@ -45,8 +45,9 @@ func layout() -> Dictionary:
 			# the huge jump across the bay: a wide landing pad well below the lip, long run-out
 			{"jump": {"ramp": 45.0, "h": 3.0, "gap": 45.0, "land": 90.0, "drop": 8.0, "end_dy": -10.0, "check_kmh": 260.0}, "w": 40.0, "zone": "bridge"},
 			{"cp": true},
-			# WEATHER (storm): spray and standing water on the bay-jump landing
-			{"puddle": 18, "w": 14.0, "x": 0.0, "at": 10.0, "storm": true},
+			# WEATHER (storm): standing water on the left of the bay-jump landing: land on the
+			# centre/right and keep it straight
+			{"puddle": 16, "w": 9.0, "x": -7.0, "at": 10.0, "storm": true},
 			{"s": 120, "w": 30.0},
 			# WEATHER: a pool on the outside (right) turn-in line for the left 70
 			{"puddle": 18, "w": 8.0, "x": 4.5, "at": 22.0},
