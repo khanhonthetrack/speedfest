@@ -23,6 +23,7 @@ static func rounded(ctrl: Array, circuit: bool) -> Curve3D:
 		var pn: Vector3 = ctrl[(i + 1) % n][0]
 		var din := (p - pp).normalized()
 		var dout := (pn - p).normalized()
+		r = minf(r, minf((p - pp).length(), (pn - p).length()) * 0.45)
 		var a := p - din * r
 		var b := p + dout * r
 		c.add_point(a, Vector3.ZERO, din * r * 0.55)

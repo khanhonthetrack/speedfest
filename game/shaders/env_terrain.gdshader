@@ -11,8 +11,6 @@ uniform vec3 grid_color : source_color = vec3(0.0, 0.9, 1.0);
 uniform vec3 grid_color2 : source_color = vec3(1.0, 0.17, 0.84);
 uniform float grid_energy = 1.4;
 
-varying vec3 wpos;
-varying vec3 wnrm;
 
 float h21(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -38,12 +36,10 @@ float fbm(vec2 p) {
 	return s;
 }
 
-void vertex() {
-	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	wnrm = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
-}
-
 void fragment() {
+	// world position/normal per pixel (no custom vertex(): avoids depth-prepass mismatches)
+	vec3 wpos = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	vec3 wnrm = normalize((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	vec2 p = wpos.xz;
 	float ed = UV2.x;
 	vec3 alb;
@@ -91,8 +87,8 @@ void fragment() {
 		float slope = 1.0 - clamp(wnrm.y, 0.0, 1.0);
 		float n = fbm(p * 0.02);
 		float n2 = fbm(p * 0.13 + 7.0);
-		vec3 grass = mix(vec3(0.12, 0.16, 0.05), vec3(0.23, 0.22, 0.09), n);
-		vec3 brush = mix(vec3(0.24, 0.19, 0.11), vec3(0.32, 0.27, 0.16), n2);
+		vec3 grass = mix(vec3(0.06, 0.12, 0.03), vec3(0.15, 0.19, 0.05), n);
+		vec3 brush = mix(vec3(0.16, 0.14, 0.07), vec3(0.24, 0.2, 0.11), n2);
 		vec3 rock = mix(vec3(0.17, 0.14, 0.13), vec3(0.3, 0.26, 0.23), n2) * (0.8 + 0.4 * fbm(wpos.xy * 0.2 + wpos.zy * 0.2));
 		vec3 sand = vec3(0.55, 0.46, 0.33) * (0.85 + 0.2 * n2);
 		alb = mix(grass, brush, smoothstep(0.35, 0.65, n + n2 * 0.3));

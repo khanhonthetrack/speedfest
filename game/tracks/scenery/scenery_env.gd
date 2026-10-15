@@ -212,7 +212,7 @@ func _coast() -> void:
 	env.fog_light_color = Color(0.75, 0.48, 0.42)
 	env.fog_light_energy = 1.0
 	env.fog_sun_scatter = 0.35
-	env.fog_density = 0.0011
+	env.fog_density = 0.0006
 	env.fog_sky_affect = 0.15
 	env.fog_aerial_perspective = 0.5
 	env.glow_intensity = 0.7
@@ -248,8 +248,8 @@ func _quality_extras() -> void:
 
 
 func _sun_extras() -> void:
-	sun.shadow_bias = 0.04
-	sun.shadow_normal_bias = 1.5
+	sun.shadow_bias = 0.1 if theme == "coast" else 0.04
+	sun.shadow_normal_bias = 3.0 if theme == "coast" else 1.5
 	sun.shadow_blur = 1.5
 	if theme != "coast":
 		# Night: the moon/key light is weak, shadows are a luxury.

@@ -89,12 +89,13 @@ void sky() {
 	float sdot = dot(d, sd);
 	// stars
 	if (star_amount > 0.0 && y > 0.0) {
-		vec3 q = d * 260.0;
-		vec2 cell = floor(q.xz / (q.y + 60.0) * 60.0);
-		float s = hash12(cell);
-		float tw = hash12(cell + 7.1);
-		float star = step(1.0 - 0.012 * star_amount, s) * smoothstep(0.0, 0.25, y) * (0.4 + tw);
-		col += vec3(0.8, 0.85, 1.0) * star * 0.6;
+		vec3 sp = d * 320.0;
+		vec3 ci = floor(sp);
+		float s = hash12(ci.xy + ci.z * 7.31);
+		float tw = hash12(ci.zx + 3.7);
+		float dotm = smoothstep(0.4, 0.05, length(fract(sp) - 0.5));
+		float star = step(1.0 - 0.025 * star_amount, s) * dotm * smoothstep(0.0, 0.3, y) * (0.3 + tw);
+		col += vec3(0.8, 0.85, 1.0) * star * 1.2;
 	}
 	// clouds
 	if (cloud_cover > 0.0 && y > -0.02) {
