@@ -97,6 +97,12 @@ online: local clock passes end_at, or room phase "results", or Net.round_ended -
   shown while RUNNING if `Settings.show_pb_ghost`, parked 1.5 s at the end. Splits are only
   trusted when the ghost's `ms` equals the Profile PB and the CP count matches the track.
 
+## Audio/visual hooks (requests from audio/visuals, done)
+- `Car.wall_hit(lost)` → `Audio.play_sfx("wall_hit", linear_to_db(clamp(lost/15, 0.15, 1)), pitch 0.9–1.1)`, rate-limited 150 ms.
+- Boost pads: connects `track.boost_pads` (Area3D) `body_entered` → `Audio.play_sfx("boost")` for the local car.
+- PB finish: "finish" then "pb" 0.5 s later. `RemoteCar.update_config()` re-runs `EngineAudio.setup` on a car change.
+- `set_headlights_real(true)` only on the local car; remote cars on compat and the ghost get `underglow_light_allowed = false`.
+
 ## API additions (beyond the contract)
 race.gd: signals `state_changed(int)`, `checkpoint_passed(index, ms)`, `run_finished(ms, is_pb)`,
 `respawned`, `round_over`; `var track_override: Track` (set before `_ready`, for tests);
