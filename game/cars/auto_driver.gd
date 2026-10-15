@@ -52,6 +52,11 @@ func get_distance() -> float:
 	return _d
 
 
+## Alias used by race.gd between runs.
+func reset() -> void:
+	reset_tracking()
+
+
 ## Forget the tracked position (call after teleporting the car somewhere else).
 func reset_tracking() -> void:
 	_d = -1.0
