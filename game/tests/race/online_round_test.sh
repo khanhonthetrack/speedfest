@@ -7,6 +7,7 @@
 #   so it works while Car/Track are stubs). Pass e.g. "--autodrive" with real modules merged:
 #   game/tests/race/online_round_test.sh 2 45 --autodrive --track=arena
 #   env RACE_TEST_OUT=/dir keeps logs there.
+#   env LATE=1 adds one more guest that joins ~8 s after the round started (late joiner).
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 N="${1:-2}"; DUR="${2:-20}"; shift 2 2>/dev/null || shift $#
@@ -29,7 +30,7 @@ URL="ws://127.0.0.1:$PORT/ws"
 TMO=$((DUR + 60))
 client() { # role name car
   timeout "$TMO" godot --headless --path "$ROOT/game" --audio-driver Dummy -- \
-    --auto_online="$1" --url="$URL" --name="$2" --car="$3" --expect="$N" --duration="$DUR" \
+    --auto_online="$1" --url="$URL" --name="$2" --car="$3" --expect="$N" --duration="$DUR" --code="${CODE:-}" \
     --quit_after_round "${EXTRA[@]}" >"$OUT/client_$2.log" 2>&1
 }
 CARS=(kaze brute veloce)
@@ -40,6 +41,12 @@ for i in $(seq 1 $((N - 1))); do
   client guest "Guest$i" "${CARS[$((i % 3))]}" & PIDS+=($!)
   NAMES+=("Guest$i")
 done
+if [[ "${LATE:-0}" == "1" ]]; then
+  sleep 12   # the round started ~4 s after the last guest joined; countdown 4 s
+  CODE=$(grep -o "room [A-Z]\{4\}" "$OUT/server.log" | head -1 | cut -d' ' -f2)
+  CODE="$CODE" client guest Late veloce & PIDS+=($!)
+  NAMES+=(Late)
+fi
 FAIL=0
 for idx in "${!PIDS[@]}"; do wait "${PIDS[$idx]}" || { echo "client ${NAMES[$idx]}: non-zero exit"; FAIL=1; }; done
 PIDS=()
@@ -50,7 +57,11 @@ for n in "${NAMES[@]}"; do
   L="$OUT/client_$n.log"
   echo "client $n:"
   check "race online" "$L" "^RACE ready .*online=true"
-  check "synced GO" "$L" "^RACE go synced late_ms=([0-9]|[1-4][0-9])$"
+  if [[ "$n" == "Late" ]]; then
+    check "late join runs" "$L" "^RACE state RUNNING"
+  else
+    check "synced GO" "$L" "^RACE go synced late_ms=([0-9]|[1-4][0-9])$"
+  fi
   check "checkpoint 0" "$L" "^RACE checkpoint 0 "
   check "finish" "$L" "^RACE finish ms="
   check "finish accepted" "$L" "^RACE finish_result accepted=true"
