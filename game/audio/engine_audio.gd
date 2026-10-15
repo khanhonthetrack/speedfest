@@ -225,7 +225,7 @@ func _update_extras(dt: float, rn: float) -> void:
 	var want_boost := _throttle * smoothstep(0.25, 0.9, rn) if _t_throttle > 0.4 else 0.0
 	var rate := 1.6 if want_boost > _boost else 7.0
 	_boost = move_toward(_boost, want_boost, rate * dt)
-	_mix("turbo", pow(_boost, 1.5) * turbo_amt * 0.22, 0.55 + 0.75 * _boost)
+	_mix("turbo", pow(_boost, 1.5) * turbo_amt * 0.13, 0.5 + 0.5 * _boost)
 	# blow-off on a quick lift from high boost
 	_blowoff_cd = maxf(0.0, _blowoff_cd - dt)
 	_thr_peak = maxf(_t_throttle, _thr_peak - dt * 4.0)

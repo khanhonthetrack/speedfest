@@ -101,8 +101,8 @@ def render(car: str) -> np.ndarray:
 		want = thr * smoothstep(0.25, 0.9, rn) if t_thr > 0.4 else 0.0
 		rate = 1.6 if want > boost else 7.0
 		boost += np.clip(want - boost, -rate * dt, rate * dt)
-		gains["turbo"][i] = boost ** 1.5 * c["turbo"] * 0.22
-		pitches["turbo"][i] = 0.55 + 0.75 * boost
+		gains["turbo"][i] = boost ** 1.5 * c["turbo"] * 0.13
+		pitches["turbo"][i] = 0.5 + 0.5 * boost
 		nitro_g += np.clip((1.0 if t_ni else 0.0) - nitro_g, -3 * dt, 8 * dt)
 		gains["nitro"][i] = nitro_g * 0.5
 		pitches["nitro"][i] = 0.9 + min(1, speed / 300) * 0.25
