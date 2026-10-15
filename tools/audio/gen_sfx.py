@@ -14,7 +14,7 @@ def _tone(freq: float, dur: float, shape: str = "sine", cutoff: float = 6000.0, 
 		x = S.sine(freq, n)
 	else:
 		x = S.bank(shape).render(np.full(n, freq), np.full(n, cutoff))
-	return x * S.env_ad(n, attack, decay)
+	return S.fade(x * S.env_ad(n, attack, decay), 0.0005, min(0.03, dur * 0.4))
 
 
 def _bell(freq: float, dur: float, decay: float = 0.4, bright: float = 1.0) -> np.ndarray:
@@ -67,7 +67,7 @@ def ui_confirm() -> np.ndarray:
 def ui_error() -> np.ndarray:
 	x = np.zeros(int(0.32 * SR))
 	for i in range(2):
-		S.add_at(x, _tone(155.6, 0.12, "square", cutoff=1600, attack=0.003, decay=0.06), int(i * 0.14 * SR))
+		S.add_at(x, _tone(155.6, 0.16, "square", cutoff=1400, attack=0.003, decay=0.05), int(i * 0.14 * SR))
 	return _out(x, -4)
 
 
@@ -175,9 +175,14 @@ def sfx_land() -> np.ndarray:
 	"""Landing thud: low body thump plus a short suspension rattle."""
 	n = int(0.5 * SR)
 	t = S.t_axis(n)
-	thump = np.sin(2 * np.pi * (45 + 70 * np.exp(-t / 0.02)) * t) * np.exp(-t / 0.12)
-	rattle = S.bandpass(S.noise(n, 44), 1200, 1.0) * np.exp(-t / 0.03) * 0.35
-	return _out(S.soft_clip(thump + rattle, 1.3), -1)
+	thump = np.sin(2 * np.pi * np.cumsum(50 + 90 * np.exp(-t / 0.025)) / SR) * np.exp(-t / 0.12)
+	body = S.bandpass(S.noise(n, 43), 220, 1.2) * np.exp(-t / 0.05) * 0.9
+	rattle = S.bandpass(S.noise(n, 44), 1500, 1.0) * np.exp(-t / 0.03) * 0.3
+	for k, dly in enumerate((0.05, 0.09, 0.14)):  # suspension/body rattles
+		i = int(dly * SR)
+		m = n - i
+		rattle[i:] += S.bandpass(S.noise(m, 45 + k), 900 + 300 * k, 2.0) * np.exp(-S.t_axis(m) / 0.012) * 0.25
+	return _out(S.soft_clip(thump + S.normalize_peak(body, -2) + rattle, 1.5), -1)
 
 
 def sfx_blowoff() -> np.ndarray:

@@ -132,7 +132,8 @@ func _build() -> void:
 		p.name = "Snd_" + k
 		add_child(p)
 		_players[k] = p
-		p.call("play")
+		# random start offset: several cars of the same model must not phase against each other
+		p.call("play", randf() * stream.get_length())
 		p.set("stream_paused", true)
 	if is_local:
 		for i in 3:
