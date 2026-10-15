@@ -50,7 +50,10 @@ void fragment() {
 	float aay = max(fwidth(UV.y), 0.01) * 0.75;
 
 	// asphalt: grain + large patches + tyre-worn racing lanes
-	float grain = vnoise(UV * vec2(9.0, 9.0)) * 0.5 + vnoise(UV * vec2(31.0, 29.0)) * 0.5;
+	// fade fine grain out with distance (it aliases into streaks otherwise)
+	float lod = clamp(max(fwidth(UV.x), fwidth(UV.y)) * 6.0, 0.0, 1.0);
+	float grain = vnoise(UV * vec2(9.0, 9.0)) * 0.5 + mix(vnoise(UV * vec2(31.0, 29.0)), 0.5, lod) * 0.5;
+	grain = mix(grain, 0.5, lod * 0.7);
 	float patches = vnoise(v_world * 0.045) * 0.6 + vnoise(v_world * 0.13) * 0.4;
 	vec3 col = asphalt_color.rgb * (0.82 + 0.22 * grain) * (0.85 + 0.3 * patches);
 	float worn = exp(-pow((ax - hw * 0.4) / (hw * 0.18), 2.0));
