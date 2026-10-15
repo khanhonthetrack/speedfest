@@ -192,6 +192,25 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
   gravity, nose follows the arc and lines up with the landing, softer landing absorb, and barrier
   collision tops that slope back toward the road.
 
+### User (verbatim, ~08:50 UTC; recorded later, in session 7)
+
+> Additionally, when in the air, when I move my car left it runs right…come on…
+> 1. I’m on the road and feels bumpy, is it a bug?
+> 2. Remove a map, no one cares.
+> 3. Checkpoint maybe should be written smaller, not like THE WHOLE SCREEN. The checkpoint should be see through - for now i can fly past it like a ghost. The design of it is also lame.
+> 4. The screen with speed and NOS could be smaller. NOS should be fixed, not charged (for strategy).
+> 5. I don’t like neon futuristic grids. For stadium swap it with grass or something.
+
+### User (verbatim, ~08:56 UTC)
+
+> (edit: checkpoint shouldn’t be see through)
+
+### Claude
+
+- Session 3 started on these locally, but the session stopped before pushing. The owner re-sent
+  items 1–5 to session 4 (below), which fixed them on `main`. The air steering inversion was
+  not in that list. Session 7 fixed it.
+
 
 ## Session 4 — 2026-10-15 (orchestrator #4)
 
@@ -297,3 +316,22 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   new car types, better graphics, then export and deploy to the Pi.
 
 > Approaching limit. Commit handoff and your results.
+
+## Session 7 — 2026-10-15 (~17:05 UTC; the session-3 cloud session, resumed)
+
+### User (verbatim)
+
+> Read the github repo and pick iit up
+
+### Claude
+
+- Read HANDOFF (session 6), TRANSCRIPT and PLAN on `main`. Sessions 4–6 had already done items 1–5
+  of the session-3 feedback (bumpy road, minimap, small checkpoint text + solid gates, compact
+  tacho, fixed NOS, stadium lawn). Dropped this session's stale local versions of them.
+- Still broken: **air steering was inverted** (steer right → nose turned left). Fixed in car.gd
+  with a direction test (`test_feel` `*_air_steer_direction`).
+- Fixed the weather test for the session-6 maps: storm puddles moved off boost pads (Cliff Hanger,
+  Pipe Dream), Rooftop Rush gets a storm-only pool, and side boost pads now count only where a
+  puddle overlaps them sideways.
+- Next, per HANDOFF: finish M6-3 (the new car types on `wip/m6-cars`), then M6-4 graphics and
+  M6-5 export + deploy. Working sequentially, pushing after each step (owner rule).

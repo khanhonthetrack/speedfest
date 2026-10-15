@@ -6,7 +6,8 @@ extends RefCounted
 ##  3. the cable: the last roof ends in an open ledge with a grind rail strung across to the finish
 ##     tower. Leave the ledge straight (the deck narrows to line you up), land on the cable, ride it
 ##     down and hop off onto the finish roof. Miss it and you fall to the street.
-## Rain (default): a pool on the landing roof and puddles on both sides of the run-up to the cable.
+## Rain (default): a pool on the landing roof and puddles on both sides of the run-up to the cable;
+## storm adds a wide pool across the start of the last roof.
 
 
 func layout() -> Dictionary:
@@ -51,6 +52,7 @@ func layout() -> Dictionary:
 			{"building": "roof", "len": 92.0, "at": 0.0, "margin": 5.0},
 			{"puddle": 14, "w": 4.5, "x": -4.5, "at": 30.0},
 			{"puddle": 12, "w": 4.0, "x": 4.0, "at": 52.0},
+			{"puddle": 14, "w": 10.0, "x": 0.0, "at": 8.0, "storm": true},
 			{"s": 55},
 			{"s": 30, "w": 12.0},
 			{"s": 7, "dy": -1.0, "nodeck": true},

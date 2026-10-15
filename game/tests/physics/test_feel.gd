@@ -117,8 +117,11 @@ func _air_spin(car_id: String) -> void:
 	for i in 60:
 		_ctl(car, 1.0, 0.0, 1.0)
 		await get_tree().physics_frame
-	var dyaw := rad_to_deg(absf(wrapf(car.global_transform.basis.get_euler().y - yaw0, -PI, PI)))
-	print("FEEL %s_air_yaw_1s=%.1f deg" % [car_id, dyaw])
+	var signed := rad_to_deg(wrapf(car.global_transform.basis.get_euler().y - yaw0, -PI, PI))
+	var dyaw := absf(signed)
+	print("FEEL %s_air_yaw_1s=%.1f deg" % [car_id, signed])
 	TestHooks.check(dyaw < 25.0, car_id + "_air_steer_subtle", "%.1f deg in 1 s" % dyaw)
+	# steering right in the air must turn the nose right (clockwise from above = negative yaw)
+	TestHooks.check(signed < -1.0, car_id + "_air_steer_direction", "%.1f deg (right steer)" % signed)
 	car.queue_free()
 	await get_tree().physics_frame

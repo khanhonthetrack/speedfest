@@ -53,7 +53,7 @@ func layout() -> Dictionary:
 			{"t": 180, "r": 36, "bank": 34},
 			{"s": 12},
 			{"boost": 10, "x": -5.0, "pw": 8.0},
-			{"puddle": 14, "w": 10.0, "x": 3.0, "at": 2.0, "storm": true},
+			{"puddle": 14, "w": 10.0, "x": 4.5, "at": 2.0, "storm": true},
 			{"s": 45, "w": 24.0},
 			{"walls": "both"},
 			{"jump": {"ramp": 36.0, "h": 4.0, "gap": 22.0, "land": 55.0, "drop": 2.0, "end_dy": -2.0, "finish": true}, "w": 28.0},

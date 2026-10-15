@@ -480,3 +480,16 @@ date, who (module/agent), what changed, what's next or blocked.
   roadster), Goliath HD (pickup) with defs, physics, body shapes and front/rear parts. Compiles, not
   tested or reviewed visually; engine sounds not generated yet. Next steps listed in HANDOFF.
 - The live Pi site still runs the 5236df9 build (before LIVE and the new maps).
+
+## 2026-10-15 ~17:30 UTC — Session 7: air steering fix, weather test on the new maps
+
+- **Air steering was inverted** (owner, session 3: "when in the air, when I move my car left it
+  runs right"). The air yaw torque drove the yaw rate toward `+steer * AIR_YAW_RATE`, but steer
+  +1 = right = negative yaw. It now uses `-steer`. `test_feel` checks the direction per car
+  (right steer → -7.3° in 1 s) and is 87/87.
+- **test_weather** failed on the session-6 maps. Cliff Hanger's and Pipe Dream's storm puddles sat
+  on boost pads, so they moved onto the wall-ride exit straight and off the side pad (1 m overlap).
+  Rooftop Rush had no storm-only puddle, so a 14 m pool now crosses the start of the last roof. The
+  test counts a side pad (`"pw"`) only where the puddle overlaps it sideways. Result: 73/73.
+  AutoDriver in storm with no respawns: cliff 16.2 s, rooftop 14.3 s, pipes 20.3 s.
+- Checks: PHYSICS_ALL_OK; check_all --quick all suites OK except test_weather (fixed above).

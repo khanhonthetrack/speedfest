@@ -53,12 +53,22 @@ func _tracks() -> void:
 					vis += 1
 			TestHooks.check(vis == counts[m], "%s_%s_visible_matches" % [id, m], "%d visible vs %d active" % [vis, counts[m]])
 		TestHooks.check(counts["dry"] == 0 and counts["rain"] >= 2 and counts["storm"] > counts["rain"], "%s_puddle_counts" % id, str(counts))
-		# no puddle may sit on a jump, loop, wall ride or boost pad
+		# no puddle may sit on a jump, loop, wall ride or boost pad (a side pad, "pw" > 0, only
+		# counts where the puddle overlaps it sideways: a wet lane beside a pad is a choice)
 		var bad := []
 		for pd in t.data["puddles"]:
+			var p0 := float(pd["d"])
+			var p1 := p0 + float(pd["len"])
 			for z in t.path.zones:
-				if z["kind"] in ["loop", "jump", "wallride", "boost"] and float(pd["d"]) + float(pd["len"]) > float(z["from"]) and float(pd["d"]) < float(z["to"]):
+				if z["kind"] in ["loop", "jump", "wallride"] and p1 > float(z["from"]) and p0 < float(z["to"]):
 					bad.append("%d in %s" % [int(pd["d"]), z["kind"]])
+			for b in t.data.get("boosts", []):
+				var b0 := float(b["d"]) - 2.0
+				var b1 := float(b["d"]) + float(b["len"]) + 2.0
+				var pw := float(b.get("pw", 0.0))
+				var side_clear := pw > 0.0 and absf(float(pd["x"]) - float(b["x"])) >= (float(pd["w"]) + pw) * 0.5
+				if p1 > b0 and p0 < b1 and not side_clear:
+					bad.append("%d in boost" % int(pd["d"]))
 		TestHooks.check(bad.is_empty(), "%s_puddles_clear_of_stunts" % id, str(bad))
 		t.queue_free()
 

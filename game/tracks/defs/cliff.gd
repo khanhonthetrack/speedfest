@@ -6,7 +6,8 @@ extends RefCounted
 ##  2. a wall ride along the cliff face above the sea.
 ##  3. red super boost into the bay jump: the finish arch stands on the far headland. Not enough
 ##     speed and you drop short into the water.
-## Rain: water on the outside (asphalt) lines of both sweepers; storm floods the boost run-up.
+## Rain: water on the outside (asphalt) lines of both sweepers; storm floods the wall-ride exit
+## straight before the super boost.
 
 
 func layout() -> Dictionary:
@@ -44,11 +45,11 @@ func layout() -> Dictionary:
 			# 2. cliff wall ride (right-hand)
 			{"walls": "both"},
 			{"wallride": 100, "r": 70, "roll": 62, "ramp": 90.0},
+			{"puddle": 12, "w": 14.0, "x": 0.0, "at": 20.0, "storm": true},
 			{"s": 35},
 			{"walls": "both"},
 			{"cp": true},
 			# 3. super boost into the bay jump, finish arch on the landing
-			{"puddle": 12, "w": 14.0, "x": 0.0, "at": 4.0, "storm": true},
 			{"boost": 12, "super": true},
 			{"s": 55, "w": 22.0},
 			{"walls": "both"},

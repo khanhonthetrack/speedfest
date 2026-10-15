@@ -1,5 +1,13 @@
 # HANDOFF: start here
 
+## Latest (~17:30 UTC, session 7, cloud session)
+
+- Fixed the inverted **air steering** (car.gd, `test_feel` direction checks) and the
+  **test_weather** failures on the session-6 maps (PROGRESS ~17:30 UTC).
+- Now: M6-3, finishing the new cars on `wip/m6-cars`, using the step list in the session 6 entry
+  below. Then M6-4 graphics, M6-5 export + deploy (the deploy itself happens on the Pi:
+  `git pull && docker restart speedfest`).
+
 ## Latest (~16:00 UTC, session 6, orchestrating session on the Pi): STOPPED for the usage limit
 
 Owner request (TRANSCRIPT session 6): better graphics, a server that rotates maps (no lobby/waiting),

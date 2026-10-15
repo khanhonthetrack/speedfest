@@ -875,9 +875,10 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		# a wall ride or loop for a moment must not be pulled off it harder; spawn drops stay plain)
 		if _air_time > 0.1 and _takeoff_up_y > 0.8 and speed > 15.0:
 			state.apply_central_force(Vector3.DOWN * m * CarPhysicsDefs.GRAVITY * AIR_GRAVITY_EXTRA)
-		# light air steering: drive the yaw rate toward steer * AIR_YAW_RATE (also damps spins)
+		# light air steering: drive the yaw rate toward -steer * AIR_YAW_RATE (steer +1 = right =
+		# clockwise from above = negative yaw; also damps spins)
 		var yaw_rate := av.dot(up)
-		state.apply_torque(up * (steer_in * AIR_YAW_RATE - yaw_rate) * AIR_STEER * inertia.y)
+		state.apply_torque(up * (-steer_in * AIR_YAW_RATE - yaw_rate) * AIR_STEER * inertia.y)
 	else:
 		if was_grounded == 0 and _air_time > 0.25:
 			landed.emit(absf(_prev_vel.dot(_ground_n)))
