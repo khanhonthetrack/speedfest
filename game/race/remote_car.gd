@@ -92,7 +92,10 @@ func set_engine_audio(node: Node3D) -> void:
 func update_config(display_name: String, config: Dictionary) -> void:
 	var cfg := CarDefs.sanitize_config(config)
 	if cfg["car"] != car_id or display_name != player_name:
+		var car_changed: bool = cfg["car"] != car_id
 		setup(player_id, display_name, cfg)
+		if car_changed and engine_audio and engine_audio.has_method("setup"):
+			engine_audio.call("setup", car_id, false)
 
 
 func _now_ms() -> float:
