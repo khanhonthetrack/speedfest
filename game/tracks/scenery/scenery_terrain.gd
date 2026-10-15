@@ -233,6 +233,7 @@ func build_meshes(parent: Node3D, mat: Material, node_name := "Ground") -> int:
 			mi.mesh = m.commit()
 			mi.material_override = mat
 			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			mi.set_meta("scenery_ground", true)
 			parent.add_child(mi)
 			made += 1
 	return made

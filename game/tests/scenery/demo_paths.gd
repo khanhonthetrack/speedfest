@@ -108,6 +108,7 @@ static func coast() -> TrackPath:
 	var dt0 := p.closest_distance(Vector3(48, 23, -2180))
 	var dt1 := p.closest_distance(Vector3(55, 24, -2420))
 	p.zones.append({"from": dt0, "to": dt1, "kind": "tunnel"})
+	p.set_meta("sea_side", -1.0)   # this sample hugs the sea on its left
 	return p
 
 
