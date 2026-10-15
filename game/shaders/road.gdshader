@@ -12,6 +12,9 @@ uniform int center_mode = 1;      // 0 none, 1 dashed white lanes, 2 double yell
 uniform int lane_count = 3;
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
 uniform float tech_panels = 0.0;   // arena: panel seams and a glowing center guide
+uniform float paint_glow = 0.1;    // retro-reflective paint: stays readable in the dark
+uniform vec4 tunnel_light : source_color = vec4(1.0, 0.62, 0.3, 1.0);
+uniform float tunnel_fake = 0.25;  // fake sodium bounce inside tunnels (UV2.y >= 2 marks tunnels)
 
 varying vec2 v_world;
 
@@ -42,7 +45,8 @@ void vertex() {
 
 void fragment() {
 	float hw = UV2.x;
-	float curb_amt = UV2.y;
+	float in_tunnel = step(1.5, UV2.y);
+	float curb_amt = UV2.y - 2.0 * in_tunnel;
 	float x = UV.x - hw;            // lateral, + right
 	float ax = abs(x);
 	float d = UV.y;
@@ -115,4 +119,6 @@ void fragment() {
 	METALLIC = 0.0;
 	SPECULAR = 0.5 + 0.3 * wet;
 	EMISSION = edge_color.rgb * edge * edge_emission * (1.0 - curb_zone) + tech_glow * edge_emission * 0.5;
+	EMISSION += paint * paint_a * paint_glow;
+	EMISSION += tunnel_light.rgb * (0.16 + 0.6 * col) * tunnel_fake * in_tunnel * (1.0 - 0.4 * smoothstep(0.0, hw, ax));
 }

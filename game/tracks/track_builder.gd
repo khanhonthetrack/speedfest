@@ -510,6 +510,10 @@ static func material(key: String) -> Material:
 			var s := StandardMaterial3D.new()
 			s.albedo_color = Color(0.36, 0.34, 0.32)
 			s.roughness = 0.8
+			# fake sodium bounce light (there are no real lights on web / low quality)
+			s.emission_enabled = true
+			s.emission = Color(1.0, 0.6, 0.3)
+			s.emission_energy_multiplier = 0.25 if (compat or Settings.quality < 2) else 0.08
 			m = s
 		"sidewalk":
 			var s := StandardMaterial3D.new()
@@ -588,6 +592,9 @@ static func road_material(style: String, wet: bool) -> ShaderMaterial:
 			s.set_shader_parameter("edge_emission", 0.0)
 			s.set_shader_parameter("center_mode", 1)
 			s.set_shader_parameter("lane_count", 3)
+	var fake := 1.0 if (Settings.is_compat() or Settings.quality < 2) else 0.3
+	s.set_shader_parameter("tunnel_fake", 0.9 * fake)
+	s.set_shader_parameter("paint_glow", 0.5 if style == "concrete" else 0.15)
 	_mat_cache[ck] = s
 	return s
 
@@ -666,6 +673,8 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				var curb := 0.0
 				if not in_ranges(d, loop_ranges, 4.0):
 					curb = smoothstep(1.0 / 260.0, 1.0 / 110.0, horizontal_curvature(path, d))
+				if in_ranges(d, tunnel_ranges, -1.0):
+					curb += 2.0   # tunnel flag for the road shader
 				uv2s.append(Vector2(hw, curb))
 			loft(top, frames, ds, top_prof, uv2s)
 			loft(sides, frames, ds, side_prof)
