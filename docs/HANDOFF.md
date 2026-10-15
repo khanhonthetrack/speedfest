@@ -24,7 +24,8 @@ more 10–30 s maps, different car types; "keep it fun, and clever". Plan: PLAN.
   (`--car=<id>`), garage screenshots; (5) merge into `main`.
 - **Not started:** M6-4 better graphics (idea: Poly Haven CC0 HDRI skies, low-res for web too), M6-5
   export + deploy.
-- **Pi deploy:** the live site still serves the 5236df9 build. The Pi clone (`~/speedfest`) is on
+- **Pi deploy (done ~16:05 UTC):** `server/public` re-exported from `main` (LIVE + 4 maps) and the
+  container restarted, so the live site runs LIVE and the new maps. Before that it served 5236df9. The Pi clone (`~/speedfest`) is on
   `main`; to ship LIVE + the new maps: `tools/export_web.sh`, commit `server/public`, push, then
   `docker restart speedfest` (the container runs `~/speedfest/server`, so the LIVE server code goes
   live with that restart). Node 20 is installed on the Pi now (server tests, smoke tests run there).
