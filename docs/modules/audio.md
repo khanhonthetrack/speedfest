@@ -120,6 +120,16 @@ Contract (ARCHITECTURE.md) unchanged. Additions:
 - If the chase camera sets `doppler_tracking`, remote engines could use Doppler too
   (`AudioStreamPlayer3D.doppler_tracking`); not enabled now.
 
+## Test results (2026-10-15)
+
+- `tools/check_scripts.sh`: `SCRIPT_ERRORS=0`.
+- `tests/audio/test_audio.tscn` (headless): `TEST_SUMMARY ok=64 fail=0`.
+- `tools/audio/check_loops.py`: all 18 loops seamless (`LOOP_CHECK_FAILURES=0`), exact lengths.
+- Integration probe (local merge of this branch with physics/race/tracks/visuals/scenery/ui_*,
+  not pushed): `race.tscn --autodrive` runs without audio errors; with real physics the rpm
+  sits around 7000-8600 most of the time (so the `high` layer carries the sound), the landing
+  thud fires on jumps, the limiter stutter engages at the redline.
+
 ## Known issues
 
 - Synthesized engines are an approximation; they were tuned by waveform/spectrum inspection,
