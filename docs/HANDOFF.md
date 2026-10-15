@@ -1,5 +1,20 @@
 # HANDOFF: start here
 
+## Latest (~13:30 UTC, session 5)
+
+- **Done (on `main`):** M4.6-1 downtown rework around real buildings (`TrackBuildings`), generated
+  PBR textures (asphalt/concrete/metal/rock, `tools/textures/gen_textures.py`), new short stadium
+  map **Rail Rush** (`rails`: ledge jump → grind rail → finish platform; `TrackRail`,
+  `tests/tracks/test_rail`), static web build on the orphan branch **`web-build`**
+  (`tools/publish_web_build.sh --push`, docs/HOSTING.md "Static web build").
+- `server/public` (the deployed build for the Node server) — see PROGRESS for whether it was
+  re-exported this session.
+- Open: textures could be swapped for real CC0 scans (ambientCG/Poly Haven are blocked here; keep
+  the file names). Why compat rendered textured albedo brighter in the full scene is unexplained
+  (worked around with the 1×1-mip normalization). Rail Rush has no ghost-specific handling (ghosts
+  replay transforms, fine). Online play on the static build needs the Node server.
+- Next: M5 visual tracks (docs/M5_SPECS.md), sequentially.
+
 ## Latest (~11:30 UTC, session 4): STOPPED for the usage limit, continue here
 
 - Done today (all pushed): M4.5 (all six owner items), M4.6-3 dark-trap music, M4.6-2 two ground

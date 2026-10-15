@@ -30,7 +30,7 @@ const SFX := {
 	"nitro": ["car_nitro_start", -5.0],
 	"thunder": ["sfx_thunder", -2.0],
 	"splash": ["sfx_splash", -4.0],
-	"grind": ["car_squeal", -4.0],
+	"grind": ["sfx_wall_hit", -5.0],     # metal clank when the rail catches the car (one-shot)
 }
 ## Looping ambience beds (weather).
 const AMBIENCE := {
