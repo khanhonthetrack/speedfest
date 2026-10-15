@@ -110,6 +110,7 @@ func _build_geometry() -> void:
 	_build_gates()
 	_build_boost_pads()
 	_build_puddles()
+	_build_ground_patches()
 	apply_weather("dry")
 
 
@@ -479,6 +480,93 @@ func _puddle_mesh(d0: float, len: float, w: float, x: float) -> ArrayMesh:
 			st.add_index(c)
 			st.add_index(d)
 	st.generate_tangents()
+	return st.commit()
+
+
+# ---------------------------------------------------------------- ground patches (grass/gravel/sand)
+
+const PATCH_BOX_LEN := 5.0
+
+
+## Layout {"surface": ...} markers: a mesh lying on the road per patch (shaders/track_ground) and
+## the matching boxes in `surface` (grip/drag per wheel, res://weather/track_surface.gd).
+func _build_ground_patches() -> void:
+	var pts: Array = data.get("patches", [])
+	if pts.is_empty():
+		return
+	var root := Node3D.new()
+	root.name = "GroundPatches"
+	add_child(root)
+	var k := 0
+	for pt in pts:
+		var kind := TrackSurface.kind_id(String(pt["kind"]))
+		if kind == 0:
+			continue
+		var d0: float = pt["d"]
+		var len: float = pt["len"]
+		var hw := path.width_at(d0 + len * 0.5) * 0.5
+		var x0 := clampf(float(pt["x0"]), -hw, hw)
+		var x1 := clampf(float(pt["x1"]), -hw, hw)
+		if x1 - x0 < 0.5:
+			continue
+		var boxes: Array = []
+		var nb := maxi(1, ceili(len / PATCH_BOX_LEN))
+		for b in nb:
+			var dm := d0 + (b + 0.5) * len / nb
+			var f := path.sample_transform(dm)
+			boxes.append({"xf": Transform3D(f.basis, f.origin + f.basis.x * (x0 + x1) * 0.5),
+				"hx": (x1 - x0) * 0.5, "hz": len / nb * 0.5 + 0.05})
+		surface.add_patch(kind, d0, d0 + len, x0, x1, boxes)
+		var mi := MeshInstance3D.new()
+		mi.name = "%s%d" % [String(pt["kind"]).capitalize(), k]
+		mi.mesh = _patch_mesh(d0, len, x0, x1)
+		mi.material_override = _ground_material(kind)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(mi)
+		k += 1
+
+
+static var _ground_mats: Dictionary = {}
+
+
+func _ground_material(kind: int) -> Material:
+	var key := "%d_%s_%s" % [kind, theme, Settings.is_compat()]
+	if not _ground_mats.has(key):
+		var night := theme != "coast"
+		_ground_mats[key] = TrackBuilder.shader_material("res://shaders/track_ground.gdshader", {
+			"kind": kind, "brightness": 1.5 if (night and Settings.is_compat()) else 1.0})
+	return _ground_mats[key]
+
+
+## A grid lying on the road from d0 to d0+len between lateral x0 and x1 (+ right), 2.5 cm up.
+## UV = meters from the left edge / start, UV2 = meters to the right edge / end.
+func _patch_mesh(d0: float, len: float, x0: float, x1: float) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var w := x1 - x0
+	var nx := maxi(2, ceili(w / 2.0))
+	var nz := maxi(4, ceili(len / 1.5))
+	for j in nz + 1:
+		var fz := float(j) / nz
+		var f := path.sample_transform(d0 + len * fz)
+		for i in nx + 1:
+			var fx := float(i) / nx
+			st.set_uv(Vector2(fx * w, fz * len))
+			st.set_uv2(Vector2((1.0 - fx) * w, (1.0 - fz) * len))
+			st.set_normal(f.basis.y)
+			st.add_vertex(f.origin + f.basis.x * (x0 + fx * w) + f.basis.y * 0.025)
+	for j in nz:
+		for i in nx:
+			var a := j * (nx + 1) + i
+			var b := a + 1
+			var c := a + nx + 1
+			var d := c + 1
+			st.add_index(a)
+			st.add_index(c)
+			st.add_index(b)
+			st.add_index(b)
+			st.add_index(c)
+			st.add_index(d)
 	return st.commit()
 
 

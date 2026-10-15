@@ -1,8 +1,9 @@
 class_name TrackDefs
 extends RefCounted
-## Static metadata for the three tracks. Layouts live in res://tracks/defs/<id>.gd.
+## Static metadata for the tracks. Layouts live in res://tracks/defs/<id>.gd.
+## infield / dunes: ~10 s sprints that use grass, gravel and sand (owner, session 4).
 
-const IDS: Array[String] = ["downtown", "arena", "coast"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "infield", "dunes"]
 
 const DEFS := {
 	"downtown": {
@@ -27,6 +28,22 @@ const DEFS := {
 		"circuit": false,
 		"blurb": "Cliffside run at dusk: fast sweepers, a cliff wall ride, the huge bay jump and a headland loop.",
 		"target_s": 32,
+		"weather": "dry",
+	},
+	"infield": {
+		"name": "Infield Rush",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "10-second stadium sprint: a hairpin with a grass short cut, a gravel chicane and a jump over the sand trap.",
+		"target_s": 11,
+		"weather": "dry",
+	},
+	"dunes": {
+		"name": "Dune Dash",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "10-second beach sprint: a sand short cut, a dune jump, a gravel hairpin and grass on the clifftop.",
+		"target_s": 11,
 		"weather": "dry",
 	},
 }

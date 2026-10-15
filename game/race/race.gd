@@ -54,6 +54,7 @@ var weather := "dry"
 var pb_key := ""
 var weather_fx: WeatherFX
 var spray: WaterSpray
+var dirt: DirtSpray
 
 var online := false
 var round_id := 0
@@ -161,6 +162,9 @@ func _build_world() -> void:
 	spray = WaterSpray.create(String(car.config.get("car", "kaze")), Weather.is_wet(weather))
 	spray.play_sound = true
 	car.add_child(spray)
+	if not track.surface.patches.is_empty():
+		dirt = DirtSpray.create(String(car.config.get("car", "kaze")))
+		car.add_child(dirt)
 
 	engine_audio = EngineAudio.new()
 	engine_audio.name = "EngineAudio"
@@ -380,6 +384,8 @@ func _process(_delta: float) -> void:
 	elif ghost_player.visible:
 		ghost_player.hide_ghost()
 	spray.update_spray(car.get_water_amount(), speed)
+	if dirt:
+		dirt.update_dirt(car.get_ground_kind(), speed)
 	for rc in remote_cars.values():
 		var rs: WaterSpray = (rc as Node).get_meta("spray", null)
 		if rs:

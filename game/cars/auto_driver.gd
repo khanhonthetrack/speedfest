@@ -263,11 +263,13 @@ func _build_profile(car: Car) -> void:
 	var p := car.params
 	var m: float = p["mass"]
 	# wet weather: plan with the wet-asphalt grip (puddles are left to the steering)
-	var mu := float(p["grip"]) * grip_margin * (car.surface.grip_for_water(0.0) if car.surface != null else 1.0)
+	var mu0 := float(p["grip"]) * grip_margin * (car.surface.grip_for_water(0.0) if car.surface != null else 1.0)
 	var g := CarPhysicsDefs.GRAVITY
 	var dfm := float(p["downforce"]) / m
 	for i in n:
 		var d := minf(i * PROFILE_STEP, path.length)
+		# grass / gravel / sand on the centreline: plan with that ground's grip
+		var mu := mu0 * (car.surface.centerline_grip(d) if car.surface != null else 1.0)
 		var t1 := path.sample_transform(d)
 		var t2 := path.sample_transform(_wrap(d + 4.0))
 		var t0 := path.sample_transform(_wrap(d - 4.0))

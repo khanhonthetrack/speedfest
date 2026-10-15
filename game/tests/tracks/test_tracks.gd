@@ -9,6 +9,9 @@ const RANGES := {
 	"downtown": {"len": [1100.0, 1800.0], "cps": [4, 6]},
 	"arena": {"len": [1100.0, 1800.0], "cps": [4, 6]},
 	"coast": {"len": [1100.0, 1800.0], "cps": [4, 6]},
+	# ~10 s sprints on grass / gravel / sand (session 4)
+	"infield": {"len": [300.0, 700.0], "cps": [1, 3]},
+	"dunes": {"len": [300.0, 700.0], "cps": [1, 3]},
 }
 
 var hits: Array = []

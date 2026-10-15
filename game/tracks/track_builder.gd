@@ -14,6 +14,8 @@ extends RefCounted
 ## Markers (zero length): {"cp": true}, {"start": true}, {"finish": true},
 ##   {"boost": 10} (pad length), {"zone": "tunnel", "on": true/false}, {"walls": "both"|"left"|"right"|"none"},
 ##   {"puddle": 14, "w": 7, "x": -4, "at": 0, "storm": false} (weather puddle, see res://weather/weather.gd)
+##   {"surface": "grass"|"gravel"|"sand", "len": 60, "x0": -9, "x1": 2, "at": 0} (ground patch on the
+##     road from at..at+len, lateral x0..x1 m (+ right); grip and drag in res://weather/track_surface.gd)
 ## Any segment may also carry "zone": "tunnel"|"bridge"|"no_props" which covers just that segment.
 
 const STEP := 2.5
@@ -50,6 +52,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	var cps: Array[float] = []
 	var boosts: Array = []
 	var puddles: Array = []
+	var patches: Array = []
 	var zones: Array = []
 	var gaps: Array = []
 	var loops: Array = []
@@ -97,6 +100,10 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			# offset (+ = right), "at": start offset along the path, "storm": storm-only}
 			puddles.append({"d": d0 + float(s.get("at", 0.0)), "len": float(s["puddle"]),
 				"w": float(s.get("w", 8.0)), "x": float(s.get("x", 0.0)), "storm": bool(s.get("storm", false))})
+			continue
+		if s.has("surface"):
+			patches.append({"d": d0 + float(s.get("at", 0.0)), "len": float(s.get("len", 30.0)),
+				"x0": float(s.get("x0", -50.0)), "x1": float(s.get("x1", 50.0)), "kind": String(s["surface"])})
 			continue
 		if s.has("walls") and s.size() == 1:
 			if d0 > wall_from:
@@ -342,6 +349,8 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		b["d"] = sc.call(b["d"])
 	for pd in puddles:
 		pd["d"] = sc.call(pd["d"])
+	for pt in patches:
+		pt["d"] = sc.call(pt["d"])
 	for z in zones:
 		z["from"] = sc.call(z["from"])
 		z["to"] = sc.call(z["to"])
@@ -386,7 +395,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	return {
 		"wallrides": wallrides,
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
-		"boosts": boosts, "puddles": puddles, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
+		"boosts": boosts, "puddles": puddles, "patches": patches, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
 		"points": PackedVector3Array(pts), "circuit": circuit,
 	}
 

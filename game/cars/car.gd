@@ -134,6 +134,7 @@ var _vis_susp_arr: Array = [0.0, 0.0, 0.0, 0.0]
 ## Weather surface map (wet asphalt + puddles), set by the race scene. null = dry everywhere.
 var surface: TrackSurface = null
 var _water := PackedFloat32Array([0, 0, 0, 0])
+var _ground := PackedInt32Array([0, 0, 0, 0])      # TrackSurface kind under each wheel (0 asphalt)
 var _water_avg := 0.0
 
 
@@ -346,6 +347,16 @@ func get_wheelspin() -> float:
 ## 0..1: how much of the car's tire contact is in a puddle (spray, splash sound, net flag).
 func get_water_amount() -> float:
 	return _water_avg
+
+
+## TrackSurface ground kind under the rear wheels (0 asphalt, 1 grass, 2 gravel, 3 sand); the
+## highest-numbered one if they differ. For dust / grass spray.
+func get_ground_kind() -> int:
+	var k := 0
+	for i in [2, 3]:
+		if _contact[i]:
+			k = maxi(k, _ground[i])
+	return k
 
 
 func get_slip_angle() -> float:
@@ -630,6 +641,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var water_sum := 0.0
 	for i in 4:
 		_water[i] = 0.0
+		_ground[i] = 0
 		if not _contact[i]:
 			continue
 		var front := i < 2
@@ -652,6 +664,10 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_water[i] = water
 			water_sum += water
 			sgrip = surface.grip_for_water(water)
+			# grass / gravel / sand (session 4): less grip, more rolling drag
+			if not surface.patches.is_empty():
+				_ground[i] = surface.kind_at(_hit_pos[i])
+				sgrip *= TrackSurface.KIND_GRIP[_ground[i]]
 		# longitudinal
 		var f_long := 0.0
 		if i >= 2 or drive_awd:
@@ -684,6 +700,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			# water drag: a puddle scrubs a little speed
 			var wd := minf(surface.drag_for_water(_water[i]) * cm, absf(v_long) * cm / dt * 0.5)
 			f_long -= signf(v_long) * wd
+		if _ground[i] > 0:
+			var gd := minf(TrackSurface.KIND_DRAG[_ground[i]] * cm, absf(v_long) * cm / dt * 0.5)
+			f_long -= signf(v_long) * gd
 		# lateral (slip-angle curve)
 		var mu := grip
 		var slide: float = params["front_slide"]
