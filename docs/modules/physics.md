@@ -43,7 +43,9 @@ by themselves.
   so the car rests exactly at origin = wheel-center height (ground at `y = -wheel_radius`). Damper
   from velocity along the suspension axis. Progressive bump stop from 8.5 cm (13× rate) with extra
   compression damping. Anti-roll per axle. Each wheel force is capped at 28 corner weights.
-  Survives ~11 g at the bottom of an r=18 loop at 270 km/h.
+  The bump stop stays moderate (6× rate) for explicit-integration stability. Beyond it the body
+  bottoms out (see body collision). Supported envelope: loops with r ≥ 18 m at any entry speed up
+  to ~270 km/h (≈ 33 g), r = 15 m up to ~200 km/h.
 - **Tires**: slip angle `atan2(v_lat, max(|v_long|, 2.5))`, linear to the peak (7–8°), then falls
   to a slide ratio (front 0.86–0.90, rear 0.66–0.80). The lateral force is capped so it never
   overshoots the lateral velocity in one step (no low-speed jitter). Friction circle: drive or brake
@@ -64,11 +66,15 @@ by themselves.
 - **Loops / walls**: while ≥ 2 wheels touch road that is steep or inverted, a *stick* force of up to
   13 m/s² pulls along −road-normal (scaled in from 12 m/s). Never applied in the air.
 - **Air**: pitch/roll rate damping, auto-levelling after 0.2 s of air (roll → upright, pitch →
-  flight direction clamped to −30…+25°), light air steering (yaw). **Touchdown absorber**: on
+  flight direction clamped to −30…+25°), light air steering: steering sets a target yaw rate of
+  at most 1 rad/s, which also damps yaw spins in the air. **Touchdown absorber**: on
   landing after > 0.2 s of air, 70% of the impact speed into the ground is removed and pitch/roll
   rates are cut, and for 0.35 s the rebound speed is capped at 0.6 m/s. No bounces, no flips.
-- **Walls**: two low-friction boxes (friction 0.04, bounce 0) on layer 2 / mask 1, CCD on. A 15°
-  hit at 150 km/h keeps ~186 km/h one second later (with throttle).
+- **Body collision**: a floor box over the wheelbase (0.2 m above the ground at rest), raised
+  nose/tail boxes (so overhangs don't scrape in tight loops or on ramps) and a cabin box.
+  Friction 0, bounce 0, layer 2 / mask 1, CCD on. At extreme loads (> ~20 g) the floor box
+  bottoms out on the road and Jolt's contact solver carries the load stably. A 15° wall hit at
+  150 km/h keeps ~186 km/h one second later (with throttle).
 - **Stability**: roll-rate damping and a righting torque when rolled > 25° relative to the ground.
   Self-righting when resting on the roof or side (< 3 m/s, < 2 wheels) for 1.5 s: a gentle lift and
   rotate.
@@ -133,9 +139,17 @@ func reset_tracking() -> void         # call after teleporting the car (respawn)
 ```
 Race usage: `var ai := AutoDriver.new(); ai.path = track.path; ai.reset_callable = respawn_func; car.add_child(ai)`.
 The AutoDriver tracks its position with a local search around the last distance, so it doesn't
-jump across loops or bridges. It plans speed from horizontal curvature only (vertical loop
-curvature is ignored), goes full throttle from 70 m before `loop`/`jump` zones until their end,
-uses nitro on straights, has traction control, and reverses out when it's blocked.
+jump across loops or bridges. Steering is pure pursuit (speed-scaled look-ahead 8–38 m) with a
+tire-slip feed-forward. Inside loops and for 45 m before and through jumps it switches to a
+Stanley controller measured in the road frame (heading + lateral error), which works upside down
+and gives clean takeoffs. It never steers in the air. It plans speed from horizontal curvature
+only (vertical loop curvature is ignored), goes full throttle from 70 m before `loop`/`jump` zones
+until their end, uses nitro on straights, has traction control, and reverses out when it's
+blocked.
+
+**Real tracks** (tested against `origin/module/tracks` f517266 in a scratch worktree with
+`test_real_tracks.tscn`): all 3 cars finish all 3 tracks with 0 respawns. Arena 38–40 s,
+downtown 58–60 s, coast 51–56 s. Runs are deterministic (identical times run after run).
 
 ## Tuning sliders → params (Tuning.physics_params)
 
@@ -185,14 +199,17 @@ tools/run_scene.sh res://tests/physics/test_stunts.tscn --timeout 900 -- --car=v
   > 50% speed, upright, no tunnelling. Teleport resets immediately and on the next tick, keeps a
   given velocity. Self-righting from the roof. Frozen hold (< 5 cm drift, engine revs, no nitro).
   Boost pad. Nitro drain/refill/refill_nitro. Skidpad > 1 g.
+- **test_real_tracks** (integration, needs the tracks module): AutoDriver full run(s) on
+  `--track=arena|downtown|coast`, CPs in order, finish, respawns at the last CP when stuck or below
+  `kill_y` (like race). Not in `run_all.sh` because the stub Track is a flat plane.
+- **test_input**: CarInput keyboard ramp, self-centering, counter-steer, smaller/slower steering at speed.
 - **test_circuit**: AutoDriver, 2 laps on a 1.56 km circuit without walls (hairpin, sweepers,
   banked turn, elevation): never leaves the road, never gets stuck. Laps ~40 s (≈140 km/h average).
 
 ## Known issues / notes
 
-- Tuned against my own test geometry. Real tracks (tracks module) haven't been driven yet. Things
-  to watch at integration: road meshes with creases (the car feels them at 250 km/h), loop
-  entry/exit frames (see below), and ramp/landing angles.
+- Tuned against my own test geometry and verified on the tracks module's branch (see above).
+  Re-run `test_real_tracks` after merging if track geometry changes.
 - No physics interpolation: on > 60 Hz displays the car moves at the physics tick rate. See the
   integration requests.
 - AutoDriver speed planning ignores banking beyond a small bonus. It is conservative

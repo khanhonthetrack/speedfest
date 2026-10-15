@@ -28,7 +28,8 @@ const MAX_WHEEL_G := 28.0                # cap on a single wheel's suspension fo
 const STICK_ACCEL := 13.0                # extra road-normal pull on steep/inverted road at speed
 const AIR_LEVEL := 3.0                   # air auto-levelling strength (rad/s^2 per rad)
 const AIR_DAMP := 1.6                    # air pitch/roll rate damping (1/s)
-const AIR_STEER := 2.2                   # air yaw authority (rad/s^2)
+const AIR_STEER := 2.5                   # air yaw response (1/s)
+const AIR_YAW_RATE := 1.0                # max air yaw rate from steering (rad/s)
 const NITRO_REFILL := 1.0 / 28.0         # tank fraction per second while driving
 const DRIFT_MAX_DEG := 38.0              # slip angle where the drift stabilizer starts
 const DRIFT_STAB := 10.0                 # stabilizer strength (rad/s^2 per rad over the limit)
@@ -700,7 +701,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 					hz = hz.normalized()
 					var f_t := (hz * cos(pitch_v) + Vector3.UP * sin(pitch_v)).normalized()
 					state.apply_torque(fwd.cross(f_t) * AIR_LEVEL * 0.7 * inertia.x)
-		state.apply_torque(up * steer_in * AIR_STEER * inertia.y)
+		# light air steering: drive the yaw rate toward steer * AIR_YAW_RATE (also damps spins)
+		var yaw_rate := av.dot(up)
+		state.apply_torque(up * (steer_in * AIR_YAW_RATE - yaw_rate) * AIR_STEER * inertia.y)
 	else:
 		if was_grounded == 0 and _air_time > 0.25:
 			landed.emit(absf(_prev_vel.dot(_ground_n)))

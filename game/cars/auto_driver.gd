@@ -27,6 +27,8 @@ var reset_callable: Callable
 
 const PROFILE_STEP := 2.0
 const ZONE_LEAD := 70.0            # full throttle this many meters before loop/jump zones
+const STANLEY_K := 1.6
+const STANLEY_JUMP_LEAD := 45.0     # Stanley steering this many meters before a jump (clean takeoff)
 
 var _d := -1.0
 var _progress := 0.0
@@ -37,6 +39,8 @@ var _reverse_time := 0.0
 var _prev_pos := Vector3.ZERO
 var _profile := PackedFloat32Array()
 var _full := PackedByteArray()
+var _kappa := PackedFloat32Array()      # signed horizontal curvature (+ = turning right)
+var _stan := PackedByteArray()          # 1 where Stanley steering is used (loops, jump run-ups)
 var _profile_path: TrackPath = null
 
 
@@ -83,7 +87,8 @@ func _physics_process(dt: float) -> void:
 	var v := car.linear_velocity.dot(-xf.basis.z)
 	var speed := absf(v)
 
-	# --- steering (pure pursuit in the car frame) ---
+	# --- steering: Stanley in loops (surface-intrinsic), pure pursuit elsewhere ---
+	var in_loop := _stanley_here()
 	var look := clampf(6.0 + speed * 0.42, 8.0, 38.0)
 	var tt := path.sample_transform(_wrap(_d + look))
 	var target := tt.origin + tt.basis.x * lateral_offset + tt.basis.y * 0.4
@@ -91,12 +96,16 @@ func _physics_process(dt: float) -> void:
 	var lx := local.x
 	var lz := -local.z
 	var steer := 0.0
-	if lz < 0.5:
+	if not car.is_grounded() and car.get_air_time() > 0.05:
+		steer = 0.0   # never steer in the air (air steering yaws the car)
+	elif in_loop:
+		steer = _stanley(car, speed)
+	elif lz < 0.5:
 		steer = signf(lx) if absf(lx) > 0.01 else 1.0
 	else:
 		var l2 := lx * lx + lz * lz
 		var kappa := 2.0 * lx / l2
-		# kinematic angle + the tire slip angle needed for the lateral acceleration (feed-forward)
+		# kinematic angle + the tire slip angle needed for that lateral acceleration (feed-forward)
 		var p := car.params
 		var a_max := float(p["grip"]) * CarPhysicsDefs.GRAVITY * (1.0 + float(p["downforce"]) * speed * speed / (float(p["mass"]) * CarPhysicsDefs.GRAVITY))
 		var frac := clampf(speed * speed * kappa / a_max, -1.0, 1.0)
@@ -164,6 +173,20 @@ func _physics_process(dt: float) -> void:
 	car.controls["nitro"] = nitro
 
 
+## Stanley controller on the road surface: heading error + lateral error, both measured in the
+## path frame at the front axle (works upside down in loops).
+func _stanley(car: Car, speed: float) -> float:
+	var xf := car.global_transform
+	var front := xf.origin - xf.basis.z * car.get_wheelbase() * 0.5
+	var tf := path.sample_transform(_wrap(_d + car.get_wheelbase() * 0.5))
+	var e := (front - tf.origin).dot(tf.basis.x) - lateral_offset
+	var pf := -tf.basis.z
+	var car_f := -xf.basis.z
+	var psi := atan2(pf.dot(xf.basis.x), pf.dot(car_f))
+	var delta := psi + atan2(-STANLEY_K * e, speed + 2.0)
+	return clampf(delta / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
+
+
 func _zero(car: Car) -> void:
 	car.controls["throttle"] = 0.0
 	car.controls["brake"] = 0.0
@@ -225,6 +248,8 @@ func _build_profile(car: Car) -> void:
 	var n := int(ceil(path.length / PROFILE_STEP)) + 1
 	_profile.resize(n)
 	_full.resize(n)
+	_kappa.resize(n)
+	_stan.resize(n)
 	var p := car.params
 	var m: float = p["mass"]
 	var mu := float(p["grip"]) * grip_margin
@@ -237,7 +262,9 @@ func _build_profile(car: Car) -> void:
 		var t0 := path.sample_transform(_wrap(d - 4.0))
 		var f0 := -t0.basis.z
 		var f2 := -t2.basis.z
-		var kappa := absf((f2 - f0).dot(t1.basis.x)) / 8.0
+		var kappa_s := (f2 - f0).dot(t1.basis.x) / 8.0
+		_kappa[i] = kappa_s
+		var kappa := absf(kappa_s)
 		# banking helps: lean of the road normal into the turn
 		var bank := clampf(t1.basis.y.dot(Vector3.UP), 0.0, 1.0)
 		var a_scale := 1.0 + clampf(1.0 - bank, 0.0, 0.5)
@@ -247,10 +274,16 @@ func _build_profile(car: Car) -> void:
 			vmax = sqrt(mu * g * a_scale / denom)
 		_profile[i] = minf(vmax, 200.0)
 		var full := 0
+		var stan := 0
 		for z in path.zones:
 			var kind := String(z.get("kind", ""))
 			if kind in ["loop", "jump"] and d >= float(z["from"]) - ZONE_LEAD and d <= float(z["to"]) + 5.0:
 				full = 1
+			if kind == "loop" and d >= float(z["from"]) - 5.0 and d <= float(z["to"]) + 5.0:
+				stan = 1
+			if kind == "jump" and d >= float(z["from"]) - STANLEY_JUMP_LEAD and d <= float(z["to"]) + 5.0:
+				stan = 1
+		_stan[i] = stan
 		_full[i] = full
 		if full == 1:
 			_profile[i] = 200.0
@@ -270,6 +303,27 @@ func _target_speed(speed: float) -> float:
 		best = minf(best, allowed)
 		s += PROFILE_STEP
 	return best
+
+
+func _stanley_here() -> bool:
+	if _stan.is_empty():
+		return false
+	return _stan[clampi(int(_d / PROFILE_STEP), 0, _stan.size() - 1)] == 1
+
+
+## Average signed path curvature over [d, d + span].
+func _path_kappa(d: float, span: float) -> float:
+	var n := _kappa.size()
+	if n == 0:
+		return 0.0
+	var sum := 0.0
+	var cnt := 0
+	var s := 0.0
+	while s <= span:
+		sum += _kappa[clampi(int(_wrap(d + s) / PROFILE_STEP), 0, n - 1)]
+		cnt += 1
+		s += PROFILE_STEP
+	return sum / maxf(cnt, 1)
 
 
 func _full_throttle_here() -> bool:
