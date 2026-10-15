@@ -32,6 +32,7 @@ const MIN_FINISH_MS := 1000              # ignore a finish trigger right after G
 const STUCK_RESPAWN_S := 3.0             # upside down and not moving for this long -> respawn
 const RESULTS_FALLBACK_MS := 9000        # show results from the live leaderboard if round_end is late
 const LOBBY_FALLBACK_MS := 25000         # go back to the lobby even if the room never says so
+const LIVE_FALLBACK_MS := 45000          # LIVE: the next round_start is due ~14 s after round end
 const DISCONNECT_LOBBY_MS := 2500
 
 ## Set before adding to the tree to race on a custom track (tests).
@@ -786,7 +787,7 @@ func _tick_round_over() -> void:
 	var waited := Net.local_ms() - _round_over_ms
 	if not _results_shown and waited > RESULTS_FALLBACK_MS:
 		_show_results(_leaderboard if not _leaderboard.is_empty() else _leaderboard_from_room())
-	if waited > LOBBY_FALLBACK_MS:
+	if waited > (LIVE_FALLBACK_MS if Net.is_live() else LOBBY_FALLBACK_MS):
 		_go_lobby()
 
 
@@ -802,6 +803,15 @@ func _show_results(res: Array) -> void:
 	results_overlay.visible = true
 	if hud.has_method("set_hud_visible"):
 		hud.call("set_hud_visible", false)
+	if Net.is_live():
+		# LIVE rotation: no lobby in between; the footer counts down to the next track.
+		var nx: Variant = Net.room.get("next", null)
+		if typeof(nx) == TYPE_DICTIONARY and String(nx.get("track", "")) != "":
+			results_overlay.set("next_up", "%s  ·  %s" % [TrackDefs.display_name(String(nx["track"])),
+				Weather.display_name(Weather.sanitize(nx.get("weather", "dry")))])
+		var end_at := int(Net.room.get("phase_end_at", 0))
+		if end_at > 0:
+			results_overlay.set("return_seconds", maxf(1.0, float(end_at - Net.server_now_ms()) / 1000.0))
 	if results_overlay.has_method("show_results"):
 		results_overlay.call("show_results", res, Net.my_id)
 	_log("results %s" % JSON.stringify(res))

@@ -440,3 +440,21 @@ date, who (module/agent), what changed, what's next or blocked.
   Pi. Headless Chromium (SwiftShader) on the Pi, through the public Funnel URL,
   `?arg=--auto_solo=rails&arg=--autodrive`: AutoDriver finishes Rail Rush 3× at 6550 ms, 0 errors
   (same time as the cloud static test).
+
+## 2026-10-15 ~14:45 UTC — Session 6 (Pi), M6-1 DONE: LIVE map rotation
+
+- **Server:** `server/lib/rotation.js` (playlist: every track once per shuffled cycle, never twice in
+  a row, per-track round length 90–240 s, usual weather with a 25% wet twist). `lobby.js` keeps an
+  always-on room `LIVE` (no host; `settings`/`start` → `live_room` error; capacity 12): the first
+  join starts a round at once, `results` (10 s) roll straight into the next track, and it idles when
+  empty. Room JSON gains `live` and `next`. Env: `LIVE`, `LIVE_RESULTS_MS`, `LIVE_ROUND_S`,
+  `LIVE_MAX_PLAYERS`. Private rooms unchanged.
+- **Client:** `Net.join_live()` / `is_live()`; main menu "ONLINE · LIVE" (joins the rotation as soon
+  as the online screen is connected) and "PRIVATE ROOM"; the online screen has a JUMP IN panel above
+  the room list and a host-free LIVE room view (NOW / NEXT, countdown); the race stays between LIVE
+  rounds and the results footer shows "NEXT UP <track> · <weather> · N".
+- Tests: server 16/16 (new `test/live.test.js`: rotation properties, drop-in, no host, rotation to
+  the announced track, idle + restart, private rooms alongside); new `tools/live_smoke_test.sh`
+  (2 headless Godot clients: 18 checks PASS; added to check_all); net_smoke 3 clients PASS;
+  lobby_fake_test 23/23. nav_test's 2 menu-focus failures predate this (first-run name prompt has
+  focus on a fresh profile).

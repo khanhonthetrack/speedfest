@@ -10,6 +10,8 @@ const MAX_ROWS := 10
 
 ## Seconds until the room returns to the lobby (server: ~12 s). The footer counts down.
 var return_seconds: float = 12.0
+## LIVE rotation: "Rail Rush · Dry" shown as what comes next instead of the lobby countdown.
+var next_up: String = ""
 
 var _root: Control
 var _dim: ColorRect
@@ -104,7 +106,10 @@ func _update_footer() -> void:
 	if s == _shown_left:
 		return
 	_shown_left = s
-	_footer.text = "RETURNING TO LOBBY IN %d" % s if s > 0 else "RETURNING TO LOBBY…"
+	if next_up != "":
+		_footer.text = "NEXT UP  %s  ·  %d" % [next_up.to_upper(), s] if s > 0 else "NEXT UP  %s" % next_up.to_upper()
+	else:
+		_footer.text = "RETURNING TO LOBBY IN %d" % s if s > 0 else "RETURNING TO LOBBY…"
 
 
 func _car_name(car: Variant) -> String:

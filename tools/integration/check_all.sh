@@ -48,6 +48,8 @@ if [[ $QUICK -eq 0 ]]; then
   done
   out=$(timeout 600 tools/net_smoke_test.sh 2>&1 | tail -1)
   if echo "$out" | grep -q PASS; then report net_smoke OK "$out"; else report net_smoke FAIL "$out"; fi
+  out=$(timeout 300 tools/live_smoke_test.sh 2>&1 | tail -1)
+  if echo "$out" | grep -q PASS; then report live_smoke OK "$out"; else report live_smoke FAIL "$out"; fi
   if [[ -x game/tests/race/online_round_test.sh ]]; then
     out=$(timeout 900 game/tests/race/online_round_test.sh 3 75 --autodrive --track=arena 2>&1)
     finishes=$(echo "$out" | grep -c " finished ")

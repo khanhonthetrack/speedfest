@@ -32,6 +32,7 @@ signal player_checkpoint(id: int, cp: int, ms: int)                        # ano
 signal finish_result(accepted: bool, ms: int, best_ms: int, reason: String)  # server verdict on send_finish
 
 const PROTOCOL_VERSION := 1
+const LIVE_CODE := "LIVE"              # the always-on rotation room (server lib/lobby.js)
 const STATE_INTERVAL_MS := 50          # 20 Hz state relay
 const STATE_MIN_GAP_MS := 40           # tolerate frame jitter (60 fps -> sends every 3rd frame)
 const PING_INTERVAL_MS := 2000
@@ -135,6 +136,11 @@ func is_host() -> bool:
 	return in_room() and int(room.get("host", -2)) == my_id
 
 
+## In the always-on LIVE room (no host; the server rotates tracks round after round).
+func is_live() -> bool:
+	return in_room() and bool(room.get("live", false))
+
+
 # --- rooms --------------------------------------------------------------------------------------
 
 func list_rooms() -> void:
@@ -149,6 +155,11 @@ func create_room(room_name: String = "") -> void:
 func join_room(code: String) -> void:
 	_send_profile_now()
 	_send({"type": "join_room", "code": code.strip_edges().to_upper()})
+
+
+## Jump into the LIVE map rotation: the current round starts for us right away.
+func join_live() -> void:
+	join_room(LIVE_CODE)
 
 
 ## The garage/name may have changed since connecting: make sure the server has the latest

@@ -71,14 +71,17 @@ Good to know:
 ## 3. Playing
 
 1. Everyone opens the URL, enters a name, and optionally tunes a car in the **Garage**.
-2. **Online** → one player creates a room (the host). The others join it from the list or by its
+2. **Online · LIVE** (quickest): you drop straight into the always-on rotation. Tracks change by
+   themselves after every round; there's nothing to set up and nobody to wait for.
+   **Private room**: one player creates a room (the host). The others join it from the list or by its
    4-letter code.
-3. The host picks the track, the round length and the **weather** (Dry / Rain / Storm: in the rain,
+3. In a private room, the host picks the track, the round length and the **weather** (Dry / Rain / Storm: in the rain,
    puddles cut grip), and presses **Start**. Everyone gets a 3-2-1-GO countdown.
 4. Drive as many runs as you like before the timer runs out. Your best time counts.
    Backspace/R respawns at the last checkpoint, Delete/Enter restarts the run, and Tab shows
    the leaderboard.
-5. Results appear when the round ends, then everyone returns to the room.
+5. Results appear when the round ends. In LIVE the next track starts about 10 s later; in a private
+   room everyone returns to the room.
 
 Controls: W/S or arrows to drive and brake, A/D to steer, Space for the handbrake, Shift/N for
 nitro, C for the camera, Q to look back, Esc to pause. Gamepads work too.
@@ -108,7 +111,9 @@ Tailscale Funnel. Whatever is in `server/public` on `main` is what goes live aft
 ## Server options (environment variables)
 
 `PORT` (8080), `HOST` (all interfaces), `PUBLIC_DIR` (./public), `MAX_PLAYERS` (8),
-`COUNTDOWN_MS` (4000), `RESULTS_MS` (12000), `FINISH_GRACE_MS` (1500), `LOG_LEVEL` (info|silent).
+`COUNTDOWN_MS` (4000), `RESULTS_MS` (12000), `FINISH_GRACE_MS` (1500), `LOG_LEVEL` (info|silent),
+`LIVE` (1; 0 turns the always-on LIVE rotation room off), `LIVE_RESULTS_MS` (10000),
+`LIVE_ROUND_S` (0 = per-track round lengths), `LIVE_MAX_PLAYERS` (12).
 Health check: `GET /health`.
 
 ## Rebuilding the web build (developers)

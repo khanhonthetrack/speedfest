@@ -6,10 +6,14 @@
 const crypto = require('node:crypto');
 const { log, warn } = require('./log');
 const V = require('./validate');
+const { Rotation } = require('./rotation');
 
 const PROTOCOL_VERSION = 1;
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ'; // no I, L, O (ambiguous with 1/0)
 const ACTIVE_PHASES = new Set(['countdown', 'racing']);
+// The always-on LIVE room (docs/ARCHITECTURE.md "LIVE room"). Generated codes never contain L or I,
+// so this code can't collide with a private room.
+const LIVE_CODE = 'LIVE';
 
 // Outbound buffering limits per client (bytes). Lossy messages (state) are skipped above the soft
 // limit; a client whose buffer grows past the hard limit is considered dead and dropped.
@@ -81,6 +85,8 @@ class Room {
     this.timer = null;
     this.departed = new Map(); // name -> standings entry of players who left mid-round
     this.createdAt = now;
+    this.live = false; // LIVE room: no host, rotates tracks by itself, never deleted
+    this.next = null; // LIVE: {track, weather, duration_s} of the round after this one
   }
 }
 
@@ -93,6 +99,10 @@ class Lobby {
    * @param {number} [o.maxPlayers=8]
    * @param {number} [o.maxRooms=200]
    * @param {number} [o.maxClients=500]
+   * @param {boolean} [o.live=true]          keep an always-on LIVE room that rotates tracks
+   * @param {number} [o.liveMaxPlayers=12]
+   * @param {number} [o.liveResultsMs=10000] LIVE: round end -> next round's countdown
+   * @param {Rotation} [o.rotation]          LIVE playlist (tests pass a seeded one)
    * @param {() => number} [o.now=Date.now]
    */
   constructor(o = {}) {
@@ -106,6 +116,16 @@ class Lobby {
     this.clients = new Map();
     this.rooms = new Map();
     this.nextId = 1;
+    this.liveMaxPlayers = o.liveMaxPlayers ?? 12;
+    this.liveResultsMs = Math.max(o.liveResultsMs ?? 10000, this.finishGraceMs + 250);
+    this.rotation = o.rotation ?? new Rotation();
+    if (o.live ?? true) {
+      const room = new Room(LIVE_CODE, 'LIVE · map rotation', this.now());
+      room.live = true;
+      room.next = this.rotation.peek();
+      room.settings = { ...room.next };
+      this.rooms.set(LIVE_CODE, room);
+    }
     this.handlers = {
       hello: this._onHello,
       ping: this._onPing,
@@ -271,10 +291,16 @@ class Lobby {
         start_at: room.round.start_at,
         end_at: room.round.end_at,
       },
-      max_players: this.maxPlayers,
+      max_players: this._capacity(room),
       phase_end_at: room.phaseEndAt,
+      live: room.live,
+      next: room.live && room.next ? { ...room.next } : null,
       server_t: this.now(),
     };
+  }
+
+  _capacity(room) {
+    return room.live ? this.liveMaxPlayers : this.maxPlayers;
   }
 
   _roomSummary(room) {
@@ -286,8 +312,9 @@ class Lobby {
       phase: room.phase,
       track: room.settings.track,
       weather: room.settings.weather,
-      max_players: this.maxPlayers,
+      max_players: this._capacity(room),
       host_name: host ? host.name : '',
+      live: room.live,
     };
   }
 
@@ -398,6 +425,10 @@ class Lobby {
     c.runs = 0;
     if (room.players.length === 0) {
       this._clearTimer(room);
+      if (room.live) {
+        this._liveIdle(room);
+        return true;
+      }
       this.rooms.delete(room.code);
       log(`  room ${room.code} closed (empty); rooms ${this.rooms.size}`);
       return true;
@@ -417,6 +448,10 @@ class Lobby {
   _requireHost(c) {
     if (!c.room) {
       this._error(c, 'Not in a room', 'no_room');
+      return null;
+    }
+    if (c.room.live) {
+      this._error(c, 'The LIVE room picks tracks by itself', 'live_room');
       return null;
     }
     if (c.room.hostId !== c.id) {
@@ -483,7 +518,7 @@ class Lobby {
 
   _toResults(room) {
     room.phase = 'results';
-    room.phaseEndAt = room.round.end_at + this.resultsMs;
+    room.phaseEndAt = room.round.end_at + (room.live ? this.liveResultsMs : this.resultsMs);
     this._broadcastRoom(room);
     // Finishes in flight are still accepted for finishGraceMs; then the results are final.
     this._schedule(room, room.round.end_at + this.finishGraceMs, this._finalizeRound);
@@ -499,7 +534,29 @@ class Lobby {
       .map((r) => `${r.name} ${(r.best_ms / 1000).toFixed(3)}s`)
       .join(', ');
     log(`< room ${room.code}: round ${room.round.round_id} over. ${top || 'no finishes'}`);
-    this._schedule(room, room.phaseEndAt, this._toLobby);
+    this._schedule(room, room.phaseEndAt, room.live ? this._liveAfterResults : this._toLobby);
+  }
+
+  // LIVE: the next track of the rotation, straight away (no lobby, no host, no ready-up).
+  _startLiveRound(room) {
+    room.settings = this.rotation.next();
+    room.next = this.rotation.peek();
+    this._startRound(room);
+  }
+
+  _liveAfterResults(room) {
+    if (room.players.length > 0) this._startLiveRound(room);
+    else this._liveIdle(room);
+  }
+
+  /** LIVE with nobody in it: stop the clock; the next join starts the next track right away. */
+  _liveIdle(room) {
+    this._clearTimer(room);
+    room.phase = 'lobby';
+    room.phaseEndAt = 0;
+    room.finalized = true;
+    room.departed.clear();
+    log(`  room ${room.code} idle (empty)`);
   }
 
   _toLobby(room) {
@@ -537,7 +594,9 @@ class Lobby {
   }
 
   _onListRooms(c) {
-    const rooms = [...this.rooms.values()].sort((a, b) => a.createdAt - b.createdAt).map((r) => this._roomSummary(r));
+    const rooms = [...this.rooms.values()]
+      .sort((a, b) => (a.live !== b.live ? (a.live ? -1 : 1) : a.createdAt - b.createdAt))
+      .map((r) => this._roomSummary(r));
     this._send(c, { type: 'rooms', rooms });
   }
 
@@ -561,10 +620,15 @@ class Lobby {
     const room = this.rooms.get(code);
     if (!room) return this._error(c, `Room ${code} not found`, 'no_such_room');
     if (c.room === room) return this._send(c, { type: 'room', room: this._roomJSON(room) });
-    if (room.players.length >= this.maxPlayers) return this._error(c, `Room ${code} is full`, 'room_full');
+    const cap = this._capacity(room);
+    if (room.players.length >= cap) return this._error(c, `Room ${code} is full`, 'room_full');
     this._leaveRoom(c);
     this._addToRoom(c, room);
-    log(`  ${c.name} #${c.id} joined room ${code} (${room.players.length}/${this.maxPlayers}, ${room.phase})`);
+    log(`  ${c.name} #${c.id} joined room ${code} (${room.players.length}/${cap}, ${room.phase})`);
+    if (room.live && room.phase === 'lobby') {
+      this._startLiveRound(room); // broadcasts room + round_start, the joiner included
+      return;
+    }
     this._broadcastRoom(room);
     if (ACTIVE_PHASES.has(room.phase)) {
       // Late joiner: drop straight into the running round.
@@ -700,4 +764,4 @@ class Lobby {
   }
 }
 
-module.exports = { Lobby, PROTOCOL_VERSION, CODE_ALPHABET };
+module.exports = { Lobby, PROTOCOL_VERSION, CODE_ALPHABET, LIVE_CODE };

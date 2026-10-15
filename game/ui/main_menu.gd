@@ -55,6 +55,12 @@ func _on_solo() -> void:
 
 
 func _on_online() -> void:
+	Game.online_intent = "live"
+	Game.goto(Game.SCENE_LOBBY)
+
+
+func _on_rooms() -> void:
+	Game.online_intent = ""
 	Game.goto(Game.SCENE_LOBBY)
 
 
@@ -145,7 +151,8 @@ func _build() -> void:
 	_menu_box.add_theme_constant_override("separation", 12)
 	left.add_child(_menu_box)
 	_add_menu_button("SOLO TIME ATTACK", "Beat your best on any track", _on_solo)
-	_add_menu_button("ONLINE", "Race your friends in a room", _on_online)
+	_add_menu_button("ONLINE · LIVE", "Jump into the non-stop map rotation", _on_online)
+	_add_menu_button("PRIVATE ROOM", "Race your friends with your own rules", _on_rooms)
 	_add_menu_button("GARAGE", "Style your ride", _on_garage)
 	_add_menu_button("SETTINGS", "Graphics, sound, controls", _on_settings)
 	if not Settings.is_web():

@@ -13,6 +13,7 @@ var track_id: String = "arena"
 var round_info: Dictionary = {}      # Net.round_started payload while online
 var weather: String = ""             # solo weather pick ("" = the stage's default, Weather.default_for)
 var last_round_id: int = -1          # round_id of the last online round this client entered
+var online_intent: String = ""       # "live": the online screen joins the LIVE rotation as soon as it can
 var garage_return_scene: String = SCENE_MENU
 
 

@@ -88,9 +88,11 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
 instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.
 Keep it fun, and clever." Worked on the Pi (it can push and reach CC0 asset sites).
-- [ ] 1. **LIVE rotation**: an always-on public room that cycles maps (and weather) round after round.
+- [x] 1. **LIVE rotation**: an always-on public room that cycles maps (and weather) round after round.
       Joining drops you straight into the current round; results → next map automatically; no host,
-      no ready-up. Private rooms stay as an option. Server + Net + menu + race flow, tests.
+      no ready-up. Private rooms stay as an option. Done: `server/lib/rotation.js`, LIVE room in
+      `lobby.js`, `Net.join_live()`, menu "ONLINE · LIVE" + "PRIVATE ROOM", lobby JUMP IN, results
+      "NEXT UP"; server 16/16, live_smoke_test 2 clients PASS, net_smoke PASS
 - [ ] 2. **New maps (10–30 s)**, each built around one clever idea, AutoDriver-finishable, in the
       rotation and the track select.
 - [ ] 3. **New car types** with clearly different handling (and looks): e.g. an AWD rally hatch that

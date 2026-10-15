@@ -5,13 +5,16 @@
 //
 // Env: PORT (8080), HOST (all interfaces), PUBLIC_DIR (./public), COUNTDOWN_MS (4000),
 //      RESULTS_MS (12000), FINISH_GRACE_MS (1500), HEARTBEAT_MS (10000), MAX_PLAYERS (8),
-//      BROTLI (1), LOG_LEVEL (info|silent).
+//      BROTLI (1), LOG_LEVEL (info|silent),
+//      LIVE (1; 0 = no always-on LIVE room), LIVE_RESULTS_MS (10000), LIVE_ROUND_S (0 = per track),
+//      LIVE_MAX_PLAYERS (12).
 
 const http = require('node:http');
 const path = require('node:path');
 const { WebSocketServer } = require('ws');
 const { Lobby, PROTOCOL_VERSION } = require('./lib/lobby');
 const { StaticFiles } = require('./lib/static');
+const { Rotation } = require('./lib/rotation');
 const logger = require('./lib/log');
 
 const { log, warn } = logger;
@@ -38,6 +41,10 @@ function createServer(opts = {}) {
     helloTimeoutMs: opts.helloTimeoutMs ?? envInt('HELLO_TIMEOUT_MS', 20000),
     maxPlayers: opts.maxPlayers ?? envInt('MAX_PLAYERS', 8),
     brotli: opts.brotli ?? process.env.BROTLI !== '0',
+    live: opts.live ?? process.env.LIVE !== '0',
+    liveResultsMs: opts.liveResultsMs ?? envInt('LIVE_RESULTS_MS', 10000),
+    liveRoundS: opts.liveRoundS ?? envInt('LIVE_ROUND_S', 0),
+    liveMaxPlayers: opts.liveMaxPlayers ?? envInt('LIVE_MAX_PLAYERS', 12),
     warm: opts.warm ?? true,
   };
   if (opts.quiet) logger.setQuiet(true);
@@ -48,6 +55,10 @@ function createServer(opts = {}) {
     resultsMs: config.resultsMs,
     finishGraceMs: config.finishGraceMs,
     maxPlayers: config.maxPlayers,
+    live: config.live,
+    liveResultsMs: config.liveResultsMs,
+    liveMaxPlayers: config.liveMaxPlayers,
+    rotation: opts.rotation ?? new Rotation({ durationS: config.liveRoundS }),
   });
   const files = new StaticFiles(config.publicDir, { brotli: config.brotli });
 

@@ -199,6 +199,10 @@ var ping_ms: int                                   # smoothed round-trip time, -
 func connection_state() -> String                  # "offline" | "connecting" | "online"
 func server_now_ms() -> int                        # current server time estimate
 func round_time_left_ms() -> int                   # ms left in the round (0 = over, -1 = no round)
+# --- LIVE rotation (session 6) ---
+const LIVE_CODE := "LIVE"
+func join_live() -> void                           # join_room("LIVE"): the running round starts for us at once
+func is_live() -> bool                             # in the LIVE room (room.live)
 ```
 `player_state` snapshots also carry `"rx_ms"` (the local receive time) for interpolation.
 `rooms_listed` entries also carry `max_players` and `host_name`.
@@ -414,11 +418,30 @@ Room object:
   "players": [{"id": 3, "name": "Khanh", "car": {CarConfig}, "ready": true, "best_ms": -1, "runs": 0}],
   "round": {"round_id": 2, "track": "arena", "start_at": 0, "end_at": 0} }
 ```
+Room objects also carry `max_players`, `phase_end_at`, `server_t`, `live` (bool) and `next`
+(LIVE only: `{track, weather, duration_s}` of the round after the current one, else `null`);
+`rooms` entries carry `live` too (the LIVE room is listed first).
+
 Server rules: 4-letter room codes. A room is deleted when it's empty. If the host leaves, the
 host passes to the next player. Round flow: `start` → phase `countdown` (start_at = now + 4000) →
 `racing` at start_at → `results` at end_at (sends `round_end`) → `lobby` after 12 s. A late
 joiner during `countdown` or `racing` receives `round_start` immediately. The server rejects
 finishes that arrive after `end_at + 1500` ms or carry a stale round_id.
+
+### LIVE room (session 6, `server/lib/rotation.js`)
+
+An always-on public room with the code `LIVE` (generated codes never contain L or I). It has no host
+(`host: -1`): `settings` and `start` are refused with `error {code: "live_room"}`, ready flags are
+ignored. Joining it while idle starts a round straight away; a late joiner gets `round_start` at
+once as usual. After a round, `results` lasts `LIVE_RESULTS_MS` (10 s) and then the next round of the
+rotation starts by itself (`countdown` again, never `lobby` while anyone is in). When the last
+player leaves it goes idle (`phase: "lobby"`, timers stopped). The rotation plays every track once per
+cycle in a shuffled order, never the same track twice in a row, with a round length per track
+(90–240 s, aiming at 6–12 runs) and the track's usual weather, sometimes a wet one. Capacity
+`LIVE_MAX_PLAYERS` (12). Client: main menu "ONLINE · LIVE" → the online screen calls
+`Net.join_live()` and the race starts on `round_start`; the race scene stays between LIVE rounds
+(results show "NEXT UP" with a countdown; the next `round_start` reloads the race on the new track).
+Tests: `server/test/live.test.js`, `tools/live_smoke_test.sh` (Godot clients).
 
 ## Testing & tooling
 

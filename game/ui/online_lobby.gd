@@ -58,6 +58,9 @@ var garage_btn: Button
 var leave_btn: Button
 
 var _room: Dictionary = {}
+var live_btn: Button
+var live_info: Label
+var host_settings: VBoxContainer
 var _starting := false
 var _esc_armed_leave := false   # Esc pressed once in the room view: Leave focused, next Esc leaves
 var _list_timer := 0.0
@@ -97,6 +100,9 @@ func _enter() -> void:
 				if (ph == "countdown" or ph == "racing") and not Net.current_round.is_empty() \
 						and int(Net.current_round.get("round_id", -1)) != Game.last_round_id:
 					_start_race(Net.current_round)
+			elif Game.online_intent == "live":
+				show_view(VIEW_BROWSER)
+				_join_live()
 			else:
 				show_view(VIEW_BROWSER)
 				Net.list_rooms()
@@ -118,6 +124,8 @@ func _process(delta: float) -> void:
 	if _status_timer <= 0.0:
 		_status_timer = 0.5
 		_update_status()
+	if current_view == VIEW_ROOM and bool(_room.get("live", false)) and _status_timer >= 0.49:
+		_refresh_live(String(_room.get("phase", "")))
 	if current_view == VIEW_BROWSER and Net.is_online():
 		_list_timer -= delta
 		if _list_timer <= 0.0:
@@ -158,9 +166,12 @@ func show_view(v: String) -> void:
 		VIEW_BROWSER:
 			_list_timer = 0.0
 			browser_name_edit.text = Profile.player_name
-			create_btn.grab_focus.call_deferred()
+			live_btn.grab_focus.call_deferred()
 		VIEW_ROOM:
-			ready_btn.grab_focus.call_deferred()
+			if bool(_room.get("live", false)):
+				garage_btn.grab_focus.call_deferred()
+			else:
+				ready_btn.grab_focus.call_deferred()
 
 
 func _update_status() -> void:
@@ -209,6 +220,13 @@ func _apply_name(n: String) -> void:
 	Profile.save()
 	if Net.is_online():
 		Net.set_profile(Profile.player_name, Profile.get_config())
+
+
+## LIVE map rotation: the server drops us into the running round (round_start -> race).
+func _join_live() -> void:
+	Game.online_intent = ""
+	Net.join_live()
+	_toast("Jumping into LIVE ...", UITheme.LIME)
 
 
 func _on_create() -> void:
@@ -307,6 +325,8 @@ func _on_connected() -> void:
 	else:
 		show_view(VIEW_BROWSER)
 		Net.list_rooms()
+		if Game.online_intent == "live":
+			_join_live()
 
 
 func _on_disconnected(reason: String) -> void:
@@ -362,7 +382,10 @@ func _on_room_changed(room: Dictionary) -> void:
 	if code != chat_room_code:
 		chat_room_code = code
 		chat_log.clear()
-		_add_chat_line("[color=#%s]Joined room %s. Share the code with your friends![/color]" % [UITheme.TEXT_DIM.to_html(false), code])
+		if bool(room.get("live", false)):
+			_add_chat_line("[color=#%s]Joined LIVE: tracks rotate non-stop. Drive as many runs as you like, best time wins the round.[/color]" % UITheme.TEXT_DIM.to_html(false))
+		else:
+			_add_chat_line("[color=#%s]Joined room %s. Share the code with your friends![/color]" % [UITheme.TEXT_DIM.to_html(false), code])
 	elif first:
 		_render_chat()
 	for p in room.get("players", []):
@@ -411,6 +434,38 @@ func _refresh_room() -> void:
 			phase_label.add_theme_color_override("font_color", UITheme.MAGENTA)
 	host_hint.text = "You're the host: pick track, length and weather, then start." if am_host \
 		else "The host picks the track and starts the round."
+	var live := bool(r.get("live", false))
+	host_settings.visible = not live
+	ready_btn.visible = not live
+	if live:
+		start_btn.visible = false
+		_refresh_live(phase)
+
+
+## LIVE room: no host, no settings; show what's on now and what's next.
+func _refresh_live(phase: String) -> void:
+	var rd: Dictionary = _room.get("round", {})
+	var nx: Variant = _room.get("next", null)
+	var now_id := String(rd.get("track", ""))
+	var lines: Array[String] = []
+	if now_id != "" and phase != "lobby":
+		var wx := Weather.sanitize(rd.get("weather", "dry"))
+		lines.append("NOW  %s  ·  %s" % [TrackDefs.display_name(now_id), Weather.display_name(wx)])
+	if typeof(nx) == TYPE_DICTIONARY and String(nx.get("track", "")) != "":
+		lines.append("NEXT  %s  ·  %s" % [TrackDefs.display_name(String(nx["track"])), Weather.display_name(Weather.sanitize(nx.get("weather", "dry")))])
+	track_info.text = "\n".join(lines)
+	host_hint.text = "Tracks rotate by themselves, round after round. Jump in any time: your best run of the round counts."
+	var left_s := maxi(0, int(ceil(float(int(_room.get("phase_end_at", 0)) - Net.server_now_ms()) / 1000.0)))
+	match phase:
+		"results":
+			phase_label.text = "LIVE  ·  NEXT ROUND IN %d s" % left_s if left_s > 0 else "LIVE  ·  NEXT ROUND"
+			phase_label.add_theme_color_override("font_color", UITheme.MAGENTA)
+		"countdown", "racing":
+			phase_label.text = "LIVE  ·  ROUND IN PROGRESS"
+			phase_label.add_theme_color_override("font_color", UITheme.LIME)
+		_:
+			phase_label.text = "LIVE  ·  STARTING"
+			phase_label.add_theme_color_override("font_color", UITheme.AMBER)
 
 
 func _refresh_settings() -> void:
@@ -479,7 +534,8 @@ func _room_entry(r: Dictionary) -> Control:
 	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	h.add_theme_constant_override("separation", 16)
 	b.add_child(h)
-	var cl := UITheme.label(code, "heavy", 22, UITheme.CYAN)
+	var is_live := bool(r.get("live", false))
+	var cl := UITheme.label(code, "heavy", 22, UITheme.LIME if is_live else UITheme.CYAN)
 	cl.custom_minimum_size = Vector2(90, 0)
 	cl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	h.add_child(cl)
@@ -492,11 +548,17 @@ func _room_entry(r: Dictionary) -> Control:
 	info.add_child(nm)
 	var tname := TrackDefs.display_name(String(r.get("track", "arena")))
 	var host_name := String(r.get("host_name", ""))
-	info.add_child(UITheme.label("%s%s" % [tname, ("  ·  host " + host_name) if host_name != "" else ""], "body", 17, UITheme.TEXT_DIM))
+	if is_live:
+		var on_now := int(r.get("players", 0)) > 0
+		info.add_child(UITheme.label("Non-stop rotation%s" % (("  ·  now " + tname) if on_now else ""), "body", 17, UITheme.TEXT_DIM))
+	else:
+		info.add_child(UITheme.label("%s%s" % [tname, ("  ·  host " + host_name) if host_name != "" else ""], "body", 17, UITheme.TEXT_DIM))
 	h.add_child(info)
 	var phase := String(r.get("phase", "lobby"))
+	if is_live:
+		phase = "racing" if int(r.get("players", 0)) > 0 else "lobby"
 	var phase_col := UITheme.TEXT_DIM if phase == "lobby" else (UITheme.LIME if phase == "racing" else UITheme.AMBER)
-	var pl := _badge("IN LOBBY" if phase == "lobby" else phase.to_upper(), phase_col)
+	var pl := _badge(("ALWAYS ON" if is_live else "IN LOBBY") if phase == "lobby" else ("LIVE" if is_live else phase.to_upper()), phase_col)
 	pl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(pl)
 	var cnt := UITheme.label("%d/%d" % [int(r.get("players", 0)), int(r.get("max_players", 8))], "num", 17, UITheme.TEXT)
@@ -652,6 +714,28 @@ func _build_browser_view() -> Control:
 	var lv := VBoxContainer.new()
 	lv.add_theme_constant_override("separation", 10)
 	lp.add_child(lv)
+	# LIVE first: the always-on rotation is the quickest way into a race (owner, session 6).
+	var lvh := HBoxContainer.new()
+	lvh.add_theme_constant_override("separation", 16)
+	var lvt := VBoxContainer.new()
+	lvt.add_theme_constant_override("separation", 2)
+	lvt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lvt.add_child(MenuKit.caption("LIVE · non-stop rotation", UITheme.LIME))
+	live_info = UITheme.label("No lobby, no waiting: tracks rotate round after round. Your best run counts.", "body", 17, UITheme.TEXT_DIM)
+	live_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lvt.add_child(live_info)
+	lvh.add_child(lvt)
+	live_btn = MenuKit.button("JUMP IN", 200, 58)
+	live_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	live_btn.add_theme_font_override("font", UITheme.font("head"))
+	live_btn.add_theme_font_size_override("font_size", 22)
+	live_btn.add_theme_color_override("font_color", UITheme.LIME)
+	live_btn.add_theme_stylebox_override("normal", UITheme.panel_style(Color(UITheme.LIME, 0.18), UITheme.LIME, 2))
+	live_btn.add_theme_stylebox_override("hover", UITheme.panel_style(Color(UITheme.LIME, 0.32), UITheme.LIME.lightened(0.3), 2))
+	live_btn.pressed.connect(_join_live)
+	lvh.add_child(live_btn)
+	lv.add_child(lvh)
+	lv.add_child(HSeparator.new())
 	var lh := HBoxContainer.new()
 	var cap := MenuKit.caption("Open rooms")
 	cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -855,24 +939,27 @@ func _build_room_view() -> Control:
 	var sv := VBoxContainer.new()
 	sv.add_theme_constant_override("separation", 8)
 	sp.add_child(sv)
-	sv.add_child(MenuKit.caption("Track", UITheme.MAGENTA))
+	host_settings = VBoxContainer.new()
+	host_settings.add_theme_constant_override("separation", 8)
+	sv.add_child(host_settings)
+	host_settings.add_child(MenuKit.caption("Track", UITheme.MAGENTA))
 	var tnames: Array = []
 	for id in TrackDefs.IDS:
 		tnames.append(TrackDefs.short_name(id))   # one row of chips; the full name is in track_info
 	track_row = MenuKit.chip_row(tnames, _on_pick_track)
-	sv.add_child(track_row)
-	sv.add_child(MenuKit.caption("Round length", UITheme.MAGENTA))
+	host_settings.add_child(track_row)
+	host_settings.add_child(MenuKit.caption("Round length", UITheme.MAGENTA))
 	var dnames: Array = []
 	for d in TrackDefs.DURATIONS_S:
 		dnames.append("%d MIN" % (d / 60))
 	duration_row = MenuKit.chip_row(dnames, _on_pick_duration, 80)
-	sv.add_child(duration_row)
-	sv.add_child(MenuKit.caption("Weather", UITheme.MAGENTA))
+	host_settings.add_child(duration_row)
+	host_settings.add_child(MenuKit.caption("Weather", UITheme.MAGENTA))
 	var wnames: Array = []
 	for m in Weather.MODES:
 		wnames.append(Weather.display_name(m).to_upper())
 	weather_row = MenuKit.chip_row(wnames, _on_pick_weather, 80)
-	sv.add_child(weather_row)
+	host_settings.add_child(weather_row)
 	track_info = UITheme.label("", "body", 18, UITheme.TEXT_DIM)
 	track_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sv.add_child(track_info)
