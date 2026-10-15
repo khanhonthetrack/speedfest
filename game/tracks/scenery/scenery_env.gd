@@ -10,6 +10,9 @@ var env: Environment
 var sun: DirectionalLight3D
 var sky_material: ShaderMaterial
 var _authored: Dictionary = {}
+var _pano_amount := 0.0
+
+const SkyPanoramas := preload("res://tracks/scenery/sky_panoramas.gd")
 
 const _TUNED_PROPS := ["ssr_enabled", "ssao_enabled", "ssil_enabled", "sdfgi_enabled", "volumetric_fog_enabled", "glow_enabled"]
 
@@ -39,6 +42,8 @@ func _on_settings_changed() -> void:
 func retune() -> void:
 	for k in _authored:
 		env.set(k, _authored[k])
+	# quality 0 (weak devices) keeps the procedural sky only
+	sky_material.set_shader_parameter("pano_amount", _pano_amount if Settings.quality >= 1 else 0.0)
 	Settings.tune_environment(env)
 	_quality_extras()
 	Settings.tune_sun(sun)
@@ -86,6 +91,37 @@ func _sky(params: Dictionary) -> void:
 		sky_material.set_shader_parameter(k, params[k])
 
 
+## Photographed sky (session 7): a Poly Haven CC0 panorama (tools/textures/fetch_hdri.py) blended
+## over the procedural sky. 2K on desktop High/Ultra, 1K elsewhere (web). params: the env_sky
+## "pano_*" uniforms; "pano_exposure" is relative to the photo's real brightness; "align_dir" turns
+## the panorama so its brightest spot (sun or moon) sits at that direction's azimuth.
+func _panorama(params: Dictionary) -> void:
+	if not SkyPanoramas.SKIES.has(theme):
+		return
+	var tex: Texture2D = null
+	var paths: Array[String] = ["res://assets/sky/%s_sky.jpg" % theme]
+	if not Settings.is_compat() and Settings.quality >= 2:
+		paths.push_front("res://assets/hd/sky/%s_sky.jpg" % theme)
+	for path in paths:
+		if ResourceLoader.exists(path):
+			tex = load(path) as Texture2D
+			break
+	if tex == null:
+		return
+	var row: Dictionary = SkyPanoramas.SKIES[theme]
+	var p := params.duplicate()
+	p["panorama"] = tex
+	p["pano_exposure"] = float(params.get("pano_exposure", 1.0)) / float(row["scale"])
+	if p.has("align_dir"):
+		var a: Vector3 = p["align_dir"]
+		var want := fposmod(atan2(a.x, -a.z) / TAU, 1.0)
+		p["pano_rotation"] = fposmod(float(row["bright_u"]) - want, 1.0)
+		p.erase("align_dir")
+	_pano_amount = float(p.get("pano_amount", 1.0))
+	p.erase("pano_amount")
+	_sky(p)
+
+
 func _glow_levels(levels: Array) -> void:
 	for i in levels.size():
 		env.set_glow_level(i, levels[i])
@@ -104,6 +140,10 @@ func _city() -> void:
 		"cloud_dark": Color(0.02, 0.02, 0.05), "cloud_lit": Color(0.22, 0.1, 0.24),
 		"cloud_lit_from_below": 1.1, "star_amount": 0.0, "energy": 1.0,
 	})
+	# photo: overcast night with the moon breaking through, graded violet and lit from below by
+	# the city glow (kept on top)
+	_panorama({"pano_exposure": 0.3, "pano_tint": Color(0.75, 0.6, 1.0), "pano_saturation": 0.6,
+		"pano_glow_keep": 1.0, "align_dir": moon_dir})
 	sun.light_color = Color(0.55, 0.62, 0.95)
 	sun.light_energy = 0.32
 	sun.basis = Basis.looking_at(-moon_dir, Vector3.UP)
@@ -155,6 +195,9 @@ func _arena() -> void:
 		"cloud_dark": Color(0.02, 0.02, 0.03), "cloud_lit": Color(0.16, 0.16, 0.19),
 		"cloud_lit_from_below": 1.0, "star_amount": 1.0, "energy": 1.0,
 	})
+	# photo: clear moonlit night (the moon sits behind the key light); sharp procedural stars on top
+	_panorama({"pano_exposure": 0.32, "pano_tint": Color(0.8, 0.88, 1.0), "pano_saturation": 0.8,
+		"pano_glow_keep": 0.6, "pano_star_keep": 0.5, "align_dir": key_dir})
 	sun.light_color = Color(0.95, 0.96, 1.0)
 	sun.light_energy = 0.9
 	sun.basis = Basis.looking_at(-key_dir, Vector3.UP)
@@ -192,6 +235,11 @@ func _arena() -> void:
 func _coast() -> void:
 	# Dusk: low warm sun over the sea, pink-orange clouds, deep blue zenith.
 	var sun_dir := Vector3(-0.62, 0.075, -0.78).normalized()
+	if SkyPanoramas.SKIES.has("coast") and Settings.quality >= 1:
+		# the photographed sun sits lower than the procedural one: light from where it is seen
+		var el := (0.5 - float(SkyPanoramas.SKIES["coast"]["bright_v"])) * PI
+		var flat := Vector3(sun_dir.x, 0.0, sun_dir.z).normalized()
+		sun_dir = (flat * cos(el) + Vector3.UP * sin(el)).normalized()
 	_sky({
 		"zenith_color": Color(0.05, 0.09, 0.28), "sky_color": Color(0.28, 0.26, 0.5),
 		"horizon_color": Color(1.0, 0.5, 0.28), "ground_color": Color(0.12, 0.08, 0.12),
@@ -205,6 +253,10 @@ func _coast() -> void:
 		"cloud_dark": Color(0.28, 0.18, 0.32), "cloud_lit": Color(1.0, 0.55, 0.45),
 		"cloud_lit_from_below": 0.5, "cloud_sun_lit": 1.4, "star_amount": 0.25, "energy": 1.0,
 	})
+	# photo: low sun under a cloud deck over open water; the procedural sun disk and a little of
+	# the warm glow band stay on top
+	_panorama({"pano_exposure": 0.08, "pano_tint": Color(1.05, 0.93, 0.92), "pano_saturation": 1.3,
+		"pano_top_tint": Color(0.45, 0.4, 0.9), "pano_glow_keep": 0.35, "align_dir": sun_dir})
 	sun.light_color = Color(1.0, 0.62, 0.36)
 	sun.light_energy = 1.7
 	sun.basis = Basis.looking_at(-sun_dir, Vector3.UP)

@@ -39,6 +39,21 @@ uniform float cloud_streak = 1.0;           // >1 stretches clouds horizontally 
 uniform float star_amount = 0.0;
 uniform float energy = 1.0;
 
+// Photographed sky (session 7: Poly Haven CC0 panoramas, res://assets/sky/, SceneryEnv). The
+// procedural sky above stays underneath; pano_amount blends the photo over it. Direction mapping
+// (same as tools/textures/fetch_hdri.py): u = fract(atan(d.x, -d.z) / TAU + pano_rotation),
+// v = acos(d.y) / PI. The glow band, stars and the sun disk are drawn on top of the photo.
+uniform sampler2D panorama : source_color, filter_linear, repeat_enable;
+uniform float pano_amount = 0.0;
+uniform float pano_exposure = 1.0;          // linear multiplier (already divided by the encode scale)
+uniform vec3 pano_tint : source_color = vec3(1.0);
+uniform float pano_saturation = 1.0;
+uniform float pano_rotation = 0.0;          // turns (0..1)
+uniform float pano_glow_keep = 1.0;         // how much of the procedural horizon glow stays on the photo
+uniform float pano_star_keep = 0.0;         // procedural stars over the photo (sharper than its pixels)
+uniform float pano_ground_keep = 0.0;       // photo below the horizon (0 = the procedural ground)
+uniform vec3 pano_top_tint : source_color = vec3(1.0);   // grade toward the zenith (deeper dusk tops)
+
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
@@ -111,6 +126,26 @@ void sky() {
 		float sl = pow(clamp(sdot * 0.5 + 0.5, 0.0, 1.0), 6.0) * cloud_sun_lit;
 		cc += sun_color * sl * (1.2 - c * 0.6);
 		col = mix(col, cc, c * 0.92);
+	}
+	// photographed sky over the procedural one (glow band and stars added back on top)
+	if (pano_amount > 0.0) {
+		float u = fract(atan(d.x, -d.z) / 6.2831853 + pano_rotation);
+		float v = acos(clamp(y, -1.0, 1.0)) / 3.1415927;
+		vec3 p = textureLod(panorama, vec2(u, v), 0.0).rgb;
+		float pl = dot(p, vec3(0.2126, 0.7152, 0.0722));
+		p = mix(vec3(pl), p, pano_saturation) * pano_tint * pano_exposure;
+		p *= mix(vec3(1.0), pano_top_tint, clamp(pow(max(y, 0.0), 0.7), 0.0, 1.0));
+		p += glow_color * glow_strength * gband * gmask * pano_glow_keep;
+		if (pano_star_keep > 0.0 && y > 0.0) {
+			vec3 sp = d * 320.0;
+			vec3 ci = floor(sp);
+			float s = hash12(ci.xy + ci.z * 7.31);
+			float tw = hash12(ci.zx + 3.7);
+			float dotm = smoothstep(0.4, 0.05, length(fract(sp) - 0.5));
+			float star = step(1.0 - 0.025 * star_amount, s) * dotm * smoothstep(0.0, 0.3, y) * (0.3 + tw);
+			p += vec3(0.8, 0.85, 1.0) * star * 1.2 * pano_star_keep;
+		}
+		col = mix(col, p, pano_amount * mix(pano_ground_keep, 1.0, smoothstep(-0.08, 0.0, y)));
 	}
 	// sun disk + halo (in front of thin cloud)
 	if (sun_strength > 0.0) {

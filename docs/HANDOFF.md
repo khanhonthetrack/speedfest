@@ -7,8 +7,10 @@
 - **M6-3 done (~18:45 UTC):** Kitsune R4, Pixie S and Goliath HD are merged into `main` (PROGRESS
   ~18:45 UTC). The session-6 step list below for `wip/m6-cars` is finished; that branch is now
   merged.
-- Next: M6-4 graphics (Poly Haven CC0 HDRI skies, lighting/post polish on both renderers), then
-  M6-5 export + deploy. The deploy itself happens on the Pi: `git pull && docker restart speedfest`.
+- **M6-4 step 1 done (~20:00 UTC):** photographed CC0 skies for city/stadium/coast (PROGRESS
+  ~20:00 UTC, ASSETS "Sky panoramas"). This cloud environment reaches polyhaven.com and ambientcg.com.
+- Next: M6-5 export + deploy. Further M6-4 polish (an overcast photo for rain/storm rounds,
+  lighting/post) can follow. The deploy itself happens on the Pi: `git pull && docker restart speedfest`.
   `server/public` still has the session-6 build, without the new cars or the air-steer fix.
 
 ## Latest (~16:00 UTC, session 6, orchestrating session on the Pi): STOPPED for the usage limit

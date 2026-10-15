@@ -40,3 +40,30 @@ listed here anyway.
   compressed, high quality, mipmaps; `project.godot` imports both S3TC/BPTC (PC) and ETC2/ASTC
   (ARM, Switch), so the committed `.import` files work on any editor machine.
 - Textures are skipped at quality 0 (`TrackBuilder.use_pbr()`).
+
+## Sky panoramas (`game/assets/sky/`, `game/assets/hd/sky/`)
+
+**CC0 HDRIs from Poly Haven**, fetched and converted by `tools/textures/fetch_hdri.py` (session 7).
+The script downloads each 2K Radiance HDR and scales it so the 99.7th luminance percentile sits just
+below white. It writes sRGB 8-bit JPEG equirect panoramas: the sun disk is drawn by the sky shader,
+so clipping the photo's sun costs nothing. It also generates `game/tracks/scenery/sky_panoramas.gd`
+(the scale to undo, and where the sun or moon is). Rebuild with `python3 tools/textures/fetch_hdri.py`
+(~10 s, needs polyhaven.com and ffmpeg), then `tools/godot_import.sh`.
+
+| Theme | Source (CC0) | Authors | Used for |
+|---|---|---|---|
+| city | Kloppenheim 07 (Pure Sky), https://polyhaven.com/a/kloppenheim_07_puresky | Greg Zaal, Jarod Guest | Neon city: overcast night, graded violet, lit from below by the procedural city glow |
+| arena | Kloppenheim 02 (Pure Sky), https://polyhaven.com/a/kloppenheim_02_puresky | Greg Zaal, Jarod Guest | Stadium: clear moonlit night (the moon sits behind the key light), sharp procedural stars on top |
+| coast | Belfast Sunset (Pure Sky), https://polyhaven.com/a/belfast_sunset_puresky | Greg Zaal, Dimitrios Savva, Jarod Guest | Dusk coast: low sun under a cloud deck, aligned with the scene's sun; zenith graded deep violet |
+
+License: CC0 1.0 (public domain), https://polyhaven.com/license. No attribution required; listed
+anyway.
+
+- `game/assets/sky/<theme>_sky.jpg`: 1024×512 (40–60 KB), every build including web.
+  `game/assets/hd/sky/<theme>_sky.jpg`: 2048×1024 (140–180 KB), desktop only (Forward+, quality ≥ 2).
+  Import: lossy WebP at quality 0.9 with no mipmaps (the shader samples LOD 0 so the equirect seam
+  doesn't pick a blurry mip).
+- `SceneryEnv._panorama()` blends the photo over the procedural sky (`env_sky.gdshader` `pano_*`
+  uniforms: exposure relative to the photo's real brightness, tint, saturation, zenith grade, how
+  much procedural glow/stars stay on top). Below the horizon the procedural ground stays, so the
+  dark ground keeps the ambient light. Quality 0 keeps the procedural sky only.

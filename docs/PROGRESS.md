@@ -521,3 +521,24 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   lip. `run_real_tracks.sh` takes `CARS=` and `KB=`.
 - **AutoDriver:** the 3 new cars × 10 tracks finish with 0 respawns (e.g. coast 28.6–29.6 s,
   rooftop 14.3–17.6 s, rails 6.2–6.4 s). CHECK_ALL PASS (--quick).
+
+## 2026-10-15 ~20:00 UTC — Session 7: M6-4 step 1, photographed skies (CC0 HDRIs)
+
+- `tools/textures/fetch_hdri.py` fetches three Poly Haven CC0 "pure sky" HDRIs: Kloppenheim 07
+  (city, overcast night), Kloppenheim 02 (stadium, clear moonlit night) and Belfast Sunset (coast).
+  It scales each so the bright clouds sit below white, encodes 8-bit sRGB JPEG equirects (1K for all
+  builds, 40–60 KB; 2K desktop-only under `assets/hd/sky/`, 140–180 KB) and generates
+  `tracks/scenery/sky_panoramas.gd` (encode scale, sun/moon position).
+- `env_sky.gdshader` gains `pano_*` uniforms. The photo blends over the procedural sky (exposure
+  relative to the photo's real brightness, tint, saturation, a zenith grade), and the procedural
+  glow band, stars and sun disk are drawn on top. Below the horizon the procedural ground stays: the
+  photo's bright lower half lifted the ambient light and turned the fog white.
+  `SceneryEnv._panorama()` loads 2K on desktop High/Ultra and 1K elsewhere, and turns the photo so
+  its sun or moon sits at the scene light's azimuth. The coast's sun light now uses the photo sun's
+  elevation (2.4° instead of 4.3°). Quality 0 keeps the procedural sky only.
+- Tuned against before/after screenshots on both renderers (track_view chase/drive/orbit). Coast:
+  real sunset clouds with the deep violet zenith kept. City: violet-lit overcast between the towers
+  instead of near black. Stadium: deep navy starry night instead of flat black.
+  Lesson: the "real" HDR exposure is ~4× brighter than the hand-tuned procedural skies; match the
+  average instead (coast 0.08, city 0.3, stadium 0.32 of real).
+- Checks: test_scenery 45/45, test_weather 73/73, check_scripts 0 errors. Asset list: docs/ASSETS.md.

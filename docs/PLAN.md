@@ -102,6 +102,8 @@ Keep it fun, and clever." Worked on the Pi (it can push and reach CC0 asset site
       flat pickup bed, `test_loose`, PHYSICS_ALL_OK with all 6 cars, AutoDriver 30/30 clean
       (3 new cars × 10 tracks)
 - [ ] 4. **Better graphics**: CC0 HDRI skies (Poly Haven) and lighting/post polish on both renderers.
+      Step 1 done (session 7): photographed skies for all three themes, blended over the procedural
+      sky (ASSETS "Sky panoramas"). Open: rain/storm skies, lighting/post polish.
 - [ ] 5. Export `server/public`, deploy on the Pi, verify in a browser.
 
 ### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
