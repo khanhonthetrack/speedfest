@@ -260,3 +260,15 @@ date, who (module/agent), what changed, what's next or blocked.
 - Garage pushes the profile to the room 1 s after each change (others' lobby lineup updates live).
 - Real-track matrix (default + storm) for this exact state: running at commit time; result in the
   next entry.
+
+## 2026-10-15 ~11:30 UTC — Matrix follow-up: suspension end stop
+
+- The matrix for the easy-handling commit (82bd701): physics/unit tests all pass; real tracks default
+  16/18 (downtown veloce fell through the loop twice, coast brute fell once), storm 17/18 (arena kaze
+  keyboard stuck six times at the wall ride). Traced: at 260–285 km/h loop entries (25–30 g) the
+  body bottomed out on the deck, caught a fold edge or got a back-face contact.
+- Tried and rejected: road backface collision off (4 + 3 failures, one car ejected 142 m up); a 40×
+  hard-stop spring (rang at 60 Hz, the brute bounced out of loops).
+- Fix: velocity end stop past 0.13 m compression (docs/modules/physics.md "Suspension end stop").
+  The five failing cases are clean and faster (downtown brute keyboard 27.5 s). New guard test
+  `tests/tracks/test_collision_faces.tscn` (deck/barrier winding, 6/6). Full verification running.

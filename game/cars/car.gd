@@ -23,6 +23,11 @@ const DROOP_SOFT := 0.45                 # spring rate factor while extending be
 const BUMP_START := 0.085                # compression where the bump stop starts
 const BUMP_MULT := 6.0                  # bump-stop stiffness relative to the spring
 const BUMP_DAMP := 1.0                   # extra compression damping inside the bump-stop zone (x damper)
+## End stop: the body must never reach the road. At 25-30 g (260+ km/h into a 20 m loop) the soft
+## bump stop compressed ~0.26 m, past the body's 0.18-0.21 m clearance, and the body box caught deck
+## edges or sank through the deck (session 4). Past HARD_START the velocity into the road is removed
+## (a rigid stop as a velocity constraint: a very stiff spring would ring at 60 Hz).
+const HARD_START := 0.13
 const LAND_REBOUND_TIME := 0.35          # after a touchdown, cap the rebound speed for this long
 const LAND_REBOUND_MAX := 0.6            # m/s away from the ground
 const LAND_ABSORB := 0.45                # fraction of the touchdown speed into the ground removed (rest: suspension squash)
@@ -527,6 +532,18 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_load[i] = f
 		total_load += f
 		state.apply_force(up * f, _hit_pos[i] - xf.origin)
+
+	# end stop: past HARD_START, don't let the car move further into the road
+	if _grounded >= 3:
+		var cmax := 0.0
+		for i in 4:
+			if _contact[i]:
+				cmax = maxf(cmax, _comp[i])
+		if cmax > HARD_START:
+			var lv_now := state.linear_velocity
+			var vn_in := lv_now.dot(_ground_n)
+			if vn_in < 0.0:
+				state.linear_velocity = lv_now - _ground_n * vn_in
 
 	# --- steering ---
 	var v_abs := absf(_fwd_speed)

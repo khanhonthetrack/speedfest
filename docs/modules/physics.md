@@ -394,3 +394,13 @@ players are always at full throttle, so every small slide snapped.
   still slides 32–40 deg (test_feel).
 - Track side (track_builder): deck rings inside loops are 1 m wherever the ring falls (`LOOP_RING`);
   a loop half-covered by a chunk used 1.5 m rings, and at 260+ km/h the body hit a deck fold edge.
+
+## Suspension end stop (session 4)
+Loop entries reached 260–285 km/h after the easier handling (20–23 m loops: 25–30 g). The soft bump
+stop then compressed ~0.26 m, past the body's 0.18–0.21 m ground clearance: the body box touched the
+deck, caught a fold edge (the car stopped dead) or got a back-face contact and was pushed through the
+loop. Fix: past `HARD_START` (0.13 m) compression with ≥ 3 wheels down, the car's velocity into the
+road is removed each tick, a rigid stop as a velocity constraint (a 40× stiffer spring was tried and
+rang at 60 Hz: the heavy brute bounced out of loops). Backface collision on the road trimesh stays
+on; `tests/tracks/test_collision_faces.tscn` checks that the deck and barrier faces are wound
+toward the driving side anyway (turning backface collision off was tried and made things worse).
