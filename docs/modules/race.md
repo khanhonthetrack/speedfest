@@ -125,7 +125,9 @@ branch (00:55 UTC). Results:
 - Solo `--autodrive` on arena (41.5 s), downtown (60.3 s) and coast (55.1 s): every checkpoint in
   order, finish, auto-restart, splits vs PB, respawn via the AutoDriver's `reset_callable`.
 - Online, real arena + real AutoDriver, 3 clients, 90 s round: synced GO, finishes accepted,
-  results, back to the lobby: PASS. Also 2 consecutive rounds through the real lobby scene: PASS.
+  results, back to the lobby: PASS (01:03 UTC, all 7 module branches merged: 38.0 / 39.0 / 52.1 s).
+  2 clients + a late joiner, 90 s: PASS. With a 60 s round the brute bot once got stuck after a
+  respawn and DNF'd: the race flow handled it correctly (DNF in results), it's AutoDriver behavior. Also 2 consecutive rounds through the real lobby scene: PASS.
 - Gate runner at 216 km/h through the arena loop: camera stays behind and upright (screenshots).
 - The `test_track.gd` subclass prefixes its members (`rt_`/`RT_`) to avoid clashing with Track's.
 
