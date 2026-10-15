@@ -32,11 +32,11 @@ Shared/core files (`project.godot`, `autoload/settings.gd`, `profile.gd`, `game.
 are changed only by the integrator. Module agents document themselves in `docs/modules/<key>.md`.
 
 ### M2 — Integration ☐
-- [ ] Merge all module branches. Fix compile errors and API mismatches.
+- [x] Merge all module branches. Fix compile errors and API mismatches. (01:00 UTC; modules keep polishing, re-merged as they push)
 - [ ] Full flow works: menu → garage → solo race on all 3 tracks → finish → PB.
-- [ ] Online flow: 3 headless/browser clients join a room, race, and see each other. Results appear.
+- [x] Online flow: 3 headless/browser clients join a room, race, and see each other. Results appear.
 - [ ] Web export runs in Chromium (Playwright) under the Compatibility renderer at a playable frame rate.
-- [ ] AutoDriver can finish every track (all checkpoints, loop, jumps).
+- [x] AutoDriver can finish every track (all checkpoints, loop, jumps). arena 39.6 s, downtown 60.3 s, coast 54.0 s.
 
 ### M3 — Review & polish ☐
 - [ ] Adversarial bug review (networking edge cases, race logic, physics exploits)

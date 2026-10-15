@@ -69,3 +69,21 @@ date, who (module/agent), what changed, what's next or blocked.
 - Trial merge of all 7 pushed module branches (local only): 1 compile error (race's test track
   vs the real Track; sent to the race agent). The race scene runs with the real car/track/HUD,
   but the AutoDriver can't finish the real tracks yet. Results sent to the physics and tracks agents.
+
+## 2026-10-15 ~01:10 UTC — M2 integration (orchestrator)
+
+- Merged physics, tracks, scenery and race (first complete versions) on top of networking, visuals,
+  audio, ui_hud and ui_menus. 103 scripts compile; every module test suite passes (physics
+  run_all, tracks 70, race 41+10+4, scenery 24, audio 64, hud 34, garage 17, lobby 19, visuals 29,
+  core 8).
+- The real race scene with `--autodrive` finishes every track: arena 39.6 s, downtown 60.3 s,
+  coast 54.0 s (PB saved, splits vs PB on the next run, auto-restart).
+- Online, headless: `game/tests/race/online_round_test.sh 3 75 --autodrive --track=arena` PASS
+  (3 clients finish 38.6/39.5/39.6 s, results, back to lobby).
+- Online, real web build in headless Chromium (`tools/integration/online_browser_test.js`, 2
+  clients): PASS for the flow (connect, join, round start, race scene with remote car, round end,
+  lobby). SwiftShader is far too slow to drive, so web frame rate can't be judged here.
+- New `res://tests/integration/perf_probe.tscn` (race scene + render stats). Compat, quality 1:
+  arena ~140 draw calls / 95k tris, downtown ~200 / 134k, coast ~380 / 290k (coast is near the
+  budget). Web builds default to quality 1.
+- Visual note: a near-black car (brute's default paint) is hard to see at night on compat.
