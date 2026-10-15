@@ -16,6 +16,11 @@ const ACTIVE_PHASES = new Set(['countdown', 'racing']);
 const SOFT_BUFFER = 256 * 1024;
 const HARD_BUFFER = 8 * 1024 * 1024;
 const FINISH_CLOCK_SLACK_MS = 3000;
+// A client whose main loop runs pings every 2 s (net.gd PING_INTERVAL_MS). Silence longer than this
+// means a paused web tab (hidden/minimized: requestAnimationFrame stops). We stop relaying lossy
+// state to it, so its inbound packet queue (4096 in Godot's web WebSocket) isn't filled by state
+// frames and the reliable room/round_end/round_start messages still get through.
+const STALE_RX_MS = 5000;
 
 class TokenBucket {
   constructor(ratePerSec, burst, now) {
@@ -53,6 +58,7 @@ class Client {
     this.runs = 0;
     // liveness + limits
     this.missed = 0;
+    this.lastRx = now; // last application message received (ws pongs don't count: browsers auto-answer them)
     this.msgBucket = new TokenBucket(120, 120, now);
     this.stateBucket = new TokenBucket(40, 10, now); // <= 40/s sustained
     this.chatBucket = new TokenBucket(1, 5, now);
@@ -174,6 +180,7 @@ class Lobby {
     try {
       this.alive(c);
       const now = this.now();
+      c.lastRx = now;
       if (!c.msgBucket.take(now)) return; // flood: drop silently
       if (isBinary) return this._error(c, 'Binary frames are not supported', 'bad_frame');
       const size = typeof data === 'string' ? Buffer.byteLength(data) : data.length;
@@ -226,8 +233,11 @@ class Lobby {
 
   _broadcast(room, obj, except = null, lossy = false) {
     const text = JSON.stringify(obj);
+    const now = lossy ? this.now() : 0;
     for (const p of room.players) {
-      if (p !== except) this._sendRaw(p, text, lossy);
+      if (p === except) continue;
+      if (lossy && now - p.lastRx > STALE_RX_MS) continue; // paused web tab: don't flood its queue
+      this._sendRaw(p, text, lossy);
     }
   }
 
@@ -355,16 +365,30 @@ class Lobby {
     c.room = null;
     const idx = room.players.indexOf(c);
     if (idx >= 0) room.players.splice(idx, 1);
+    let foldedIntoLive = false;
     if (this._roundOpen(room) && c.runs > 0) {
-      room.departed.set(c.name, {
-        id: c.id,
-        name: c.name,
-        car: V.carIdOf(c.car),
-        best_ms: c.best_ms,
-        runs: c.runs,
-        left: true,
-        _at: c.best_at,
-      });
+      const better = (bms, bat, ams, aat) => bms >= 0 && (ams < 0 || bms < ams || (bms === ams && bat < aat));
+      const live = room.players.find((p) => p.name === c.name);
+      if (live) {
+        // Same racer reconnected (e.g. page reload) before this old socket was reaped: carry the times over.
+        if (better(c.best_ms, c.best_at, live.best_ms, live.best_at)) {
+          live.best_ms = c.best_ms;
+          live.best_at = c.best_at;
+        }
+        live.runs += c.runs;
+        foldedIntoLive = true;
+      } else {
+        const prev = room.departed.get(c.name);
+        const e = { id: c.id, name: c.name, car: V.carIdOf(c.car), best_ms: c.best_ms, runs: c.runs, left: true, _at: c.best_at };
+        if (prev) {
+          e.runs += prev.runs;
+          if (better(prev.best_ms, prev._at, e.best_ms, e._at)) {
+            e.best_ms = prev.best_ms;
+            e._at = prev._at;
+          }
+        }
+        room.departed.set(c.name, e);
+      }
     }
     c.ready = false;
     c.best_ms = -1;
@@ -381,6 +405,9 @@ class Lobby {
     }
     this._broadcast(room, { type: 'left', id: c.id });
     this._broadcastRoom(room);
+    if (foldedIntoLive) {
+      this._broadcast(room, { type: 'leaderboard', round_id: room.round.round_id, entries: this._standings(room) });
+    }
     return true;
   }
 

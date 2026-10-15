@@ -326,6 +326,62 @@ describe('speedfest server', () => {
     await B2.close();
   });
 
+  test('rejoining before the old socket is reaped merges times into the live player', async () => {
+    const A = await client('Host2');
+    const B = await client('Reloader');
+    A.send({ type: 'create_room' });
+    const { code } = await A.room();
+    B.send({ type: 'join_room', code });
+    await A.room((r) => r.players.length === 2);
+    A.send({ type: 'settings', duration_s: 3 });
+    await A.room((r) => r.settings.duration_s === 3);
+    A.send({ type: 'start' });
+    const s = await B.next('round_start');
+    await B.room((r) => r.phase === 'racing', 2000);
+    B.send({ type: 'finish', round_id: s.round_id, ms: 300 });
+    assert.equal((await B.next('finish_ack')).ok, true);
+    // Page reload: a new socket with the same name joins while the old one is still connected.
+    const B2 = await client('Reloader');
+    B2.send({ type: 'join_room', code });
+    await B2.room((r) => r.players.some((p) => p.id === B2.id));
+    await B2.next('round_start');
+    B2.send({ type: 'finish', round_id: s.round_id, ms: 500 });
+    assert.equal((await B2.next('finish_ack')).ok, true);
+    B.ws.terminate();
+    await A.next('left', (m) => m.id === B.id);
+    // The leaderboard sent when the old socket leaves has a single merged entry: best 300 over 2 runs.
+    const lb = await A.next('leaderboard', (m) => m.entries.some((e) => e.name === 'Reloader' && e.runs === 2));
+    const rows = lb.entries.filter((x) => x.name === 'Reloader');
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].best_ms, 300);
+    assert.equal(rows[0].id, B2.id);
+    await A.close();
+    await B2.close();
+  });
+
+  test('state is not relayed to a client that went silent (hidden web tab)', async () => {
+    const A = await client('Sender');
+    const B = await client('Sleeper');
+    A.send({ type: 'create_room' });
+    const { code } = await A.room();
+    B.send({ type: 'join_room', code });
+    await A.room((r) => r.players.length === 2);
+    const snap = { type: 'state', t: 1, p: [1, 2, 3], q: [0, 0, 0, 1], v: [0, 0, -30], st: 0, rpm: 0.5, fl: 16 };
+    // Simulate a paused tab: B has sent nothing for 10 s.
+    srv.lobby.clients.get(B.id).lastRx -= 10000;
+    B.drain();
+    A.send(snap);
+    A.send({ type: 'chat', text: 'still there?' });
+    await B.next('chat'); // reliable messages still arrive
+    assert.equal(B.count('state'), 0);
+    await B.ping(); // the tab is visible again
+    A.send({ ...snap, t: 2 });
+    const st = await B.next('state');
+    assert.equal(st.id, A.id);
+    await A.close();
+    await B.close();
+  });
+
   test('bad input is ignored without disconnecting anyone', async () => {
     const E = await client('Evil');
     const F = await client('Fine');
