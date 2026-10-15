@@ -34,6 +34,9 @@ var current_speed_kmh := 0.0
 var _buf: Array = []                  # [{ts: float, p: Vector3, q: Quaternion, v: Vector3, st, rpm, fl, t}]
 var _offset := 0.0                    # local_ms ≈ ts + _offset (min one-way delay + clock offset)
 var _offset_valid := false
+var _applied_offset := 0.0            # _offset, eased so the playback clock never jumps
+var _applied_valid := false
+var _last_pose_ms := -1.0
 var _last_rx_ms := -100000
 var _last_offset_update_ms := 0
 var _last_ts := -1.0
@@ -115,6 +118,7 @@ func push_state(s: Dictionary) -> void:
 		if _last_ts >= 0.0 and (ts < _last_ts - 1000.0 or ts > _last_ts + 60000.0):
 			_buf.clear()
 			_offset_valid = false
+			_applied_valid = false
 		if not _buf.is_empty() and ts <= float(_buf[-1]["ts"]):
 			return # duplicate or out of order
 		_last_ts = ts
@@ -171,7 +175,16 @@ func update_pose() -> bool:
 		visible = false
 		return false
 	visible = true
-	var render_ts := _now_ms() - _offset - INTERP_DELAY_MS
+	var now := _now_ms()
+	var frame_ms := clampf(now - _last_pose_ms, 0.0, 100.0) if _last_pose_ms >= 0.0 else 0.0
+	_last_pose_ms = now
+	if not _applied_valid or absf(_offset - _applied_offset) > 500.0:
+		_applied_offset = _offset
+		_applied_valid = true
+	else:
+		# Play 10% faster/slower until the clock mapping matches the estimate.
+		_applied_offset = move_toward(_applied_offset, _offset, frame_ms * 0.1)
+	var render_ts := now - _applied_offset - INTERP_DELAY_MS
 	var pose := sample(render_ts)
 	global_transform = pose["xf"]
 	_apply_visuals(pose)

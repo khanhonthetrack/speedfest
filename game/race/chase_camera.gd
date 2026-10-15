@@ -16,8 +16,8 @@ const MODE_COUNT := 4
 
 ## Chase presets: [distance behind, height, look-ahead, look height, base fov]
 const CHASE_PRESETS := [
-	[5.6, 1.85, 4.0, 0.9, 68.0],
-	[8.0, 2.6, 5.0, 1.0, 66.0],
+	[5.9, 2.15, 7.0, 1.05, 68.0],
+	[8.6, 2.9, 8.0, 1.15, 66.0],
 ]
 
 var target: Node3D
