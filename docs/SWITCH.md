@@ -37,3 +37,9 @@ The procedural cars and tracks are a fast starting point. For "beautiful graphic
   for hood/kit/spoiler/rims, material slots for paint/carbon/glass/lights).
 - Bake lighting (LightmapGI) for static track geometry on Switch 1. Use SDFGI or VoxelGI on Switch 2.
 - Use ReflectionProbes per track sector for wet roads (cheap reflections).
+
+## Ray tracing / path tracing
+See docs/RENDERING.md. NVIDIA's path tracing fork of Godot is Windows + RTX only and isn't a console
+option. On Switch 2, the realistic route is mainline features (reflection probes, baked GI) and,
+later, hybrid RT reflections through mainline's RenderingDevice ray-tracing API.
+

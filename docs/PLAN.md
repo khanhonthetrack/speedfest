@@ -53,6 +53,8 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 - [ ] README quick start for friends
 
 ### Later
+- **Beyond-web graphics and front end:** see docs/RENDERING.md (path tracing investigation, real
+  art assets, Forward+ features, optional RTX mode via the NVIDIA fork, NFSU2-style 3D garage menus)
 - Desktop builds with full Forward+ quality
 - Track editor, replays and ghost sharing, medals, more cars and tracks
 - Switch / Switch 2 port (see `docs/SWITCH.md`)

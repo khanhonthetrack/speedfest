@@ -139,3 +139,29 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
 - `main` was an ancestor of `ccr-49301774-b5a4ns`, so `main` was fast-forwarded to it (no merge
   commit). HANDOFF and HOSTING now point to `main`.
 
+### User (verbatim, ~08:30 UTC)
+
+> How do I host it for my friends tonight?
+
+### Claude
+
+- Gave the two options from docs/HOSTING.md: a Render web service from `main` (recommended; turn
+  Auto-Deploy off, wake it 5 min early) or the host's PC plus a Cloudflare quick tunnel. Also the
+  how-to-play steps and a pre-flight test (frame rate is unmeasured on a real GPU). HOSTING.md now
+  mentions the weather pick.
+
+### User (verbatim)
+
+> Maybe for beyond web version - this graphics sorry, is kinda trivial and menu looks very mobiley ans boring. Maybe lets investigate using Godot RTX engine, for example https://johnlogostini.itch.io/godot-rtx or NVIDIA fork of godot? Ray path tracing looks good for puddles etc.
+
+### Claude
+
+- Researched it: "Godot RTX" (itch) is NVIDIA's path tracing fork (`NVIDIA-RTX/godot`, branch
+  `nvidia-pt-dlss`, GDC 2026, MIT engine plus closed DLSS). It's Windows + RTX in practice
+  (the denoiser is DLSS Ray Reconstruction), experimental, and can't reach the web or
+  Switch/Switch 2.
+- Recommendation in **docs/RENDERING.md**: keep mainline Godot for the real game. Add an optional
+  "path tracing (RTX)" mode that lights up only when the project runs in the fork. Prototype it on
+  the owner's RTX PC. The biggest visual win is real art plus mainline Forward+ features, and an
+  NFSU2-style 3D garage front end replaces the flat menus.
+
