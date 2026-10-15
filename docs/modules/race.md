@@ -82,7 +82,7 @@ online: local clock passes end_at, or room phase "results", or Net.round_ended -
 - Wheels spin from forward speed, steer = `st` × 0.55 rad, lights/nitro from flags, EngineAudio
   (non-local) driven from rpm/flags/speed.
 - Name tag: Label3D, billboard, fixed size, no depth test, Rajdhani 700.
-- Fades with camera distance: alpha 0.18 at 2.5 m → 1.0 at 7 m via `CarVisual.set_ghost`.
+- Fades with camera distance: alpha 0.08 at 3 m → 1.0 at 9 m; the name tag hides below alpha 0.35 via `CarVisual.set_ghost`.
 - Test (synthetic 50 m/s circle, 40–110 ms jitter, 4 lost packets): avg error 0.6 m budget, max frame
   step < 1.5 m (expected 0.83 m), passes.
 
@@ -116,11 +116,21 @@ game/tests/race/online_round_test.sh 2 60 --autodrive --track=arena
 tools/run_scene.sh res://race/race.tscn -- --frames=400 --shot=/abs/race.png --track=arena --autodrive
 ```
 
+## Tested against the other modules (local scratch merge, not pushed)
+Merged module/physics, tracks, visuals, scenery, ui_hud, ui_menus and audio locally with this
+branch (00:55 UTC). Results:
+- `SCRIPT_ERRORS=0`; logic test 41/41 with the real Car, HUD, pause menu.
+- Solo `--autodrive` on arena (41.5 s), downtown (60.3 s) and coast (55.1 s): every checkpoint in
+  order, finish, auto-restart, splits vs PB, respawn via the AutoDriver's `reset_callable`.
+- Online, real arena + real AutoDriver, 3 clients, 90 s round: synced GO, finishes accepted,
+  results, back to the lobby: PASS. Also 2 consecutive rounds through the real lobby scene: PASS.
+- Gate runner at 216 km/h through the arena loop: camera stays behind and upright (screenshots).
+- The `test_track.gd` subclass prefixes its members (`rt_`/`RT_`) to avoid clashing with Track's.
+
 ## Known issues / notes
-- Car and Track were stubs while this was written: tested with the module's own test track and
-  the gate runner. Real driving (`--autodrive`) on real tracks must be re-checked after merging.
 - Human players also auto-restart 2.5 s after a finish (state diagram); restart works any time.
 - `--test_track` in online mode ignores the room's track (test only).
+- The first online GO lands within one physics tick (≤ 17 ms) of the server start time.
 
 ## Integration requests
 1. **ui_menus / online lobby**: when the lobby scene opens while `Net.room.phase` is `countdown` or
@@ -130,10 +140,11 @@ tools/run_scene.sh res://race/race.tscn -- --frames=400 --shot=/abs/race.png --t
 2. **ui_hud**: `set_minimap_cars(local_pos, others)` is called with `others` = `Array` of `Vector2`
    (world XZ). The pause menu should emit `resumed` when it closes itself (Esc); race.gd also handles
    the `pause` action while paused and tolerates double close.
-3. **physics**: race.gd sets `car.frozen_controls` during countdowns, calls `teleport()`,
-   `refill_nitro()` at every run start, connects `AutoDriver.stuck` (if present) to respawn, and
-   toggles `CarInput.enabled` (CarInput) or `set_physics_process` (AutoDriver) between runs.
-   If the AutoDriver keeps state between runs, a `reset()` method would help (race.gd would call it).
+3. **physics** (FYI, already compatible): race.gd sets `car.frozen_controls` during countdowns,
+   calls `teleport()`, `refill_nitro()` at every run start, sets `AutoDriver.reset_callable` to its
+   respawn, calls `reset_tracking()` after its teleports and toggles `enabled` on
+   CarInput/AutoDriver between runs. It also uses `Car.landed` (camera shake) and `Car.wall_hit`
+   (camera shake + `Audio.play_sfx("wall_hit")`, rate-limited) when present.
 4. **core / project.godot**: consider enabling `physics/common/physics_interpolation=true` for
    smooth motion on high-refresh displays; ChaseCamera already uses interpolated transforms.
 5. **visuals**: race.gd calls `visual.set_headlights_real(true)` on the local car if it exists.

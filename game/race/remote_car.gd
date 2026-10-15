@@ -14,9 +14,9 @@ const SILENCE_HIDE_MS := 3000
 const BUFFER_SIZE := 32
 const MAX_STEER_RAD := 0.55
 const TELEPORT_DIST := 30.0          # jumps bigger than this between snapshots snap (respawn/restart)
-const FADE_NEAR := 2.5               # camera distance (m) where the car is most transparent
-const FADE_FAR := 7.0                # camera distance (m) where the car is fully opaque
-const FADE_MIN_ALPHA := 0.18
+const FADE_NEAR := 3.0               # camera distance (m) where the car is most transparent
+const FADE_FAR := 9.0                # camera distance (m) where the car is fully opaque
+const FADE_MIN_ALPHA := 0.08
 
 var player_id := -1
 var player_name := ""
@@ -271,7 +271,9 @@ func _update_fade() -> void:
 		if visual:
 			visual.set_ghost(a)
 		if name_tag:
-			name_tag.modulate.a = clampf(a * 1.5, 0.3, 1.0)
+			# Very close: the tag would float at the horizon over the road, hide it.
+			name_tag.visible = a > 0.35
+			name_tag.modulate.a = clampf(a * 1.5, 0.0, 1.0)
 
 
 static func _vec3(v: Variant) -> Variant:
