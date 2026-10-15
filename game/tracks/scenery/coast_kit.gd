@@ -18,7 +18,7 @@ var noise2 := FastNoiseLite.new()
 var sea_side: float = 1.0
 var seaward := Vector3.LEFT
 var bay := PackedFloat32Array()     # per field sample: 1 on/near bridges
-var batches := SceneryBatches.new(300.0)
+var batches := SceneryBatches.new(450.0 if Settings.is_compat() else 300.0)
 var footprints: Array = []
 var stats := {}
 
@@ -106,7 +106,7 @@ func _terrain() -> void:
 	terrain.blend = 12.0
 	terrain.shoulder_drop = 0.35
 	terrain.hole_below = 1e6   # never cut holes on the coast
-	terrain.chunk_cells = 24
+	terrain.chunk_cells = 36 if Settings.is_compat() else 24
 	terrain.far_fn = _far_height
 	terrain.follow_fn = func(i: int) -> float: return 1.0 - bay[i] if field.has_zone(i, "bridge") else 1.0
 	terrain.compute()
@@ -182,7 +182,7 @@ func _palms() -> void:
 	var mat := SceneryMat.vcolor(0.85, 0.0, true)
 	var variants: Array = []
 	for v in 3:
-		variants.append(SceneryInstances.new(SceneryProps.palm(v), mat, 300.0))
+		variants.append(SceneryInstances.new(SceneryProps.palm(v), mat, 500.0 if Settings.is_compat() else 300.0))
 	var made := 0
 	# along the land side of the road
 	var d := rng.randf_range(0.0, 20.0)
@@ -236,7 +236,7 @@ func _rocks() -> void:
 	var mat := SceneryMat.vcolor(0.9)
 	var variants: Array = []
 	for v in 3:
-		variants.append(SceneryInstances.new(SceneryProps.rock(v), mat, 400.0))
+		variants.append(SceneryInstances.new(SceneryProps.rock(v), mat, 600.0 if Settings.is_compat() else 400.0))
 	var made := 0
 	var tries := 0
 	while tries < 2500 and made < 700:

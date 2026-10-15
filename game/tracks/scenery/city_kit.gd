@@ -430,7 +430,7 @@ func _lamps() -> void:
 			var pool_c := head
 			pool_c.y = fr.origin.y + 0.06 + (fr.basis.x.dot(head - fr.origin) * fr.basis.x.y)
 			var pb := Basis(fr.basis.x, fr.basis.y, fr.basis.z).scaled_local(Vector3(15, 1, 15))
-			_pools.add(Transform3D(pb, pool_c), Color(col.r, col.g, col.b, 0.42))
+			_pools.add(Transform3D(pb, pool_c), Color(col.r, col.g, col.b, 0.42 if col == warm else 0.26))
 			var cb := Basis.IDENTITY.scaled_local(Vector3(3.6, 8.4, 3.6))
 			_cones.add(Transform3D(cb, head), Color(col.r, col.g, col.b, 0.09))
 			footprints.append([base, 0.5, "lamp", 0.3, 0.3, Basis.IDENTITY, elevated])
