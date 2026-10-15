@@ -375,3 +375,55 @@ Implement ARCHITECTURE.md "Race" fully:
   round end to end headless: the server from `server/` plus two clients using
   `--auto_online=host|guest --autodrive` (see `game/autoload/auto_pilot.gd` and
   `tools/net_smoke_test.sh`). Take a screenshot of the race scene on both renderers.
+
+
+---
+
+# M3 rework: Trackmania-style tracks (owner decision 2026-10-15 ~06:30 UTC)
+
+The owner expected Trackmania-style tracks everywhere (see TRANSCRIPT and DESIGN §4). All three
+tracks are rebuilt as **short stunt tracks** (30–45 s) with **floating platform roads and big jumps,
+loops and wall rides, turbo pads and boosters**. The themes remain the setting. Tonight's existing
+tracks stay playable until the new ones pass every check.
+
+## tracks (rework): owner of the layouts and the builder
+- New builder pieces (keep the existing ones working):
+  - **Platform road style**: road deck on slim pillars down to the ground or sea, neon edge strips,
+    low curbs (~0.3 m), and **open edges** by default. Optional walls per segment (banked walls,
+    wall-ride backing).
+  - **Wall ride**: a curved section whose roll ramps to ~80–90° and back (TrackPath tilt), usable at
+    ≥ 140 km/h. Smooth roll rate (frame-to-frame normal change ≤ ~4.5°/m like the loop fix).
+  - **Turbo pads**: yellow (boost) and red (super boost: stronger, longer). Distinct animated
+    visuals. They call `car.apply_boost(...)`.
+  - **Gap jumps** between platforms: kicker ramp, visible gap, landing ramp. The ballistic math must
+    hold for keyboard players (tolerant landing width ≥ 20 m, generous length).
+  - Loops (existing), banked turns and half-pipe walls, drops, and a final jump through the finish arch.
+  - Falling off must respawn quickly: set `kill_y` just below the lowest road deck section
+    (minus ~6 m), and give the ground below **no collision** (or a thin kill zone) so cars don't
+    land and wait. Expose `get_respawn_reason()` hints if useful for race.
+- **Layouts** per DESIGN §4: `downtown` (rooftop height between skyscrapers), `arena` (stadium
+  classic) and `coast` (over cliffs and the bay). 30–45 s each at AutoDriver pace, 4–6 checkpoints,
+  each with at least one turbo pad, one gap jump, one loop and one wall ride, plus its own signature
+  pieces. Coast stays point-to-point or becomes a circuit, your choice: short and tight matters
+  more.
+- Zones for scenery: keep `path.zones` ("loop", "jump", "wallride", "boost", "no_props", ...). Add
+  `"elevated"` where the deck is high, so scenery places ground props on the ground, not at deck height.
+- Acceptance: `tests/tracks/test_tracks` (update it), drive_test and the physics keyboard emulation
+  (`res://tests/physics/test_real_tracks.tscn --headless -- --track=<id> --car=<id> --keyboard`) all
+  finish with 0 respawns for all 3 cars × 3 tracks. `tools/integration/check_all.sh` passes.
+  Screenshots look like Trackmania on both renderers.
+
+## physics (rework support)
+- Make sure the car handles **wall rides** (≥ 140 km/h, rolled 80–90°, 100–200 m long), **red super
+  boost** pads (an `apply_boost` with higher accel and duration, still capped so the car can't tunnel
+  through walls or gates) and **big gap jumps** (stable air, clean landings on landing ramps).
+- AutoDriver: follow wall rides (roll-aware steering), take jumps straight, use turbo pads.
+- Coordinate with tracks on piece dimensions (min speeds, roll rates, landing tolerances).
+
+## scenery (rework support)
+- Tracks become elevated. Place ground props (buildings, palms, rocks, stands) on the actual ground or
+  terrain, not at road height, and keep them clear of the deck and pillars (`path.edge_clearance`,
+  and nothing intersecting the deck volume). Use the new `"elevated"` and `"wallride"` zones.
+- Downtown: the track runs at rooftop height, so skyscrapers must stand below, beside and above it
+  (some taller than the deck), with neon signs readable from the deck. Coast: cliffs and sea below
+  the deck. Arena: stands around a stadium floor, with the track above it.

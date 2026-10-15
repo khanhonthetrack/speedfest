@@ -76,3 +76,17 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
 ### User (verbatim, ~06:20 UTC)
 
 > As of now these tracks look like normal tracks. But i wanted trackmania style tracks. Is there a misunderstsnding?
+
+### Claude
+
+- Yes, partly. In session 1 the owner chose "one of each (neon city / neon stunt stadium / dusk coast)". The first
+  orchestrator read that as one stunt track (arena) plus a normal street circuit and a highway sprint.
+  Asked how to fix it:
+
+| Question | Options offered | **Answer** |
+|---|---|---|
+| How should I fix it? | All 3 Trackmania, keep themes (recommended) · All 3 in a stadium · Keep these tonight, redo later | **All 3 Trackmania, keep themes** |
+| Which Trackmania features matter most? (multi) | Floating roads + big jumps · Loops and wall rides · Turbo pads and boosters · Short, tight 30–45 s tracks | **All four** |
+
+- Plan: DESIGN §4 rewritten, and rework specs appended to docs/M1_SPECS.md ("M3 rework"). The tracks,
+  physics and scenery sessions do the rework; the current tracks stay playable until the new ones pass.

@@ -83,15 +83,32 @@ km/h and an estimated 0–100 time.
   under the car.
 - **Window tint** amount, **headlight** color, **ride height**, and a **license plate** text (≤ 8 chars).
 
-## 4. Tracks (3 originals)
+## 4. Tracks (3 originals): Trackmania-style stunt tracks
 
-| id | Name | Theme | Type | Target time |
+> **Owner decision (2026-10-15):** *all three* tracks are Trackmania-style stunt tracks. The
+> themes stay as the **setting** around the track. Must-haves: floating roads and big jumps, loops and
+> wall rides, turbo pads and boosters, and short, tight 30–45 s tracks. (The first version had only one
+> stunt track; downtown and coast were a normal street circuit and a highway sprint. That was a
+> misunderstanding.)
+
+Common style ("platform" roads, like Trackmania's stadium blocks):
+- Roads float in the air on slim pillars, with neon edge strips and low curbs. Edges are mostly
+  **open**: falling off is the penalty and respawns you at the last checkpoint within ~1.5 s. Walls
+  only where fairness needs them (banked walls, wall rides).
+- Every track packs stunts into 30–45 s with 4–6 checkpoint arches. Pieces: **turbo pads** (yellow
+  boost, red super boost), launch ramps and **big gap jumps** between platforms, a **vertical loop**,
+  a **wall ride** (road rolled to ~80–90° along a curve), banked turns and half-pipe walls, drops, and a
+  final jump through the finish arch.
+- Each track has its own character and doesn't repeat the others' pieces in the same order.
+
+| id | Name | Setting (theme) | Stunt identity | Target time |
 |---|---|---|---|---|
-| `downtown` | **Neon Downtown** | Rain-wet night city: skyscrapers with lit windows, neon signs, street lamps, an elevated highway section, a sodium-lit tunnel | Circuit, ~2 km | ~60 s |
-| `arena` | **Pulse Arena** | Night stunt stadium in the Trackmania tradition: neon stands, floodlights, giant screens | Circuit with stunts: boost pads, a vertical loop, a gap jump, a banked 180°, a final jump | ~45 s |
-| `coast` | **Sunset Coast** | Dusk cliffside coastal highway: sea, palms, guardrails, rock tunnel, bridge, elevation | Point-to-point sprint, ~3 km | ~60 s |
+| `downtown` | **Neon Downtown** | Rainy neon night city. The track runs at rooftop height between and over skyscrapers | Rooftop gap jumps, a wall ride along a building face, a loop around a giant neon sign, a dive between towers | ~35–45 s |
+| `arena` | **Pulse Arena** | Night stunt stadium: neon stands, floodlights, giant screens | Classic stadium: start ramp, turbo straight, loop, wall ride, banked half-pipe turn, big final jump | ~30–40 s |
+| `coast` | **Sunset Coast** | Dusk cliffs, sea and palms. The track hangs over the cliffs and the bay | A huge jump across the bay, a wall ride along a cliff face, a loop on a headland, fast banked sweepers, a drop to the finish | ~35–45 s |
 
-Roads are wide (12–18 m). Turns are readable, and there are no dead ends.
+Roads are wide (14–20 m on platforms). Every stunt must be makeable by a keyboard player at
+a sensible speed (verified with the keyboard-emulation test). Turbo pads tell you where full speed is needed.
 
 ## 5. Controls (keyboard first; gamepad also mapped)
 
