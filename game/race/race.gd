@@ -171,9 +171,12 @@ func _build_ui() -> void:
 	results_overlay = (load("res://ui/results.tscn") as PackedScene).instantiate()
 	add_child(results_overlay)
 	results_overlay.visible = false
+	# Fallback for pause menus that don't handle the pause key themselves. Added before the menu:
+	# _unhandled_input runs in reverse tree order, so the menu sees the key first.
 	var listener := PauseListener.new()
 	listener.race = self
 	add_child(listener)
+	move_child(listener, pause_menu.get_index())
 
 
 func _connect_signals() -> void:
@@ -247,6 +250,8 @@ func _begin_countdown(duration_ms: int, sync_go_ms: int = -1) -> void:
 	_get_ready_shown = false
 	hud.set_checkpoints(0, checkpoint_count)
 	hud.set_run_time(0)
+	if hud.has_method("clear_banners") and state != State.LOADING:
+		hud.call("clear_banners")
 	_set_state(State.COUNTDOWN)
 
 
@@ -703,6 +708,8 @@ func _show_results(res: Array) -> void:
 	if _paused:
 		close_pause()
 	results_overlay.visible = true
+	if hud.has_method("set_hud_visible"):
+		hud.call("set_hud_visible", false)
 	if results_overlay.has_method("show_results"):
 		results_overlay.call("show_results", res, Net.my_id)
 	_log("results %s" % JSON.stringify(res))

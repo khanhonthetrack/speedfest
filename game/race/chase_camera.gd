@@ -45,7 +45,7 @@ var _was_grounded := true
 var _air_time := 0.0
 var _noise_t := 0.0
 var _col_dist := -1.0                # smoothed collision-limited distance (-1 = free)
-var _snap_pending := true
+var _snap_frames := 2               # frames left to snap (teleports may apply a tick later)
 
 
 func _ready() -> void:
@@ -62,7 +62,7 @@ func set_target(node: Node3D) -> void:
 
 ## Instantly place the camera behind the target (after teleports).
 func snap() -> void:
-	_snap_pending = true
+	_snap_frames = 2
 
 
 func cycle_mode() -> int:
@@ -109,8 +109,8 @@ func update_camera(delta: float) -> void:
 	var grounded := _target_bool("is_grounded", true)
 	var nitro := _target_bool("is_nitro_active", false)
 
-	if _snap_pending:
-		_snap_pending = false
+	if _snap_frames > 0:
+		_snap_frames -= 1
 		_frame = car_q
 		_vel_smooth = vel
 		_col_dist = -1.0
