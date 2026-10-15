@@ -256,8 +256,19 @@ Physics changes for it:
   gentle `ROAD_ALIGN` torque, so the car follows wall-ride twists instead of resisting them.
 - **apply_boost**: clamps and fade above. A stronger pad overrides a weaker one, and a weaker pad
   touched during a strong boost doesn't cut it short.
-- **AutoDriver**: in `wallride` zones (±40 m) it uses Stanley steering and full throttle (it plans
-  speed from road-plane curvature, so a wall ride doesn't ask for braking).
+- **AutoDriver speed planning** uses the banked-curve limit
+  v² = g/κ·(sinθ + μ cosθ)/(cosθ − μ sinθ), with world-horizontal curvature κ, bank θ toward the
+  turn's center and μ including downforce. Steep wall-ride sections are unlimited (full throttle);
+  low-roll entries get a sane speed. In `wallride` zones (±40 m) it steers with Stanley in the
+  road frame.
+- **Roof/side drag** (`ROOF_DRAG` 9 m/s²): a flipped car sliding on its frictionless body slows
+  down, stops and self-rights. Before this it could slide off a deck at 100 km/h on its roof.
+
+Real tracks, rework part 2 (tracks de1b225 + module/physics), `run_real_tracks.sh`:
+analog AutoDriver 9/9 with 0 respawns (arena 32–37 s, downtown 25–27 s, coast 31–33 s).
+Keyboard emulation 4/9 clean. The rest has 1–2 respawns, mostly at the wall rides, whose
+geometry (62 m ramp, full horizontal curvature from roll 0) is outside the envelope; reported to
+tracks.
 
 Tests: `test_wallride.tscn` (`--car`, `--roll`, `--ramp`, `--tight_r`, `--fastcap`; four variants:
 R 70 at 142 and 215 km/h entry, R 220 at 150, R 55 at 142), superboost and boost-into-wall cases
