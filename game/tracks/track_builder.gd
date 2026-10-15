@@ -87,7 +87,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		if s.has("boost"):
 			var sup: bool = s.get("super", false)
 			boosts.append({"d": d0, "len": float(s["boost"]), "super": sup,
-				"accel": float(s.get("accel", 34.0 if sup else 22.0)), "dur": float(s.get("dur", 2.2 if sup else 1.4))})
+				"accel": float(s.get("accel", 28.0 if sup else 20.0)), "dur": float(s.get("dur", 1.8 if sup else 1.3))})
 			zones.append({"from": d0 - 2.0, "to": d0 + float(s["boost"]) + 2.0, "kind": "boost"})
 			continue
 		if s.has("walls") and s.size() == 1:
@@ -1276,6 +1276,7 @@ static func build_flat_ground(root: Node3D, data: Dictionary, layout: Dictionary
 ## and a mountain covers the tunnel.
 static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) -> void:
 	var path: TrackPath = data["path"]
+	var clearance: float = layout.get("terrain_clearance", 1.6)   # terrain this far below the deck
 	var rect := path_bbox(path, 280.0)
 	var cell := 10.0
 	var nx := ceili(rect.size.x / cell) + 1
@@ -1337,7 +1338,7 @@ static func build_terrain(root: Node3D, data: Dictionary, layout: Dictionary) ->
 			var dist := sqrt(best[k])
 			var hw := path.width_at(dd[k]) * 0.5
 			var e := maxf(0.0, dist - hw - 4.0)
-			var base: float = ry[k] - 1.6
+			var base: float = ry[k] - clearance
 			var fall := 1.0 - smoothstep(radius - 110.0, radius - 10.0, dist)
 			if lat[k] < 0.0:
 				var rise := 78.0 * (1.0 - exp(-e / 70.0)) + absf(n) * minf(e, 60.0) * 0.55
@@ -1600,8 +1601,8 @@ static func build_loop_gantries(root: Node3D, data: Dictionary, _layout: Diction
 		var right: Vector3 = l["axis"]
 		var fwd := Vector3(-f0.basis.z.x, 0, -f0.basis.z.z).normalized()
 		var base := f0.origin
-		var x_left := -hw - 3.5
-		var x_right := shift + hw + 3.5
+		var x_left := minf(0.0, shift) - hw - 3.5
+		var x_right := maxf(0.0, shift) + hw + 3.5
 		var top := 2.0 * r + 4.0
 		var frame := Acc.new()
 		var neon := Acc.new()
@@ -1634,7 +1635,7 @@ static func build_loop_gantries(root: Node3D, data: Dictionary, _layout: Diction
 			frame.box(Transform3D(bas, hc), Vector3(0.3, top - hb, 0.3))
 		var mesh := ArrayMesh.new()
 		frame.commit(mesh, material("barrier_neon_body"))
-		neon.commit(mesh, material("neon_cyan"))
+		neon.commit(mesh, material("neon_" + String(_layout.get("edge_neon", "cyan"))))
 		var mi := MeshInstance3D.new()
 		mi.name = "LoopGantryMesh"
 		mi.mesh = mesh

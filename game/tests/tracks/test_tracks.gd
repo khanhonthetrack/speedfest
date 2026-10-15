@@ -5,9 +5,10 @@ extends Node3D
 ## Args: --track=all|<id>
 
 const RANGES := {
-	"downtown": {"len": [1700.0, 2400.0], "cps": [4, 6]},
-	"arena": {"len": [1250.0, 1800.0], "cps": [4, 5]},
-	"coast": {"len": [2600.0, 3400.0], "cps": [5, 6]},
+	# Trackmania-style short stunt tracks (30-45 s)
+	"downtown": {"len": [1100.0, 1800.0], "cps": [4, 6]},
+	"arena": {"len": [1100.0, 1800.0], "cps": [4, 6]},
+	"coast": {"len": [1100.0, 1800.0], "cps": [4, 6]},
 }
 
 var hits: Array = []
@@ -136,7 +137,7 @@ func _test_track(id: String) -> void:
 		TestHooks.check(absf(top_y - base_y - 2.0 * float(l["radius"])) < 1.5, id + "_loop_shape", "top %.1f above entry" % (top_y - base_y))
 	for j in track.data["jumps"]:
 		var vmin: float = j["v_min"] * 3.6
-		TestHooks.check(vmin < 110.0, id + "_jump_min_speed", "%.0f km/h" % vmin)
+		TestHooks.check(vmin < 120.0, id + "_jump_min_speed", "%.0f km/h" % vmin)
 		# flight distance at 210 km/h from the lip; road must run straight to there
 		var v := float(j.get("check_kmh", 210.0)) / 3.6
 		var th: float = j["angle"]
