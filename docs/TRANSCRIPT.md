@@ -295,3 +295,5 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - Plan in PLAN.md "M6" (sequential, push after each step): an always-on LIVE server room that
   rotates maps (no lobby, no waiting: join and you're in the current round), new 10–30 s maps,
   new car types, better graphics, then export and deploy to the Pi.
+
+> Approaching limit. Commit handoff and your results.

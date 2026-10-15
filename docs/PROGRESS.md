@@ -473,3 +473,10 @@ date, who (module/agent), what changed, what's next or blocked.
 - Checks: test_tracks all 10 tracks 203/203; test_rail 33/33; AutoDriver (race.tscn --autodrive):
   rooftop 14.0 s, cliff 15.2 s, twister 14.2 s, pipes 19.6 s, 0 respawns each; server 16/16.
   Screenshots (compat) of each map look right.
+
+## 2026-10-15 ~16:00 UTC — Session 6 (Pi): M6-3 started, stopped for the usage limit
+
+- Branch `wip/m6-cars` (bec01f3): Kitsune R4 (AWD rally hatch, `loose_grip` 0.75), Pixie S (kei
+  roadster), Goliath HD (pickup) with defs, physics, body shapes and front/rear parts. Compiles, not
+  tested or reviewed visually; engine sounds not generated yet. Next steps listed in HANDOFF.
+- The live Pi site still runs the 5236df9 build (before LIVE and the new maps).

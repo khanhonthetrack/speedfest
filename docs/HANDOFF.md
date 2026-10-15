@@ -1,5 +1,35 @@
 # HANDOFF: start here
 
+## Latest (~16:00 UTC, session 6, orchestrating session on the Pi): STOPPED for the usage limit
+
+Owner request (TRANSCRIPT session 6): better graphics, a server that rotates maps (no lobby/waiting),
+more 10–30 s maps, different car types; "keep it fun, and clever". Plan: PLAN.md "M6".
+- **Done on `main`:** M6-1 LIVE rotation room (server `lib/rotation.js` + `lobby.js`, `Net.join_live()`,
+  menu ONLINE · LIVE / PRIVATE ROOM, lobby JUMP IN, results NEXT UP; ARCHITECTURE "LIVE room").
+  M6-2 four new maps: Rooftop Rush, Cliff Hanger, Twister, Pipe Dream (14–20 s, AutoDriver 0
+  respawns), side boost pads (`"x"`, `"pw"`), track select carousel, LIVE playlist = all 10 tracks.
+  Tests: server 16/16, live_smoke_test PASS, net_smoke PASS, test_tracks 203/203, test_rail 33/33.
+- **In progress, branch `wip/m6-cars` (bec01f3, NOT merged):** M6-3 three new car types: Kitsune R4
+  (AWD rally hatch, new physics param `loose_grip` = 0.75 wins back off-asphalt grip/drag), Pixie S
+  (light kei roadster: most grip, sharpest steering, lowest top speed), Goliath HD (2.25 t AWD pickup,
+  biggest nitro, soft springs). Defs, physics, `loose_grip` in Car/Tuning, body shapes
+  (car_shape.gd) and front/rear parts (car_parts.gd) are written and compile; NOTHING tested yet.
+  To finish: (1) look at them: `tools/run_scene.sh res://tests/visual/showcase.tscn --compat -- --car=all
+  --frames=90 --shot=/abs/cars.png` and fix the shapes (Goliath's bed = crown dipping below belt);
+  (2) engine sounds: add kitsune (turbo I4), pixie (high-rev I3), goliath (deep V8) to
+  `tools/audio/gen_engines.py` CARS + `_crackles` counts, then `tools/audio/build.sh --only engines`
+  (EngineAudio falls back to kaze until then); (3) `Tuning` stat ranges (TOP_KMH_RANGE etc.) may need
+  widening (tests/physics/test_tuning.gd prints observed ranges); (4) run physics tests
+  (game/tests/physics/run_all.sh), test_rail (all cars), AutoDriver on every track with each new car
+  (`--car=<id>`), garage screenshots; (5) merge into `main`.
+- **Not started:** M6-4 better graphics (idea: Poly Haven CC0 HDRI skies, low-res for web too), M6-5
+  export + deploy.
+- **Pi deploy:** the live site still serves the 5236df9 build. The Pi clone (`~/speedfest`) is on
+  `main`; to ship LIVE + the new maps: `tools/export_web.sh`, commit `server/public`, push, then
+  `docker restart speedfest` (the container runs `~/speedfest/server`, so the LIVE server code goes
+  live with that restart). Node 20 is installed on the Pi now (server tests, smoke tests run there).
+- nav_test's 2 menu-focus failures predate session 6 (fresh profile shows the name prompt).
+
 ## Latest (~13:50 UTC, session 5, orchestrating session on the owner's Raspberry Pi)
 
 - **Textures are now CC0 scans from ambientCG** (Asphalt031, Concrete034, Metal038, Rock022),

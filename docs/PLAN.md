@@ -97,7 +97,8 @@ Keep it fun, and clever." Worked on the Pi (it can push and reach CC0 asset site
       rotation and the track select. Done: Rooftop Rush, Cliff Hanger, Twister, Pipe Dream (14–20 s);
       side boost pads (`"x"`, `"pw"`); track select is a carousel; LIVE playlist has all 10 tracks
 - [ ] 3. **New car types** with clearly different handling (and looks): e.g. an AWD rally hatch that
-      rules gravel/grass, a light high-grip kart-like car, a heavy torquey truck.
+      rules gravel/grass, a light high-grip kart-like car, a heavy torquey truck. **In progress on
+      branch `wip/m6-cars`** (Kitsune R4, Pixie S, Goliath HD; written, untested; see HANDOFF)
 - [ ] 4. **Better graphics**: CC0 HDRI skies (Poly Haven) and lighting/post polish on both renderers.
 - [ ] 5. Export `server/public`, deploy on the Pi, verify in a browser.
 
