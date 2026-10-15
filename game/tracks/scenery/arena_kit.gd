@@ -27,7 +27,8 @@ var stats := {}
 func build(p_field: SceneryField, rng_seed: int) -> Node3D:
 	field = p_field
 	rng.seed = rng_seed
-	root = Node3D.new()
+	root = SceneryRoot.new()
+	(root as SceneryRoot).theme = "arena"
 	root.name = "ArenaProps"
 	floor_y = field.height_percentile(0.1)
 	batches.register("neon", SceneryMat.neon(4.0), 0.0, false)
@@ -70,6 +71,7 @@ func _floor() -> void:
 	far.position = field.center() + Vector3(0, floor_y - 0.8, 0)
 	far.material_override = SceneryMat.plain(Color(0.015, 0.012, 0.025), 0.6)
 	far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	far.set_meta("scenery_ground", true)
 	root.add_child(far)
 
 

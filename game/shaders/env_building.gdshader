@@ -94,7 +94,13 @@ void fragment() {
 		vec2 fw = fwidth(g);
 		float aa = clamp(1.0 - (max(fw.x, fw.y) - 0.12) * 4.0, 0.0, 1.0);
 		float avg_win = style < 0.2 ? 0.37 : (style < 0.5 ? 0.75 : 0.45);
-		vec3 lit_col = lc * dim * window_energy * (1.0 - daylight * 0.6);
+		// interior detail: ceiling-lit gradient, blinds on some windows, a darker "room" blob
+		float inner = 0.75 + 0.35 * f.y;
+		float blinds_on = step(0.7, h21(cell + 5.5 + seed));
+		inner *= mix(1.0, 0.65 + 0.35 * step(0.5, fract(f.y * 9.0)), blinds_on);
+		float blob = smoothstep(0.2, 0.0, length((f - vec2(0.3 + 0.4 * h21(cell + 8.0), 0.45)) * vec2(1.0, 1.6)));
+		inner *= 1.0 - blob * 0.45 * step(0.4, h21(cell + 2.2));
+		vec3 lit_col = lc * dim * inner * window_energy * (1.0 - daylight * 0.6);
 		vec3 e_near = (lit ? lit_col : vec3(0.0)) * win;
 		vec3 e_far = mix(warm_light, cool_light, tint) * window_energy * avg_win * lit_frac * 0.55 * (1.0 - daylight * 0.6);
 		emit = mix(e_far, e_near, aa);

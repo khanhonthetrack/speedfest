@@ -37,7 +37,8 @@ var _cones: SceneryInstances
 func build(p_field: SceneryField, rng_seed: int) -> Node3D:
 	field = p_field
 	rng.seed = rng_seed
-	root = Node3D.new()
+	root = SceneryRoot.new()
+	(root as SceneryRoot).theme = "city"
 	root.name = "CityProps"
 	ground_y = field.height_percentile(0.2)
 	var bmat := SceneryMat.shader_mat("building", {"wetness": 0.7, "window_energy": 1.25})
@@ -95,6 +96,7 @@ func _ground() -> void:
 	far.position = field.center() + Vector3(0, ground_y - 0.6, 0)
 	far.material_override = SceneryMat.plain(Color(0.02, 0.02, 0.025), 0.4)
 	far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	far.set_meta("scenery_ground", true)
 	root.add_child(far)
 
 
@@ -428,7 +430,7 @@ func _lamps() -> void:
 			var pool_c := head
 			pool_c.y = fr.origin.y + 0.06 + (fr.basis.x.dot(head - fr.origin) * fr.basis.x.y)
 			var pb := Basis(fr.basis.x, fr.basis.y, fr.basis.z).scaled_local(Vector3(15, 1, 15))
-			_pools.add(Transform3D(pb, pool_c), Color(col.r, col.g, col.b, 0.42))
+			_pools.add(Transform3D(pb, pool_c), Color(col.r, col.g, col.b, 0.42 if col == warm else 0.26))
 			var cb := Basis.IDENTITY.scaled_local(Vector3(3.6, 8.4, 3.6))
 			_cones.add(Transform3D(cb, head), Color(col.r, col.g, col.b, 0.09))
 			footprints.append([base, 0.5, "lamp", 0.3, 0.3, Basis.IDENTITY, elevated])

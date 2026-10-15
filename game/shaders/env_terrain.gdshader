@@ -87,11 +87,13 @@ void fragment() {
 		float slope = 1.0 - clamp(wnrm.y, 0.0, 1.0);
 		float n = fbm(p * 0.02);
 		float n2 = fbm(p * 0.13 + 7.0);
-		vec3 grass = mix(vec3(0.06, 0.12, 0.03), vec3(0.15, 0.19, 0.05), n);
+		vec3 grass = mix(vec3(0.05, 0.11, 0.035), vec3(0.11, 0.17, 0.05), n);
 		vec3 brush = mix(vec3(0.16, 0.14, 0.07), vec3(0.24, 0.2, 0.11), n2);
 		vec3 rock = mix(vec3(0.17, 0.14, 0.13), vec3(0.3, 0.26, 0.23), n2) * (0.8 + 0.4 * fbm(wpos.xy * 0.2 + wpos.zy * 0.2));
 		vec3 sand = vec3(0.55, 0.46, 0.33) * (0.85 + 0.2 * n2);
-		alb = mix(grass, brush, smoothstep(0.35, 0.65, n + n2 * 0.3));
+		alb = mix(grass, brush, smoothstep(0.45, 0.8, n + n2 * 0.3));
+		// darker scrub patches
+		alb *= 0.75 + 0.35 * smoothstep(0.3, 0.7, fbm(p * 0.06 + 3.0));
 		float rk = smoothstep(0.32, 0.5, slope + (n2 - 0.5) * 0.25);
 		alb = mix(alb, rock, rk);
 		rough = mix(0.9, 0.75, rk);
