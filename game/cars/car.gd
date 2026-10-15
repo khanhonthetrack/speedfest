@@ -16,6 +16,7 @@ signal wall_hit(strength: float)         # speed (m/s) lost into a wall contact 
 const SHIFT_TIME := 0.09
 const SHIFT_CUT := 0.35                  # torque fraction during a shift
 const SHIFT_HOLD := 0.35                 # minimum time between shifts
+const REVERSE_DELAY := 0.12              # brake held this long at a standstill engages reverse
 const SUSP_UP := 0.30                    # ray origin above the wheel center
 const SUSP_DROOP := 0.20                 # max droop below rest
 const BUMP_START := 0.085                # compression where the bump stop starts
@@ -93,6 +94,7 @@ var _prev_vel := Vector3.ZERO
 var _ground_n := Vector3.UP
 var _land_timer := 0.0
 var _intent := 0.0
+var _rev_timer := 0.0
 var _force := PackedFloat32Array([0, 0, 0, 0])
 var _vis_spin_arr: Array = [0.0, 0.0, 0.0, 0.0]
 var _vis_susp_arr: Array = [0.0, 0.0, 0.0, 0.0]
@@ -345,6 +347,7 @@ func _reset_dynamics(v: Vector3) -> void:
 	_hb_blend = 0.0
 	_intent = 0.0
 	_reversing = false
+	_rev_timer = 0.0
 	_braking = false
 	_shift_timer = 0.0
 	_shift_hold = 0.0
@@ -479,8 +482,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	elif _reversing:
 		if throttle > 0.1 and _fwd_speed > -1.0:
 			_reversing = false
-	elif brake > 0.1 and throttle < 0.1 and _fwd_speed < 1.0 and _grounded >= 2:
-		_reversing = true
+	elif brake > 0.5 and throttle < 0.1 and _fwd_speed < 1.0 and _grounded >= 2:
+		# a deliberate brake hold at (near) standstill engages reverse
+		_rev_timer += dt
+		if _rev_timer >= REVERSE_DELAY:
+			_reversing = true
+	else:
+		_rev_timer = 0.0
 	if not _reversing and _shift_hold <= 0.0:
 		var ng := Tuning.best_gear(params, maxf(_fwd_speed, 0.0), _gear)
 		if ng != _gear:

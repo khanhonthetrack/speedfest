@@ -21,6 +21,7 @@ func _ready() -> void:
 	_add("boost", Vector3(-100, 0, 300))
 	_add("nitro", Vector3(0, 0, 300))
 	_add("skidpad", Vector3(500, 0, -400))
+	_add("reverse", Vector3(100, 0, 300))
 
 
 func _add(n: String, pos: Vector3) -> void:
@@ -258,4 +259,24 @@ func _s_skidpad(s: Dictionary, car: Car) -> void:
 				print("RESULT skidpad %s r=70 speed=%.0f km/h lateral=%.2f g drift=%.2f" % [car_id, v * 3.6, lat / 9.8, car.get_drift_amount()])
 				TestHooks.check(lat / 9.8 > 1.0, "skidpad_grip_%s" % car_id, "%.2f g" % (lat / 9.8))
 				TestHooks.check(car.global_transform.basis.y.y > 0.95, "skidpad_upright_%s" % car_id)
+				s["done"] = true
+
+
+# --- reverse: a brake hold at standstill reverses; a light brake doesn't ---------------------------
+func _s_reverse(s: Dictionary, car: Car) -> void:
+	match s["state"]:
+		"start":
+			_ctl(car, 0.0, 0.3, 0.0)
+			if s["t"] >= 90:
+				TestHooks.check(car.get_gear() != -1 and car.get_speed_kmh() > -1.0, "light_brake_no_reverse_%s" % car_id, "gear %d v %.1f" % [car.get_gear(), car.get_speed_kmh()])
+				_phase(s, "hold")
+		"hold":
+			_ctl(car, 0.0, 1.0, 0.0)
+			if s["t"] >= 90:
+				TestHooks.check(car.get_gear() == -1 and car.get_speed_kmh() < -10.0 and (car.get_flags() & 8) != 0, "brake_hold_reverses_%s" % car_id, "gear %d v %.1f" % [car.get_gear(), car.get_speed_kmh()])
+				_phase(s, "forward")
+		"forward":
+			_ctl(car, 1.0, 0.0, 0.0)
+			if s["t"] >= 120:
+				TestHooks.check(car.get_gear() >= 1 and car.get_speed_kmh() > 10.0, "throttle_leaves_reverse_%s" % car_id, "gear %d v %.1f" % [car.get_gear(), car.get_speed_kmh()])
 				s["done"] = true
