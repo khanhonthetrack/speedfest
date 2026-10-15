@@ -39,6 +39,7 @@ coast 138 / 117k, 0 scenery lights. Forward+ quality 2: city ~160 draw calls / 2
 | `tracks/scenery/scenery_mat.gd` | shared materials / shader cache |
 | `tracks/scenery/scenery_rain.gd` | `SceneryRain`: rain streaks around the camera (GPU particles on Forward+, CPU on compat) |
 | `tracks/scenery/scenery_rotor.gd` | `SceneryRotor`: spins searchlights / the lighthouse beam |
+| `tracks/scenery/scenery_root.gd` | `SceneryRoot`: props root; adapts to the Track's own ground when added under it |
 | `shaders/env_sky.gdshader` | sky for all themes (static -> radiance computed once) |
 | `shaders/env_building.gdshader` | facades with lit/unlit windows, shop fronts, curtain walls, ribbon windows, houses |
 | `shaders/env_neon.gdshader` | unshaded neon (vertex/instance color × energy), UV2.x = animation (steady/flicker/blink/pulse/chase) |
@@ -67,6 +68,21 @@ Inputs read from the `TrackPath`:
   `boost`); the coast terrain opens a bay under `bridge` and builds a rock hill over `tunnel`.
 - optional `path.set_meta("sea_side", 1.0)` puts the coast sea on the **right** of the direction of
   travel (default: left).
+
+## Living together with the tracks module's ground (tested with `module/tracks` @ f517266)
+
+The tracks module also draws ground (`layout.ground`: city pavement plane, arena grid floor with
+pits under jump gaps, coast terrain), with `ground_visual` to turn its visuals off. To never show
+two grounds, the props root (`SceneryRoot`) checks its parent Track in `_ready()`:
+- **city / arena**: if the track draws a visible ground, the scenery ground nodes (meta
+  `scenery_ground`) are freed; the track's ground has collision and the jump pits.
+- **coast**: the scenery terrain stays (palms, rocks, lighthouse and towns are placed on it) and the
+  track's visual-only `Terrain` node is hidden. The scenery has a node named `Sea`, so the track's
+  fallback sea is not built. Sea side defaults to the **right** of travel, like the tracks layout.
+
+Verified by rendering the real `Track.build()` for all three tracks with this scenery on Forward+
+and Compatibility (quality 1, chase views): Compatibility draw calls downtown 89–133, arena
+46–59, coast 228–262 (whole track + scenery, no cars/HUD).
 
 ## How it decides heights
 
@@ -136,11 +152,12 @@ duplicate instances, rain helper.
 
 ## Integration requests
 
+- **tracks / integrator**: for the coast, `"ground_visual": false` in `defs/coast.gd` would skip
+  building the hidden terrain mesh (saves ~0.3 s of build time); not required.
 - **tracks**: call `SceneryKit.build_environment(TrackDefs.theme(id))` and
   `SceneryKit.build_props(TrackDefs.theme(id), path, seed)`; fill `path.zones` (`tunnel`, `bridge`,
   `loop`, `jump`, `boost`, `no_props`) so props avoid stunts and the coast terrain opens bays and
   builds tunnel hills. If the coast sea should be on the right, set `path.set_meta("sea_side", 1.0)`.
-  Don't build your own ground plane under the scenery ground (it sits 0.3 m under the road edge).
   For "no_props" use it around checkpoint gates if a prop ever clashes visually.
 - **race**: for the city, add `SceneryKit.build_rain(theme)` as a child of the chase camera
   (it is world-space and follows the camera). Camera `far` ≥ 3000 m so the skyline/islands show.
