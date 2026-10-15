@@ -404,6 +404,8 @@ static func in_ranges(d: float, ranges: Array, margin := 0.0) -> bool:
 
 const CHUNK := 150.0
 const RING := 1.5
+const DECK_CELLS := 8            # deck quads across the road (see deck_ring_ds)
+const DECK_TWIST_FINE := 0.004   # |change of right.y| per meter above which deck rings are halved
 const ROAD_DEPTH := 1.0
 const WALL_GAP := 0.15          # space between road edge and barrier foot
 const WALL_COLLISION_H := 2.6   # invisible collision height of barriers above the road
@@ -543,6 +545,34 @@ static func ring_ds(a: float, b: float, step: float) -> PackedFloat32Array:
 	for i in n + 1:
 		out.append(lerpf(a, b, float(i) / n))
 	return out
+
+
+## Ring distances for the road deck: `step` apart, halved where the road twists (bank ramps into
+## banked turns and wall rides), so the deck's quads stay nearly flat. A twisting quad folds along
+## its diagonal; across a full-width quad that was a ±12 cm ridge every ring (a washboard at speed).
+static func deck_ring_ds(path: TrackPath, a: float, b: float, step: float) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	var d := a
+	out.append(d)
+	while d < b - 0.01:
+		var st := step
+		var x0 := path.sample_transform(d).basis.x
+		var x1 := path.sample_transform(minf(d + step, b)).basis.x
+		if absf(x1.y - x0.y) > DECK_TWIST_FINE * step:
+			st = step * 0.5
+		d = minf(d + st, b)
+		if b - d < st * 0.3 and d < b:
+			d = b
+		out.append(d)
+	return out
+
+
+## Road deck profile: DECK_CELLS cells across, so a twisting deck folds only across narrow cells.
+static func deck_profile(hw: float) -> PackedVector2Array:
+	var p := PackedVector2Array()
+	for j in DECK_CELLS + 1:
+		p.append(Vector2(lerpf(-hw, hw, float(j) / DECK_CELLS), 0.0))
+	return p
 
 
 static func wall_mode_at(data: Dictionary, d: float) -> String:
@@ -745,7 +775,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 			var step := RING
 			if in_ranges((run[0] + run[1]) * 0.5, loop_ranges, 5.0):
 				step = 1.0
-			var ds := ring_ds(run[0], run[1], step)
+			var ds := deck_ring_ds(path, run[0], run[1], step)
 			var frames: Array[Transform3D] = []
 			var top_prof: Array = []
 			var side_prof: Array = []
@@ -754,7 +784,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				var f := path.sample_transform(d)
 				frames.append(f)
 				var hw := path.width_at(d) * 0.5
-				top_prof.append(PackedVector2Array([Vector2(-hw, 0), Vector2(hw, 0)]))
+				top_prof.append(deck_profile(hw))
 				var depth: float = layout.get("road_depth", ROAD_DEPTH)
 				if in_ranges(d, bridge_ranges):
 					depth = 1.8
@@ -780,7 +810,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				var cr: Array = []
 				var cl: Array = []
 				for i in frames.size():
-					var hw4: float = top_prof[i][1].x
+					var hw4: float = top_prof[i][DECK_CELLS].x
 					var q := PackedVector2Array([Vector2(hw4 - 0.02, 0.0), Vector2(hw4 - 0.02, 0.26), Vector2(hw4 + 0.5, 0.26), Vector2(hw4 + 0.5, -0.3)])
 					cr.append(q)
 					cl.append(mirror_profile(q))
@@ -790,7 +820,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 				var glow_r: Array = []
 				var glow_l: Array = []
 				for i in frames.size():
-					var hw3: float = top_prof[i][1].x + 0.02
+					var hw3: float = top_prof[i][DECK_CELLS].x + 0.02
 					glow_r.append(PackedVector2Array([Vector2(hw3, -0.35), Vector2(hw3, -0.12)]))
 					glow_l.append(PackedVector2Array([Vector2(-hw3, -0.12), Vector2(-hw3, -0.35)]))
 				loft(loop_glow, frames, ds, glow_r)
@@ -799,7 +829,7 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 			# collision for the slab sides (short) so cars don't snag on edges
 			var cside: Array = []
 			for i in frames.size():
-				var hw2: float = top_prof[i][1].x
+				var hw2: float = top_prof[i][DECK_CELLS].x
 				cside.append(PackedVector2Array([Vector2(hw2, 0), Vector2(hw2, -0.6), Vector2(-hw2, -0.6), Vector2(-hw2, 0)]))
 			loft(col, frames, ds, cside)
 		# --- barriers

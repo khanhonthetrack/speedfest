@@ -194,3 +194,9 @@ visual barrier, so fast cars can't climb over.
 - **Weather puddles**: the `{"puddle": len, "w", "x", "at", "storm"}` marker, `data["puddles"]`,
   `Track.surface` (TrackSurface), `Track.apply_weather(mode)` and the puddle meshes
   (`shaders/track_puddle.gdshader`). See docs/modules/weather.md and DESIGN §4.1.
+
+## Road deck smoothness (session 4)
+The deck is lofted with `deck_profile(hw)` (`DECK_CELLS` = 8 cells across) and `deck_ring_ds()`
+(ring step halved where `basis.x.y` changes faster than `DECK_TWIST_FINE` per meter). A single
+full-width quad per ring folded along its diagonal on bank ramps (±12 cm washboard). Guarded by
+`tests/tracks/test_road_smooth.tscn`. Diagnostic: `tests/physics/probe_road_bumps.tscn --track=<id> [--trace]`.

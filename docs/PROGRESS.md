@@ -176,3 +176,21 @@ date, who (module/agent), what changed, what's next or blocked.
 - Owner sent six feedback items and asked not to run in parallel (TRANSCRIPT session 4). Interrupted
   and archived the three M5 sessions (none had pushed) and stopped the local review agents.
 - New plan section **M4.5** (PLAN.md) with the six items. CLAUDE.md now has a "Work sequentially" rule.
+
+## 2026-10-15 ~10:00 UTC — M4.5 item 1: the bumpy road was a bug (fixed)
+
+- Probe `tests/physics/probe_road_bumps.tscn` (diagnostic): suspension high-frequency jitter was
+  55 mm RMS (tick-to-tick second difference) on downtown versus 0.14 mm on a flat plane.
+- Cause: the road deck was lofted with **one quad across the full 14 m width** every 1.5 m. Where the
+  banking changes (bank ramps into banked turns and wall rides) each quad twists and folds along its
+  diagonal: a ±11–13 cm ridge every 1.5 m at the road centre, a washboard at speed (collision and
+  visual mesh alike).
+- Fix (track_builder.gd): the deck profile is `DECK_CELLS` = 8 cells across and the ring step halves
+  where the road twists (`deck_ring_ds`). Deck roughness p95 0.45 → 0.02 1/m on all tracks; jitter
+  55 → 16 mm RMS, and what remains is at jump landings (expected). Compat arena ~220 draw calls
+  (unchanged).
+- New regression test `tests/tracks/test_road_smooth.tscn` (9 checks; fails 6/9 on the old deck).
+- test_tracks 78/78, drive_test, scenery 45, weather 38, race logic 41 pass. Keyboard emulation with
+  brute (the car that used to fall): arena 34.2 s, downtown 33.0 s, coast 30.1 s, **0 respawns**.
+- Integration gate on `main` before this change: everything passed except
+  `test_handling self_righting_kaze` (up_y=0.82), a regression from the handling-feel pass. Next.

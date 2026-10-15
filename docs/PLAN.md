@@ -54,7 +54,8 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 
 ### M4.5 — Owner feedback, session 4 (2026-10-15 ~09:20 UTC; do these first, one at a time)
 Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item.
-- [ ] 1. "On the road it feels bumpy, is it a bug?" Investigate the road surface and suspension; fix
+- [x] 1. "On the road it feels bumpy, is it a bug?" **Yes, a bug**: twisting full-width deck quads folded into a
+      ±12 cm washboard on bank ramps. Deck now 8 cells across with finer rings where it twists (`test_road_smooth`)
 - [ ] 2. "Remove a map, no one cares." Remove the HUD minimap (read as the minimap, not a track)
 - [ ] 3. Checkpoints: much smaller "CHECKPOINT" text; checkpoints must not look see-through (you
       "fly past it like a ghost"); a better, solid gate design
