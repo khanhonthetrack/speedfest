@@ -162,6 +162,12 @@ var _loose_grip := 0.0                               # params "loose_grip": rall
 var _water_avg := 0.0
 
 
+func _init() -> void:
+	# drawn between physics ticks on high refresh-rate screens (the tree defaults to OFF, see
+	# Settings._ready); teleport() resets it so respawns don't smear across the map
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_ON
+
+
 static func create(p_config: Dictionary) -> Car:
 	var car := Car.new()
 	car.config = CarDefs.sanitize_config(p_config)

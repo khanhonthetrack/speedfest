@@ -25,6 +25,11 @@ var server_url: String = ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Physics interpolation (project setting on, M7): physics runs at 60 Hz, screens at 120-240 Hz,
+	# so physics-driven bodies must be drawn between ticks or they judder. Only the Car opts in
+	# (Car.create); everything moved per frame (cameras, remote cars, ghosts, menus, UI, props)
+	# stays as it is, so the whole tree defaults to OFF.
+	get_tree().root.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	_setup_audio_buses()
 	_setup_input_map()
 	if is_web():
