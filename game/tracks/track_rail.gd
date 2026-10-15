@@ -1,21 +1,25 @@
 class_name TrackRail
 extends Node3D
 ## Grind rail (layout segments with "rail": true; first used by the stadium map "Rail Rush").
-## The rail runs along the path centerline at path height, with no road around it. A car that
-## comes down onto it (close to the rail, falling or level, heading along it) is captured: the
-## rail drives the body along it through Car._integrate_forces (Car.grind), keeping the car's
-## speed (gravity along the slope, a little friction, no steering), and releases it at the end
-## with a small hop. Miss it and you fall (respawn at the last checkpoint).
-## No collision on purpose: the rail is a capture line, not a beam to balance on.
+## The rail runs along the path centerline at path height, with no road around it. NOT magnetic
+## (owner, session 7: "Rails should not be magnetic to the car ... its the players job to land
+## there"): only a car that actually comes down ONTO it (rail under the middle of the car, at
+## ride height, falling or level, heading along it) is caught, and the catch doesn't teleport:
+## the leftover offset blends out over ~0.15 s. Then the rail carries the body along it through
+## Car._integrate_forces (Car.grind), keeping the car's speed (gravity along the slope, a little
+## friction, no steering), and releases it at the end with a small hop. Land beside it and you
+## fall (respawn at the last checkpoint). No collision on purpose: it's a landing line.
 
 signal grind_started(car: Node)
 signal grind_ended(car: Node)
 
 const RIDE_H := 0.55            # car origin above the rail top while grinding (underbody on the rail)
-const CAPTURE_LAT := 1.8        # max horizontal distance from the rail line (m)
-const CAPTURE_BELOW := 1.1      # car may be this far below ride height and still catch the rail
-const CAPTURE_ABOVE := 0.7      # ...or this far above (one or two frames of fall at speed)
-const CAPTURE_ALIGN := 0.75     # cos of the max angle between the car's travel and the rail
+const CAPTURE_LAT := 0.45       # max horizontal distance from the rail line (m): under the car's middle
+const CAPTURE_BELOW := 0.35     # car may be this far below ride height and still catch the rail
+const CAPTURE_ABOVE := 0.35     # ...or this far above (one frame of fall at landing speed)
+const CAPTURE_ALIGN := 0.9      # cos of the max angle between the car's travel and the rail (~26 deg)
+const MAX_RISE := 0.5           # m/s: a car still going up is passing over the rail, not landing
+const SETTLE_T := 0.15          # s: the offset at the catch blends out (no snap)
 const MIN_SPEED := 6.0          # m/s kept while grinding (never stalls on the rail)
 const FRICTION := 1.0           # m/s² lost while grinding
 const POP := 2.6                # upward m/s added at the end of the rail (hop off)
@@ -28,7 +32,7 @@ var d_to := 0.0
 var length := 0.0
 var pts := PackedVector3Array()      # rail top centerline, STEP apart
 var tans := PackedVector3Array()     # unit tangents
-var _cars := {}                      # Car -> {"s": arc length, "v": speed}
+var _cars := {}                      # Car -> {"s": arc length, "v": speed, "off": Vector3 offset}
 var _sparks: CPUParticles3D
 var _watch: Array[Node] = []         # candidate cars (inside the capture box)
 
@@ -119,13 +123,14 @@ func _try_capture(car: Car) -> void:
 	if h < -CAPTURE_BELOW or h > CAPTURE_ABOVE:
 		return
 	var v := car.linear_velocity
-	if v.y > 2.5:
-		return   # still rising off the take-off: let it come down onto the rail
+	if v.y > MAX_RISE:
+		return   # still rising: it is flying over the rail, not landing on it
 	var vh := Vector3(v.x, 0.0, v.z)
 	var th := Vector3(t.x, 0.0, t.z).normalized()
 	if vh.length() < 4.0 or vh.normalized().dot(th) < CAPTURE_ALIGN:
 		return
-	_cars[car] = {"s": q.x, "v": maxf(v.dot(t), MIN_SPEED)}
+	var up := (Vector3.UP - t * Vector3.UP.dot(t)).normalized()
+	_cars[car] = {"s": q.x, "v": maxf(v.dot(t), MIN_SPEED), "off": p - (rp + up * RIDE_H)}
 	car.grind = self
 	Audio.play_sfx("grind", 0.0, randf_range(0.95, 1.05))
 	grind_started.emit(car)
@@ -153,12 +158,19 @@ func grind_step(car: Car, state: PhysicsDirectBodyState3D) -> bool:
 	t = tangent_at(s)
 	var up := (Vector3.UP - t * Vector3.UP.dot(t)).normalized()
 	var right := t.cross(up).normalized()
-	var pos := point_at(s) + up * RIDE_H
-	state.transform = Transform3D(Basis(right, up, -t), pos)
+	# the offset left at the catch (the car was up to CAPTURE_LAT beside / CAPTURE_* above or below
+	# ride height) blends out instead of snapping
+	var off: Vector3 = g.get("off", Vector3.ZERO)
+	off *= exp(-dt / SETTLE_T)
+	var pos := point_at(s) + up * RIDE_H + off
+	var cur := state.transform.basis
+	var want := Basis(right, up, -t)
+	state.transform = Transform3D(cur.slerp(want, clampf(dt / SETTLE_T * 1.5, 0.0, 1.0)).orthonormalized(), pos)
 	state.linear_velocity = t * v
 	state.angular_velocity = Vector3.ZERO
 	g["s"] = s
 	g["v"] = v
+	g["off"] = off
 	return true
 
 

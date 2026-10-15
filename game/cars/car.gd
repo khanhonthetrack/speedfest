@@ -129,6 +129,7 @@ var _bd_blend := 0.0                     # drift amount 0..1 (= _drift_mode, kep
 var _drift_mode := 0.0                   # 0 grip .. 1 drifting
 var _drift_dir := 0.0                    # +1 drifting right, -1 left
 var _wall_timer := 0.0
+var _hard_comp := 0.15                    # compression where the travel ends (just before the floor box touches)
 var _wall_align_w := 0.0                 # yaw rate (about the ground normal) that lines the nose up with the wall
 var _wall_align_t := 0.0
 var _takeoff_up_y := 1.0                 # world-up component of the last ground normal (jump vs wall ride)
@@ -208,6 +209,7 @@ func _setup() -> void:
 	# collision: a floor box over the wheelbase, raised nose/tail boxes (approach/departure angles,
 	# so overhangs don't scrape in loops or on ramps) and a cabin. All above the contact patches.
 	var y0: float = -_radius + float(g["ground_clearance"]) + 0.07
+	_hard_comp = maxf(float(g["ground_clearance"]) + 0.07 - 0.04, BUMP_START + 0.02)
 	var y_belt: float = y0 + (height - float(g["ground_clearance"])) * 0.5
 	var y1: float = -_radius + height
 	var core_len := _wheelbase + 0.5
@@ -550,6 +552,27 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			if lv.length_squared() > 1e-4:
 				lv = lv.normalized() * sp0
 			state.linear_velocity = lv
+
+	# end of the suspension travel (hard stop): a fast loop or a compression at the bottom of a drop
+	# pulls 20-30 g, more than the springs hold, and the body would hit the road (the floor box
+	# catches a triangle edge and the car stops dead). The travel ends before that: no further
+	# velocity into the road; it is redirected along the road with its speed kept (TM never
+	# grounds the floor in a loop).
+	if _grounded >= 2:
+		var cmax := -1.0
+		for i in 4:
+			if _contact[i]:
+				cmax = maxf(cmax, _comp[i])
+		if cmax > _hard_comp:
+			var vn_h := lv.dot(up)
+			if vn_h < 0.0:
+				var sp1 := lv.length()
+				lv -= up * vn_h
+				# keep the speed only while rolling on the road (loops, compressions); on a
+				# touchdown the vertical speed must not turn into free forward speed
+				if was_grounded >= 2 and lv.length_squared() > 1e-4:
+					lv = lv.normalized() * sp1
+				state.linear_velocity = lv
 
 	# suspension forces (+ anti-roll)
 	var force := _force

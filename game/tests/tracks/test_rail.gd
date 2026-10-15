@@ -7,6 +7,8 @@ extends Node3D
 ##    off, lands on the platform and finishes, with 0 respawns
 ##  - control: with the rail's capture switched off the car falls (it can't reach the finish by
 ##    jumping alone)
+##  - not magnetic (owner, session 7): a car beside the rail or still rising over it is not caught;
+##    a car landing on it slightly off-center is caught without a teleport
 ## Run: tools/run_scene.sh res://tests/tracks/test_rail.tscn --headless
 
 const KeyEmu := preload("res://tests/physics/key_emulator.gd")
@@ -55,7 +57,58 @@ func _ready() -> void:
 	track.finish_reached.connect(func(b: Node) -> void:
 		if b == car and not finished and tick > start_tick:
 			finished = true)
+	await _magnet_checks()
 	_next()
+
+
+## Drop a free car (no inputs) near the rail and watch whether the rail takes it.
+## lat: m beside the rail line, h: m above ride height, vy: vertical m/s. Returns
+## [caught (bool), largest position jump beyond the car's own motion in one step (m)].
+func _probe(lat: float, h: float, vy: float, frames: int) -> Array:
+	var s := rail.length * 0.35
+	var t := rail.tangent_at(s)
+	var right := t.cross(Vector3.UP).normalized()
+	var pos := rail.point_at(s) + Vector3.UP * (TrackRail.RIDE_H + h) + right * lat
+	var c := Car.create(CarDefs.default_config("kaze"))
+	add_child(c)
+	c.frozen_controls = true
+	c.teleport(Transform3D(Basis.looking_at(t, Vector3.UP), pos), t * 30.0 + Vector3.UP * vy)
+	# the teleport velocity applies on the next physics step: keep the rail blind until it has
+	rail.set_physics_process(false)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	rail.set_physics_process(true)
+	var caught := false
+	var jump := 0.0
+	var prev := c.global_position
+	var prev_v := c.linear_velocity
+	for i in frames:
+		await get_tree().physics_frame
+		var now := c.global_position
+		if TestHooks.has_arg("probe_debug"):
+			print("PROBE lat=%.1f i=%d vy=%.2f h=%.2f grinding=%s" % [lat, i, c.linear_velocity.y, now.y - rail.point_at(rail.nearest(now).x).y - TrackRail.RIDE_H, rail.is_grinding(c)])
+		if rail.is_grinding(c):
+			if not caught:
+				jump = maxf(jump, (now - (prev + prev_v / 60.0)).length())
+			caught = true
+		prev = now
+		prev_v = c.linear_velocity
+	rail.release(c)
+	c.queue_free()
+	await get_tree().physics_frame
+	return [caught, jump]
+
+
+func _magnet_checks() -> void:
+	rail.set_physics_process(true)
+	var beside: Array = await _probe(1.0, 0.0, -0.5, 25)
+	TestHooks.check(not bool(beside[0]), "rail_not_magnetic_beside", "a car 1 m beside the rail was caught")
+	var rising: Array = await _probe(0.0, -0.25, 3.5, 2)   # rising through ride height (the old capture took cars rising at up to 2.5 m/s)
+	TestHooks.check(not bool(rising[0]), "rail_not_magnetic_rising", "a car still going up over the rail was caught")
+	var landing: Array = await _probe(0.3, 0.2, -2.0, 25)
+	TestHooks.check(bool(landing[0]), "rail_catches_a_landing", "a car landing 0.3 m off-center was not caught")
+	TestHooks.check(float(landing[1]) < 0.15, "rail_no_snap", "%.2f m jump at the catch" % float(landing[1]))
+	print("RAIL probes: beside caught=%s rising caught=%s landing caught=%s jump=%.3f m" % [beside[0], rising[0], landing[0], landing[1]])
 
 
 func _check_layout() -> void:

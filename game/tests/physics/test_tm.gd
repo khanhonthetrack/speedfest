@@ -32,6 +32,7 @@ func _ready() -> void:
 			await _wallride(id)
 		if _want("loop"):
 			await _loop(id)
+			await _loop(id, 280.0)
 		if _want("landing"):
 			await _landing(id)
 		if _want("air"):
@@ -324,9 +325,12 @@ func _wallride(id: String) -> void:
 		road.queue_free()
 
 
-## Loop r 18 at 140 km/h: completes, wheels on the road all the way round.
-func _loop(id: String) -> void:
-	var o := Vector3(4000, 0, 0)
+## Loop r 18 at 140 km/h: completes, wheels on the road all the way round. Fast variant (280
+## km/h, ~30 g at the bottom): also completes, the body never slams into the road (no speed lost
+## in a single step) and the exit speed stays close to the entry speed (only gravity costs speed).
+func _loop(id: String, kmh := 140.0) -> void:
+	var fast := kmh > 200.0
+	var o := Vector3(4000, 0, 400.0 if fast else 0.0)
 	var path := PhysicsTestGround.loop_path(18.0, 220.0, 150.0, 12.0, o)
 	var road := PhysicsTestGround.road_from_path(path)
 	add_child(road)
@@ -334,16 +338,28 @@ func _loop(id: String) -> void:
 	add_child(car)
 	var ai := AutoDriver.new()
 	ai.path = path
-	ai.target_speed_kmh = 140.0
+	ai.target_speed_kmh = kmh
 	car.add_child(ai)
-	car.teleport(Transform3D(Basis.IDENTITY, o + Vector3(0, 0.6, -2)), Vector3(0, 0, -140.0 / 3.6))
+	car.teleport(Transform3D(Basis.IDENTITY, o + Vector3(0, 0.6, -2)), Vector3(0, 0, -kmh / 3.6))
 	var air := 0
 	var in_loop := 0
 	var done := false
 	var top_kmh := 0.0
+	var entry_kmh := -1.0
+	var exit_kmh := -1.0
+	var worst_step := 0.0
+	var prev_kmh := car.get_speed_kmh()
 	for i in 60 * 20:
 		await get_tree().physics_frame
 		var d := ai.get_distance()
+		var v_now := car.get_speed_kmh()
+		if path.in_zone(d, "loop"):
+			if entry_kmh < 0.0:
+				entry_kmh = prev_kmh
+			worst_step = maxf(worst_step, prev_kmh - v_now)
+		elif entry_kmh >= 0.0 and exit_kmh < 0.0:
+			exit_kmh = v_now
+		prev_kmh = v_now
 		if path.in_zone(d, "loop"):
 			in_loop += 1
 			if not car.is_grounded():
@@ -355,9 +371,14 @@ func _loop(id: String) -> void:
 			break
 		if car.global_position.y < -30.0:
 			break
-	print("TM loop %s done=%s air=%d/%d top=%.0f km/h" % [id, done, air, in_loop, top_kmh])
-	TestHooks.check(done, "tm_loop_completes_%s" % id)
-	TestHooks.check(air <= 4, "tm_loop_grounded_%s" % id, "%d/%d" % [air, in_loop])
+	var tag := "loop_fast" if fast else "loop"
+	print("TM %s %s done=%s air=%d/%d top=%.0f entry=%.0f exit=%.0f worst_step=%.1f km/h" % [tag, id, done, air, in_loop, top_kmh, entry_kmh, exit_kmh, worst_step])
+	TestHooks.check(done, "tm_%s_completes_%s" % [tag, id])
+	TestHooks.check(air <= 4, "tm_%s_grounded_%s" % [tag, id], "%d/%d" % [air, in_loop])
+	if fast:
+		TestHooks.check(worst_step < 15.0, "tm_loop_fast_no_body_slam_%s" % id, "%.1f km/h lost in one step" % worst_step)
+		# (280 km/h is above some cars' top speed: drag alone costs a few %)
+		TestHooks.check(exit_kmh >= entry_kmh * 0.85, "tm_loop_fast_keeps_speed_%s" % id, "entry %.0f exit %.0f" % [entry_kmh, exit_kmh])
 	await _done(car)
 	road.queue_free()
 
