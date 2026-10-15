@@ -52,6 +52,19 @@ are changed only by the integrator. Module agents document themselves in `docs/m
 - [ ] `docs/HOSTING.md`: run locally + Cloudflare quick tunnel, or deploy to Render
 - [ ] README quick start for friends
 
+### M5 — Visual upgrade, beyond web (in progress, owner request 2026-10-15)
+Owner: "graphics ... kinda trivial and menu looks very mobiley and boring", so focus on real art
+and lighting on mainline Godot plus an NFSU2-style 3D front end (docs/RENDERING.md §3 items 1 and 5).
+Path tracing is parked until the owner is at their RTX PC. Three parallel tracks, each on its own branch:
+| track | branch | scope |
+|---|---|---|
+| cars | `visual/cars` | Blender-scripted hero car models (glTF, all customization slots, LODs) behind the unchanged CarVisual API; better paint, glass, chrome, tire and light materials |
+| world | `visual/world` | reflection probes + SSR (wet roads), CC0 PBR textures (asphalt, concrete, rock), building facades with depth, HDRI skies, SDFGI/volumetric fog on Ultra, color grade + post FX, quality presets (desktop High/Ultra) |
+| frontend | `visual/frontend` | 3D tuner-garage front end: camera stations (main, dyno, paint booth, lift, wheels, neon, online board), NFSU2-style lists and carousels instead of chip grids |
+Tools: Blender 5.2 as a Python module (`/opt/bpyenv/bin/python`), CC0 sources ambientCG and Poly Haven
+(every asset listed in docs/ASSETS.md). `server/public` (tonight's web build) is not re-exported until
+the upgrade is verified on both renderers.
+
 ### Later
 - **Beyond-web graphics and front end:** see docs/RENDERING.md (path tracing investigation, real
   art assets, Forward+ features, optional RTX mode via the NVIDIA fork, NFSU2-style 3D garage menus)
