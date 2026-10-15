@@ -103,6 +103,10 @@ var _hit_pos: Array[Vector3] = [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, Vector
 var _hit_n: Array[Vector3] = [Vector3.UP, Vector3.UP, Vector3.UP, Vector3.UP]
 var _spin := PackedFloat32Array([0, 0, 0, 0])
 var _spin_vel := PackedFloat32Array([0, 0, 0, 0])
+# wheel pose of the previous tick: _process draws the wheels between ticks, like the interpolated body
+var _spin_step := PackedFloat32Array([0, 0, 0, 0])
+var _prev_vis_offset := PackedFloat32Array([0, 0, 0, 0])
+var _prev_steer_angle := 0.0
 var _queries: Array[PhysicsRayQueryParameters3D] = []
 var _land_q := PhysicsRayQueryParameters3D.new()
 
@@ -327,6 +331,13 @@ func get_net_state() -> Dictionary:
 		"st": float(controls.get("steer", 0.0)), "rpm": _rpm, "fl": get_flags()}
 
 
+## How many physics ticks behind the newest simulated state the car is drawn this frame: physics
+## interpolation shows lerp(previous tick, last tick, fraction), so 1 - fraction (0 when it's off).
+## Ghosts and wheels use it to line up with the drawn body.
+func display_tick_lag() -> float:
+	return 1.0 - Engine.get_physics_interpolation_fraction() if is_physics_interpolated_and_enabled() else 0.0
+
+
 func teleport(xform: Transform3D, p_linear_velocity: Vector3 = Vector3.ZERO) -> void:
 	if grind != null:
 		grind.release(self)
@@ -431,7 +442,10 @@ func _reset_dynamics(v: Vector3) -> void:
 		_vis_offset[i] = 0.0
 		_load[i] = 0.0
 		_spin_vel[i] = 0.0
+		_spin_step[i] = 0.0
+		_prev_vis_offset[i] = 0.0
 	_steer_angle = 0.0
+	_prev_steer_angle = 0.0
 	_boost_time = 0.0
 	_drift = 0.0
 	_slip_angle = 0.0
@@ -463,6 +477,10 @@ func _reset_dynamics(v: Vector3) -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	for i in 4:
+		_prev_vis_offset[i] = _vis_offset[i]
+		_spin_step[i] = 0.0
+	_prev_steer_angle = _steer_angle
 	if _pending_teleport:
 		_pending_teleport = false
 		state.transform = _pending_xform
@@ -801,7 +819,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_spin_vel[i] = move_toward(_spin_vel[i], 120.0 * throttle, 200.0 * dt)
 		else:
 			_spin_vel[i] *= 0.995
-		_spin[i] = fmod(_spin[i] + _spin_vel[i] * dt, TAU)
+		_spin_step[i] = _spin_vel[i] * dt
+		_spin[i] = fmod(_spin[i] + _spin_step[i], TAU)
 
 	# --- aero, drag, rolling ---
 	if speed > 0.1:
@@ -1003,9 +1022,11 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 func _process(_delta: float) -> void:
 	if visual == null:
 		return
+	# the body is drawn between the last two ticks (physics interpolation): draw the wheels there too
+	var back := display_tick_lag()
 	for i in 4:
-		_vis_spin_arr[i] = _spin[i]
-		_vis_susp_arr[i] = _vis_offset[i]
-	visual.set_wheel_state(-_steer_angle, _vis_spin_arr, _vis_susp_arr)
+		_vis_spin_arr[i] = _spin[i] - _spin_step[i] * back
+		_vis_susp_arr[i] = lerpf(_vis_offset[i], _prev_vis_offset[i], back)
+	visual.set_wheel_state(-lerpf(_steer_angle, _prev_steer_angle, back), _vis_spin_arr, _vis_susp_arr)
 	visual.set_lights(_braking, _reversing)
 	visual.set_nitro(_nitro_active)

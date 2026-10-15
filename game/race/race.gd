@@ -381,7 +381,8 @@ func _process(_delta: float) -> void:
 	if online:
 		hud.set_round_time_left(maxi(0, end_at_local_ms - maxi(Net.local_ms(), mini(start_at_local_ms, end_at_local_ms))))
 	if state == State.RUNNING and ghost_player.has_ghost() and Settings.show_pb_ghost:
-		ghost_player.set_time(run_ticks * TICK_MS)
+		# sample the ghost where the (interpolated) car is drawn, not at the newest tick
+		ghost_player.set_time(maxf(0.0, (run_ticks - car.display_tick_lag()) * TICK_MS))
 	elif ghost_player.visible:
 		ghost_player.hide_ghost()
 	spray.update_spray(car.get_water_amount(), speed)
