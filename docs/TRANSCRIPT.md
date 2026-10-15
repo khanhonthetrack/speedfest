@@ -165,3 +165,15 @@ turns are summarized (tool calls omitted). Newest entries at the bottom.
   the owner's RTX PC. The biggest visual win is real art plus mainline Forward+ features, and an
   NFSU2-style 3D garage front end replaces the flat menus.
 
+### User (verbatim)
+
+> I have but not here, move it for later. Focus on 1, 5 - so that the game doesnt look that trivial
+
+### Claude
+
+- Path tracing is parked until the owner is at their RTX PC. Working on (1) graphics on mainline
+  Godot (real assets, Forward+ lighting) and (5) an NFSU2-style 3D garage front end.
+- First, baseline screenshots at Ultra. Two fixes went to `main` for tonight's web build: tire spray
+  rendered as grey boxes (now soft round puffs), and the PB ghost filled the screen when right
+  behind the camera (now fades within ~12 m).
+

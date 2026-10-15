@@ -20,6 +20,7 @@ var _spin := 0.0
 var _last_ms := -1.0
 var _wheel_radius := 0.33
 var _cursor := 0
+var _alpha := ALPHA
 
 
 ## Returns false if the ghost has no usable samples.
@@ -85,6 +86,16 @@ func set_time(ms: float) -> void:
 	visible = true
 	var xf := sample(ms)
 	global_transform = xf
+	# fade out when the ghost is right at the camera (it sits behind the car after a slow start
+	# and would fill the screen with a translucent blob)
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam and visual:
+		var d := cam.global_position.distance_to(xf.origin)
+		var a := ALPHA * clampf((d - 4.0) / 8.0, 0.0, 1.0)
+		if absf(a - _alpha) > 0.01:
+			_alpha = a
+			visual.set_ghost(maxf(a, 0.001))
+		visual.visible = a > 0.01
 	var i := _cursor
 	var speed := 0.0
 	if i + 1 < _times.size():

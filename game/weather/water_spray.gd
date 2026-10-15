@@ -22,6 +22,27 @@ static func create(car_id: String, wet_road: bool) -> WaterSpray:
 	return s
 
 
+static var _puff_tex: Texture2D
+
+
+## Soft round puff (radial gradient), so particles read as spray, not as squares.
+static func _puff() -> Texture2D:
+	if _puff_tex == null:
+		var g := Gradient.new()
+		g.set_color(0, Color(1, 1, 1, 1))
+		g.set_color(1, Color(1, 1, 1, 0))
+		g.add_point(0.45, Color(1, 1, 1, 0.55))
+		var t := GradientTexture2D.new()
+		t.gradient = g
+		t.fill = GradientTexture2D.FILL_RADIAL
+		t.fill_from = Vector2(0.5, 0.5)
+		t.fill_to = Vector2(0.5, 0.0)
+		t.width = 64
+		t.height = 64
+		_puff_tex = t
+	return _puff_tex
+
+
 static func _material(alpha: float) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -29,6 +50,7 @@ static func _material(alpha: float) -> StandardMaterial3D:
 	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	m.vertex_color_use_as_albedo = true
 	m.albedo_color = Color(0.75, 0.85, 1.0, alpha)
+	m.albedo_texture = _puff()
 	m.disable_receive_shadows = true
 	return m
 
@@ -74,7 +96,7 @@ func _build(car_id: String) -> void:
 	for i in [2, 3]:
 		var base: Vector3 = wp[i] + Vector3(0, -r * 0.7, r * 0.6)
 		splash.append(_emitter(base, 10 if lite else 18, 0.9, 0.55, 7.0, 0.55))
-		mist.append(_emitter(base, 5 if lite else 9, 1.4, 0.18, 4.0, 0.6))
+		mist.append(_emitter(base, 5 if lite else 9, 1.1, 0.12, 4.0, 0.6))
 
 
 ## water 0..1 (Car.get_water_amount or puddle flag), speed in km/h.
