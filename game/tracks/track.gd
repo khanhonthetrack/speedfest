@@ -120,7 +120,7 @@ func _build_gates() -> void:
 	gate_root.name = "Gates"
 	add_child(gate_root)
 	for i in checkpoint_count:
-		var area := _make_gate(gate_root, checkpoint_distances[i], "cp")
+		var area := _make_gate(gate_root, checkpoint_distances[i], "cp", true, i)
 		area.name = "Checkpoint%d" % i
 		area.body_entered.connect(_on_checkpoint_body.bind(i))
 		gates.append(area)
@@ -136,56 +136,93 @@ func _build_gates() -> void:
 		_build_line(gate_root, finish_distance)
 
 
-func _make_gate(parent: Node3D, d: float, kind: String, with_area := true) -> Area3D:
+## Checkpoint / start / finish gate (Trackmania-style, owner feedback session 4: gates must look
+## and feel solid, not like a see-through neon outline). Light painted-metal pillars on concrete
+## footings with collision, a crossbar carrying a backlit sign ("CHECKPOINT 2/4", "FINISH"),
+## colored light strips, and on Forward+ (quality >= 2) a light that washes the road under it.
+## The crossbar only gets collision away from jumps, so no flight path can clip it.
+func _make_gate(parent: Node3D, d: float, kind: String, with_area := true, cp_index := -1) -> Area3D:
 	var f := path.sample_transform(d)
 	var hw := path.width_at(d) * 0.5
 	var root := Node3D.new()
 	root.transform = f
 	parent.add_child(root)
-	# arch visual
-	var frame := TrackBuilder.Acc.new()
-	var neon := TrackBuilder.Acc.new()
-	var banner := TrackBuilder.Acc.new()
-	var px := hw + TrackBuilder.WALL_GAP + 1.5
-	var top := 7.6
-	var pw := 1.5
-	var bh := 2.2
+	var accent := _gate_accent(kind)
+	var px := hw + TrackBuilder.WALL_GAP + 1.5     # pillar centre
+	var pw := 1.6                                  # pillar width
+	var top := 7.6                                 # crossbar underside
+	var bh := 2.6                                  # crossbar height
+	var bd := 1.3                                  # crossbar depth
+	var body := TrackBuilder.Acc.new()
+	var foot := TrackBuilder.Acc.new()
+	var strip := TrackBuilder.Acc.new()
+	var sign := TrackBuilder.Acc.new()
+	var pillar_h := top + bh + 1.0
 	for sx in [-1.0, 1.0]:
-		frame.box(Transform3D(Basis.IDENTITY, Vector3(sx * px, top * 0.5 - 0.6, 0)), Vector3(pw, top + 1.2, pw))
-		# neon on the inner face and on the front/back edges of each pillar
-		neon.box(Transform3D(Basis.IDENTITY, Vector3(sx * (px - pw * 0.5 - 0.02), top * 0.5 - 0.4, 0)), Vector3(0.06, top + 0.2, 0.35))
+		body.box(Transform3D(Basis.IDENTITY, Vector3(sx * px, pillar_h * 0.5 - 1.0, 0)), Vector3(pw, pillar_h, pw))
+		foot.box(Transform3D(Basis.IDENTITY, Vector3(sx * px, -0.2, 0)), Vector3(pw + 0.8, 1.6, pw + 0.8))
+		# light strips: full height on the road-facing side, plus the front and back faces
+		strip.box(Transform3D(Basis.IDENTITY, Vector3(sx * (px - pw * 0.5 - 0.03), top * 0.5 + 0.3, 0)), Vector3(0.06, top - 0.6, 0.5))
 		for sz in [-1.0, 1.0]:
-			neon.box(Transform3D(Basis.IDENTITY, Vector3(sx * (px - pw * 0.5 + 0.08), top * 0.5 - 0.4, sz * (pw * 0.5 + 0.02))), Vector3(0.14, top + 0.2, 0.06))
-	frame.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh * 0.5 - 0.2, 0)), Vector3(px * 2.0 + pw, bh, pw))
-	neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top - 0.24, 0)), Vector3(px * 2.0 - pw, 0.06, 0.6))
+			strip.box(Transform3D(Basis.IDENTITY, Vector3(sx * px, top * 0.5 + 0.3, sz * (pw * 0.5 + 0.03))), Vector3(0.42, top - 0.6, 0.06))
+	var span := px * 2.0 + pw
+	body.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh * 0.5, 0)), Vector3(span, bh, bd))
 	for sz in [-1.0, 1.0]:
-		neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh - 0.32, sz * (pw * 0.5 + 0.02))), Vector3(px * 2.0 + pw - 0.2, 0.12, 0.06))
-		neon.box(Transform3D(Basis.IDENTITY, Vector3(0, top - 0.08, sz * (pw * 0.5 + 0.02))), Vector3(px * 2.0 + pw - 0.2, 0.12, 0.06))
-	if kind != "cp":
-		banner.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh * 0.5 - 0.2, 0)), Vector3(px * 2.0 - pw - 0.4, bh - 0.6, pw + 0.06), 1.0)
+		# backlit sign panel on both faces, framed by light strips top and bottom
+		sign.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh * 0.5, sz * (bd * 0.5 + 0.02))), Vector3(span - pw * 2.0 - 0.3, bh - 0.55, 0.04))
+		strip.box(Transform3D(Basis.IDENTITY, Vector3(0, top + 0.12, sz * (bd * 0.5 + 0.03))), Vector3(span - 0.2, 0.12, 0.06))
+		strip.box(Transform3D(Basis.IDENTITY, Vector3(0, top + bh - 0.12, sz * (bd * 0.5 + 0.03))), Vector3(span - 0.2, 0.12, 0.06))
+	strip.box(Transform3D(Basis.IDENTITY, Vector3(0, top - 0.03, 0)), Vector3(span - pw * 2.0, 0.06, bd - 0.3))
 	var mesh := ArrayMesh.new()
-	frame.commit(mesh, TrackBuilder.material("metal_dark"))
-	var neon_key := "neon_cyan" if kind == "cp" else "neon_magenta"
-	if theme == "coast":
-		neon_key = "neon_orange" if kind == "cp" else "neon_magenta"
-	neon.commit(mesh, TrackBuilder.material(neon_key))
-	if not banner.is_empty():
-		banner.commit(mesh, TrackBuilder.shader_material("res://shaders/track_neon.gdshader", {
-			"color": Color(1, 1, 1), "energy": 1.4, "checker": 1.0, "checker_scale": Vector2(1.0, 0.65)}))
+	body.commit(mesh, _gate_body_material(accent))
+	foot.commit(mesh, TrackBuilder.material("concrete"))
+	strip.commit(mesh, TrackBuilder.material(_gate_neon_key(kind)))
+	sign.commit(mesh, _gate_sign_material(accent, kind))
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
 	mi.name = "Arch"
 	root.add_child(mi)
-	if kind != "cp":
-		var lbl := Label3D.new()
-		lbl.text = "FINISH" if (kind == "finish" and not is_circuit) else ("START" if kind == "start" else "START  ·  FINISH")
-		lbl.font_size = 96
-		lbl.pixel_size = 0.016
-		lbl.outline_size = 18
-		lbl.modulate = Color(1, 1, 1)
-		lbl.outline_modulate = Color(0.05, 0.0, 0.1)
-		lbl.position = Vector3(0, top + bh * 0.5 - 0.2, pw * 0.5 + 0.08)
-		root.add_child(lbl)
+	var lbl := Label3D.new()
+	match kind:
+		"cp":
+			lbl.text = "CHECKPOINT  %d/%d" % [cp_index + 1, checkpoint_count] if cp_index >= 0 else "CHECKPOINT"
+		"start":
+			lbl.text = "START"
+		_:
+			lbl.text = "FINISH" if not is_circuit else "START  ·  FINISH"
+	var f_heavy: Variant = load("res://assets/fonts/orbitron-latin-900-normal.woff2")
+	if f_heavy is Font:
+		lbl.font = f_heavy
+	lbl.font_size = 96
+	lbl.pixel_size = 0.0115 if kind == "cp" else 0.016
+	lbl.outline_size = 14
+	lbl.modulate = Color(1, 1, 1)
+	lbl.outline_modulate = Color(accent.darkened(0.55), 1.0)
+	lbl.shaded = false
+	lbl.double_sided = false
+	lbl.position = Vector3(0, top + bh * 0.5, bd * 0.5 + 0.07)
+	root.add_child(lbl)
+	# solid: cars hit the pillars and footings (and the crossbar, away from jumps)
+	var sb := StaticBody3D.new()
+	sb.name = "GateBody"
+	sb.collision_layer = TrackBuilder.LAYER_WORLD
+	sb.collision_mask = 0
+	for sx in [-1.0, 1.0]:
+		_gate_box(sb, Vector3(sx * px, pillar_h * 0.5 - 1.0, 0), Vector3(pw, pillar_h, pw))
+		_gate_box(sb, Vector3(sx * px, -0.2, 0), Vector3(pw + 0.8, 1.6, pw + 0.8))
+	if not _near_jump(d):
+		_gate_box(sb, Vector3(0, top + bh * 0.5, 0), Vector3(span, bh, bd))
+	root.add_child(sb)
+	if not Settings.is_compat() and Settings.quality >= 2:
+		var light := OmniLight3D.new()
+		light.name = "GateLight"
+		light.light_color = accent.lerp(Color.WHITE, 0.35)
+		light.light_energy = 2.2
+		light.omni_range = 16.0
+		light.omni_attenuation = 1.4
+		light.shadow_enabled = false
+		light.position = Vector3(0, top - 1.2, 0)
+		root.add_child(light)
 	if not with_area:
 		return null
 	var area := Area3D.new()
@@ -202,6 +239,74 @@ func _make_gate(parent: Node3D, d: float, kind: String, with_area := true) -> Ar
 	root.add_child(area)
 	area.set_meta("distance", d)
 	return area
+
+
+func _gate_box(sb: StaticBody3D, pos: Vector3, size: Vector3) -> void:
+	var cs := CollisionShape3D.new()
+	var b := BoxShape3D.new()
+	b.size = size
+	cs.shape = b
+	cs.position = pos
+	sb.add_child(cs)
+
+
+## True when a jump or gap is within 60 m before (or 10 m after) distance d: cars may be airborne.
+func _near_jump(d: float) -> bool:
+	for g in data.get("gaps", []):
+		if d >= float(g[0]) - 10.0 and d <= float(g[1]) + 60.0:
+			return true
+	for z in path.zones:
+		if String(z.get("kind", "")) in ["jump", "loop"] and d >= float(z["from"]) - 10.0 and d <= float(z["to"]) + 60.0:
+			return true
+	return false
+
+
+func _gate_accent(kind: String) -> Color:
+	if kind != "cp":
+		return Color(1.0, 0.17, 0.84)                    # magenta start/finish
+	return Color(1.0, 0.55, 0.1) if theme == "coast" else Color(0.0, 0.9, 1.0)
+
+
+func _gate_neon_key(kind: String) -> String:
+	if kind != "cp":
+		return "neon_magenta"
+	return "neon_orange" if theme == "coast" else "neon_cyan"
+
+
+static var _gate_mats: Dictionary = {}
+
+
+## Light painted metal with a faint self-glow so the gate reads as a solid object at night.
+func _gate_body_material(accent: Color) -> Material:
+	var key := "body_%s_%s" % [accent.to_html(), Settings.is_compat()]
+	if not _gate_mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = Color(0.86, 0.87, 0.9)
+		m.metallic = 0.35
+		m.roughness = 0.4
+		m.emission_enabled = true
+		m.emission = Color(0.85, 0.88, 0.95).lerp(accent, 0.15)
+		m.emission_energy_multiplier = 0.18 if Settings.is_compat() else 0.1
+		_gate_mats[key] = m
+	return _gate_mats[key]
+
+
+## Backlit LED sign: deep accent colour, a checker band on start/finish.
+func _gate_sign_material(accent: Color, kind: String) -> Material:
+	var key := "sign_%s_%s" % [accent.to_html(), kind != "cp"]
+	if not _gate_mats.has(key):
+		if kind != "cp":
+			_gate_mats[key] = TrackBuilder.shader_material("res://shaders/track_neon.gdshader", {
+				"color": Color(1, 1, 1), "energy": 1.1, "checker": 1.0, "checker_scale": Vector2(1.0, 0.65)})
+		else:
+			var m := StandardMaterial3D.new()
+			m.albedo_color = accent.darkened(0.8)
+			m.emission_enabled = true
+			m.emission = accent.darkened(0.5)
+			m.emission_energy_multiplier = 0.55
+			m.roughness = 0.6
+			_gate_mats[key] = m
+	return _gate_mats[key]
 
 
 func _build_line(parent: Node3D, d: float) -> void:

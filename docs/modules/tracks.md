@@ -200,3 +200,12 @@ The deck is lofted with `deck_profile(hw)` (`DECK_CELLS` = 8 cells across) and `
 (ring step halved where `basis.x.y` changes faster than `DECK_TWIST_FINE` per meter). A single
 full-width quad per ring folded along its diagonal on bank ramps (±12 cm washboard). Guarded by
 `tests/tracks/test_road_smooth.tscn`. Diagnostic: `tests/physics/probe_road_bumps.tscn --track=<id> [--trace]`.
+
+## Checkpoint gates (session 4, owner feedback)
+`Track._make_gate()`: light painted-metal pillars (1.6 m) on concrete footings, crossbar (2.6 m)
+with a backlit sign and a `Label3D` ("CHECKPOINT n/N", "START", "FINISH"), accent light strips
+(cyan, orange on coast; magenta start/finish), and an `OmniLight3D` under the crossbar on Forward+
+quality ≥ 2. `GateBody` (StaticBody3D, layer world) collides on pillars and footings, and on the
+crossbar unless `_near_jump(d)` (a gap or jump/loop zone from 10 m before to 60 m after). The trigger
+Area3D is unchanged (40 m tall, so cars flying over still count). View: `tests/tracks/track_view.tscn
+-- --views="cp:0;cp:finish"`.

@@ -213,3 +213,15 @@ date, who (module/agent), what changed, what's next or blocked.
   brute 6.5 s, veloce 5.0 s (was ~4 s plus refills, ~9 s per run). Respawn keeps the tank, restart refills.
 - Tests: test_hud 33/33, test_handling 32/32 ×3 cars (`nitro_no_refill_*` replaces `nitro_refills_*`),
   race logic 41/41, review fixes 7/7.
+
+## 2026-10-15 ~11:40 UTC — M4.5 item 3: solid checkpoint gates
+
+- Old gates were dark frames outlined with thin neon and no collision: at night only the outline
+  read (a "see-through" hologram) and cars passed through the pillars. New gates: solid light
+  pillars on footings with collision, crossbar with a backlit "CHECKPOINT n/N" sign (collision except
+  near jumps/loops), light strips, and a road light on Forward+ q≥2. Checked on Forward+ (arena) and
+  compat (downtown). Compat draw calls at a gate ~165 (downtown), unchanged in scale.
+- test_tracks 78/78, drive_test, race logic 41/41, weather 38/38. Real-track matrix (default weather):
+  analog 9/9 clean; keyboard emulation 7/9 clean (arena kaze stalls entering the loop; downtown veloce
+  falls off between cp3 and the finish). Both also happen with the old gates and with nitro refills
+  on, so they're the known keyboard-emulation margins, not the gates.

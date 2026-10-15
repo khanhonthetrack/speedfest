@@ -57,8 +57,10 @@ Owner's words in TRANSCRIPT (session 4). Work sequentially, push after each item
 - [x] 1. "On the road it feels bumpy, is it a bug?" **Yes, a bug**: twisting full-width deck quads folded into a
       ±12 cm washboard on bank ramps. Deck now 8 cells across with finer rings where it twists (`test_road_smooth`)
 - [x] 2. "Remove a map, no one cares." Removed the HUD minimap (read as the minimap, not a track)
-- [ ] 3. Checkpoints: much smaller "CHECKPOINT" text (done: only the compact split pop-up now); checkpoints must not look see-through (you
-      "fly past it like a ghost"); a better, solid gate design
+- [x] 3. Checkpoints: much smaller "CHECKPOINT" text (done: only the compact split pop-up now); checkpoints must not look see-through (you
+      "fly past it like a ghost"); a better, solid gate design. **Done:** solid light pillars on
+      concrete footings with collision, a crossbar with a backlit "CHECKPOINT n/N" sign (crossbar
+      collision except near jumps/loops), light strips, and a road light on Forward+ q≥2
 - [x] 4. Smaller speedometer/NOS panel (70%). **NOS is a fixed tank per run, not recharged** (strategy):
       kaze 5.5 s, brute 6.5 s, veloce 5.0 s of nitro per run; respawn keeps the tank, restart refills
 - [ ] 5. No neon futuristic grids: the stadium gets grass (or similar) instead of the neon grid; the

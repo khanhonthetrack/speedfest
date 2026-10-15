@@ -6,6 +6,7 @@ extends Node3D
 ##   chase:D       chase camera 9 m behind and 4 m above D
 ##   side:D        side view of D (from the right, 40 m out)
 ##   orbit:D       elevated three-quarter view of D (good for stunts)
+##   cp:N          chase view 22 m before checkpoint N (0-based; "cp:finish" for the finish gate)
 ## Each view is held for a few frames, then saved as <out>/<tag>_<i>.png.
 
 var track: Track
@@ -67,6 +68,12 @@ func _apply(v: String) -> void:
 		return
 	var parts := v.split(":")
 	var d := float(parts[1]) if parts.size() > 1 else 0.0
+	if parts[0] == "cp":
+		var gd: float = track.finish_distance if parts[1] == "finish" else track.checkpoint_distances[int(parts[1])]
+		var g := p.sample_transform(gd - 22.0)
+		cam.global_position = g.origin + g.basis.y * 3.2 + g.basis.x * 2.5
+		cam.look_at(p.sample_transform(gd).origin + p.sample_transform(gd).basis.y * 3.5, g.basis.y)
+		return
 	var f := p.sample_transform(d)
 	match parts[0]:
 		"drive":
