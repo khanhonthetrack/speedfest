@@ -593,3 +593,12 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   cars, both renderers. test_build 56/56 (worst 25,988 tris; budget raised 25k → 28k), draws ≤ 10.
 - `server/public` re-exported (pck 8.76 MB). Chromium main menu: 0 errors, the driver shows
   through the Kaze's windows. Pi deploy pending: `git pull && docker restart speedfest`.
+
+## 2026-10-15 ~21:40 UTC — Session 7: M7 recorded, research stopped at owner request
+
+- Owner feedback "unplayable" (PC graphics + RTX, lag, TM physics, barriers, wall rides, magnetic
+  rails, 30+ distinct maps) recorded verbatim in TRANSCRIPT and as milestone M7 in PLAN.md.
+- A read-only M7 research workflow (6 topics + a planning agent) was started and then stopped on
+  the owner's "STOP WHAT YOU'RE DOING AND WRITE DOWN HANDOFF" before any report was finished.
+  The script is saved as docs/research/m7_research_workflow.js for the next session. No game code
+  changed after ce4dc66.

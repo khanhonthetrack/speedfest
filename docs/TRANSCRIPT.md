@@ -369,3 +369,13 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - Maps: TMX maps are their authors' work, so the 30+ maps are original designs that borrow the
   map *styles* the community plays most (tech, fullspeed, dirt, ice, bobsleigh, platform,
   wallride/loop, trial...), not copies of specific maps.
+
+### User (verbatim, ~21:38 UTC)
+
+> for every agent: STOP WHAT YOURE DOING AND WRITE DOWN HANDOFF
+
+### Claude
+
+- Stopped the research workflow; no report had finished. Wrote the handoff (HANDOFF.md "Latest
+  ~21:40 UTC") with the M7 state, how to resume (the saved workflow script), research access notes
+  and the pending Pi deploy.

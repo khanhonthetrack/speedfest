@@ -1,12 +1,48 @@
 # HANDOFF: start here
 
-## Latest (~21:15 UTC, session 7): NEW OWNER PRIORITY, M7 (see PLAN.md "M7")
+## Latest (~21:40 UTC, session 7): STOPPED on owner request. M7 not started, continue here
 
-The owner played it and called it "unplayable". The M7 list in PLAN.md is now the priority, ahead of
-everything below: PC build with good graphics + optional RTX, no lag, Trackmania-like handling,
-barriers, wall rides, non-magnetic rails, 30+ distinct high-quality maps. Verbatim request:
-TRANSCRIPT session 7, last entry. Work runs as research workflow → plan → implementation; the
-reports land in docs/research/ (M7) as they finish.
+**Priority: M7 (PLAN.md "M7").** The owner played it and called it "unplayable". The verbatim
+request is the last entry in TRANSCRIPT session 7:
+1. PC build with good Godot graphics + optional RTX, no lag ("looks like 2005", "laggy").
+2. Trackmania-feel physics (learn from how TM cars behave).
+3. Barriers are super annoying.
+4. Wall rides slow you down and pull you down (no grip).
+5. Maps are copy-paste: 30+ high-quality, different maps (inspired by TMX styles, original
+   designs). Rails must not be magnetic: landing on the rail is the player's job.
+
+**State at the stop:** nothing implemented for M7 yet. A read-only research workflow was running
+and was stopped when the owner said "STOP WHAT YOU'RE DOING AND WRITE DOWN HANDOFF". Only 2 of
+its 6 agents had started (this container runs 2 at a time), and neither finished, so there are no
+reports. Its raw downloads were left in the container scratchpad and are not in the repo.
+
+**How to continue:**
+1. Research first. The full plan is in `docs/research/m7_research_workflow.js`, a Workflow
+   script with six topics, then a planning agent:
+   - tm_physics: a quantitative Trackmania car-behaviour target spec;
+   - tm_maps: TMX styles plus 36 original map concepts;
+   - godot_pc_rtx: Godot 4.7 Forward+, the NVIDIA RTX fork, PC export and CI;
+   - audit_physics, audit_perf, audit_tracks.
+   Re-run it with the Workflow tool, or work through the six prompts one at a time if parallel
+   agents are not wanted. The owner's earlier rule is "no parallel agents"; they opted into
+   workflows for M7. Save each report to `docs/research/` and push as soon as it exists.
+2. Then implement in order: physics rewrite (TM feel; retune the AutoDriver) → barriers, wall
+   rides and loops, non-magnetic rails → PC smoothness (physics interpolation, frame pacing) and
+   graphics presets, Windows/Linux export (+ CI) and the optional RTX path → new track pieces
+   → 30+ maps (one per worker/branch) → track select / LIVE for 30+ maps. Measurable tests for
+   each step; keep the web build working.
+- Research access from cloud containers: trackmania.exchange (incl. JSON API
+  `/api/meta/tags`, `/api/maps?fields=...`), donadigo.com, linesight-rl.github.io,
+  openplanet.dev, doc.trackmania.com, docs.godotengine.org, godotengine.org and
+  raw.githubusercontent.com all work. reddit, fandom and github.com web pages return 403.
+- NVIDIA RTX fork: branches `nvidia-pt-dlss` (path tracing + DLSS), `nvidia-pt-dlss-dev`,
+  `backport/nvidia-pt-dlss-4.6.3`, `worktree-dlss-fg-reflex`. It's public, and the git proxy
+  serves reads: `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch nvidia-pt-dlss
+  https://github.com/NVIDIA-RTX/godot /home/user/nvidia-rtx/godot` (~5 min). This session's
+  clone dies with the container.
+- **Still pending from earlier today:** the Pi runs an older build. Everything up to ce4dc66
+  (new cars, skies, 16 liveries, interiors + driver, air-steer fix) needs
+  `cd ~/speedfest && git pull && docker restart speedfest` on the Pi.
 
 ## Latest (~20:45 UTC, session 7, cloud session)
 
