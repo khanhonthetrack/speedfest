@@ -495,7 +495,10 @@ func _reset_driver_tracking() -> void:
 
 
 func _check_auto_respawn(dt: float) -> void:
-	if car.global_position.y < track.kill_y:
+	# Elevated tracks expose a local fall height that follows the deck, so a fall off a high deck
+	# respawns quickly instead of waiting to reach the global kill_y far below.
+	var fall_y: float = track.call("kill_y_at", car.global_position) if track.has_method("kill_y_at") else track.kill_y
+	if car.global_position.y < fall_y:
 		respawn()
 		return
 	var up := car.global_transform.basis.y
