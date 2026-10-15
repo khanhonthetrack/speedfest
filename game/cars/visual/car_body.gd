@@ -133,11 +133,8 @@ static func build_shell(s: CarShape, kit: MeshKit) -> void:
 				var y := lerpf(pnt.y, cy, f)
 				ring.append(Vector3(x, y, z0 + s.end_bulge(x, y, t_end)))
 			rings.append(ring)
-		var under_fn := func(i: int, j: int, c: Vector3) -> String:
-			return "trim" if j < 3 else "paint"
-		var under_col := func(i: int, j: int, c: Vector3) -> Color:
-			return COL_UNDER if j < 3 else COL_PAINT
-		kit.grid("paint", rings, -1.0 if e == 0 else 1.0, [1, 2, 3], [], under_fn, under_col)
+		kit.color = COL_PAINT
+		kit.grid("paint", rings, -1.0 if e == 0 else 1.0, [1, 2, 3])
 	kit.color = Color(1, 1, 1, 1)
 	kit.mirror_x = false
 

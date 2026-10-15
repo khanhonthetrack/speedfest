@@ -138,6 +138,9 @@ func _place_camera(angle: String, n: int) -> void:
 			dir = Vector3(0.01, 1, 0.01)
 		"low":
 			dir = Vector3(-1.0, 0.08, -0.8)
+		"chase":
+			dir = Vector3(0.0, 0.32, 1.0)
+			dist = 6.5 if n == 1 else 9.0
 		"close":
 			dir = Vector3(-1.0, 0.9, -0.6)
 			dist = 4.5

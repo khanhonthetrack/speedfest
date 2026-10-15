@@ -281,9 +281,11 @@ static func _kaze_front(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
 		kit.color = PAINT
 		var prof := PackedVector2Array([Vector2(z0, yd - 0.04), Vector2(z0, yd + pod_h), Vector2(z0 + 0.2, yd + pod_h - 0.02), Vector2(z0 + 0.24, yd - 0.04)])
 		side_prism(kit, "paint", prof, xc - 0.19, xc + 0.19)
+		kit.color = DARK
+		kit.box("trim", Vector3(xc, yd + 0.045, z0 - 0.003), Vector3(0.36, 0.12, 0.01))
 		kit.color = L_HEAD
-		kit.box("lights", Vector3(xc - 0.09, yd + 0.05, z0 - 0.003), Vector3(0.15, 0.1, 0.01))
-		kit.box("lights", Vector3(xc + 0.09, yd + 0.05, z0 - 0.003), Vector3(0.15, 0.1, 0.01))
+		kit.box("lights", Vector3(xc - 0.085, yd + 0.045, z0 - 0.008), Vector3(0.14, 0.085, 0.01))
+		kit.box("lights", Vector3(xc + 0.085, yd + 0.045, z0 - 0.008), Vector3(0.14, 0.085, 0.01))
 		info["headlights"].append(Vector3(xc, yd + 0.05, z0 - 0.01))
 	# slim grille slot and amber corner lamps on the nose
 	var yb := s.bot(0.0)
