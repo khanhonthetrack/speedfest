@@ -27,6 +27,8 @@ func _ready() -> void:
 	var cfg := CarDefs.default_config(TestHooks.arg("car", "kaze"))
 	car = Car.create(cfg)
 	add_child(car)
+	car.contact_monitor = true
+	car.max_contacts_reported = 4
 	car.teleport(track.get_start_transform())
 	bot = load("res://cars/auto_driver.gd").new()
 	bot.set("path", track.path)
@@ -44,7 +46,23 @@ func _ready() -> void:
 func _physics_process(_dt: float) -> void:
 	frames += 1
 	max_kmh = maxf(max_kmh, absf(car.get_speed_kmh()))
+	if TestHooks.arg("trace", false) and frames % 30 == 0:
+		var dd := track.path.closest_distance(car.global_position)
+		print("  t=%.1f d=%.0f y=%.1f v=%.0f lat=%.1f gr=%s up=%.2f" % [frames / 60.0, dd, car.global_position.y, car.get_speed_kmh(), track.path.lateral_offset(car.global_position), car.is_grounded(), car.global_transform.basis.y.dot(track.path.sample_transform(dd).basis.y)])
+	if TestHooks.arg("trace", false) and car.get_contact_count() > 0 and absf(car.get_speed_kmh()) > 60.0 and frames % 3 == 0:
+		var space := get_world_3d().direct_space_state
+		var q := PhysicsShapeQueryParameters3D.new()
+		var sph := SphereShape3D.new()
+		sph.radius = 2.6
+		q.shape = sph
+		q.transform = Transform3D(Basis.IDENTITY, car.global_position)
+		q.collision_mask = 1
+		var names := []
+		for r in space.intersect_shape(q, 8):
+			names.append(str(r["collider"].name))
+		print("    contact t=%.2f pos=%s %s" % [frames / 60.0, str(car.global_position.snapped(Vector3.ONE * 0.1)), str(names)])
 	if car.global_position.y < track.kill_y:
+		log_events.append("fell at %s d=%.0f" % [str(car.global_position.snapped(Vector3.ONE)), track.path.closest_distance(car.global_position)])
 		_respawn("fell")
 	for l in track.data["loops"]:
 		var d := track.path.closest_distance(car.global_position)

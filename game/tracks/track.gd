@@ -11,6 +11,7 @@ signal finish_reached(car: Node)
 ## finish trigger at spawn). Point-to-point: this far *behind* the (trigger-less) start gate.
 const START_BACKOFF := 6.0
 const SPAWN_HEIGHT := 0.6       # car origin above the road surface
+const GATE_TRIGGER_H := 40.0    # checkpoint/finish trigger height
 
 var track_id: String = "arena"
 var path: TrackPath
@@ -168,9 +169,10 @@ func _make_gate(parent: Node3D, d: float, kind: String, with_area := true) -> Ar
 	area.monitorable = false
 	var cs := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(hw * 2.0 + 2.0 * (TrackBuilder.WALL_GAP + 0.7), 8.0, 4.0)
+	# Tall trigger: cars flying over the arch after a jump still count.
+	box.size = Vector3(hw * 2.0 + 2.0 * (TrackBuilder.WALL_GAP + 0.7), GATE_TRIGGER_H, 4.0)
 	cs.shape = box
-	cs.position = Vector3(0, 3.6, 0)
+	cs.position = Vector3(0, GATE_TRIGGER_H * 0.5 - 1.0, 0)
 	area.add_child(cs)
 	root.add_child(area)
 	area.set_meta("distance", d)

@@ -15,6 +15,11 @@ var is_circuit: bool = true
 ## [{from: float, to: float, kind: String}], kinds: loop, jump, tunnel, bridge, boost, no_props
 var zones: Array = []
 
+## Vertical loops: [{from: float, to: float, axis: Vector3}]. Inside a loop the road's right
+## vector is the loop's fixed lateral axis (projected onto the plane normal to the tangent),
+## which keeps the road surface facing the loop center without twist.
+var loop_axes: Array = []
+
 var _width_default: float = 14.0
 var _width_profile: Array = []         # sorted [[d, w], ...]
 var _frames: Array[Transform3D] = []
@@ -26,6 +31,19 @@ func _init(p_curve: Curve3D, circuit: bool = true, width: float = 14.0) -> void:
 	is_circuit = circuit
 	_width_default = width
 	rebake()
+
+
+## Set loop axes (see `loop_axes`) and rebuild the frames.
+func set_loop_axes(axes: Array) -> void:
+	loop_axes = axes.duplicate(true)
+	_bake_frames()
+
+
+func _loop_axis_at(d: float) -> Vector3:
+	for l in loop_axes:
+		if d >= float(l["from"]) and d <= float(l["to"]):
+			return l["axis"]
+	return Vector3.ZERO
 
 
 ## Recompute frames (call after editing the curve).
@@ -97,6 +115,11 @@ func _bake_frames() -> void:
 				if proj.length_squared() > 1e-6:
 					up = proj.normalized()
 		up = (up - t * up.dot(t)).normalized()
+		var axis := _loop_axis_at(d)
+		if axis != Vector3.ZERO:
+			var rr := axis - t * axis.dot(t)
+			if rr.length_squared() > 1e-6:
+				up = (-t).cross(rr.normalized()).normalized()
 		ups.append(up)
 		poss.append(pos)
 		tans.append(t)

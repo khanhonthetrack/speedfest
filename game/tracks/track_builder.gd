@@ -144,7 +144,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 				var a := TAU * float(i) / n
 				var p := start_p + fwd * (r * sin(a)) + Vector3.UP * (r - r * cos(a)) + right * (shift * smoothstep(0.0, 1.0, float(i) / n))
 				emit.call(p, 0.0)
-			loops.append({"from": lf, "to": dist[dist.size() - 1], "radius": r, "shift": shift})
+			loops.append({"from": lf, "to": dist[dist.size() - 1], "radius": r, "shift": shift, "axis": right})
 			zones.append({"from": lf - 10.0, "to": dist[dist.size() - 1] + 10.0, "kind": "loop"})
 		elif s.has("jump"):
 			var j: Dictionary = s["jump"]
@@ -286,6 +286,11 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 		w[0] = sc.call(w[0])
 	path.set_width_profile(widths)
 	path.zones = zones
+	if not loops.is_empty():
+		var axes := []
+		for l in loops:
+			axes.append({"from": l["from"], "to": l["to"], "axis": l["axis"]})
+		path.set_loop_axes(axes)
 	return {
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
 		"boosts": boosts, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
@@ -308,6 +313,7 @@ const CHUNK := 150.0
 const RING := 1.5
 const ROAD_DEPTH := 1.0
 const WALL_GAP := 0.15          # space between road edge and barrier foot
+const WALL_COLLISION_H := 2.6   # invisible collision height of barriers above the road
 const LAYER_WORLD := 1
 const LAYER_TRIGGER := 4        # physics layer 3
 const MASK_CAR := 2             # physics layer 2
@@ -759,7 +765,8 @@ static func _build_wall_run(path: TrackPath, ds: PackedFloat32Array, side: float
 			_:
 				p = PackedVector2Array([Vector2(o, -0.3), Vector2(o, 0.1), Vector2(o + 0.16, 0.32), Vector2(o + 0.26, 1.0), Vector2(o + 0.44, 1.0), Vector2(o + 0.54, 0.32), Vector2(o + 0.7, 0.1), Vector2(o + 0.7, -0.3)])
 				s = PackedVector2Array([Vector2(o + 0.255, 0.9), Vector2(o + 0.262, 0.97)])
-		var c := PackedVector2Array([Vector2(o, -0.6), Vector2(o, 1.4), Vector2(o + 0.6, 1.4), Vector2(o + 0.6, -0.6)])
+		# collision is taller than the visual barrier so fast cars can't climb over it
+		var c := PackedVector2Array([Vector2(o, -0.6), Vector2(o, WALL_COLLISION_H), Vector2(o + 0.6, WALL_COLLISION_H), Vector2(o + 0.6, -0.6)])
 		if side < 0:
 			p = mirror_profile(p)
 			c = mirror_profile(c)

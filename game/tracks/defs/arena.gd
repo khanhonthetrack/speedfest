@@ -32,8 +32,8 @@ func layout() -> Dictionary:
 			{"s": 10},
 			{"cp": true},
 			{"t": 90, "r": 60, "bank": 10},
-			{"s": 20}, {"boost": 12}, {"s": 20},
-			{"jump": {"ramp": 40.0, "h": 4.0, "gap": 22.0, "land": 60.0}},
+			{"s": 40},
+			{"jump": {"ramp": 45.0, "h": 3.2, "gap": 20.0, "land": 55.0}},
 			{"close": true},
 		],
 	}

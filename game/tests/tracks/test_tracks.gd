@@ -42,6 +42,8 @@ func _test_track(id: String) -> void:
 
 	# continuity: no jumps in position or heading between consecutive samples
 	var worst_angle := 0.0
+	var worst_up := 0.0
+	var worst_up_d := 0.0
 	var worst_step := 0.0
 	var d := 0.0
 	var pf := path.sample_transform(0.0)
@@ -50,8 +52,13 @@ func _test_track(id: String) -> void:
 		var f := path.sample_transform(d)
 		worst_step = maxf(worst_step, f.origin.distance_to(pf.origin))
 		worst_angle = maxf(worst_angle, rad_to_deg((-pf.basis.z).angle_to(-f.basis.z)))
+		var ua := rad_to_deg(pf.basis.y.angle_to(f.basis.y))
+		if ua > worst_up:
+			worst_up = ua
+			worst_up_d = d
 		pf = f
 	TestHooks.check(worst_step < 1.3 and worst_angle < 4.5, id + "_continuity", "step %.2f angle %.2f" % [worst_step, worst_angle])
+	TestHooks.check(worst_up < 4.5, id + "_surface_twist", "up changes %.2f deg/m at d=%.0f" % [worst_up, worst_up_d])
 	if track.is_circuit:
 		var a := path.sample_transform(path.length - 0.5)
 		var b := path.sample_transform(0.5)
