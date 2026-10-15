@@ -24,7 +24,7 @@ To use a specific branch: `git checkout <branch>` after cloning (`git pull` upda
 
 ## 2. Let your friends in
 
-Pick one option.
+Pick one option. **C (Render)** gives a permanent website and needs no PC running.
 
 ### A. Cloudflare quick tunnel (recommended: free, no account, works through any router)
 1. Install `cloudflared`:
@@ -43,12 +43,30 @@ Pick one option.
 Friends open `http://<host-ip>:8080`. Find the IP with `ipconfig` on Windows or `ip addr` on Linux.
 Allow Node.js through the firewall when Windows asks.
 
-### C. Deploy to Render (always-on URL)
-1. render.com → New → **Web Service** → connect the GitHub repo.
-2. Root directory `server`, build command `npm install`, start command `npm start`.
-   Pick the branch you want to run.
-3. Render gives you `https://<name>.onrender.com`. Free instances sleep when idle, so the first
-   visit can take about a minute.
+### C. Deploy to Render (a permanent website, recommended): about 10 minutes, works from a phone
+Free, with HTTPS and WebSockets. The repo has a `render.yaml` blueprint, so there's almost nothing to type.
+1. Go to **render.com** → **Get Started** → sign up with **GitHub**. Allow Render to see the
+   `khanhonthetrack/speedfest` repo, or all repos.
+2. Dashboard → **New +** → **Web Service** → pick `speedfest`, then fill in:
+   - **Branch:** `ccr-49301774-b5a4ns` (the integrated game; use `main` once it's merged there)
+   - **Root Directory:** `server`
+   - **Language / Runtime:** Node
+   - **Build Command:** `npm install --omit=dev`
+   - **Start Command:** `npm start`
+   - **Instance Type:** Free
+   Then **Deploy Web Service**. (Alternative: **New +** → **Blueprint** → pick the repo and that
+   branch. It reads `render.yaml` and fills everything in.)
+3. Wait for "Live" (2–4 minutes). Your game is at `https://speedfest-xxxx.onrender.com`, the URL at
+   the top of the page. Send that link to your friends.
+
+Good to know:
+- The free plan **sleeps after 15 minutes without visitors**. The first visit then takes ~1 minute
+  to wake up, so open the link a few minutes before game night.
+- Every push to that branch **redeploys automatically**, and that restarts the server and drops
+  players from their room. Before playing, turn off **Settings → Auto-Deploy** in Render (turn it
+  back on later), or tell the agents not to push during the game.
+- Health check: `https://<your-url>/health` shows `{"ok":true,...}`.
+- Custom domain: Render → Settings → Custom Domains (needs a domain you own).
 
 ## 3. Playing
 
