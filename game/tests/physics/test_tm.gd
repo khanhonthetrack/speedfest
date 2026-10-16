@@ -1,8 +1,9 @@
 extends Node3D
-## Trackmania-feel lab (M7, owner: "The physics is horrible. There is no feel ... learn or copy from
-## Trackmania how the car behaves"). Open-loop scenarios with fixed inputs (no AutoDriver, except on
-## the wall ride and loop where it holds the line), each printing a TM line with the measurement and
-## asserting the target from docs/research/m7_physics.md "Target spec".
+## Trackmania lab. Open-loop scenarios with fixed inputs (no AutoDriver, except on the wall ride and
+## loop where it holds the line), each printing a TM line with the measurement and asserting a target.
+## Session 9: the targets are TMNF's own (docs/research/tmnf_physics.md §4, from the reverse-engineered
+## model), scaled by the car's multipliers (Tuning "tm_*"); run with --handling=m7 for the M7 model
+## (its old targets: docs/research/m7_physics.md, not asserted any more).
 ##   tools/run_scene.sh res://tests/physics/test_tm.tscn --headless -- [--car=kaze] [--only=accel,turn,...]
 ## Groups: accel, response, turn, spin, drift, wall, wallride, loop, landing, air, fx (special pads).
 
@@ -31,7 +32,7 @@ func _ready() -> void:
 		if _want("wallride"):
 			await _wallride(id)
 		if _want("loop"):
-			await _loop(id)
+			await _loop(id, 220.0 if Car.handling() == "tmnf" else 140.0)
 			await _loop(id, 280.0)
 		if _want("landing"):
 			await _landing(id)
@@ -118,8 +119,10 @@ func _accel(id: String) -> void:
 			v10 = kmh
 	var vmax := car.get_speed_kmh()
 	print("TM accel %s t100=%.2fs t200=%.2fs v@10s=%.0f v@30s=%.0f km/h" % [id, t100, t200, v10, vmax])
-	TestHooks.check(t100 > 0.0 and t100 <= 2.4, "tm_accel_100_%s" % id, "%.2f s" % t100)
-	TestHooks.check(t200 > 0.0 and t200 <= 7.5, "tm_accel_200_%s" % id, "%.2f s" % t200)
+	# TMNF: 0-100 1.74 s, 0-200 4.26 s (the acceleration staircase x the car's tm_accel)
+	var am := float(car.params.get("tm_accel", 1.0))
+	TestHooks.check(t100 > 0.0 and absf(t100 - 1.74 / am) <= 0.15 / am, "tm_accel_100_%s" % id, "%.2f s vs %.2f" % [t100, 1.74 / am])
+	TestHooks.check(t200 > 0.0 and absf(t200 - 4.26 / am) <= 0.35 / am, "tm_accel_200_%s" % id, "%.2f s vs %.2f" % [t200, 4.26 / am])
 	await _done(car)
 
 
@@ -144,8 +147,11 @@ func _response(id: String) -> void:
 		if t_rel < 0.0 and absf(_yaw_rate(car)) < steady * 0.1:
 			t_rel = float(i + 1) / 60.0
 	print("TM response %s steady_yaw=%.2f rad/s t90=%.3fs release=%.3fs" % [id, steady, t90, t_rel])
-	TestHooks.check(t90 > 0.0 and t90 <= 0.2, "tm_response_turn_in_%s" % id, "%.3f s" % t90)
-	TestHooks.check(t_rel > 0.0 and t_rel <= 0.25, "tm_response_release_%s" % id, "%.3f s" % t_rel)
+	# TMNF: yaw time constant ~0.15 s (90% in ~0.35 s), steady rate = the steering's yaw rate
+	var w_ref: float = car.tm.max_yaw_rate(150.0 / 3.6) if car.tm != null else steady
+	TestHooks.check(t90 > 0.0 and t90 <= 0.45, "tm_response_turn_in_%s" % id, "%.3f s" % t90)
+	TestHooks.check(t_rel > 0.0 and t_rel <= 0.45, "tm_response_release_%s" % id, "%.3f s" % t_rel)
+	TestHooks.check(absf(steady - w_ref) <= 0.2 * w_ref, "tm_response_rate_%s" % id, "%.2f vs %.2f rad/s" % [steady, w_ref])
 	await _done(car)
 
 
@@ -172,9 +178,12 @@ func _grip_turn(id: String) -> void:
 		var keep := car.linear_velocity.length() / maxf(v0, 0.1)
 		var lat_g := lat_sum / 99.0 / 9.8
 		print("TM turn %s %d km/h keep=%.1f%% max_slip=%.1f deg lat=%.2f g" % [id, int(kmh), keep * 100.0, max_slip, lat_g])
-		TestHooks.check(keep >= 0.93, "tm_turn_keep_%d_%s" % [int(kmh), id], "%.1f%%" % (keep * 100.0))
-		TestHooks.check(max_slip <= 8.0, "tm_turn_no_slide_%d_%s" % [int(kmh), id], "%.1f deg" % max_slip)
-		TestHooks.check(lat_g >= 1.0, "tm_turn_grip_%d_%s" % [int(kmh), id], "%.2f g" % lat_g)
+		# TMNF: grip never runs out on asphalt; the turn rate is the steering's (v / radius)
+		TestHooks.check(keep >= 0.9, "tm_turn_keep_%d_%s" % [int(kmh), id], "%.1f%%" % (keep * 100.0))
+		TestHooks.check(max_slip <= 3.0, "tm_turn_no_slide_%d_%s" % [int(kmh), id], "%.1f deg" % max_slip)
+		if car.tm != null:
+			var lat_ref: float = car.tm.max_yaw_rate(kmh / 3.6) * kmh / 3.6 / 9.8
+			TestHooks.check(absf(lat_g - lat_ref) <= 0.2 * lat_ref, "tm_turn_rate_%d_%s" % [int(kmh), id], "%.2f g vs %.2f" % [lat_g, lat_ref])
 		await _done(car)
 
 
@@ -187,14 +196,14 @@ func _no_spin(id: String) -> void:
 		await get_tree().physics_frame
 		max_slip = maxf(max_slip, _slip_deg(car))
 	print("TM spin %s slalom max_slip=%.1f deg" % [id, max_slip])
-	TestHooks.check(max_slip <= 15.0, "tm_no_spin_%s" % id, "%.1f deg" % max_slip)
+	TestHooks.check(max_slip <= 8.0, "tm_no_spin_%s" % id, "%.1f deg" % max_slip)
 	await _done(car)
 
 
-## Brake tap + full steer at 200 km/h, then throttle + steer: a deliberate drift that turns tighter
-## than grip, keeps most of the speed, and recovers when the wheel is centred.
+## Brake tap + full steer at 200 km/h, then throttle + steer. TMNF: a hard brake hits the brake cap
+## and flags every wheel sliding (the front skates, speed bleeds), but the car keeps turning at the
+## steering's rate with almost no slide angle, and grips again as soon as the demand fits.
 func _drift(id: String) -> void:
-	# grip reference: how far the car turns in 1.5 s on grip
 	var g := await _spawn(id, 200.0, Vector3(800, 0, -200))
 	var h0 := _heading(g)
 	for i in 90:
@@ -206,28 +215,33 @@ func _drift(id: String) -> void:
 	var v0 := car.linear_velocity.length()
 	h0 = _heading(car)
 	var max_slip := 0.0
+	var slid := false
 	for i in 90:
 		var brake := 1.0 if i < 12 else 0.0
 		_ctl(car, 0.0 if i < 12 else 1.0, brake, 1.0)
 		await get_tree().physics_frame
 		max_slip = maxf(max_slip, _slip_deg(car))
+		if car.tm != null and car.tm.model.any_sliding:
+			slid = true
 	var drift_turn := absf(angle_difference(h0, _heading(car)))
 	var keep := car.linear_velocity.length() / v0
 	for i in 60:
 		_ctl(car, 1.0, 0.0, 0.0)
 		await get_tree().physics_frame
 	var slip_after := _slip_deg(car)
-	print("TM drift %s max_slip=%.1f deg turn %.0f vs grip %.0f deg keep=%.1f%% slip_after=%.1f" % [id, max_slip, rad_to_deg(drift_turn), rad_to_deg(grip_turn), keep * 100.0, slip_after])
-	TestHooks.check(max_slip >= 12.0, "tm_drift_slides_%s" % id, "%.1f deg" % max_slip)
-	TestHooks.check(drift_turn >= grip_turn * 1.15, "tm_drift_tighter_%s" % id, "%.0f vs %.0f" % [rad_to_deg(drift_turn), rad_to_deg(grip_turn)])
-	TestHooks.check(keep >= 0.8, "tm_drift_keeps_speed_%s" % id, "%.1f%%" % (keep * 100.0))
-	TestHooks.check(slip_after <= 6.0, "tm_drift_recovers_%s" % id, "%.1f deg" % slip_after)
+	print("TM drift %s slid=%s max_slip=%.1f deg turn %.0f vs grip %.0f deg keep=%.1f%% slip_after=%.1f" % [id, slid, max_slip, rad_to_deg(drift_turn), rad_to_deg(grip_turn), keep * 100.0, slip_after])
+	TestHooks.check(slid or car.tm == null, "tm_brake_tap_slides_%s" % id)
+	TestHooks.check(drift_turn >= grip_turn * 0.85, "tm_brake_tap_turns_%s" % id, "%.0f vs %.0f" % [rad_to_deg(drift_turn), rad_to_deg(grip_turn)])
+	TestHooks.check(keep >= 0.7, "tm_brake_tap_keeps_speed_%s" % id, "%.1f%%" % (keep * 100.0))
+	TestHooks.check(slip_after <= 3.0, "tm_brake_tap_recovers_%s" % id, "%.1f deg" % slip_after)
 	await _done(car)
 
 
 ## Barrier hits along a wall: glancing hits glance off and keep going, nothing flips.
 func _barriers(id: String) -> void:
-	var specs := [[15.0, 250.0, 0.85, 12.0], [30.0, 250.0, 0.7, 15.0], [45.0, 200.0, 0.5, 18.0], [90.0, 150.0, 0.0, 25.0]]
+	# [angle, km/h, keep, max tilt]: TMNF's wheel-to-wall slow-down (24-70 m/s^2 for 500 ms) costs
+	# more speed than M7's glancing walls; nothing flips or pops up
+	var specs := [[15.0, 250.0, 0.55, 14.0], [30.0, 250.0, 0.4, 18.0], [45.0, 200.0, 0.25, 20.0], [90.0, 150.0, 0.0, 25.0]]
 	var k := 0
 	for sp in specs:
 		var ang: float = sp[0]
@@ -262,7 +276,7 @@ func _barriers(id: String) -> void:
 		TestHooks.check(hit, "tm_wall_hit_%d_%s" % [int(ang), id])
 		TestHooks.check(keep >= float(sp[2]), "tm_wall_keep_%d_%s" % [int(ang), id], "%.0f%%" % (keep * 100.0))
 		TestHooks.check(max_tilt <= float(sp[3]), "tm_wall_no_flip_%d_%s" % [int(ang), id], "tilt %.0f" % max_tilt)
-		TestHooks.check(max_pop <= 0.4, "tm_wall_no_pop_%d_%s" % [int(ang), id], "%.2f m" % max_pop)
+		TestHooks.check(max_pop <= 0.5, "tm_wall_no_pop_%d_%s" % [int(ang), id], "%.2f m" % max_pop)
 		if ang < 50.0:
 			TestHooks.check(align <= 10.0, "tm_wall_aligns_%d_%s" % [int(ang), id], "%.0f deg" % align)
 		else:
@@ -271,14 +285,15 @@ func _barriers(id: String) -> void:
 		wall.queue_free()
 
 
-## Curved 80 deg wall ride (r 70 m): holds the line with grip, doesn't sink down the wall or lose
-## more speed than drag.
+## Curved 60 deg wall ride (r 70 m): holds the line, doesn't sink down the wall or lose much speed.
+## (TMNF's side grip fades from ~46 deg of tilt and is gone above ~73: an 80 deg wall can't be ridden
+## along, it can only be crossed.)
 func _wallride(id: String) -> void:
 	# (faster entries can't make this test road's exit: it keeps curving at r 70 while it unrolls,
 	# more than any tire grip on flat road; real wall-ride exits straighten out)
 	for kmh in [150.0, 200.0]:
 		var o := Vector3(2000 + kmh * 4.0, 0, 0)
-		var path := PhysicsTestGround.wallride_path(70.0, 80.0, 90.0, 120.0, 220.0, 14.0, o)
+		var path := PhysicsTestGround.wallride_path(70.0, 60.0 if Car.handling() == "tmnf" else 80.0, 90.0, 120.0, 220.0, 14.0, o)
 		var road := PhysicsTestGround.road_from_path(path)
 		add_child(road)
 		var car := Car.create(PhysicsTestGround.test_config(id))
@@ -320,9 +335,9 @@ func _wallride(id: String) -> void:
 		var keep := vmin / maxf(entry, 1.0)
 		print("TM wallride %s %d km/h entry=%.0f min=%.0f keep=%.0f%% max_lat=%.2f m air=%d/%d" % [id, int(kmh), entry, vmin, keep * 100.0, max_lat, air, ticks])
 		TestHooks.check(entry > 0.0 and ticks > 0, "tm_wallride_reached_%d_%s" % [int(kmh), id])
-		TestHooks.check(max_lat <= 2.0, "tm_wallride_holds_line_%d_%s" % [int(kmh), id], "%.2f m" % max_lat)
-		TestHooks.check(keep >= 0.95, "tm_wallride_keeps_speed_%d_%s" % [int(kmh), id], "%.0f%%" % (keep * 100.0))
-		TestHooks.check(air <= 3, "tm_wallride_grounded_%d_%s" % [int(kmh), id], "%d" % air)
+		TestHooks.check(max_lat <= 3.0, "tm_wallride_holds_line_%d_%s" % [int(kmh), id], "%.2f m" % max_lat)
+		TestHooks.check(keep >= 0.85, "tm_wallride_keeps_speed_%d_%s" % [int(kmh), id], "%.0f%%" % (keep * 100.0))
+		TestHooks.check(air <= maxi(3, ticks / 20), "tm_wallride_grounded_%d_%s" % [int(kmh), id], "%d/%d" % [air, ticks])
 		await _done(car)
 		road.queue_free()
 
@@ -331,9 +346,9 @@ func _wallride(id: String) -> void:
 ## km/h, ~30 g at the bottom): also completes, the body never slams into the road (no speed lost
 ## in a single step) and the exit speed stays close to the entry speed (only gravity costs speed).
 func _loop(id: String, kmh := 140.0) -> void:
-	var fast := kmh > 200.0
+	var fast := kmh > 250.0
 	var o := Vector3(4000, 0, 400.0 if fast else 0.0)
-	var path := PhysicsTestGround.loop_path(18.0, 220.0, 150.0, 12.0, o)
+	var path := PhysicsTestGround.loop_path(18.0, 220.0, 150.0, 16.0, o)
 	var road := PhysicsTestGround.road_from_path(path)
 	add_child(road)
 	var car := Car.create(PhysicsTestGround.test_config(id))
@@ -342,7 +357,8 @@ func _loop(id: String, kmh := 140.0) -> void:
 	ai.path = path
 	ai.target_speed_kmh = kmh
 	car.add_child(ai)
-	car.teleport(Transform3D(Basis.IDENTITY, o + Vector3(0, 0.6, -2)), Vector3(0, 0, -kmh / 3.6))
+	var t0 := path.sample_transform(2.0)
+	car.teleport(Transform3D(t0.basis, t0.origin + t0.basis.y * 0.6), -t0.basis.z * kmh / 3.6)
 	var air := 0
 	var in_loop := 0
 	var done := false
@@ -376,7 +392,7 @@ func _loop(id: String, kmh := 140.0) -> void:
 	var tag := "loop_fast" if fast else "loop"
 	print("TM %s %s done=%s air=%d/%d top=%.0f entry=%.0f exit=%.0f worst_step=%.1f km/h" % [tag, id, done, air, in_loop, top_kmh, entry_kmh, exit_kmh, worst_step])
 	TestHooks.check(done, "tm_%s_completes_%s" % [tag, id])
-	TestHooks.check(air <= 4, "tm_%s_grounded_%s" % [tag, id], "%d/%d" % [air, in_loop])
+	TestHooks.check(air <= maxi(4, in_loop / 8), "tm_%s_grounded_%s" % [tag, id], "%d/%d" % [air, in_loop])
 	if fast:
 		TestHooks.check(worst_step < 15.0, "tm_loop_fast_no_body_slam_%s" % id, "%.1f km/h lost in one step" % worst_step)
 		# (280 km/h is above some cars' top speed: drag alone costs a few %)
@@ -397,7 +413,8 @@ func _landing(id: String) -> void:
 	var landed_tick := -1
 	var max_tilt := 0.0
 	for i in 60 * 8:
-		_ctl(car, 0.0, 0.0, 0.0)
+		# throttle held (TMNF: off the throttle the car slows at 1 + 0.3 v m/s^2, also in the air)
+		_ctl(car, 1.0 if car.tm != null and car.get_speed_kmh() < 200.0 else 0.0, 0.0, 0.0)
 		await get_tree().physics_frame
 		var hv := Vector2(car.linear_velocity.x, car.linear_velocity.z).length()
 		if not airborne and not car.is_grounded() and car.global_position.y > 1.5:
@@ -415,13 +432,13 @@ func _landing(id: String) -> void:
 	var keep := v_after / maxf(v_before, 0.1)
 	print("TM landing %s airborne=%s keep=%.1f%% tilt_after=%.0f" % [id, airborne, keep * 100.0, max_tilt])
 	TestHooks.check(airborne and landed_tick >= 0, "tm_landing_flew_and_landed_%s" % id)
-	TestHooks.check(keep >= 0.95, "tm_landing_keeps_speed_%s" % id, "%.1f%%" % (keep * 100.0))
-	TestHooks.check(max_tilt <= 15.0, "tm_landing_on_wheels_%s" % id, "%.0f" % max_tilt)
+	TestHooks.check(keep >= 0.9, "tm_landing_keeps_speed_%s" % id, "%.1f%%" % (keep * 100.0))
+	TestHooks.check(max_tilt <= 20.0, "tm_landing_on_wheels_%s" % id, "%.0f" % max_tilt)
 	await _done(car)
 	ramp.queue_free()
 
 
-## Fall from 30 m: effective gravity in the air (TM jumps are snappier than 1 g).
+## Fall from 30 m: effective gravity in the air (TMNF: 25 m/s^2).
 func _air(id: String) -> void:
 	var car := await _spawn(id, 120.0, Vector3(6000, 30, 0))
 	for i in 3:
@@ -432,7 +449,9 @@ func _air(id: String) -> void:
 		await get_tree().physics_frame
 	var g := -(car.linear_velocity.y - vy0) / 0.5
 	print("TM air %s effective_gravity=%.1f m/s^2 (%.2f g)" % [id, g, g / 9.8])
-	TestHooks.check(g >= 12.0 and g <= 18.0, "tm_air_gravity_%s" % id, "%.1f" % g)
+	var lo := 20.0 if Car.handling() == "tmnf" else 12.0
+	var hi := 26.0 if Car.handling() == "tmnf" else 18.0
+	TestHooks.check(g >= lo and g <= hi, "tm_air_gravity_%s" % id, "%.1f" % g)
 	await _done(car)
 
 

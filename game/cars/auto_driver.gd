@@ -30,6 +30,7 @@ var reset_callable: Callable
 const PROFILE_STEP := 2.0
 const ZONE_LEAD := 70.0            # full throttle this many meters before loop/jump zones
 const STANLEY_K := 1.6
+const STANLEY_TM_RATE := 3.0        # 1/s: TMNF handling, yaw rate per rad of Stanley error
 const WALL_LEAD := 40.0             # Stanley + full throttle this far around wall-ride zones
 const STANLEY_JUMP_LEAD := 45.0     # Stanley steering this many meters before a jump (clean takeoff)
 
@@ -84,6 +85,8 @@ func _physics_process(dt: float) -> void:
 		_zero(car)
 		return
 	if _profile_path != path:
+		if car.tm != null and brake_accel == 9.0:
+			brake_accel = 16.0
 		_build_profile(car)
 	var pos := car.global_position
 	_track(pos)
@@ -112,6 +115,12 @@ func _physics_process(dt: float) -> void:
 		steer = _stanley(car, speed)
 	elif lz < 0.5:
 		steer = signf(lx) if absf(lx) > 0.01 else 1.0
+	elif car.tm != null:
+		# TMNF handling: the steering sets a yaw rate (no slip angle); ask for v * kappa of it
+		var l2t := lx * lx + lz * lz
+		var kap := 2.0 * lx / l2t
+		var w_max := car.tm.max_yaw_rate(speed)
+		steer = clampf(speed * kap / maxf(w_max, 0.05), -1.0, 1.0) if w_max > 0.05 else signf(lx)
 	else:
 		var l2 := lx * lx + lz * lz
 		var kappa := 2.0 * lx / l2
@@ -121,6 +130,9 @@ func _physics_process(dt: float) -> void:
 		var frac := clampf(speed * speed * kappa / a_max, -1.0, 1.0)
 		var ang := atan(kappa * car.get_wheelbase()) + frac * float(p["slip_peak"])
 		steer = clampf(ang / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
+
+	if car.tm != null and car.is_grounded() and car.tm.side_adherence() < 0.05:
+		steer = 0.0   # TMNF: no side grip on a near-vertical wall; steering would only yaw the car
 
 	# --- speed target ---
 	var vt := _target_speed(speed)
@@ -194,6 +206,10 @@ func _stanley(car: Car, speed: float) -> float:
 	var car_f := -xf.basis.z
 	var psi := atan2(pf.dot(xf.basis.x), pf.dot(car_f))
 	var delta := psi + atan2(-STANLEY_K * e, speed + 2.0)
+	if car.tm != null:
+		# TMNF: the steering is a yaw-rate command; close the heading + line error in ~0.3 s
+		var w_max := car.tm.max_yaw_rate(speed)
+		return clampf(delta * STANLEY_TM_RATE / maxf(w_max, 0.05), -1.0, 1.0)
 	return clampf(delta / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
 
 
@@ -306,6 +322,12 @@ func _build_profile(car: Car) -> void:
 			var denom := kappa - mu * dfm
 			if denom > 1e-5:
 				vmax = sqrt(mu * g / denom)
+		if car.tm != null:
+			# TMNF: the steering's yaw rate limits the speed in a turn (grip only on loose ground)
+			var gk := 1.0
+			if car.surface != null and not car.surface.patches.is_empty():
+				gk = CarTm.kind_grip(car.surface.kind_at(t1.origin))
+			vmax = car.tm.max_speed_for(kappa_s, maxf(gk, 0.05) * grip_margin / 0.72)
 		_profile[i] = minf(vmax, 200.0)
 		var full := 0
 		var stan := 0

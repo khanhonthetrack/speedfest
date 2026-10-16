@@ -142,20 +142,24 @@ static func loop_path(r: float = 18.0, lead: float = 220.0, tail: float = 150.0,
 	var c := Curve3D.new()
 	c.bake_interval = 0.5
 	var shift := width + 2.0
-	c.add_point(origin + Vector3(0, 0, 0))
-	c.add_point(origin + Vector3(0, 0, -lead * 0.5))
+	# a uniform helix (TMNF: a car follows it without steering; steep loop parts have no side grip),
+	# entered and left along the helix's own sideways slope
+	var slope := shift / (TAU * r)
+	c.add_point(origin + Vector3(-slope * lead, 0, 0))
+	c.add_point(origin + Vector3(-slope * lead * 0.5, 0, -lead * 0.5))
 	var n := 32
 	for i in n + 1:
 		var a := TAU * i / n
-		# ease the lateral shift so the loop's ends stay straight
-		var f := (1.0 - cos(PI * float(i) / n)) * 0.5
-		c.add_point(origin + Vector3(shift * f, r - r * cos(a), -lead - r * sin(a)))
-	c.add_point(origin + Vector3(shift, 0, -lead - tail * 0.5))
-	c.add_point(origin + Vector3(shift, 0, -lead - tail))
+		c.add_point(origin + Vector3(shift * float(i) / n, r - r * cos(a), -lead - r * sin(a)))
+	c.add_point(origin + Vector3(shift + slope * tail * 0.5, 0, -lead - tail * 0.5))
+	c.add_point(origin + Vector3(shift + slope * tail, 0, -lead - tail))
 	_smooth(c)
 	var p := PhysicsTestPath.new(c, false, width)
 	var loop_from := p.closest_distance(origin + Vector3(0, 0, -lead)) - 5.0
 	p.zones = [{"from": loop_from, "to": loop_from + TAU * r + 15.0, "kind": "loop"}]
+	# the road's sideways axis is the loop's axis (a cylinder), like the tracks' loops: without it the
+	# path's transported frames twist by the helix's torsion (~28 deg at the top)
+	p.set_loop_axes([{"from": loop_from + 5.0, "to": loop_from + TAU * r + 5.0, "axis": Vector3.RIGHT}])
 	return p
 
 

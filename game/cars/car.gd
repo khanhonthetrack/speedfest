@@ -215,11 +215,7 @@ func _setup() -> void:
 	mat.friction = BODY_FRICTION
 	mat.bounce = 0.0
 	physics_material_override = mat
-	if handling() == "tmnf":
-		tm = CarTm.new(self)
-		gravity_scale = 0.0                  # TMNF's gravity (3 g / 2.5 g) is applied by CarTm
-		angular_damp = 0.0
-		mat.friction = CarTm.T.BODY_FRICTION
+
 	var wf: float = params["weight_front"]
 	center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
 	center_of_mass = Vector3(0.0, float(params["cg_height"]), _wheelbase * (0.5 - wf))
@@ -254,6 +250,13 @@ func _setup() -> void:
 		_c[i] = 2.0 * float(params["damping"]) * cm * omega
 	_k_arb[0] = _k[0] * float(params["anti_roll"])
 	_k_arb[1] = _k[2] * float(params["anti_roll"])
+	if handling() == "tmnf":
+		# TMNF's own integrator moves the car (CarTm / TmBody); Jolt only sees a kinematic body,
+		# which still triggers checkpoints and pads. Stepped after the controllers (AutoDriver, input).
+		tm = CarTm.new(self)
+		freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+		freeze = true
+		process_physics_priority = 10
 	_queries.clear()
 	for i in 4:
 		var q := PhysicsRayQueryParameters3D.new()
@@ -280,8 +283,6 @@ func _ready() -> void:
 		_setup()
 	for q in _queries:
 		q.exclude = [get_rid()]
-	if tm != null:
-		tm.set_exclude(get_rid())
 	_land_q.collision_mask = 1
 	_land_q.collide_with_areas = false
 	_land_q.exclude = [get_rid()]
@@ -359,6 +360,20 @@ func teleport(xform: Transform3D, p_linear_velocity: Vector3 = Vector3.ZERO) -> 
 	if grind != null:
 		grind.release(self)
 		grind = null
+	if tm != null:
+		var x := xform.orthonormalized()
+		if is_inside_tree():
+			global_transform = x
+		else:
+			transform = x
+		linear_velocity = p_linear_velocity
+		angular_velocity = Vector3.ZERO
+		_pending_xform = x
+		_reset_dynamics(p_linear_velocity)
+		tm.teleport(x, p_linear_velocity)
+		if is_inside_tree():
+			reset_physics_interpolation()
+		return
 	_pending_teleport = true
 	_pending_xform = xform.orthonormalized()
 	_pending_vel = p_linear_velocity
@@ -533,8 +548,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			return
 		grind = null
 	if tm != null:
-		tm.integrate(state)
-		return
+		return   # (kinematic: CarTm moves the car in _physics_process)
 	var dt := state.step
 	var xf := state.transform
 	var b := xf.basis
@@ -1082,6 +1096,11 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	for i in 4:
 		var target := clampf(_comp[i], -SUSP_DROOP, 0.2) if _contact[i] else -SUSP_DROOP * 0.6
 		_vis_offset[i] = target if _contact[i] else move_toward(_vis_offset[i], target, dt * 1.5)
+
+
+func _physics_process(delta: float) -> void:
+	if tm != null:
+		tm.frame(delta)
 
 
 func _process(_delta: float) -> void:

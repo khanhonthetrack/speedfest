@@ -106,7 +106,7 @@ func _physics_process(_dt: float) -> void:
 		if not is_instance_valid(c) or not (c is Car):
 			continue
 		var car := c as Car
-		if car.grind != null or car.freeze:
+		if car.grind != null or (car.freeze and car.tm == null):
 			continue
 		_try_capture(car)
 	_update_sparks()
@@ -137,11 +137,13 @@ func _try_capture(car: Car) -> void:
 
 
 ## Called by Car._integrate_forces while car.grind == self. Drives the body; false = released.
-func grind_step(car: Car, state: PhysicsDirectBodyState3D) -> bool:
+## `state`: the body state, or any object with step/transform/linear_velocity/angular_velocity
+## (CarTm.GrindState: the TMNF car is kinematic).
+func grind_step(car: Car, state) -> bool:
 	if not _cars.has(car):
 		return false
 	var g: Dictionary = _cars[car]
-	var dt := state.step
+	var dt: float = state.step
 	var s: float = g["s"]
 	var v: float = g["v"]
 	var t := tangent_at(s)
@@ -163,7 +165,7 @@ func grind_step(car: Car, state: PhysicsDirectBodyState3D) -> bool:
 	var off: Vector3 = g.get("off", Vector3.ZERO)
 	off *= exp(-dt / SETTLE_T)
 	var pos := point_at(s) + up * RIDE_H + off
-	var cur := state.transform.basis
+	var cur: Basis = (state.transform as Transform3D).basis
 	var want := Basis(right, up, -t)
 	state.transform = Transform3D(cur.slerp(want, clampf(dt / SETTLE_T * 1.5, 0.0, 1.0)).orthonormalized(), pos)
 	state.linear_velocity = t * v

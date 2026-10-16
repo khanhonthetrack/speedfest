@@ -223,7 +223,7 @@ interpolation 1.
 | 0x1e8 | 500 | wall-contact slow-down duration, ms |
 | 0x200 | 1 | slip blend scale |
 | 0x224 | (0,0.1)(0.6,0.3)(0.975,1)(1,1) | side grip factor vs damper ratio (see §3.5) |
-| 0x228–0x23c | 5, 200, …, 0.05, 0.05 | roll/pitch damping torques |
+| 0x228–0x23c | 5, 200, …, 0.05, 0.05 | load transfer: per wheel on the ground, 0.05 × (contact point × last tick's total force), pitch and roll (the force is stored ÷ 0x228 and read back × −0x228) |
 | 0x230 | (−150,0.1)(−100,1.5)(−50,8)(0,30) | reverse acceleration vs km/h |
 | 0x240, 0x244 | 0.5, 0.2 | brake halving per sliding wheel; grip while sliding + braking |
 | 0x248, 0x24c | 100, 50 | reverse-brake caps |

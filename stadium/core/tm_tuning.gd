@@ -87,11 +87,12 @@ const SUSP_STATIC := 0.0125          ## length at rest under 3 g (where the whee
 const DAMPER_ABSORB_FULL := 0.0      ## [0x11c] suspension length that maps to ratio 1
 const DAMPER_ABSORB_NONE := 0.7      ## [0x120] suspension length that maps to ratio 0
 
-# --- roll/pitch damping per wheel and roll torque ---
-const RP_DAMP := 5.0                 ## [0x228]
-const RP_DAMP_MIN_W := 0.01          ## [0x234]
-const RP_DAMP_X := 0.05              ## [0x238]
-const RP_DAMP_Z := 0.05              ## [0x23c]
+# --- load transfer: each wheel on the ground adds 0.05 x (contact point x the car's total force of
+# the previous tick), pitch and roll only (nose up when accelerating, dive when braking, lean in turns)
+const LOAD_DIV := 5.0                ## [0x228] the force is stored / 5 and read back x -5 (cancels)
+const LOAD_MIN := 0.01               ## [0x234] no torque below this (stored) force
+const LOAD_TORQUE_X := 0.05          ## [0x238] pitch
+const LOAD_TORQUE_Z := 0.05          ## [0x23c] roll
 
 # --- dirt (surface 6) slide forces ---
 const DIRT_SIDE := -0.05             ## [0x33c]

@@ -3,52 +3,57 @@ extends RefCounted
 ## TMNF handling for SpeedFest's Car: the default since session 9 (owner: "Yes" to porting
 ## TrackMania Nations Forever's real car model, docs/research/tmnf_physics.md).
 ##
-## The Car keeps its RigidBody3D (Jolt resolves the chassis contacts, friction 0.3 like TMNF) and its
-## raycast wheels. Every physics tick this class runs TmCarModel (the Stadium car's force model 6,
-## shared with the Stadium remake) and applies its accelerations times the car's mass and its
-## angular accelerations (torque / TmTuning.INERTIA) times the car's inertia, so every SpeedFest car
-## steers, accelerates and brakes like the Stadium car, scaled by a few per-car multipliers
-## (Tuning.physics_params "tm_*"). Gravity is TMNF's: 30 m/s^2 with a wheel down, 25 in the air.
+## The car is moved by TmBody, TMNF's own integrator shared with the Stadium remake (sub-steps,
+## ellipsoid wheel and chassis contacts, TMNF's contact impulses, the force model TmCarModel), not
+## by Jolt: the Car is a kinematic RigidBody3D (it still triggers checkpoints and pads). TMNF ticks
+## at 100 Hz; here each 60 Hz frame runs 2 ticks of 8.3 ms (even motion; the model is stable down
+## to ~80 Hz). Contacts use the car's own wheels (positions, radius) and chassis ellipsoids scaled
+## to its size; the forces are the Stadium car's, times the per-car multipliers (Tuning "tm_*").
 ##
-## Frames: SpeedFest's car frame is Godot's (+X right, +Y up, -Z forward); TMNF's is +X left,
-## +Y up, +Z forward, i.e. the same frame turned 180 degrees about Y.
-##
-## Suspension (TMNF model 2): the length relaxes toward full extension at 5/s and the road pushes it
-## back in. With rays at 60 Hz the order is "relax, then clamp to the road" (TMNF absorbs first and
-## relaxes after; at 60 Hz one relax step, 1.6 cm, would exceed the 1.25 cm static length and the
-## springs could never hold 3 g). Same statics (0.0125 m at rest), same lag over crests. When the
-## travel runs out (a fast loop, a hard landing) the wheel hits the road like in TMNF: an impulse
-## keeps 80% of the approach speed per 10 ms-equivalent step and the car is pushed out of the road.
+## Frames: SpeedFest's car frame is Godot's (+X right, +Y up, -Z forward), origin at the wheel
+## centres; TMNF's is +X left, +Y up, +Z forward, origin at the centre of mass.
 
 const T := preload("tm_tuning.gd")
-const G := 10.0                                   ## TMNF's gravity field (x gravity_coef)
 const VIS_STEER := [[0.0, 30.0], [100.0, 10.0]]    ## visual front wheel angle (deg) vs km/h [0x378]
-## TrackSurface kinds (asphalt, grass, gravel, sand, dirt, ice, plastic) -> TmTuning surfaces
-const SURFACE_OF_KIND: Array[int] = [16, 2, 8, 5, 6, 3, 0]
-const RAY_UP := 0.35                              ## ray origin above the top mount
+## TrackSurface kinds (asphalt, grass, gravel, sand, dirt, ice, plastic) -> TmTuning surfaces.
+## The Stadium car's own surfaces (asphalt, grass, dirt) keep TMNF's values; gravel and sand use
+## TMNF's dirt road and sand; ice and plastic (no Stadium equivalent; TMNF's ice has no drive and
+## no grip at all) get SpeedFest values: SF_ICE, SF_PLASTIC.
+const SF_ICE := 200
+const SF_PLASTIC := 201
+const SURFACE_OF_KIND: Array[int] = [16, 2, 8, 5, 6, SF_ICE, SF_PLASTIC]
+const SF_SURFACES := {SF_ICE: [1.0, 0.45, 0.25, 0.12], SF_PLASTIC: [1.0, 0.9, 0.9, 0.7]}
 const MAX_SPEED_HARD := 125.0                     ## m/s: checkpoint triggers are 4 m deep at 60 Hz
-const REACTOR_LIFT := 0.55
+const REACTOR_LIFT := 0.8                         ## x TMNF's air gravity, upward
 const REACTOR_PUSH := 7.0
+const TMNF_DT := 0.01
 
 var car: Car
-var model := TmCarModel.new()
-var wheels: Array = []
-var _queries: Array[PhysicsRayQueryParameters3D] = []
-var _now_ms := 0.0
-var debug_print := false
+var body := TmBody.new()
+var model: TmCarModel:
+	get: return body.model
+var _com := Vector3.ZERO                          ## centre of mass in the SpeedFest car frame
+
+
+## Side grip per surface kind (for the AutoDriver's planning).
+static func kind_grip(kind: int) -> float:
+	var id: int = SURFACE_OF_KIND[clampi(kind, 0, SURFACE_OF_KIND.size() - 1)]
+	return float((SF_SURFACES[id] if SF_SURFACES.has(id) else T.surface_vals(id))[3])
 
 
 func _init(p_car: Car) -> void:
 	car = p_car
-	for i in 4:
-		var wi := TmCarModel.WheelInput.new()
-		wi.pos = T.WHEELS[i]
-		wheels.append(wi)
-		var q := PhysicsRayQueryParameters3D.new()
-		q.collision_mask = 1
-		q.collide_with_areas = false
-		q.hit_back_faces = false
-		_queries.append(q)
+	body.model.surface_override = SF_SURFACES
+	body.collision_mask = 1
+	body.surface_fn = _surface_for_body
+	_com = car.center_of_mass
+	var wheels: Array = []
+	for wp in car._wheel_pos:
+		var w: Vector3 = wp - _com
+		wheels.append(Vector3(-w.x, w.y, -w.z))
+	var g := CarDefs.geometry(car.car_id)
+	var scale := Vector3(float(g["width"]) / 2.04, clampf(float(g["height"]) / 1.18, 0.8, 1.1), float(g["length"]) / 4.1)
+	body.setup(wheels, car._radius, T.WHEEL_HALF_WIDTH, T.BODY_ELLIPSOIDS, scale)
 	apply_params(car.params)
 
 
@@ -62,43 +67,72 @@ func apply_params(p: Dictionary) -> void:
 	model.max_speed = float(p.get("tm_top", T.MAX_SPEED))
 
 
-func set_exclude(rid: RID) -> void:
-	for q in _queries:
-		q.exclude = [rid]
+## SpeedFest transform (Car) -> the body's pose, and back.
+func _to_body(xf: Transform3D) -> Transform3D:
+	var b := xf.basis.orthonormalized()
+	return Transform3D(Basis(-b.x, b.y, -b.z), xf * _com)
+
+
+func _from_body() -> Transform3D:
+	var tb := body.xform.basis
+	var b := Basis(-tb.x, tb.y, -tb.z)
+	return Transform3D(b, body.xform.origin - b * _com)
+
+
+func teleport(xf: Transform3D, v: Vector3) -> void:
+	body.reset()
+	body.xform = _to_body(xf)
+	body.lin_vel = v
 
 
 func reset() -> void:
-	model.reset()
-	for wi in wheels:
-		(wi as TmCarModel.WheelInput).contact = false
-		(wi as TmCarModel.WheelInput).side_contact = false
+	body.reset()
 
 
-## Steady full-lock yaw rate (rad/s) at speed v (m/s): steer torque / yaw damping
-## (docs/research/tmnf_physics.md §3.4). Used by Car.max_steer_at for the AutoDriver.
+## Steady full-lock yaw rate (rad/s) at speed v (m/s): steering torque K * L (both front wheels at
+## L/2) against the axle yaw damping 0.08 * 20 * w * L^2: w = K / (0.08 * 40 * 0.5 * L)
+## (docs/research/tmnf_physics.md §3.4). Used by Car.max_steer_at and the AutoDriver.
 func max_yaw_rate(v: float) -> float:
 	v = absf(v)
 	if v < T.STEER_MIN_SPEED:
 		return 0.0
 	var ramp := sin(v / T.STEER_RAMP_SPEED * PI * 0.5) if v <= T.STEER_RAMP_SPEED else 1.0
 	return model.steer_mul * T.lin(T.STEER_TORQUE, v * 3.6) * ramp \
-		/ (2.0 * T.YAW_FROM_GRIP * T.SIDE_STIFFNESS * 0.5 * T.WHEELBASE)
+		/ (T.YAW_FROM_GRIP * T.SIDE_STIFFNESS * 0.5 * T.WHEELBASE)
 
 
-func integrate(state: PhysicsDirectBodyState3D) -> void:
-	var dt := state.step
-	var xf := state.transform
-	var b := xf.basis
-	var up := b.y
-	var fwd := -b.z
-	var tb := Basis(-b.x, b.y, -b.z)       # TMNF car frame: left, up, forward
-	var tinv := tb.transposed()
-	var lv := state.linear_velocity
-	var av := state.angular_velocity
-	var m := car.mass
-	var com := xf.origin + state.center_of_mass
-	var speed := lv.length()
-	car._fwd_speed = lv.dot(fwd)
+## Highest speed (m/s) for a curve of curvature kappa (1/m) on ground of side grip `grip`: the
+## steering's yaw rate (margin) and the 4 wheels' side friction both have to follow it.
+func max_speed_for(kappa: float, grip: float = 1.0, margin: float = 0.92) -> float:
+	kappa = absf(kappa)
+	if kappa < 1e-5:
+		return 200.0
+	var lo := 3.0
+	var hi := 200.0
+	for _i in 30:
+		var v := (lo + hi) * 0.5
+		var a_lat := 4.0 * T.lin(T.MAX_SIDE_FRICTION, v * 3.6) * model.grip_mul * grip
+		if v * kappa <= margin * max_yaw_rate(v) and v * v * kappa <= a_lat * margin:
+			lo = v
+		else:
+			hi = v
+	return lo
+
+
+## TMNF's side-grip share for the car's current tilt (0 on walls steeper than ~73 deg, 1 level or
+## upside down).
+func side_adherence() -> float:
+	var up := car.global_transform.basis.y
+	return T.smooth_ramp(absf(up.y), T.SLOPE_SIDE_MIN, T.SLOPE_SIDE_FULL)
+
+
+## One 60 Hz frame (Car._physics_process).
+func frame(dt: float) -> void:
+	var space := car.get_world_3d().direct_space_state
+	var m_ticks := maxi(1, ceili(dt / TMNF_DT - 1e-6))
+	var h := dt / float(m_ticks)
+	var was_grounded := car._grounded
+	var prev_vel := body.lin_vel
 
 	# --- controls and special pads ---
 	var gas := clampf(float(car.controls.get("throttle", 0.0)), 0.0, 1.0)
@@ -122,168 +156,137 @@ func integrate(state: PhysicsDirectBodyState3D) -> void:
 		steer_in = 0.0
 	var cruising := float(car._fx["cruise"]) > 0.0
 	if cruising:
-		gas = 0.0
+		gas = 1e-4                           # "on the throttle" (no coasting drag), no drive
 		brake = 0.0
+	body.gas = gas
+	body.brake = brake
+	body.steer = -steer_in                   # TMNF: + = left
 
-	# --- body contacts: walls touching a wheel (TMNF's wheel side contact) or the chassis ---
-	var body_hit := false
-	var inv_xf := xf.affine_inverse()
-	for i in 4:
-		(wheels[i] as TmCarModel.WheelInput).side_contact = false
-	for ci in state.get_contact_count():
-		var cn := state.get_contact_local_normal(ci)
-		var c_loc := inv_xf * state.get_contact_local_position(ci)
-		var hit_wheel := -1
-		if absf(cn.dot(up)) < T.SIDE_CONTACT_SIN:
-			for i in 4:
-				var w: Vector3 = car._wheel_pos[i]
-				if absf(c_loc.z - w.z) < car._radius + 0.25 and signf(c_loc.x) == signf(w.x):
-					hit_wheel = i
-					break
-		if hit_wheel >= 0:
-			(wheels[hit_wheel] as TmCarModel.WheelInput).side_contact = true
-		else:
-			body_hit = true
+	# --- grinding a rail: the rail drives the car ---
+	if car.grind != null:
+		_grind_frame(dt)
+		return
 
-	# --- wheels: rays from the top mounts, TMNF suspension (penetration absorbed into the length) ---
-	var space := state.get_space_state()
-	var was_grounded := car._grounded
-	car._grounded = 0
-	var n_sum := Vector3.ZERO
-	var water_sum := 0.0
-	var push := 0.0                          # how far the car must be pushed out of the road
-	var bottomed: Array[int] = []
-	for i in 4:
-		var wi: TmCarModel.WheelInput = wheels[i]
-		var w_loc: Vector3 = car._wheel_pos[i]
-		var top := xf * (w_loc + Vector3(0.0, T.SUSP_STATIC, 0.0))
-		var q := _queries[i]
-		q.from = top + up * RAY_UP
-		q.to = top - up * (T.SUSP_REST + car._radius + 0.05)
-		var hit := space.intersect_ray(q)
-		var old_len := float(model.susp_len[i])
-		var new_len := old_len + T.SUSP_RELAX * dt * (T.SUSP_REST - old_len)
-		wi.contact = false
-		car._ground[i] = 0
-		car._water[i] = 0.0
-		if not hit.is_empty():
-			var n: Vector3 = hit["normal"]
-			var n_tm := tinv * n
-			var len_touch := (top - (hit["position"] as Vector3)).dot(up) - car._radius
-			if len_touch <= new_len and absf(n_tm.x) < T.SIDE_CONTACT_SIN and n.dot(up) > 0.0:
-				wi.contact = true
-				wi.normal = n_tm
-				car._hit_pos[i] = hit["position"]
-				car._hit_n[i] = n
-				n_sum += n
-				car._grounded += 1
-				new_len = maxf(len_touch, 0.0)
-				if len_touch < 0.0:
-					push = maxf(push, -len_touch)
-					bottomed.append(i)
-				wi.surface = _surface_at(i, hit["position"])
-				water_sum += car._water[i]
-		model.susp_len[i] = new_len
-		model.susp_vel[i] = (new_len - old_len) / dt
-		car._contact[i] = wi.contact
-		var off := T.SUSP_STATIC - float(model.susp_len[i])
-		car._comp[i] = off
-		car._vis_offset[i] = off
-		wi.pad_dir = Vector3.ZERO
-	car._water_avg = water_sum / 4.0
-	car._prev_ground_n = car._ground_n
-	car._ground_n = n_sum.normalized() if car._grounded > 0 else up
-
-	# --- the TMNF force model, at TMNF's rate: 100 Hz or faster (2 steps per 60 Hz frame). Its forces
-	# and torques change the velocities between the steps (at 60 Hz the side grip, 80 per m/s, would
-	# overshoot); gravity, the springs and the collisions go through Jolt once per frame ---
-	var n_steps := maxi(1, ceili(dt / 0.01 - 1e-6))
-	var h := dt / float(n_steps)
-	var v_tm := tinv * lv
-	var w_tm := tinv * av
-	var up_tm := tinv * Vector3.UP
-	for k in n_steps:
-		_now_ms += h * 1000.0
-		model.tick(h, int(_now_ms), gas, brake, -steer_in, v_tm, w_tm, up_tm, wheels, body_hit)
-		if model.air_set_w:
-			w_tm = model.air_w
-		v_tm += model.force * h
-		if model.linear_damp > 0.0:
-			v_tm -= v_tm * model.linear_damp * h
-		w_tm += model.torque / T.INERTIA * h
-	if debug_print:
-		print("   lv_in %s v_tm_in %s v_tm_out %s force %s wf0 %s" % [lv, tinv * lv, v_tm, model.force, model.wheel_force[0]])
-	state.linear_velocity = tb * v_tm
-	state.angular_velocity = tb * w_tm
-	lv = state.linear_velocity
-	av = state.angular_velocity
-	state.apply_central_force(Vector3(0.0, -G * model.gravity_coef, 0.0) * m)
-	for i in 4:
-		var wf: Vector3 = model.wheel_force[i]
-		car._load[i] = 0.0
-		if wf == Vector3.ZERO:
-			continue
-		var at := xf * (car._wheel_pos[i] + Vector3(0.0, car._comp[i], 0.0))
-		state.apply_force(tb * wf * m, at - xf.origin)
-		car._load[i] = wf.y * m
-
-	# --- end of the suspension travel: TMNF's wheel impulse + push out of the road ---
-	if not bottomed.is_empty():
-		var steps := (roundf(0.01 * (speed + av.length()) / T.SUBSTEP_DIST) + 1.0) * dt / 0.01
-		var keep := pow(T.WHEEL_GROUND_KEEP, steps)
-		for i in bottomed:
-			var p: Vector3 = car._hit_pos[i]
-			var n: Vector3 = car._hit_n[i]
-			var r := p - com
-			var vrel := state.linear_velocity + state.angular_velocity.cross(r)
-			var vn := vrel.dot(n)
-			if vn < 0.0:
-				var k := state.inverse_mass + n.dot((state.inverse_inertia_tensor * r.cross(n)).cross(r))
-				if k > 1e-9:
-					state.apply_impulse(n * ((keep - 1.0) * vn / k), p - xf.origin)
-		if push > 0.0:
-			state.transform = Transform3D(b, xf.origin + up * minf(push, 0.5))
-
-	# --- SpeedFest extras: nitro, boost pads, cruise and reactor pads ---
-	var fwd_g := fwd - car._ground_n * fwd.dot(car._ground_n) if car._grounded >= 2 else fwd
-	fwd_g = fwd_g.normalized() if fwd_g.length_squared() > 1e-6 else fwd
+	# --- SpeedFest extras as accelerations over the frame: nitro, boost pads, cruise, reactor ---
+	var b0 := car.global_transform.basis
+	var fwd0 := -b0.z
+	var gn := car._ground_n
+	var fwd_g := fwd0
+	if car._grounded >= 2:
+		fwd_g = fwd0 - gn * fwd0.dot(gn)
+		fwd_g = fwd_g.normalized() if fwd_g.length_squared() > 1e-6 else fwd0
+	var extra := Vector3.ZERO
 	car._nitro_active = false
 	if want_nitro and car._nitro > 0.0 and not model.reverse:
 		car._nitro_active = true
 		car._nitro = maxf(car._nitro - dt / float(car.params["nitro_time"]), 0.0)
-		state.apply_central_force(fwd_g * m * float(car.params["nitro_accel"]))
+		extra += fwd_g * float(car.params["nitro_accel"])
 	if car._boost_time > 0.0:
 		car._boost_time -= dt
 		var bd := car._boost_dir
 		if car._grounded >= 2:
-			bd = bd - car._ground_n * bd.dot(car._ground_n)
-			bd = bd.normalized() if bd.length_squared() > 1e-4 else fwd
-		var fade := 1.0 - clampf((lv.dot(bd) - Car.BOOST_FADE_FROM) / (Car.BOOST_SPEED_CAP - Car.BOOST_FADE_FROM), 0.0, 1.0)
-		state.apply_central_force(bd * m * car._boost_accel * fade)
+			bd = bd - gn * bd.dot(gn)
+			bd = bd.normalized() if bd.length_squared() > 1e-4 else fwd0
+		var fade := 1.0 - clampf((body.lin_vel.dot(bd) - Car.BOOST_FADE_FROM) / (Car.BOOST_SPEED_CAP - Car.BOOST_FADE_FROM), 0.0, 1.0)
+		extra += bd * car._boost_accel * fade
 	if cruising and car._grounded >= 2:
-		var fc := clampf((car._cruise_speed - car._fwd_speed) * m / 0.3, -m * 15.0, m * 15.0)
-		state.apply_central_force(fwd_g * fc)
+		extra += fwd_g * clampf((car._cruise_speed - car._fwd_speed) / 0.3, -15.0, 15.0)
 	if float(car._fx["reactor"]) > 0.0:
 		if car._grounded == 0:
-			state.apply_central_force(Vector3.UP * m * G * model.gravity_coef * REACTOR_LIFT + fwd * m * REACTOR_PUSH)
+			extra += Vector3.UP * T.GRAVITY * T.GRAVITY_AIR * REACTOR_LIFT + fwd0 * REACTOR_PUSH
 		else:
-			state.apply_central_force(fwd_g * m * REACTOR_PUSH)
-	var sp2 := state.linear_velocity.length_squared()
-	if sp2 > MAX_SPEED_HARD * MAX_SPEED_HARD:
-		state.linear_velocity = state.linear_velocity * (MAX_SPEED_HARD / sqrt(sp2))
-	if car.frozen_controls and car._grounded >= 2:
-		state.linear_velocity = up * state.linear_velocity.dot(up)
-		state.angular_velocity = state.angular_velocity * 0.6
+			extra += fwd_g * REACTOR_PUSH
+	body.extra_accel = extra
 
-	# --- state for the HUD, sound, visuals, net and the AutoDriver ---
+	# --- TMNF ---
+	body.xform = _to_body(car.global_transform)
+	var walls: Array[Vector3] = []
+	for k in m_ticks:
+		body.step(space, h)
+		walls.append_array(body.wall_normals)
+	var sp2 := body.lin_vel.length_squared()
+	if sp2 > MAX_SPEED_HARD * MAX_SPEED_HARD:
+		body.lin_vel *= MAX_SPEED_HARD / sqrt(sp2)
+	if car.frozen_controls and body.wheel_contact.count(true) >= 2:
+		var upb := body.xform.basis.y
+		body.lin_vel = upb * body.lin_vel.dot(upb)
+		body.ang_vel *= 0.6
+	car.global_transform = _from_body()
+	car.linear_velocity = body.lin_vel
+	car.angular_velocity = body.ang_vel
+	_update_car_state(dt, gas, was_grounded, prev_vel, walls)
+
+
+## The rail moves the car (TrackRail.grind_step works on a state-like object).
+func _grind_frame(dt: float) -> void:
+	var gs := GrindState.new()
+	gs.step = dt
+	gs.transform = car.global_transform
+	gs.linear_velocity = body.lin_vel
+	gs.angular_velocity = body.ang_vel
+	if car.grind.grind_step(car, gs):
+		car._grounded = 0
+		car._air_time = 0.0
+		car._boost_time = 0.0
+	else:
+		car.grind = null
+	car.global_transform = gs.transform
+	body.xform = _to_body(gs.transform)
+	body.lin_vel = gs.linear_velocity
+	body.ang_vel = gs.angular_velocity
+	car.linear_velocity = body.lin_vel
+	car.angular_velocity = body.ang_vel
+
+
+class GrindState:
+	var step := 0.016
+	var transform := Transform3D()
+	var linear_velocity := Vector3.ZERO
+	var angular_velocity := Vector3.ZERO
+
+
+## Fill the Car's state for the HUD, sound, visuals, net, signals and the AutoDriver.
+func _update_car_state(dt: float, gas: float, was_grounded: int, prev_vel: Vector3, walls: Array[Vector3]) -> void:
+	var xf := car.global_transform
+	var b := xf.basis
+	var up := b.y
+	var fwd := -b.z
+	var lv := body.lin_vel
+	car._fwd_speed = lv.dot(fwd)
+	car._grounded = 0
+	var n_sum := Vector3.ZERO
+	var water_sum := 0.0
+	for i in 4:
+		var c: bool = body.wheel_contact[i]
+		car._contact[i] = c
+		var off := T.SUSP_STATIC - float(model.susp_len[i])
+		car._comp[i] = off
+		car._vis_offset[i] = off
+		car._load[i] = (T.SUSP_REST - float(model.susp_len[i])) * T.SPRING * car.mass if c else 0.0
+		car._ground[i] = 0
+		car._water[i] = 0.0
+		if c:
+			car._grounded += 1
+			car._hit_pos[i] = body.wheel_hit_pos[i]
+			car._hit_n[i] = body.wheel_hit_n[i]
+			n_sum += body.wheel_hit_n[i]
+			if car.surface != null:
+				car._water[i] = car.surface.water_at(body.wheel_hit_pos[i])
+				water_sum += car._water[i]
+				if not car.surface.patches.is_empty():
+					car._ground[i] = car.surface.kind_at(body.wheel_hit_pos[i])
+	car._water_avg = water_sum / 4.0
+	car._prev_ground_n = car._ground_n
+	car._ground_n = n_sum.normalized() if car._grounded > 0 else up
 	var v_abs := absf(car._fwd_speed)
 	car._reversing = model.reverse and car._fwd_speed < 0.5
-	car._braking = (brake > 0.1 and v_abs > 0.5 and not model.reverse) or model.brake_now > 0.5
+	car._braking = (body.brake > 0.1 and v_abs > 0.5 and not model.reverse) or model.brake_now > 0.5
 	car._steer_angle = -model.steer * deg_to_rad(T.lin(VIS_STEER, v_abs * 3.6))
 	var lv_g := lv - car._ground_n * lv.dot(car._ground_n)
 	var slip := 0.0
 	if car._grounded >= 2 and lv_g.length() > 3.0:
-		slip = atan2(lv_g.dot(b.x), absf(lv_g.dot(fwd_g)))
+		var fg := (fwd - car._ground_n * fwd.dot(car._ground_n)).normalized()
+		slip = atan2(lv_g.dot(b.x), absf(lv_g.dot(fg)))
 	car._slip_angle = slip
 	var slide := 1.0 if model.any_sliding and car._grounded >= 2 and v_abs > 8.0 else 0.0
 	car._drift = move_toward(car._drift, maxf(slide * 0.6, clampf((absf(slip) - deg_to_rad(4.0)) / deg_to_rad(12.0), 0.0, 1.0)), dt * 4.0)
@@ -295,57 +298,36 @@ func integrate(state: PhysicsDirectBodyState3D) -> void:
 			sv = move_toward(car._spin_vel[i], 120.0 * gas, 200.0 * dt)
 		car._spin_vel[i] = sv
 		car._spin[i] = fmod(car._spin[i] + sv * dt, TAU)
-
-	# --- landings, wall hits, self-righting (SpeedFest's respawn-free recovery when stuck) ---
+	# landings and wall hits
 	if car._grounded == 0:
 		car._air_time += dt
 	else:
 		if was_grounded == 0 and car._air_time > 0.25:
-			car.landed.emit(absf(car._prev_vel.dot(car._ground_n)))
+			car.landed.emit(absf(prev_vel.dot(car._ground_n)))
 		car._air_time = 0.0
-	var lost := (car._prev_vel - state.linear_velocity).length()
-	if lost > 2.0 and state.get_contact_count() > 0:
-		for ci in state.get_contact_count():
-			if absf(state.get_contact_local_normal(ci).dot(car._ground_n)) < 0.5:
+	var lost := (prev_vel - lv).length()
+	if lost > 2.0:
+		for n in walls:
+			if absf(n.dot(car._ground_n)) < 0.5:
 				car.wall_hit.emit(lost)
 				break
-	car._prev_vel = state.linear_velocity
-	if up.dot(Vector3.UP) < 0.3 and car._grounded < 2 and speed < 3.0:
-		car._upside_time += dt
-	else:
-		car._upside_time = 0.0
-	if car._upside_time > 1.5 and car._righting <= 0.0:
-		car._righting = 1.0
-	if car._righting > 0.0:
-		car._righting -= dt
-		if up.dot(Vector3.UP) > 0.92:
-			car._righting = 0.0
-		else:
-			if up.dot(Vector3.UP) < 0.5 and car._righting > 0.4:
-				state.apply_central_force(Vector3.UP * m * G * model.gravity_coef * 1.2)
-			var axis := up.cross(Vector3.UP)
-			if axis.length_squared() < 1e-4:
-				axis = fwd
-			state.apply_torque(axis.normalized() * car.inertia.z * 12.0 - state.angular_velocity * car.inertia.z * 4.0)
+	car._prev_vel = lv
 
 
-## TMNF surface id under wheel i, from the track's ground patches and the weather's puddles. Rally
-## tyres (Car.params "loose_grip") keep part of the asphalt values on loose ground.
-func _surface_at(i: int, p: Vector3) -> int:
+## SpeedFest surfaces under a contact (TmBody.surface_fn): the track's ground patches and the
+## weather's puddles. Rally tyres (Car.params "loose_grip") keep asphalt-like values on loose ground.
+func _surface_for_body(p: Vector3, _n: Vector3) -> Array:
 	var s := car.surface
 	if s == null:
-		return T.Surface.ASPHALT
-	var water := s.water_at(p)
-	car._water[i] = water
+		return [T.Surface.ASPHALT, Vector3.ZERO]
 	var kind := 0
 	if not s.patches.is_empty():
 		kind = s.kind_at(p)
-	car._ground[i] = kind
 	if kind > 0 and car._loose_grip > 0.5 and TrackSurface.KIND_LOOSE[kind]:
-		return T.Surface.DIRT_ROAD
-	if kind == 0 and water > 0.35:
-		return T.Surface.WET_PAVEMENT
-	return SURFACE_OF_KIND[clampi(kind, 0, SURFACE_OF_KIND.size() - 1)]
+		return [T.Surface.DIRT_ROAD, Vector3.ZERO]
+	if kind == 0 and s.water_at(p) > 0.35:
+		return [T.Surface.WET_PAVEMENT, Vector3.ZERO]
+	return [SURFACE_OF_KIND[clampi(kind, 0, SURFACE_OF_KIND.size() - 1)], Vector3.ZERO]
 
 
 ## Gears and rpm only drive the engine sound and the HUD (TMNF's gearbox doesn't change the drive).

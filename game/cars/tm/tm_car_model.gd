@@ -7,7 +7,7 @@ extends RefCounted
 ## suspension (integrate_suspension), fills 4 WheelInput (FL, FR, RL, RR), calls tick(), then applies
 ## `force` (central, car frame), `torque` (car frame), each `wheel_force` at its wheel, gravity x
 ## `gravity_coef` and `linear_damp`; if `air_set_w` is true it first replaces the angular velocity
-## by `air_w`. Car frame: +X left, +Y up, +Z forward. Mass 1: forces are accelerations, and torques
+## by `air_w`; then it stores the total force in `last_force` (load transfer, next tick). Car frame: +X left, +Y up, +Z forward. Mass 1: forces are accelerations, and torques
 ## are for TmTuning.INERTIA (a host with another inertia applies torque / INERTIA x its own).
 ##
 ## Shared by the Stadium remake (stadium/core, the source) and SpeedFest (game/cars/tm, a copy kept
@@ -32,6 +32,8 @@ var grip_mul := 1.0                           ## side friction caps
 var brake_mul := 1.0                          ## brake force and caps
 var slide_grip := T.SLIDE_GRIP                ## grip of a sliding wheel (drift looseness)
 var max_speed := T.MAX_SPEED                  ## m/s: the over-speed push starts here
+## Extra surfaces a host defines (id -> [top speed, accel, brake, grip]); SpeedFest's ice and plastic
+var surface_override := {}
 
 # --- persistent state ---
 var steer := 0.0                              ## current steering (-1..1, + = left), slewed
@@ -46,6 +48,9 @@ var free_wheeling := false
 var air_yaw := 0.0                            ## yaw rate kept from the last contact
 var air_pitch := 0.0
 var grounded := false
+## The car's total force (an acceleration, car frame) of the previous tick: this model's force, the
+## wheel forces and gravity x gravity_coef (not contact impulses). The host sets it after applying.
+var last_force := Vector3.ZERO
 
 # --- outputs of the last tick ---
 var force := Vector3.ZERO                     ## central force, car frame
@@ -73,6 +78,7 @@ func reset() -> void:
 	free_wheeling = false
 	air_yaw = 0.0
 	air_pitch = 0.0
+	last_force = Vector3.ZERO
 
 
 ## Suspension step for one wheel (TMNF suspension model 2). `penetration` = how deep the wheel at its
@@ -85,6 +91,12 @@ func integrate_suspension(i: int, penetration: float, dt: float) -> float:
 	susp_vel[i] = (nl - l) / dt
 	susp_len[i] = nl
 	return nl
+
+
+func surface_vals(id: int) -> Array:
+	if surface_override.has(id):
+		return surface_override[id]
+	return T.surface_vals(id)
 
 
 func start_turbo(strength: float, ms: int, now_ms: int) -> void:
@@ -122,7 +134,7 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 		n_ground += 1
 		if i < 2:
 			front_touch = true
-		var sv: Array = T.surface_vals(wi.surface)
+		var sv: Array = surface_vals(wi.surface)
 		for k in 4:
 			surf[k] += sv[k]
 		match wi.surface:
@@ -176,10 +188,10 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 		lat = lat.normalized() if lat.length_squared() > 1e-8 else Vector3(1, 0, 0)
 		if i < 2:
 			lat = lat * cos(delta) - Vector3(0, 0, 1) * sin(delta)
-		if w.length() >= T.RP_DAMP_MIN_W:
-			var tr := -(wi.pos.cross(-T.RP_DAMP * w))
-			torque += Vector3(T.RP_DAMP_X * tr.x, 0.0, T.RP_DAMP_Z * tr.z)
-		var cap: float = T.surface_vals(wi.surface)[3] * side_adh * cap_speed * T.damper_grip(susp_len[i])
+		if last_force.length() / T.LOAD_DIV >= T.LOAD_MIN:
+			var tr := (wi.pos + Vector3(0.0, -T.WHEEL_RADIUS, 0.0)).cross(last_force)
+			torque += Vector3(T.LOAD_TORQUE_X * tr.x, 0.0, T.LOAD_TORQUE_Z * tr.z)
+		var cap: float = surface_vals(wi.surface)[3] * side_adh * cap_speed * T.damper_grip(susp_len[i])
 		if sliding[i]:
 			cap *= slide_grip
 			if brake > 0.1:

@@ -4,7 +4,7 @@
 #                                     tools/sync_tm_core.sh --check  fail if the copies differ
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FILES=(tm_tuning.gd tm_car_model.gd)
+FILES=(tm_tuning.gd tm_car_model.gd tm_body.gd)
 if [[ "${1:-}" == "--check" ]]; then
   for f in "${FILES[@]}"; do
     if ! cmp -s "$ROOT/stadium/core/$f" "$ROOT/game/cars/tm/$f"; then
