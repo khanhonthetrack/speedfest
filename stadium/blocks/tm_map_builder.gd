@@ -12,7 +12,7 @@ var start := Transform3D()          ## car spawn (Godot, TmCar frame)
 var has_start := false
 var checkpoints: Array[Transform3D] = []
 var finishes: Array[Transform3D] = []
-var stats := {"blocks": 0, "built": 0, "placeholder": 0, "unknown": 0}
+var stats := {"blocks": 0, "built": 0, "empty": 0, "placeholder": 0, "unknown": 0}
 var missing := {}                   ## shape name -> count (no generator yet)
 
 var _placeholder_mats := {}
@@ -52,6 +52,9 @@ func _build() -> void:
 		var flags := int(blk["flags"])
 		var shape := TmBlockCatalogue.shape_name(entry, ground, flags & 0x3F, (flags >> 6) & 0x3F)
 		var xf := TmBlockCatalogue.block_transform(entry, coord, dir, ground)
+		if shape.is_empty():
+			stats["empty"] += 1      # this variant has no geometry (e.g. a support's bare position)
+			continue
 		var node := lib.make(shape, entry, ground)
 		if node == null:
 			stats["placeholder"] += 1

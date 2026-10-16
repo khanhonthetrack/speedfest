@@ -100,8 +100,12 @@ func handles(shape: String) -> bool:
 		or rest.begins_with("Finish/") or rest.begins_with("Start/")
 
 
+## The shape's form, without its variant suffix (Air, Ground, or an alternative GroundA/B/C).
 static func _form(rest: String) -> String:
-	return rest.trim_suffix("GroundA").trim_suffix("Ground").trim_suffix("Air")
+	for suffix in ["GroundA", "GroundB", "GroundC", "Ground", "Air"]:
+		if rest.ends_with(suffix):
+			return rest.trim_suffix(suffix)
+	return rest
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
