@@ -360,3 +360,7 @@ func _sun_extras() -> void:
 	sun.directional_shadow_fade_start = 0.8
 	# the moon/key light no longer lights the whole fog volume (the dusk sun's rays are wanted)
 	sun.light_volumetric_fog_energy = 1.0 if theme == "coast" else 0.15
+	if theme == "arena" and not Settings.is_compat() and Settings.quality >= 1:
+		sun.light_energy = 0.5       # the flood SpotLights carry the deck (arena_kit)
+	elif theme == "arena":
+		sun.light_energy = 0.9

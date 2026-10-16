@@ -17,6 +17,14 @@ static func shader_mat(shader_name: String, params := {}) -> ShaderMaterial:
 	m.shader = shader(shader_name)
 	for k in params:
 		m.set_shader_parameter(k, params[k])
+	if shader_name == "building" and not params.has("relief"):
+		# recessed, interior-mapped windows: Forward+ from Medium, web from High
+		var relief := Settings.quality >= 1 if not Settings.is_compat() else Settings.quality >= 2
+		m.set_shader_parameter("relief", 1.0 if relief else 0.0)
+		if not Settings.is_compat() and not params.has("wall_color"):
+			# lighter walls that catch the neon and the lamps (black boxes read as 2005)
+			m.set_shader_parameter("wall_color", Color(0.13, 0.13, 0.15))
+			m.set_shader_parameter("wall_color2", Color(0.2, 0.18, 0.18))
 	if shader_name == "terrain" and TrackBuilder.use_pbr():
 		var ra := TrackBuilder.pbr_texture("rock", "albedo")
 		if ra != null:

@@ -23,6 +23,7 @@ var footprints: Array = []
 var ring: Array = []          # Transform3D frames around the bowl (basis.x = outward)
 var ring_len: float = 0.0
 var stats := {}
+var flood_spots: Array = []    # [source, direction, length] per flood tower (real SpotLights)
 
 
 func build(p_field: SceneryField, rng_seed: int) -> Node3D:
@@ -216,12 +217,15 @@ func _towers() -> void:
 		var dl := dir.length()
 		dir = dir / dl
 		var bb := _basis_from_down(dir)
+		flood_spots.append([src, dir, dl])
 		var beams := batches.at("beam", src)
 		var cone := SceneryProps.beam_cone()
 		var arrs := cone.surface_get_arrays(0)
+		# with volumetric fog on (Forward+ High+) the real flood SpotLights draw the shafts
+		var beam_a := 0.02 if not Settings.is_compat() and Settings.quality >= 2 else 0.07
 		for bi in 2:
 			var off := Vector3(0, 0, 0) + b.x * (-3.0 + bi * 6.0)
-			beams.add_arrays(arrs, Transform3D(bb.scaled_local(Vector3(dl * 0.16, dl * 0.85, dl * 0.16)), src + off), Color(0.75, 0.85, 1.0, 0.07))
+			beams.add_arrays(arrs, Transform3D(bb.scaled_local(Vector3(dl * 0.16, dl * 0.85, dl * 0.16)), src + off), Color(0.75, 0.85, 1.0, beam_a))
 	_mm(tm, metal_mesh, xfs, SceneryMat.plain(Color(0.12, 0.12, 0.16), 0.5, 0.5))
 	_mm(lm, lamp_mesh, xfs, SceneryMat.neon(9.0), Color(0.85, 0.92, 1.0))
 	tm.name = "FloodTowers"
@@ -419,8 +423,34 @@ func _searchlights() -> void:
 
 
 func _real_lights() -> void:
-	# A few coloured omni lights near arches (Forward+), none on low-end Compatibility.
+	# Floodlights (M7 look plan step 5, Forward+ from Medium): one real SpotLight per tower, so the
+	# deck and the lawn get pools, specular streaks and (High+) shafts in the fog instead of a
+	# flat key light and additive cones. Then a few coloured omni lights near arches.
 	var budget := Settings.light_budget()
+	if not Settings.is_compat() and Settings.quality >= 1:
+		var floods := 0
+		for fs: Array in flood_spots:
+			if floods >= budget / 3:
+				break
+			var src: Vector3 = fs[0]
+			var dir: Vector3 = fs[1]
+			var sl := SpotLight3D.new()
+			sl.name = "Flood%d" % floods
+			sl.position = src
+			sl.basis = Basis.looking_at(dir, Vector3.UP if absf(dir.y) < 0.99 else Vector3.FORWARD)
+			sl.spot_range = float(fs[2]) * 1.3
+			sl.spot_angle = 24.0
+			sl.spot_angle_attenuation = 1.5
+			sl.spot_attenuation = 0.25        # 250-350 m throws: a gentle falloff (d^-0.25)
+			sl.light_energy = float(TestHooks.arg("flood_energy", 28.0))
+			sl.light_color = Color(0.9, 0.94, 1.0)
+			sl.light_specular = 0.35          # long streaks on the damp deck, not white blobs
+			sl.light_volumetric_fog_energy = 0.6
+			sl.shadow_enabled = false
+			root.add_child(sl)
+			floods += 1
+		stats["flood_lights"] = floods
+		budget -= floods
 	var n := 0 if Settings.is_compat() and Settings.quality < 2 else mini(budget / 4, 12)
 	var made := 0
 	for fp in footprints:

@@ -1028,5 +1028,6 @@ func _process(_delta: float) -> void:
 		_vis_spin_arr[i] = _spin[i] - _spin_step[i] * back
 		_vis_susp_arr[i] = lerpf(_vis_offset[i], _prev_vis_offset[i], back)
 	visual.set_wheel_state(-lerpf(_steer_angle, _prev_steer_angle, back), _vis_spin_arr, _vis_susp_arr)
+	visual.set_ground_contact(_grounded / 4.0)
 	visual.set_lights(_braking, _reversing)
 	visual.set_nitro(_nitro_active)

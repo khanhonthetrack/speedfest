@@ -135,7 +135,9 @@ func _build_world() -> void:
 		track.apply_weather(weather)
 	pb_key = Weather.pb_key(track.track_id, weather)
 	# Dark themes: give car paint a self-lit rim so cars read at night (see car_paint.gdshader).
-	CarVisual.night_rim = {"city": 1.0, "arena": 0.5}.get(TrackDefs.theme(Game.track_id), 0.0)
+	# On Forward+ (from Medium) real lights and reflections light the car, so the rim stays subtle.
+	var rims: Dictionary = {"city": 0.35, "arena": 0.2} if not Settings.is_compat() and Settings.quality >= 1 else {"city": 1.0, "arena": 0.5}
+	CarVisual.night_rim = rims.get(TrackDefs.theme(Game.track_id), 0.0)
 
 	car = Car.create(Profile.get_config())
 	car.name = "LocalCar"

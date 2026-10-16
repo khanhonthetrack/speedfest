@@ -9,12 +9,16 @@ extends Node3D
 ##       Plate (Label3D), Flames (nitro), HeadSpots (optional SpotLights)
 ##     Wheels (MultiMeshInstance3D, 4 instances), Calipers (MultiMeshInstance3D)
 ##     Glow (ground blob) + GlowLight (OmniLight3D, optional), Nitro particles
+##     ContactShadow (multiplied ground blob: darkens the road under the body and tyres)
+##     Body/TailLight (OmniLight3D, local car on Forward+: red pool behind, brighter on braking)
 
 const PAINT_SHADER := preload("res://shaders/car_paint.gdshader")
 const LIGHTS_SHADER := preload("res://shaders/car_lights.gdshader")
 const WHEEL_SHADER := preload("res://shaders/car_wheel.gdshader")
 const GLOW_SHADER := preload("res://shaders/car_glow.gdshader")
 const FLAME_SHADER := preload("res://shaders/car_flame.gdshader")
+const CONTACT_SHADER := preload("res://shaders/car_contact.gdshader")
+const CONTACT_STRENGTH := 0.55
 
 const BODY_KEYS: Array[String] = ["hood", "front", "rear", "skirts", "spoiler"]
 ## Ride height range in meters for style.ride_height -1 .. +1.
@@ -36,6 +40,10 @@ var _wheels_mm: MultiMeshInstance3D
 var _calipers_mm: MultiMeshInstance3D
 var _glow: MeshInstance3D
 var _glow_light: OmniLight3D
+var _contact: MeshInstance3D
+var _contact_mat: ShaderMaterial
+var _contact_amount := 1.0          # 0 airborne .. 1 on the ground (set_ground_contact)
+var _tail_light: OmniLight3D
 var _plate: Label3D
 var _flames: MeshInstance3D
 var _particles: Node3D
@@ -95,6 +103,8 @@ func build(p_car_id: String, p_style: Dictionary) -> void:
 	_calipers_mm = null
 	_glow = null
 	_glow_light = null
+	_contact = null
+	_tail_light = null
 	_plate = null
 	_flames = null
 	_particles = null
@@ -122,6 +132,7 @@ func build(p_car_id: String, p_style: Dictionary) -> void:
 	_build_body()
 	_build_wheels()
 	_build_glow()
+	_build_contact()
 	_build_nitro()
 	_apply_materials()
 	_apply_ride()
@@ -193,6 +204,19 @@ func set_lights(braking: bool, reversing: bool) -> void:
 	if _lights_mat:
 		_lights_mat.set_shader_parameter("brake", 1.0 if braking else 0.0)
 		_lights_mat.set_shader_parameter("reverse", 1.0 if reversing else 0.0)
+	if _tail_light:
+		_tail_light.light_color = Color(1.0, 0.95, 0.9) if reversing else Color(1.0, 0.05, 0.02)
+		_tail_light.light_energy = 1.0 if reversing else (1.0 if braking else 0.3)
+
+
+## How much the car touches the ground (0 airborne .. 1 all wheels down): fades the contact shadow.
+func set_ground_contact(amount: float) -> void:
+	var a := clampf(amount, 0.0, 1.0)
+	if absf(a - _contact_amount) < 0.02:
+		return
+	_contact_amount = a
+	if _contact_mat:
+		_contact_mat.set_shader_parameter("strength", CONTACT_STRENGTH * a)
 
 
 func set_nitro(active: bool) -> void:
@@ -226,6 +250,8 @@ func set_ghost(alpha: float) -> void:
 			(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if ghosted else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	if _plate:
 		_plate.visible = not ghosted or _ghost > 0.7
+	if _contact:
+		_contact.visible = not ghosted
 	visible = _ghost > 0.01
 	set_underglow_enabled(_underglow_on)
 	set_nitro(_nitro)
@@ -250,6 +276,9 @@ func set_headlights_real(on: bool) -> void:
 	for sp in _head_spots:
 		sp.queue_free()
 	_head_spots.clear()
+	if _tail_light:
+		_tail_light.queue_free()
+		_tail_light = null
 	if not on or _body == null:
 		return
 	var heads: Array = info.get("headlights", [])
@@ -274,10 +303,25 @@ func set_headlights_real(on: bool) -> void:
 		sp.spot_angle = 32.0 if count == 1 else 26.0
 		sp.spot_attenuation = 0.8
 		sp.shadow_enabled = false
+		if not Settings.is_compat():
+			sp.light_volumetric_fog_energy = 1.5      # beams in the haze (High+, where fog is on)
+			sp.light_specular = 0.6
+			sp.spot_angle_attenuation = 1.5
 		sp.position = p + Vector3(0, 0, -0.05)
 		sp.rotation.x = -0.06
 		_body.add_child(sp)
 		_head_spots.append(sp)
+	# a red pool on the road behind the car (Compatibility pays a pass per light: skipped there)
+	if not Settings.is_compat() and Settings.quality >= 1:
+		_tail_light = OmniLight3D.new()
+		_tail_light.name = "TailLight"
+		_tail_light.position = Vector3(0, 0.5, float(shape.g["length"]) * 0.5 + 0.1)
+		_tail_light.omni_range = 5.0
+		_tail_light.omni_attenuation = 1.2
+		_tail_light.light_specular = 0.5
+		_tail_light.shadow_enabled = false
+		_body.add_child(_tail_light)
+		set_lights(_braking, _reversing)
 
 
 ## Current transform of wheel i (FL, FR, RL, RR) in CarVisual space.
@@ -400,6 +444,28 @@ func _build_glow() -> void:
 		_glow_light.light_specular = 0.05
 		add_child(_glow_light)
 	_update_glow_mode()
+
+
+func _build_contact() -> void:
+	var g := shape.g
+	var w := float(g["width"]) + 0.3
+	var l := float(g["length"]) + 0.2
+	_contact_mat = ShaderMaterial.new()
+	_contact_mat.shader = CONTACT_SHADER
+	_contact_mat.render_priority = -1        # before the additive underglow on the same plane
+	var fl: Vector3 = _wheel_base[0] if _wheel_base.size() > 0 else Vector3(w * 0.4, 0, l * 0.33)
+	_contact_mat.set_shader_parameter("wheel_uv", Vector2(absf(fl.x) / w, absf(fl.z) / l))
+	_contact_mat.set_shader_parameter("wheel_r", Vector2(float(g["wheel_width"]) * 0.7 / w, float(g["wheel_radius"]) * 0.8 / l))
+	_contact_mat.set_shader_parameter("strength", CONTACT_STRENGTH * _contact_amount)
+	_contact = MeshInstance3D.new()
+	_contact.name = "ContactShadow"
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(w, l)
+	_contact.mesh = pm
+	_contact.material_override = _contact_mat
+	_contact.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_contact.position = Vector3(0, -float(g["wheel_radius"]) + 0.008, 0)
+	add_child(_contact)
 
 
 func _build_nitro() -> void:

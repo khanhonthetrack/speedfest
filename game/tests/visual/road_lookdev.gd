@@ -4,6 +4,7 @@ extends Node3D
 ## Much faster to render than a full track. Args:
 ##   --theme=city|arena  --wet=0.42 (road wetness)  --lights=1 (OmniLights at the signs)
 ##   --tonemap=agx  --quality=N  --aa=SMAA  --frames=24 --shot=/abs/out.png
+##   --buildings=1  real city facade material (env_building) on boxes close to the road
 ## Run: tools/run_scene.sh res://tests/visual/road_lookdev.tscn -- --wet=0.42 --frames=24 --shot=$PWD/x.png
 
 const LEN := 300.0
@@ -47,8 +48,10 @@ func _ready() -> void:
 		b.mesh = bm
 		b.material_override = wall
 		b.position = Vector3(side * (HW + 9.0), 20.0, -LEN * 0.5)
+		if int(TestHooks.arg("buildings", 0)) == 1:
+			b.position.x = side * (HW + 40.0)          # out of the way of the facade boxes
 		add_child(b)
-		for k in 60:
+		for k in (0 if int(TestHooks.arg("buildings", 0)) == 1 else 60):
 			var w := MeshInstance3D.new()
 			var wm := QuadMesh.new()
 			wm.size = Vector2(rng.randf_range(1.5, 3.0), rng.randf_range(1.2, 2.0))
@@ -80,6 +83,8 @@ func _ready() -> void:
 				ol.omni_range = 18.0
 				ol.omni_attenuation = 1.4
 				add_child(ol)
+	if int(TestHooks.arg("buildings", 0)) == 1:
+		_buildings()
 	var cam := Camera3D.new()
 	cam.position = Vector3(1.5, 2.2, 6.0)
 	cam.rotation_degrees = Vector3(-6.0, 0.0, 0.0)
@@ -109,3 +114,18 @@ func _strip(mat: Material) -> ArrayMesh:
 	var m := st.commit()
 	m.surface_set_material(0, mat)
 	return m
+
+
+## Facade look-dev (M7 look plan step 3): the city's building material on unit boxes beside the
+## road, one per style, seen at oblique angles from the low camera.
+func _buildings() -> void:
+	var bmat := SceneryMat.shader_mat("building", {"wetness": 0.7, "window_energy": 1.25})
+	var inst := SceneryInstances.new(SceneryProps.unit_box(), bmat, 400.0, false, true)
+	var styles := [0.1, 0.35, 0.7, 0.1]
+	for i in 8:
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var z := -18.0 - float(i / 2) * 26.0
+		var cus := Color(0.13 * i + 0.05, styles[i / 2], 0.45, 0.3 + 0.1 * i)
+		inst.add(Transform3D(Basis.IDENTITY.scaled_local(Vector3(10.0, 30.0, 22.0)), Vector3(side * (HW + 12.0), 0.0, z)), Color.WHITE, cus)
+	inst.build(self, "LookdevBuildings", 0.0, true)
+

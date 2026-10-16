@@ -14,6 +14,9 @@ uniform vec3 accent_light2 : source_color = vec3(1.0, 0.25, 0.8);
 uniform float window_energy = 2.2;
 uniform float wetness = 0.6;
 uniform float daylight = 0.0;   // coast dusk: windows less dominant
+// M7 look plan step 3: recessed windows with interior-mapped rooms and metal frames (Forward+ from
+// Medium, web from High). 0 = the flat facade.
+uniform float relief = 0.0;
 
 varying flat vec4 cus;
 
@@ -21,6 +24,26 @@ float h21(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
 	return fract((p3.x + p3.y) * p3.z);
+}
+
+float vnoise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+// window opening inside a facade cell (0..1): x0, x1, y0, y1
+vec4 win_box(float style, bool shop) {
+	if (shop) return vec4(0.08, 0.92, 0.08, 0.75);
+	if (style < 0.2) return vec4(0.18, 0.82, 0.28, 0.86);    // punched windows
+	if (style < 0.5) return vec4(0.05, 0.95, 0.1, 0.94);     // curtain wall
+	if (style < 0.85) return vec4(0.03, 0.97, 0.35, 0.85);   // ribbon windows
+	return vec4(0.3, 0.7, 0.35, 0.8);                          // small houses
+}
+
+float in_box(vec2 f, vec4 b) {
+	return step(b.x, f.x) * step(f.x, b.y) * step(b.z, f.y) * step(f.y, b.w);
 }
 
 void vertex() {
@@ -51,8 +74,9 @@ void fragment() {
 		albedo = wall * 0.6;
 		rough = 0.9;
 	} else {
-		float u = abs(ln.x) > 0.5 ? lp.z * sign(ln.x) : -lp.x * sign(ln.z);
-		float face = abs(ln.x) > 0.5 ? (ln.x > 0.0 ? 1.0 : 2.0) : (ln.z > 0.0 ? 3.0 : 4.0);
+		bool xface = abs(ln.x) > 0.5;
+		float u = xface ? lp.z * sign(ln.x) : -lp.x * sign(ln.z);
+		float face = xface ? (ln.x > 0.0 ? 1.0 : 2.0) : (ln.z > 0.0 ? 3.0 : 4.0);
 		float v = lp.y;
 		float fh = style > 0.85 ? 3.0 : mix(3.3, 4.2, h21(vec2(seed, 1.7)));
 		float cw = style > 0.85 ? 2.6 : mix(2.4, 4.6, h21(vec2(seed, 2.9)));
@@ -68,49 +92,99 @@ void fragment() {
 		if (pick > 0.985) lc = accent_light;
 		else if (pick > 0.975) lc = accent_light2;
 		float dim = 0.35 + 0.65 * h21(cell + 11.0 + seed);
-		float win;
-		if (style < 0.2) {
-			// punched windows
-			win = step(0.18, f.x) * step(f.x, 0.82) * step(0.28, f.y) * step(f.y, 0.86);
-		} else if (style < 0.5) {
-			// curtain wall: glass everywhere, thin mullions
-			win = step(0.05, f.x) * step(f.x, 0.95) * step(0.1, f.y) * step(f.y, 0.94);
-		} else if (style < 0.85) {
-			// horizontal ribbon windows
-			win = step(0.35, f.y) * step(f.y, 0.85) * step(0.03, f.x) * step(f.x, 0.97);
-		} else {
-			// small houses: sparse windows
-			win = step(0.3, f.x) * step(f.x, 0.7) * step(0.35, f.y) * step(f.y, 0.8);
+		if (style > 0.85) {
 			lit = r < lit_frac;
 		}
 		// shop fronts on the ground floor
-		if (v < fh && style < 0.85) {
-			win = step(0.08, f.x) * step(f.x, 0.92) * step(0.08, f.y) * step(f.y, 0.75);
+		bool shop = v < fh && style < 0.85;
+		if (shop) {
 			lit = r < 0.7;
 			dim = 0.8;
 			lc = mix(lc, vec3(1.0, 0.85, 0.7), 0.5);
 		}
+		vec4 box = win_box(style, shop);
+		float win = in_box(f, box);
 		// anti-alias: far away, blend to the average facade brightness
 		vec2 fw = fwidth(g);
 		float aa = clamp(1.0 - (max(fw.x, fw.y) - 0.12) * 4.0, 0.0, 1.0);
 		float avg_win = style < 0.2 ? 0.37 : (style < 0.5 ? 0.75 : 0.45);
-		// interior detail: ceiling-lit gradient, blinds on some windows, a darker "room" blob
-		float inner = 0.75 + 0.35 * f.y;
 		float blinds_on = step(0.7, h21(cell + 5.5 + seed));
-		inner *= mix(1.0, 0.65 + 0.35 * step(0.5, fract(f.y * 9.0)), blinds_on);
-		float blob = smoothstep(0.2, 0.0, length((f - vec2(0.3 + 0.4 * h21(cell + 8.0), 0.45)) * vec2(1.0, 1.6)));
-		inner *= 1.0 - blob * 0.45 * step(0.4, h21(cell + 2.2));
-		vec3 lit_col = lc * dim * inner * window_energy * (1.0 - daylight * 0.6);
-		vec3 e_near = (lit ? lit_col : vec3(0.0)) * win;
+		vec3 lit_col = lc * dim * window_energy * (1.0 - daylight * 0.6);
+		vec3 e_near;
+		float frame = 0.0;
+		float jamb = 0.0;
+		if (relief > 0.5 && aa > 0.02) {
+			// view ray in facade space: x along u, y up, z into the wall
+			vec3 vw = normalize(wp - CAMERA_POSITION_WORLD);
+			vec3 vl = vec3(dot(vw, ax), dot(vw, ay), dot(vw, az));
+			vec3 tv = xface ? vec3(0.0, 0.0, sign(ln.x)) : vec3(-sign(ln.z), 0.0, 0.0);
+			vec3 nv = xface ? vec3(sign(ln.x), 0.0, 0.0) : vec3(0.0, 0.0, sign(ln.z));
+			vec3 rd = vec3(dot(vl, tv), vl.y, max(-dot(vl, nv), 0.08));
+			float depth = style < 0.2 ? 0.25 : (style < 0.5 ? 0.06 : (style < 0.85 ? 0.15 : 0.2));
+			if (shop) depth = 0.12;
+			// the glass sits `depth` behind the facade: where the reveal hides it, we see the jamb
+			vec2 fg = f + vec2(rd.x / cw, rd.y / fh) * depth / rd.z;
+			float wg = in_box(fg, box);
+			jamb = win * (1.0 - wg);
+			// thin metal frame around the glass, a mullion on wide windows
+			vec2 bw = vec2(0.04 / cw, 0.04 / fh);
+			float inner_box = in_box(fg, box + vec4(bw.x, -bw.x, bw.y, -bw.y));
+			frame = wg * (1.0 - inner_box);
+			if (cw > 3.4 && !shop) frame = max(frame, wg * (1.0 - step(bw.x, abs(fg.x - 0.5))));
+			// room behind the glass (interior mapping): box cw x fh x room_d, entered at the glass
+			float room_d = 0.9 * cw;
+			vec3 p0 = vec3(clamp(fg.x, 0.0, 1.0) * cw, clamp(fg.y, 0.0, 1.0) * fh, 0.0);
+			vec3 rs = vec3(abs(rd.x) < 1e-4 ? 1e-4 : rd.x, abs(rd.y) < 1e-4 ? 1e-4 : rd.y, rd.z);
+			vec3 tb = (step(0.0, rs) * vec3(cw, fh, room_d) - p0) / rs;
+			float t = min(tb.x, min(tb.y, tb.z));
+			vec3 ph = p0 + rs * t;
+			vec3 room;
+			if (t == tb.z) {
+				// back wall, with a furniture silhouette and a per-room tint
+				float blob = smoothstep(0.25, 0.0, length((vec2(ph.x / cw, ph.y / fh) - vec2(0.3 + 0.4 * h21(cell + 8.0), 0.3)) * vec2(1.0, 1.4)));
+				room = lit_col * 0.75 * (0.85 + 0.3 * h21(cell + 4.4)) * (1.0 - blob * 0.55 * step(0.4, h21(cell + 2.2)));
+			} else if (t == tb.y) {
+				if (rs.y > 0.0) {
+					// ceiling with a light panel in the middle
+					float panel = smoothstep(0.3, 0.1, length(vec2(ph.x / cw - 0.5, ph.z / room_d - 0.55) * vec2(1.0, 1.6)));
+					room = lit_col * (0.9 + 1.4 * panel);
+				} else {
+					room = lit_col * 0.3;            // floor
+				}
+			} else {
+				room = lit_col * 0.5;                // side walls
+			}
+			if (!lit) room = lit_col * 0.02;
+			room *= mix(1.0, 0.65 + 0.35 * step(0.5, fract(fg.y * 9.0)), blinds_on);
+			e_near = room * wg * (1.0 - frame);
+		} else {
+			// flat facade: ceiling-lit gradient, blinds on some windows, a darker "room" blob
+			float inner = 0.75 + 0.35 * f.y;
+			inner *= mix(1.0, 0.65 + 0.35 * step(0.5, fract(f.y * 9.0)), blinds_on);
+			float blob = smoothstep(0.2, 0.0, length((f - vec2(0.3 + 0.4 * h21(cell + 8.0), 0.45)) * vec2(1.0, 1.6)));
+			inner *= 1.0 - blob * 0.45 * step(0.4, h21(cell + 2.2));
+			e_near = (lit ? lit_col * inner : vec3(0.0)) * win;
+		}
 		vec3 e_far = mix(warm_light, cool_light, tint) * window_energy * avg_win * lit_frac * 0.55 * (1.0 - daylight * 0.6);
 		emit = mix(e_far, e_near, aa);
 		float wmix = mix(avg_win, win, aa);
 		albedo = mix(wall, glass_color, wmix);
 		rough = mix(rough, 0.08, wmix);
 		metal = mix(0.0, 0.5, wmix);
+		// window reveals and frames (near only)
+		albedo = mix(albedo, wall * 0.45, jamb * aa);
+		rough = mix(rough, 0.6, jamb * aa);
+		metal = mix(metal, 0.0, jamb * aa);
+		albedo = mix(albedo, vec3(0.08), frame * aa);
+		metal = mix(metal, 0.6, frame * aa);
+		rough = mix(rough, 0.3, frame * aa);
 		// subtle floor slab lines
 		float slab = smoothstep(0.0, 0.04, f.y) * smoothstep(0.0, 0.04, 1.0 - f.y);
 		albedo *= mix(0.75, 1.0, mix(1.0, slab, aa));
+		if (relief > 0.5) {
+			// rain streaks running down the walls
+			albedo *= 1.0 - 0.3 * wetness * vnoise(vec2(u * 2.5, v * 0.12)) * (1.0 - wmix);
+		}
 		// darker base, roof parapet glow line for tall towers
 		albedo *= 0.75 + 0.25 * smoothstep(0.0, 8.0, v);
 	}
