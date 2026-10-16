@@ -148,7 +148,18 @@ next to each exe. `winrt=no` avoids needing Windows SDK 10.0.22621. `d3d12=no` i
 path tracing is Vulkan-only.
 
 ## Giving an RTX build to friends
-In the fork editor, add a "Windows RTX" export preset: a copy of "Windows" with
+**Automated (GitHub Actions "RTX build (Windows)", `.github/workflows/rtx.yml`, branch `rtx-build`):**
+builds the fork's release template with MSVC (pinned to the commit tested on the RTX 2060, cached),
+exports SpeedFest into it with stock 4.7.2 (`tools/export_rtx.sh`; the fork reads 4.7 packs: same
+PCK v4 and GDScript tokenizer 101, and it avoids the fork's headless BPTC import bug), then
+smoke-tests the exe on Windows (4.8 runtime, headless boot, AutoDriver finishes Skyline).
+Download the run's artifact **SpeedFest-windows-rtx** (GitHub login needed), unzip, run
+**`add_nvidia_dlss.bat`** in the folder (copies the runtime from `C:\dev\streamline-2.10.0` if it's
+there, otherwise downloads NVIDIA's official SDK zip and extracts only `bin\x64` DLLs + licences),
+zip the folder again and send it. Friends can also run the .bat themselves. `README-RTX.txt` in the
+zip explains requirements, settings and credits.
+
+**By hand:** in the fork editor, add a "Windows RTX" export preset: a copy of "Windows" with
 `custom_template/release` set to your `godot.windows.template_release.x86_64.exe`. Export it, then put
 the Streamline `bin\x64` DLLs and their `*.license.txt` next to `SpeedFest.exe`, and add NVIDIA DLSS
 credits.

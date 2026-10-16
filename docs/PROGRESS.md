@@ -918,3 +918,17 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - All numbers, fixes, open issues (road UV2 markings, puddles, fakes under RT) and Windows build
   notes: docs/RTX.md "Measured on an RTX 2060".
 
+## 2026-10-16 ~22:00 UTC — Session 8 (Pi): RTX build for friends (`rtx-build`, GitHub Actions)
+
+- Owner asked for the RTX exe to send to friends. The Pi can't build Godot (6.7 GB disk, arm64) and
+  the owner's PC session is offline, so the fork is built in CI on a Windows runner with MSVC (the
+  toolchain session 11 used). Branch `rtx-build` = `m7-rtx` + `main` (doc conflicts only).
+- Compatibility checked in the sources: NVIDIA-RTX/godot @ 135dff38 (4.8-dev) and 4.7.2 share
+  PACK_FORMAT_VERSION 4 and GDScript TOKENIZER_VERSION 101, so a 4.7.2 export runs on the fork's
+  template; Streamline headers are vendored in the fork (`use_streamline` defaults on), no SDK
+  needed to build; `accesskit=no`, `d3d12=no`, `winrt=no`.
+- `tools/export_rtx.sh`: temporary "Windows RTX" preset (fork template, console wrapper in release,
+  no shader baking), README-RTX.txt + add_nvidia_dlss.bat/.ps1 (CRLF), zip. Verified on the Pi with
+  the stock 4.7.2 Windows template: SpeedFest.exe 185 MB (pck embedded), zip 98 MB, presets restored.
+- `.github/workflows/rtx.yml`: template (cached per fork commit) -> export -> Windows smoke test.
+  No release job (a public pre-release was blocked); artifact SpeedFest-windows-rtx, 30 days.

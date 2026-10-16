@@ -1,0 +1,200 @@
+# Optional RTX build for Windows (docs/RTX.md "Giving an RTX build to friends"):
+#   1. template: NVIDIA's Godot fork (nvidia-pt-dlss, pinned to the commit tested on an RTX 2060)
+#      built with MSVC as a release template (+ console wrapper). Cached per fork commit.
+#   2. export:   SpeedFest exported into that template with stock Godot 4.7.2 (tools/export_rtx.sh).
+#   3. smoke:    on Windows, the shipped exe reports the fork's 4.8 runtime, boots headless and the
+#                AutoDriver finishes a track; add_nvidia_dlss.ps1 fetches the NVIDIA runtime.
+# Download: the run's artifact "SpeedFest-windows-rtx". It contains NO NVIDIA DLLs (DLSS /
+# Streamline runtime, NVIDIA RTX SDK licence): run add_nvidia_dlss.bat in the folder before giving
+# it to anyone. Never commit or upload those DLLs from here (the smoke job only uses a local copy).
+# Errors are also posted as annotations.
+name: RTX build (Windows)
+
+on:
+  push:
+    branches: [rtx-build]
+    paths:
+      - "game/**"
+      - "tools/export_rtx.sh"
+      - "tools/rtx/**"
+      - ".github/workflows/rtx.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rtx-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORK_REPO: NVIDIA-RTX/godot
+  FORK_SHA: 135dff3887a3d2ccf45cafbd9bdffa7b718e1e76   # nvidia-pt-dlss, tested on an RTX 2060
+  GODOT_VERSION: "4.7.2"
+  GODOT_STATUS: "stable"
+
+jobs:
+  template:
+    runs-on: windows-2022
+    timeout-minutes: 340
+    steps:
+      - name: Cached fork template
+        id: tpl-cache
+        uses: actions/cache@v4
+        with:
+          path: tpl
+          key: rtx-template-${{ env.FORK_SHA }}-msvc-prod-v1
+
+      - name: Check out the fork
+        if: steps.tpl-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.FORK_REPO }}
+          ref: ${{ env.FORK_SHA }}
+          path: godot-rtx
+
+      - uses: actions/setup-python@v5
+        if: steps.tpl-cache.outputs.cache-hit != 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Build the release template (MSVC)
+        if: steps.tpl-cache.outputs.cache-hit != 'true'
+        shell: bash
+        working-directory: godot-rtx
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet scons
+          # d3d12=no: path tracing is Vulkan-only. winrt=no: no Windows SDK 10.0.22621 needed.
+          # use_streamline defaults to yes; the Streamline headers are vendored in thirdparty/.
+          scons platform=windows target=template_release arch=x86_64 production=yes \
+            d3d12=no winrt=no accesskit=no -j4 2>&1 | tee ../scons.log
+          ls -la bin
+          mkdir -p ../tpl
+          cp bin/godot.windows.template_release.x86_64.exe bin/godot.windows.template_release.x86_64.console.exe ../tpl/
+
+      - name: Report build errors
+        if: failure()
+        shell: bash
+        run: |
+          msg=$(grep -E "error C[0-9]+|error LNK|fatal error|scons: \*\*\*|Error:" scons.log 2>/dev/null | head -15 || true)
+          [[ -n "$msg" ]] || msg=$(tail -25 scons.log 2>/dev/null || echo "no scons.log")
+          msg="${msg//'%'/'%25'}"; msg="${msg//$'\r'/}"; msg="${msg//$'\n'/'%0A'}"
+          echo "::error title=fork template build::$msg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fork-template
+          path: tpl/
+          retention-days: 7
+
+  export:
+    needs: template
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      # Same cache and download as desktop.yml (only the editor is used here).
+      - name: Cache Godot + export templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot-bin
+            ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_STATUS }}
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_STATUS }}-linux64-desktop-templates-v1
+
+      - name: Download Godot 4.7.2 + export templates (checksums verified)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          TAG="${GODOT_VERSION}-${GODOT_STATUS}"
+          BASE="https://github.com/godotengine/godot/releases/download/${TAG}"
+          EDITOR="Godot_v${TAG}_linux.x86_64"
+          TPZ="Godot_v${TAG}_export_templates.tpz"
+          mkdir -p ~/godot-dl ~/godot-bin && cd ~/godot-dl
+          curl -fsSL --retry 5 -O "$BASE/SHA512-SUMS.txt"
+          curl -fsSL --retry 5 -O "$BASE/${EDITOR}.zip"
+          curl -fsSL --retry 5 -C - -O "$BASE/${TPZ}"
+          grep -E "  (${EDITOR}\.zip|${TPZ})$" SHA512-SUMS.txt | sha512sum -c -
+          unzip -o "${EDITOR}.zip" -d ~/godot-bin
+          chmod +x ~/godot-bin/${EDITOR}
+          TPL=~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_STATUS}
+          mkdir -p "$TPL"
+          unzip -j -o "${TPZ}" 'templates/version.txt' 'templates/icudt_godot.dat' \
+            'templates/linux_*.x86_64' 'templates/windows_*_x86_64*.exe' -d "$TPL"
+          rm -rf ~/godot-dl
+
+      - name: Godot on PATH
+        run: sudo ln -sf "$HOME/godot-bin/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux.x86_64" /usr/local/bin/godot
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: fork-template
+          path: ${{ runner.temp }}/fork-tpl
+
+      - name: Compile check
+        run: |
+          tools/godot_import.sh
+          tools/check_scripts.sh
+
+      - name: Export into the fork template
+        run: |
+          set -o pipefail
+          tools/export_rtx.sh "$RUNNER_TEMP/fork-tpl/godot.windows.template_release.x86_64.exe" 2>&1 | tee export.log
+
+      - name: Report export errors
+        if: failure()
+        run: |
+          msg=$(tail -25 export.log 2>/dev/null || echo "no export.log")
+          msg="${msg//'%'/'%25'}"; msg="${msg//$'\n'/'%0A'}"
+          echo "::error title=export::$msg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SpeedFest-windows-rtx
+          path: build/SpeedFest-windows-rtx.zip
+          compression-level: 0
+          retention-days: 30
+
+  smoke:
+    needs: export
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpeedFest-windows-rtx
+
+      - name: Boot the shipped build headless and drive a track
+        shell: bash
+        run: |
+          set -uo pipefail
+          7z x -y SpeedFest-windows-rtx.zip >/dev/null
+          cd SpeedFest-RTX
+          ls -la
+          ./SpeedFest.console.exe --version > version.txt 2>&1 || true
+          cat version.txt
+          ok=1
+          grep -qE "^4\.8\." version.txt || { echo "not the fork's 4.8 runtime"; ok=0; }
+          timeout 1500 ./SpeedFest.console.exe --headless --fixed-fps 60 --quit-after 4000 \
+            -- --auto_solo=skyline --autodrive > smoke.log 2>&1 || true
+          grep -E "AUTOPILOT|RACE (state|finish|respawn)|SCRIPT ERROR|Parse Error" smoke.log | head -40
+          grep -q "RACE finish" smoke.log || { echo "no finish"; ok=0; }
+          if grep -qE "SCRIPT ERROR|Parse Error" smoke.log; then echo "script errors"; ok=0; fi
+          if [[ $ok -eq 1 ]]; then echo "SMOKE_OK $(cat version.txt) $(grep -m1 'RACE finish' smoke.log)"; exit 0; fi
+          msg="$(cat version.txt)"$'\n'"$(grep -E "SCRIPT ERROR|Parse Error|ERROR|RACE|AUTOPILOT" smoke.log | head -15)"
+          grep -qE "ERROR|RACE" smoke.log || msg="$msg"$'\n'"$(tail -15 smoke.log)"
+          msg="${msg//'%'/'%25'}"; msg="${msg//$'\r'/}"; msg="${msg//$'\n'/'%0A'}"
+          echo "::error title=smoke::$msg"
+          exit 1
+
+      - name: add_nvidia_dlss.ps1 fetches the NVIDIA runtime (local copy only, nothing uploaded)
+        shell: pwsh
+        run: |
+          & ./SpeedFest-RTX/add_nvidia_dlss.ps1
+          Get-ChildItem SpeedFest-RTX | Format-Table Name, Length
+          foreach ($f in "sl.interposer.dll", "sl.dlss.dll", "nvngx_dlss.dll", "nvngx_dlssd.dll", "nvngx_dlss.license.txt") {
+            if (-not (Test-Path "SpeedFest-RTX/$f")) { Write-Output "::error title=add_nvidia_dlss::missing $f"; exit 1 }
+          }

@@ -1,5 +1,20 @@
 # HANDOFF: start here
 
+## Latest (~22:00 UTC 16 Oct, session 8 on the Pi): RTX build for friends via GitHub Actions
+
+- Owner: "Pull from repo and prepare the exe for the rtx version for pc for me to send it to
+  friends". **Branch `rtx-build`** = `m7-rtx` (session 11) + `main` (34 maps); `main` and `m7-rtx`
+  are untouched (merging `m7-rtx` into `main` is still the owner's call).
+- New: `.github/workflows/rtx.yml` "RTX build (Windows)" (runs on pushes to `rtx-build`): builds
+  the fork's release template with MSVC (NVIDIA-RTX/godot @ 135dff38, cached), exports with stock
+  4.7.2 via `tools/export_rtx.sh`, smoke-tests on Windows (4.8 runtime, headless AutoDriver finish,
+  `add_nvidia_dlss.ps1`). Artifact **SpeedFest-windows-rtx** (no NVIDIA DLLs; `add_nvidia_dlss.bat`
+  in the folder adds them from `C:\dev\streamline-2.10.0` or NVIDIA's official zip). docs/RTX.md
+  "Giving an RTX build to friends".
+- Tested on the Pi: `tools/export_rtx.sh` with the stock Windows template (preset handling,
+  export, zip: 98 MB). A public pre-release / public download link was NOT made (blocked as a public
+  surface); the owner downloads the artifact from Actions.
+
 ## Latest (~16:30 UTC 16 Oct, session 11, owner's Windows PC with an RTX 2060): RTX tested for real
 
 - **Branch `m7-rtx`** (from `main` @ be06471, pushed; not merged). `main` has moved on since
