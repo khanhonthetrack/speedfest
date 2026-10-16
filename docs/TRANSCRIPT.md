@@ -465,3 +465,13 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   chains the next wake-up before stopping again. At 02:45 it found sessions 9 and 10 had finished
   the physics merge and the TMNF research, deployed the Pi, and took M7-6 (maps) on `m7-maps`,
   leaving the PC build to session 10.
+
+### User (verbatim, ~00:30 UTC 16 Oct)
+
+> Yes. Also, now in a separate folder, build a copy of TMNF as close to the original as possible (you can strip off maniaplanet etc) amd build it in terms of graphics, car feelinG, textures but now using enhanced godot engineml  ask any questioms if needed.
+
+### Claude
+
+- "Yes" = port TMNF's model into SpeedFest's `car.gd`. The remake goes in a separate folder.
+  Asked the owner about assets (TMNF's own files vs. recreations, given the public repo and web
+  hosting), content, the SpeedFest default and the engine build before starting.
