@@ -465,3 +465,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   chains the next wake-up before stopping again. At 02:45 it found sessions 9 and 10 had finished
   the physics merge and the TMNF research, deployed the Pi, and took M7-6 (maps) on `m7-maps`,
   leaving the PC build to session 10.
+
+### User (verbatim, session 10, cloud; sent with /workflow-authoring, ultracode on)
+
+> Update the repo and continue
+
+### Claude
+
+- Fetched: `main` had session 9's TMNF research and the Pi session's notes (it took M7-6 maps on
+  `m7-maps`, 24 new maps). Merged `main` into `m7-pc` and continued M7-1 (PC build): look pass,
+  RTX verification on a Linux build of NVIDIA's fork, review, merge.
+
