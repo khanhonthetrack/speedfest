@@ -93,6 +93,11 @@ const SLOPES := {
 	"UTop": [1.345, 1.817, 2.233, 2.583, 2.864, 3.079, 3.227, 3.314, 3.345, 3.314, 3.227, 3.079, 2.864, 2.583, 2.233, 1.817, 1.345],
 }
 
+## Platform/ToRoad2: the running curb's edge line, an arc of this radius about (R, 0) from the
+## road end (0, 0), and the angle where it stops short of the far corner.
+const TO_PLATFORM_R := 83.13
+const TO_PLATFORM_END := 48.0
+
 ## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
 const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
 
@@ -264,6 +269,52 @@ func ramp(geo: TmGeo, heights: Array, floor_y: float, mat := "asphalt") -> void:
 	var y_at := func(y: float, i: int) -> float: return maxf(y, floor_y - (path[i] as Vector3).y)
 	_sweep(geo, path, lat, false, y_at)
 	_road_mat = "asphalt"
+
+
+## Road/Main onto a platform floor at road level (Platform/ToRoad, where the platform loops begin):
+## a plate the width of the block at the road's height. One block (blocks = 1): the road from z 16
+## to 32, its curbs turned out round the side midpoints onto the plate. Two blocks (z 0 -> 64, the
+## road at z 0): one curb turns out at once round its corner, the other runs on across the plate
+## on an arc of radius TO_PLATFORM_R tangent to the road (measured) to near the far corner; mirror
+## swaps the sides.
+func to_platform(geo: TmGeo, blocks: int, ground: bool, mirror: bool) -> void:
+	var len := 32.0 * blocks
+	var plate_z1 := 16.0 if blocks == 1 else len
+	geo.box(Vector3(0, 1.0, 0), Vector3(32, TOP, plate_z1), "structure", S_METAL, "platform" if blocks == 1 else "asphalt", S_ROAD)
+	if not ground:
+		geo.box(Vector3(14.34, 0.4, 0), Vector3(17.66, 1.0, plate_z1), "structure", S_METAL)
+	var curb := _curb_section(ground)
+	var mx := func(v: Vector3) -> Vector3: return Vector3(32.0 - v.x, v.y, v.z) if mirror else v
+	var ml := func(v: Vector3) -> Vector3: return Vector3(-v.x, v.y, v.z) if mirror else v
+	if blocks == 1:
+		_straight(geo, 16.0, 32.0, ground)
+		_turn_out(geo, curb, Vector3(0, 0, 16), Vector3(1, 0, 0), Vector3(0, 0, -1))
+		_turn_out(geo, curb, Vector3(32, 0, 16), Vector3(-1, 0, 0), Vector3(0, 0, -1))
+		return
+	# the curb that turns out at once, round the corner at the road's end
+	_turn_out(geo, curb, mx.call(Vector3(32, 0, 0)), ml.call(Vector3(-1, 0, 0)), Vector3(0, 0, 1))
+	# the one that runs across: its edge line on the arc, d inward toward the arc's centre
+	var path := []
+	var lat := []
+	var steps := 24
+	for k in steps + 1:
+		var a := deg_to_rad(TO_PLATFORM_END) * k / steps
+		path.append(mx.call(Vector3(TO_PLATFORM_R * (1.0 - cos(a)), 0, TO_PLATFORM_R * sin(a))))
+		lat.append(ml.call(Vector3(cos(a), 0, -sin(a))))
+	geo.wall_sweep(curb, path, lat, true, "metal", S_METAL)
+
+
+## A curb turned through a quarter circle about a point on the block's edge: its section's lateral
+## goes from `from` (along the road) to `to` (along the edge it ends on).
+func _turn_out(geo: TmGeo, curb: Array, c: Vector3, from: Vector3, to: Vector3) -> void:
+	var path := []
+	var lat := []
+	var steps := 6
+	for s in steps + 1:
+		var ang := PI * 0.5 * float(s) / steps
+		lat.append((from * cos(ang) + to * sin(ang)).normalized())
+		path.append(c)
+	geo.wall_sweep(curb, path, lat, true, "metal", S_METAL)
 
 
 func _straight(geo: TmGeo, z0: float, z1: float, ground: bool) -> void:

@@ -103,7 +103,7 @@ const LOOP_OUT := 32.05
 func handles(shape: String) -> bool:
 	return shape.begins_with("Platform/Road/") or shape.begins_with("Platform/Wall/") \
 		or shape == "Platform/Turbo/Air" or shape == "Platform/Checkpoint/Air" \
-		or shape == "Platform/Checkpoint/RingVAir" or shape == "Platform/ToRoad/ToRoadMainAir" \
+		or shape == "Platform/Checkpoint/RingVAir" or shape.begins_with("Platform/ToRoad/") \
 		or shape in ["Platform/Loop/StartAir", "Platform/Loop/StartGround", "Platform/Loop/EndAir"]
 
 
@@ -133,11 +133,16 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 				_deck(geo, _closed([0, 2]))
 				_checkpoint_arch(geo)
 		"ToRoad":
-			if parts[2] != "ToRoadMainAir":
+			var form := parts[2]
+			if form == "ToRoadMainAir":
+				# the deck, and the road rising off it to the Road/Main block above (one level up)
+				_deck(geo, _closed([0, 2]))
+				RoadShapes.new().ramp(geo, TO_ROAD_MAIN, TOP, "platform")
+			elif form in ["Air", "Ground", "2Air", "2Ground", "2MirrorAir", "2MirrorGround"]:
+				RoadShapes.new().to_platform(geo, 2 if form.begins_with("2") else 1, form.ends_with("Ground"),
+					form.contains("Mirror"))
+			else:
 				return null
-			# the deck, and the road rising off it to the Road/Main block above (one level up)
-			_deck(geo, _closed([0, 2]))
-			RoadShapes.new().ramp(geo, TO_ROAD_MAIN, TOP, "platform")
 		"Wall":
 			match parts[2]:
 				"BorderAir":
