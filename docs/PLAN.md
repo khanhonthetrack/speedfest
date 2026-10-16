@@ -120,8 +120,11 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       sensible speeds. Done (session 8; session 10 added a suspension hard stop for fast loops).
 - [x] 5. **Rails not magnetic**: the car must not be pulled onto a rail; landing on it is the
       player's job. Done (session 10).
-- [ ] 6. **30+ high-quality, distinct maps** in original designs that borrow from the most-played
+- [x] 6. **30+ high-quality, distinct maps** in original designs that borrow from the most-played
       TM map styles (TMX). This needs new track pieces and mechanics so maps don't repeat.
+      Done (session 8, Pi): 24 new maps (34 total) with dirt/ice/plastic surfaces and special pads
+      (engine off, no steer, cruise, reactor, reset), plan in `docs/research/m7_maps.md`; merged
+      into `main` 16 Oct (branch `m7-maps-main`): AutoDriver 24/24 at 12.9-26.8 s, 0 respawns.
 Process: research workflow → plan → implement in sequence (physics → barriers/walls/rails → PC
 graphics/perf → track pieces → maps in parallel batches) → verify (tests, AutoDriver, screenshots).
 
