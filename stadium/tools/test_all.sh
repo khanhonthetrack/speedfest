@@ -2,7 +2,7 @@
 # Run every headless lab of the Stadium remake. Prints STADIUM_TESTS PASS/FAIL.
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-timeout 300 godot --headless --path "$ROOT" --import >/dev/null 2>&1 || true
+timeout 300 "${GODOT:-godot}" --headless --path "$ROOT" --import >/dev/null 2>&1 || true
 FAIL=0
 # TMNF_DIR=/path/to/TmNationsForever also checks the GBX reader on the official campaign
 EXTRA=""; [[ -n "${TMNF_DIR:-}" ]] && EXTRA="--tmnf=$TMNF_DIR"

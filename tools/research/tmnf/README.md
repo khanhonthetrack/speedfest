@@ -39,9 +39,20 @@ Downloads the official installer (SHA-256 checked), unpacks it, clones ModTMNF (
 `Analysis/Docs/Generated.zip` class hierarchy) and GBX.NET (`Resources/FileHashes.txt`), builds
 `classmap.json` and the Stadium pack listing, decrypts block infos, mobils, materials and solids,
 and writes `blocks/blockinfos.json`, `material_surfaces.json`, `campaign_blocks.json` and
-`blocks/meas/*.json`. Checked from scratch in session 9 (8 min 20 s plus the 30 MB download; 669
+`blocks/meas/*.json`. Checked from scratch in session 9 (8 min 20 s plus the 530 MB download; 669
 of 671 solids): the meshes come out byte-identical to the ones the block library was measured
 against. Everything stays outside the repo.
+
+On Windows (Git Bash, session 12, owner's PC): no 7z or apt needed. Put `innoextract.exe`
+(github.com/dscharrer/innoextract releases, 1.9) on PATH and give the script a Python that has
+pycryptodome and py7zr (`-I` ignores user site-packages, so use a venv):
+
+    python -m venv C:/dev/pyenv && C:/dev/pyenv/Scripts/python -m pip install pycryptodome py7zr numpy
+    PYTHON=/c/dev/pyenv/Scripts/python tools/research/tmnf/setup_measurements.sh /c/dev/tmnf
+
+`sfx7z.py` unpacks the installer's 7-Zip SFX with py7zr. Same 669 meshes; about 18 minutes (one
+Python process per pack entry is slower to start on Windows). Pass Windows-style paths to Godot
+(`--tmnf=C:/dev/tmnf/tmnf/app`, `--meas=C:/dev/tmnf/blocks/meas`).
 
 Shape-reading helpers (numbers only, on `meas/*.json`): `describe.py`, `section.py`,
 `section_loop.py`, `hmap.py` (height bands per cell), `matmap.py` (one material's heights),
@@ -49,7 +60,9 @@ Shape-reading helpers (numbers only, on `meas/*.json`): `describe.py`, `section.
 `bank.py` (height and bank along a curve), `zone_heights.py` / `terrain_heights.py` (surveyed
 control heights for terrain-like blocks), `sweep_frames.py` (a swept road's frames: centre, lateral
 and width per frame, read from the three asphalt vertices each frame leaves; the GT diagonals'
-`blocks/data/gt_diag_frames.json`), `material_surfaces.py` (physics surface per material).
+`blocks/data/gt_diag_frames.json`), `material_surfaces.py` (physics surface per material),
+`radial_section.py` (a curved piece's section in a vertical plane through its curve's centre, with
+an optional slope sheared off: how the slope corners were found to be the flat walls sheared).
 
 ## Block measurements (session 9, for the Stadium remake's block library)
 

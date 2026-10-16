@@ -8,7 +8,7 @@ for f in sorted(glob.glob(root + '/*/*.Challenge.Gbx')):
     hdr, info, r, out = g.load(f)
     for b in out['blocks']:
         cnt[b['name']] += 1
-        maps[b['name']].add(f.split('/')[-1][:3])
+        maps[b['name']].add(os.path.basename(f)[:3])
         if b['flags'] != 0xFFFFFFFF and b['flags'] & 0x1000:
             ground[b['name']] += 1
 json.dump({k: [v, ground[k], sorted(maps[k])] for k, v in cnt.items()}, open(sys.argv[2], 'w'), indent=0)
