@@ -17,11 +17,39 @@ static func campaign_file(tmnf_root: String, track: String) -> String:
 	return ""
 
 
-## The challenge named by the args: --map=/path/X.Challenge.Gbx, or --tmnf=/path --track=A01.
+## Where TMNF installs itself (the official installer, Steam), tried when no install is named.
+const TMNF_PLACES := [
+	"C:/Program Files (x86)/TmNationsForever", "C:/Program Files/TmNationsForever",
+	"C:/Program Files (x86)/Steam/steamapps/common/TrackMania Nations Forever",
+	"~/.wine/drive_c/Program Files (x86)/TmNationsForever", "~/.wine/drive_c/Program Files/TmNationsForever",
+]
+
+
+## The player's TMNF install: --tmnf=/path, else $TMNF_DIR, else the usual install places; "" if none.
+static func find_tmnf() -> String:
+	var named := String(TestHooks.arg("tmnf", ""))
+	if named.is_empty():
+		named = OS.get_environment("TMNF_DIR")
+	var places := [named] if not named.is_empty() else []
+	for p: String in TMNF_PLACES:
+		places.append(p.replace("~", OS.get_environment("HOME")) if p.begins_with("~") else p)
+	for p: String in places:
+		if DirAccess.dir_exists_absolute(p.path_join("GameData/Tracks/Campaigns/Nations")):
+			return p
+	return ""
+
+
+## The challenge named by the args: --map=/path/X.Challenge.Gbx, or --tmnf=/path --track=A01 (the
+## install found by find_tmnf() when not named; A01 by default).
 static func load_from_args() -> TmChallenge:
 	var path := String(TestHooks.arg("map", ""))
 	if path.is_empty():
-		path = campaign_file(String(TestHooks.arg("tmnf", "")), String(TestHooks.arg("track", "A01")))
+		var root := find_tmnf()
+		if root.is_empty():
+			var none := TmChallenge.new()
+			none.error = "TMNF not found. Install TrackMania Nations Forever (free), or start with --tmnf=<its folder> or --map=<file.Challenge.Gbx>, or set TMNF_DIR."
+			return none
+		path = campaign_file(root, String(TestHooks.arg("track", "A01")))
 	return TmChallenge.load_file(path)
 
 

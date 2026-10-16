@@ -12,8 +12,8 @@
 #   WORK/blocks/meas/*.json   collision meshes in block space (what the fidelity test reads)
 #
 # usage: tools/research/tmnf/setup_measurements.sh WORK [--quick]
-#   --quick: only a few solids (checks the pipeline in a minute); the full run decrypts every
-#   Stadium solid and takes much longer (run it in the background).
+#   --quick: only a few solids (checks the pipeline in about 3 minutes); the full run decrypts
+#   every Stadium solid (about 10 minutes plus the 30 MB download).
 # needs: curl, 7z (p7zip-full), innoextract, git, python3 (apt-get install p7zip-full innoextract)
 # then:  TMNF_DIR=WORK/tmnf/app stadium/tools/test_all.sh
 #        stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless -- --meas=WORK/blocks/meas

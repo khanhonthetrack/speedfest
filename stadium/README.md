@@ -35,6 +35,18 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
+## Play it (A01 and the rest of the campaign)
+1. Install TrackMania Nations Forever (free, from Ubisoft/Nadeo or Steam): the remake reads the
+   official tracks from your own install and never ships them.
+2. Install Godot 4.7.2, clone this repo, check out branch `stadium`, open `stadium/project.godot`
+   and press Play (F5). It finds TMNF in its usual install folder and starts A01.
+   Elsewhere: run with `-- --tmnf="D:/Games/TmNationsForever"`, or set `TMNF_DIR`.
+   Another track: `-- --track=B05`; any track file: `-- --map="C:/path/X.Challenge.Gbx"`.
+3. Keys: arrows / WASD (or a pad) to drive, Enter respawns at the last checkpoint,
+   Backspace / Delete restarts.
+Not there yet: our own car model (a placeholder body), textures (flat colours), sounds, menus,
+ghosts; some decorations (grandstands, sculptures) show as translucent boxes.
+
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with
 `tools/research/tmnf/setup_measurements.sh` (never committed).

@@ -39,8 +39,9 @@ Downloads the official installer (SHA-256 checked), unpacks it, clones ModTMNF (
 `Analysis/Docs/Generated.zip` class hierarchy) and GBX.NET (`Resources/FileHashes.txt`), builds
 `classmap.json` and the Stadium pack listing, decrypts block infos, mobils, materials and solids,
 and writes `blocks/blockinfos.json`, `material_surfaces.json`, `campaign_blocks.json` and
-`blocks/meas/*.json`. Checked from scratch in session 9: the meshes come out byte-identical to the
-ones the block library was measured against. Everything stays outside the repo.
+`blocks/meas/*.json`. Checked from scratch in session 9 (8 min 20 s plus the 30 MB download; 669
+of 671 solids): the meshes come out byte-identical to the ones the block library was measured
+against. Everything stays outside the repo.
 
 Shape-reading helpers (numbers only, on `meas/*.json`): `describe.py`, `section.py`,
 `section_loop.py`, `hmap.py` (height bands per cell), `matmap.py` (one material's heights),

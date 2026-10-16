@@ -3,8 +3,9 @@ extends Node3D
 ## the start block, the chase camera, the HUD and TmRace's rules. The race steps the car itself
 ## (after the race clock) and tests each tick's motion against the waypoint triggers (TmTriggers).
 ## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart.
-## Args: --map=/path/X.Challenge.Gbx, or --tmnf=/path/to/TMNF --track=A01; --laps=N overrides the
-## map's lap count; TmCarInput's --auto_* and TestHooks' --shot/--frames for tests.
+## Args: --map=/path/X.Challenge.Gbx, or --tmnf=/path/to/TMNF --track=A01 (without them: the TMNF
+## install in its usual place, A01); --laps=N overrides the map's lap count; TmCarInput's --auto_*
+## and TestHooks' --shot/--frames for tests. It is the project's main scene (press Play).
 
 var challenge: TmChallenge
 var builder: TmMapBuilder
@@ -23,8 +24,11 @@ func _ready() -> void:
 	challenge = TmStage.load_from_args()
 	if not challenge.ok():
 		push_error("race: %s" % challenge.error)
-		TestHooks.fail("race_map", challenge.error)
-		TestHooks.finish()
+		if TestHooks.is_testing():
+			TestHooks.fail("race_map", challenge.error)
+			TestHooks.finish()
+		else:
+			_message(challenge.error)
 		return
 	builder = TmMapBuilder.build(challenge)
 	add_child(builder.root)
@@ -64,6 +68,20 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	restart()
 	ready_to_race = true
+
+
+## A full-screen message (no map to race), e.g. when TMNF isn't installed.
+func _message(text: String) -> void:
+	var cl := CanvasLayer.new()
+	add_child(cl)
+	var l := Label.new()
+	l.text = text
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", 28)
+	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	cl.add_child(l)
 
 
 func _physics_process(_delta: float) -> void:

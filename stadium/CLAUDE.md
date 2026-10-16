@@ -31,7 +31,7 @@ Recreate the local data whenever you need it, from public sources only:
     tools/research/tmnf/setup_measurements.sh /tmp/tmnf          # W = any dir outside the repo
 
 It downloads the free official installer (checked by SHA-256), unpacks it, clones two public
-reference repos (ModTMNF, GBX.NET) and decrypts and measures everything (about 25 minutes; add
+reference repos (ModTMNF, GBX.NET) and decrypts and measures everything (about 10 minutes, 669 meshes; add
 `--quick` to check the pipeline in 3). Results: `$W/tmnf/app` (the install with the official
 campaign), `$W/blocks/meas/*.json` (collision meshes), `$W/blocks/blockinfos.json`,
 `material_surfaces.json`, `campaign_blocks.json`. The remake runs, and the no-install tests pass,
