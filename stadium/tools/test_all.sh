@@ -6,7 +6,7 @@ timeout 300 "${GODOT:-godot}" --headless --path "$ROOT" --import >/dev/null 2>&1
 FAIL=0
 # TMNF_DIR=/path/to/TmNationsForever also checks the GBX reader on the official campaign
 EXTRA=""; [[ -n "${TMNF_DIR:-}" ]] && EXTRA="--tmnf=$TMNF_DIR"
-for t in test_model_lab test_car_body test_car_shapes test_gbx test_blocks test_race; do
+for t in test_model_lab test_car_body test_car_shapes test_gbx test_blocks test_ghost test_race; do
   OUT=$("$ROOT/tools/run.sh" "res://tests/$t.tscn" --headless --timeout 600 -- $EXTRA 2>&1)
   echo "$OUT" | grep -E "TEST_FAIL|SCRIPT ERROR|TEST_SUMMARY" | sed "s/^/[$t] /"
   if ! echo "$OUT" | grep -q "TEST_SUMMARY ok=[0-9]* fail=0"; then FAIL=1; fi

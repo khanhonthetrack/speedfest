@@ -10,6 +10,8 @@ const W := TmBlockCatalogue.Waypoint
 
 
 func _ready() -> void:
+	TestHooks.args["records"] = "user://test_records"   # never the player's own records
+	TmRecords.clear()
 	_rules()
 	_laps()
 	_triggers()
@@ -169,8 +171,18 @@ func _track(track: String) -> void:
 		"state %s, lap %d, %d/%d checkpoints, goal %d" % [race.state, race.lap, race.taken.size(), race.checkpoint_count, goal])
 	print("%s: %d checkpoints, %d lap(s), finished at %s%s" % [track, cps.size(), race.laps, TmRace.time_text(race.finish_ms),
 		(", not recreated yet (taken by hand): %s" % [unbuilt]) if not unbuilt.is_empty() else ""])
+	var rec := TmRecords.best(scene.challenge)
+	TestHooks.check(scene.new_record and int(rec.get("time_ms", -1)) == race.finish_ms
+		and (rec.get("splits", []) as Array).size() == race.splits.size(), "%s_record_saved" % track,
+		"new %s, saved %s vs %d" % [scene.new_record, rec.get("time_ms", -1), race.finish_ms])
 	scene.respawn()
 	TestHooks.check(race.state == TmRace.State.COUNTDOWN and race.time_ms == 0, "%s_restart_after_finish" % track)
+	await get_tree().physics_frame
+	var ghost: TmGhost = scene.best_ghost
+	TestHooks.check(ghost != null and ghost.finish_ms == int(rec.get("time_ms", -2)), "%s_ghost_kept" % track)
+	TestHooks.check(ghost != null and scene.ghost_car.visible and ghost.count() > 1
+		and scene.ghost_car.global_position.distance_to((ghost.sample(0)["xform"] as Transform3D).origin) < 0.01,
+		"%s_ghost_waits_at_start" % track, "visible %s, %d samples" % [scene.ghost_car.visible, ghost.count()])
 	scene.queue_free()
 	await get_tree().physics_frame
 

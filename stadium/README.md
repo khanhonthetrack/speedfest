@@ -44,8 +44,10 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
    Another track: `-- --track=B05`; any track file: `-- --map="C:/path/X.Challenge.Gbx"`.
 3. Keys: arrows / WASD (or a pad) to drive, Enter respawns at the last checkpoint,
    Backspace / Delete restarts.
-Not there yet: our own car model (a placeholder body), textures (flat colours), sounds, menus,
-ghosts; some decorations (grandstands, sculptures) show as translucent boxes.
+4. Your best time per track and its ghost are saved (Godot's user folder, `records/`; another
+   folder with `-- --records=<dir>`). From the next attempt the record's ghost races with you,
+   and every checkpoint shows the difference to the record (blue ahead, red behind).
+Not there yet: our own car model (a placeholder body), textures (flat colours), sounds, menus.
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with

@@ -18,9 +18,14 @@
   placeholder left**; then the last decorations (airship, camera lights/pubs, inflatable tube and
   advert pillars, the 3 x 3 Fabric roofs, the bump): **campaign coverage 100%** (0 placeholders on
   all 65 tracks). PROGRESS has the numbers.
-- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** M8-6 (ghosts and best times,
-  stadium environment, our own car model, menus, sounds, HD graphics); polish of the weakest
-  decorations (inflatable castles, camera light base, bump) when time allows.
+- **M8-6 ghosts and best times done** (owner: "Start M8-6: ghosts and best times first, then the
+  stadium environment, our own car model, menus and sounds."): `race/tm_ghost.gd`,
+  `race/tm_records.gd`, the record's ghost in `race/race.gd`, record and split differences in the
+  HUD; `tests/test_ghost`. Records live in Godot's user folder (`records/`).
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of M8-6 in the owner's
+  order: stadium environment (sky, stands, lighting), our own car model, menus, sounds (then HD
+  graphics); polish of the weakest decorations (inflatable castles, camera light base, bump) when
+  time allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).
 
 ## Earlier (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED

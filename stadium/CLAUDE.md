@@ -90,8 +90,10 @@ Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
      and palm tree (14-66%: rough shapes, loft them), the camera light base (83%), the bump (81%),
      the Sculpt pillars' heads (81%), the In Fabric pillar corners (86.7-93.4%), Fabric trusses,
      screens and spotlights, the bridges' rails and awnings; dirt fences/signs/awnings.
-  3. The rest of M8-6: ghosts and best times, stadium environment (sky, stands, lighting), our own
-     car model, TMNF-like menus, sounds, HD Forward+ graphics.
+  3. M8-6, in the owner's order: (done) ghosts and best times (`race/tm_ghost.gd`,
+     `race/tm_records.gd`, HUD record and split differences; `tests/test_ghost`); next the stadium
+     environment (sky, stands, lighting), our own car model, TMNF-like menus, sounds, HD Forward+
+     graphics.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.
 - Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the
   vertex angles in the measurement before choosing a step); swept pieces leave three asphalt vertices

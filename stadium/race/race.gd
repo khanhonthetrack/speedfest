@@ -6,6 +6,8 @@ extends Node3D
 ## Args: --map=/path/X.Challenge.Gbx, or --tmnf=/path/to/TMNF --track=A01 (without them: the TMNF
 ## install in its usual place, A01); --laps=N overrides the map's lap count; TmCarInput's --auto_*
 ## and TestHooks' --shot/--frames for tests. It is the project's main scene (press Play).
+## Best times and ghosts: every run is recorded (TmGhost); a finish that beats the track's record
+## is saved (TmRecords) and its ghost races against you from the next attempt on.
 
 var challenge: TmChallenge
 var builder: TmMapBuilder
@@ -15,6 +17,13 @@ var input: TmCarInput
 var cam: TmCamera
 var hud: TmRaceHud
 var ready_to_race := false
+var best := {}                     ## the track's record: {time_ms, splits}; {} if none
+var best_ghost: TmGhost            ## the record's ghost, raced against; null if none
+var run: TmGhost                   ## this run, being recorded
+var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarVisual)
+var new_record := false            ## the last finish set a new record
+
+const GHOST_LINGER_MS := 1000      ## the ghost stays this long at its finish, then goes
 
 var _triggers: Array = []          ## [{index, kind, xform, trig}]: waypoints with a trigger
 var _prev := Vector3.ZERO          ## the car's position at the previous tick
@@ -43,7 +52,15 @@ func _ready() -> void:
 			_triggers.append({"index": i, "kind": int(wp["kind"]), "xform": wp["xform"], "trig": trig})
 	var laps: int = TestHooks.arg("laps", challenge.nb_laps if challenge.lap_race else 1)
 	race = TmRace.new(cps, laps)
-	race.finished.connect(func(_ms: int) -> void: car.controls_enabled = false)
+	race.finished.connect(_on_finished)
+	best = TmRecords.best(challenge)
+	best_ghost = TmRecords.ghost(challenge)
+	ghost_car = Node3D.new()
+	ghost_car.name = "Ghost"
+	var gv := TmCarVisual.new()
+	gv.ghost = true
+	ghost_car.add_child(gv)
+	add_child(ghost_car)
 
 	car = TmCar.new()
 	add_child(car)
@@ -61,6 +78,7 @@ func _ready() -> void:
 	hud.race = race
 	hud.car = car
 	hud.challenge = challenge
+	hud.best = best
 	add_child(hud)
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
@@ -88,15 +106,43 @@ func _physics_process(_delta: float) -> void:
 	if not ready_to_race:
 		return
 	race.tick()
+	_show_ghost()
 	if race.state == TmRace.State.COUNTDOWN:
 		return
 	car.step_tick()
 	var p := car.global_position
 	if race.racing():
+		run.record(race.time_ms, car.global_transform, car.model.steer, car.local_velocity().z)
 		for t: Dictionary in _triggers:
 			if TmTriggers.crossed(t["trig"], t["xform"], _prev, p) >= 0.0:
 				race.cross(int(t["index"]), int(t["kind"]))
 	_prev = p
+
+
+## The best run's ghost at the race clock: at its start through the countdown, gone a moment
+## after its finish.
+func _show_ghost() -> void:
+	var on := best_ghost != null and race.time_ms <= best_ghost.length_ms() + GHOST_LINGER_MS
+	ghost_car.visible = on
+	if not on:
+		return
+	var s := best_ghost.sample(race.time_ms)
+	ghost_car.global_transform = s["xform"]
+	var gv := ghost_car.get_child(0) as TmCarVisual
+	gv.ghost_speed = float(s["speed"])
+	gv.ghost_steer = float(s["steer"])
+
+
+func _on_finished(time_ms: int) -> void:
+	car.controls_enabled = false
+	run.record(time_ms, car.global_transform, car.model.steer, car.local_velocity().z)
+	run.finish_ms = time_ms
+	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
+	hud.show_finish(time_ms, best, new_record)
+	if new_record:
+		best = TmRecords.best(challenge)
+		best_ghost = run
+		hud.best = best
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -112,6 +158,8 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Back to the start: the countdown again, the clock at zero.
 func restart() -> void:
 	race.restart()
+	run = TmGhost.new()
+	new_record = false
 	hud.reset()
 	place_car(builder.start if builder.has_start else Transform3D())
 

@@ -540,3 +540,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after every Sculpt piece)
 
 > Finish the last decorations first: inflatable tube/advert pillars, airship, camera lights and the remaining Fabric pieces.
+
+### User (verbatim, session 12, after campaign coverage reached 100%)
+
+> Start M8-6: ghosts and best times first, then the stadium environment, our own car model, menus and sounds.

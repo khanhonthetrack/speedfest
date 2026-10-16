@@ -1009,3 +1009,23 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   boards; 94.5%) and its screen variant 32 m higher with the big screen lofted under it (95.0%);
   Road/Main/Bump (the curbs level, the asphalt dipping 1.86 m; 81%).
 - Numbers: STADIUM_TESTS PASS; test_race all 65 tracks, 421 checks; coverage 100.0% built or empty.
+
+## 2026-10-16 — Session 12: ghosts and best times (M8-6 step 2), branch `stadium`
+Owner: "Start M8-6: ghosts and best times first, then the stadium environment, our own car model,
+menus and sounds."
+- `race/tm_ghost.gd` (`TmGhost`): a run as poses every 20 ms (position, rotation, steer, speed),
+  played back between samples (lerp/slerp), held at its last pose; saved as a small binary file
+  ("TMGH", version 1; 1.8 KB per second of driving).
+- `race/tm_records.gd` (`TmRecords`): the best time per track (its uid; the name for maps without
+  one) with its splits as JSON plus its ghost, in `user://records` (`--records=<dir>` for tests).
+  Only a strictly faster finish replaces the record.
+- `race/race.gd` records every run while racing; at the finish it submits the run, and a new record
+  becomes the ghost at once. The record's ghost (a translucent blue `TmCarVisual`, no shadow;
+  wheels spin and steer from the recorded speed and steer) waits at the start through the countdown,
+  drives with the race clock and goes 1 s after its finish.
+- HUD (`race/tm_race_hud.gd`): "Best" under the medal times; at each checkpoint, lap and the finish
+  the difference to the record's split (-0.12 blue = ahead, +1.05 red = behind, as TMNF shows it);
+  "New record!" at the finish.
+- Tests: `tests/test_ghost` (19 checks: sampling, save/load, records, deltas); `test_race` checks
+  per track that the finish saved a record and its ghost and that the ghost waits at the start
+  after a restart. STADIUM_TESTS PASS; test_race all 65 tracks, 616 checks (421 before).
