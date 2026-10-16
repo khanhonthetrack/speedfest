@@ -250,6 +250,10 @@ func _rtx_block(parent: Container) -> void:
 		_chips(parent, "rtx_bounces", "Light bounces", ["1", "2", "3"], 1)
 	if Settings.dlss_available():
 		_chips(parent, "dlss_mode", "DLSS", Settings.DLSS_NAMES)
+		_chips(parent, "dlss_model", "DLSS model", Settings.DLSS_MODEL_NAMES)
+		var m_hint := UITheme.label("Auto: Fast on RTX 20/30 cards (Sharp and Sharpest cost them a lot of FPS).", "body", 16, UITheme.TEXT_DIM)
+		m_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		parent.add_child(m_hint)
 		if Settings.frame_gen_available():
 			_check(parent, "dlss_frame_gen", "Frame generation (RTX 40+)")
 	if Settings.reflex_available():

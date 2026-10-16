@@ -34,9 +34,14 @@ var server_url: String = ""
 const DLSS_NAMES := ["Off", "DLAA", "Quality", "Balanced", "Performance"]
 const DLSS_SCALES := [1.0, 1.0, 0.67, 0.58, 0.5]
 const REFLEX_NAMES := ["Off", "On", "Boost"]
+# DLSS model = Streamline preset: F the CNN model, K and M the transformer models (1st/2nd gen).
+# "" = Auto (dlss_preset_for). On an RTX 2060 at 1440p the transformers cost 3-11 ms more (docs/RTX.md).
+const DLSS_MODEL_NAMES := ["Auto", "Fast", "Sharp", "Sharpest"]
+const DLSS_MODEL_PRESETS := ["", "F", "K", "M"]
 var rtx_path_tracing: bool = false
 var rtx_bounces: int = 2
 var dlss_mode: int = 0                  # 0 = mainline AA/upscaling; path tracing uses at least Quality
+var dlss_model: int = 0
 var dlss_frame_gen: bool = false
 var reflex_mode: int = 1
 var rtx_allow_noisy := false            # --rtx in tests: path trace without the DLSS denoiser (Linux fork)
@@ -65,6 +70,11 @@ func _ready() -> void:
 		for i in DLSS_NAMES.size():
 			if String(DLSS_NAMES[i]).to_lower() == want:
 				dlss_mode = i
+	if TestHooks.has_arg("dlss_model"):              # --dlss_model=Auto|Fast|Sharp|Sharpest
+		var want_model := String(TestHooks.arg("dlss_model", "Auto")).to_lower()
+		for i in DLSS_MODEL_NAMES.size():
+			if String(DLSS_MODEL_NAMES[i]).to_lower() == want_model:
+				dlss_model = i
 	if TestHooks.has_arg("aa"):                      # --aa=FSR2 / TAA / SMAA / FXAA / Off / Auto
 		aa_mode = maxi(0, AA_NAMES.find(String(TestHooks.arg("aa", "Auto")).replace("FSR2", "FSR 2")))
 	apply()
@@ -154,6 +164,7 @@ func load_settings(path: String = SAVE_PATH) -> void:
 	rtx_path_tracing = bool(cfg.get_value("video", "rtx_path_tracing", rtx_path_tracing))
 	rtx_bounces = clampi(int(cfg.get_value("video", "rtx_bounces", rtx_bounces)), 1, 3)
 	dlss_mode = clampi(int(cfg.get_value("video", "dlss_mode", dlss_mode)), 0, DLSS_NAMES.size() - 1)
+	dlss_model = clampi(int(cfg.get_value("video", "dlss_model", dlss_model)), 0, DLSS_MODEL_NAMES.size() - 1)
 	dlss_frame_gen = bool(cfg.get_value("video", "dlss_frame_gen", dlss_frame_gen))
 	reflex_mode = clampi(int(cfg.get_value("video", "reflex_mode", reflex_mode)), 0, REFLEX_NAMES.size() - 1)
 	show_fps = cfg.get_value("video", "show_fps", show_fps)
@@ -177,6 +188,7 @@ func save() -> void:
 	cfg.set_value("video", "rtx_path_tracing", rtx_path_tracing)
 	cfg.set_value("video", "rtx_bounces", rtx_bounces)
 	cfg.set_value("video", "dlss_mode", dlss_mode)
+	cfg.set_value("video", "dlss_model", dlss_model)
 	cfg.set_value("video", "dlss_frame_gen", dlss_frame_gen)
 	cfg.set_value("video", "reflex_mode", reflex_mode)
 	cfg.set_value("video", "show_fps", show_fps)
@@ -388,6 +400,21 @@ func rtx_status() -> String:
 	return "RTX ready."
 
 
+## The Streamline DLSS preset for this GPU and dlss_model ("?" = the driver's default).
+func dlss_preset() -> String:
+	return dlss_preset_for(dlss_model, RenderingServer.get_video_adapter_name())
+
+
+## Auto picks the CNN model (F) on RTX 20/30 cards (Turing/Ampere, also Quadro RTX and RTX Axxxx):
+## measured on an RTX 2060 at 1440p, DLSS Quality costs 8.0 ms GPU with F, 11.0 with K (the driver's
+## default for Quality) and 18.8 with M (its default for Performance). Newer cards: the driver's choice.
+static func dlss_preset_for(model: int, gpu_name: String) -> String:
+	if model > 0:
+		return DLSS_MODEL_PRESETS[clampi(model, 0, DLSS_MODEL_PRESETS.size() - 1)]
+	var older := RegEx.create_from_string("RTX\\s*(20|30)\\d\\d|Quadro RTX|RTX A\\d{3,4}").search(gpu_name) != null
+	return "F" if older else "?"
+
+
 ## DLSS replaces the mainline AA/upscaling values (apply_viewport writes the result once).
 func _dlss_overrides(want: Dictionary) -> void:
 	if not dlss_active():
@@ -403,6 +430,8 @@ func _apply_dlss(vp: Viewport) -> void:
 	if not is_rtx_fork():
 		return
 	_set_if(vp, &"frame_generation", dlss_active() and dlss_frame_gen and frame_gen_available())
+	if dlss_available():                 # the fork reads it for every viewport's DLSS pass
+		_sl().call(&"set_parameter", _sl_const(&"STREAMLINE_PARAM_DLSS_PRESET"), dlss_preset())
 	if reflex_available():               # Reflex works with or without DLSS
 		_sl().call(&"set_parameter", _sl_const(&"STREAMLINE_PARAM_REFLEX_MODE"), reflex_mode)
 

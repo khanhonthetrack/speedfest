@@ -6,7 +6,8 @@ extends Node
 ##       --quality=2 [--window=2] [--aa=FSR2] [--seconds=20] [--warmup=3] [--bench_shot=/abs/x.png]
 ##       [--out=/abs/x.json]
 ## --window: 0 window (size from --resolution), 1 borderless, 2 exclusive fullscreen (default).
-## On the RTX fork add --dlss=Quality|Balanced|Performance|DLAA and/or --rtx (path tracing).
+## On the RTX fork add --dlss=Quality|Balanced|Performance|DLAA [--dlss_model=Fast|Sharp|Sharpest]
+## and/or --rtx (path tracing).
 ## Prints one "BENCH ..." line (fps, frame ms, 1% low, GPU/CPU ms, render size) and quits.
 ## Not --shot/--frames: those make Settings treat the run as automated and keep a small window.
 
@@ -90,7 +91,7 @@ func _report(now: int) -> void:
 		"weather": String(TestHooks.arg("weather", "")),
 		"quality": Settings.quality,
 		"aa": Settings.AA_NAMES[Settings.effective_aa()],
-		"dlss": Settings.DLSS_NAMES[Settings.dlss_mode] if Settings.dlss_active() else "off",
+		"dlss": (Settings.DLSS_NAMES[Settings.dlss_mode] + "/" + Settings.dlss_preset()) if Settings.dlss_active() else "off",
 		"pt": Settings.path_tracing_active(),
 		"res": "%dx%d" % [size.x, size.y],
 		"render": "%dx%d" % [roundi(size.x * s3d), roundi(size.y * s3d)],

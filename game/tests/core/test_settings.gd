@@ -88,6 +88,16 @@ func _ready() -> void:
 ## Mainline 4.7.2: the RTX layer must do nothing. NVIDIA's fork (Linux build on lavapipe, which
 ## has Vulkan ray tracing but no Streamline/DLSS): path tracing turns on, without a denoiser.
 func _rtx_checks() -> void:
+	# DLSS model Auto: the CNN preset on RTX 20/30 (measured on an RTX 2060), the driver's choice later
+	var auto_ok := Settings.dlss_preset_for(0, "NVIDIA GeForce RTX 2060") == "F" \
+		and Settings.dlss_preset_for(0, "NVIDIA GeForce RTX 3080 Ti Laptop GPU") == "F" \
+		and Settings.dlss_preset_for(0, "Quadro RTX 4000") == "F" \
+		and Settings.dlss_preset_for(0, "NVIDIA RTX A4000") == "F" \
+		and Settings.dlss_preset_for(0, "NVIDIA GeForce RTX 4070") == "?" \
+		and Settings.dlss_preset_for(0, "NVIDIA GeForce RTX 5090") == "?" \
+		and Settings.dlss_preset_for(2, "NVIDIA GeForce RTX 2060") == "K" \
+		and Settings.dlss_preset_for(3, "NVIDIA GeForce RTX 2060") == "M"
+	TestHooks.check(auto_ok, "settings_dlss_model_auto")
 	var env := Environment.new()
 	env.ssr_enabled = true
 	env.ssao_enabled = true
