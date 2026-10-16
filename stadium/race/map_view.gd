@@ -8,12 +8,9 @@ var builder: TmMapBuilder
 
 
 func _ready() -> void:
-	var path := String(TestHooks.arg("map", ""))
-	if path.is_empty():
-		path = _campaign_file(String(TestHooks.arg("tmnf", "")), String(TestHooks.arg("track", "A01")))
-	var ch := TmChallenge.load_file(path)
+	var ch := TmStage.load_from_args()
 	if not ch.ok():
-		push_error("map_view: %s: %s" % [path, ch.error])
+		push_error("map_view: %s" % ch.error)
 		TestHooks.finish()
 		return
 	builder = TmMapBuilder.build(ch)
@@ -22,50 +19,8 @@ func _ready() -> void:
 	var miss := builder.missing.keys()
 	miss.sort_custom(func(a, b): return builder.missing[a] > builder.missing[b])
 	print("MISSING (shape: count): ", ", ".join(miss.slice(0, 40).map(func(k): return "%s:%d" % [k, builder.missing[k]])))
-	_environment()
+	TmStage.add_environment(self, builder)
 	_camera()
-
-
-func _campaign_file(root: String, track: String) -> String:
-	var base := root.path_join("GameData/Tracks/Campaigns/Nations")
-	for colour in ["White", "Green", "Blue", "Red", "Black"]:
-		var d := DirAccess.open(base.path_join(colour))
-		if d == null:
-			continue
-		for f in d.get_files():
-			if f.begins_with(track) and f.to_lower().ends_with(".challenge.gbx"):
-				return base.path_join(colour).path_join(f)
-	return ""
-
-
-func _environment() -> void:
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-55, -30, 0)
-	sun.shadow_enabled = true
-	add_child(sun)
-	var we := WorldEnvironment.new()
-	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.55, 0.7, 0.9)
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.6, 0.62, 0.7)
-	we.environment = env
-	add_child(we)
-	# the map's ground is built with it (TmMapBuilder); around it, plain grass to the horizon
-	var w := float(builder.challenge.size.x) * 32.0
-	var d := float(builder.challenge.size.z) * 32.0
-	var gm := StandardMaterial3D.new()
-	gm.albedo_color = Color(0.32, 0.5, 0.22)
-	var far := 3000.0
-	for r in [Rect2(-far, -far, w + 2.0 * far, far), Rect2(-far, d, w + 2.0 * far, far), Rect2(-far, 0, far, d), Rect2(w, 0, far, d)]:
-		var ground := MeshInstance3D.new()
-		var pm := PlaneMesh.new()
-		pm.size = r.size
-		ground.mesh = pm
-		ground.material_override = gm
-		# TMNF (x, z) -> Godot (-x, z)
-		ground.position = Vector3(-(r.position.x + r.size.x * 0.5), 9.0, r.position.y + r.size.y * 0.5)
-		add_child(ground)
 
 
 func _camera() -> void:

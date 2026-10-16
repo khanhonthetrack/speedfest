@@ -12,6 +12,10 @@ var start := Transform3D()          ## car spawn (Godot, TmCar frame)
 var has_start := false
 var checkpoints: Array[Transform3D] = []
 var finishes: Array[Transform3D] = []
+## Waypoint blocks for the race: [{kind (TmBlockCatalogue.Waypoint), block (id), xform (block,
+## Godot), spawn (world Transform3D, TmCar frame), built (false: a placeholder)}]; their triggers:
+## TmTriggers.
+var waypoints: Array = []
 var stats := {"blocks": 0, "built": 0, "empty": 0, "placeholder": 0, "unknown": 0}
 var missing := {}                   ## shape name -> count (no generator yet)
 
@@ -56,6 +60,7 @@ func _build() -> void:
 			stats["empty"] += 1      # this variant has no geometry (e.g. a support's bare position)
 			continue
 		var node := lib.make(shape, entry, ground)
+		var built := node != null
 		if node == null:
 			stats["placeholder"] += 1
 			missing[shape] = int(missing.get(shape, 0)) + 1
@@ -70,6 +75,8 @@ func _build() -> void:
 			_zone_cells[Vector2i(coord.x, coord.z)] = true
 		var wp := int(entry.get("waypoint", TmBlockCatalogue.Waypoint.NONE))
 		var spawn_world := xf * TmBlockCatalogue.spawn(entry, ground)
+		if wp != TmBlockCatalogue.Waypoint.NONE:
+			waypoints.append({"kind": wp, "block": id, "xform": xf, "spawn": spawn_world, "built": built})
 		match wp:
 			TmBlockCatalogue.Waypoint.START, TmBlockCatalogue.Waypoint.START_FINISH:
 				start = spawn_world

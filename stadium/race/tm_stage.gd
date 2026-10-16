@@ -1,0 +1,56 @@
+class_name TmStage
+extends RefCounted
+## Shared set-up of the scenes that show a map: finding a campaign track in the player's TMNF
+## install, loading a challenge from the scene's args, and the sky, sun and horizon around it.
+
+
+## The track named `track` (A01 .. E05) of the official campaign in a TMNF install, or "".
+static func campaign_file(tmnf_root: String, track: String) -> String:
+	var base := tmnf_root.path_join("GameData/Tracks/Campaigns/Nations")
+	for colour in ["White", "Green", "Blue", "Red", "Black"]:
+		var d := DirAccess.open(base.path_join(colour))
+		if d == null:
+			continue
+		for f in d.get_files():
+			if f.begins_with(track) and f.to_lower().ends_with(".challenge.gbx"):
+				return base.path_join(colour).path_join(f)
+	return ""
+
+
+## The challenge named by the args: --map=/path/X.Challenge.Gbx, or --tmnf=/path --track=A01.
+static func load_from_args() -> TmChallenge:
+	var path := String(TestHooks.arg("map", ""))
+	if path.is_empty():
+		path = campaign_file(String(TestHooks.arg("tmnf", "")), String(TestHooks.arg("track", "A01")))
+	return TmChallenge.load_file(path)
+
+
+## Sun, sky colour and plain grass from the map's edge to the horizon (the map's own ground is
+## built with it by TmMapBuilder).
+static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-55, -30, 0)
+	sun.shadow_enabled = true
+	parent.add_child(sun)
+	var we := WorldEnvironment.new()
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.55, 0.7, 0.9)
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.6, 0.62, 0.7)
+	we.environment = env
+	parent.add_child(we)
+	var w := float(builder.challenge.size.x) * 32.0
+	var d := float(builder.challenge.size.z) * 32.0
+	var gm := StandardMaterial3D.new()
+	gm.albedo_color = Color(0.32, 0.5, 0.22)
+	var far := 3000.0
+	for r in [Rect2(-far, -far, w + 2.0 * far, far), Rect2(-far, d, w + 2.0 * far, far), Rect2(-far, 0, far, d), Rect2(w, 0, far, d)]:
+		var ground := MeshInstance3D.new()
+		var pm := PlaneMesh.new()
+		pm.size = r.size
+		ground.mesh = pm
+		ground.material_override = gm
+		# TMNF (x, z) -> Godot (-x, z)
+		ground.position = Vector3(-(r.position.x + r.size.x * 0.5), 9.0, r.position.y + r.size.y * 0.5)
+		parent.add_child(ground)
