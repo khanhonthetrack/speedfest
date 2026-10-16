@@ -146,6 +146,15 @@ const GT_DIAG := {
 const GT_DIAG_TILT := {"2x2Tilt": [0.251, -0.03], "2x2TiltMirror": [-0.251, 16.032], "3x2Tilt": [0.251, -0.032],
 	"3x2TiltMirror": [-0.251, 16.03]}
 
+## Holes: the opening through the road (x0, x1, z0, z1); HolePillar covers it with a grate and runs
+## pillars (radius PILLAR_R) through it: form -> pillar positions (x, z).
+const HOLE := [11.25, 20.75, 6.25, 25.75]
+const PILLAR_R := 1.375
+const HOLE_PILLARS := {
+	"": [Vector2(16, 16)], "2Front": [Vector2(12, 16), Vector2(20, 16)], "2Line": [Vector2(16, 8), Vector2(16, 24)],
+	"3": [Vector2(16, 4), Vector2(10, 28), Vector2(22, 28)],
+}
+
 ## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
 const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
 
@@ -165,6 +174,8 @@ func handles(shape: String) -> bool:
 	if rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
 		return true
 	if rest.begins_with("GTDiag/") and GT_DIAG.has(rest.trim_prefix("GTDiag/").substr(0, 3)):
+		return true
+	if rest.begins_with("Hole/") or (rest.begins_with("HolePillar/") and HOLE_PILLARS.has(_hole_form(rest))):
 		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
 		or rest.begins_with("GTCurve/") or rest.begins_with("Turbo/Air") or rest.begins_with("Turbo/Ground") \
@@ -197,6 +208,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_tilt(geo, base)
 	elif rest.begins_with("GTDiag/"):
 		_gt_diag(geo, _form(rest.trim_prefix("GTDiag/")), ground)
+	elif rest.begins_with("Hole/") or rest.begins_with("HolePillar/"):
+		_hole(geo, rest, ground)
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
@@ -285,6 +298,71 @@ func _arc_road(geo: TmGeo, c: Vector2, r: float, a0: float, ground: bool, bank :
 		path.append(Vector3(c.x, rise, c.y) + d * r)
 		lat.append(d + Vector3.UP * bank)
 	_sweep(geo, path, lat, ground)
+
+
+## "HolePillar/2FrontAir" -> "2Front"; slope and tilt variants have one pillar ("").
+static func _hole_form(rest: String) -> String:
+	var f := _form(rest.get_slice("/", 1))
+	return "" if f in ["Slope", "Tilt"] else f
+
+
+## A straight with an opening through it (Hole), or the opening grated over with pillars through it
+## (HolePillar); slope and tilt variants sheared like their plain counterparts.
+func _hole(geo: TmGeo, rest: String, ground: bool) -> void:
+	var variant := _form(rest.get_slice("/", 1))
+	var pillars := rest.begins_with("HolePillar/")
+	var flat := ground and variant not in ["Slope", "Tilt"]
+	if pillars:
+		_straight(geo, 0.0, 32.0, flat)
+		var g := Vector3(HOLE[0], TOP + 0.01, HOLE[2])
+		var h := Vector3(HOLE[1], TOP + 0.01, HOLE[3])
+		geo.quad(g, Vector3(g.x, g.y, h.z), h, Vector3(h.x, g.y, g.z), "grid", TmGeo.NO_COLLISION)
+	else:
+		_straight(geo, 0.0, HOLE[2], flat)
+		_straight(geo, HOLE[3], 32.0, flat)
+		var sec := _section(flat)
+		for part in [_clip_x(sec, -100.0, HOLE[0] - 16.0), _clip_x(sec, HOLE[1] - 16.0, 100.0)]:
+			geo.wall_sweep(part, [Vector3(16, 0, HOLE[2]), Vector3(16, 0, HOLE[3])], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
+				true, "metal", S_METAL)
+	var top := 8.0
+	if variant == "Slope":
+		geo.shear_y(0.0, 0.25, 0.0)
+		top = 16.0
+	elif variant == "Tilt":
+		geo.shear_y(TILT, 0.0, -0.038)
+		top = 16.0
+	if pillars:
+		for c: Vector2 in HOLE_PILLARS[_hole_form(rest)]:
+			geo.pipe(Vector3(c.x, 0, c.y), Vector3(c.x, top, c.y), PILLAR_R, 24, "structure", S_ROAD)
+
+
+## A closed section [[Vector2(d, y), mat, surface], ...] cut to lo <= d <= hi; the new edges along
+## the cut are metal.
+static func _clip_x(sec: Array, lo: float, hi: float) -> Array:
+	var poly := PackedVector2Array()
+	for q in sec:
+		poly.append(q[0])
+	var box := PackedVector2Array([Vector2(lo, -100), Vector2(hi, -100), Vector2(hi, 100), Vector2(lo, 100)])
+	var parts := Geometry2D.intersect_polygons(poly, box)
+	if parts.is_empty():
+		return []
+	var cut: PackedVector2Array = parts[0]
+	var out := []
+	for i in cut.size():
+		var a := cut[i]
+		var b := cut[(i + 1) % cut.size()]
+		var mat := "metal"
+		var surf := S_METAL
+		for k in sec.size():
+			var p: Vector2 = sec[k][0]
+			var q: Vector2 = sec[(k + 1) % sec.size()][0]
+			if Geometry2D.get_closest_point_to_segment(a, p, q).distance_to(a) < 0.002 \
+					and Geometry2D.get_closest_point_to_segment(b, p, q).distance_to(b) < 0.002:
+				mat = sec[k][1]
+				surf = sec[k][2]
+				break
+		out.append([a, mat, surf])
+	return out
 
 
 ## A GT diagonal, e.g. "2x2", "2x2Mirror", "3x2Slope", "2x2TiltMirror": the road swept along the
