@@ -116,7 +116,8 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
 - [x] 1. TMNF car model as engine-independent code: `stadium/core/tm_tuning.gd`,
       `tm_car_model.gd`; lab `stadium/tests/test_model_lab` 44/44 vs `tmnf_model.py`
 - [ ] 2. Remake: custom 100 Hz car body (sub-steps <= 0.3 m, ellipsoid wheels/chassis, TMNF contact
-      impulses, suspension) + a flat test arena, ramps, walls, loop
+      impulses, suspension) + a flat test arena, ramps, walls, loop. Body done (`car/tm_car.gd`,
+      lab `test_car_body` 22/22); open: drivable scene with camera, ramps/loop/wall-ride checks
 - [ ] 3. SpeedFest: TMNF handling as the default on branch `tmnf-physics` (merge after `m7-maps`),
       test_tm targets from the reference model, retune every map, AutoDriver on all tracks, web export
 - [ ] 4. Remake: `.Challenge.Gbx` reader (header + medals, LZO1X body, blocks chunk)

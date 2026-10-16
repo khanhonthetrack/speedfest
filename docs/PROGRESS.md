@@ -685,3 +685,20 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Decompiled `M6GetModulationFromDamperAbsorbVal`: side-grip cap × curve 0x224 at
   (len − 0.7)/(0 − 0.7), len = suspension length (1.0 at rest, 0.51 fully extended).
 
+## 2026-10-16 ~05:30 UTC — Session 9: Stadium remake car body (M8-2, part 1)
+
+- Decompiled the contact layer (`WheelAbsorbContact`, `AbsorbContact`, `SDynaMath::ComputeImpulse`,
+  `CHmsZoneDynamic::PhysicsStep2`, `ComputeForces` order): every sub-step runs suspension ->
+  force model -> integrate -> collide. Sub-steps n = round(dt·(|v|+|ω|)/0.3)+1. ComputeImpulse leaves
+  `k` of the velocity along its direction: wheel on the ground keeps 0.8, wheel side and chassis
+  keep 0.5; the chassis direction is the approach clipped to a friction cone (μ 0.3, metal 0.2);
+  a wheel's penetration along the car's up axis goes into its suspension (up to its length), and
+  when the spring can take the vertical approach only the rest is stopped (at the wheel centre).
+- `stadium/car/tm_car.gd` (`TmCar`): our 100 Hz rigid body with those rules; wheels and chassis are
+  convex ellipsoids queried with Jolt's `collide_shape` (contact pairs clustered per surface
+  direction), surfaces from collider metadata (`surface`, per-face `surfaces`, `pad_dir`).
+- `stadium/tests/test_car_body` 22/22 (settles at 0.44 m with 0.013 m suspension, 0-200 4.26 s,
+  radius 15.7 m @ 100 / 48.2 @ 200, brake 200 km/h in 2.0 s / 39 m, 10 m drop lands on the wheels
+  at speed, 15° wall at 200 km/h glances off without flipping). `stadium/tools/test_all.sh` runs
+  both labs (STADIUM_TESTS PASS).
+
