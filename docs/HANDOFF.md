@@ -15,9 +15,11 @@
   which now waits for the owner's approval, so the maps wait too. A trial merge of `m7-maps` into
   this branch was conflict-free; merging `m7-maps` into `main` directly (it was verified with the M7
   car: AutoDriver 24/24) is a decision for the owner / the Pi session.
-- **Next for M7-1 (session 10):** the art-direction plan (workflow `pc-look-plan`, result to
-  `docs/research/m7_look_plan.md`) and its top items, on a fresh branch from `main`; owner tests the
-  Windows zip and, on their RTX PC, the fork build (path-traced frames can't be rendered on lavapipe).
+- **Look work on branch `m7-look`** (from `main`, pushed): `docs/research/m7_look_plan.md` has 9
+  ranked steps. Done: 1-2 (fog lit by lights and off the sky, bloom on real highlights), 3 (facades
+  with depth), 4 (contact shadow, tail light, beams), 5 (arena flood SpotLights). Next: 7 (tunnels),
+  6 (curbs/stripes/barrier/chevrons), 8 (barrier line light in road.gdshader), 9 (reflection
+  probes); then check_all and merge into `main`. Owner tests the Windows zip and the RTX build.
 - Look-dev: `tests/visual/road_lookdev.tscn -- --wet=0.6 --quality=2 --frames=24 --shot=...` (~1 min);
   `--mirror=0.02` is the SSR control. Full track_view renders take 5-10 min on llvmpipe.
 

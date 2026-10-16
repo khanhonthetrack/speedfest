@@ -825,3 +825,20 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Merged `m7-pc` into `main` (main's new commits were stadium/ and docs only); CI trigger back to
   `main` only; web re-export (boots on WebGL2, online_browser_test 2 clients PASS).
 
+## 2026-10-16 ~11:30 UTC — Session 10: look plan steps 1-5 (branch `m7-look`)
+
+- Art-direction panel (3 reviewers + judge, docs/research/m7_look_plan.md, 9 steps): the "2005"
+  look is emission, wide bloom and a sky-veiling fog doing the job of lighting.
+- Steps 1-2: volumetric fog thinned and kept off the sky (sky_affect 0.1), lit by the street
+  lights instead of the moon; exponential fog thinned under it; Forward+ bloom only on real
+  highlights (no glow_bloom, threshold 1.2-1.4, short levels). Arena: starry navy sky instead of
+  a grey veil; the start view lost its pink wash.
+- Step 3: facades with depth (recessed glass, interior-mapped rooms, metal frames, rain streaks,
+  lighter walls on Forward+).
+- Step 4: car contact shadow, tail light pool (Forward+), headlight beams in the fog, subtler
+  paint rim. Web A/B: unchanged.
+- Step 5: arena floodlights are real SpotLights (one per tower, pools on the lawn and deck);
+  the moon dimmed. Energy needed 28 with d^-0.25 falloff for the 250-350 m throws.
+- Tests: scenery 45/45, test_build 56/56, interpolation 15/15, race logic 41/41, garage 15/15.
+- Next: steps 7 (tunnels), 6 (curbs/stripes/barrier/chevrons), 8 (barrier line light), 9 (probes).
+
