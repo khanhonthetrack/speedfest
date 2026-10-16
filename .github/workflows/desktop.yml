@@ -1,0 +1,114 @@
+# PC builds (M7): exports Windows + Linux with the official Godot 4.7.2 release and templates,
+# both verified against the release's SHA512-SUMS.txt. Download the zips from the run's
+# artifacts; a pushed tag v* also attaches them to a GitHub Release.
+# The optional RTX build (NVIDIA's fork + DLSS DLLs) is never built here: see docs/research/m7_pc_rtx.md 4.5.
+name: Desktop builds
+
+on:
+  push:
+    branches: [main, m7-pc]   # m7-pc: temporary, to validate the workflow before the merge
+    tags: ["v*"]
+    paths:
+      - "game/**"
+      - "tools/export_desktop.sh"
+      - "tools/godot_import.sh"
+      - ".github/workflows/desktop.yml"
+  workflow_dispatch:
+    inputs:
+      bake_shaders:
+        description: "Bake Vulkan shaders (editor under Xvfb + software Vulkan; slower)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # only used to create/upload the Release on v* tags
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.7.2"
+  GODOT_STATUS: "stable"
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot + export templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot-bin
+            ~/.local/share/godot/export_templates/4.7.2.stable
+          key: godot-4.7.2-stable-linux64-desktop-templates-v1
+
+      - name: Download Godot 4.7.2 + export templates (checksums verified)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          TAG="${GODOT_VERSION}-${GODOT_STATUS}"
+          BASE="https://github.com/godotengine/godot/releases/download/${TAG}"
+          EDITOR="Godot_v${TAG}_linux.x86_64"
+          TPZ="Godot_v${TAG}_export_templates.tpz"
+          mkdir -p ~/godot-dl ~/godot-bin && cd ~/godot-dl
+          curl -fsSL --retry 5 -O "$BASE/SHA512-SUMS.txt"
+          curl -fsSL --retry 5 -O "$BASE/${EDITOR}.zip"
+          curl -fsSL --retry 5 -C - -O "$BASE/${TPZ}"
+          grep -E "  (${EDITOR}\.zip|${TPZ})$" SHA512-SUMS.txt | sha512sum -c -
+          unzip -o "${EDITOR}.zip" -d ~/godot-bin
+          chmod +x ~/godot-bin/${EDITOR}
+          TPL=~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_STATUS}
+          mkdir -p "$TPL"
+          unzip -j -o "${TPZ}" 'templates/version.txt' 'templates/icudt_godot.dat' \
+            'templates/linux_*.x86_64' 'templates/windows_*_x86_64*.exe' -d "$TPL"
+          ls -la "$TPL"
+          rm -rf ~/godot-dl
+
+      - name: Godot on PATH
+        run: sudo ln -sf "$HOME/godot-bin/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux.x86_64" /usr/local/bin/godot
+
+      - name: Software Vulkan + Xvfb (shader baking)
+        if: inputs.bake_shaders || startsWith(github.ref, 'refs/tags/v')
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers xvfb
+
+      - name: Compile check
+        run: |
+          tools/godot_import.sh
+          tools/check_scripts.sh
+
+      - name: Export Windows + Linux
+        run: |
+          set -euo pipefail
+          if [[ "${{ inputs.bake_shaders }}" == "true" || "$GITHUB_REF" == refs/tags/v* ]]; then
+            export BAKE_SHADERS=1
+          fi
+          tools/export_desktop.sh all
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeedFest-windows
+          path: build/SpeedFest-windows.zip
+          compression-level: 0
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeedFest-linux
+          path: build/SpeedFest-linux.zip
+          compression-level: 0
+
+      - name: GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
+            && gh release upload "$GITHUB_REF_NAME" build/SpeedFest-windows.zip build/SpeedFest-linux.zip --clobber \
+            || gh release create "$GITHUB_REF_NAME" build/SpeedFest-windows.zip build/SpeedFest-linux.zip \
+                 --title "SpeedFest $GITHUB_REF_NAME" --generate-notes

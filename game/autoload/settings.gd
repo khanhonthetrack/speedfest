@@ -6,13 +6,21 @@ signal changed
 
 const SAVE_PATH := "user://settings.cfg"
 const QUALITY_NAMES := ["Low", "Medium", "High", "Ultra"]
+# PC display options (M7). Indexes are what settings.cfg stores.
+const WINDOW_NAMES := ["Window", "Borderless", "Fullscreen"]       # Fullscreen = exclusive
+const VSYNC_NAMES := ["Off", "On", "Adaptive", "Mailbox"]          # = DisplayServer.VSYNC_*
+const FPS_CAP_NAMES := ["Unlimited", "VRR", "30", "60", "120", "144", "165", "240"]
+const AA_NAMES := ["Auto", "Off", "FXAA", "SMAA", "TAA", "FSR 2"]
+enum AA { AUTO, OFF, FXAA, SMAA, TAA, FSR2 }
 const BUS_MUSIC := "Music"
 const BUS_SFX := "SFX"
 
 var quality: int = 2
 var render_scale: float = 1.0
-var vsync: bool = true
-var fullscreen: bool = false
+var vsync_mode: int = DisplayServer.VSYNC_ENABLED
+var window_mode: int = 2
+var fps_cap: int = 0
+var aa_mode: int = AA.AUTO
 var show_fps: bool = false
 var show_pb_ghost: bool = true
 var units_mph: bool = false
@@ -37,6 +45,8 @@ func _ready() -> void:
 	load_settings()
 	if TestHooks.has_arg("quality"):
 		quality = clampi(int(TestHooks.arg("quality", 2)), 0, 3)
+	if TestHooks.has_arg("aa"):                      # --aa=FSR2 / TAA / SMAA / FXAA / Off / Auto
+		aa_mode = maxi(0, AA_NAMES.find(String(TestHooks.arg("aa", "Auto")).replace("FSR2", "FSR 2")))
 	apply()
 
 
@@ -100,14 +110,19 @@ func tune_sun(light: DirectionalLight3D) -> void:
 
 # --- persistence --------------------------------------------------------------
 
-func load_settings() -> void:
+func load_settings(path: String = SAVE_PATH) -> void:
 	var cfg := ConfigFile.new()
-	if cfg.load(SAVE_PATH) != OK:
+	if cfg.load(path) != OK:
 		return
 	quality = clampi(cfg.get_value("video", "quality", quality), 0, 3)
 	render_scale = clampf(cfg.get_value("video", "render_scale", render_scale), 0.5, 1.0)
-	vsync = cfg.get_value("video", "vsync", vsync)
-	fullscreen = cfg.get_value("video", "fullscreen", fullscreen)
+	# before M7 these were the booleans "vsync" and "fullscreen"
+	var old_vsync := 1 if bool(cfg.get_value("video", "vsync", true)) else 0
+	vsync_mode = clampi(int(cfg.get_value("video", "vsync_mode", old_vsync)), 0, VSYNC_NAMES.size() - 1)
+	var old_window := 2 if bool(cfg.get_value("video", "fullscreen", window_mode != 0)) else 0
+	window_mode = clampi(int(cfg.get_value("video", "window_mode", old_window)), 0, WINDOW_NAMES.size() - 1)
+	fps_cap = clampi(int(cfg.get_value("video", "fps_cap", fps_cap)), 0, FPS_CAP_NAMES.size() - 1)
+	aa_mode = clampi(int(cfg.get_value("video", "aa_mode", aa_mode)), 0, AA_NAMES.size() - 1)
 	show_fps = cfg.get_value("video", "show_fps", show_fps)
 	show_pb_ghost = cfg.get_value("game", "show_pb_ghost", show_pb_ghost)
 	units_mph = cfg.get_value("game", "units_mph", units_mph)
@@ -122,8 +137,10 @@ func save() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("video", "quality", quality)
 	cfg.set_value("video", "render_scale", render_scale)
-	cfg.set_value("video", "vsync", vsync)
-	cfg.set_value("video", "fullscreen", fullscreen)
+	cfg.set_value("video", "vsync_mode", vsync_mode)
+	cfg.set_value("video", "window_mode", window_mode)
+	cfg.set_value("video", "fps_cap", fps_cap)
+	cfg.set_value("video", "aa_mode", aa_mode)
 	cfg.set_value("video", "show_fps", show_fps)
 	cfg.set_value("game", "show_pb_ghost", show_pb_ghost)
 	cfg.set_value("game", "units_mph", units_mph)
@@ -139,23 +156,82 @@ func save() -> void:
 func apply() -> void:
 	var vp := get_viewport()
 	if vp:
-		vp.scaling_3d_scale = render_scale
-		if is_compat():
-			vp.msaa_3d = Viewport.MSAA_DISABLED if quality == 0 else Viewport.MSAA_2X
-			vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
-		else:
-			vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_2X, Viewport.MSAA_4X][quality]
-			vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if quality == 0 else Viewport.SCREEN_SPACE_AA_DISABLED
+		apply_viewport(vp)
 	if not is_web():
-		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED)
+		DisplayServer.window_set_vsync_mode(vsync_mode as DisplayServer.VSyncMode)
+		Engine.max_fps = max_fps()
 		if not TestHooks.is_testing():
-			var want := DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
+			var want: DisplayServer.WindowMode = [DisplayServer.WINDOW_MODE_WINDOWED, DisplayServer.WINDOW_MODE_FULLSCREEN,
+				DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN][window_mode]
 			if DisplayServer.window_get_mode() != want:
 				DisplayServer.window_set_mode(want)
 	_set_bus_volume("Master", master_volume)
 	_set_bus_volume(BUS_MUSIC, music_volume)
 	_set_bus_volume(BUS_SFX, sfx_volume)
 	changed.emit()
+
+
+## Anti-aliasing and upscaling for a 3D viewport (the root one, or a SubViewport such as the garage).
+func apply_viewport(vp: Viewport) -> void:
+	vp.scaling_3d_scale = render_scale
+	if is_compat():
+		vp.msaa_3d = Viewport.MSAA_DISABLED if quality == 0 else Viewport.MSAA_2X
+		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+		return
+	# Forward+: no MSAA. Switching it at runtime recompiles pipelines (stutter), and post or
+	# temporal AA cleans up the thin neon lines and barrier edges better anyway.
+	vp.msaa_3d = Viewport.MSAA_DISABLED
+	var aa := effective_aa()
+	vp.screen_space_aa = [Viewport.SCREEN_SPACE_AA_DISABLED, Viewport.SCREEN_SPACE_AA_DISABLED,
+		Viewport.SCREEN_SPACE_AA_FXAA, Viewport.SCREEN_SPACE_AA_SMAA, Viewport.SCREEN_SPACE_AA_DISABLED,
+		Viewport.SCREEN_SPACE_AA_DISABLED][aa]
+	vp.use_taa = aa == AA.TAA
+	if aa == AA.FSR2:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2       # at 100 % scale it is a TAA
+	elif render_scale < 0.999:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
+	else:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	vp.use_debanding = quality >= 1                                 # night-sky gradients
+	vp.anisotropic_filtering_level = [Viewport.ANISOTROPY_4X, Viewport.ANISOTROPY_8X,
+		Viewport.ANISOTROPY_16X, Viewport.ANISOTROPY_16X][quality]
+	vp.mesh_lod_threshold = [2.0, 1.0, 1.0, 0.75][quality]
+
+
+## The AA actually used: "Auto" picks per quality (Low FXAA, Medium TAA, High/Ultra FSR 2 native),
+## and SMAA on a software renderer (llvmpipe: FSR 2's compute passes take seconds per frame there).
+func effective_aa() -> int:
+	if aa_mode != AA.AUTO:
+		return aa_mode
+	if is_software_gpu():
+		return AA.SMAA if quality >= 1 else AA.FXAA
+	return [AA.FXAA, AA.TAA, AA.FSR2, AA.FSR2][quality]
+
+
+## True on a CPU "GPU" (Mesa llvmpipe/lavapipe: CI, containers, VMs without a GPU).
+func is_software_gpu() -> bool:
+	return RenderingServer.get_video_adapter_type() == RenderingDevice.DEVICE_TYPE_CPU
+
+
+## Engine.max_fps for the FPS limit. "VRR" caps a little under the refresh rate
+## (r - r*r/3600: 144 Hz -> 138), which keeps G-Sync/FreeSync engaged with V-Sync on.
+func max_fps() -> int:
+	if fps_cap == 0:
+		return 0
+	if fps_cap == 1:
+		var r := DisplayServer.screen_get_refresh_rate()     # -1 or NaN when the OS won't say
+		if is_nan(r) or r < 30.0:
+			r = 60.0
+		return int(floor(r - r * r / 3600.0))
+	return int(FPS_CAP_NAMES[fps_cap])
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_fullscreen") and not is_web():
+		window_mode = 0 if window_mode != 0 else 2
+		apply()
+		save()
+		get_viewport().set_input_as_handled()
 
 
 ## Default server URL: same origin as the page on web, localhost on desktop.
@@ -205,6 +281,7 @@ func _setup_input_map() -> void:
 	_bind("look_back", [KEY_Q], [JOY_BUTTON_LEFT_SHOULDER], [])
 	_bind("leaderboard", [KEY_TAB], [], [])
 	_bind("pause", [KEY_ESCAPE, KEY_P], [JOY_BUTTON_START], [])
+	_bind("toggle_fullscreen", [KEY_F11], [], [])
 
 
 func _bind(action: String, keys: Array, buttons: Array, axes: Array) -> void:

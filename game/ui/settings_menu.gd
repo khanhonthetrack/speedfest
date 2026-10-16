@@ -17,6 +17,7 @@ var quality_row: HFlowContainer
 var units_row: HFlowContainer
 var camera_row: HFlowContainer
 var scale_slider: HSlider
+var chip_rows: Dictionary = {}       # Settings key -> chip row (display / v-sync / fps / AA)
 var vol_sliders: Dictionary = {}
 var checks: Dictionary = {}
 var url_edit: LineEdit
@@ -60,6 +61,8 @@ func _load() -> void:
 		vol_sliders[k]["value"].text = "%d%%" % roundi(float(Settings.get(k)) * 100.0)
 	for k in checks:
 		(checks[k] as CheckButton).set_pressed_no_signal(bool(Settings.get(k)))
+	for k in chip_rows:
+		MenuKit.select_chip(chip_rows[k], int(Settings.get(k)))
 	url_edit.text = Settings.server_url
 
 
@@ -118,9 +121,8 @@ func _build() -> void:
 		_scale_label_update(v)
 		_apply_setting("render_scale", v))
 	c1.add_child(sr["root"])
-	if not Settings.is_web():
-		_check(c1, "fullscreen", "Fullscreen")
-		_check(c1, "vsync", "V-Sync")
+	if not Settings.is_compat():
+		_chips(c1, "aa_mode", "Anti-aliasing", Settings.AA_NAMES)
 	_check(c1, "show_fps", "Show FPS counter")
 
 	# column 2: game + audio
@@ -133,6 +135,15 @@ func _build() -> void:
 	c2.add_child(UITheme.label("Camera", "body_bold", 20, UITheme.TEXT))
 	camera_row = MenuKit.chip_row(CAMERA_NAMES, func(i: int) -> void: _apply_setting("camera_mode", i))
 	c2.add_child(camera_row)
+	if not Settings.is_web():
+		c2.add_child(MenuKit.spacer(0, 10))
+		c2.add_child(MenuKit.caption("Display", UITheme.MAGENTA))
+		_chips(c2, "window_mode", "Mode (F11)", Settings.WINDOW_NAMES)
+		_chips(c2, "vsync_mode", "V-Sync", Settings.VSYNC_NAMES)
+		_chips(c2, "fps_cap", "FPS limit", Settings.FPS_CAP_NAMES)
+		var f_hint := UITheme.label("G-Sync / FreeSync: V-Sync On with FPS limit VRR. Lowest input lag: V-Sync Off or Mailbox.", "body", 16, UITheme.TEXT_DIM)
+		f_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		c2.add_child(f_hint)
 
 	# column 3: audio + online
 	c2 = _column(h)
@@ -208,6 +219,13 @@ func _column(parent: Container) -> VBoxContainer:
 	v.add_theme_constant_override("separation", 8)
 	scroll.add_child(v)
 	return v
+
+
+func _chips(parent: Container, key: String, title: String, names: Array) -> void:
+	parent.add_child(UITheme.label(title, "body_bold", 20, UITheme.TEXT))
+	var row := MenuKit.chip_row(names, func(i: int) -> void: _apply_setting(key, i))
+	chip_rows[key] = row
+	parent.add_child(row)
 
 
 func _check(parent: Container, key: String, text: String) -> void:
