@@ -19,7 +19,7 @@ signal effect_started(kind: String)      # a special pad took effect (apply_effe
 ## Special pads (M7, TM2020 blocks). Default durations (s); engine_off lasts until a reset pad, a
 ## respawn/restart or the finish. Reactor: thrust up + forward and air steering while it lasts.
 const EFFECT_DUR := {"engine_off": 999.0, "no_steer": 3.0, "cruise": 4.0, "reactor": 4.0}
-const REACTOR_LIFT := 0.8                # x gravity, upward, while airborne
+const REACTOR_LIFT := 0.55               # x gravity, upward, while airborne
 const REACTOR_PUSH := 7.0                # m/s^2 forward
 
 const SHIFT_TIME := 0.09

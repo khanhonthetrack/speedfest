@@ -5,7 +5,7 @@ extends RefCounted
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 ## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide"]
 
 const DEFS := {
 	"downtown": {
@@ -96,6 +96,42 @@ const DEFS := {
 		"circuit": false,
 		"blurb": "Fly off the start ledge, land on the rail and grind it round the bend to the finish.",
 		"target_s": 7,
+		"weather": "dry",
+	},
+	"frost": {
+		"name": "Frostbite",
+		"short": "Frost",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Ice map: brake on the asphalt strips, let the banking carry you round the ice, then the ice bowl.",
+		"target_s": 20,
+		"weather": "dry",
+	},
+	"dust": {
+		"name": "Dust Devil",
+		"short": "Dust",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Dirt road: drift the hairpins, hop the dunes straight, keep off the gravel edges.",
+		"target_s": 22,
+		"weather": "dry",
+	},
+	"blackout": {
+		"name": "Blackout",
+		"short": "Blackout",
+		"theme": "city",
+		"circuit": false,
+		"blurb": "Engine off after the boost: dive through the towers on momentum and make the finish jump.",
+		"target_s": 20,
+		"weather": "rain",
+	},
+	"glide": {
+		"name": "Glider",
+		"short": "Glider",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Hit the reactor pad on the kicker and fly the long gap, steering in the air to the landing.",
+		"target_s": 18,
 		"weather": "dry",
 	},
 }

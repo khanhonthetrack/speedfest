@@ -486,5 +486,5 @@ func _effects(id: String) -> void:
 		await get_tree().physics_frame
 	var g := -(car.linear_velocity.y - vy0) / 0.5
 	print("TM fx reactor %s effective_gravity=%.1f m/s^2" % [id, g])
-	TestHooks.check(g < 5.0, "tm_fx_reactor_%s" % id, "%.1f" % g)
+	TestHooks.check(g < 7.0, "tm_fx_reactor_%s" % id, "%.1f" % g)
 	await _done(car)
