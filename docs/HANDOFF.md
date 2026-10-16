@@ -1,11 +1,26 @@
 # HANDOFF: start here
 
+## Latest (~04:45 UTC 16 Oct, session 9, cloud): TMNF port + Stadium remake started (M8)
+
+- Owner said "Yes" to porting TMNF's model into SpeedFest and asked for a separate TMNF remake in
+  Godot (TRANSCRIPT session 9; answers in PLAN M8). New Godot project **`stadium/`**
+  (stadium/README.md): `core/tm_tuning.gd` + `core/tm_car_model.gd` = TMNF force model 6 as one
+  engine-independent 10 ms tick; `tests/test_model_lab` drives it on ideal flat ground and matches
+  `tools/research/tmnf/tmnf_model.py` (44/44: accel, turn radii, response, brakes, drift, coast,
+  surfaces, turbo, walls, air). The damper grip factor is decompiled and applied
+  (tmnf_physics §3.5).
+- **Next (in order):** M8-2 the remake's 100 Hz car body; then M8-3 the SpeedFest port on branch
+  `tmnf-physics`, merged after the Pi's `m7-maps` (it touches car.gd and every map, so wait for
+  m7-maps to land, then retune all maps with the AutoDriver).
+- Still open in the RE (small): reverse-switch threshold, turbo pad-direction scaling, burnout/donut.
+
 ## Latest (~02:50 UTC 16 Oct, session 8 auto-continue on the Pi): M7-6 maps claimed
 
 - The owner asked this Pi session to auto-continue after the usage limit. At 02:45 UTC it found
   sessions 9 (TMNF reverse engineering) and 10 (physics merged, then "next: PC build") had moved on.
 - **Deployed on the Pi:** `main` @ bccc69f, server restarted on 1f4fbcb's export (M7 handling,
   non-magnetic rails). /health OK.
+- **Progress on `m7-maps` (~04:10 UTC):** dirt/ice/plastic surfaces, special pads (engine off, no steer, cruise, reactor, reset; TM lab 366/366), map plan `docs/research/m7_maps.md`, 16 of 24 new maps done and verified (batches 1-4: frost, dust, blackout, glide, techlab, fullsend, cruise, plastic, sausage, mixer, platform, snake, nosteer, canyon, icepipe, grassland; AutoDriver 6 cars, 0 respawns). Next: batches 5-6, then merge + export + deploy.
 - **This session now works on M7-6 (new track pieces + 30+ maps) on branch `m7-maps`** so it doesn't
   collide with session 10's PC build (M7-1, rendering/export files). Map work touches
   `game/tracks/**`, `game/weather/track_surface.gd`, `server/lib/rotation.js`, track tests.
