@@ -14,6 +14,8 @@ extends RefCounted
 ## Markers (zero length): {"cp": true}, {"start": true}, {"finish": true},
 ##   {"boost": 10} (pad length; optional "x" lateral offset m (+ right), "pw" pad width m, "super": true),
 ##   {"zone": "tunnel", "on": true/false}, {"walls": "both"|"left"|"right"|"none"},
+##   {"effect": "engine_off"|"no_steer"|"cruise"|"reactor"|"reset", "len": 8, "dur": s, "x", "pw"}
+##     (special pads, TM2020 style; Car.apply_effect; default durations in Car.EFFECT_DUR)
 ##   {"puddle": 14, "w": 7, "x": -4, "at": 0, "storm": false} (weather puddle, see res://weather/weather.gd)
 ##   {"surface": "grass"|"gravel"|"sand", "len": 60, "x0": -9, "x1": 2, "at": 0} (ground patch on the
 ##     road from at..at+len, lateral x0..x1 m (+ right); grip and drag in res://weather/track_surface.gd)
@@ -61,6 +63,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	var dist: Array[float] = [0.0]
 	var cps: Array[float] = []
 	var boosts: Array = []
+	var effects: Array = []
 	var puddles: Array = []
 	var patches: Array = []
 	var buildings: Array = []
@@ -100,6 +103,11 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 			continue
 		if s.has("finish"):
 			finish_d = d0
+			continue
+		if s.has("effect"):
+			# special pad (M7, TM2020 blocks): engine_off | no_steer | cruise | reactor | reset
+			effects.append({"d": d0, "len": float(s.get("len", 8.0)), "kind": String(s["effect"]),
+				"dur": float(s.get("dur", -1.0)), "x": float(s.get("x", 0.0)), "pw": float(s.get("pw", 0.0))})
 			continue
 		if s.has("boost"):
 			var sup: bool = s.get("super", false)
@@ -434,7 +442,7 @@ static func build_layout(layout: Dictionary) -> Dictionary:
 	return {
 		"wallrides": wallrides, "rails": rails,
 		"path": path, "checkpoints": cps, "start_d": sc.call(start_d), "finish_d": sc.call(finish_d),
-		"boosts": boosts, "puddles": puddles, "patches": patches, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
+		"boosts": boosts, "effects": effects, "puddles": puddles, "patches": patches, "gaps": gaps, "loops": loops, "jumps": jumps, "walls": walls,
 		"buildings": buildings, "points": PackedVector3Array(pts), "circuit": circuit,
 	}
 
