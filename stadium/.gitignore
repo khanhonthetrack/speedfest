@@ -1,3 +1,4 @@
 .godot/
 *.tmp
 tests/tmp/
+server/node_modules/

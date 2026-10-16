@@ -29,12 +29,12 @@ const MEDAL_COLOURS := {"author": Color(0.3, 0.85, 0.45), "gold": Color(1.0, 0.8
 
 
 func _ready() -> void:
-	_clock = _label(56, Control.PRESET_CENTER_BOTTOM, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -40))
-	_speed = _label(40, Control.PRESET_BOTTOM_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, -40))
+	_clock = _label(52, Control.PRESET_CENTER_BOTTOM, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -40), TmUi.HEAD)
+	_speed = _label(40, Control.PRESET_BOTTOM_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, -40), TmUi.HEAD)
 	_info = _label(22, Control.PRESET_TOP_LEFT, HORIZONTAL_ALIGNMENT_LEFT, Vector2(28, 22))
 	_count = _label(30, Control.PRESET_TOP_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, 22))
-	_centre = _label(64, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -120))
-	_delta = _label(40, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, 40))
+	_centre = _label(60, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -120), TmUi.HEAD)
+	_delta = _label(40, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, 40), TmUi.HEAD)
 	_update_info()
 	if race:
 		race.checkpoint_taken.connect(_on_checkpoint)
@@ -50,8 +50,9 @@ func _update_info() -> void:
 		TmRace.time_text(int(best.get("time_ms", -1)))]
 
 
-func _label(size: int, preset: Control.LayoutPreset, align: HorizontalAlignment, offset: Vector2) -> Label:
+func _label(size: int, preset: Control.LayoutPreset, align: HorizontalAlignment, offset: Vector2, font_key := TmUi.BOLD) -> Label:
 	var l := Label.new()
+	l.add_theme_font_override("font", TmUi.font(font_key))
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	l.add_theme_constant_override("outline_size", maxi(4, size / 7))

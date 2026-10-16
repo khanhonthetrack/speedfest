@@ -1,0 +1,18 @@
+{
+  "name": "speedfest-stadium-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SpeedFest Stadium online server: always-on time-attack rounds on random TMNF campaign tracks (players load the tracks from their own TMNF install).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "license": "MIT"
+}

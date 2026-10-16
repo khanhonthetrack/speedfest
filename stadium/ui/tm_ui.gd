@@ -1,7 +1,8 @@
 class_name TmUi
 extends RefCounted
 ## The remake's menu look (our own, in the spirit of TMNF's: dark glass panels, bold white
-## capitals, a cyan accent) and the player's settings (user://settings.cfg).
+## capitals, a cyan accent; Orbitron for titles and times, Rajdhani for the rest, both SIL OFL,
+## assets/fonts) and the player's settings (user://settings.cfg).
 
 const ACCENT := Color(0.30, 0.78, 1.00)
 const PANEL := Color(0.03, 0.05, 0.10, 0.82)
@@ -15,6 +16,26 @@ const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true}
 
 static var _theme: Theme
+static var _fonts := {}
+
+const TITLE := "orbitron-latin-900-normal"
+const HEAD := "orbitron-latin-700-normal"
+const BODY := "rajdhani-latin-500-normal"
+const BOLD := "rajdhani-latin-700-normal"
+
+
+## One of the UI fonts (TITLE, HEAD, BODY, BOLD), optionally letter-spaced (pixels).
+static func font(key: String, spacing := 0) -> Font:
+	var id := "%s/%d" % [key, spacing]
+	if not _fonts.has(id):
+		var f: Font = load("res://assets/fonts/%s.woff2" % key)
+		if spacing != 0:
+			var v := FontVariation.new()
+			v.base_font = f
+			v.spacing_glyph = spacing
+			f = v
+		_fonts[id] = f
+	return _fonts[id]
 static var _cfg: ConfigFile
 static var _ui_player: AudioStreamPlayer
 
@@ -37,15 +58,22 @@ static func theme() -> Theme:
 	if _theme:
 		return _theme
 	var t := Theme.new()
+	t.default_font = font(BODY)
 	t.default_font_size = 24
 	t.set_color("font_color", "Label", TEXT)
 	t.set_color("font_outline_color", "Label", Color(0, 0, 0, 0.8))
 	t.set_constant("outline_size", "Label", 4)
 	for kind in ["Button", "CheckButton"]:
-		t.set_stylebox("normal", kind, _box(Color(0.06, 0.09, 0.16, 0.85), Color(1, 1, 1, 0.10), 1))
-		t.set_stylebox("hover", kind, _box(Color(0.10, 0.18, 0.30, 0.95), ACCENT, 2))
-		t.set_stylebox("pressed", kind, _box(Color(0.14, 0.30, 0.46, 0.95), ACCENT, 2))
-		t.set_stylebox("focus", kind, _box(Color(0, 0, 0, 0), ACCENT, 3))
+		t.set_stylebox("normal", kind, _box(Color(0.04, 0.06, 0.11, 0.78), Color(1, 1, 1, 0.08), 1, 4))
+		var hover := _box(Color(0.08, 0.16, 0.28, 0.95), ACCENT, 0, 4)
+		hover.border_width_left = 6
+		t.set_stylebox("hover", kind, hover)
+		t.set_stylebox("pressed", kind, _box(Color(0.14, 0.30, 0.46, 0.95), ACCENT, 2, 4))
+		var focus := _box(Color(0.08, 0.16, 0.28, 0.55), ACCENT, 0, 4)
+		focus.border_width_left = 6
+		focus.draw_center = false
+		t.set_stylebox("focus", kind, focus)
+		t.set_font("font", kind, font(BOLD, 1))
 		t.set_stylebox("disabled", kind, _box(Color(0.05, 0.06, 0.08, 0.6), Color(1, 1, 1, 0.05), 1))
 		t.set_color("font_color", kind, TEXT)
 		t.set_color("font_hover_color", kind, Color.WHITE)
@@ -58,12 +86,14 @@ static func theme() -> Theme:
 	return t
 
 
-## A label with a given size and colour.
-static func label(text: String, size := 24, colour := TEXT) -> Label:
+## A label with a given size, colour and font (TITLE, HEAD, BODY, BOLD; spacing in pixels).
+static func label(text: String, size := 24, colour := TEXT, key := BODY, spacing := 0) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", colour)
+	if key != BODY or spacing != 0:
+		l.add_theme_font_override("font", font(key, spacing))
 	return l
 
 
@@ -75,6 +105,7 @@ static func button(text: String, action: Callable, min_width := 320) -> Button:
 	b.pressed.connect(action)
 	b.pressed.connect(play.bind("click"))
 	b.mouse_entered.connect(play.bind("move"))
+	b.mouse_entered.connect(b.grab_focus)
 	return b
 
 

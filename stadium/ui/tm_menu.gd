@@ -88,11 +88,47 @@ func _root(subtitle: String) -> Control:
 	root.theme = TmUi.theme()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_layer.add_child(root)
+	# a dark gradient behind the menu column, fading out to the right
+	var shade := TextureRect.new()
+	var g := Gradient.new()
+	g.set_color(0, Color(0.01, 0.02, 0.05, 0.86))
+	g.set_color(1, Color(0.01, 0.02, 0.05, 0.0))
+	g.add_point(0.55, Color(0.01, 0.02, 0.05, 0.6))
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.fill_from = Vector2(0, 0)
+	gt.fill_to = Vector2(1, 0)
+	shade.texture = gt
+	shade.stretch_mode = TextureRect.STRETCH_SCALE
+	shade.set_anchors_preset(Control.PRESET_LEFT_WIDE)
+	shade.custom_minimum_size = Vector2(1000, 0)
+	shade.size = Vector2(1000, 900)
+	shade.anchor_bottom = 1.0
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(shade)
 	var title := VBoxContainer.new()
-	title.position = Vector2(60, 40)
+	title.position = Vector2(60, 36)
+	title.add_theme_constant_override("separation", 2)
 	root.add_child(title)
-	title.add_child(TmUi.label("SPEEDFEST", 64, Color.WHITE))
-	title.add_child(TmUi.label("STADIUM" + ("  ·  " + subtitle if not subtitle.is_empty() else ""), 28, TmUi.ACCENT))
+	var name_l := TmUi.label("SPEEDFEST", 70, Color.WHITE, TmUi.TITLE, 2)
+	name_l.add_theme_color_override("font_shadow_color", Color(TmUi.ACCENT, 0.45))
+	name_l.add_theme_constant_override("shadow_offset_x", 3)
+	name_l.add_theme_constant_override("shadow_offset_y", 3)
+	title.add_child(name_l)
+	title.add_child(TmUi.label("STADIUM" + ("   /   " + subtitle if not subtitle.is_empty() else ""), 24, TmUi.ACCENT, TmUi.HEAD, 6))
+	var bar := ColorRect.new()
+	bar.color = TmUi.ACCENT
+	bar.custom_minimum_size = Vector2(120, 4)
+	bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	title.add_child(bar)
+	# key hints along the bottom
+	var hint := TmUi.label("ARROWS / PAD  SELECT        ENTER  CONFIRM        ESC  BACK", 17, TmUi.DIM, TmUi.BOLD, 2)
+	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 24)
+	hint.position.x = 60
+	root.add_child(hint)
+	# pages fade in
+	root.modulate.a = 0.0
+	root.create_tween().tween_property(root, "modulate:a", 1.0, 0.25)
 	return root
 
 
@@ -128,10 +164,8 @@ func _page_main() -> void:
 	col.add_child(TmUi.button("OPTIONS", func() -> void: show_page("options")))
 	col.add_child(TmUi.button("QUIT", func() -> void: get_tree().quit()))
 	var note := TmUi.label("TMNF found: %s" % tmnf if not tmnf.is_empty() else "TMNF not found: open a track file, or see Play", 18, TmUi.DIM)
-	note.position = Vector2(60, 860)
-	note.anchor_top = 1.0
-	note.anchor_bottom = 1.0
-	note.offset_top = -50
+	note.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 56)
+	note.position.x = 60
 	root.add_child(note)
 	play.grab_focus.call_deferred()
 
