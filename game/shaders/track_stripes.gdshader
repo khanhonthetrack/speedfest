@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode cull_disabled;
+#include "res://shaders/rt.gdshaderinc"
 // Diagonal stripes: road-edge curbs and jump lips/landings. UV.x = metres across, UV.y = metres along.
 // M7 look plan step 6: painted, not unshaded stickers. They take the scene's lights, get glossy
 // when wet, glow a little (self_lit, more on the web where there are few lights) and retro-reflect

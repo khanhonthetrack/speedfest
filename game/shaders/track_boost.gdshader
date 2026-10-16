@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode unshaded, blend_add, depth_draw_never, cull_disabled;
+#include "res://shaders/rt.gdshaderinc"
 // Boost pad: scrolling chevrons. UV.x = meters across (0..w), UV.y = meters along the pad.
 
 uniform vec4 color_a : source_color = vec4(1.0, 0.45, 0.05, 1.0);

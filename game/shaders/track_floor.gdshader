@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://shaders/rt.gdshaderinc"
 // Flat ground: city pavement (wet), or (style 1) the arena's stadium lawn. UV = world XZ.
 
 uniform vec4 base_color : source_color = vec4(0.06, 0.06, 0.08, 1.0);

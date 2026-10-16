@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://shaders/rt.gdshaderinc"
 // Ground patches lying on the road (session 4): grass, gravel or sand. Grip and drag live in
 // res://weather/track_surface.gd; this only draws them. Works on Forward+ and Compatibility.
 // UV = meters from the left edge / from the start of the patch, UV2 = meters to the right edge /

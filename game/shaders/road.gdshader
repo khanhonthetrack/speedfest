@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://shaders/rt.gdshaderinc"
 // SpeedFest road surface. Works on Forward+ and Compatibility.
 // UV.x = meters from the left road edge, UV.y = meters along the track.
 // UV2.x = half width (m), UV2.y = curb amount (0..1, from track curvature).

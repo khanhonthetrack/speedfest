@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode cull_disabled;
+#include "res://shaders/rt.gdshaderinc"
 // Stadium crowd on the stand tiers. UV.y = metres along the stand ring.
 // Seats are cells (along the ring x height); each holds a person blob with a random shirt colour,
 // lit softly from the floodlights plus a little emission, a travelling "wave" and phone flashes.

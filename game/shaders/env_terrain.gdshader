@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://shaders/rt.gdshaderinc"
 // Ground for all themes. UV = world XZ, UV2.x = distance to the road edge (m).
 // mode 0 city: wet asphalt lots + paved sidewalks with puddles.
 // mode 1 arena: stadium lawn with mowing stripes and a dark apron along the road (no neon grid:

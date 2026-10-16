@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+#include "res://shaders/rt.gdshaderinc"
 // SpeedFest car paint: finishes (gloss, metallic flake, pearl, matte, chrome), procedural liveries in
 // car-local (ground-space) coordinates, and a carbon weave on parts tagged with vertex color R = 1.
 // Works on Forward+ and Compatibility. Vertex color G = 1 forces the accent color (e.g. wing endplates).

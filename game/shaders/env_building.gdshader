@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode cull_back;
+#include "res://shaders/rt.gdshaderinc"
 // Procedural facades for MultiMesh unit boxes (base at y = 0, 1 m cube scaled per instance).
 // INSTANCE_CUSTOM: r = seed, g = style (0 windows, 0.33 curtain glass, 0.66 bands, 1 small houses),
 // b = lit fraction, a = tint (0 warm .. 1 cool).
@@ -47,7 +48,13 @@ float in_box(vec2 f, vec4 b) {
 }
 
 void vertex() {
+#if defined(RT)
+	// RTX fork: INSTANCE_CUSTOM doesn't exist in ray-tracing hit shaders, and small MultiMeshes are
+	// merged into one BLAS (no per-instance data at all), so every building gets one style there.
+	cus = vec4(0.37, 0.0, 0.45, 0.5);
+#else
 	cus = INSTANCE_CUSTOM;
+#endif
 }
 
 void fragment() {
