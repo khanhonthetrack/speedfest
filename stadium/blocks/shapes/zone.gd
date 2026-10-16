@@ -11,6 +11,7 @@ const S_DIRT := 6
 const S_SLIDING := 10
 const GROUND := 9.0             ## level-0 terrain, block-local
 const WATER := 8.0              ## water surface (1 m below the ground)
+const CLIP_Y := 1.0             ## a clip's triangle (measured; on the terrain where it is placed)
 const RES := 16                 ## surface quads per side (2 m)
 const PATH := "res://blocks/data/zone_heights.json"
 
@@ -38,6 +39,12 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_flat(geo, GROUND, "dirt", S_DIRT)
 		"Zone/Grass/Base":
 			_flat(geo, GROUND, "grass", S_GRASS)
+		"Zone/Grass/Clip", "Zone/Dirt/DirtClip":
+			# the clips TMNF sets where terrain meets other blocks: one triangle from the +z edge to
+			# the cell's centre, lying on the terrain (block-local 1 m: the clip sits a unit above)
+			var dirt := shape.contains("Dirt")
+			geo.tri(Vector3(0, CLIP_Y, 32), Vector3(32, CLIP_Y, 32), Vector3(16, CLIP_Y, 16), "dirt" if dirt else "grass",
+				S_DIRT if dirt else S_GRASS)
 		"Zone/Water/Base":
 			_flat(geo, 2.0, "fabric", S_SLIDING)
 			_flat(geo, WATER, "water", TmGeo.NO_COLLISION)

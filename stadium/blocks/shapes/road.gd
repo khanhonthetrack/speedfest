@@ -73,6 +73,32 @@ const TURBO_FRAME := [
 	[28.000, 3.810, "structure", 22], [28.688, 2.765, "structure", 4], [28.688, 1.000, "structure", 22],
 	[3.312, 1.000, "structure", 4], [3.312, 2.765, "structure", 22], [4.000, 3.810, "structure", 22]
 ]
+## Loops: frames per half loop, the road's own section at each end, the base circle's radius, and
+## the underside between the curbs (x, y as in HALF_AIR, from the curb's foot to the centre).
+const LOOP_FRAMES := 64
+const LOOP_ROAD_FRAMES := 4
+const LOOP_BASE_R := 44.0
+const LOOP_UNDER := [[3.212, 1.243, "structure", S_METAL], [5.163, 1.243, "structure", S_METAL],
+	[14.292, 0.656, "structure", S_METAL], [14.339, 0.0, "structure", S_METAL]]
+## Jump ramps (Ramp/, Ramp/Low): a thin plate over a dead-end road, rising from the road at z 24 to
+## its lip at z 1.985 through TMNF's frames (z, top y; Low lifts half as much); its half-width grows
+## linearly from RAMP_HALF[0] at the lip to RAMP_HALF[1] at the road, metal along the outer
+## RAMP_EDGE m of each side, grid between; RAMP_T thick until it meets the road (z RAMP_THIN).
+## Two struts (RAMP_STRUT_W x RAMP_STRUT_T) prop it from under the lip down to the ground.
+const RAMP := [[1.985, 7.947], [2.612, 7.659], [3.24, 7.37], [3.872, 7.081], [4.51, 6.791], [5.154, 6.5],
+	[5.807, 6.207], [6.471, 5.913], [7.147, 5.617], [7.838, 5.318], [8.541, 5.019], [9.255, 4.721],
+	[9.979, 4.427], [10.711, 4.138], [11.45, 3.856], [12.194, 3.582], [12.942, 3.32], [13.693, 3.069],
+	[14.443, 2.833], [15.191, 2.611], [15.934, 2.406], [16.671, 2.219], [17.397, 2.05], [18.112, 1.902],
+	[18.813, 1.775], [19.498, 1.671], [20.168, 1.588], [20.825, 1.521], [21.473, 1.469], [22.112, 1.428],
+	[22.744, 1.395], [23.373, 1.369], [24.0, 1.345]]
+const RAMP_HALF := [8.0, 10.0]
+const RAMP_EDGE := 2.0
+const RAMP_T := 0.207
+const RAMP_THIN := 20.5
+## A strut's centre line (x, y) at z 3.87 and 16 (the left one; the other is mirrored).
+const RAMP_STRUT := [Vector3(10.38, 6.77, 3.87), Vector3(15.52, -0.3, 16.0)]
+const RAMP_STRUT_W := 1.1
+const RAMP_STRUT_T := 0.205
 ## Turbo booster pods (measured): the outline (z, radius) about the axis at y TURBO_POD_Y (x 2
 ## and 30), closed on the axis; the fins over them (z, y), TURBO_FIN_HALF either side of the axis.
 const TURBO_POD_Y := 4.854
@@ -148,6 +174,33 @@ const TILT_TRANSITIONS := {
 	"Road/Tilt/Transition/2Left": [2, 1.0], "Road/Tilt/Transition/2Right": [2, -1.0],
 }
 
+## Diagonal transitions (Road/Tilt/Transition/2DiagLeft, mirrored for Right): the flat road turning
+## into the tilted road one level up along the 2x2 GT diagonal's S-curve, the bank and the climb
+## easing in; TMNF's frames (measured): road centre x, y (surface), z, the lateral's horizontal
+## angle (degrees from +x toward +z) and the bank (rise per metre across).
+const TILT_DIAG := [[16.0, 1.345, 0.0, 0.0, 0.0], [16.023, 1.368, 1.475, -1.821, 0.0], [16.107, 1.397, 3.123, -3.989, 0.0002],
+	[16.296, 1.453, 5.134, -6.83, 0.0009], [16.683, 1.574, 7.652, -10.692, 0.0023], [17.416, 1.812, 10.761, -15.902, 0.0047],
+	[18.578, 2.214, 14.146, -22.005, 0.0092], [20.183, 2.782, 17.558, -28.33, 0.0172], [22.17, 3.508, 20.825, -34.127, 0.0299],
+	[24.408, 4.36, 23.843, -38.802, 0.0486], [26.834, 5.301, 26.672, -42.196, 0.0718], [29.386, 6.305, 29.377, -44.246, 0.0979],
+	[32.0, 7.343, 32.019, -44.933, 0.1256], [34.615, 8.38, 34.66, -44.255, 0.1532], [37.166, 9.382, 37.363, -42.215, 0.1794],
+	[39.593, 10.322, 40.191, -38.827, 0.2026], [41.83, 11.173, 43.205, -34.157, 0.2213], [43.817, 11.9, 46.468, -28.36, 0.234],
+	[45.422, 12.469, 49.876, -22.032, 0.242], [46.584, 12.873, 53.256, -15.923, 0.2465], [47.317, 13.114, 56.361, -10.707, 0.2489],
+	[47.704, 13.236, 58.874, -6.84, 0.2503], [47.894, 13.292, 60.882, -3.994, 0.251], [47.977, 13.321, 62.528, -1.823, 0.2512],
+	[48.0, 13.326, 64.0, 0.0, 0.2512]]
+## Curved transitions (2CurveLeft, mirrored for Right): the flat road one level up turning down into
+## the tilted road round the 2-block GT curve (radius 48 about (0, 0)); same columns and the same
+## bank per frame as TILT_DIAG.
+const TILT_CURVE := [[48.0, 9.345, 0.0, 0.0, 0.0], [47.986, 9.345, 1.178, 1.406, 0.0], [47.933, 9.337, 2.539, 3.032, 0.0002],
+	[47.81, 9.313, 4.265, 5.098, 0.0009], [47.553, 9.266, 6.533, 7.822, 0.0023], [47.049, 9.187, 9.509, 11.426, 0.0047],
+	[46.212, 9.069, 12.979, 15.689, 0.0092], [44.992, 8.904, 16.724, 20.391, 0.0172], [43.391, 8.684, 20.523, 25.312, 0.0299],
+	[41.471, 8.401, 24.17, 30.234, 0.0486], [39.244, 8.072, 27.639, 35.156, 0.0718], [36.728, 7.711, 30.904, 40.078, 0.0979],
+	[33.941, 7.335, 33.941, 45.0, 0.1256], [30.904, 6.959, 36.728, 49.922, 0.1532], [27.639, 6.598, 39.244, 54.844, 0.1794],
+	[24.17, 6.269, 41.471, 59.766, 0.2026], [20.523, 5.987, 43.391, 64.688, 0.2213], [16.724, 5.767, 44.992, 69.609, 0.234],
+	[12.98, 5.602, 46.212, 74.312, 0.242], [9.509, 5.483, 47.049, 78.574, 0.2465], [6.533, 5.405, 47.553, 82.178, 0.2489],
+	[4.265, 5.357, 47.81, 84.902, 0.2503], [2.539, 5.334, 47.933, 86.968, 0.251], [1.178, 5.326, 47.986, 88.594, 0.2512],
+	[0.0, 5.326, 48.0, 90.0, 0.2512]]
+const TILT_FRAMED := {"Road/Tilt/Transition/2DiagLeft": TILT_DIAG, "Road/Tilt/Transition/2DiagRight": TILT_DIAG,
+	"Road/Tilt/Transition/2CurveLeft": TILT_CURVE, "Road/Tilt/Transition/2CurveRight": TILT_CURVE}
 ## GT diagonals: S-curves moving the road sideways, swept through TMNF's own frames (measured:
 ## blocks/data/gt_diag_frames.json from tools/research/tmnf/sweep_frames.py; per frame the centre
 ## x, z, the lateral's angle from +x toward +z in degrees, and the section's width scale); size ->
@@ -184,10 +237,11 @@ var _road_surf := S_ROAD
 
 
 func handles(shape: String) -> bool:
-	if shape == "Grass/Checkpoint/Ground":
+	if shape == "Grass/Checkpoint/Ground" or shape in ["Ramp/Air", "Ramp/Ground", "Ramp/LowAir", "Ramp/LowGround"] \
+			or shape in ["Loop/LeftAir", "Loop/LeftGround", "Loop/RightAir", "Loop/RightGround"]:
 		return true
 	var base := _form(shape).trim_suffix("/")
-	if TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
+	if TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base) or TILT_FRAMED.has(base):
 		return true
 	if not shape.begins_with("Road/Main/"):
 		return false
@@ -232,12 +286,18 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
 		# tilted pieces: the air section also on the ground (the raised side stands on pillars)
 		_tilt(geo, base)
+	elif TILT_FRAMED.has(base):
+		_tilt_framed(geo, TILT_FRAMED[base], base.ends_with("Right"))
 	elif rest.begins_with("GTDiag/"):
 		_gt_diag(geo, _form(rest.trim_prefix("GTDiag/")), ground)
 	elif rest.begins_with("Hole/") or rest.begins_with("HolePillar/"):
 		_hole(geo, rest, ground)
 	elif rest.begins_with("YShaped/"):
 		_y_shaped(geo, _form(rest.trim_prefix("YShaped/")), ground)
+	elif shape.begins_with("Ramp/"):
+		_jump_ramp(geo, rest.contains("Low"), ground)
+	elif shape.begins_with("Loop/"):
+		_loop(geo, shape.begins_with("Loop/Left"))
 	elif rest.begins_with("Stretch/"):
 		_stretch(geo, _form(rest.trim_prefix("Stretch/")), ground)
 	elif ARMS.has(form):
@@ -315,6 +375,99 @@ func _curb_section(ground: bool) -> Array:
 
 func _sweep(geo: TmGeo, path: Array, lateral: Array, ground: bool, y_at := Callable(), p_at := Callable()) -> void:
 	geo.wall_sweep(_section(ground), path, lateral, true, "metal", S_METAL, y_at, p_at)
+
+
+## Loop (Loop/RightAir, LeftAir, and their ground variants): half a vertical loop (the block placed
+## the other way round is the other half). The road rises from the bottom round a circle about
+## (y 44, z 0), its base on radius 44, to the top, upside down at z 0; meanwhile it moves 64 m
+## sideways, 1 m per frame of 180/64 deg, so the loop clears itself; the lateral stays along x
+## (measured frames). The first and last LOOP_ROAD_FRAMES frames carry the road's own section,
+## the rest the loop's: the road's curbs with grid between them and a shallow keel (LOOP_UNDER).
+func _loop(geo: TmGeo, left: bool) -> void:
+	var road := _section(false)
+	var sec := _loop_section()
+	var frames := []
+	for i in LOOP_FRAMES + 1:
+		var th := PI * float(i) / LOOP_FRAMES
+		var up := Vector3(0, cos(th), -sin(th))
+		var x := 16.0 + i if left else 80.0 - i
+		var o := Vector3(x, LOOP_BASE_R - LOOP_BASE_R * cos(th), LOOP_BASE_R * sin(th))
+		frames.append(Transform3D(Basis(Vector3(1, 0, 0), up, Vector3(1, 0, 0).cross(up)), o))
+	var n := LOOP_ROAD_FRAMES
+	_sweep_frames(geo, road, frames.slice(0, n + 1))
+	_sweep_frames(geo, sec, frames.slice(n, LOOP_FRAMES - n + 1))
+	_sweep_frames(geo, road, frames.slice(LOOP_FRAMES - n))
+
+
+## The loop's section (d, y) like _section(): the road's curbs, the grid between them, LOOP_UNDER.
+func _loop_section() -> Array:
+	var half := []
+	for q in HALF_AIR.slice(6) + HALF_TOP_AIR + HALF_TOP:
+		half.append(q)
+		if float(q[0]) >= 3.248 - 0.001 and float(q[1]) <= TOP + 0.001:
+			break         # the curb's inner foot: the grid starts here
+	var out := []
+	for q in half:
+		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(q[2]), int(q[3])])
+	for i in range(half.size() - 1, -1, -1):
+		var q: Array = half[i]
+		var prev: Array = half[i - 1] if i > 0 else LOOP_UNDER[0]
+		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(prev[2]), int(prev[3])])
+	# the underside: from the right curb's foot in to the centre, then out to the left curb's
+	for q in LOOP_UNDER:
+		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(q[2]), int(q[3])])
+	for i in range(LOOP_UNDER.size() - 1, -1, -1):
+		var q: Array = LOOP_UNDER[i]
+		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(q[2]), int(q[3])])
+	return out
+
+
+## Sweeps a closed (d, y) section through frames (basis x = lateral, y = up; travel = x cross y),
+## faces outward; the ends stay open (the road carries on into the next block).
+func _sweep_frames(geo: TmGeo, section: Array, frames: Array) -> void:
+	var loop := section
+	if TmGeo.loop_area(loop) < 0.0:
+		loop = TmGeo.reversed_loop(loop)
+	geo.sweep(loop + [loop[0]], frames)
+
+
+## Jump ramp (Ramp/Air, Ground, LowAir, LowGround): the dead-end road (opening to +z) and the
+## ramp plate over it, with its struts; low: the plate lifts half as much.
+func _jump_ramp(geo: TmGeo, low: bool, ground: bool) -> void:
+	_junction(geo, "Deadend", ground)
+	var lift := 0.5 if low else 1.0
+	var z0 := float(RAMP[0][0])
+	var z1 := float(RAMP[RAMP.size() - 1][0])
+	var path := []
+	var lat := []
+	for f in RAMP:
+		path.append(Vector3(16, TOP + (float(f[1]) - TOP) * lift, float(f[0])))
+		lat.append(Vector3(1, 0, 0))
+	# the section's points are placeholders, moved per frame: |d| 10 = the edge, 8 = the edge strip's
+	# inner side; y -1 = the underside
+	var sec := [[Vector2(-10, 0), "metal", S_METAL], [Vector2(-8, 0), "grid", S_METAL], [Vector2(8, 0), "metal", S_METAL],
+		[Vector2(10, 0), "metal", S_METAL], [Vector2(10, -1), "structure", S_METAL], [Vector2(8, -1), "structure", S_METAL],
+		[Vector2(-8, -1), "structure", S_METAL], [Vector2(-10, -1), "metal", S_METAL]]
+	var p_at := func(p: Vector2, i: int) -> Vector2:
+		var z := float(RAMP[i][0])
+		var half := lerpf(RAMP_HALF[0], RAMP_HALF[1], (z - z0) / (z1 - z0))
+		var d := half if absf(p.x) > 9.0 else half - RAMP_EDGE
+		return Vector2(signf(p.x) * d, 0.0 if p.y == 0.0 else (-RAMP_T if z < RAMP_THIN else 0.0))
+	geo.wall_sweep(sec, path, lat, true, "metal", S_METAL, Callable(), p_at)
+	# the struts, cut where they meet the ground (ground pieces) or at their foot
+	for mirror in [false, true]:
+		var a: Vector3 = RAMP_STRUT[0]
+		var b: Vector3 = RAMP_STRUT[1]
+		if low:
+			a.y = TOP + (a.y - TOP) * lift
+		if mirror:
+			a.x = 32.0 - a.x
+			b.x = 32.0 - b.x
+		var strut := [[Vector2(-RAMP_STRUT_W * 0.5, -RAMP_STRUT_T * 0.5), "structure", S_METAL],
+			[Vector2(RAMP_STRUT_W * 0.5, -RAMP_STRUT_T * 0.5), "structure", S_METAL],
+			[Vector2(RAMP_STRUT_W * 0.5, RAMP_STRUT_T * 0.5), "structure", S_METAL],
+			[Vector2(-RAMP_STRUT_W * 0.5, RAMP_STRUT_T * 0.5), "structure", S_METAL]]
+		geo.wall_sweep(strut, [a, b], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "structure", S_METAL)
 
 
 ## Stretch: a straight whose curbs close in toward the middle and open out again, swept through
@@ -508,6 +661,23 @@ func _tilt(geo: TmGeo, base: String) -> void:
 			path.append(Vector3(16, 8.0 - (8.0 - TILT_RISE) * _ease(TILT_DROP, t), length * t))
 			lat.append(Vector3(1, side * TILT * _ease(TILT_EASE, t), 0))
 		_sweep(geo, path, lat, false)
+
+
+## Diagonal and curved transitions: the air section swept through a frame table (TILT_DIAG,
+## TILT_CURVE), mirrored across x 32 for the Right pieces.
+func _tilt_framed(geo: TmGeo, table: Array, right: bool) -> void:
+	var path := []
+	var lat := []
+	for f: Array in table:
+		var a := deg_to_rad(float(f[3]))
+		var l := Vector3(cos(a), float(f[4]), sin(a))
+		var x := float(f[0])
+		if right:
+			x = 64.0 - x
+			l = Vector3(l.x, -l.y, -l.z)
+		path.append(Vector3(x, float(f[1]) - TOP, float(f[2])))
+		lat.append(l)
+	_sweep(geo, path, lat, false)
 
 
 ## A table of values at evenly spaced t in [0, 1], read smoothly (Catmull-Rom) at t.

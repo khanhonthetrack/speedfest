@@ -942,3 +942,21 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   both miss some structure under the deck).
 - Numbers: STADIUM_TESTS PASS (with TMNF_DIR: gbx 8, race 37); campaign coverage 96.8% -> 97.2%
   (placeholders 1309 -> 1183).
+- **All drivable campaign shapes built** (same session, second batch):
+  - **Ramp** (Ramp/Air, Ground, LowAir, LowGround): the dead-end road plus a thin plate (0.207 m;
+    grid with 2 m metal edges; trapezoid plan, half-width 8 m at the lip to 10 m at the road)
+    rising through TMNF's 33 frames to 7.95 m at z 1.985 (Low: half the lift), two struts under
+    it. 98.5-99.0% (the misses are the dead end's rounded curb ends, shared with Road/Main/Deadend).
+  - **Zone clips** (Zone/Grass/Clip, Zone/Dirt/DirtClip): the triangle TMNF sets where terrain
+    meets other blocks, on the terrain (probe: world y 9 on the ground, the zone's top on a dirt
+    zone). 100%.
+  - **Loop** (Loop/Left|Right, Air|Ground): half a vertical loop per block: base circle radius 44
+    about (y 44, z 0), 64 frames of 180/64 deg, 1 m sideways per frame (64 m: the loop clears
+    itself), lateral along x; road section for the first and last 4 frames, then the loop's
+    section (the road's curbs, grid between, a shallow keel). 97.6% (the struts inside the loop
+    and the outer underside are not recreated).
+  - **Tilt transitions along a GT diagonal and round a GT curve** (Road/Tilt/Transition/2Diag*,
+    2Curve*): TMNF's 25 frames each (`TILT_DIAG`, `TILT_CURVE`: centre, lateral angle, bank; both
+    use the same bank per frame), Right = Left mirrored. 98.9-99.4%.
+- Numbers after the batch: STADIUM_TESTS PASS; coverage 97.3% (1111 placeholders, all of them
+  decoration: Fabric, Sculpt, inflatable tube/advert pillars, airship, camera lights/pubs).
