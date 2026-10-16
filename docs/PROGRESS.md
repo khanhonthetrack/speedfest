@@ -1080,3 +1080,21 @@ menus and sounds."
   and driveshafts; lathed tyres with five-spoke rims; floor, splitter, spoiler and rear lights;
   our livery (red, white pods and airbox, carbon parts). The ghost uses the same model,
   translucent blue. The TmCarVisual API is unchanged.
+
+## 2026-10-16 — Session 12: TMNF-like menus (M8-6), branch `stadium`
+- `ui/menu.tscn` (`ui/tm_menu.gd`, `TmMenu`) is the project's main scene: the Stadium behind,
+  our car on the field with the camera circling it, and the pages: main (Play, open a track
+  file, options, quit), the campaign (the five series as tabs in TMNF's colours, each track's tile
+  with your best time and a medal-coloured border, the selected track's name, author, medal
+  times, your best and medal, Race; a second press on a tile races it), options (fullscreen,
+  shadows, race against your best ghost, clear all records) and, without a TMNF install, what to
+  do (or open a track file). Keyboard and pad work through focus; Escape goes back.
+- `ui/tm_race_menu.gd` (`TmRaceMenu`): Escape pauses the race (resume, restart, menu); 1.5 s
+  after the finish a panel under the HUD's result offers retry, the next campaign track and
+  the menu (back on the campaign page with the track selected).
+- `ui/tm_ui.gd` (`TmUi`): the theme (dark glass panels, white capitals, cyan accent) and the
+  settings (`user://settings.cfg`). `TmChallenge.load_file(path, header_only)` reads only the
+  header (name, uid, medal times) for the lists.
+- `tests/test_menu` (12 checks with TMNF, 6 without): the pages, 65 campaign tracks, 15 tiles a
+  series, the header-only load equal to the full one, details, a record on its tile and medal,
+  Race handing the track over, pause/resume, the finish menu, retry. STADIUM_TESTS PASS.

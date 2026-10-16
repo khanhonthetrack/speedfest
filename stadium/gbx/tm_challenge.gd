@@ -28,13 +28,14 @@ var size := Vector3i(32, 32, 32)
 var blocks: Array = []
 
 
-static func load_file(path: String) -> TmChallenge:
+## header_only: just the header (name, author, uid, medal times; no blocks): quick, for lists.
+static func load_file(path: String, header_only := false) -> TmChallenge:
 	var c := TmChallenge.new()
 	var f := FileAccess.open(path, FileAccess.READ)
 	if f == null:
 		c.error = "cannot open %s" % path
 		return c
-	c.parse(f.get_buffer(f.get_length()))
+	c.parse(f.get_buffer(f.get_length()), header_only)
 	return c
 
 
@@ -42,7 +43,7 @@ func ok() -> bool:
 	return error.is_empty()
 
 
-func parse(raw: PackedByteArray) -> void:
+func parse(raw: PackedByteArray, header_only := false) -> void:
 	var s := GbxStream.new(raw)
 	if s.bytes(3).get_string_from_ascii() != "GBX":
 		error = "not a GBX file"
@@ -64,6 +65,10 @@ func parse(raw: PackedByteArray) -> void:
 			entries.append([s.u32(), s.u32() & 0x7FFFFFFF])
 		for e in entries:
 			_header_chunk(e[0], s.bytes(e[1]))
+	if header_only:
+		if not s.ok():
+			error = s.error
+		return
 	s.u32()   # number of nodes
 	if s.u32() != 0:
 		error = "external references are not supported"

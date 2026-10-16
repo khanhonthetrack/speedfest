@@ -32,7 +32,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid: catalogue (layout data), placement, map builder, shape families in `blocks/shapes/` |
 | `race/` | race rules (`TmRace`), waypoint triggers (`TmTriggers`), race scene + HUD, map viewer, drive test |
 | `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
-| `ui/` | menus (planned) |
+| `ui/` | menus: main, campaign, options (`tm_menu.gd`, the main scene), the race's pause and finish menus, theme and settings |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
@@ -40,15 +40,19 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 1. Install TrackMania Nations Forever (free, from Ubisoft/Nadeo or Steam): the remake reads the
    official tracks from your own install and never ships them.
 2. Install Godot 4.7.2, clone this repo, check out branch `stadium`, open `stadium/project.godot`
-   and press Play (F5). It finds TMNF in its usual install folder and starts A01.
-   Elsewhere: run with `-- --tmnf="D:/Games/TmNationsForever"`, or set `TMNF_DIR`.
-   Another track: `-- --track=B05`; any track file: `-- --map="C:/path/X.Challenge.Gbx"`.
+   and press Play (F5): the menu. Play lists the campaign by series (your best time and medal on
+   each track); Race starts the selected one. It finds TMNF in its usual install folder;
+   elsewhere run with `-- --tmnf="D:/Games/TmNationsForever"` or set `TMNF_DIR`. "Open a track
+   file" races any `.Challenge.Gbx`. Straight into a race: run `race/race.tscn` with
+   `-- --track=B05` (or `--map="C:/path/X.Challenge.Gbx"`).
 3. Keys: arrows / WASD (or a pad) to drive, Enter respawns at the last checkpoint,
-   Backspace / Delete restarts.
+   Backspace / Delete restarts, Escape pauses (resume, restart, menu); after the finish: retry,
+   next track or menu.
 4. Your best time per track and its ghost are saved (Godot's user folder, `records/`; another
    folder with `-- --records=<dir>`). From the next attempt the record's ghost races with you,
-   and every checkpoint shows the difference to the record (blue ahead, red behind).
-Not there yet: textures (flat colours), sounds, menus.
+   and every checkpoint shows the difference to the record (blue ahead, red behind). Options:
+   fullscreen, shadows, the ghost on or off, clear all records.
+Not there yet: textures (flat colours), sounds.
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with

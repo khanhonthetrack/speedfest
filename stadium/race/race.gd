@@ -2,10 +2,11 @@ extends Node3D
 ## A Stadium race on a map from the player's files, built from the recreated blocks: the car on
 ## the start block, the chase camera, the HUD and TmRace's rules. The race steps the car itself
 ## (after the race clock) and tests each tick's motion against the waypoint triggers (TmTriggers).
-## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart.
+## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart,
+## Escape = pause (TmRaceMenu: resume, restart, menu); after the finish: retry, next track, menu.
 ## Args: --map=/path/X.Challenge.Gbx, or --tmnf=/path/to/TMNF --track=A01 (without them: the TMNF
 ## install in its usual place, A01); --laps=N overrides the map's lap count; TmCarInput's --auto_*
-## and TestHooks' --shot/--frames for tests. It is the project's main scene (press Play).
+## and TestHooks' --shot/--frames for tests. The menu (ui/menu.tscn, the main scene) starts it.
 ## Best times and ghosts: every run is recorded (TmGhost); a finish that beats the track's record
 ## is saved (TmRecords) and its ghost races against you from the next attempt on.
 
@@ -22,6 +23,9 @@ var best_ghost: TmGhost            ## the record's ghost, raced against; null if
 var run: TmGhost                   ## this run, being recorded
 var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarVisual)
 var new_record := false            ## the last finish set a new record
+var menu: TmRaceMenu               ## pause and finish menus
+var track_id := ""                 ## the campaign track raced ("" for a track file)
+var next_id := ""                  ## the campaign track after it ("" if none)
 
 const GHOST_LINGER_MS := 1000      ## the ghost stays this long at its finish, then goes
 
@@ -54,7 +58,7 @@ func _ready() -> void:
 	race = TmRace.new(cps, laps)
 	race.finished.connect(_on_finished)
 	best = TmRecords.best(challenge)
-	best_ghost = TmRecords.ghost(challenge)
+	best_ghost = TmRecords.ghost(challenge) if TmUi.setting("ghost") else null
 	ghost_car = Node3D.new()
 	ghost_car.name = "Ghost"
 	var gv := TmCarVisual.new()
@@ -80,6 +84,13 @@ func _ready() -> void:
 	hud.challenge = challenge
 	hud.best = best
 	add_child(hud)
+	menu = TmRaceMenu.new()
+	add_child(menu)
+	_campaign_place()
+	menu.has_next = not next_id.is_empty()
+	menu.restarted.connect(restart)
+	menu.next_track.connect(_next_track)
+	menu.to_menu.connect(_to_menu)
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
 	# the map's collision is in the physics space from the next physics frame
@@ -141,8 +152,12 @@ func _on_finished(time_ms: int) -> void:
 	hud.show_finish(time_ms, best, new_record)
 	if new_record:
 		best = TmRecords.best(challenge)
-		best_ghost = run
+		best_ghost = run if TmUi.setting("ghost") else null
 		hud.best = best
+	var this_run := run
+	get_tree().create_timer(1.5).timeout.connect(func() -> void:
+		if run == this_run and race.state == TmRace.State.FINISHED:
+			menu.show_finish())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -153,10 +168,36 @@ func _unhandled_input(event: InputEvent) -> void:
 			respawn()
 		KEY_BACKSPACE, KEY_DELETE:
 			restart()
+		KEY_ESCAPE:
+			menu.toggle_pause()
+
+
+## Where the raced track sits in the campaign (track_id, next_id), when it is a campaign track.
+func _campaign_place() -> void:
+	if TestHooks.has_arg("map"):
+		return
+	track_id = String(TestHooks.arg("track", "A01"))
+	var all := TmStage.campaign_tracks(TmStage.find_tmnf())
+	var i := all.find(track_id)
+	if i >= 0 and i + 1 < all.size():
+		next_id = all[i + 1]
+
+
+func _next_track() -> void:
+	TestHooks.args["track"] = next_id
+	get_tree().reload_current_scene()
+
+
+func _to_menu() -> void:
+	TestHooks.args["page"] = "campaign" if not track_id.is_empty() else "main"
+	if not track_id.is_empty():
+		TestHooks.args["track"] = track_id
+	get_tree().change_scene_to_file("res://ui/menu.tscn")
 
 
 ## Back to the start: the countdown again, the clock at zero.
 func restart() -> void:
+	menu.hide_all()
 	race.restart()
 	run = TmGhost.new()
 	new_record = false

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="SpeedFest Stadium"
-run/main_scene="res://race/race.tscn"
+run/main_scene="res://ui/menu.tscn"
 config/description="Stadium time-attack remake on SpeedFest's engine: TMNF-faithful car physics, recreated blocks and visuals."
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"

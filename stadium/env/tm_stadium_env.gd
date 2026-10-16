@@ -40,7 +40,7 @@ static func add(parent: Node) -> WorldEnvironment:
 	sun.basis = Basis.looking_at(-to_sun, Vector3.UP)
 	sun.light_color = Color.WHITE
 	sun.light_energy = 1.0
-	sun.shadow_enabled = true
+	sun.shadow_enabled = bool(TmUi.setting("shadows"))
 	sun.shadow_opacity = float(TestHooks.arg("shadow", SHADOW_OPACITY))
 	sun.directional_shadow_max_distance = 700.0
 	sun.directional_shadow_blend_splits = true

@@ -29,8 +29,10 @@
   `tools/research/tmnf/visual_mesh.py`, `vsection.py`.
 - **M8-6 our own car model done:** `car/tm_car_visual.gd` (an open-wheel racer with TMNF's
   measured proportions, our own lofted shapes and livery; the ghost uses it too).
+- **M8-6 menus done:** `ui/menu.tscn` is the main scene (main, campaign with records and medals,
+  options, no-TMNF help), the race's pause and finish menus (`ui/tm_race_menu.gd`); `tests/test_menu`.
 - **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of M8-6 in the owner's
-  order: menus, sounds (then HD graphics); polish of the weakest decorations
+  order: sounds (then HD graphics); polish of the weakest decorations
   (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
   allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).
