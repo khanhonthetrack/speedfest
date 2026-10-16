@@ -1,5 +1,12 @@
 # HANDOFF: start here
 
+## Latest (~12:30 UTC 16 Oct, session 9, cloud): work continues on branch `tmnf-physics`
+
+- SpeedFest's TMNF handling (M8-3) lives on branch **`tmnf-physics`** = the Pi's finished `m7-maps`
+  (24 new maps, 34 tracks) + main + the port; its HANDOFF/PROGRESS have the details. AutoDriver
+  finishes 34/34 tracks there. Merge it into main when its remaining checks pass (listed there).
+  The Stadium remake (`stadium/`) is on main and on the branch.
+
 ## Latest (~04:45 UTC 16 Oct, session 9, cloud): TMNF port + Stadium remake started (M8)
 
 - Owner said "Yes" to porting TMNF's model into SpeedFest and asked for a separate TMNF remake in
