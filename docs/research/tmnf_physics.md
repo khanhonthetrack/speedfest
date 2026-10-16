@@ -90,7 +90,11 @@ a curved wall before it slides off; a slow one falls.
 ### 3.5 Side grip (per wheel)
 - Side force F = −20 × (car velocity · wheel lateral axis) [0xa4 × 0.5], applied **at the centre of
   mass** (no torque).
-- Cap = surface grip × slope side factor × MaxSideFriction(km/h) [0xac] × slide factors.
+- Cap = surface grip × slope side factor × MaxSideFriction(km/h) [0xac] × slide factors ×
+  damper factor. The damper factor (`M6GetModulationFromDamperAbsorbVal`) is curve [0x224] at
+  r = (len − 0.7) / (0 − 0.7) [0x120, 0x11c], len = the wheel's suspension length: 1.0 at the
+  static length (0.0125 m) and below ~0.0175 m, 0.91 at 0.05 m, 0.51 with the suspension fully
+  extended (0.2 m). A wheel that barely touches grips about half as much.
   MaxSideFriction: 80 up to 100 km/h, 75 @ 200, 67 @ 300, 60 @ 400, 55 @ 500. With 20 per m/s, a
   wheel needs ~4 m/s of side speed to reach it: **on asphalt the car essentially never slides by
   cornering alone**; side slip stays under ~1°.
@@ -205,6 +209,7 @@ interpolation 1.
 | 0x0f0, 0x0f8 | 5, 250 | yellow turbo strength, ms |
 | 0x0f4, 0x0fc | 20, 100 | red turbo strength, ms |
 | 0x114, 0x118, 0x124 | 40, 1, 0.2 | spring, damper, rest length |
+| 0x11c, 0x120 | 0, 0.7 | suspension lengths mapped to damper ratio 1 and 0 (grip factor) |
 | 0x130 | 1 | mass |
 | 0x134, 0x138–0x140 | 5; 0.5, 0.5, 1.0 | inertia box: mass, half-size |
 | 0x148 | 0.45 | centre of mass height above wheel contact |
@@ -217,7 +222,7 @@ interpolation 1.
 | 0x1e0, 0x1e4 | (0,10), 1 | slipping acceleration (speedslide) |
 | 0x1e8 | 500 | wall-contact slow-down duration, ms |
 | 0x200 | 1 | slip blend scale |
-| 0x224 | (0,0.1)(0.6,0.3)(0.975,1)(1,1) | grip vs damper compression |
+| 0x224 | (0,0.1)(0.6,0.3)(0.975,1)(1,1) | side grip factor vs damper ratio (see §3.5) |
 | 0x228–0x23c | 5, 200, …, 0.05, 0.05 | roll/pitch damping torques |
 | 0x230 | (−150,0.1)(−100,1.5)(−50,8)(0,30) | reverse acceleration vs km/h |
 | 0x240, 0x244 | 0.5, 0.2 | brake halving per sliding wheel; grip while sliding + braking |

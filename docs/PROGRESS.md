@@ -699,6 +699,23 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Next: look pass (the downtown road renders pitch black at night: no reflections, no light from
   the neon), RTX verification on the fork build + shader RT branches, warm-up/perf HUD, merge.
 
+## 2026-10-16 ~04:45 UTC — Session 9: TMNF port and Stadium remake started (M8)
+
+- Owner: "Yes" (port TMNF's model as SpeedFest's default) + a separate TMNF remake in Godot; answers
+  recorded in TRANSCRIPT and PLAN M8 (recreated assets only, campaign/TMX maps read at runtime from
+  the player's files, Godot 4.7 Forward+).
+- New project `stadium/` (Forward+, Jolt, 100 Hz physics, interpolation). `core/tm_tuning.gd`
+  holds every TMNF constant and curve; `core/tm_car_model.gd` is the handling tick (steer slew,
+  per-wheel side grip with slide states and the damper factor, uncapped axle yaw damping + steering
+  torque, staircase drive with speedslide blend, brake caps that flag sliding, coasting drag, wall
+  slow-down, slope adherence, turbo, dirt, air control and drag). Steering/drive/brake only run with
+  a wheel on the ground, like TMNF.
+- `stadium/tests/test_model_lab` 44/44: 0-100 1.74 s, 0-400 12.18 s, radius 15.75 m @ 100 km/h,
+  48.2 @ 200, 132.6 @ 400, slip < 1.1°, brake 100 km/h -> 1 m/s in 1.36 s / 12.9 m, brake-tap drift
+  heading 100° / exit 218 km/h, turbo 42 / 147 m/s², wall slow-down 500 ms, air 2.5 g / no steering.
+- Decompiled `M6GetModulationFromDamperAbsorbVal`: side-grip cap × curve 0x224 at
+  (len − 0.7)/(0 − 0.7), len = suspension length (1.0 at rest, 0.51 fully extended).
+
 ## 2026-10-16 ~05:00 UTC — Session 10: M7-1 look pass, review fixes (branch `m7-pc`)
 
 - Merged `main` (session 9 TMNF research, Pi notes) into `m7-pc`; owner's "Update the repo and
@@ -722,4 +739,51 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
     arg check, CI cache key.
 - Tests: test_interpolation 15/15, test_settings 12/12 (+7/7 compat), test_scenery 45/45,
   test_weather 73/73, test_race_logic 41/41, test_remote_car 10/10; CI "Desktop builds" green.
+
+## 2026-10-16 ~05:30 UTC — Session 9: Stadium remake car body (M8-2, part 1)
+
+- Decompiled the contact layer (`WheelAbsorbContact`, `AbsorbContact`, `SDynaMath::ComputeImpulse`,
+  `CHmsZoneDynamic::PhysicsStep2`, `ComputeForces` order): every sub-step runs suspension ->
+  force model -> integrate -> collide. Sub-steps n = round(dt·(|v|+|ω|)/0.3)+1. ComputeImpulse leaves
+  `k` of the velocity along its direction: wheel on the ground keeps 0.8, wheel side and chassis
+  keep 0.5; the chassis direction is the approach clipped to a friction cone (μ 0.3, metal 0.2);
+  a wheel's penetration along the car's up axis goes into its suspension (up to its length), and
+  when the spring can take the vertical approach only the rest is stopped (at the wheel centre).
+- `stadium/car/tm_car.gd` (`TmCar`): our 100 Hz rigid body with those rules; wheels and chassis are
+  convex ellipsoids queried with Jolt's `collide_shape` (contact pairs clustered per surface
+  direction), surfaces from collider metadata (`surface`, per-face `surfaces`, `pad_dir`).
+- `stadium/tests/test_car_body` 22/22 (settles at 0.44 m with 0.013 m suspension, 0-200 4.26 s,
+  radius 15.7 m @ 100 / 48.2 @ 200, brake 200 km/h in 2.0 s / 39 m, 10 m drop lands on the wheels
+  at speed, 15° wall at 200 km/h glances off without flipping). `stadium/tools/test_all.sh` runs
+  both labs (STADIUM_TESTS PASS).
+
+## 2026-10-16 ~06:30 UTC — Session 9: Stadium remake drivable test scene (M8-2, part 2)
+
+- `stadium/race/drive_test.tscn`: TestArena (32 m block-grid floor, curved-base 15° kicker, helix
+  loop r 16 m, wall-ride quarter pipe, wall), the TmCar with a placeholder look built from its
+  collision ellipsoids (`car/tm_car_visual.gd`), keyboard/pad input (`car/tm_car_input.gd`, digital
+  keyboard steering like TMNF) and a chase camera that follows the car's up axis on the ground
+  (`car/tm_camera.gd`). Enter/Backspace respawns. `env/proc_geo.gd` builds ribbons/quads with
+  matching render + collision winding.
+- `stadium/tests/test_car_shapes` 11/11: kicker at 200 km/h flies 1.39 s level and lands on its
+  wheels; the loop at 250 km/h (with a player-like steering controller following the offset)
+  completes upright without chassis hits; at 180 km/h the car can't make the top (3 g on the
+  ground), as expected; the quarter pipe at 220 km/h ends in a stable wall ride at ~51° tilt.
+- Found while testing: a sharp crease from flat to 15° bounces the car into a nose-down spin
+  (0.9 rad/s); with a curved base it flies level. Recreated TM ramps need curved bases too.
+
+## 2026-10-16 ~07:15 UTC — Session 9: Stadium remake reads TMNF tracks (M8-4)
+
+- The official campaign is 65 plain `.Challenge.Gbx` files in a TMNF install
+  (`GameData/Tracks/Campaigns/Nations/<White|Green|Blue|Red|Black>/`), not in the packs: the remake
+  can read them at runtime from the player's own install (nothing is copied into the repo).
+- `stadium/gbx/`: `lzo1x.gd` (LZO1X decoder, hardened against truncated input), `gbx_stream.gd`
+  (GBX reader with lookback strings, idents, file refs, inline nodes), `tm_challenge.gd`
+  (`TmChallenge.load_file`: name, author, uid, decoration, medals from the challenge parameters,
+  lap race, size, blocks with direction, 32x8x32 coord, ground flag (bit 12), skins). Parsing stops
+  after the blocks chunk (media clips follow and aren't needed). Python prototype:
+  `tools/research/tmnf/gbx_challenge.py`.
+- `stadium/tests/test_gbx` (with `--tmnf=/path`, or `TMNF_DIR=... stadium/tools/test_all.sh`):
+  65/65 campaign tracks in 0.33 s, 41,523 blocks, 242 block types; A01-Race author 24.54 s,
+  gold 25.87 s. Next: the block library (M8-5); the campaign's block-type list is the target.
 

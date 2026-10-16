@@ -119,6 +119,24 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
 Process: research workflow → plan → implement in sequence (physics → barriers/walls/rails → PC
 graphics/perf → track pieces → maps in parallel batches) → verify (tests, AutoDriver, screenshots).
 
+### M8 — TMNF: real handling in SpeedFest + the Stadium remake (owner, session 9, 2026-10-16) ☐
+Owner's words in TRANSCRIPT (session 9). Answers: assets recreated only (no Nadeo files), tracks =
+official campaign + any .Challenge.Gbx read at runtime from the player's own files + our own maps,
+SpeedFest gets TMNF handling as the default and its maps are retuned, Godot 4.7 Forward+.
+Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work sequentially.
+- [x] 1. TMNF car model as engine-independent code: `stadium/core/tm_tuning.gd`,
+      `tm_car_model.gd`; lab `stadium/tests/test_model_lab` 44/44 vs `tmnf_model.py`
+- [x] 2. Remake: custom 100 Hz car body (sub-steps <= 0.3 m, ellipsoid wheels/chassis, TMNF contact
+      impulses, suspension) + a flat test arena, ramps, walls, loop. Done: `car/tm_car.gd` (lab
+      `test_car_body` 22/22), drivable `race/drive_test.tscn`, shapes lab 11/11 (kicker, loop, pipe)
+- [ ] 3. SpeedFest: TMNF handling as the default on branch `tmnf-physics` (merge after `m7-maps`),
+      test_tm targets from the reference model, retune every map, AutoDriver on all tracks, web export
+- [x] 4. Remake: `.Challenge.Gbx` reader (header + medals, LZO1X body, blocks chunk): `stadium/gbx/`,
+      65/65 official campaign tracks read from a TMNF install at runtime (242 block types)
+- [ ] 5. Remake: recreated Stadium block library (32 x 8 x 32 grid, TMNF-compatible shapes)
+- [ ] 6. Remake: stadium environment, our own car model, race flow (countdown, checkpoints, medals,
+      ghosts), TMNF-like menus, sounds, HD Forward+ graphics, our own maps
+
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
 instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.
