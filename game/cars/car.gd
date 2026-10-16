@@ -11,6 +11,10 @@ extends RigidBody3D
 ## shape (Tuning.drive_force), 6 gears + reverse, automatic gearbox. Aero downforce, air
 ## auto-levelling, anti-flip and self-righting. All forces are applied in _integrate_forces.
 ## See docs/modules/physics.md for the model and tuning knobs.
+##
+## Session 9: the default handling is TMNF's real car model (CarTm, game/cars/tm/; owner "Yes",
+## docs/research/tmnf_physics.md). The M7 model below stays available: --handling=m7 (user arg)
+## or Car.default_handling = "m7".
 
 signal landed(impact_speed: float)       # vertical speed (m/s) when touching down after > 0.25 s air
 signal wall_hit(strength: float)         # speed (m/s) lost into a wall contact (>= 2 m/s)
@@ -84,8 +88,13 @@ const ROLL_DAMP := 8.0                   # roll-rate damping relative to the roa
 const TWIST_SMOOTH := 0.05               # smoothing time of the measured road twist rate (s)
 const ROAD_ALIGN := 14.0                  # gentle torque aligning the car with the road normal (twists, wall rides)
 
+## "tmnf" (default) or "m7" (the session 7-8 handling). Read once from --handling=... if given.
+static var default_handling := ""
+
 var config: Dictionary = {}
 var visual: CarVisual
+## TMNF handling (null when the M7 model drives this car).
+var tm: CarTm = null
 var controls := {"throttle": 0.0, "brake": 0.0, "steer": 0.0, "handbrake": false, "nitro": false}
 var frozen_controls := false
 
@@ -206,6 +215,11 @@ func _setup() -> void:
 	mat.friction = BODY_FRICTION
 	mat.bounce = 0.0
 	physics_material_override = mat
+	if handling() == "tmnf":
+		tm = CarTm.new(self)
+		gravity_scale = 0.0                  # TMNF's gravity (3 g / 2.5 g) is applied by CarTm
+		angular_damp = 0.0
+		mat.friction = CarTm.T.BODY_FRICTION
 	var wf: float = params["weight_front"]
 	center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
 	center_of_mass = Vector3(0.0, float(params["cg_height"]), _wheelbase * (0.5 - wf))
@@ -266,9 +280,20 @@ func _ready() -> void:
 		_setup()
 	for q in _queries:
 		q.exclude = [get_rid()]
+	if tm != null:
+		tm.set_exclude(get_rid())
 	_land_q.collision_mask = 1
 	_land_q.collide_with_areas = false
 	_land_q.exclude = [get_rid()]
+
+
+static func handling() -> String:
+	if default_handling.is_empty():
+		default_handling = "tmnf"
+		for a in OS.get_cmdline_user_args():
+			if String(a).begins_with("--handling="):
+				default_handling = String(a).substr(11)
+	return default_handling
 
 
 # --- public API -----------------------------------------------------------------------------
@@ -428,6 +453,11 @@ func is_boosting() -> bool:
 func max_steer_at(v: float) -> float:
 	var smax: float = params["steer_max"]
 	v = absf(v)
+	if tm != null:
+		# the bicycle-model angle that gives TMNF's full-lock turn rate at this speed
+		if v < 4.0:
+			return smax
+		return clampf(atan(_wheelbase * tm.max_yaw_rate(v) / v), deg_to_rad(1.0), smax)
 	if v < 4.0:
 		return smax
 	var m: float = params["mass"]
@@ -484,6 +514,8 @@ func _reset_dynamics(v: Vector3) -> void:
 	_fwd_speed = v.dot(-_pending_xform.basis.z)
 	_gear = Tuning.best_gear(params, absf(_fwd_speed), 1) if not params.is_empty() else 1
 	_rpm = Tuning.rpm_ratio(params, _gear, _fwd_speed) if not params.is_empty() else 0.0
+	if tm != null:
+		tm.reset()
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
@@ -500,6 +532,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_boost_time = 0.0
 			return
 		grind = null
+	if tm != null:
+		tm.integrate(state)
+		return
 	var dt := state.step
 	var xf := state.transform
 	var b := xf.basis

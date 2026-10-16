@@ -7,9 +7,13 @@ extends RefCounted
 ## suspension (integrate_suspension), fills 4 WheelInput (FL, FR, RL, RR), calls tick(), then applies
 ## `force` (central, car frame), `torque` (car frame), each `wheel_force` at its wheel, gravity x
 ## `gravity_coef` and `linear_damp`; if `air_set_w` is true it first replaces the angular velocity
-## by `air_w`. Car frame: +X left, +Y up, +Z forward. Mass 1: forces are accelerations.
+## by `air_w`. Car frame: +X left, +Y up, +Z forward. Mass 1: forces are accelerations, and torques
+## are for TmTuning.INERTIA (a host with another inertia applies torque / INERTIA x its own).
+##
+## Shared by the Stadium remake (stadium/core, the source) and SpeedFest (game/cars/tm, a copy kept
+## identical by tools/sync_tm_core.sh). SpeedFest's cars scale it with the *_mul fields.
 
-const T := preload("res://core/tm_tuning.gd")
+const T := preload("tm_tuning.gd")
 
 
 class WheelInput:
@@ -20,6 +24,14 @@ class WheelInput:
 	var pad_dir := Vector3.ZERO   ## turbo pad forward direction in the car frame (zero if none)
 	var pos := Vector3.ZERO       ## wheel position relative to the centre of mass, car frame
 
+
+# --- per-car scaling (SpeedFest's cars; 1.0 for the Stadium car) ---
+var accel_mul := 1.0                          ## engine acceleration curve (and the speedslide value)
+var steer_mul := 1.0                          ## steering yaw torque
+var grip_mul := 1.0                           ## side friction caps
+var brake_mul := 1.0                          ## brake force and caps
+var slide_grip := T.SLIDE_GRIP                ## grip of a sliding wheel (drift looseness)
+var max_speed := T.MAX_SPEED                  ## m/s: the over-speed push starts here
 
 # --- persistent state ---
 var steer := 0.0                              ## current steering (-1..1, + = left), slewed
@@ -136,12 +148,13 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 
 	# coasting drag (also in the air) and the wall slow-down
 	var drive_in := brake if reverse else gas
+	# (the constant parts never push past a standstill within one step: no chatter at rest)
 	if (drive_in < 1e-5 or free_wheeling) and speed > 1e-4:
-		force += -v.normalized() * T.COAST_CONST
+		force += -v.normalized() * minf(T.COAST_CONST, speed / dt)
 		if not free_wheeling:
 			force += -v * T.COAST_LIN
 	if now_ms < wall_until_ms and speed > 1e-5:
-		force += -v.normalized() * T.lin(T.WALL_SLOWDOWN, speed * 3.6)
+		force += -v.normalized() * minf(T.lin(T.WALL_SLOWDOWN, speed * 3.6), speed / dt)
 
 	# slope adherence: share of gravity along the car's up axis
 	var up_share := absf(up_local.y) / maxf(1e-6, up_local.length())
@@ -149,7 +162,7 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 	var drive_adh := T.smooth_ramp(up_share, T.SLOPE_DRIVE_MIN, T.SLOPE_DRIVE_FULL)
 
 	var delta := steer * T.steer_angle(v.z)
-	var cap_speed := T.lin(T.MAX_SIDE_FRICTION, kmh)
+	var cap_speed := T.lin(T.MAX_SIDE_FRICTION, kmh) * grip_mul
 
 	# 1) per wheel on the ground: suspension force, roll/pitch damping, side grip at the CoM
 	var flag_sliding := false
@@ -168,7 +181,7 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 			torque += Vector3(T.RP_DAMP_X * tr.x, 0.0, T.RP_DAMP_Z * tr.z)
 		var cap: float = T.surface_vals(wi.surface)[3] * side_adh * cap_speed * T.damper_grip(susp_len[i])
 		if sliding[i]:
-			cap *= T.SLIDE_GRIP
+			cap *= slide_grip
 			if brake > 0.1:
 				cap *= T.SLIDE_BRAKE_GRIP
 		var f := -T.SIDE_STIFFNESS * 0.5 * v.dot(lat)
@@ -211,7 +224,7 @@ func _ground_drive(v: Vector3, w: Vector3, gas: float, brake: float, speed: floa
 	var ramp := 0.0
 	if speed >= T.STEER_MIN_SPEED:
 		ramp = sin(speed / T.STEER_RAMP_SPEED * PI * 0.5) if speed <= T.STEER_RAMP_SPEED else 1.0
-	var cap_axle: float = T.lin(T.MAX_SIDE_FRICTION, kmh) * surf[3]
+	var cap_axle: float = T.lin(T.MAX_SIDE_FRICTION, kmh) * surf[3] * grip_mul
 	var dir := -1.0 if reverse else 1.0
 	for i in 4:
 		var lever := T.WHEELBASE * 0.5 if i < 2 else -T.WHEELBASE * 0.5
@@ -223,15 +236,15 @@ func _ground_drive(v: Vector3, w: Vector3, gas: float, brake: float, speed: floa
 		var t := T.YAW_FROM_GRIP * f
 		if i < 2:
 			var k := T.STEER_TORQUE_SLIDING if sliding[i] else 1.0
-			t += dir * ramp * steer * T.lin(T.STEER_TORQUE, kmh) * k
+			t += dir * ramp * steer * T.lin(T.STEER_TORQUE, kmh) * k * steer_mul
 		torque += Vector3(0.0, t * lever, 0.0)
 
 	# drive: speed staircase, blended toward the slipping value while the axles exceed their grip
 	var slip_blend := 1.0
 	if caps > 1e-5:
 		slip_blend = 1.0 - clampf((over - caps) / caps / T.SLIP_BLEND_SCALE, 0.0, 1.0)
-	var curve_accel := T.lin(T.REVERSE_ACCEL, kmh) if reverse else T.step(T.ACCEL, kmh)
-	var accel := (1.0 - slip_blend) * T.SLIP_ACCEL + slip_blend * curve_accel
+	var curve_accel := (T.lin(T.REVERSE_ACCEL, kmh) if reverse else T.step(T.ACCEL, kmh)) * accel_mul
+	var accel := (1.0 - slip_blend) * T.SLIP_ACCEL * accel_mul + slip_blend * curve_accel
 	var rev := -1.0 if reverse else 0.0
 	var f_long: float = curve_accel * turbo_strength + (gas * surf[1] + rev * surf[1] * brake) * accel
 	f_long -= T.STEER_SLOWDOWN_SCALE * absf(steer) * T.lin(T.STEER_SLOWDOWN, kmh) * dir
@@ -246,20 +259,20 @@ func _ground_drive(v: Vector3, w: Vector3, gas: float, brake: float, speed: floa
 		if sliding[i]:
 			halving *= T.BRAKE_PER_SLIDING_WHEEL
 	if v.z > 0.0:
-		fb = (T.BRAKE_A + T.BRAKE_B * v.z) * brake * halving
-		var cap_b: float = surf[2] * (T.BRAKE_CAP_SLIDING if flag_sliding else T.BRAKE_CAP)
+		fb = (T.BRAKE_A + T.BRAKE_B * v.z) * brake * halving * brake_mul
+		var cap_b: float = surf[2] * (T.BRAKE_CAP_SLIDING if flag_sliding else T.BRAKE_CAP) * brake_mul
 		if fb > cap_b:
 			fb = cap_b
 			sliding = [true, true, true, true]
 	elif v.z < 0.0 and gas > 0.1:
-		fb = (T.BRAKE_A - T.BRAKE_B * v.z) * gas * halving
-		var cap_r: float = surf[2] * (T.REVERSE_BRAKE_CAP_SLIDING if flag_sliding else T.REVERSE_BRAKE_CAP)
+		fb = (T.BRAKE_A - T.BRAKE_B * v.z) * gas * halving * brake_mul
+		var cap_r: float = surf[2] * (T.REVERSE_BRAKE_CAP_SLIDING if flag_sliding else T.REVERSE_BRAKE_CAP) * brake_mul
 		if fb > cap_r:
 			fb = cap_r
 			sliding = [true, true, true, true]
 	brake_now = fb
 	var total := f_long - signf(v.z) * fb
-	if v.z > T.MAX_SPEED * surf[0]:
+	if v.z > max_speed * surf[0]:
 		total = -T.OVERSPEED_PUSH if total >= 0.0 else total - T.OVERSPEED_PUSH
 	if v.z < -T.MAX_REVERSE_SPEED * surf[0]:
 		total = T.OVERSPEED_PUSH if total <= 0.0 else total + T.OVERSPEED_PUSH

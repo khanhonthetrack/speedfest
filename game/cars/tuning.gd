@@ -26,6 +26,8 @@ const DRIFT_RANGE := Vector2(-0.45, 1.7)
 const NITRO_RANGE := Vector2(3.5, 12.0)          # m/s^2
 const NITRO_TIME_RANGE := Vector2(2.0, 9.0)      # s
 const POWER_SCALE := 1.35
+## TMNF handling: the car's top speed (where TMNF's over-speed push starts) = v_top x this
+const TM_TOP_SCALE := 1.12
 
 
 static func _t(tuning: Dictionary, key: String) -> float:
@@ -91,6 +93,15 @@ static func physics_params(car_id: String, tuning: Dictionary) -> Dictionary:
 	p["nitro_time"] = float(b["nitro_time"]) * (1.0 - 0.45 * nitro)
 	p["cg_height"] = b["cg_height"]
 	p["loose_grip"] = clampf(float(b.get("loose_grip", 0.0)), 0.0, 1.0)
+	# TMNF handling (CarTm, session 9): multipliers on the Stadium car's model, relative to a stock Kaze
+	var kz := CarPhysicsDefs.base("kaze")
+	var pw_ref := float(kz["power"]) * POWER_SCALE / float(kz["mass"])
+	p["tm_accel"] = pow(float(p["power"]) / float(p["mass"]) / pw_ref, 0.6)
+	p["tm_top"] = v_top * (1.0 + 0.11 * gearing) * TM_TOP_SCALE
+	p["tm_steer"] = float(p["steer_speed"])
+	p["tm_grip"] = float(p["grip"]) / float(kz["grip"])
+	p["tm_brake"] = float(p["brake_decel"]) / (float(kz["brake_g"]) * G)
+	p["tm_slide"] = 0.35 * float(p["rear_slide"]) / float(kz["rear_slide"])
 	return p
 
 
