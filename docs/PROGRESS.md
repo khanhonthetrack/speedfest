@@ -932,3 +932,7 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   the stock 4.7.2 Windows template: SpeedFest.exe 185 MB (pck embedded), zip 98 MB, presets restored.
 - `.github/workflows/rtx.yml`: template (cached per fork commit) -> export -> Windows smoke test.
   No release job (a public pre-release was blocked); artifact SpeedFest-windows-rtx, 30 days.
+- First run green (38965547516): fork template built in 32 min (MSVC, production), export 3.4 min,
+  Windows smoke OK (4.8 runtime, headless AutoDriver finish on Skyline, no script errors;
+  add_nvidia_dlss.ps1 downloaded and extracted the runtime). Artifact SpeedFest-windows-rtx 85.7 MB.
+  Real-GPU check (Vulkan, DLSS status) is the owner's: CI has no GPU.

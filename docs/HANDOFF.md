@@ -11,6 +11,11 @@
   `add_nvidia_dlss.ps1`). Artifact **SpeedFest-windows-rtx** (no NVIDIA DLLs; `add_nvidia_dlss.bat`
   in the folder adds them from `C:\dev\streamline-2.10.0` or NVIDIA's official zip). docs/RTX.md
   "Giving an RTX build to friends".
+- **First CI run green** (run 38965547516, 36 min: template 32 min, export 3.4, smoke): artifact
+  SpeedFest-windows-rtx 85.7 MB (expires 15 Nov):
+  https://github.com/khanhonthetrack/speedfest/actions/runs/38965547516 . Not yet run on a real GPU:
+  the owner should launch it once on the RTX 2060 (Settings shows "RTX ready.", DLSS Quality) before
+  sending it out.
 - Tested on the Pi: `tools/export_rtx.sh` with the stock Windows template (preset handling,
   export, zip: 98 MB). A public pre-release / public download link was NOT made (blocked as a public
   surface); the owner downloads the artifact from Actions.
