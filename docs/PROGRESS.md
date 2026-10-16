@@ -841,3 +841,25 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - A01 is not drivable end to end yet: the block after the start (Platform/ToRoad/ToRoadMainAir),
   the vertical checkpoint ring and the suspended bridge slope (plus its mirror, which the catalogue
   lacks) are placeholders.
+- Block library, continued (`stadium`): **Platform/ToRoad** (Road/Main onto the road-level platform
+  floor where loops begin: curbs turned out round the edge, or one running across on a measured 83 m
+  arc; the ramp from a deck up to Road/Main: the road section swept through measured heights; 97.6-100%).
+  **Vertical checkpoint ring** (measured section revolved over four arcs; 98.5%). **Platform slopes**
+  (the lipped plate sheared through measured profiles on a central pillar; 99.5-99.7%) and **sloped /
+  banked platform checkpoints** (the flat one sheared: `TmGeo.shear_y`). The **platform checkpoint**
+  rebuilt from measurements (a closed deck; the arch is the ring's section revolved about a lower
+  centre; leaning billboard, curved struts, legs; 93 -> 96.5%). **Dirt roads and dirt hills**
+  (Road/Dirt, Road/DirtHigh: 53 shapes): TMNF's are hand-sculpted terrain, so each is our own bicubic
+  surface through control heights surveyed every 2 m over its footprint (`blocks/data/dirt_heights.json`
+  from `tools/research/tmnf/terrain_heights.py`, grass/dirt/asphalt per cell); dirt checkpoints = the
+  straight's terrain under a gate. Plain pieces 89-100%, sculpted embankment sides ~90%; fences,
+  signs and awnings on some dirt pieces are not recreated yet.
+- Fixes: race waypoints are recorded even for blocks without geometry (the dirt checkpoint's empty
+  shape name had dropped 23 campaign checkpoints from the race; the exporter now names the two
+  mobils it couldn't resolve); `test_blocks` fails when a family script doesn't load (a parse error
+  used to pass); respawns over jumps stay in the air (only 2.5 m of ground snap).
+- Open question noted: the measured material table maps Stadium grass to surface 0 (concrete); the
+  remake keeps grass = 2 (TMNF's slippery grass) for the ground, zones and dirt-road edges.
+- A01's route is fully built (only Sculpt decorations left). Campaign coverage 95.7% built or empty;
+  race test: all 65 tracks, 421 checks; 36 checkpoint blocks still taken by hand (grass 14, tilted /
+  sloped road 22).

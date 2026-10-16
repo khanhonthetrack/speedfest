@@ -18,18 +18,20 @@
   medals. `tests/test_race -- --tmnf=<install> --tracks=A01,B05,...` races any campaign tracks
   (all 65 pass; checkpoint blocks without a recreated shape are taken by hand and listed).
 - **M8-5 in progress (block library):** families in `stadium/blocks/shapes/` (circuit, tube, platform,
-  road, zone, control, inflatable: plain shapes 84-100% vs measurements, decorated ones lower; see
-  PROGRESS). 93.8% of the campaign's blocks are built or empty (`tests/campaign_coverage`).
+  road, zone, control, inflatable, dirt: plain shapes 84-100% vs measurements, decorated ones
+  lower; see PROGRESS). 95.7% of the campaign's blocks are built or empty (`tests/campaign_coverage`).
+  Terrain-like pieces (zones, dirt) are bicubic surfaces through surveyed control heights
+  (`blocks/data/*_heights.json`, from `tools/research/tmnf/zone_heights.py` / `terrain_heights.py`).
   Measurements live only in the scratchpad (re-create them with `tools/research/tmnf/` from a TMNF
   install: decrypt_all.py -> extract_surf.py; README "Block measurements"). Fidelity:
   `stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless -- --meas=<dir> --only=Tube/
   [--dump=N]`; map check: `race/map_view.tscn -- --tmnf=<install> --track=A01
   [--view=near:<BlockId>]` prints MISSING shapes.
-- **Next:** the shapes A01 still lacks (Platform/ToRoad, the vertical checkpoint ring, the suspended
-  bridge slope and its mirror, which the catalogue lacks), so A01 drives end to end; then by
-  campaign use: Fabric, Road/Dirt + DirtHigh, road tilt/GTDiag, Platform 2-unit slopes and GT walls,
-  Sculpt, Loop; then the rest of M8-6 (ghosts and best times, environment, car model, menus, sounds,
-  HD graphics).
+- **Next:** drivable shapes still missing: road tilt (+ tilted road checkpoints), GTDiag, YShaped,
+  HolePillar, grass checkpoint, Platform GT-curve walls; then decorations by campaign use: Fabric
+  grandstands (~550), Sculpt (~350; the suspended bridge's mirror is missing from the catalogue),
+  inflatable tube/advert pillars, dirt fences/signs; then the rest of M8-6 (ghosts and best times,
+  environment, car model, menus, sounds, HD graphics).
 - Known approximations: pool tiles (coarse survey), decorated gates and light/sound tubes, start
   block (from its ground variant), inflatable decorations and castles; water is visual only (no
   water physics yet).
