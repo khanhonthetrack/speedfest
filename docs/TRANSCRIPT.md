@@ -486,3 +486,32 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   stays on branch `tmnf-physics` and is not merged into main until the owner approves it. Recorded
   the branch's state (AutoDriver 34/34, open test_tm items) and moved to the remake (block library,
   environment, race flow) on branch `stadium`.
+
+### User (verbatim, 16 Oct, session 9, while the block library was being built)
+
+> Question: if I were to show another Claude agent the stadium folder to continue the work to make  re-worked TMNF in godot, while you stop because of token usage limit, would they be able to do it? Or does it need the files you reverse engineered? Can you help set it up if it is possible?
+
+> I can make the repository private, then you can send the more detailed files.
+
+### Claude
+
+- Yes, from branch `stadium`: everything to build, run and test is in the repo. The TMNF install and
+  the measured meshes are never committed (Nadeo's data); `tools/research/tmnf/setup_measurements.sh`
+  recreates them from public sources (checked from scratch: identical meshes, about 10 minutes).
+  Wrote `stadium/CLAUDE.md` (the guide for an agent continuing). Advised against making the repo
+  private for this (the Pi pulls it; anything committed stays in history); a separate private repo
+  for the meshes is the cleaner option if a cache is ever wanted.
+
+### User (verbatim, 16 Oct, session 9)
+
+> is some part of game, like a01 playable?
+
+### Claude
+
+- Yes, in Godot on the owner's PC with TMNF installed: race is the main scene and finds TMNF in its
+  usual install folder (README "Play it"). Placeholder car, flat colours, no sound or menus yet; a
+  full lap of A01 not yet driven end to end by a test. Offered a Windows .exe build.
+
+### User (verbatim, 16 Oct, session 9)
+
+> Continue working on the remake. For any progress, update the /stadium so that when you're stopped, another claude agent can carry on
