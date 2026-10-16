@@ -12,7 +12,8 @@
 //                   {t:'results', ranking}  {t:'chat', from, text}  {t:'error', msg}
 //
 // Env: PORT (8090), ROUND_MS (300000), RESULTS_MS (15000), NAME ("SpeedFest Stadium"), MAX_PLAYERS (32);
-// or arguments --port= --round-ms= --results-ms= --name= --max-players= (the game's tests use them).
+// or arguments --port= --host= --round-ms= --results-ms= --name= --max-players= (the game's tests use
+// them; --host=127.0.0.1 behind a tunnel).
 
 const http = require('http');
 const { WebSocketServer } = require('ws');
@@ -143,7 +144,7 @@ function createServer(opts = {}) {
 
   return {
     httpServer, wss, rounds, players,
-    listen(port, cb) { httpServer.listen(port, cb); return this; },
+    listen(port, cb, host) { if (host) httpServer.listen(port, host, cb); else httpServer.listen(port, cb); return this; },
     close(cb) {
       clearInterval(clock);
       for (const c of wss.clients) c.terminate();
@@ -159,7 +160,7 @@ if (require.main === module) {
     .map((a) => [a.slice(2, a.indexOf('=')), a.slice(a.indexOf('=') + 1)]));
   const port = Number(args.port || process.env.PORT || 8090);
   const srv = createServer({ roundMs: args['round-ms'], resultsMs: args['results-ms'], name: args.name, maxPlayers: args['max-players'] });
-  srv.listen(port, () => console.log(`SpeedFest Stadium server on http://localhost:${port} (WebSocket /ws), round ${srv.rounds.track}`));
+  srv.listen(port, () => console.log(`SpeedFest Stadium server on http://${args.host || 'localhost'}:${port} (WebSocket /ws), round ${srv.rounds.track}`), args.host);
 }
 
 module.exports = { createServer, VERSION };
