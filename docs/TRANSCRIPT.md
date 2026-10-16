@@ -532,3 +532,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   (outside the repo). The setup script now works in Git Bash.
 - Then continued the remake's to-do list: Circuit slope corners/GT curves/diagonals, Road/Main
   Stretch, road and platform turbo variants (and the road turbo gate rebuilt from measurements).
+
+### User (verbatim, session 12, after the drivable shapes and the Fabric grandstands)
+
+> Yes, continue with the Sculpt decorations, starting with A01's suspended bridge and the Sculpt/A rock.

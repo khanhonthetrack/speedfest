@@ -63,6 +63,8 @@ and width per frame, read from the three asphalt vertices each frame leaves; the
 `blocks/data/gt_diag_frames.json`), `material_surfaces.py` (physics surface per material),
 `radial_section.py` (a curved piece's section in a vertical plane through its curve's centre, with
 an optional slope sheared off: how the slope corners were found to be the flat walls sheared).
+`loft_sections.py` (lofts for hand-sculpted pieces: horizontal or across-z slices followed up the
+piece and resampled to rings; `sculpt_lofts.sh MEAS` writes `stadium/blocks/data/sculpt_lofts.json`).
 
 ## Block measurements (session 9, for the Stadium remake's block library)
 

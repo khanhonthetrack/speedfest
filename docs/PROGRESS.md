@@ -976,3 +976,15 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   corners 86.7-99.3% (trusses, screens and spotlights not recreated yet).
 - Coverage 97.3% -> 98.8% (517 placeholders: Sculpt, inflatable tube/advert pillars, airship,
   camera lights, Fabric/FabricPillarCornerOutAir, Cross3x3); test_race all 65 tracks, 421 checks.
+- **Sculpt landmarks (A01 fully built)** (`blocks/shapes/sculpt.gd`, new family): hand-sculpted
+  pieces are lofts. `tools/research/tmnf/loft_sections.py` (new) slices a measured mesh by planes
+  every 1 m (horizontal, or across z for leaning pieces), follows each closed loop up the piece,
+  resamples it to a fixed ring (start matched to the ring below, so twisting blades stay smooth),
+  closes ground-standing sections, and ends each tube at an apex, a base point or a flat top; the
+  rings (our own resampled numbers, cm) go to `blocks/data/sculpt_lofts.json`
+  (`tools/research/tmnf/sculpt_lofts.sh MEAS` regenerates it). Sculpt/A (two twisted blades to
+  92.6 m), B (two blades to 97.3 m), C (six columns to 92 m) on their shared plinth (rubber pads,
+  a double curb round each blade's foot): 92.8%, 93.3%, 99.1%. The suspended bridge pair
+  (BridgeSuspendSlope2 and its x-mirror: a slab falling from 200 m to the ground, a strut rising
+  back, side struts): 90.0-90.1% (the crest road bits and see-through awnings not recreated).
+  A01 now has no placeholder (373 built, 24 empty). Coverage 99.1% (386 placeholders).

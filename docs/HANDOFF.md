@@ -12,11 +12,13 @@
   shapes: the flat walls turned and sheared), Road/Main Stretch (4), road turbo gate rebuilt (91 ->
   99.7%) plus its Up/Down/Left/Right variants, platform turbo slopes, ramps (4), zone clips (2),
   loops (4), diagonal and curved tilt transitions (8). Then the **Fabric grandstands** (new family
-  `blocks/shapes/fabric.gd`, 14 shapes: the white wave roofs, straights, corners, pillars).
-  Coverage 98.8% (517 placeholders, all decoration). PROGRESS has the numbers.
+  `blocks/shapes/fabric.gd`, 14 shapes: the white wave roofs, straights, corners, pillars), and
+  the Sculpt landmarks as lofts (`blocks/shapes/sculpt.gd`, data from the new
+  `tools/research/tmnf/loft_sections.py`): Sculpt A/B/C and A01's suspended bridges; **A01 has no
+  placeholder left**. Coverage 99.1% (386 placeholders, all decoration). PROGRESS has the numbers.
 - **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of the decorations
-  (Sculpt incl. A01's bridges, inflatable tubes/adverts, airship, camera lights), then the rest of
-  M8-6 (ghosts, environment, car model, menus, sounds, HD graphics).
+  (the other Sculpt bridges and arch rings, inflatable tubes/adverts, airship, camera lights),
+  then the rest of M8-6 (ghosts, environment, car model, menus, sounds, HD graphics).
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).
 
 ## Earlier (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED

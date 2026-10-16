@@ -13,7 +13,7 @@ var load_errors: Array[String] = []  ## family scripts that failed to load (a pa
 const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.gd",
 	"res://blocks/shapes/platform.gd", "res://blocks/shapes/road.gd", "res://blocks/shapes/zone.gd",
 	"res://blocks/shapes/control.gd", "res://blocks/shapes/inflatable.gd", "res://blocks/shapes/dirt.gd",
-	"res://blocks/shapes/fabric.gd"]
+	"res://blocks/shapes/fabric.gd", "res://blocks/shapes/sculpt.gd"]
 
 
 func _init() -> void:
