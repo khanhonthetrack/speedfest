@@ -532,3 +532,15 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### Claude
 
 - `m7-rtx` stays local (not pushed, not merged) until the owner has driven the RTX build.
+
+### User (verbatim)
+
+> can you help me log in as khanhonthetrack and push?
+
+> I finished the GitHub sign-in as khanhonthetrack. Push m7-rtx now.
+
+### Claude
+
+- This clone's remote now names the account (`https://khanhonthetrack@github.com/...`), so Git
+  Credential Manager uses khanhonthetrack here and khanhcrypto elsewhere; the owner signed in via
+  the browser. `m7-rtx` pushed (not merged into `main`).

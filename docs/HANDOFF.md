@@ -2,8 +2,9 @@
 
 ## Latest (~16:30 UTC 16 Oct, session 11, owner's Windows PC with an RTX 2060): RTX tested for real
 
-- **Branch `m7-rtx`** (from `main`, local commits; the push from this PC was refused: its GitHub
-  login `khanhcrypto` has no write access to `khanhonthetrack/speedfest`). Not merged.
+- **Branch `m7-rtx`** (from `main` @ be06471, pushed; not merged). `main` has moved on since
+  (87e9f56): merge `main` into it before merging back. On that PC the clone pushes as
+  khanhonthetrack (account name in the remote URL; khanhcrypto has no write access).
 - Done: `tests/integration/gpu_bench` + `tools/rtx_bench.ps1` (real-GPU benchmarks); RT hit shaders
   compile (`shaders/rt.gdshaderinc`, env_building, track_puddle); puddles hidden under path tracing
   (fork bug); `Settings.dlss_model` (Auto = preset F on RTX 20/30). Numbers: docs/RTX.md
