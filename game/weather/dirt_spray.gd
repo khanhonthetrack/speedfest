@@ -10,6 +10,8 @@ const LOOK := {
 	1: [Color(0.22, 0.42, 0.12, 0.85), 0.35, 0.7],   # grass clippings
 	2: [Color(0.55, 0.52, 0.46, 0.7), 0.7, 1.0],     # gravel dust
 	3: [Color(0.85, 0.72, 0.5, 0.65), 0.9, 1.2],     # sand
+	4: [Color(0.42, 0.26, 0.15, 0.75), 0.8, 1.1],    # dirt dust (M7)
+	5: [Color(0.9, 0.95, 1.0, 0.45), 0.4, 0.6],      # ice frost
 }
 
 var emitters: Array[CPUParticles3D] = []
@@ -63,7 +65,7 @@ static func create(car_id: String) -> DirtSpray:
 
 ## kind: TrackSurface kind under the rear wheels (Car.get_ground_kind()).
 func update_dirt(kind: int, speed_kmh: float) -> void:
-	var on := kind > 0 and absf(speed_kmh) > MIN_KMH
+	var on := kind > 0 and LOOK.has(kind) and absf(speed_kmh) > MIN_KMH   # (plastic throws nothing)
 	if on and kind != _kind:
 		var look: Array = LOOK.get(kind, LOOK[2])
 		for p in emitters:

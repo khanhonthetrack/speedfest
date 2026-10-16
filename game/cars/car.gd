@@ -718,10 +718,11 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			sdrag += surface.drag_for_water(water)
 			if not surface.patches.is_empty():
 				_ground[i] = surface.kind_at(_hit_pos[i])
-				wg *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, _loose_grip)
+				var lg := _loose_grip if TrackSurface.KIND_LOOSE[_ground[i]] else 0.0
+				wg *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, lg)
 				if _ground[i] > 0:
 					var fade := clampf(v_abs / LOOSE_DRAG_FULL_SPEED, 0.15, 1.0)
-					sdrag += TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * fade
+					sdrag += TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * lg) * fade
 		sgrip += wg
 	_water_avg = water_sum / 4.0
 	sgrip = sgrip / float(touching) if touching > 0 else 1.0

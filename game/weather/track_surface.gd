@@ -14,9 +14,12 @@ var puddles: Array = []        # [{xf, inv, hx, hz, r2, storm}]
 ## Ground surfaces besides asphalt (owner, session 4): patches lying on the road from layout
 ## {"surface": "grass"|"gravel"|"sand", ...} markers. Each patch is a chain of short boxes in road
 ## frames (so it follows curves). Weather-independent; multiplied with the weather grip.
-const KINDS: Array[String] = ["asphalt", "grass", "gravel", "sand"]
-const KIND_GRIP: Array[float] = [1.0, 0.74, 0.62, 0.68]   # tire grip multiplier
-const KIND_DRAG: Array[float] = [0.0, 2.0, 3.0, 7.0]      # rolling drag, m/s^2 (x corner mass)
+## M7 (TM styles): dirt (drifty), ice (very low grip, no drag), plastic (grippy-ish but slows you).
+const KINDS: Array[String] = ["asphalt", "grass", "gravel", "sand", "dirt", "ice", "plastic"]
+const KIND_GRIP: Array[float] = [1.0, 0.74, 0.62, 0.68, 0.78, 0.32, 0.85]   # tire grip multiplier
+const KIND_DRAG: Array[float] = [0.0, 2.0, 3.0, 7.0, 1.2, 0.0, 2.5]         # rolling drag, m/s^2
+## Loose ground where rally tires (car param "loose_grip") win grip back; not ice or plastic.
+const KIND_LOOSE: Array[bool] = [false, true, true, true, true, false, false]
 var patches: Array = []        # [{kind, d0, d1, x0, x1, c, r2, boxes: [{xf, inv, hx, hz, r2}]}]
 var _road_grip := 1.0
 var _puddle_grip := 1.0

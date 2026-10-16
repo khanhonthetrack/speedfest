@@ -5,7 +5,7 @@ shader_type spatial;
 // to the end (so the distance to every edge is known per pixel).
 // The edges are ragged (alpha scissor), so a patch reads as ground spilling onto the asphalt.
 
-uniform int kind = 1;              // 1 grass, 2 gravel, 3 sand
+uniform int kind = 1;              // 1 grass, 2 gravel, 3 sand, 4 dirt, 5 ice, 6 plastic
 uniform float brightness = 1.0;    // compat night scenes have no fog lift: brighten a little
 
 float hash(vec2 p) {
@@ -48,6 +48,27 @@ void fragment() {
 		float rut = exp(-pow((fract(m.x / 4.2) - 0.5) / 0.12, 2.0)) * 0.25;
 		col *= 1.0 - rut;
 		rough = 0.95;
+	} else if (kind == 4) {
+		// dirt: packed red-brown earth, darker tyre-worn racing line, pebbles
+		float n = vnoise(m * 0.35) * 0.65 + vnoise(m * 1.6) * 0.35;
+		col = vec3(0.36, 0.2, 0.12) * (0.8 + 0.3 * n);
+		float line = exp(-pow((fract(m.x / 5.0) - 0.5) / 0.18, 2.0));
+		col *= 1.0 - 0.18 * line;
+		col *= 1.0 + (vnoise(m * 12.0) - 0.5) * 0.3 * fine;
+		rough = 0.9;
+	} else if (kind == 5) {
+		// ice: pale blue-white, glossy, with cracks and frost
+		float n = vnoise(m * 0.2) * 0.6 + vnoise(m * 0.9) * 0.4;
+		col = mix(vec3(0.55, 0.7, 0.82), vec3(0.85, 0.92, 0.97), n);
+		float crack = smoothstep(0.02, 0.0, abs(vnoise(m * 0.7) - 0.5)) * fine;
+		col = mix(col, vec3(0.92, 0.97, 1.0), crack * 0.6);
+		rough = 0.08 + 0.2 * vnoise(m * 2.0);
+	} else if (kind == 6) {
+		// plastic: glossy yellow panels with dark seams
+		vec2 g = fract(m / 2.0);
+		float seam = max(smoothstep(0.03, 0.0, min(g.x, 1.0 - g.x)), smoothstep(0.03, 0.0, min(g.y, 1.0 - g.y)));
+		col = mix(vec3(0.9, 0.72, 0.05), vec3(0.08, 0.07, 0.04), seam * fine);
+		rough = 0.25;
 	} else {
 		// sand: warm beige, wind ripples across, darker damp streaks
 		float ripple = sin(m.y * 2.2 + vnoise(m * 0.4) * 6.0) * 0.5 + 0.5;
