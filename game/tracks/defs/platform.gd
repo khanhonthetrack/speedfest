@@ -21,6 +21,9 @@ func layout() -> Dictionary:
 			{"jump": {"ramp": 24.0, "h": 1.6, "gap": 13.0, "land": 40.0, "drop": 1.2, "end_dy": -1.2, "check_kmh": 170.0}},
 			{"s": 30},
 			{"cp": true},
+			# WEATHER: rain pools left after the checkpoint, storm adds one on the right
+			{"puddle": 10, "w": 6.0, "x": -4.0, "at": 2.0},
+			{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0, "storm": true},
 			{"s": 20},
 			{"t": -30, "r": 80},
 			{"s": 30},
@@ -29,6 +32,7 @@ func layout() -> Dictionary:
 			{"t": 20, "r": 90},
 			{"s": 20},
 			{"cp": true},
+			{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0},
 			{"s": 15},
 			{"boost": 10},
 			{"s": 30, "w": 16.0},
