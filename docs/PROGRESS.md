@@ -744,3 +744,15 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Private-room track chips scroll (two rows visible) so the room view fits 34 tracks.
 - Weather puddles for all new maps (bd65cbc): test_weather 193/193, test_tracks 649/649.
 - These were merged by session 9 into `tmnf-physics` (except bd65cbc, see HANDOFF).
+
+## 2026-10-16 — Session 9: SpeedFest port paused; remake continues on branch `stadium`
+
+- On `tmnf-physics` (not merged): TmBody's phantom-wall fix (shallow contact pairs take the face
+  normal: float32 world points made 0.01 mm contacts read as vertical), AutoDriver TMNF yaw-rate
+  steering with curvature feed-forward and an integral term, physics suites retargeted to TMNF;
+  AutoDriver 34/34 tracks with 1 respawn. Details in that branch's PROGRESS.
+- Owner: "Focus on the TMNF port first. After that, port car physics to speedfest after my
+  approval." The SpeedFest port waits for approval; the remake's files (stadium/ with the shared
+  TmBody, the research doc's load-transfer fix) come to main through branch `stadium`.
+  Stadium tests 80/80.
+

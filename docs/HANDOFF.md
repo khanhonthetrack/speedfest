@@ -1,5 +1,20 @@
 # HANDOFF: start here
 
+## Latest (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED
+
+- Owner (TRANSCRIPT, session 9): "Focus on the TMNF port first. After that, port car physics to
+  speedfest after my approval." So the **Stadium remake (`stadium/`) comes first**. SpeedFest's
+  TMNF handling stays on branch **`tmnf-physics`, not merged into main until the owner approves**
+  (its HANDOFF top section lists its state: AutoDriver 34/34, open per-car test_tm items; it has
+  m7-maps through bd65cbc). Main keeps the M7 car.
+- The remake works on branch **`stadium`** (only `stadium/` and the research docs) and is merged into
+  main per milestone; it never touches SpeedFest's game/. The shared core now includes `TmBody`
+  (stadium/core/tm_body.gd: TMNF's sub-stepped integrator, contacts with face normals for shallow
+  pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3).
+- **Next (M8-5, M8-6):** the recreated Stadium block library on the 32 x 8 x 32 grid (measure block
+  dimensions/collision locally from the player's own Stadium pack as numbers only, write our own
+  parametric generators), then the stadium environment, car model, race flow, menus, sounds.
+
 ## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
 
 - **`m7-maps` has one commit after the one merged into `tmnf-physics`: bd65cbc** (weather puddles
