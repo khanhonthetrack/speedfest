@@ -17,3 +17,6 @@ node_modules/
 # agent worktrees
 .claude/worktrees/
 __pycache__/
+
+# local debug scenes (never committed)
+game/tests/tmp/
