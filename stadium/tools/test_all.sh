@@ -4,8 +4,10 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 timeout 300 godot --headless --path "$ROOT" --import >/dev/null 2>&1 || true
 FAIL=0
-for t in test_model_lab test_car_body test_car_shapes; do
-  OUT=$("$ROOT/tools/run.sh" "res://tests/$t.tscn" --headless --timeout 600 2>&1)
+# TMNF_DIR=/path/to/TmNationsForever also checks the GBX reader on the official campaign
+EXTRA=""; [[ -n "${TMNF_DIR:-}" ]] && EXTRA="--tmnf=$TMNF_DIR"
+for t in test_model_lab test_car_body test_car_shapes test_gbx; do
+  OUT=$("$ROOT/tools/run.sh" "res://tests/$t.tscn" --headless --timeout 600 -- $EXTRA 2>&1)
   echo "$OUT" | grep -E "TEST_FAIL|SCRIPT ERROR|TEST_SUMMARY" | sed "s/^/[$t] /"
   if ! echo "$OUT" | grep -q "TEST_SUMMARY ok=[0-9]* fail=0"; then FAIL=1; fi
 done

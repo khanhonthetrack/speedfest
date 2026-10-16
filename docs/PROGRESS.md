@@ -717,3 +717,18 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Found while testing: a sharp crease from flat to 15° bounces the car into a nose-down spin
   (0.9 rad/s); with a curved base it flies level. Recreated TM ramps need curved bases too.
 
+## 2026-10-16 ~07:15 UTC — Session 9: Stadium remake reads TMNF tracks (M8-4)
+
+- The official campaign is 65 plain `.Challenge.Gbx` files in a TMNF install
+  (`GameData/Tracks/Campaigns/Nations/<White|Green|Blue|Red|Black>/`), not in the packs: the remake
+  can read them at runtime from the player's own install (nothing is copied into the repo).
+- `stadium/gbx/`: `lzo1x.gd` (LZO1X decoder, hardened against truncated input), `gbx_stream.gd`
+  (GBX reader with lookback strings, idents, file refs, inline nodes), `tm_challenge.gd`
+  (`TmChallenge.load_file`: name, author, uid, decoration, medals from the challenge parameters,
+  lap race, size, blocks with direction, 32x8x32 coord, ground flag (bit 12), skins). Parsing stops
+  after the blocks chunk (media clips follow and aren't needed). Python prototype:
+  `tools/research/tmnf/gbx_challenge.py`.
+- `stadium/tests/test_gbx` (with `--tmnf=/path`, or `TMNF_DIR=... stadium/tools/test_all.sh`):
+  65/65 campaign tracks in 0.33 s, 41,523 blocks, 242 block types; A01-Race author 24.54 s,
+  gold 25.87 s. Next: the block library (M8-5); the campaign's block-type list is the target.
+
