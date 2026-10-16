@@ -134,6 +134,7 @@ func build(p_car_id: String, p_style: Dictionary) -> void:
 	_build_glow()
 	_build_contact()
 	_build_nitro()
+	_set_car_layer(self)
 	_apply_materials()
 	_apply_ride()
 	set_wheel_state(_steer, _spin, _susp)
@@ -309,6 +310,7 @@ func set_headlights_real(on: bool) -> void:
 			sp.spot_angle_attenuation = 1.5
 		sp.position = p + Vector3(0, 0, -0.05)
 		sp.rotation.x = -0.06
+		sp.layers = TrackProbes.CAR_LAYER
 		_body.add_child(sp)
 		_head_spots.append(sp)
 	# a red pool on the road behind the car (Compatibility pays a pass per light: skipped there)
@@ -320,6 +322,7 @@ func set_headlights_real(on: bool) -> void:
 		_tail_light.omni_attenuation = 1.2
 		_tail_light.light_specular = 0.5
 		_tail_light.shadow_enabled = false
+		_tail_light.layers = TrackProbes.CAR_LAYER
 		_body.add_child(_tail_light)
 		set_lights(_braking, _reversing)
 
@@ -444,6 +447,15 @@ func _build_glow() -> void:
 		_glow_light.light_specular = 0.05
 		add_child(_glow_light)
 	_update_glow_mode()
+
+
+## Everything of a car renders on layer 2 only, so the track's ReflectionProbes (cull mask 1) don't
+## bake a car (or its headlight pool) into the road reflections. Cameras see every layer.
+func _set_car_layer(n: Node) -> void:
+	for c in n.get_children():
+		if c is VisualInstance3D:
+			(c as VisualInstance3D).layers = TrackProbes.CAR_LAYER
+		_set_car_layer(c)
 
 
 func _build_contact() -> void:

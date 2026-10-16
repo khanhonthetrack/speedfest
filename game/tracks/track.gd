@@ -29,6 +29,7 @@ var is_circuit: bool = true
 var layout: Dictionary = {}
 var data: Dictionary = {}
 var theme: String = "arena"
+var probe_count := 0           # sector ReflectionProbes (TrackProbes, Forward+ from Medium)
 var gates: Array[Area3D] = []          # checkpoint gates in order
 var rails: Array[TrackRail] = []       # grind rails (layout "rail": true segments)
 var finish_gate: Area3D
@@ -85,6 +86,7 @@ static func build(p_track_id: String, with_scenery := true) -> Track:
 			t.add_child(props)
 		if t.layout.get("ground", "") == "terrain" and not _has_sea(env) and not _has_sea(props):
 			t.add_child(TrackBuilder.build_fallback_sea(t.path))
+		t.probe_count = TrackProbes.build(t, t.path, t.theme)
 	return t
 
 
