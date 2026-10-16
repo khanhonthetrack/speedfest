@@ -6,6 +6,7 @@
   sessions 9 (TMNF reverse engineering) and 10 (physics merged, then "next: PC build") had moved on.
 - **Deployed on the Pi:** `main` @ bccc69f, server restarted on 1f4fbcb's export (M7 handling,
   non-magnetic rails). /health OK.
+- **Progress on `m7-maps` (~03:05 UTC):** dirt/ice/plastic surfaces, special pads (engine off, no steer, cruise, reactor, reset; TM lab 366/366), map plan `docs/research/m7_maps.md`, batch 1 maps Frostbite/Dust Devil/Blackout/Glider (AutoDriver 24/24, 0 respawns). Next: batch 2 (techlab, fullsend, cruise, plastic).
 - **This session now works on M7-6 (new track pieces + 30+ maps) on branch `m7-maps`** so it doesn't
   collide with session 10's PC build (M7-1, rendering/export files). Map work touches
   `game/tracks/**`, `game/weather/track_surface.gd`, `server/lib/rotation.js`, track tests.
