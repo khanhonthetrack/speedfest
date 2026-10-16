@@ -1,5 +1,18 @@
 # HANDOFF: start here
 
+## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
+
+- **`m7-maps` has one commit after the one merged into `tmnf-physics`: bd65cbc** (weather puddles
+  for the 24 new maps). Without it `tests/weather/test_weather` fails `*_puddle_counts` on 23 maps
+  (it needs >= 2 rain pools and a storm-only one per map). On `m7-maps`: test_weather 193/193,
+  test_tracks 649/649. **Session 9: merge `origin/m7-maps` into `tmnf-physics` once more** (additive
+  lines after checkpoint markers in `game/tracks/defs/*.gd`; icepipe/zigzag/fullsend have them in
+  their loops / before a checkpoint).
+- The Pi session's map lane is otherwise done (24 maps, surfaces, special pads, private-room track
+  chips scroll). It won't merge `m7-maps` into main itself: that happens through `tmnf-physics`.
+- **Deploying stays a Pi job:** when `main` gets a new `server/public` export, the Pi session (it
+  auto-continues after usage-limit resets) pulls and restarts the container.
+
 ## Latest (~12:30 UTC 16 Oct, session 9, cloud): work continues on branch `tmnf-physics`
 
 - SpeedFest's TMNF handling (M8-3) lives on branch **`tmnf-physics`** = the Pi's finished `m7-maps`
