@@ -99,8 +99,10 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       - [x] RTX hooks (fork detection, DLSS, frame gen, Reflex, path tracing) + Settings block
       - [x] look pass: night roads reflect (water_gloss, NIGHT_DAMP), real lights at neon; AgX tried (kept ACES)
       - [x] review workflow over the branch: 8 confirmed bugs fixed
-      - [ ] RTX verified on a Linux fork build (lavapipe RT), `#if defined(RT)` shader branches
-      - [ ] material warm-up at load + perf HUD (GPU ms, pipeline compiles); merge to `main`; tag v0.7.0
+      - [x] RTX on a Linux fork build: detection/settings 14/14, `#if defined(RT)` branches compile
+            (path-traced frames need an NVIDIA GPU: lavapipe can't build the fork's RT pipelines)
+      - [x] perf overlay (GPU ms, pipeline compiles); measured 0 draw-time compiles mid-race: no warm-up needed
+      - [ ] art-direction plan (more "2005" fixes); check_all; merge to `main`; web re-export
       - [ ] owner tests the Windows zip and the RTX mode on an RTX PC
 - [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
