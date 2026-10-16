@@ -83,7 +83,8 @@ def read_reftable(r, uds):
         for _ in range(ne):
             flags = r.u32()
             name = r.string() if (flags & 4) == 0 else 'res#%d' % r.u32()
-            idx = r.u32(); r.u32(); fi = r.u32()
+            idx = r.u32(); r.u32()
+            fi = r.u32() if (flags & 4) == 0 else 0   # folder index only for named refs
             r.refs[idx - 1 if False else idx] = Ext((folders[fi - 1] if 0 < fi <= len(folders) else '') + name)
     return nn
 
@@ -171,7 +172,7 @@ def _(r, n): n['terrain_modifier'] = r.ident()
 
 # --- CSceneObject / CSceneMobil / CHmsItem
 @chunk(0x0A005001)
-def _(r, n): r.noderef()
+def _(r, n): n['name'] = r.ident()
 @chunk(0x0A005003)
 def _(r, n): r.noderef()
 @chunk(0x0A011003)
