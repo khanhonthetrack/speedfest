@@ -98,6 +98,40 @@ const SLOPES := {
 const TO_PLATFORM_R := 83.13
 const TO_PLATFORM_END := 48.0
 
+## Tilted roads (Road/Tilt, and Road/Main pieces' tilted variants): the bank rises TILT per metre
+## across, the centre line TILT_RISE above a flat road's (measured: every point of a tilted piece is
+## the flat one sheared). Pieces lying in one tilted plane are their flat counterpart sheared by
+## y += kx * x + kz * z + dy (TmGeo.shear_y), from the plane fitted to each measured piece:
+## shape -> [build, kx, kz, dy], build = "straight", "checkpoint", or "curve:<radius>:<cx>:<cz>:<a0>".
+const TILT := 0.2512
+const TILT_RISE := 3.981
+const TILT_PLANES := {
+	"Road/Tilt/Straight": ["straight", 0.2512, 0.0, -0.038],
+	"Road/Tilt/CornerDownLeft": ["curve:16:0:32:-90", 0.251, 0.0, 0.005],
+	"Road/Tilt/CornerDownRight": ["curve:16:0:0:0", 0.251, 0.0, -0.002],
+	"Road/Tilt/CornerUpLeft": ["curve:16:32:32:180", 0.2512, 0.0, -0.038],
+	"Road/Tilt/CornerUpRight": ["curve:16:32:0:90", 0.2512, 0.0, -0.038],
+	"Road/Tilt/GTCurve/2DownLeft": ["curve:48:0:64:-90", 0.25, 0.0, 0.001],
+	"Road/Tilt/GTCurve/2DownRight": ["curve:48:0:0:0", 0.25, 0.0, -0.003],
+	"Road/Tilt/GTCurve/2UpLeft": ["curve:48:64:64:180", 0.2506, 0.0, -0.042],
+	"Road/Tilt/GTCurve/2UpRight": ["curve:48:64:0:90", 0.2506, 0.0, -0.04],
+	"Road/Main/CheckpointLeft": ["checkpoint", -0.2512, 0.0, 8.0],
+	"Road/Main/CheckpointRight": ["checkpoint", 0.2512, 0.0, -0.038],
+	"Road/Main/CheckpointUp": ["checkpoint", 0.0, 0.25, 0.0],
+	"Road/Main/CheckpointDown": ["checkpoint", 0.0, -0.25, 8.0],
+}
+## Banked curves (Road/Tilt/Corner, GTCurve/2-4): the bank rises toward the outside.
+const TILT_BANKED := {"Road/Tilt/Corner": 1, "Road/Tilt/GTCurve/2": 2, "Road/Tilt/GTCurve/3": 3, "Road/Tilt/GTCurve/4": 4}
+## Transitions from a flat road one level up to the tilted road: the road turns down about its high
+## edge; every 1/8 of the length (measured), the share of the full bank, and of the centre line's
+## full drop (8 - TILT_RISE).
+const TILT_EASE := [0.0, 0.0179, 0.0908, 0.26, 0.5, 0.74, 0.9092, 0.9821, 1.0]
+const TILT_DROP := [0.0, 0.0373, 0.1309, 0.2914, 0.4996, 0.7069, 0.8671, 0.9619, 1.0]
+const TILT_TRANSITIONS := {
+	"Road/Tilt/Transition/1Left": [1, 1.0], "Road/Tilt/Transition/1Right": [1, -1.0],
+	"Road/Tilt/Transition/2Left": [2, 1.0], "Road/Tilt/Transition/2Right": [2, -1.0],
+}
+
 ## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
 const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
 
@@ -106,6 +140,9 @@ var _road_surf := S_ROAD
 
 
 func handles(shape: String) -> bool:
+	var base := _form(shape).trim_suffix("/")
+	if TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
+		return true
 	if not shape.begins_with("Road/Main/"):
 		return false
 	var rest := shape.trim_prefix("Road/Main/")
@@ -132,7 +169,11 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	_road_mat = "asphalt"
 	_road_surf = S_ROAD
 	var form := _form(rest)
-	if ARMS.has(form):
+	var base := _form(shape).trim_suffix("/")
+	if TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
+		# tilted pieces: the air section also on the ground (the raised side stands on pillars)
+		_tilt(geo, base)
+	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
 		_profile_slope(geo, SLOPES[_form(rest.trim_prefix("Slope/"))], ground)
@@ -205,16 +246,67 @@ func _sweep(geo: TmGeo, path: Array, lateral: Array, ground: bool, y_at := Calla
 
 ## GT curves (and the 1x1 corner, k = 1): the section around the footprint's corner (0, 32k).
 func _curve(geo: TmGeo, k: int, ground: bool) -> void:
-	var s := 32.0 * k
-	var steps := 8 * k
+	_arc_road(geo, Vector2(0, 32.0 * k), 32.0 * k - 16.0, -90.0, ground)
+
+
+## A quarter-circle road of centre-line radius r about c (x, z), from angle a0 to a0 + 90 (degrees,
+## from +x toward +z); bank: rise per metre toward the outside, rise: the centre line's lift.
+func _arc_road(geo: TmGeo, c: Vector2, r: float, a0: float, ground: bool, bank := 0.0, rise := 0.0) -> void:
+	var steps := maxi(8, int(r / 6.0))
 	var path := []
 	var lat := []
 	for i in steps + 1:
-		var a := lerpf(-PI * 0.5, 0.0, float(i) / steps)
+		var a := deg_to_rad(a0 + 90.0 * float(i) / steps)
 		var d := Vector3(cos(a), 0.0, sin(a))
-		path.append(Vector3(0, 0, s) + d * (s - 16.0))
-		lat.append(d)
+		path.append(Vector3(c.x, rise, c.y) + d * r)
+		lat.append(d + Vector3.UP * bank)
 	_sweep(geo, path, lat, ground)
+
+
+## Tilted pieces: planar ones built flat then sheared, banked curves, and the transitions.
+func _tilt(geo: TmGeo, base: String) -> void:
+	if TILT_PLANES.has(base):
+		var t: Array = TILT_PLANES[base]
+		var build := String(t[0])
+		if build == "straight":
+			_straight(geo, 0.0, 32.0, false)
+		elif build == "checkpoint":
+			_straight(geo, 0.0, 32.0, false)
+			_gate(geo, 16.0)
+		else:
+			var p := build.split(":")
+			_arc_road(geo, Vector2(float(p[2]), float(p[3])), float(p[1]), float(p[4]), false)
+		geo.shear_y(float(t[1]), float(t[2]), float(t[3]))
+	elif TILT_BANKED.has(base):
+		var k: int = TILT_BANKED[base]
+		_arc_road(geo, Vector2(0, 32.0 * k), 32.0 * k - 16.0, -90.0, false, TILT, TILT_RISE)
+	else:
+		var tr: Array = TILT_TRANSITIONS[base]
+		var length := 32.0 * int(tr[0])
+		var side := float(tr[1])
+		var path := []
+		var lat := []
+		var n := int(length / 2.0)
+		for i in n + 1:
+			var t := float(i) / n
+			path.append(Vector3(16, 8.0 - (8.0 - TILT_RISE) * _ease(TILT_DROP, t), length * t))
+			lat.append(Vector3(1, side * TILT * _ease(TILT_EASE, t), 0))
+		_sweep(geo, path, lat, false)
+
+
+## A table of values at evenly spaced t in [0, 1], read smoothly (Catmull-Rom) at t.
+static func _ease(table: Array, t: float) -> float:
+	var n := table.size() - 1
+	var f := clampf(t, 0.0, 1.0) * n
+	var i := mini(int(f), n - 1)
+	var at := func(k: int) -> float: return float(table[clampi(k, 0, n)])
+	var u := f - i
+	var p0: float = at.call(i - 1)
+	var p1: float = at.call(i)
+	var p2: float = at.call(i + 1)
+	var p3: float = at.call(i + 2)
+	return 0.5 * ((2.0 * p1) + (-p0 + p2) * u + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * u * u
+		+ (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * u * u * u)
 
 
 ## Road-type pieces by their arms (SIDES indices).
