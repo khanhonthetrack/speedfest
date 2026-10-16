@@ -9,6 +9,12 @@ func layout() -> Dictionary:
 	for i in 4:
 		segs.append({"surface": "ice", "len": 110.0, "x0": -11.0, "x1": 11.0, "at": 0.0})
 		segs.append({"t": 110.0 * dirs[i], "r": 50, "bank": 34, "w": 22.0})
+		# WEATHER: rain pools on the exit strips (left after pipe 2, right after pipe 4); storm adds one
+		if i == 1:
+			segs.append({"puddle": 10, "w": 6.0, "x": -4.0, "at": 4.0})
+			segs.append({"puddle": 10, "w": 6.0, "x": 4.0, "at": 4.0, "storm": true})
+		elif i == 3:
+			segs.append({"puddle": 10, "w": 6.0, "x": 4.0, "at": 4.0})
 		segs.append({"s": 22, "w": 20.0})
 		if i == 1:
 			segs.append({"cp": true})

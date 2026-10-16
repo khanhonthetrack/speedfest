@@ -11,9 +11,13 @@ func layout() -> Dictionary:
 		segs.append({"s": 24, "dy": -2.2})
 	segs.append_array([
 		{"s": 20}, {"cp": true},
+ # WEATHER: rain pools left after the checkpoint, storm adds one on the right
+ {"puddle": 10, "w": 6.0, "x": -4.0, "at": 2.0},
+ {"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0, "storm": true},
 		{"walls": "both"},
 		{"t": -110, "r": 75, "bank": 20},
 		{"s": 25}, {"cp": true},
+ {"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0},
 	])
 	for i in 3:
 		segs.append({"s": 22, "dy": 2.6})

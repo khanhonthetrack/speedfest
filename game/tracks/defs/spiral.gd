@@ -16,9 +16,13 @@ func layout() -> Dictionary:
 			{"walls": "both"},
 			{"t": 180, "r": 52, "bank": 24, "dy": 9.0},
 			{"cp": true},
+			# WEATHER: rain pools left after the checkpoint, storm adds one on the right
+			{"puddle": 10, "w": 6.0, "x": -4.0, "at": 2.0},
+			{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0, "storm": true},
 			{"t": 180, "r": 52, "bank": 24, "dy": 9.0},
 			{"s": 25},
 			{"cp": true},
+			{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0},
 			{"s": 30},
 			{"boost": 12},
 			{"s": 120, "dy": -16.0},

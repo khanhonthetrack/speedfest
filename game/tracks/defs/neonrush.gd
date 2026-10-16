@@ -20,6 +20,9 @@ func layout() -> Dictionary:
 			{"s": 35},
 			{"walls": "both"},
 			{"cp": true},
+			# WEATHER: rain pools left after the checkpoint, storm adds one on the right
+			{"puddle": 10, "w": 6.0, "x": -4.0, "at": 2.0},
+			{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0, "storm": true},
 			{"building": "through", "len": 50.0, "at": 0.0, "sign": "NEON RUSH", "margin": 12.0, "height": 46.0},
 			{"s": 50},
 			{"s": 20},
@@ -31,6 +34,7 @@ func layout() -> Dictionary:
 			{"s": 30},
 			{"walls": "both"},
 			{"cp": true},
+			{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0},
 			{"s": 90, "dy": -14.0},
 			{"s": 30, "w": 22.0},
 			{"building": "roof", "len": 90.0, "at": 64.0, "margin": 8.0},

@@ -11,11 +11,20 @@ func layout() -> Dictionary:
 		segs.append({"s": 10})
 		# exit pad on the outside of the turn just made
 		segs.append({"boost": 8, "x": -4.5 * dirs[i], "pw": 6.0})
+		# WEATHER: puddles past the exit pads (rain after turns 3 and 5, storm adds one)
+		if i == 2:
+			segs.append({"puddle": 10, "w": 6.0, "x": 4.5 * dirs[i], "at": 12.0})
+			segs.append({"puddle": 10, "w": 6.0, "x": -4.5 * dirs[i], "at": 12.0, "storm": true})
+		elif i == 4:
+			segs.append({"puddle": 10, "w": 6.0, "x": 4.5 * dirs[i], "at": 12.0})
 		segs.append({"s": 28})
 		if i == 2:
 			segs.append({"cp": true})
 	segs.append_array([
 		{"cp": true},
+		# WEATHER: rain pools left after the checkpoint, storm adds one on the right
+		{"puddle": 10, "w": 6.0, "x": -4.0, "at": 2.0},
+		{"puddle": 10, "w": 6.0, "x": 4.0, "at": 2.0, "storm": true},
 		{"s": 20},
 		{"boost": 10},
 		{"s": 35, "w": 20.0},
