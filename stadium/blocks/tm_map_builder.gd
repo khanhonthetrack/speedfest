@@ -2,7 +2,8 @@ class_name TmMapBuilder
 extends RefCounted
 ## Builds a Stadium map (TmChallenge) from the recreated block library: each block's shape is made
 ## by TmBlockLib in block-local space and placed with TMNF's convention (TmBlockCatalogue). Blocks
-## without a recreated shape yet get a translucent placeholder box per unit.
+## without a recreated shape yet get a translucent placeholder box per unit. The ground (grass,
+## collidable) covers every cell without a terrain zone tile.
 
 var challenge: TmChallenge
 var lib: TmBlockLib
@@ -15,6 +16,10 @@ var stats := {"blocks": 0, "built": 0, "placeholder": 0, "unknown": 0}
 var missing := {}                   ## shape name -> count (no generator yet)
 
 var _placeholder_mats := {}
+var _zone_cells := {}               ## Vector2i (x, z) -> true: cells with a terrain zone tile
+
+const S_GRASS := 2
+const GROUND_Y := 9.0               ## level-0 ground (TMNF y)
 
 
 static func build(ch: TmChallenge, library: TmBlockLib = null) -> TmMapBuilder:
@@ -58,6 +63,8 @@ func _build() -> void:
 		node.transform = xf
 		node.set_meta("block", id)
 		blocks_node.add_child(node)
+		if String(entry.get("kind", "")) in ["flat", "frontier"]:
+			_zone_cells[Vector2i(coord.x, coord.z)] = true
 		var wp := int(entry.get("waypoint", TmBlockCatalogue.Waypoint.NONE))
 		var spawn_world := xf * TmBlockCatalogue.spawn(entry, ground)
 		match wp:
@@ -68,6 +75,29 @@ func _build() -> void:
 				checkpoints.append(spawn_world)
 			TmBlockCatalogue.Waypoint.FINISH:
 				finishes.append(spawn_world)
+	_terrain()
+
+
+## The stadium ground: grass at 9 m (level 0) on every map cell without a terrain zone tile.
+func _terrain() -> void:
+	var geo := TmGeo.new()
+	var y := GROUND_Y
+	for cz in challenge.size.z:
+		# merge runs of grass cells along x into one quad
+		var cx := 0
+		while cx < challenge.size.x:
+			if _zone_cells.has(Vector2i(cx, cz)):
+				cx += 1
+				continue
+			var x0 := cx
+			while cx < challenge.size.x and not _zone_cells.has(Vector2i(cx, cz)):
+				cx += 1
+			var a := Vector3(x0 * 32.0, y, cz * 32.0)
+			var b := Vector3(cx * 32.0, y, (cz + 1) * 32.0)
+			geo.quad(Vector3(a.x, y, a.z), Vector3(a.x, y, b.z), Vector3(b.x, y, b.z), Vector3(b.x, y, a.z), "grass", S_GRASS)
+	var node := geo.build()
+	node.name = "Terrain"
+	root.add_child(node)
 
 
 func _placeholder(id: String, entry: Dictionary, ground: bool) -> Node3D:

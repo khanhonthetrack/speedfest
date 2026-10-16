@@ -51,16 +51,21 @@ func _environment() -> void:
 	env.ambient_light_color = Color(0.6, 0.62, 0.7)
 	we.environment = env
 	add_child(we)
-	# provisional Stadium ground: grass at 9 m over the 32 x 32 block map
-	var ground := MeshInstance3D.new()
-	var pm := PlaneMesh.new()
-	pm.size = Vector2(1024, 1024)
-	ground.mesh = pm
-	ground.position = Vector3(-512, 9.0, 512)
+	# the map's ground is built with it (TmMapBuilder); around it, plain grass to the horizon
+	var w := float(builder.challenge.size.x) * 32.0
+	var d := float(builder.challenge.size.z) * 32.0
 	var gm := StandardMaterial3D.new()
 	gm.albedo_color = Color(0.32, 0.5, 0.22)
-	ground.material_override = gm
-	add_child(ground)
+	var far := 3000.0
+	for r in [Rect2(-far, -far, w + 2.0 * far, far), Rect2(-far, d, w + 2.0 * far, far), Rect2(-far, 0, far, d), Rect2(w, 0, far, d)]:
+		var ground := MeshInstance3D.new()
+		var pm := PlaneMesh.new()
+		pm.size = r.size
+		ground.mesh = pm
+		ground.material_override = gm
+		# TMNF (x, z) -> Godot (-x, z)
+		ground.position = Vector3(-(r.position.x + r.size.x * 0.5), 9.0, r.position.y + r.size.y * 0.5)
+		add_child(ground)
 
 
 func _camera() -> void:

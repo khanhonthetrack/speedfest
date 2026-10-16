@@ -10,7 +10,7 @@ var _cache := {}                   ## shape name -> PackedScene-like template (N
 
 
 const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.gd",
-	"res://blocks/shapes/platform.gd", "res://blocks/shapes/road.gd"]
+	"res://blocks/shapes/platform.gd", "res://blocks/shapes/road.gd", "res://blocks/shapes/zone.gd"]
 
 
 func _init() -> void:

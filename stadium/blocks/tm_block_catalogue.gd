@@ -12,7 +12,8 @@ extends RefCounted
 ## TMNF coordinates are left-handed; Godot's = TMNF's with x negated (an unrotated TMNF car then
 ## has TmCar's frame: +X left, +Z forward). Sides: 0 +Z, 1 +X, 2 -Z, 3 -X (Godot). A block's
 ## `dir` turns it by dir x 90 deg about +Y, and its rotated footprint's min corner sits at coord x
-## (32, 8, 32) (checked: 96.8% of the campaign's classic-block clips meet a clip).
+## (32, 8, 32) (checked: 96.8% of the campaign's classic-block clips meet a clip). Terrain zones
+## (kinds "flat", "frontier") sit at their level: level 0 is the ground (9 m block-local).
 
 const BLOCK := Vector3(32.0, 8.0, 32.0)
 const PATH := "res://blocks/data/block_catalogue.json"
@@ -106,6 +107,10 @@ static func block_transform(entry: Dictionary, coord: Vector3i, dir: int, ground
 		minx = minf(minx, p.x)
 		minz = minf(minz, p.y)
 	var t := Vector3(coord.x * BLOCK.x - minx, coord.y * BLOCK.y, coord.z * BLOCK.z - minz)
+	# terrain tiles taller than one unit (dirt hills) rise from two levels per extra unit below
+	# their coordinate (a hill at level L spans levels L - 2 .. L; checked on the campaign)
+	if String(entry.get("kind", "")) == "frontier" and size.y > 1:
+		t.y -= 2.0 * BLOCK.y * (size.y - 1)
 	return Transform3D(Basis(Vector3.UP, d * PI * 0.5), tm_to_godot(t))
 
 
