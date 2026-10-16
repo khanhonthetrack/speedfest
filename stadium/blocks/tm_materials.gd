@@ -103,6 +103,19 @@ static func clear_cache() -> void:
 	_cache.clear()
 
 
+## A material made elsewhere, under a key (the stadium's ground with its own class map).
+static func register(key: String, m: Material) -> void:
+	_cache[key] = m
+
+
+## The shared noise textures (fine, coarse) the procedural shaders read.
+static func noise_textures() -> Array:
+	if _noise_fine == null:
+		_noise_fine = _noise(0.02, 3, 5)
+		_noise_coarse = _noise(0.008, 9, 4)
+	return [_noise_fine, _noise_coarse]
+
+
 static func _noise(freq: float, seed_value: int, octaves: int) -> NoiseTexture2D:
 	var n := FastNoiseLite.new()
 	n.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
@@ -174,9 +187,7 @@ static func _water(spec: Array) -> StandardMaterial3D:
 
 
 static func _surface(key: String, spec: Array) -> ShaderMaterial:
-	if _noise_fine == null:
-		_noise_fine = _noise(0.02, 3, 5)
-		_noise_coarse = _noise(0.008, 9, 4)
+	noise_textures()
 	var s: Array = SURFACES[key]
 	var c: Color = spec[0]
 	var m := ShaderMaterial.new()

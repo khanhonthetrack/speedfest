@@ -251,6 +251,18 @@ static func _roof(geo: TmGeo, sz: float) -> void:
 		var a: Vector2 = _roof_section(xs[i])[0]
 		var b: Vector2 = _roof_section(xs[i + 1])[0]
 		geo.pipe(Vector3(xs[i], a.y - 0.8, -sz * a.x), Vector3(xs[i + 1], b.y - 0.8, -sz * b.x), 2.2, 8, "mast", TmGeo.NO_COLLISION)
+	# lamp strips under the visor's front and along the main roof's front edge (measured glows)
+	for i in xs.size() - 1:
+		if absf(xs[i]) > 640.0:
+			continue
+		for row: int in [7, 5]:
+			var a: Vector2 = _roof_section(xs[i])[row]
+			var b: Vector2 = _roof_section(xs[i + 1])[row]
+			var za := -sz * (a.x + (3.0 if row == 7 else -1.5))
+			var zb := -sz * (b.x + (3.0 if row == 7 else -1.5))
+			var p0 := Vector3(xs[i] + 1.0, a.y - 0.4, za)
+			var p1 := Vector3(xs[i + 1] - 1.0, b.y - 0.4, zb)
+			_quad(geo, p0 - Vector3(0, 0, 0.6), p1 - Vector3(0, 0, 0.6), p1 + Vector3(0, 0, 0.6), p0 + Vector3(0, 0, 0.6), "lamp", Vector3.DOWN)
 	var bx := -floorf(x_end / 45.0) * 45.0
 	while bx <= x_end:
 		var sec := _roof_section(bx)
@@ -376,19 +388,46 @@ static func _bowl() -> PackedVector2Array:
 	return loop
 
 
-## The ground: the apron at the field's level inside the bowl, falling to the outer level outside
-## it, the edge and the plain far below (the map's own ground covers the field).
+## The ground: our coarse grid measured from TMNF's surround (blocks/data/stadium_ground.json, one
+## quarter mirrored: heights on 16 m cell corners, a class per cell: forecourt, road, grass,
+## parking); where it has none (under the buildings) the apron at the field's level inside the
+## bowl, falling outside it; then the edge and the plain far below (the map covers the field).
+const GROUND_CLASSES := {"p": "parvis", "r": "road_dark", "g": "grass", "k": "parking"}
+
+static var _ground_data := {}
+
+
+static func _ground_grid() -> Dictionary:
+	if _ground_data.is_empty():
+		_ground_data = JSON.parse_string(FileAccess.get_file_as_string("res://blocks/data/stadium_ground.json"))
+	return _ground_data
+
+
 static func _ground(geo: TmGeo) -> void:
+	var data := _ground_grid()
+	var cell := float(data["cell"])
+	var nx := int(data["nx"])
+	var nz := int(data["nz"])
+	var heights: Array = data["heights_dm"]
+	var classes: Array = data["classes"]
 	var bowl := _bowl()
-	var cell := 32.0
-	var nx := int(EDGE.x / cell)
-	var nz := int(EDGE.y / cell)
+	var half := int(512.0 / cell)
+	var hd := TmMaterials.hd()
+	var cc := float(data["class_cell"])
+	var cnx := int(data["cnx"])
+	var cnz := int(data["cnz"])
+	var per := int(cell / cc)
 	var h := {}
 	for i in range(-nx, nx + 1):
 		for j in range(-nz, nz + 1):
+			var v := int((heights[absi(j)] as Array)[absi(i)])
 			var p := Vector2(i * cell, j * cell)
 			var y := 0.0
-			if not Geometry2D.is_point_in_polygon(p, bowl):
+			if Geometry2D.is_point_in_polygon(p, bowl):
+				y = 0.0
+			elif v != -9999:
+				y = v * 0.1
+			else:
 				var dmin := 1e9
 				for k in bowl.size():
 					var q := Geometry2D.get_closest_point_to_segment(p, bowl[k], bowl[(k + 1) % bowl.size()])
@@ -397,21 +436,55 @@ static func _ground(geo: TmGeo) -> void:
 			h[Vector2i(i, j)] = y
 	for i in range(-nx, nx):
 		for j in range(-nz, nz):
-			if i >= -16 and i < 16 and j >= -16 and j < 16:
+			if i >= -half and i < half and j >= -half and j < half:
 				continue   # the field: the map's own ground
+			var ci := (i if i >= 0 else -i - 1) * per
+			var cj := (j if j >= 0 else -j - 1) * per
+			var cls := String(classes[cj]).substr(ci, 1)
 			var y00: float = h[Vector2i(i, j)]
 			var y10: float = h[Vector2i(i + 1, j)]
 			var y11: float = h[Vector2i(i + 1, j + 1)]
 			var y01: float = h[Vector2i(i, j + 1)]
-			var mat := "grass" if minf(minf(y00, y10), minf(y11, y01)) > -0.5 else "parvis"
+			var low := minf(minf(y00, y10), minf(y11, y01)) <= -0.5
+			if not GROUND_CLASSES.has(cls):
+				cls = "p" if low else "g"
+			var mat: String = "stadium_ground" if hd else GROUND_CLASSES[cls]
 			var a := Vector3(i * cell, y00, j * cell)
 			var b := Vector3((i + 1) * cell, y10, j * cell)
 			var c := Vector3((i + 1) * cell, y11, (j + 1) * cell)
 			var d := Vector3(i * cell, y01, (j + 1) * cell)
 			_quad(geo, a, b, c, d, mat, Vector3.UP)
+	if hd:
+		# the class map: one texel per class cell, the quarter mirrored; none: grass in the bowl,
+		# forecourt under the buildings
+		var cmap := Image.create(cnx * 2, cnz * 2, false, Image.FORMAT_RGBA8)
+		var weights := {"g": Color(1, 0, 0, 0), "r": Color(0, 1, 0, 0), "k": Color(0, 0, 1, 0), "p": Color(0, 0, 0, 1)}
+		for cj in cnz:
+			var row := String(classes[cj])
+			for ci in cnx:
+				var cls := row.substr(ci, 1)
+				if not weights.has(cls):
+					var centre := Vector2((ci + 0.5) * cc, -(cj + 0.5) * cc)
+					cls = "g" if Geometry2D.is_point_in_polygon(centre, bowl) else "p"
+				var col: Color = weights[cls]
+				cmap.set_pixel(cnx + ci, cnz - 1 - cj, col)
+				cmap.set_pixel(cnx - 1 - ci, cnz - 1 - cj, col)
+				cmap.set_pixel(cnx + ci, cnz + cj, col)
+				cmap.set_pixel(cnx - 1 - ci, cnz + cj, col)
+		var gm := ShaderMaterial.new()
+		gm.shader = preload("res://env/tm_ground.gdshader")
+		gm.set_shader_parameter("class_map", ImageTexture.create_from_image(cmap))
+		gm.set_shader_parameter("extent", Vector2(nx * cell, nz * cell))
+		var noise := TmMaterials.noise_textures()
+		gm.set_shader_parameter("noise_fine", noise[0])
+		gm.set_shader_parameter("noise_coarse", noise[1])
+		for key: String in ["grass", "road_dark", "parking", "parvis"]:
+			var c: Color = TmMaterials.COLORS[key][0]
+			gm.set_shader_parameter({"grass": "grass_col", "road_dark": "road_col", "parking": "parking_col", "parvis": "parvis_col"}[key], c)
+		TmMaterials.register("stadium_ground", gm)
 	# the edge: walls down to the bottom, and the plain beyond
 	var ex := nx * cell
-	var ez := nz * cell
+	var ez := nz * cell   # the measured grid's extent (EDGE)
 	var corners := [Vector2(-ex, -ez), Vector2(ex, -ez), Vector2(ex, ez), Vector2(-ex, ez)]
 	for k in 4:
 		var p0: Vector2 = corners[k]

@@ -380,6 +380,8 @@ func _rim(side: float) -> Node3D:
 
 
 func _process(delta: float) -> void:
+	if car and _mats.has("light"):   # brake lights
+		(_mats["light"] as StandardMaterial3D).emission_energy_multiplier = 7.0 if car.brake > 0.1 else 1.6
 	var vz := car.local_velocity().z if car else ghost_speed
 	_spin += vz / T.WHEEL_RADIUS * delta
 	var steer_vis := deg_to_rad(T.lin([[0.0, 30.0], [100.0, 10.0]], absf(vz) * 3.6)) * (car.model.steer if car else ghost_steer)

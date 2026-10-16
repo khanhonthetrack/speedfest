@@ -1133,3 +1133,14 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
   along the top, carbon fibre twill, tyres with tread grooves, sipes and a lettering band.
 - Sky clouds from a seamless noise texture (the hash noise showed blocks).
 - Options: "HD graphics" (on by default; off = the flat colours, for slow machines; `--hd=0`).
+
+## 2026-10-16 — Session 12: polish (owner's list, step 1), branch `stadium`
+- The Stadium's outer ground now follows TMNF's: `tools/research/tmnf/stadium_ground.py` samples
+  the measured surround's ground surfaces into our own coarse grid (one quarter: heights on 16 m
+  cell corners, classes forecourt / road / grass / parking on 8 m cells;
+  `blocks/data/stadium_ground.json`, 78 KB). `TmStadiumBuild._ground` builds the terrain from it
+  (mirrored), and with HD graphics `env/tm_ground.gdshader` blends the classes from a smoothly
+  filtered class map (curved borders, not steps): mown grass, asphalt roads, blue parking with
+  white bay lines, paved forecourts.
+- Lamp strips under the grandstand roofs (the visor's front and the main roof's edge, where TMNF
+  has its glows); brake lights that flare when braking.
