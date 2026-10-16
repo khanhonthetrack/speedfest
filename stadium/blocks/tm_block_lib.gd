@@ -9,7 +9,8 @@ var _families: Array = []          ## objects with handles(shape) -> bool and ma
 var _cache := {}                   ## shape name -> PackedScene-like template (Node3D), duplicated
 
 
-const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.gd"]
+const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.gd",
+	"res://blocks/shapes/platform.gd"]
 
 
 func _init() -> void:

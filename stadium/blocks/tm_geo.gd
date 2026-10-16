@@ -163,6 +163,53 @@ func _section_cap(loop: Array, frame: Transform3D, side: float, mat: String, sur
 			tri(a, b, c, mat, surface)
 
 
+## A vertical prism over a closed horizontal loop of [Vector2(x, z), mat, surface] points (each
+## segment takes its start point's material) from y0 to y1, sides facing out; caps: lids at both
+## ends (cap_mat, cap_surface).
+func extrude_y(loop: Array, y0: float, y1: float, caps := false, cap_mat := "", cap_surface := NO_COLLISION) -> void:
+	var ccw := TmGeo.loop_area(loop) > 0.0
+	for i in loop.size():
+		var p: Vector2 = loop[i][0]
+		var q: Vector2 = loop[(i + 1) % loop.size()][0]
+		var a := Vector3(p.x, y0, p.y)
+		var b := Vector3(q.x, y0, q.y)
+		var c := Vector3(q.x, y1, q.y)
+		var d := Vector3(p.x, y1, p.y)
+		if ccw:
+			quad(a, d, c, b, loop[i][1], loop[i][2])
+		else:
+			quad(a, b, c, d, loop[i][1], loop[i][2])
+	if caps:
+		var poly := PackedVector2Array()
+		for q in loop:
+			poly.append(q[0])
+		flat_polygon(poly, y1, cap_mat, cap_surface)
+		flat_polygon(poly, y0, cap_mat, cap_surface, true)
+
+
+## A straight pipe (open n-gon prism) from a to b, radius r, smooth radial normals. Its frame: u =
+## horizontal perpendicular (+x for vertical pipes), v = up (+z); the first vertex at angle phase.
+func pipe(a: Vector3, b: Vector3, r: float, sides: int, mat: String, surface: int, phase := 0.0) -> void:
+	var d := (b - a).normalized()
+	var u := Vector3(1, 0, 0) if absf(d.y) > 0.5 else Vector3.UP.cross(d).normalized()
+	var v := Vector3(0, 0, 1) if absf(d.y) > 0.5 else Vector3.UP
+	for k in sides:
+		var a0 := phase + TAU * k / sides
+		var a1 := phase + TAU * (k + 1) / sides
+		var n0 := u * cos(a0) + v * sin(a0)
+		var n1 := u * cos(a1) + v * sin(a1)
+		var p0 := a + n0 * r
+		var p1 := a + n1 * r
+		var q0 := b + n0 * r
+		var q1 := b + n1 * r
+		if (q0 - p0).cross(p1 - p0).dot(n0 + n1) >= 0.0:
+			tri(p0, q0, q1, mat, surface, n0, n0, n1)
+			tri(p0, q1, p1, mat, surface, n0, n1, n1)
+		else:
+			tri(p0, q1, q0, mat, surface, n0, n1, n0)
+			tri(p0, p1, q1, mat, surface, n0, n1, n1)
+
+
 ## Horizontal polygon (TMNF x, z points) at height y, facing up (or down if down).
 func flat_polygon(poly: PackedVector2Array, y: float, mat: String, surface: int, down := false) -> void:
 	var idx := Geometry2D.triangulate_polygon(poly)
