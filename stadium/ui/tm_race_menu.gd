@@ -9,6 +9,7 @@ signal next_track
 signal to_menu
 
 var has_next := false
+var online := false                ## in a server: "menu" leaves it
 var _panel: PanelContainer
 var _box: VBoxContainer
 var paused := false
@@ -64,8 +65,8 @@ func toggle_pause() -> void:
 		resume()
 		return
 	paused = true
-	get_tree().paused = true
-	_fill("PAUSED", [["RESUME", resume], ["RESTART", func() -> void: _emit(restarted)], ["MENU", func() -> void: _emit(to_menu)]])
+	get_tree().paused = not online   # a server's round runs on: online, the menu only overlays
+	_fill("PAUSED", [["RESUME", resume], ["RESTART", func() -> void: _emit(restarted)], ["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)]])
 
 
 func resume() -> void:
@@ -83,7 +84,7 @@ func show_finish() -> void:
 	var items := [["RETRY", func() -> void: _emit(restarted)]]
 	if has_next:
 		items.append(["NEXT TRACK", func() -> void: _emit(next_track)])
-	items.append(["MENU", func() -> void: _emit(to_menu)])
+	items.append(["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)])
 	_fill("", items, true)
 
 

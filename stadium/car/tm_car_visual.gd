@@ -35,6 +35,7 @@ var ghost := false
 var ghost_speed := 0.0            ## m/s along the car
 var ghost_steer := 0.0
 var paint_colour := Color(0.85, 0.08, 0.06)
+var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online players: theirs)
 var _wheels: Array[Node3D] = []
 var _spin := 0.0
 var _mats := {}
@@ -77,7 +78,7 @@ func _mat(key: String) -> Material:
 	var m := StandardMaterial3D.new()
 	match key:
 		"paint":
-			m.albedo_color = paint_colour if not ghost else Color(0.55, 0.75, 1.0)
+			m.albedo_color = paint_colour if not ghost else ghost_tint
 			m.metallic = 0.5
 			m.roughness = 0.28
 			m.clearcoat_enabled = true

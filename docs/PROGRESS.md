@@ -1144,3 +1144,22 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
   white bay lines, paved forecourts.
 - Lamp strips under the grandstand roofs (the visor's front and the main roof's edge, where TMNF
   has its glows); brake lights that flare when braking.
+
+## 2026-10-16 — Session 12: menus restyled, fonts, online play (owner's list, step 2), branch `stadium`
+- Menus and HUD in Orbitron (titles, times) and Rajdhani (everything else), both SIL OFL, from
+  SpeedFest's own assets (`stadium/assets/fonts`): a styled title with an accent line, buttons
+  with an accent bar when focused, a dark gradient behind the menu, pages fading in, key hints.
+- **Online play like TMNF's time-attack servers.** `stadium/server` (Node.js + ws): an always-on
+  room; 5-minute rounds on random campaign tracks (never one of the last 12), players restart as
+  often as they like and their best time counts, live ranking, cars relayed 10 times a second,
+  15 s of results, chat; a JSON status page for the server list; input cleaned and limited;
+  `npm test` (5). The tracks stay on the players' own TMNF installs (the server sends only ids).
+- Game: the `Online` autoload (`net/tm_online.gd`, WebSocketPeer) and `race/tm_race_online.gd`
+  (other players' cars in their colours with name tags, our car sent 10 Hz, finishes reported,
+  round clock and ranking on screen, chat on T, results, the next track loaded when the server
+  moves on; Escape overlays the menu without pausing, "leave server"). Menu → Online: your name,
+  your car colour (also your car offline), "join the official server" (its address is read from
+  `stadium/server/official.json` in the repo, with a live status line) or any address.
+- `tests/test_online` (8, needs Node; skipped without it): starts the server with short rounds,
+  joins, races in online mode, sees a second player's car, its finish ranked, results, next
+  track. The gate also runs the server's `npm test`. STADIUM_TESTS PASS.

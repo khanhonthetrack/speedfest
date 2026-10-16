@@ -25,6 +25,7 @@ var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarV
 var new_record := false            ## the last finish set a new record
 var menu: TmRaceMenu               ## pause and finish menus
 var audio: TmCarAudio              ## engine, skid, wind and the race's cues
+var online: TmRaceOnline           ## the online side, in a server (Online)
 var track_id := ""                 ## the campaign track raced ("" for a track file)
 var next_id := ""                  ## the campaign track after it ("" if none)
 
@@ -71,7 +72,9 @@ func _ready() -> void:
 	add_child(car)
 	car.set_physics_process(false)    # stepped by the race (_physics_process); after add_child,
 	                                  # which turns it back on
-	car.add_child(TmCarVisual.new())
+	var look := TmCarVisual.new()
+	look.paint_colour = TmUi.car_colour()
+	car.add_child(look)
 	input = TmCarInput.new()
 	input.car = car
 	add_child(input)
@@ -96,6 +99,12 @@ func _ready() -> void:
 	audio.car = car
 	audio.race = race
 	add_child(audio)
+	if Online.is_online():
+		menu.online = true
+		menu.has_next = false
+		online = TmRaceOnline.new()
+		online.scene = self
+		add_child(online)
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
 	# the map's collision is in the physics space from the next physics frame
@@ -156,6 +165,8 @@ func _on_finished(time_ms: int) -> void:
 	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
 	hud.show_finish(time_ms, best, new_record)
 	audio.cue("record" if new_record else "finish")
+	if online:
+		online.on_finish(time_ms)
 	if new_record:
 		best = TmRecords.best(challenge)
 		best_ghost = run if TmUi.setting("ghost") else null
@@ -189,12 +200,30 @@ func _campaign_place() -> void:
 		next_id = all[i + 1]
 
 
+## Races another track: reloads this scene (in tests, where the race isn't the current scene,
+## only notes it in pending_track).
+var pending_track := ""
+
+
+func load_track(track: String) -> void:
+	TestHooks.args["track"] = track
+	TestHooks.args.erase("map")
+	pending_track = track
+	if get_tree().current_scene == self:
+		get_tree().reload_current_scene()
+
+
 func _next_track() -> void:
 	TestHooks.args["track"] = next_id
 	get_tree().reload_current_scene()
 
 
 func _to_menu() -> void:
+	if Online.is_online() or online:
+		Online.leave()
+		TestHooks.args["page"] = "online"
+		get_tree().change_scene_to_file("res://ui/menu.tscn")
+		return
 	TestHooks.args["page"] = "campaign" if not track_id.is_empty() else "main"
 	if not track_id.is_empty():
 		TestHooks.args["track"] = track_id

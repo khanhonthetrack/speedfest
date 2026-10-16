@@ -11,7 +11,8 @@
 //                   {t:'players', players}  {t:'states', s:{id:[px,py,pz,qx,qy,qz,qw,v,s]}}
 //                   {t:'results', ranking}  {t:'chat', from, text}  {t:'error', msg}
 //
-// Env: PORT (8090), ROUND_MS (300000), RESULTS_MS (15000), NAME ("SpeedFest Stadium"), MAX_PLAYERS (32).
+// Env: PORT (8090), ROUND_MS (300000), RESULTS_MS (15000), NAME ("SpeedFest Stadium"), MAX_PLAYERS (32);
+// or arguments --port= --round-ms= --results-ms= --name= --max-players= (the game's tests use them).
 
 const http = require('http');
 const { WebSocketServer } = require('ws');
@@ -154,8 +155,10 @@ function createServer(opts = {}) {
 }
 
 if (require.main === module) {
-  const port = Number(process.env.PORT || 8090);
-  const srv = createServer();
+  const args = Object.fromEntries(process.argv.slice(2).filter((a) => a.startsWith('--') && a.includes('='))
+    .map((a) => [a.slice(2, a.indexOf('=')), a.slice(a.indexOf('=') + 1)]));
+  const port = Number(args.port || process.env.PORT || 8090);
+  const srv = createServer({ roundMs: args['round-ms'], resultsMs: args['results-ms'], name: args.name, maxPlayers: args['max-players'] });
   srv.listen(port, () => console.log(`SpeedFest Stadium server on http://localhost:${port} (WebSocket /ws), round ${srv.rounds.track}`));
 }
 

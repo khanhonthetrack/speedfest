@@ -5,7 +5,9 @@ extends Node3D
 ## track file, options, quit), the campaign (the five series as tabs, each track with your best
 ## time and medal, the selected track's details and Race), options, and what to do when TMNF
 ## isn't installed. Race starts race/race.tscn with the track in TestHooks' args.
-## Args: --page=main|campaign|options|notmnf, --track=B05 (selected), --menu_dry (tests: Race
+## Online: the server list (the official server, published in the repo, or any address),
+## your name and car colour; Connect joins the server's round (race in online mode).
+## Args: --page=main|campaign|online|options|notmnf, --track=B05 (selected), --menu_dry (tests: Race
 ## only records the choice).
 
 signal raced(track: String, map: String)
@@ -56,7 +58,9 @@ func _scene() -> void:
 	holder.position = CENTRE + Vector3(0.0, 0.441, 0.0)
 	holder.rotation.y = 0.5
 	add_child(holder)
-	holder.add_child(TmCarVisual.new())
+	var look := TmCarVisual.new()
+	look.paint_colour = TmUi.car_colour()
+	holder.add_child(look)
 	_cam = Camera3D.new()
 	_cam.fov = 50
 	add_child(_cam)
@@ -140,6 +144,8 @@ func show_page(name: String) -> void:
 			_page_campaign() if not tracks.is_empty() else _page_notmnf()
 		"options":
 			_page_options()
+		"online":
+			_page_online()
 		"notmnf":
 			_page_notmnf()
 		_:
@@ -160,6 +166,7 @@ func _page_main() -> void:
 	var col := _column(root, 220)
 	var play := TmUi.button("PLAY", func() -> void: show_page("campaign"))
 	col.add_child(play)
+	col.add_child(TmUi.button("ONLINE", func() -> void: show_page("online")))
 	col.add_child(TmUi.button("OPEN A TRACK FILE", _open_file))
 	col.add_child(TmUi.button("OPTIONS", func() -> void: show_page("options")))
 	col.add_child(TmUi.button("QUIT", func() -> void: get_tree().quit()))
@@ -314,6 +321,132 @@ func _page_options() -> void:
 	var back := TmUi.button("BACK", func() -> void: show_page("main"), 200)
 	col.add_child(back)
 	(col.get_child(0) as Control).grab_focus.call_deferred()
+
+
+var _online_status: Label
+var _official_label: Label
+var _official_url := ""
+
+
+func _page_online() -> void:
+	var root := _root("ONLINE")
+	var col := _column(root, 190)
+	col.add_child(TmUi.label("YOUR NAME", 18, TmUi.DIM, TmUi.BOLD, 2))
+	var name_edit := LineEdit.new()
+	name_edit.text = String(TmUi.setting("name"))
+	name_edit.max_length = 16
+	name_edit.custom_minimum_size = Vector2(420, 46)
+	name_edit.text_changed.connect(func(t: String) -> void: TmUi.set_setting("name", t.strip_edges()))
+	col.add_child(name_edit)
+	col.add_child(TmUi.label("CAR COLOUR", 18, TmUi.DIM, TmUi.BOLD, 2))
+	var swatches := HBoxContainer.new()
+	swatches.add_theme_constant_override("separation", 8)
+	col.add_child(swatches)
+	for i in TmUi.CAR_COLOURS.size():
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(44, 44)
+		var st := StyleBoxFlat.new()
+		st.bg_color = TmUi.CAR_COLOURS[i]
+		st.set_corner_radius_all(22)
+		st.set_border_width_all(4 if i == int(TmUi.setting("colour")) else 0)
+		st.border_color = Color.WHITE
+		b.add_theme_stylebox_override("normal", st)
+		b.add_theme_stylebox_override("hover", st)
+		b.pressed.connect(func() -> void:
+			TmUi.set_setting("colour", i)
+			show_page("online"))
+		swatches.add_child(b)
+	col.add_child(HSeparator.new())
+	var official := TmUi.button("JOIN THE OFFICIAL SERVER", func() -> void:
+		if not _official_url.is_empty():
+			_connect(_official_url), 520)
+	col.add_child(official)
+	_official_label = TmUi.label("Looking for the official server...", 20, TmUi.DIM, TmUi.BOLD)
+	col.add_child(_official_label)
+	col.add_child(TmUi.label("OR A SERVER'S ADDRESS", 18, TmUi.DIM, TmUi.BOLD, 2))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	col.add_child(row)
+	var addr := LineEdit.new()
+	addr.text = String(TmUi.setting("server"))
+	addr.placeholder_text = "e.g. 192.168.1.20:8090 or https://name.trycloudflare.com"
+	addr.custom_minimum_size = Vector2(520, 46)
+	row.add_child(addr)
+	row.add_child(TmUi.button("CONNECT", func() -> void:
+		TmUi.set_setting("server", addr.text.strip_edges())
+		_connect(addr.text.strip_edges()), 180))
+	_online_status = TmUi.label("", 22, TmUi.ACCENT, TmUi.BOLD)
+	col.add_child(_online_status)
+	col.add_child(TmUi.button("BACK", func() -> void:
+		Online.leave()
+		show_page("main"), 200))
+	official.grab_focus.call_deferred()
+	_find_official()
+
+
+## The official server's address (published in the repo) and its status line.
+func _find_official() -> void:
+	var req := HTTPRequest.new()
+	add_child(req)
+	req.timeout = 8.0
+	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+		req.queue_free()
+		var d: Variant = JSON.parse_string(body.get_string_from_utf8()) if result == HTTPRequest.RESULT_SUCCESS and code == 200 else null
+		if not (d is Dictionary) or String(d.get("url", "")).is_empty():
+			if is_instance_valid(_official_label):
+				_official_label.text = "The official server is offline right now (type an address below)"
+			return
+		_official_url = String(d["url"])
+		_server_status(_official_url))
+	req.request(Online.OFFICIAL_LIST)
+
+
+func _server_status(address: String) -> void:
+	var req := HTTPRequest.new()
+	add_child(req)
+	req.timeout = 8.0
+	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+		req.queue_free()
+		if not is_instance_valid(_official_label):
+			return
+		var d: Variant = JSON.parse_string(body.get_string_from_utf8()) if result == HTTPRequest.RESULT_SUCCESS and code == 200 else null
+		if not (d is Dictionary):
+			_official_label.text = "The official server isn't answering"
+			return
+		var r: Dictionary = d.get("round", {})
+		var left := maxi(0, int(float(r.get("end", 0)) - float(d.get("now", 0))))
+		var trk := String(r.get("track", ""))
+		var trk_name := trk
+		if not tmnf.is_empty() and not trk.is_empty():
+			trk_name = "%s  %s" % [trk, header(trk).name]
+		_official_label.text = "%s   ·   %s   ·   %d/%d players   ·   %d:%02d left" % [String(d.get("name", "")), trk_name,
+			int(d.get("players", 0)), int(d.get("maxPlayers", 0)), left / 60000, (left / 1000) % 60])
+	req.request(Online.status_url(address))
+
+
+func _connect(address: String) -> void:
+	if address.is_empty():
+		return
+	if tmnf.is_empty():
+		_online_status.text = "Online races use the campaign tracks: install TMNF first (see Play)"
+		return
+	_online_status.text = "Connecting to %s ..." % address
+	for c in Online.connected.get_connections():
+		Online.connected.disconnect(c["callable"])
+	for c in Online.disconnected.get_connections():
+		if c["callable"].get_object() == self:
+			Online.disconnected.disconnect(c["callable"])
+	Online.connected.connect(_joined, CONNECT_ONE_SHOT)
+	Online.disconnected.connect(func(reason: String) -> void:
+		if is_instance_valid(_online_status):
+			_online_status.text = "Couldn't join: %s" % reason, CONNECT_ONE_SHOT)
+	var who := String(TmUi.setting("name")).strip_edges()
+	Online.join(address, who if not who.is_empty() else "Player", TmUi.car_colour())
+
+
+## In the server: race its round's track.
+func _joined() -> void:
+	race(String(Online.round.get("track", "A01")))
 
 
 func _page_notmnf() -> void:

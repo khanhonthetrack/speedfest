@@ -12,7 +12,7 @@ func _ready() -> void:
 	add_child(menu)
 	await get_tree().process_frame
 	var buttons := _buttons(menu)
-	TestHooks.check(buttons.size() == 4 and buttons[0].text == "PLAY", "menu_main_page", str(buttons.map(func(b: Button) -> String: return b.text)))
+	TestHooks.check(buttons.size() == 5 and buttons[0].text == "PLAY" and buttons[1].text == "ONLINE", "menu_main_page", str(buttons.map(func(b: Button) -> String: return b.text)))
 	if menu.tracks.is_empty():
 		menu.show_page("campaign")
 		await get_tree().process_frame
