@@ -26,7 +26,7 @@ for f in files:
     if os.path.exists(out): ok += 1; continue
     r = subprocess.run(['python3', '-I', T + 'pak_generic.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', 'Stadium', f['name'], out], capture_output=True, text=True)
     if not os.path.exists(out):
-        r = subprocess.run(['timeout', '1800', 'python3', '-I', T + 'pak_search.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', 'Stadium', f['name'], out], capture_output=True, text=True)
+        r = subprocess.run(['timeout', '60', 'python3', '-I', T + 'pak_search.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', 'Stadium', f['name'], out], capture_output=True, text=True)
     if os.path.exists(out): ok += 1
     else: bad += 1; print('FAIL', nice, r.stdout.strip()[-120:], flush=True)
 print('ok', ok, 'failed', bad)

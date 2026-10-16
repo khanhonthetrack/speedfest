@@ -28,13 +28,48 @@ def ancestors(c):
     out.append(0x01001000)
     return out
 
+def body_start(out, ref_pos):
+    """Position of the GBX body (after the reference table that starts at ref_pos with the node
+    count), or None while the table isn't fully decompressed yet."""
+    try:
+        p = ref_pos + 4
+        ne = struct.unpack_from('<I', out, p)[0]; p += 4
+        if ne == 0:
+            return p
+        p += 4                       # ancestor level
+        def folders(p):
+            n = struct.unpack_from('<I', out, p)[0]; p += 4
+            for _ in range(n):
+                l = struct.unpack_from('<I', out, p)[0]; p += 4 + l
+                p = folders(p)
+            return p
+        p = folders(p)
+        for _ in range(ne):
+            flags = struct.unpack_from('<I', out, p)[0]; p += 4
+            if flags & 4:
+                p += 4
+            else:
+                p += 4 + struct.unpack_from('<I', out, p)[0]
+            p += 8                   # node index, use file
+            if not flags & 4:
+                p += 4               # folder index
+        return p if p <= len(out) else None
+    except struct.error:
+        return None
+
 class Scanner:
     """Finds the IV re-key events in decompressed GBX bytes: node reads (indexed or inline: class id
     followed by a chunk of its class family), tuning names and CPlugSurfaceGeom boxes."""
     def __init__(self, nnodes, root_cls, body):
         self.nnodes = nnodes; self.root = (root_cls, body); self.nodes = {}; self.done = 0
+        self.ref_pos = body - 8; self.body = None   # the body starts after the reference table
         self.extra = {}; self.names = []; self.xdone = 0; self.xpend = None
     def scan(self, out):
+        if self.body is None:
+            self.body = body_start(out, self.ref_pos)
+            if self.body is None:
+                return []            # no node is read before the body
+            self.root = (self.root[0], self.body)
         start = max(0, self.done - 128)
         self.nodes = {q: c for q, c in self.nodes.items() if q < start + 4}
         n = len(out)

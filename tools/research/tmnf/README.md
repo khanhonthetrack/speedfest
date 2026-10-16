@@ -51,3 +51,7 @@ originals on a local install (numbers only, nothing from the game is committed):
    0x0900F004, GmSurf mesh: vertices + cooked triangles, material names from the reference table)
    in block space: the surface's tree location (the first 0x0904F01A after it) composed with the
    root tree's (the last one in the file). `surfmesh.py FILE --tris` prints one mesh.
+   Also: the root node's re-key happens at the body start, after the reference table (a large
+   table pushed it into another 256-byte refill: the Fabric solids failed); `body_start()` parses
+   the table. The backtracking search (`pak_search.py`) is a last resort: on small files Adler-32
+   can accept a wrong path, so check its outputs by parsing them.
