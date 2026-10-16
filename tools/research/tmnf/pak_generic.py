@@ -15,62 +15,61 @@ def ancestors(c):
     return out
 
 class Scanner:
-    def __init__(self, nnodes, root_cls, body): self.nnodes = nnodes; self.seen = {}; self.names = []; self.root = (root_cls, body)
+    """Finds the IV re-key events in decompressed GBX bytes: node reads (indexed or inline: class id
+    followed by a chunk of its class family), tuning names and CPlugSurfaceGeom boxes."""
+    def __init__(self, nnodes, root_cls, body):
+        self.nnodes = nnodes; self.root = (root_cls, body); self.nodes = {}; self.done = 0
     def scan(self, out):
-        # incremental: rescan only the tail (patterns need <= ~64 bytes of context)
-        start = max(0, getattr(self, 'done', 0) - 128)
-        old = getattr(self, 'calls', {})
-        for c in self._scan(out, start):
-            old.setdefault(c[0], c)
-        self.calls = old; self.done = len(out)
-        return sorted(old.values(), key=lambda c: c[0])
-    def _scan(self, out, start):
-        calls = []
-        if self.root[1] <= len(out) and self.root[0] in CM:
-            calls.append((self.root[1], struct.pack('<I', CM[self.root[0]][1])))
-        for p in range(max(4, start), len(out) - 3):
+        start = max(0, self.done - 128)
+        self.nodes = {q: c for q, c in self.nodes.items() if q < start + 4}
+        n = len(out)
+        for p in range(max(4, start), n - 3):
             cid = struct.unpack_from('<I', out, p)[0]
             if cid not in CM or (cid & 0xFFF): continue
-            idx = struct.unpack_from('<I', out, p - 4)[0]
-            if not (0 < idx <= self.nnodes): continue
-            if p + 8 <= len(out):
+            if p + 8 <= n:
                 ch = struct.unpack_from('<I', out, p + 4)[0]
                 if (ch & 0xFFFFF000) not in ancestors(cid) and ch != 0xFACADE01: continue
-            if idx in self.seen and self.seen[idx] != p: continue
-            self.seen[idx] = p
-            calls.append((p + 4, struct.pack('<I', CM[cid][1])))
+            else:  # chunk id not decompressed yet: accept only an indexed ref, re-verified next scan
+                if p + 4 > n: continue
+                idx = struct.unpack_from('<I', out, p - 4)[0]
+                if not (0 < idx <= self.nnodes): continue
+            self.nodes[p + 4] = struct.pack('<I', CM[cid][1])
+        self.done = n
+        calls = dict(self.nodes)
+        if self.root[1] <= n and self.root[0] in CM:
+            calls[self.root[1]] = struct.pack('<I', CM[self.root[0]][1])
+        names = []
         # CSceneVehicleTuning chunk 0x0A02E000: name id, curve node, float, then name[0:4]
-        for m in re.compile(rb'\x00\xe0\x02\x0a').finditer(out):
+        for m in re.finditer(rb'\x00\xe0\x02\x0a', out):
             q = m.end()
-            if q + 8 > len(out): break
+            if q + 8 > n: break
             v = struct.unpack_from('<I', out, q)[0]
             if v == 3: q += 4; v = struct.unpack_from('<I', out, q)[0]
             q += 4
             if v == 0x40000000:
-                n = struct.unpack_from('<I', out, q)[0]; q += 4
-                if q + n > len(out): break
-                name = out[q:q + n]; q += n
-                if name not in self.names: self.names.append(name)
-            elif v & 0x40000000 and 0 < (v & 0xFFFFFF) <= len(self.names):
-                name = self.names[(v & 0xFFFFFF) - 1]
+                k = struct.unpack_from('<I', out, q)[0]; q += 4
+                if q + k > n: break
+                name = out[q:q + k]; q += k
+                if name not in names: names.append(name)
+            elif v & 0x40000000 and 0 < (v & 0xFFFFFF) <= len(names):
+                name = names[(v & 0xFFFFFF) - 1]
             else: continue
             e = out.find(b'\x01\xde\xca\xfa', q)
-            if e < 0 or e + 8 > len(out): break
-            calls.append((e + 8, name[:4]))
+            if e < 0 or e + 8 > n: break
+            calls[e + 8] = name[:4]
         # CPlugSurfaceGeom chunk 0x0900F004: id, box(6 floats), then (X - X2) float bytes
-        for m in re.compile(rb'\x04\xf0\x00\x09').finditer(out):
+        for m in re.finditer(rb'\x04\xf0\x00\x09', out):
             q = m.end()
-            if q + 8 > len(out): break
+            if q + 8 > n: break
             v = struct.unpack_from('<I', out, q)[0]
             if v in (2, 3): q += 4; v = struct.unpack_from('<I', out, q)[0]
             q += 4
             if v == 0x40000000:
-                n = struct.unpack_from('<I', out, q)[0]; q += 4 + n
-            if q + 24 > len(out): break
+                q += 4 + struct.unpack_from('<I', out, q)[0]
+            if q + 24 > n: break
             x, y, z, x2, y2, z2 = struct.unpack_from('<6f', out, q)
-            calls.append((q + 24, struct.pack('<f', x - x2)))
-        calls.sort(key=lambda c: c[0])
-        return calls
+            calls[q + 24] = struct.pack('<f', x - x2)
+        return sorted(calls.items())
 
 def run(packs, pak, want, nout=1024, inblk=256):
     d, key, hdr, folders, files = nadeopak.open_pak(packs, pak)
