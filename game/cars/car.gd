@@ -14,6 +14,13 @@ extends RigidBody3D
 
 signal landed(impact_speed: float)       # vertical speed (m/s) when touching down after > 0.25 s air
 signal wall_hit(strength: float)         # speed (m/s) lost into a wall contact (>= 2 m/s)
+signal effect_started(kind: String)      # a special pad took effect (apply_effect)
+
+## Special pads (M7, TM2020 blocks). Default durations (s); engine_off lasts until a reset pad, a
+## respawn/restart or the finish. Reactor: thrust up + forward and air steering while it lasts.
+const EFFECT_DUR := {"engine_off": 999.0, "no_steer": 3.0, "cruise": 4.0, "reactor": 4.0}
+const REACTOR_LIFT := 0.55               # x gravity, upward, while airborne
+const REACTOR_PUSH := 7.0                # m/s^2 forward
 
 const SHIFT_TIME := 0.09
 const SHIFT_CUT := 0.35                  # torque fraction during a shift
@@ -164,6 +171,8 @@ var _water := PackedFloat32Array([0, 0, 0, 0])
 var _ground := PackedInt32Array([0, 0, 0, 0])      # TrackSurface kind under each wheel (0 asphalt)
 var _loose_grip := 0.0                               # params "loose_grip": rally tires on grass/gravel/sand
 var _water_avg := 0.0
+var _fx := {"engine_off": 0.0, "no_steer": 0.0, "cruise": 0.0, "reactor": 0.0}   # time left per effect
+var _cruise_speed := 0.0
 
 
 func _init() -> void:
@@ -356,6 +365,25 @@ func teleport(xform: Transform3D, p_linear_velocity: Vector3 = Vector3.ZERO) -> 
 		reset_physics_interpolation()
 
 
+## Special pad effect (track.gd effect pads). dur < 0 = the default for that effect.
+func apply_effect(kind: String, dur := -1.0) -> void:
+	if kind == "reset":
+		for k in _fx:
+			_fx[k] = 0.0
+		effect_started.emit("reset")
+		return
+	if not _fx.has(kind):
+		return
+	_fx[kind] = dur if dur > 0.0 else float(EFFECT_DUR[kind])
+	if kind == "cruise":
+		_cruise_speed = maxf(_fwd_speed, 0.0)
+	effect_started.emit(kind)
+
+
+func get_effect_time(kind: String) -> float:
+	return float(_fx.get(kind, 0.0))
+
+
 func refill_nitro() -> void:
 	_nitro = 1.0
 
@@ -456,6 +484,8 @@ func _reset_dynamics(v: Vector3) -> void:
 	_drift_dir = 0.0
 	_wall_timer = 0.0
 	_wall_align_t = 0.0
+	for k in _fx:
+		_fx[k] = 0.0
 	_takeoff_up_y = 1.0
 	_prev_slip = 0.0
 	_prev_slip_ok = false
@@ -515,6 +545,19 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		steer_in = 0.0
 		handbrake = false
 		want_nitro = false
+	# special pads
+	for k in _fx:
+		if float(_fx[k]) > 0.0:
+			_fx[k] = maxf(float(_fx[k]) - state.step, 0.0)
+	if float(_fx["engine_off"]) > 0.0:
+		throttle = 0.0
+		want_nitro = false
+	if float(_fx["no_steer"]) > 0.0:
+		steer_in = 0.0
+	var cruising := float(_fx["cruise"]) > 0.0
+	if cruising:
+		throttle = 0.0
+		brake = 0.0
 
 	# --- suspension rays ---
 	var space := state.get_space_state()
@@ -742,10 +785,11 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			sdrag += surface.drag_for_water(water)
 			if not surface.patches.is_empty():
 				_ground[i] = surface.kind_at(_hit_pos[i])
-				wg *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, _loose_grip)
+				var lg := _loose_grip if TrackSurface.KIND_LOOSE[_ground[i]] else 0.0
+				wg *= lerpf(TrackSurface.KIND_GRIP[_ground[i]], 1.0, lg)
 				if _ground[i] > 0:
 					var fade := clampf(v_abs / LOOSE_DRAG_FULL_SPEED, 0.15, 1.0)
-					sdrag += TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * _loose_grip) * fade
+					sdrag += TrackSurface.KIND_DRAG[_ground[i]] * (1.0 - 0.6 * lg) * fade
 		sgrip += wg
 	_water_avg = water_sum / 4.0
 	sgrip = sgrip / float(touching) if touching > 0 else 1.0
@@ -833,6 +877,16 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var df := float(params["downforce"]) * _fwd_speed * _fwd_speed * (float(_grounded) / 4.0)
 		state.apply_central_force(-up * df)
 
+	# --- special pads: cruise holds the speed it was hit at; the reactor lifts and pushes ---
+	if cruising and _grounded >= 2:
+		var fc := clampf((_cruise_speed - _fwd_speed) * m / 0.3, -m * 15.0, m * 15.0)
+		state.apply_central_force((fwd - _ground_n * fwd.dot(_ground_n)).normalized() * fc)
+	if float(_fx["reactor"]) > 0.0:
+		if _grounded == 0:
+			state.apply_central_force(Vector3.UP * m * CarPhysicsDefs.GRAVITY * REACTOR_LIFT + fwd * m * REACTOR_PUSH)
+		else:
+			state.apply_central_force((fwd - _ground_n * fwd.dot(_ground_n)).normalized() * m * REACTOR_PUSH)
+
 	# --- nitro & boost ---
 	_nitro_active = false
 	if want_nitro and _nitro > 0.0 and not _reversing:
@@ -888,12 +942,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 					state.apply_torque(fwd.cross(f_t) * AIR_PITCH_FOLLOW * inertia.x)
 		# punchier jump arcs, but only for jumps: at speed and off ordinary road (a car that lifts off
 		# a wall ride or loop for a moment must not be pulled off it harder; spawn drops stay plain)
-		if _air_time > 0.1 and _takeoff_up_y > 0.8 and speed > 15.0:
+		if _air_time > 0.1 and _takeoff_up_y > 0.8 and speed > 15.0 and float(_fx["reactor"]) <= 0.0:
 			state.apply_central_force(Vector3.DOWN * m * CarPhysicsDefs.GRAVITY * AIR_GRAVITY_EXTRA)
 		# light air steering: drive the yaw rate toward -steer * AIR_YAW_RATE (steer +1 = right =
 		# clockwise from above = negative yaw; also damps spins)
 		var yaw_rate := av.dot(up)
-		state.apply_torque(up * (-steer_in * AIR_YAW_RATE - yaw_rate) * AIR_STEER * inertia.y)
+		var air_yaw := AIR_YAW_RATE * (4.0 if float(_fx["reactor"]) > 0.0 else 1.0)   # reactor: steer in the air
+		state.apply_torque(up * (-steer_in * air_yaw - yaw_rate) * AIR_STEER * inertia.y)
 	else:
 		if was_grounded == 0 and _air_time > 0.25:
 			landed.emit(absf(_prev_vel.dot(_ground_n)))

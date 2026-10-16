@@ -947,7 +947,14 @@ func _build_room_view() -> Control:
 	for id in TrackDefs.IDS:
 		tnames.append(TrackDefs.short_name(id))   # one row of chips; the full name is in track_info
 	track_row = MenuKit.chip_row(tnames, _on_pick_track)
-	host_settings.add_child(track_row)
+	# 30+ tracks since M7-6: two rows visible, the rest scrolls (follows keyboard focus)
+	var track_scroll := ScrollContainer.new()
+	track_scroll.custom_minimum_size = Vector2(0, 96)
+	track_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	track_scroll.follow_focus = true
+	track_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	track_scroll.add_child(track_row)
+	host_settings.add_child(track_scroll)
 	host_settings.add_child(MenuKit.caption("Round length", UITheme.MAGENTA))
 	var dnames: Array = []
 	for d in TrackDefs.DURATIONS_S:

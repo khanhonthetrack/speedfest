@@ -17,6 +17,21 @@
   default on the RTX build; road markings under path tracing (UV2 -> vertex COLOR, RTX.md "Known
   issues"); fork export templates for an RTX zip for friends.
 
+## Latest (~14:45 UTC 16 Oct, session 8 auto-continue on the Pi): 24 new maps MERGED into `main`, deployed
+
+- **`main` now has all 34 maps** (`m7-maps` merged via branch `m7-maps-main`, no conflicts): the 24
+  M7-6 maps, dirt/ice/plastic surfaces, special pads (engine off, no steer, cruise, reactor, reset),
+  weather puddles. They were verified with the M7 car that `main` runs. Gate on the Pi: check_all
+  all OK except `test_build` timing out at 600 s on the Pi (alone: 56/56 in 10m47s); AutoDriver on
+  the 24 new maps 24/24, 0 respawns, 12.9-26.8 s. Web re-exported; the LIVE rotation has 34 tracks.
+- **Pi deployed** the new export (and before it be06471 / 91c01be). /health OK.
+- **Session 9 (`tmnf-physics`):** merge `main` to pick up bd65cbc (puddles); the branch's defs still
+  have no puddle markers, so test_weather `*_puddle_counts` fails there without it. The TMNF retune of
+  the maps stays the owner's call (M8-3).
+- **Session 10:** `main` changed under `m7-probes` (game/tracks/**, race.gd, car.gd effects, docs);
+  merge `main` before continuing.
+- Pi's remaining job: deploy whenever `main` gets a new `server/public` export.
+
 ## Latest (~14:00 UTC 16 Oct, session 10, cloud): look plan steps 1-7 MERGED into `main`
 
 - **`main` = `m7-look`** (CHECK_ALL PASS, web re-exported). Steps from

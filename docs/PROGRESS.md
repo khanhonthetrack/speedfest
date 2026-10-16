@@ -858,6 +858,26 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   (`server/public`), boots on WebGL2. `main` fast-forwarded to `m7-look`.
 - Known, not new: the web (compat) car reads dark at night; it predates the look work.
 
+## 2026-10-16 ~14:40 UTC — Session 8 auto-continue (Pi): deploy, then the 24 maps merged into `main`
+
+- **Deployed** `main` @ be06471 (export 91c01be, session 10's look plan 1-7): `docker restart
+  speedfest`, /health OK, the served `index.pck` md5 matches the repo.
+- **`m7-maps` merged into `main`** (branch `m7-maps-main`, merge bfa20aa, no conflicts). Session 10's
+  handoff left this to the owner / the Pi session; the TMNF port that was going to carry the maps
+  (`tmnf-physics`) now waits for the owner's approval, so the maps would have waited with it. The
+  maps were built and verified with the M7 car, which is what `main` runs.
+- Gate on the merged tree (Pi): `check_all.sh` all OK except `tests/visual/test_build`, which hit the
+  gate's 600 s timeout on the Pi's CPU; run alone it passes (56/56 in 10m47s). Highlights:
+  test_tracks 134/134, test_weather 193/193, physics/run_all OK, server 16/16, autodrive
+  arena/downtown/coast finish (0 respawns), net_smoke, live_smoke, online_round (6 finishes).
+- AutoDriver on the 24 new maps (kaze, real race scene): **24/24 finish, 0 respawns**, 12.9-26.8 s.
+- Web re-exported to `server/public`; browser check (headless Chromium, static sub-path, no
+  cross-origin isolation): boots, no 404s/script errors, AutoDriver finishes Skyline in 13.25 s.
+  `main` fast-forwarded, Pi redeployed: the LIVE rotation now
+  cycles all 34 tracks.
+- Note for session 9: `tmnf-physics` still lacks bd65cbc (puddles; its defs have 0 puddle markers vs
+  3 on `m7-maps`). Merging `main` into `tmnf-physics` now brings it in.
+
 ## 2026-10-16 ~13:30 UTC — Session 11 (owner's Windows PC, RTX 2060): real-GPU baseline
 
 - First run on a real GPU: RTX 2060 6 GB, driver 616.56, Ryzen 5 2600X, 2560x1440 @ 144 Hz.
