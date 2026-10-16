@@ -132,6 +132,20 @@ const TILT_TRANSITIONS := {
 	"Road/Tilt/Transition/2Left": [2, 1.0], "Road/Tilt/Transition/2Right": [2, -1.0],
 }
 
+## GT diagonals: S-curves moving the road sideways; footprint size -> [length along z, width along x,
+## the centre line's x at 17 evenly spaced z (measured)]. Mirror flips x; Slope rises 0.25 per metre
+## along z; Tilt lies in a tilted plane (shear, fitted per piece).
+const GT_DIAG := {
+	"2x2": [64.0, 64.0, [16.0, 16.2, 16.85, 18.0, 19.85, 22.35, 25.3, 28.6, 32.0, 35.4, 38.65, 41.65, 44.15,
+		45.95, 47.15, 47.8, 48.0]],
+	"3x2": [96.0, 64.0, [16.0, 16.25, 16.95, 18.4, 20.7, 23.8, 27.3, 31.15, 34.85, 38.2, 41.05, 43.4, 45.15,
+		46.5, 47.35, 47.85, 48.0]],
+	"4x3": [128.0, 96.0, [16.0, 16.95, 19.4, 23.25, 28.1, 33.7, 39.75, 46.1, 52.25, 58.25, 63.7, 68.5, 72.55,
+		75.8, 78.05, 79.4, 80.0]],
+}
+const GT_DIAG_TILT := {"2x2Tilt": [0.251, -0.03], "2x2TiltMirror": [-0.251, 16.032], "3x2Tilt": [0.251, -0.032],
+	"3x2TiltMirror": [-0.251, 16.03]}
+
 ## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
 const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
 
@@ -140,6 +154,8 @@ var _road_surf := S_ROAD
 
 
 func handles(shape: String) -> bool:
+	if shape == "Grass/Checkpoint/Ground":
+		return true
 	var base := _form(shape).trim_suffix("/")
 	if TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
 		return true
@@ -147,6 +163,8 @@ func handles(shape: String) -> bool:
 		return false
 	var rest := shape.trim_prefix("Road/Main/")
 	if rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
+		return true
+	if rest.begins_with("GTDiag/") and GT_DIAG.has(rest.trim_prefix("GTDiag/").substr(0, 3)):
 		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
 		or rest.begins_with("GTCurve/") or rest.begins_with("Turbo/Air") or rest.begins_with("Turbo/Ground") \
@@ -170,9 +188,15 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	_road_surf = S_ROAD
 	var form := _form(rest)
 	var base := _form(shape).trim_suffix("/")
-	if TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
+	if shape == "Grass/Checkpoint/Ground":
+		# the road's gate over the grass (the map lays the grass), 0.19 m lower (measured)
+		_gate(geo, 16.0)
+		geo.shear_y(0.0, 0.0, -0.19)
+	elif TILT_PLANES.has(base) or TILT_BANKED.has(base) or TILT_TRANSITIONS.has(base):
 		# tilted pieces: the air section also on the ground (the raised side stands on pillars)
 		_tilt(geo, base)
+	elif rest.begins_with("GTDiag/"):
+		_gt_diag(geo, _form(rest.trim_prefix("GTDiag/")), ground)
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
@@ -261,6 +285,34 @@ func _arc_road(geo: TmGeo, c: Vector2, r: float, a0: float, ground: bool, bank :
 		path.append(Vector3(c.x, rise, c.y) + d * r)
 		lat.append(d + Vector3.UP * bank)
 	_sweep(geo, path, lat, ground)
+
+
+## A GT diagonal, e.g. "2x2", "2x2Mirror", "3x2Slope", "2x2TiltMirror": the road swept along the
+## measured centre line (read smoothly), then mirrored, sloped or tilted.
+func _gt_diag(geo: TmGeo, form: String, ground: bool) -> void:
+	var d: Array = GT_DIAG[form.substr(0, 3)]
+	var length := float(d[0])
+	var width := float(d[1])
+	var xs: Array = d[2]
+	var mirror := form.contains("Mirror")
+	var path := []
+	var lat := []
+	var n := int(length / 2.0)
+	for i in n + 1:
+		var t := float(i) / n
+		var x := _ease(xs, t)
+		var dx := (_ease(xs, minf(1.0, t + 0.005)) - _ease(xs, maxf(0.0, t - 0.005))) / (length * (minf(1.0, t + 0.005) - maxf(0.0, t - 0.005)))
+		if mirror:
+			x = width - x
+			dx = -dx
+		path.append(Vector3(x, 0, length * t))
+		lat.append(Vector3(1, 0, -dx).normalized())
+	_sweep(geo, path, lat, ground and not form.contains("Tilt"))
+	if form.contains("Slope"):
+		geo.shear_y(0.0, 0.25, 0.0)
+	elif form.contains("Tilt"):
+		var k: Array = GT_DIAG_TILT.get(form, [0.0, 0.0])
+		geo.shear_y(float(k[0]), 0.0, float(k[1]))
 
 
 ## Tilted pieces: planar ones built flat then sheared, banked curves, and the transitions.
