@@ -515,3 +515,20 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, 16 Oct, session 9)
 
 > Continue working on the remake. For any progress, update the /stadium so that when you're stopped, another claude agent can carry on
+
+## Session 12 — 2026-10-16 (~17:30 UTC; owner's Windows PC, branch `stadium`)
+
+### User (verbatim)
+
+> Pull the newest versions.  Focus on the "stadium" branch. Continue with the remakre. Start with stadium/claude.md
+
+### Claude
+
+- Fetched and checked out `stadium` (origin @ eebbc27). The `m7-rtx` checkout had only
+  line-ending changes in `.import` files; they are stashed (`git stash list`), not lost.
+- This PC had no TMNF install. Asked how to get the data; the owner chose **"Download & unpack"**:
+  the official installer from Ubisoft's CDN (SHA-256 checked), innoextract 1.9 for Windows, a
+  Python venv with pycryptodome/py7zr, and the ModTMNF and GBX.NET clones, all in `C:\dev`
+  (outside the repo). The setup script now works in Git Bash.
+- Then continued the remake's to-do list: Circuit slope corners/GT curves/diagonals, Road/Main
+  Stretch, road and platform turbo variants (and the road turbo gate rebuilt from measurements).

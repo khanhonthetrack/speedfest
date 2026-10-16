@@ -93,6 +93,11 @@ const TOP_DIP_GT := [5.3, 10.4]
 const SLOPE_START := [[0, 8.0], [1.92, 8.0], [3.98, 8.0], [6, 8.09], [8, 8.27], [10, 8.52], [12, 8.85], [14, 9.27],
 	[16, 9.74], [18, 10.27], [20, 10.86], [22, 11.52], [24, 12.24], [26, 13.05], [28, 13.94], [30, 14.93], [32, 16.0]]
 const SLOPE_STRAIGHT := [[0, 8.0], [32, 24.0]]
+const SLOPE_K := 0.5
+## Turns on a slope: the flat piece's quarter turns (about the footprint's centre, +x toward +z)
+## per variant (measured: the curve's centre and arc in each piece).
+const SLOPE_TURNS_IN := {"RightBottom": 0, "LeftBottom": 1, "LeftTop": 2, "RightTop": 3}
+const SLOPE_TURNS_OUT := {"LeftBottom": 0, "LeftTop": 1, "RightTop": 2, "RightBottom": 3}
 const SLOPE_END := [[0, 8.0], [2.01, 8.99], [4, 9.92], [6, 10.78], [8, 11.56], [10, 12.28], [12, 12.93], [14, 13.52],
 	[16, 14.05], [18, 14.53], [20, 14.95], [22, 15.31], [24, 15.59], [26, 15.81], [28.02, 15.93], [30.08, 15.97], [32, 16.0]]
 
@@ -337,8 +342,10 @@ func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
 
 
 ## Slope blocks: Base (the road ramp) and the border walls along (Left/Right) or across
-## (Top/Bottom) the slope. kind: Start, Straight, End.
+## (Top/Bottom) the slope. kind: Start, Straight, End; Corner, GTCurve, Diag (turns on the slope).
 func _slope(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
+	if kind in ["Corner", "GTCurve", "Diag"]:
+		return _slope_turn(geo, kind, variant)
 	var prof: Array = SLOPE_START if kind == "Start" else (SLOPE_END if kind == "End" else SLOPE_STRAIGHT)
 	if kind not in ["Start", "Straight", "End"]:
 		return false
@@ -364,6 +371,36 @@ func _slope(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(32, 0, 0)], [Vector3(0, 0, 1), Vector3(0, 0, 1)])
 		return true
 	return false
+
+
+## Corners, GT curves and diagonals on a slope (e.g. "InAirLeftTop", "2outAirRightBottom"): the
+## flat border wall with its ledge, turned by quarter turns about the footprint's centre and sheared
+## up the slope (y += 0.5 z); the block then rests on the unit under its lowest point (measured:
+## the radial sections are the flat wall's at every angle, the variants are the four turns).
+func _slope_turn(geo: TmGeo, kind: String, variant: String) -> bool:
+	var v := variant
+	var k := 1
+	if kind == "GTCurve":
+		k = int(v.substr(0, 1))
+		v = v.substr(1)
+	var inner := v.to_lower().begins_with("in")
+	var turns: Dictionary = SLOPE_TURNS_IN if inner else SLOPE_TURNS_OUT
+	var at := ("Left" if v.contains("Left") else "Right") + ("Top" if v.ends_with("Top") else "Bottom")
+	var flat := ("In" if inner else "Out")
+	# the ledge stays inside the flat piece's own footprint cells
+	var flat_shape := "Circuit/Border/%s/%s%sAir" % [kind, str(k) if kind == "GTCurve" else "", flat]
+	_cells = []
+	for u in TmBlockCatalogue.shape_units(flat_shape):
+		if int(u[1]) == 0:
+			_cells.append(Vector2i(int(u[0]), int(u[2])))
+	if not _border(geo, kind, (str(k) if kind == "GTCurve" else "") + flat, 0.0):
+		return false
+	geo.turn_y(int(turns[at]), Vector2(16.0 * k, 16.0 * k))
+	geo.shear_y(0.0, SLOPE_K, 0.0)
+	var lo := geo.min_y()
+	if lo >= LEDGE_Y - 0.01:
+		geo.shear_y(0.0, 0.0, -LEDGE_Y * floorf((lo + 0.01) / LEDGE_Y))
+	return true
 
 
 ## A wall with its ledge swept along a (sloped) path. Ground variants keep the air heights, with

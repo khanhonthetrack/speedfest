@@ -109,8 +109,10 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [])
 ## = a revolve about that point) and y the height above the path point. Any loop orientation and path direction: both are fixed so faces point
 ## out. caps: close both ends with the section polygon (cap_mat, cap_surface). y_at: optional
 ## func(y: float, i: int) -> float, the section's heights at path point i (e.g. a lowered top).
+## p_at: optional func(p: Vector2, i: int) -> Vector2, the section's points (d, y) at path point i
+## (applied after y_at; e.g. curbs moved sideways).
 func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_mat := "wall_dark", cap_surface := 4,
-		y_at := Callable()) -> void:
+		y_at := Callable(), p_at := Callable()) -> void:
 	var loop := section.duplicate()
 	if TmGeo.loop_area(loop) < 0.0:
 		loop = TmGeo.reversed_loop(loop)
@@ -131,18 +133,41 @@ func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_m
 		var l: Vector3 = outs[i]
 		frames.append(Transform3D(Basis(l, Vector3.UP, l.cross(Vector3.UP)), pts[i]))
 		var li := loop
+		var src := (pts.size() - 1 - i) if reversed else i
 		if y_at.is_valid():
-			var src := (pts.size() - 1 - i) if reversed else i
-			li = loop.map(func(q: Array) -> Array: return [Vector2((q[0] as Vector2).x, y_at.call((q[0] as Vector2).y, src)), q[1], q[2]])
+			li = li.map(func(q: Array) -> Array: return [Vector2((q[0] as Vector2).x, y_at.call((q[0] as Vector2).y, src)), q[1], q[2]])
+		if p_at.is_valid():
+			li = li.map(func(q: Array) -> Array: return [p_at.call(q[0], src), q[1], q[2]])
 		var closed_i := li.duplicate()
 		closed_i.append(li[0])
 		loops.append(closed_i)
 	var closed := loop.duplicate()
 	closed.append(loop[0])
-	sweep(closed, frames, false, loops if y_at.is_valid() else [])
+	sweep(closed, frames, false, loops if y_at.is_valid() or p_at.is_valid() else [])
 	if caps:
 		_section_cap((loops[0] as Array).slice(0, loop.size()), frames[0], -1.0, cap_mat, cap_surface)
 		_section_cap((loops[loops.size() - 1] as Array).slice(0, loop.size()), frames[frames.size() - 1], 1.0, cap_mat, cap_surface)
+
+
+## A closed (z, radius) section [[z, r, mat, surface], ...] revolved about the axis through
+## centre (x, y) along z, from angle a0 to a1 (degrees, from +x toward +y); caps close both ends.
+func revolve_z(section: Array, centre: Vector2, a0: float, a1: float, steps: int, caps := true) -> void:
+	var loop := []
+	for q in section:
+		loop.append([Vector2(float(q[0]), float(q[1])), String(q[2]), int(q[3])])
+	if TmGeo.loop_area(loop) < 0.0:
+		loop = TmGeo.reversed_loop(loop)
+	var frames := []
+	for k in steps + 1:
+		var a := deg_to_rad(lerpf(a0, a1, float(k) / steps))
+		var up := Vector3(cos(a), sin(a), 0)
+		var fwd := Vector3(-sin(a), cos(a), 0)
+		frames.append(Transform3D(Basis(Vector3(0, 0, 1), up, fwd), Vector3(centre.x, centre.y, 0)))
+	sweep(loop + [loop[0]], frames)
+	if caps:
+		var mat: String = loop[0][1]
+		_section_cap(loop, frames[0], -1.0, mat, loop[0][2])
+		_section_cap(loop, frames[steps], 1.0, mat, loop[0][2])
 
 
 ## Polygon cap of a section at a frame, facing along +frame z (side > 0) or -z.
@@ -273,6 +298,41 @@ func shear_y(kx: float, kz: float, dy: float) -> void:
 	for k in _col.size():
 		var v := _col[k]
 		_col[k] = Vector3(v.x, v.y - kx * v.x + kz * v.z + dy, v.z)
+
+
+## Turns everything added so far by quarters x 90 deg about the vertical axis through (c.x, c.y)
+## (TMNF x, z), from +x toward +z. A rotation keeps the winding, so faces stay outward.
+func turn_y(quarters: int, c: Vector2) -> void:
+	var q := posmod(quarters, 4)
+	if q == 0:
+		return
+	var cs := [1.0, 0.0, -1.0, 0.0][q] as float
+	var sn := [0.0, 1.0, 0.0, -1.0][q] as float
+	# stored points are Godot's (x negated): TMNF x = -v.x
+	var rot := func(v: Vector3, pivot: bool) -> Vector3:
+		var x := -v.x - (c.x if pivot else 0.0)
+		var z := v.z - (c.y if pivot else 0.0)
+		var x2 := x * cs - z * sn + (c.x if pivot else 0.0)
+		var z2 := x * sn + z * cs + (c.y if pivot else 0.0)
+		return Vector3(-x2, v.y, z2)
+	for key in _vis:
+		var grp: Group = _vis[key]
+		for k in grp.v.size():
+			grp.v[k] = rot.call(grp.v[k], true)
+			grp.n[k] = rot.call(grp.n[k], false)
+	for k in _col.size():
+		_col[k] = rot.call(_col[k], true)
+
+
+## The lowest point (y, TMNF and Godot alike) of everything added so far; 0 when empty.
+func min_y() -> float:
+	var lo := INF
+	for key in _vis:
+		for v in (_vis[key] as Group).v:
+			lo = minf(lo, v.y)
+	for v in _col:
+		lo = minf(lo, v.y)
+	return 0.0 if lo == INF else lo
 
 
 ## Adds everything another builder holds (built separately, e.g. to be sheared on its own).

@@ -46,6 +46,12 @@ const HALF_TOP := [
 ]
 const ROAD_EDGE := 5.540        ## where the asphalt starts (x)
 const SHOULDER := 5.177         ## the grid shoulder's inner edge (x)
+const KEEL_HALF := 1.661        ## half the keel's flat bottom plate (16 - 14.339)
+## Stretch (Road/Main/Stretch): TMNF's sweep frames to the middle of the block (z, how far each
+## curb has moved in, m), mirrored for the second half (measured: the section only translates;
+## every shift is a multiple of 7.479 / 62).
+const STRETCH := [[0.0, 0.0], [0.5, 0.0], [1.156, 0.121], [2.125, 0.483], [3.562, 1.207], [5.625, 2.413],
+	[8.031, 3.86], [10.5, 5.308], [12.75, 6.514], [14.5, 7.238], [16.0, 7.479]]
 
 const ARMS := {
 	"Base": [], "Deadend": [0], "Corner": [0, 1], "Straight": [0, 2], "TShaped": [0, 2, 1], "Cross": [0, 1, 2, 3],
@@ -67,6 +73,16 @@ const TURBO_FRAME := [
 	[28.000, 3.810, "structure", 22], [28.688, 2.765, "structure", 4], [28.688, 1.000, "structure", 22],
 	[3.312, 1.000, "structure", 4], [3.312, 2.765, "structure", 22], [4.000, 3.810, "structure", 22]
 ]
+## Turbo booster pods (measured): the outline (z, radius) about the axis at y TURBO_POD_Y (x 2
+## and 30), closed on the axis; the fins over them (z, y), TURBO_FIN_HALF either side of the axis.
+const TURBO_POD_Y := 4.854
+const TURBO_POD := [[7.633, 0.0], [7.633, 1.53], [7.723, 1.78], [8.569, 1.946], [10.152, 1.97], [10.666, 1.72],
+	[14.21, 1.72], [14.299, 1.822], [14.403, 1.97], [17.446, 1.97], [17.656, 1.70], [17.656, 0.0]]
+## The tray over each pod: its line (z, y), TURBO_FIN_HALF either side of the pod's axis; the side
+## panels reach this far below and above it.
+const TURBO_FIN_HALF := 0.802
+const TURBO_TRAY := [Vector2(8.441, 7.01), Vector2(17.446, 7.01), Vector2(23.611, 2.972), Vector2(25.898, 2.972)]
+const TURBO_PANEL := [0.17, 0.916]
 ## Checkpoint / finish / multilap gate: the arch band (x, y), 4.2 m along z.
 const GATE_ARCH := [
 	[16.000, 8.806, "structure", 22], [14.407, 8.743, "structure", 22], [12.824, 8.552, "structure", 22],
@@ -184,8 +200,11 @@ func handles(shape: String) -> bool:
 		return true
 	if rest.begins_with("YShaped/") and Y_SHAPED.has(_form(rest.trim_prefix("YShaped/"))):
 		return true
+	if rest.begins_with("Stretch/") and _form(rest.trim_prefix("Stretch/")) in ["", "Slope", "Tilt"]:
+		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
-		or rest.begins_with("GTCurve/") or rest.begins_with("Turbo/Air") or rest.begins_with("Turbo/Ground") \
+		or rest.begins_with("GTCurve/") \
+		or (rest.begins_with("Turbo/") and _form(rest.get_slice("/", 1)) in ["", "Up", "Down", "Left", "Right"]) \
 		or rest.begins_with("FreeWheeling/") or rest.begins_with("Checkpoint/") or rest.begins_with("MultiLap/") \
 		or rest.begins_with("Finish/") or rest.begins_with("Start/")
 
@@ -219,6 +238,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_hole(geo, rest, ground)
 	elif rest.begins_with("YShaped/"):
 		_y_shaped(geo, _form(rest.trim_prefix("YShaped/")), ground)
+	elif rest.begins_with("Stretch/"):
+		_stretch(geo, _form(rest.trim_prefix("Stretch/")), ground)
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
@@ -233,8 +254,14 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif rest.begins_with("Turbo/") or rest.begins_with("FreeWheeling/"):
 		_road_mat = "turbo"
 		_road_surf = S_TURBO if rest.begins_with("Turbo/") else S_FREEWHEEL
-		_straight(geo, 0.0, 32.0, ground)
+		# Up/Down/Left/Right: the flat pad sheared like the checkpoint of that slope or tilt
+		# (measured: the pad's plane), the air section on the ground too
+		var dir := _form(rest.get_slice("/", 1))
+		_straight(geo, 0.0, 32.0, ground and dir.is_empty())
 		_turbo_gate(geo)
+		var t: Array = TILT_PLANES.get("Road/Main/Checkpoint" + dir, ["", 0.0, 0.0, 0.0])
+		geo.shear_y(float(t[1]), float(t[2]), float(t[3]))
+		_turbo_sides(geo, float(t[1]), float(t[2]), float(t[3]))
 	elif rest.begins_with("Checkpoint/") or rest.begins_with("MultiLap/"):
 		_straight(geo, 0.0, 32.0, ground)
 		_gate(geo, 16.0)
@@ -286,8 +313,36 @@ func _curb_section(ground: bool) -> Array:
 	return out
 
 
-func _sweep(geo: TmGeo, path: Array, lateral: Array, ground: bool, y_at := Callable()) -> void:
-	geo.wall_sweep(_section(ground), path, lateral, true, "metal", S_METAL, y_at)
+func _sweep(geo: TmGeo, path: Array, lateral: Array, ground: bool, y_at := Callable(), p_at := Callable()) -> void:
+	geo.wall_sweep(_section(ground), path, lateral, true, "metal", S_METAL, y_at, p_at)
+
+
+## Stretch: a straight whose curbs close in toward the middle and open out again, swept through
+## TMNF's frames (STRETCH: z, how far each curb has moved in); both halves of the section move
+## (the keel's bottom plate stays), slope and tilt variants sheared like the straight.
+func _stretch(geo: TmGeo, variant: String, ground: bool) -> void:
+	# the frames over the whole block: the table to the middle, then mirrored back out
+	var frames: Array = STRETCH.duplicate()
+	for i in range(STRETCH.size() - 2, -1, -1):
+		frames.append([32.0 - float(STRETCH[i][0]), STRETCH[i][1]])
+	var path := []
+	var lat := []
+	for f in frames:
+		path.append(Vector3(16, 0, float(f[0])))
+		lat.append(Vector3(1, 0, 0))
+	var p_at := func(p: Vector2, i: int) -> Vector2:
+		if p.y < 0.01 or absf(p.x) < 0.001:
+			return p       # the keel's bottom plate and the centre stay
+		var d := absf(p.x) - float(frames[i][1])
+		if p.y < 0.5:
+			d = maxf(d, KEEL_HALF)
+		return Vector2(signf(p.x) * d, p.y)
+	_sweep(geo, path, lat, ground and variant == "", Callable(), p_at)
+	if variant == "Slope":
+		geo.shear_y(0.0, 0.25, 0.0)
+	elif variant == "Tilt":
+		var t: Array = TILT_PLANES["Road/Tilt/Straight"]
+		geo.shear_y(float(t[1]), float(t[2]), float(t[3]))
 
 
 ## GT curves (and the 1x1 corner, k = 1): the section around the footprint's corner (0, 32k).
@@ -598,13 +653,47 @@ func _gate(geo: TmGeo, zc: float) -> void:
 			true, "screen", TmGeo.NO_COLLISION)
 
 
-## Turbo (and free-wheel) gate: the U-frame round the road and two booster pods along z.
+## Turbo (and free-wheel) gate: the U-frame round the road (sheared with it, see _turbo_sides).
 func _turbo_gate(geo: TmGeo) -> void:
 	var sec := TURBO_FRAME.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, 14.4), Vector3(0, 0, 17.45)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
 		true, "structure", 22)
-	for x in [2.0, 30.0]:
-		geo.pipe(Vector3(x, 4.85, 7.63), Vector3(x, 4.85, 14.4), 1.84, 16, "structure", 22)
+
+
+## The turbo gate's sides, over each curb: a booster pod (a collar round the fan, a slimmer body
+## through the frame, a cap behind it) and on it a grid tray between two thin translucent panels,
+## level over the pod and the frame, then down to the curb. On a road sheared by (kx, kz, dy) each
+## side keeps its shape: lifted with the road at its axis, sheared only along the slope, the tray's
+## level part never dipping toward the front (measured on the sloped and tilted pads).
+func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
+	var pod := TURBO_POD.map(func(q: Array) -> Array: return [q[0], q[1], "structure", 22])
+	for x: float in [2.0, 30.0]:
+		var side := TmGeo.new()
+		var lift := kx * x + dy
+		side.revolve_z(pod, Vector2(x, TURBO_POD_Y + lift), 0.0, 360.0, 36, false)
+		var tray := []
+		for q: Vector2 in TURBO_TRAY:
+			tray.append(Vector2(q.x, q.y + lift))
+		tray[0].y += maxf(0.0, kz * (tray[1].x - tray[0].x))
+		var x0 := x - TURBO_FIN_HALF
+		var x1 := x + TURBO_FIN_HALF
+		var lo: float = TURBO_PANEL[0]
+		var hi: float = TURBO_PANEL[1]
+		for i in tray.size() - 1:
+			var a: Vector2 = tray[i]
+			var b: Vector2 = tray[i + 1]
+			side.quad(Vector3(x0, a.y, a.x), Vector3(x0, b.y, b.x), Vector3(x1, b.y, b.x), Vector3(x1, a.y, a.x), "grid", S_METAL)
+			for px: float in [x0, x1]:
+				side.quad(Vector3(px, a.y - lo, a.x), Vector3(px, b.y - lo, b.x), Vector3(px, b.y + hi, b.x),
+					Vector3(px, a.y + hi, a.x), "glass", S_METAL)
+		var f: Vector2 = tray[0]
+		var e: Vector2 = tray[tray.size() - 1]
+		side.quad(Vector3(x0, f.y - lo, f.x), Vector3(x0, f.y + hi, f.x), Vector3(x1, f.y + hi, f.x),
+			Vector3(x1, f.y - lo, f.x), "glass", S_METAL)
+		side.quad(Vector3(x0, e.y - lo, e.x), Vector3(x0, e.y, e.x), Vector3(x1, e.y, e.x), Vector3(x1, e.y - lo, e.x),
+			"glass", S_METAL)
+		side.shear_y(0.0, kz, 0.0)
+		geo.merge(side)
 
 
 ## T and cross: a flat deck, curbs along the closed sides (full length), and the curb revolved

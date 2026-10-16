@@ -1,6 +1,22 @@
 # HANDOFF: start here
 
-## Latest (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED
+## Latest (~19:00 UTC 16 Oct, session 12, owner's Windows PC): remake continues on `stadium`
+
+- **The remake now builds, tests and measures on the owner's Windows PC** (Git Bash): Godot at
+  `C:\dev\godot-4.7.2` (`export PATH=/c/dev/bin:$PATH` for the `godot` wrapper), TMNF unpacked and
+  measured in `C:\dev\tmnf` (`--tmnf=C:/dev/tmnf/tmnf/app`, `--meas=C:/dev/tmnf/blocks/meas`;
+  `TMNF_DIR=C:/dev/tmnf/tmnf/app`), Python venv `C:\dev\pyenv`. Windows notes:
+  `tools/research/tmnf/README.md` ("On Windows") and `stadium/CLAUDE.md`. Nothing from `C:\dev` is
+  in the repo.
+- Done this session: Circuit slope turns (24 shapes: the flat walls turned and sheared), Road/Main
+  Stretch (4), road turbo gate rebuilt (91 -> 99.7%) plus its Up/Down/Left/Right variants, platform
+  turbo slopes. Coverage 97.2% (1183 placeholders). PROGRESS has the numbers.
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** Ramp (Air/Ground/LowAir), Zone
+  dirt/grass clips, Control/CameraLight, then decorations (Fabric, Sculpt, inflatable tubes,
+  airship).
+- The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).
+
+## Earlier (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED
 
 - **Another agent continuing the remake: start with `stadium/CLAUDE.md`** (read order, rules, setup,
   tests, the block-family workflow). The local TMNF data (install, measurements) is never in the repo;

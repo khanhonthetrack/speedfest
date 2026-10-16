@@ -44,6 +44,13 @@ blocks against measurements, and for the fidelity test.
 - `godot --headless --path stadium --import` (and again after adding a `class_name`).
 - `tools/research/tmnf/setup_measurements.sh /tmp/tmnf` (background it: it takes a while).
 
+## Windows (the owner's PC, Git Bash)
+Already set up there (session 12; outside the repo): Godot `C:\dev\godot-4.7.2` (run
+`export PATH=/c/dev/bin:$PATH` for the `godot` wrapper, or set `GODOT=`), TMNF and measurements in
+`C:\dev\tmnf`, Python venv `C:\dev\pyenv`. Use Windows-style paths in Godot args and
+`TMNF_DIR`: `--tmnf=C:/dev/tmnf/tmnf/app`, `--meas=C:/dev/tmnf/blocks/meas`. `run.sh` opens a real
+window (no Xvfb) for screenshots. To redo the data: `tools/research/tmnf/README.md` "On Windows".
+
 ## Tests (gate every commit on them)
     TMNF_DIR=/tmp/tmnf/tmnf/app stadium/tools/test_all.sh            # STADIUM_TESTS PASS
     stadium/tools/run.sh res://tests/test_race.tscn --headless --timeout 3000 -- \
@@ -60,16 +67,16 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-16 (session 9). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
-- Block library: campaign coverage 96.8% built or empty (41523 blocks, 1309 placeholders, 0 unknown).
-  Road/Main is complete; plain pieces score 97-100% in the fidelity test.
+- Block library: campaign coverage 97.2% built or empty (41523 blocks, 1183 placeholders, 0 unknown).
+  Road/Main is complete; plain pieces score 97-100% in the fidelity test. Done in session 12:
+  Circuit slope corners/GT curves/diagonals, Road/Main Stretch, road and platform turbo variants.
 - Next, in order (counts = campaign uses; `campaign_coverage` prints the live list):
-  1. Last drivable shapes: Circuit/Slope/GTCurve/2outAir{Left,Right}Top (11 each),
-     Circuit/Slope/Corner/InAirLeftTop (9), Zone/Dirt/DirtClip and Zone/Grass/Clip (11 each),
-     Road/Main/Stretch/Air (10) and SlopeAir (8), Road/Main/Turbo/UpAir (10), Ramp/Air (9),
-     Platform/Turbo/UpAir (8), Control/CameraLight (15).
+  1. Last drivable shapes: Zone/Dirt/DirtClip and Zone/Grass/Clip (11 each), Ramp/Air (9),
+     Ramp/Ground (6), Ramp/LowAir (4), Control/CameraLight (15), Loop/Left|RightAir (9),
+     Road/Tilt/Transition/2DiagLeftAir (5).
   2. Decorations: Fabric grandstands (~550: pillars, 1x1 straights/crosses, corners), Sculpt (~350:
      A/B/C rocks, bridges incl. A01's suspended pair, arch rings), Inflatable tube/advert T-pillars
      (~60), Other/Airship (12), dirt fences/signs/awnings.
@@ -79,7 +86,11 @@ Updated 2026-10-16 (session 9). Details: `docs/PROGRESS.md` (latest entries), `d
 - Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the
   vertex angles in the measurement before choosing a step); swept pieces leave three asphalt vertices
   per frame (`sweep_frames.py` reads the frames exactly); symmetric pieces are one half clipped
-  (`TmGeo.clip`) plus its mirror (`add_mirror_x`).
+  (`TmGeo.clip`) plus its mirror (`add_mirror_x`); sloped/tilted variants are usually the flat piece
+  sheared (fit the plane of one material with a few lines of numpy first), turned pieces the flat
+  one turned (`TmGeo.turn_y`; `radial_section.py --shear` checks it), but round parts (turbo pods)
+  stay round and move with the road; a fidelity "hole" exactly on a triangle edge (x.5 samples on
+  a diagonal) is a ray artifact, not missing geometry.
 
 ## How a block family gets recreated
 1. Pick by campaign use: `campaign_coverage` prints the MISSING shapes with their counts.

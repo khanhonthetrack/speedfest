@@ -908,3 +908,37 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   checkpoint is built: `test_race --tracks=all` (new: every campaign track found in the install)
   passes all 65 tracks, 421 checks, none taken by hand.
 - `stadium/CLAUDE.md` now has a "Where things stand" section: the live to-do list for the next agent.
+
+## 2026-10-16 — Session 12 (owner's Windows PC): Windows toolchain, slope turns, Stretch, turbo gates (branch `stadium`)
+
+- **Runs on the owner's Windows PC:** Godot 4.7.2 from `C:\dev\godot-4.7.2` (`/c/dev/bin/godot`
+  wrapper; `GODOT=` also works); `stadium/tools/run.sh` opens a real window where there is no
+  `xvfb-run`. `setup_measurements.sh` works in Git Bash: `PYTHON=<venv python>` (pycryptodome,
+  py7zr), `innoextract.exe` on PATH, `sfx7z.py` unpacks the installer's 7-Zip SFX without 7z;
+  `decrypt_all.py` uses `sys.executable` and a subprocess timeout (no `python3` / `timeout`
+  binaries), `campaign_blocks.py` takes track names with `os.path.basename`. Full run from scratch:
+  669 meshes (same as the cloud run), about 18 min. Baseline on Windows: STADIUM_TESTS PASS,
+  coverage identical (96.8%).
+- **Circuit slope turns** (Circuit/Slope/Corner, GTCurve/2, Diag; In/Out x Left/Right x
+  Top/Bottom, 24 shapes): `radial_section.py` (new) shows every radial section is the flat wall's
+  once y -= 0.5 z is taken off, so each piece is the flat border (wall + ledge) turned by quarter
+  turns about the footprint's centre (In: RightBottom 0, LeftBottom 1, LeftTop 2, RightTop 3; Out:
+  LeftBottom 0, LeftTop 1, RightTop 2, RightBottom 3), sheared y += 0.5 z, and dropped onto the unit
+  under its lowest point (the Out Bottom pieces sit 8 m lower). Fidelity equals the flat walls':
+  Out 99.3-99.7%, GT2 out 99.1-99.2%, GT2 In 98.1-98.2%, In corners 97.6-97.7%, In diagonals
+  97.3-97.6% (flat In corner 97.9%). New `TmGeo.turn_y`, `TmGeo.min_y`.
+- **Road/Main/Stretch** (Air, Ground, SlopeAir, TiltAir): a straight whose curbs close in to the
+  middle (7.479 m each side at z 16) and open out again; the section only translates, through
+  TMNF's 21 frames (`STRETCH`: every shift a multiple of 7.479 / 62). 99.4-99.8%. New `p_at` hook in
+  `TmGeo.wall_sweep` (per-frame section points).
+- **Turbo gates rebuilt from measurements:** the road turbo's sides are a booster pod (collar round
+  the fan r 1.95, body r 1.72 through the frame, cap behind it; revolved with the new
+  `TmGeo.revolve_z`, moved from platform.gd) and a grid tray between two thin translucent panels,
+  level over the pod and frame, then down to the curb. Flat turbo 91.1% -> 99.7%. Up/Down/Left/Right
+  (Air, Ground) = the pad sheared like the checkpoint of that slope/tilt, the sides kept rigid
+  (lifted with the road at their axis, only the slope shears them; on an up-slope the tray's level
+  part stays at its height over the frame): 98.5-99.5%. Platform/Turbo/Up/Down/Left/RightAir = the
+  flat platform turbo sheared like the platform checkpoints (94.5-97.4%; the flat one is 96.3%,
+  both miss some structure under the deck).
+- Numbers: STADIUM_TESTS PASS (with TMNF_DIR: gbx 8, race 37); campaign coverage 96.8% -> 97.2%
+  (placeholders 1309 -> 1183).

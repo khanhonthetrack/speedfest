@@ -103,7 +103,8 @@ const SLOPES := {
 	"BiSlope2EndAir": [0.0, 0.99, 1.919, 2.776, 3.561, 4.279, 4.932, 5.519, 6.049, 6.53, 6.953, 7.306, 7.591,
 		7.805, 7.931, 7.971, 8.0],
 }
-## Checkpoints on slopes and banks: the flat checkpoint sheared, (kx, kz, dy) of TmGeo.shear_y.
+## Checkpoints and turbo decks on slopes and banks: the flat piece sheared, (kx, kz, dy) of
+## TmGeo.shear_y (measured: the deck's top plane).
 const CHECKPOINT_SHEAR := {
 	"UpAir": [0.0, 0.5, 0.0], "DownAir": [0.0, -0.5, 16.0], "LeftAir": [-0.5, 0.0, 16.0], "RightAir": [0.5, 0.0, 0.0],
 }
@@ -131,6 +132,7 @@ const LOOP_OUT := 32.05
 func handles(shape: String) -> bool:
 	return shape.begins_with("Platform/Road/") or shape.begins_with("Platform/Wall/") \
 		or shape == "Platform/Turbo/Air" or shape == "Platform/Checkpoint/Air" \
+		or (shape.begins_with("Platform/Turbo/") and CHECKPOINT_SHEAR.has(shape.trim_prefix("Platform/Turbo/"))) \
 		or (shape.begins_with("Platform/Slope/") and SLOPES.has(shape.trim_prefix("Platform/Slope/"))) \
 		or (shape.begins_with("Platform/Checkpoint/") and CHECKPOINT_SHEAR.has(shape.trim_prefix("Platform/Checkpoint/"))) \
 		or shape == "Platform/Checkpoint/RingVAir" or shape.begins_with("Platform/ToRoad/") \
@@ -164,6 +166,9 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_curve_wall(geo, k, units)
 		"Turbo":
 			_turbo(geo)
+			if CHECKPOINT_SHEAR.has(parts[2]):
+				var k: Array = CHECKPOINT_SHEAR[parts[2]]
+				geo.shear_y(k[0], k[1], k[2])
 		"Checkpoint":
 			if parts[2] == "RingVAir":
 				_ring_v(geo)
@@ -341,22 +346,7 @@ func _slope(geo: TmGeo, h: Array) -> void:
 ## (degrees, from +x toward +y); caps close both ends.
 func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, caps := true,
 		centre := Vector2(16, 16)) -> void:
-	var loop := []
-	for q in section:
-		loop.append([Vector2(float(q[0]), float(q[1])), String(q[2]), int(q[3])])
-	if TmGeo.loop_area(loop) < 0.0:
-		loop = TmGeo.reversed_loop(loop)
-	var frames := []
-	for k in steps + 1:
-		var a := deg_to_rad(lerpf(a0, a1, float(k) / steps))
-		var up := Vector3(cos(a), sin(a), 0)
-		var fwd := Vector3(-sin(a), cos(a), 0)
-		frames.append(Transform3D(Basis(Vector3(0, 0, 1), up, fwd), Vector3(centre.x, centre.y, 0)))
-	geo.sweep(loop + [loop[0]], frames)
-	if caps:
-		var mat: String = loop[0][1]
-		geo._section_cap(loop, frames[0], -1.0, mat, loop[0][2])
-		geo._section_cap(loop, frames[steps], 1.0, mat, loop[0][2])
+	geo.revolve_z(section, centre, a0, a1, steps, caps)
 
 
 ## The vertical checkpoint ring (no deck: cars pass through it, usually in the air): four arcs, the
