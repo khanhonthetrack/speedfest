@@ -1,5 +1,17 @@
 # HANDOFF: start here
 
+## Latest (~12:30 UTC 16 Oct, session 9, cloud): TMNF handling on branch `tmnf-physics` (M8-3)
+
+- **Branch `tmnf-physics`** (pushed) = the Pi's finished `m7-maps` (34 tracks) + main + SpeedFest's
+  TMNF handling. SpeedFest's Car now runs TMNF's own integrator (`TmBody`, shared with the Stadium
+  remake; kinematic RigidBody3D, 2 ticks/frame). AutoDriver finishes all 34 tracks
+  (`tools/integration/autodrive_all.sh`). Details: PROGRESS 12:30 UTC entry.
+- **Not merged yet.** Remaining before merging into main: respawns on arena/blackout/sausage/
+  coastline, physics test targets (test_tm wall-ride/loop test roads; test_handling, test_stunts,
+  test_wallride, test_straight, test_tuning, ...), garage stats from the TMNF model, check_all,
+  online round, web export. `--handling=m7` runs the old car for comparison.
+- Shared TMNF core: edit `stadium/core/tm_*.gd`, then `tools/sync_tm_core.sh` (check: `--check`).
+
 ## Latest (~04:45 UTC 16 Oct, session 9, cloud): TMNF port + Stadium remake started (M8)
 
 - Owner said "Yes" to porting TMNF's model into SpeedFest and asked for a separate TMNF remake in

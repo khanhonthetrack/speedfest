@@ -732,3 +732,37 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   65/65 campaign tracks in 0.33 s, 41,523 blocks, 242 block types; A01-Race author 24.54 s,
   gold 25.87 s. Next: the block library (M8-5); the campaign's block-type list is the target.
 
+## 2026-10-16 ~12:30 UTC — Session 9: TMNF handling in SpeedFest (M8-3, branch `tmnf-physics`)
+
+- Branch `tmnf-physics` = `m7-maps` (the Pi's 24 new maps, 34 tracks, finished but not merged: the
+  Pi session stopped at 03:26 UTC) + `main` + the port. Merging it brings m7-maps along.
+- **Design (after trying a RigidBody with rays):** TMNF's contact behaviour (wheels bottomed above
+  3.2 g, rigid sub-stepped wheel impulses) can't be reproduced by a 60 Hz RigidBody with raycast
+  wheels: every contact layer tried (impulses, bump stop, hard stop, Jolt wheel shapes, road
+  alignment) broke loops, kickers or wall rides somewhere. So SpeedFest's Car now runs TMNF's own
+  integrator: `TmBody` (stadium/core/tm_body.gd, extracted from the remake's TmCar and shared,
+  copied to game/cars/tm by tools/sync_tm_core.sh) moves a kinematic RigidBody3D (still triggers
+  checkpoints/pads), 2 TMNF ticks of 8.3 ms per 60 Hz frame, with the car's own wheel positions and
+  radius and chassis ellipsoids scaled to its size (keeping TMNF's 9 cm ground clearance). Forces
+  are the Stadium car's times per-car multipliers (`Tuning` tm_accel/top/steer/grip/brake/slide).
+  `game/cars/tm/car_tm.gd` maps SpeedFest's controls, surfaces (TrackSurface kinds, puddles; SF
+  ice/plastic get their own values: TMNF's ice has no drive/grip), nitro, boost/special pads,
+  rails (TrackRail.grind_step takes a state-like object), gears/rpm (sound only), signals and HUD
+  state. `--handling=m7` brings back the M7 car.
+- **RE fix:** the "roll/pitch damping" (tuning 0x228-0x23c) is a load-transfer torque: per wheel on
+  the ground, 0.05 x (contact point x the car's previous total force), pitch and roll only (the force
+  is stored /5 and read back x-5). The misreading rolled the car in loops. Model, remake and report
+  updated. Also: constant drags never push past a standstill within a step (no chatter at rest);
+  per-car multipliers and host surface overrides added to TmCarModel.
+- **Double-sided road meshes** (the tracks' collision is double-sided for rays) can resolve a deep
+  contact out of the back face: TmBody turns contact normals to the car's side.
+- **AutoDriver (TMNF):** plans corner speeds from the steering's full-lock yaw rate
+  (CarTm.max_speed_for), steers as a yaw-rate command (pure pursuit and Stanley), no steering where
+  side grip is gone (walls > ~73 deg), plans braking at 16 m/s^2.
+- **Result: AutoDriver finishes 34/34 tracks** (tools/integration/autodrive_all.sh; respawns on
+  arena 3, blackout 1, sausage 1, coastline 1). TM lab (test_tm): accel 1.75/4.25 s, turn rates =
+  TMNF's, walls, landing, air, pads pass; its wall-ride/loop scenarios fail on the synthetic test
+  roads (their Bezier helix is not a true helix: ~12 deg of road twist); to fix next.
+- Next: respawns on the 4 tracks, the other physics suites' targets, garage stats, check_all,
+  online round, web export, then merge into main.
+
