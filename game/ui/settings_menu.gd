@@ -17,7 +17,8 @@ var quality_row: HFlowContainer
 var units_row: HFlowContainer
 var camera_row: HFlowContainer
 var scale_slider: HSlider
-var chip_rows: Dictionary = {}       # Settings key -> chip row (display / v-sync / fps / AA)
+var chip_rows: Dictionary = {}       # Settings key -> chip row (display / v-sync / fps / AA / RTX)
+var chip_offsets: Dictionary = {}    # Settings key -> value of the first chip (RTX bounces start at 1)
 var vol_sliders: Dictionary = {}
 var checks: Dictionary = {}
 var url_edit: LineEdit
@@ -62,7 +63,7 @@ func _load() -> void:
 	for k in checks:
 		(checks[k] as CheckButton).set_pressed_no_signal(bool(Settings.get(k)))
 	for k in chip_rows:
-		MenuKit.select_chip(chip_rows[k], int(Settings.get(k)))
+		MenuKit.select_chip(chip_rows[k], int(Settings.get(k)) - int(chip_offsets.get(k, 0)))
 	url_edit.text = Settings.server_url
 
 
@@ -123,6 +124,8 @@ func _build() -> void:
 	c1.add_child(sr["root"])
 	if not Settings.is_compat():
 		_chips(c1, "aa_mode", "Anti-aliasing", Settings.AA_NAMES)
+	if Settings.is_rtx_fork():
+		_rtx_block(c1)
 	_check(c1, "show_fps", "Show FPS counter")
 
 	# column 2: game + audio
@@ -221,11 +224,31 @@ func _column(parent: Container) -> VBoxContainer:
 	return v
 
 
-func _chips(parent: Container, key: String, title: String, names: Array) -> void:
+func _chips(parent: Container, key: String, title: String, names: Array, offset := 0) -> void:
 	parent.add_child(UITheme.label(title, "body_bold", 20, UITheme.TEXT))
-	var row := MenuKit.chip_row(names, func(i: int) -> void: _apply_setting(key, i))
+	var row := MenuKit.chip_row(names, func(i: int) -> void: _apply_setting(key, i + offset))
 	chip_rows[key] = row
+	chip_offsets[key] = offset
 	parent.add_child(row)
+
+
+## Only in the RTX build (NVIDIA's Godot fork): path tracing, DLSS, frame generation, Reflex,
+## each shown only when this PC supports it.
+func _rtx_block(parent: Container) -> void:
+	parent.add_child(MenuKit.spacer(0, 10))
+	parent.add_child(MenuKit.caption("NVIDIA RTX", UITheme.MAGENTA))
+	var st := UITheme.label(Settings.rtx_status(), "body", 16, UITheme.TEXT_DIM)
+	st.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	parent.add_child(st)
+	if Settings.can_path_trace() and (Settings.dlss_rr_available() or Settings.rtx_allow_noisy):
+		_check(parent, "rtx_path_tracing", "Path tracing (experimental)")
+		_chips(parent, "rtx_bounces", "Light bounces", ["1", "2", "3"], 1)
+	if Settings.dlss_available():
+		_chips(parent, "dlss_mode", "DLSS", Settings.DLSS_NAMES)
+		if Settings.frame_gen_available():
+			_check(parent, "dlss_frame_gen", "Frame generation (RTX 40+)")
+	if Settings.reflex_available():
+		_chips(parent, "reflex_mode", "NVIDIA Reflex", Settings.REFLEX_NAMES)
 
 
 func _check(parent: Container, key: String, text: String) -> void:
