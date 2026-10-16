@@ -1229,6 +1229,7 @@ static func _build_tunnel(root: Node3D, path: TrackPath, d0: float, d1: float, s
 			ol.light_color = Color(1.0, 0.65, 0.3)
 			ol.light_energy = 2.0
 			ol.omni_range = 16.0
+			ol.light_volumetric_fog_energy = 0.3
 			ol.position = path.sample_transform(d) * Vector3(0, 6.5, 0)
 			root.add_child(ol)
 

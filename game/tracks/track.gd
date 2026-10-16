@@ -236,6 +236,7 @@ func _make_gate(parent: Node3D, d: float, kind: String, with_area := true, cp_in
 		light.omni_range = 16.0
 		light.omni_attenuation = 1.4
 		light.shadow_enabled = false
+		light.light_volumetric_fog_energy = 0.4   # the gate fills the start view: no pink wash
 		light.position = Vector3(0, top - 1.2, 0)
 		root.add_child(light)
 	if not with_area:

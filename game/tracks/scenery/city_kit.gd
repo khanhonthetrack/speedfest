@@ -148,7 +148,7 @@ func _claim(cells: Array) -> void:
 func _add_building(c: Vector3, b: Basis, w: float, dpt: float, h: float, front: Vector3, near_road: bool) -> void:
 	var seed := rng.randf()
 	var style: float = [0.1, 0.1, 0.35, 0.7][rng.randi_range(0, 3)]
-	var lit := rng.randf_range(0.18, 0.5)
+	var lit := rng.randf_range(0.12, 0.4)
 	var tint := rng.randf_range(0.15, 0.85)
 	var cus := Color(seed, style, lit, tint)
 	var podium_h := h
@@ -639,6 +639,7 @@ func _real_lights() -> void:
 		sl.spot_attenuation = 0.8
 		sl.light_energy = 6.0
 		sl.light_color = Color(1.0, 0.65, 0.35)
+		sl.light_volumetric_fog_energy = 3.0   # lamp cones in the haze
 		sl.shadow_enabled = false
 		sl.distance_fade_enabled = true
 		sl.distance_fade_begin = 140.0
@@ -675,6 +676,7 @@ func _neon_lights(n: int) -> void:
 		ol.light_color = col.lightened(0.15)
 		ol.light_energy = 3.0
 		ol.light_specular = 0.8           # long neon streaks on the damp road
+		ol.light_volumetric_fog_energy = 2.0
 		ol.omni_range = clampf(10.0 + float(spot[2]) * 0.8, 12.0, 24.0)
 		ol.omni_attenuation = 1.4
 		ol.shadow_enabled = false

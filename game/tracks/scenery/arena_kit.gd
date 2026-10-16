@@ -433,6 +433,7 @@ func _real_lights() -> void:
 		ol.omni_range = 26.0
 		ol.light_energy = 3.0
 		ol.light_color = CYAN if made % 2 == 0 else MAGENTA
+		ol.light_volumetric_fog_energy = 1.5
 		ol.distance_fade_enabled = true
 		ol.distance_fade_begin = 200.0
 		ol.distance_fade_length = 50.0

@@ -10,11 +10,21 @@ var env: Environment
 var sun: DirectionalLight3D
 var sky_material: ShaderMaterial
 var _authored: Dictionary = {}
+var _authored_levels: Array[float] = []
 var _pano_amount := 0.0
 
 const SkyPanoramas := preload("res://tracks/scenery/sky_panoramas.gd")
 
-const _TUNED_PROPS := ["ssr_enabled", "ssao_enabled", "ssil_enabled", "sdfgi_enabled", "volumetric_fog_enabled", "glow_enabled"]
+const _TUNED_PROPS := ["ssr_enabled", "ssao_enabled", "ssil_enabled", "sdfgi_enabled", "volumetric_fog_enabled", "glow_enabled",
+	"fog_density", "fog_sky_affect", "volumetric_fog_density", "volumetric_fog_sky_affect",
+	"glow_bloom", "glow_hdr_threshold", "glow_intensity", "glow_hdr_luminance_cap"]
+## Forward+ bloom (M7 look plan step 2): only real highlights bloom (threshold above 1.0, no
+## whole-frame glow_bloom), with a short tail. The web keeps the authored glow.
+const PC_GLOW := {
+	"city": {"threshold": 1.25, "intensity": 0.75, "levels": [0.0, 0.85, 1.0, 0.6, 0.25, 0.06, 0.0]},
+	"arena": {"threshold": 1.2, "intensity": 0.85, "levels": [0.0, 0.75, 1.0, 0.65, 0.3, 0.08, 0.0]},
+	"coast": {"threshold": 1.4, "intensity": -1.0, "levels": [0.0, 0.5, 1.0, 0.6, 0.3, 0.1, 0.0]},
+}
 
 
 static func create(p_theme: String) -> SceneryEnv:
@@ -40,12 +50,16 @@ func _on_settings_changed() -> void:
 
 
 func retune() -> void:
+	# start from the authored values every time (settings change often; nothing may compound)
 	for k in _authored:
 		env.set(k, _authored[k])
+	for i in _authored_levels.size():
+		env.set_glow_level(i, _authored_levels[i])
 	# quality 0 (weak devices) keeps the procedural sky only
 	sky_material.set_shader_parameter("pano_amount", _pano_amount if Settings.quality >= 1 else 0.0)
 	Settings.tune_environment(env)
 	_quality_extras()
+	_pc_atmosphere()
 	Settings.tune_sun(sun)
 	_sun_extras()
 
@@ -83,6 +97,8 @@ func _build() -> void:
 			_city()
 	for k in _TUNED_PROPS:
 		_authored[k] = env.get(k)
+	for i in 7:
+		_authored_levels.append(env.get_glow_level(i))
 	retune()
 
 
@@ -170,11 +186,15 @@ func _city() -> void:
 	env.ssr_depth_tolerance = 0.3
 	env.ssao_enabled = true
 	env.ssao_intensity = 1.6
+	# volumetric haze lit by the street lights, not by the sky or the moon, and kept off the sky
 	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.012
-	env.volumetric_fog_albedo = Color(0.6, 0.55, 0.75)
+	env.volumetric_fog_density = 0.005
+	env.volumetric_fog_albedo = Color(0.8, 0.8, 0.85)
 	env.volumetric_fog_length = 160.0
-	env.volumetric_fog_ambient_inject = 0.4
+	env.volumetric_fog_ambient_inject = 0.08
+	env.volumetric_fog_sky_affect = 0.1
+	env.volumetric_fog_anisotropy = 0.5
+	env.volumetric_fog_temporal_reprojection_amount = 0.8
 	env.adjustment_contrast = 1.08
 	env.adjustment_saturation = 1.15
 	env.tonemap_exposure = 1.05
@@ -222,10 +242,12 @@ func _arena() -> void:
 	env.ssr_fade_out = 2.0
 	env.ssao_enabled = true
 	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.006
-	env.volumetric_fog_albedo = Color(0.8, 0.8, 0.85)
+	env.volumetric_fog_density = 0.0022
+	env.volumetric_fog_albedo = Color(0.65, 0.67, 0.72)
 	env.volumetric_fog_length = 200.0
-	env.volumetric_fog_ambient_inject = 0.3
+	env.volumetric_fog_ambient_inject = 0.05
+	env.volumetric_fog_sky_affect = 0.1
+	env.volumetric_fog_anisotropy = 0.5
 	env.adjustment_contrast = 1.1
 	env.adjustment_saturation = 1.08
 	env.tonemap_exposure = 1.0
@@ -283,10 +305,33 @@ func _coast() -> void:
 	env.volumetric_fog_albedo = Color(1.0, 0.8, 0.7)
 	env.volumetric_fog_anisotropy = 0.6
 	env.volumetric_fog_length = 300.0
+	env.volumetric_fog_sky_affect = 0.3
 	env.adjustment_contrast = 1.05
 	env.adjustment_saturation = 1.1
 	env.tonemap_exposure = 1.0
 	env.tonemap_white = 8.0
+
+
+## Forward+ only (M7 look plan steps 1-2): with volumetric fog on, the exponential fog is thinned
+## (the two stacked and flattened the skyline), and bloom keeps to real highlights.
+## Look-dev: --vfog=<density x> --vsky=<sky affect> --glow=old (authored bloom, for A/B shots).
+func _pc_atmosphere() -> void:
+	if Settings.is_compat():
+		return
+	if env.volumetric_fog_enabled:
+		env.fog_density = float(_authored["fog_density"]) * 0.6
+		env.fog_sky_affect = float(_authored["fog_sky_affect"]) * 0.5
+		env.volumetric_fog_density = float(_authored["volumetric_fog_density"]) * float(TestHooks.arg("vfog", 1.0))
+		if TestHooks.has_arg("vsky"):
+			env.volumetric_fog_sky_affect = float(TestHooks.arg("vsky", 0.1))
+	if env.glow_enabled and String(TestHooks.arg("glow", "")) != "old":
+		var g: Dictionary = PC_GLOW.get(theme, PC_GLOW["city"])
+		env.glow_bloom = 0.0
+		env.glow_hdr_threshold = float(g["threshold"])
+		env.glow_hdr_luminance_cap = 8.0
+		if float(g["intensity"]) > 0.0:
+			env.glow_intensity = float(g["intensity"])
+		_glow_levels(g["levels"])
 
 
 func _quality_extras() -> void:
@@ -313,3 +358,5 @@ func _sun_extras() -> void:
 		# Night: the moon/key light is weak, shadows are a luxury.
 		sun.shadow_enabled = sun.shadow_enabled and Settings.quality >= 2
 	sun.directional_shadow_fade_start = 0.8
+	# the moon/key light no longer lights the whole fog volume (the dusk sun's rays are wanted)
+	sun.light_volumetric_fog_energy = 1.0 if theme == "coast" else 0.15
