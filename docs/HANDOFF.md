@@ -24,6 +24,41 @@
 - Look-dev: `tests/visual/road_lookdev.tscn -- --wet=0.6 --quality=2 --frames=24 --shot=...` (~1 min);
   `--mirror=0.02` is the SSR control. Full track_view renders take 5-10 min on llvmpipe.
 
+## Latest (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED
+
+- Owner (TRANSCRIPT, session 9): "Focus on the TMNF port first. After that, port car physics to
+  speedfest after my approval." So the **Stadium remake (`stadium/`) comes first**. SpeedFest's
+  TMNF handling stays on branch **`tmnf-physics`, not merged into main until the owner approves**
+  (its HANDOFF top section lists its state: AutoDriver 34/34, open per-car test_tm items; it has
+  m7-maps through bd65cbc). Main keeps the M7 car.
+- The remake works on branch **`stadium`** (only `stadium/` and the research docs) and is merged into
+  main per milestone; it never touches SpeedFest's game/. The shared core now includes `TmBody`
+  (stadium/core/tm_body.gd: TMNF's sub-stepped integrator, contacts with face normals for shallow
+  pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3).
+- **Next (M8-5, M8-6):** the recreated Stadium block library on the 32 x 8 x 32 grid (measure block
+  dimensions/collision locally from the player's own Stadium pack as numbers only, write our own
+  parametric generators), then the stadium environment, car model, race flow, menus, sounds.
+
+## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
+
+- **`m7-maps` has one commit after the one merged into `tmnf-physics`: bd65cbc** (weather puddles
+  for the 24 new maps). Without it `tests/weather/test_weather` fails `*_puddle_counts` on 23 maps
+  (it needs >= 2 rain pools and a storm-only one per map). On `m7-maps`: test_weather 193/193,
+  test_tracks 649/649. **Session 9: merge `origin/m7-maps` into `tmnf-physics` once more** (additive
+  lines after checkpoint markers in `game/tracks/defs/*.gd`; icepipe/zigzag/fullsend have them in
+  their loops / before a checkpoint).
+- The Pi session's map lane is otherwise done (24 maps, surfaces, special pads, private-room track
+  chips scroll). It won't merge `m7-maps` into main itself: that happens through `tmnf-physics`.
+- **Deploying stays a Pi job:** when `main` gets a new `server/public` export, the Pi session (it
+  auto-continues after usage-limit resets) pulls and restarts the container.
+
+## Latest (~12:30 UTC 16 Oct, session 9, cloud): work continues on branch `tmnf-physics`
+
+- SpeedFest's TMNF handling (M8-3) lives on branch **`tmnf-physics`** = the Pi's finished `m7-maps`
+  (24 new maps, 34 tracks) + main + the port; its HANDOFF/PROGRESS have the details. AutoDriver
+  finishes 34/34 tracks there. Merge it into main when its remaining checks pass (listed there).
+  The Stadium remake (`stadium/`) is on main and on the branch.
+
 ## Latest (~04:45 UTC 16 Oct, session 9, cloud): TMNF port + Stadium remake started (M8)
 
 - Owner said "Yes" to porting TMNF's model into SpeedFest and asked for a separate TMNF remake in

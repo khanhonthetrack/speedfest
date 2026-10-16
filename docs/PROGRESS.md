@@ -787,3 +787,27 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   65/65 campaign tracks in 0.33 s, 41,523 blocks, 242 block types; A01-Race author 24.54 s,
   gold 25.87 s. Next: the block library (M8-5); the campaign's block-type list is the target.
 
+
+## 2026-10-16 ~04:10-08:00 UTC — Session 8 (Pi, auto-continue): M7-6 maps finished on `m7-maps`
+
+- Batches 5-6: Skyline Hop (rooftop hops + rail), Drop Zone (stunt drops), Rally Stage
+  (dirt/gravel), Spiral (banked climb), Neon Rush (speedfun), Zig Zag (tech, side pads),
+  Coastline (fullspeed), Grand Finale (mixed). 24 new maps, 34 tracks. AutoDriver (m7 handling)
+  6 cars × 24 maps, 0 respawns, 13-25 s. Fixes found on the way: rails need the car to arrive
+  within 0.35 m of ride height, so a rail after a gap starts just below the ledge (Skyline);
+  loops entered at 300+ km/h stall at the top (Grand Finale: no boost before its loop).
+- Private-room track chips scroll (two rows visible) so the room view fits 34 tracks.
+- Weather puddles for all new maps (bd65cbc): test_weather 193/193, test_tracks 649/649.
+- These were merged by session 9 into `tmnf-physics` (except bd65cbc, see HANDOFF).
+
+## 2026-10-16 — Session 9: SpeedFest port paused; remake continues on branch `stadium`
+
+- On `tmnf-physics` (not merged): TmBody's phantom-wall fix (shallow contact pairs take the face
+  normal: float32 world points made 0.01 mm contacts read as vertical), AutoDriver TMNF yaw-rate
+  steering with curvature feed-forward and an integral term, physics suites retargeted to TMNF;
+  AutoDriver 34/34 tracks with 1 respawn. Details in that branch's PROGRESS.
+- Owner: "Focus on the TMNF port first. After that, port car physics to speedfest after my
+  approval." The SpeedFest port waits for approval; the remake's files (stadium/ with the shared
+  TmBody, the research doc's load-transfer fix) come to main through branch `stadium`.
+  Stadium tests 80/80.
+

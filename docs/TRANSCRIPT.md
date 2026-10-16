@@ -485,3 +485,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - Fetched: `main` had session 9's TMNF research and the Pi session's notes (it took M7-6 maps on
   `m7-maps`, 24 new maps). Merged `main` into `m7-pc` and continued M7-1 (PC build): look pass,
   RTX verification on a Linux build of NVIDIA's fork, review, merge.
+
+### User (verbatim, 16 Oct, session 9)
+
+> Focus on the TMNF port first. After that, port car physics to speedfest after my approval.
+
+### Claude
+
+- Read as: the Stadium remake (`stadium/`, the TMNF copy) comes first; SpeedFest's TMNF handling
+  stays on branch `tmnf-physics` and is not merged into main until the owner approves it. Recorded
+  the branch's state (AutoDriver 34/34, open test_tm items) and moved to the remake (block library,
+  environment, race flow) on branch `stadium`.

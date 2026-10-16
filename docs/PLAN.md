@@ -132,7 +132,9 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       impulses, suspension) + a flat test arena, ramps, walls, loop. Done: `car/tm_car.gd` (lab
       `test_car_body` 22/22), drivable `race/drive_test.tscn`, shapes lab 11/11 (kicker, loop, pipe)
 - [ ] 3. SpeedFest: TMNF handling as the default on branch `tmnf-physics` (merge after `m7-maps`),
-      test_tm targets from the reference model, retune every map, AutoDriver on all tracks, web export
+      test_tm targets from the reference model, retune every map, AutoDriver on all tracks, web export.
+      **PAUSED: owner approval needed before it goes into SpeedFest** (remake first). State: AutoDriver
+      34/34 (1 respawn), suites pass except per-car test_tm items (branch HANDOFF)
 - [x] 4. Remake: `.Challenge.Gbx` reader (header + medals, LZO1X body, blocks chunk): `stadium/gbx/`,
       65/65 official campaign tracks read from a TMNF install at runtime (242 block types)
 - [ ] 5. Remake: recreated Stadium block library (32 x 8 x 32 grid, TMNF-compatible shapes)
