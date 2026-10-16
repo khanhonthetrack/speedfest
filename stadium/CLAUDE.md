@@ -70,17 +70,18 @@ Commit like this, so a failing gate never lands:
 Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
-- Block library: campaign coverage 97.3% built or empty (41523 blocks, 1111 placeholders, 0 unknown).
+- Block library: campaign coverage 98.8% built or empty (41523 blocks, 517 placeholders, 0 unknown).
   **Every drivable campaign shape is built** (session 12 finished them: Circuit slope turns,
   Stretch, turbo gates and variants, ramps, zone clips, loops, diagonal/curved tilt transitions);
-  plain pieces score 97-100% in the fidelity test. What is left is decoration.
+  plain pieces score 97-100% in the fidelity test. The Fabric grandstands are built too
+  (`blocks/shapes/fabric.gd`, 14 shapes). What is left is decoration.
 - Next, in order (counts = campaign uses; `campaign_coverage` prints the live list):
   1. (done) drivable shapes. Optional polish: the dead end's rounded curb ends (Deadend, Ramp,
      99%), the loop's internal struts, the platform turbo's underside (94.5-97.4%).
-  2. Decorations: Control/CameraLight (15) and CameraPub, Fabric grandstands (~550: pillars, 1x1
-     straights/crosses, corners), Sculpt (~350:
-     A/B/C rocks, bridges incl. A01's suspended pair, arch rings), Inflatable tube/advert T-pillars
-     (~60), Other/Airship (12), dirt fences/signs/awnings.
+  2. Decorations: Sculpt (~350: A/B/C rocks, bridges incl. A01's suspended pair, arch rings),
+     Inflatable tube/advert T-pillars (~60), Other/Airship (12), Control/CameraLight (15) and
+     CameraPub, Fabric/FabricPillarCornerOutAir (4) and Cross3x3 (4), dirt fences/signs/awnings.
+     Fabric polish: trusses, screens and spotlights; the In pillar corners (86.7-93.4%).
   3. The rest of M8-6: ghosts and best times, stadium environment (sky, stands, lighting), our own
      car model, TMNF-like menus, sounds, HD Forward+ graphics.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.

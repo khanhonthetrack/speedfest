@@ -11,11 +11,12 @@
 - Done this session: **every drivable campaign shape is now built**: Circuit slope turns (24
   shapes: the flat walls turned and sheared), Road/Main Stretch (4), road turbo gate rebuilt (91 ->
   99.7%) plus its Up/Down/Left/Right variants, platform turbo slopes, ramps (4), zone clips (2),
-  loops (4), diagonal and curved tilt transitions (8). Coverage 97.3% (1111 placeholders, all
-  decoration). PROGRESS has the numbers.
-- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** decorations by campaign use
-  (Fabric grandstands, Sculpt incl. A01's bridges, inflatable tubes/adverts, airship, camera
-  lights), then the rest of M8-6 (ghosts, environment, car model, menus, sounds, HD graphics).
+  loops (4), diagonal and curved tilt transitions (8). Then the **Fabric grandstands** (new family
+  `blocks/shapes/fabric.gd`, 14 shapes: the white wave roofs, straights, corners, pillars).
+  Coverage 98.8% (517 placeholders, all decoration). PROGRESS has the numbers.
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of the decorations
+  (Sculpt incl. A01's bridges, inflatable tubes/adverts, airship, camera lights), then the rest of
+  M8-6 (ghosts, environment, car model, menus, sounds, HD graphics).
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).
 
 ## Earlier (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED

@@ -958,5 +958,21 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   - **Tilt transitions along a GT diagonal and round a GT curve** (Road/Tilt/Transition/2Diag*,
     2Curve*): TMNF's 25 frames each (`TILT_DIAG`, `TILT_CURVE`: centre, lateral angle, bank; both
     use the same bank per frame), Right = Left mirrored. 98.9-99.4%.
-- Numbers after the batch: STADIUM_TESTS PASS; coverage 97.3% (1111 placeholders, all of them
+- Numbers after the batch: STADIUM_TESTS PASS; test_race --tracks=all 65/65 (421 checks, 1.5 min
+  on the RTX 2060 PC); coverage 97.3% (1111 placeholders, all of them
   decoration: Fabric, Sculpt, inflatable tube/advert pillars, airship, camera lights/pubs).
+- **Fabric grandstands** (`blocks/shapes/fabric.gd`, new family; 14 shapes, ~590 campaign blocks):
+  the white wave roofs. Straight (ground): the roof shell, 0.3-0.4 m thick, swept along the block
+  through its measured section (foot at x 60, top 48 m over x 0), the stands (quarter-pipe front,
+  seats at 8.26 m) and the rubber lip at the foot; Air: its own shorter shell on an 8 m deck and one
+  support wall. Pillars: the fabric wall carrying a raised roof down (open post in the middle, as
+  TMNF's posts have no caps) and the one-cell ground stands; Cross1x1: the flat roof plate.
+  Corners: the straight's sections revolved through 90 deg in 18 steps, In about (0, 0), Out
+  about (64, 0) with the radius 64 - x and the rest roofed flat at 48 m; the raised In corner has
+  its own taller shell (to 1.5 m) on a low deck. In pillar corners run each section point round an
+  arc about (5.533, 5.533) meeting both block edges (17 steps). The fabric is a road surface in
+  TMNF (asphalt, 16): cars can drive on the roofs. Fidelity: Straight 98.7%, Air 96.3%, Cross and
+  PillarGround 100%, PillarAir 97.4%, Out corners 99.3-99.5%, In 95.5%, In Air 89.7%, pillar
+  corners 86.7-99.3% (trusses, screens and spotlights not recreated yet).
+- Coverage 97.3% -> 98.8% (517 placeholders: Sculpt, inflatable tube/advert pillars, airship,
+  camera lights, Fabric/FabricPillarCornerOutAir, Cross3x3); test_race all 65 tracks, 421 checks.
