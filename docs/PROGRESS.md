@@ -702,3 +702,18 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   at speed, 15° wall at 200 km/h glances off without flipping). `stadium/tools/test_all.sh` runs
   both labs (STADIUM_TESTS PASS).
 
+## 2026-10-16 ~06:30 UTC — Session 9: Stadium remake drivable test scene (M8-2, part 2)
+
+- `stadium/race/drive_test.tscn`: TestArena (32 m block-grid floor, curved-base 15° kicker, helix
+  loop r 16 m, wall-ride quarter pipe, wall), the TmCar with a placeholder look built from its
+  collision ellipsoids (`car/tm_car_visual.gd`), keyboard/pad input (`car/tm_car_input.gd`, digital
+  keyboard steering like TMNF) and a chase camera that follows the car's up axis on the ground
+  (`car/tm_camera.gd`). Enter/Backspace respawns. `env/proc_geo.gd` builds ribbons/quads with
+  matching render + collision winding.
+- `stadium/tests/test_car_shapes` 11/11: kicker at 200 km/h flies 1.39 s level and lands on its
+  wheels; the loop at 250 km/h (with a player-like steering controller following the offset)
+  completes upright without chassis hits; at 180 km/h the car can't make the top (3 g on the
+  ground), as expected; the quarter pipe at 220 km/h ends in a stable wall ride at ~51° tilt.
+- Found while testing: a sharp crease from flat to 15° bounces the car into a nose-down spin
+  (0.9 rad/s); with a curved base it flies level. Recreated TM ramps need curved bases too.
+
