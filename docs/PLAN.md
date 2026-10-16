@@ -107,7 +107,10 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
             (fog/bloom, starry arena, facades with depth, grounded car, flood SpotLights, painted
             curbs + LED barrier, tunnel lighting), check_all PASS, merged into `main`
       - [ ] look step 9 (reflection probes, WIP on `m7-probes`); optional 8 (barrier line light), 6.6 (chevrons)
-      - [ ] owner tests the Windows zip and the RTX mode on an RTX PC
+      - [ ] owner tests the Windows zip and the RTX mode on an RTX PC. RTX mode done on an RTX 2060
+            (session 11, branch `m7-rtx`, docs/RTX.md): RT shader fixes, DLSS model setting (Auto =
+            Fast on RTX 20/30: 1440p DLSS Quality 111 fps vs 64 today), path tracing 8-25 fps there.
+            Open: the CI Windows zip; road markings and puddles under path tracing
 - [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
       measurable targets and tests. Done (sessions 8 + 10, merged into `main`): TM lab 336/336,

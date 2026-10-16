@@ -879,3 +879,22 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   GPU-bound everywhere (CPU ~1 ms), 0 pipeline compiles mid-race, AutoDriver 260 km/h.
 - Next: NVIDIA fork editor build on Windows (`C:\dev\godot-rtx`), then DLSS and path-tracing runs.
 
+## 2026-10-16 ~16:30 UTC — Session 11: the RTX fork on a real RTX card (RTX 2060)
+
+- Built the fork editor on Windows (VS Build Tools 2026; the 91 MB doc_translations file needs to
+  be compiled alone on 16 GB RAM). "RTX ready.": DLSS, Ray Reconstruction and Reflex load;
+  test_settings 15/15 on the fork, 13/13 on 4.7.2.
+- First path-traced frames: 6 RT hit shaders didn't compile, so the city vanished. Fixed in the
+  shaders: `rt.gdshaderinc` (no fwidth in RT hit shaders, 9 shaders), env_building (no
+  INSTANCE_CUSTOM), track_puddle (no instance uniforms or discard). Mainline renders unchanged.
+- Found: once the puddle's RT shader is in use, the fork stops drawing all other custom materials
+  (even with a trivial RT puddle shader, no error). Puddles are hidden under path tracing for now.
+- **DLSS model matters most on RTX 20/30:** the driver's defaults (transformer presets K/M) cost
+  3-11 ms on the 2060. New `Settings.dlss_model` (Auto/Fast/Sharp/Sharpest; Auto = preset F on
+  RTX 20/30) + settings row. 1440p High: DLSS Quality Fast 111 fps (8.0 ms), Performance Fast
+  148 fps (5.8 ms), vs 64 fps for today's FSR 2 native default and 105 for FSR 2 at 67 %.
+- Path tracing works (city, neon, wet reflections) but runs at 8 fps (1440p DLSS Q) to 25 fps
+  (1080p DLSS P) on the 2060: not playable there.
+- All numbers, fixes, open issues (road UV2 markings, puddles, fakes under RT) and Windows build
+  notes: docs/RTX.md "Measured on an RTX 2060".
+

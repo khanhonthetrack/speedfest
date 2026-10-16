@@ -1,5 +1,21 @@
 # HANDOFF: start here
 
+## Latest (~16:30 UTC 16 Oct, session 11, owner's Windows PC with an RTX 2060): RTX tested for real
+
+- **Branch `m7-rtx`** (from `main`, local commits; the push from this PC was refused: its GitHub
+  login `khanhcrypto` has no write access to `khanhonthetrack/speedfest`). Not merged.
+- Done: `tests/integration/gpu_bench` + `tools/rtx_bench.ps1` (real-GPU benchmarks); RT hit shaders
+  compile (`shaders/rt.gdshaderinc`, env_building, track_puddle); puddles hidden under path tracing
+  (fork bug); `Settings.dlss_model` (Auto = preset F on RTX 20/30). Numbers: docs/RTX.md
+  "Measured on an RTX 2060". DLSS Quality Fast at 1440p: 111 fps vs 64 for today's default;
+  path tracing 8-25 fps on the 2060.
+- Local setup on that PC (not in the repo): `C:\dev\godot-4.7.2`, `C:\dev\godot-rtx` (fork editor,
+  plus a local ERR_PRINT patch for RT shader errors), `C:\dev\streamline-2.10.0`,
+  `C:\dev\speedfest-rtx` (fork copy cloned from the local repo; never commit there), `C:\dev\bench`.
+- Next (owner's call): merge `m7-rtx` into `main` (check_all first); maybe make DLSS Quality the
+  default on the RTX build; road markings under path tracing (UV2 -> vertex COLOR, RTX.md "Known
+  issues"); fork export templates for an RTX zip for friends.
+
 ## Latest (~14:00 UTC 16 Oct, session 10, cloud): look plan steps 1-7 MERGED into `main`
 
 - **`main` = `m7-look`** (CHECK_ALL PASS, web re-exported). Steps from

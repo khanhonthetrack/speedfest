@@ -32,8 +32,9 @@ noise, so SpeedFest only lets you turn path tracing on when Ray Reconstruction i
    was last edited in Godot 4.7 … change it to Godot 4.8". Wait for the import to finish. In Project
    Settings, check that the renderer is Forward+ and `rendering_device/driver.windows` is `vulkan`.
 5. Press Play (F5) and open **Settings**. The **NVIDIA RTX** block has a status line:
-   - "RTX ready." → turn on **Path tracing (experimental)**, set **Light bounces** to 2 and
-     **DLSS** to Quality.
+   - "RTX ready." → set **DLSS** to Quality (or Performance at 1440p+) with **DLSS model** Auto.
+     On RTX 40/50, also try **Path tracing (experimental)** with **Light bounces** 2 (on an RTX
+     2060 it runs at 8-25 fps, see "Measured on an RTX 2060").
    - "DLSS unavailable…" → the Streamline DLLs aren't next to the exe, or the GPU isn't RTX.
      (The engine's own "Streamline failed to initialize" error only shows once a viewport switches to DLSS.)
    - "This GPU or driver has no Vulkan ray tracing." → update the driver.
@@ -42,6 +43,65 @@ noise, so SpeedFest only lets you turn path tracing on when Ray Reconstruction i
 6. **Test drive:** Neon Downtown in Rain, 250+ km/h, at 1080p with DLSS Quality and Performance.
    Write down fps, ghosting, whether neon lights the road, the puddles, the rain overlay, and the smear
    after a respawn. Send screenshots. This decides whether the RTX mode is worth more work.
+
+## Measured on an RTX 2060 (session 11, owner's PC)
+RTX 2060 6 GB, driver 616.56, Ryzen 5 2600X, Windows 11, 2560x1440. Fork `nvidia-pt-dlss` @ 135dff3
+built with VS Build Tools 2026, Streamline 2.10.0. Neon Downtown in rain, High preset, exclusive
+fullscreen, `tests/integration/gpu_bench` (AutoDriver, V-Sync off, 20 s from 3 s after GO).
+Runner: `tools/rtx_bench.ps1 -Set baseline|dlss|pt` (results and screenshots in `C:\dev\bench`).
+
+| 1440p, High | internal | fps | GPU ms |
+|---|---|---|---|
+| 4.7.2, FSR 2 native (today's default) | 2560x1440 | 64 | 15.0 |
+| 4.7.2, FSR 2 at 67 % | 1715x965 | 105 | 8.8 |
+| fork, DLSS Quality, model Fast (preset F) | 1715x965 | **111** | 8.0 |
+| fork, DLSS Quality, model Sharp (K, driver default) | 1715x965 | 83 | 11.0 |
+| fork, DLSS Quality, model Sharpest (M) | 1715x965 | 50 | 18.8 |
+| fork, DLSS Performance, Fast (F) | 1280x720 | **148** | 5.8 |
+| fork, DLSS Performance, Sharp (K) | 1280x720 | 103 | 8.7 |
+| fork, DLSS Performance, Sharpest (M, driver default) | 1280x720 | 75 | 12.2 |
+| fork, DLAA (driver default) | 2560x1440 | 55 | 17.4 |
+| fork, path tracing + DLSS Quality | 1715x965 | 8 | 120 |
+| fork, path tracing + DLSS Performance | 1280x720 | 14 | 69 |
+| fork, path tracing, 1080p, DLSS Performance | 960x540 | 25 | 39 |
+
+- **On RTX 20/30 cards use DLSS with the Fast model.** The driver's defaults are the transformer
+  models, which Turing's tensor cores run slowly (that's why Performance was slower than Balanced).
+  `Settings.dlss_model` Auto picks Fast (preset F) on RTX 20/30 and the driver's choice on newer
+  cards; Sharp (K) still runs DLSS Quality at 83 fps. The image difference is small in stills
+  (F slightly softer, a little more smear on rain spray); judge it in motion.
+- **Path tracing is not playable on an RTX 2060** (8-25 fps). It works and looks right (city, neon,
+  soft wet reflections), so it is a photo-mode option there; RTX 40/50 is where it could be a mode.
+- With path tracing off, the fork renders and runs like 4.7.2 (720p High: 4.55 vs 4.49 ms GPU).
+
+### Shader limits found on real hardware (fixed)
+The fork compiles every material a second time as ray-tracing hit shaders (`RT` defined). A material
+whose RT variant doesn't compile falls back to a default one, which is why the city first vanished:
+- `fwidth()` doesn't exist there (no pixel derivatives): `shaders/rt.gdshaderinc` maps it to a
+  small constant under RT (DLSS Ray Reconstruction resolves the edges). 9 shaders include it.
+- `INSTANCE_CUSTOM` is undeclared (env_building), and small MultiMeshes are merged into one BLAS, so
+  there's no per-instance data: all buildings get one style under path tracing.
+- `instance uniform`s and `discard` don't exist (track_puddle): seed from the position under RT.
+- The fork doesn't print why an RT shader failed (only "Dumped failed shader to ..."). For a local
+  debug build, add `ERR_PRINT("RT hit shader compile failed: " + error);` after each
+  `_dump_failed_shader(...)` call in `servers/rendering/renderer_rd/forward_clustered/scene_shader_raytracing.cpp`.
+
+### Known issues (open)
+- **Puddles are hidden under path tracing.** Once the puddle's RT hit shader is in use, the fork
+  stops drawing every other custom material (buildings, neon, road, curbs), even with a trivial RT
+  puddle shader; the pipeline build reports no error. Grip in puddles is unchanged. Likely a fork bug.
+- **The road loses its markings under path tracing:** `road.gdshader` reads half width, curb amount
+  and the tunnel flag from UV2, which the fork replaces with UV1. Fix: pass them in vertex COLOR
+  (the RT shaders do read it: RGBA8) from `TrackBuilder.Acc.commit()`, read COLOR under RT.
+- Wet-road fakes (`car_paint` night_rim, `road` tunnel_fake, puddle sheen) still add light under RT.
+
+### Windows build notes
+- VS Build Tools 2026 (MSVC 14.51) works; run the SCons line from `vcvars64.bat`.
+- With 16 GB RAM, `-j10` runs out of compiler heap (C1060) on `editor/translations/doc_translations.gen.cpp`
+  (91 MB of source). Build that object alone first (`... -j1 bin\obj\editor\translations\doc_translations.gen.windows.editor.x86_64.obj`),
+  then the rest with `-j8`. The editor took ~35 min on a Ryzen 5 2600X and ~16 GB of disk.
+- Import the project once **with a window** (`godot.windows.editor.x86_64.console.exe --path ... --import`, no
+  `--headless`): headless import on the fork skips the BPTC (desktop HD) textures.
 
 ## What has been verified without an RTX card (session 10)
 A Linux build of the fork (`nvidia-pt-dlss` @ 135dff388, 4.8-dev, built in the cloud container) ran
