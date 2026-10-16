@@ -425,6 +425,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   docs/research/m7_physics.md with TMNF's real car model and tuning values, then rebuild the
   handling on them. Rule for the public repo: only our own write-up and numbers (facts) go in;
   no Nadeo binaries, assets or decompiled code.
+- Result (~00:15 UTC 16 Oct): downloaded TMNF from Ubisoft's CDN, analysed TmForever.exe with REA +
+  Ghidra using the map's 63k names, decrypted the Stadium car's tuning, geometry and surface files
+  from the packs, and wrote the model up in docs/research/tmnf_physics.md with a runnable
+  reconstruction (tools/research/tmnf/tmnf_model.py). Headlines: gravity 30 m/s² on the ground and
+  25 in the air; acceleration is a staircase (16/11/7/5.5 m/s²) with no drag under throttle; the
+  yaw rate depends on speed only, so the car almost never slides on asphalt (16 m radius at
+  100 km/h); the brake drift is a grip state; wheels touching a wall trigger a 500 ms slow-down; no
+  air steering; grip fades on walls beyond ~46° of tilt and is zero past ~73°.
 > approaching limit. stop what you're doing and save your progress in a document NOW
 
 ### Claude
@@ -444,3 +452,16 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   the TMNF reverse-engineering work (another session). Found and fixed a fast-loop body slam,
   made rails non-magnetic, fixed a broken online test, ran the full matrices and merged the
   physics into `main`. Next: the PC build (M7-1), then track pieces and 30+ maps (M7-6).
+
+### User (verbatim, session 8 on the Pi)
+
+> Turn on autocontinue
+
+> I want to autocontimue after hittinh usage limit
+
+### Claude
+
+- Scheduled a wake-up for 02:45 UTC (after the 5-hour limit reset) that resumes from HANDOFF and
+  chains the next wake-up before stopping again. At 02:45 it found sessions 9 and 10 had finished
+  the physics merge and the TMNF research, deployed the Pi, and took M7-6 (maps) on `m7-maps`,
+  leaving the PC build to session 10.

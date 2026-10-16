@@ -104,7 +104,9 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
 - [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
       measurable targets and tests. Done (sessions 8 + 10, merged into `main`): TM lab 336/336,
-      AutoDriver 60/60 analog + 60/60 keyboard. A TMNF reverse-engineering session may refine it.
+      AutoDriver 60/60 analog + 60/60 keyboard. Session 9 reverse engineered TMNF's real model
+      (docs/research/tmnf_physics.md, tools/research/tmnf/tmnf_model.py). Open (owner decision):
+      port it as a `TM_FAITHFUL` mode with test_tm targets regenerated from the reference model.
 - [x] 3. **Barriers**: hits should not ruin a run (glance off and keep going, no snagging, no
       flips). Done (session 8): glancing hits keep the speed and the nose turns along the wall.
 - [x] 4. **Wall rides and loops**: full grip on walls and loops, no speed loss or pulling down at

@@ -1,6 +1,19 @@
 # HANDOFF: start here
 
-## Latest (~00:45 UTC 2026-10-16, session 10, cloud): M7 physics merged; M7-1 PC build on branch `m7-pc`
+## Latest (~02:50 UTC 16 Oct, session 8 auto-continue on the Pi): M7-6 maps claimed
+
+- The owner asked this Pi session to auto-continue after the usage limit. At 02:45 UTC it found
+  sessions 9 (TMNF reverse engineering) and 10 (physics merged, then "next: PC build") had moved on.
+- **Deployed on the Pi:** `main` @ bccc69f, server restarted on 1f4fbcb's export (M7 handling,
+  non-magnetic rails). /health OK.
+- **Progress on `m7-maps` (~04:10 UTC):** dirt/ice/plastic surfaces, special pads (engine off, no steer, cruise, reactor, reset; TM lab 366/366), map plan `docs/research/m7_maps.md`, 16 of 24 new maps done and verified (batches 1-4: frost, dust, blackout, glide, techlab, fullsend, cruise, plastic, sausage, mixer, platform, snake, nosteer, canyon, icepipe, grassland; AutoDriver 6 cars, 0 respawns). Next: batches 5-6, then merge + export + deploy.
+- **This session now works on M7-6 (new track pieces + 30+ maps) on branch `m7-maps`** so it doesn't
+  collide with session 10's PC build (M7-1, rendering/export files). Map work touches
+  `game/tracks/**`, `game/weather/track_surface.gd`, `server/lib/rotation.js`, track tests.
+- Still the owner's call: port TMNF's real model (`TM_FAITHFUL`, session 9). Map jumps are validated
+  by the AutoDriver, so they'll be re-checked if the physics changes.
+
+## Latest (~00:45 UTC 16 Oct, session 10, cloud): M7 physics merged; M7-1 PC build on branch `m7-pc`
 
 - **`main`** has the M7 physics (handling, barriers, wall rides, non-magnetic rails), verified on
   every track (PROGRESS session 10) and exported to `server/public` (1f4fbcb). Pi deploy pending:
@@ -26,7 +39,24 @@
   `tests/tracks/track_view.tscn` (`--views="chase:300;drive:520"`) for look checks.
 - Don't touch the TMNF reverse-engineering session's work (owner, session 10).
 
-## Latest (~23:00 UTC, session 8, Pi): STOPPED on owner request. M7 physics done on branch `m7-physics`
+## Latest (~00:15 UTC 16 Oct, session 9, cloud): TMNF reverse engineered, port not started
+
+- Owner asked to study ModTMNF + REA and reverse engineer TrackMania Nations Forever (TRANSCRIPT
+  session 9). **Done:** `docs/research/tmnf_physics.md` describes the real Stadium car (force model 6,
+  tuning `20juin2006`, geometry, surfaces, walls, turbo, air) with numbers;
+  `tools/research/tmnf/tmnf_model.py` is our runnable reconstruction (0-100 1.74 s, full-lock radius
+  16 m @ 100 km/h / 48 m @ 200, 30/25 m/s² gravity ground/air, wheel-to-wall 500 ms slow-down...).
+  Pipeline and scripts: `tools/research/tmnf/README.md` (nothing from the game is committed).
+- Parallel session 10 merged its own M7 handling (guessed targets, docs/research/m7_physics.md) and
+  moved on to the PC build. **Open decision for the owner:** port TMNF's model into `car.gd`
+  (a `TM_FAITHFUL` mode, test_tm targets from `tmnf_model.py`) — it changes how every map plays
+  (heavier gravity, staircase acceleration without drag, much tighter turning, wheel-wall penalty).
+  §6 of tmnf_physics.md lists the differences one by one.
+- To redo the analysis in a fresh container: install Ghidra 12.1.4 + `npm i -g rea-agents`, download
+  the TMNF installer (README step 1), unpack, `map2seeds.py`, start `rea_bridge.py` (~8 min Ghidra
+  analysis), then `dc.py`/`asm.py`. Decrypting packs needs only Python + pycryptodome.
+
+## Earlier (~23:00 UTC, session 8, Pi): STOPPED on owner request. M7 physics done on branch `m7-physics`
 
 - **Branch `m7-physics` (87a4543, NOT merged):** M7 items 2-4 (Trackmania handling, barriers,
   wall rides) are implemented in `game/cars/car.gd`, `car_input.gd`, `tuning.gd`,

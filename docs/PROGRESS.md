@@ -638,6 +638,35 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   LIVE room (listed first) instead of the test's room. Guests now skip LIVE unless `--code=LIVE`;
   3-client round PASS.
 - Checks: PHYSICS_ALL_OK, test_tracks 203/203, check_all (full) all suites OK incl. online_round.
+## 2026-10-15 ~23:30 UTC — Session 9: reverse engineering TMNF (owner request)
+
+- Downloaded TMNF 2.11.26 from the official Ubisoft CDN (SHA-256 matches ModTMNF's list) and
+  unpacked it (7-Zip SFX → Inno Setup). It ships `TmForever.map`, so every function has its name.
+- REA (morluto/rea) + Ghidra 12.1.4 analyse `TmForever.exe` with the map as seeds; a small bridge
+  keeps one REA MCP session alive (tools/research/tmnf/).
+- Decrypted `StadiumCar.VehicleTunings.Gbx` from Stadium.pak (re-implemented GBX.NET's pak
+  format; found the reader buffering that drives the cipher's IV re-keying) and parsed it with the
+  chunk layout from `CSceneVehicleCarTuning::Chunk`. It holds 30 tunings, Nadeo's history of the
+  Stadium car from 26Nov2002 to 20juin2006; the game uses the last one (index 29).
+- That tuning selects force model 6 (`ComputeForcesModel6`). Decompiling it and its helpers next;
+  the write-up goes to docs/research/tmnf_physics.md. Only our own description and the numbers
+  go into the repo, no game files or decompiled code.
+
+## 2026-10-16 ~00:15 UTC — Session 9: TMNF car physics reverse engineered
+
+- `docs/research/tmnf_physics.md`: the Stadium car's force model 6 described from the code
+  (`ComputeForcesModel6` and helpers, rigid-body and collision layers) with the real tuning
+  (`20juin2006`, the last of 30 tunings in StadiumCar.VehicleTunings.Gbx), geometry from
+  StadiumCar.Solid.Gbx (wheelbase 2.988 m, wheel radius 0.364 m), the surface table, turbo and walls.
+- `tools/research/tmnf/tmnf_model.py`: runnable flat-ground reconstruction; prints 0-100 1.74 s,
+  0-200 4.26 s, full-lock radius 15.8 m @ 100 km/h / 48 m @ 200 / 133 m @ 400, braking 3 g above
+  60 km/h, 8 m drop in 0.8 s.
+- Pack decryption: TmForever re-keys the cipher IV on every node read (parent class id; class ids
+  read from each class's `GetMwClassId`, parents from ModTMNF's hierarchy), on tuning names and on
+  `CPlugSurfaceGeom` boxes; its reader inflates 256-byte input blocks into a 1024-byte buffer and
+  large reads bypass it, so `pak_search.py` backtracks; Adler-32 verifies. Inline nodes (no index)
+  also re-key.
+- Not done: porting the model into `car.gd` (owner decision, see HANDOFF / tmnf_physics §6).
 
 ## 2026-10-16 ~00:45 UTC — Session 10: M7-1 PC build (branch `m7-pc`, pushed, not merged yet)
 
