@@ -22,10 +22,15 @@
   stadium environment, our own car model, menus and sounds."): `race/tm_ghost.gd`,
   `race/tm_records.gd`, the record's ghost in `race/race.gd`, record and split differences in the
   HUD; `tests/test_ghost`. Records live in Godot's user folder (`records/`).
+- **M8-6 stadium environment done:** TMNF's Day sky and sun from the mood's numbers
+  (`env/tm_stadium_env.gd`, `env/tm_sky.gdshader`) and the Stadium around the map rebuilt from our
+  own measurements of TMNF's surround (`env/tm_stadium_build.gd`: grandstands, roofs, masts,
+  terraces, big screens, flags, floodlight towers, the ground and its edge). Research tools for it:
+  `tools/research/tmnf/visual_mesh.py`, `vsection.py`.
 - **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of M8-6 in the owner's
-  order: stadium environment (sky, stands, lighting), our own car model, menus, sounds (then HD
-  graphics); polish of the weakest decorations (inflatable castles, camera light base, bump) when
-  time allows.
+  order: our own car model, menus, sounds (then HD graphics); polish of the weakest decorations
+  (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
+  allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).
 
 ## Earlier (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED

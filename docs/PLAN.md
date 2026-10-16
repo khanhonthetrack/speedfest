@@ -138,8 +138,9 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       ghosts), TMNF-like menus, sounds, HD Forward+ graphics, our own maps.
       Done: race flow (`TmRace`, measured triggers `TmTriggers`, `race/race.tscn` with HUD; all 65
       campaign tracks pass `tests/test_race`); ghosts and best times (`TmGhost`, `TmRecords`, HUD
-      record and split differences; session 12). Open: environment, car model, menus, sounds,
-      HD graphics
+      record and split differences; session 12); stadium environment (Day sky and sun from the
+      mood's numbers, the Stadium around the map from our own measurements; session 12). Open:
+      car model, menus, sounds, HD graphics
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

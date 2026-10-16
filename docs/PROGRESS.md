@@ -1046,3 +1046,25 @@ menus and sounds."
   at each end, then roads, forecourts and parking down to an edge 100 m below the field. New tools:
   `visual_mesh.py` (visual meshes and lights of a solid), `vsection.py` (vertical and plan cuts as
   PNGs). Next: rebuild it from our own measured profiles and outlines.
+
+## 2026-10-16 — Session 12: stadium environment, step 2: the Stadium around the map (M8-6)
+- `env/tm_stadium_build.gd` (`TmStadiumBuild`): the Stadium rebuilt from our own measurements of
+  TMNF's surround (tables in the script; one quarter, mirrored in x and z):
+  - two lens-shaped grandstands on the long sides: the inner wall line at 10 m (17 points to the
+    tip at x 644), the section swept along it and clipped at the midline (z 746.1), mirrored for
+    the outer half. The section: a 20 m wall, a ledge, the seating rake to the 46 m deck, a glass
+    screen behind it; a ribbon of LED boards along the inner face;
+  - the roof band over each grandstand's inner half: a visor from the field edge (z 528.8), a
+    thick main part to the back (z 785), arched along x from 120.5 m at the middle to the wings
+    dipping past the tips (table every 100 m to x 725); a tube along its front edge, beams under
+    it every 45 m;
+  - masts at x 0, 430 and 876 on the midlines (270 m) with cables;
+  - terraces on the short sides (the section at z 100 swept along the inner wall line), the big
+    screens (x 822, 158 x 81 m), six flagpoles a quarter (229 m) with flags in our own colours,
+    and four floodlight towers with lamp heads facing the field;
+  - the apron at the field's level inside the bowl, the ground falling to the outer level
+    (-19.5 m) outside it, the edge down to -100 m and a plain beyond.
+  351 ms to build, 25k triangles. `TmStage.add_environment` adds it around 32 x 32 maps (all of
+  TMNF's Stadium maps); other sizes keep the plain grass.
+- Not yet: the outer roads, forecourts and parking (the outer ground is plain concrete), the
+  roofs' light panels, textures (flat colours, like the blocks).

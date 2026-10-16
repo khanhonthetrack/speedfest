@@ -68,10 +68,14 @@ static func load_from_args() -> TmChallenge:
 	return TmChallenge.load_file(path)
 
 
-## Sun, sky colour and plain grass from the map's edge to the horizon (the map's own ground is
-## built with it by TmMapBuilder).
+## Sun and sky (TmStadiumEnv) and, around a 32 x 32 map, the Stadium (TmStadiumBuild); around maps
+## of other sizes plain grass from the map's edge to the horizon (the map's own ground is built
+## with it by TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	TmStadiumEnv.add(parent)
+	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
+		parent.add_child(TmStadiumBuild.build())
+		return
 	var w := float(builder.challenge.size.x) * 32.0
 	var d := float(builder.challenge.size.z) * 32.0
 	var gm := TmMaterials.get_material("grass")
