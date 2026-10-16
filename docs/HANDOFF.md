@@ -1,5 +1,29 @@
 # HANDOFF: start here
 
+## Latest (~09:30 UTC 16 Oct, session 10, cloud): M7-1 PC build on branch `m7-pc`, merge next
+
+- **Other sessions:** the Pi session does M7-6 maps on `m7-maps` (24 new maps; a trial merge with
+  `m7-pc` is conflict-free); session 9 does M8 (TMNF handling port on `tmnf-physics` after
+  `m7-maps`, and the `stadium/` remake). Don't touch their branches or folders.
+- **Branch `m7-pc` (pushed, `main` merged in at 87e0654):** M7-1. Done and tested:
+  physics interpolation (car, wheels, ghost sub-tick, world-space particles via `InterpAnchor`),
+  frame pacing (V-Sync modes, VRR cap, exclusive fullscreen, F11), AA without MSAA (Auto: FXAA/
+  TAA/FSR 2, SMAA on software GPUs), PC presets, look pass (night roads reflect: `water_gloss` in
+  road.gdshader + `Track.NIGHT_DAMP`; real lights at city neon), perf overlay (Show FPS), desktop
+  exports + GitHub Actions "Desktop builds" (green; artifacts SpeedFest-windows / -linux; owner
+  guide `docs/PC.md`), optional RTX (`docs/RTX.md`). A 26-agent review confirmed 8 bugs: all fixed.
+- **Measured:** no draw-time pipeline compiles during a downtown race (perf_probe), so no warm-up.
+- **RTX:** a Linux build of NVIDIA's fork (`/home/user/nvidia-rtx/godot/bin/godot.linuxbsd.editor.x86_64`,
+  dies with this container) runs SpeedFest: detection/settings 14/14, RT shader branches compile.
+  Path-traced frames are impossible on lavapipe (Mesa lacks OpTypeForwardPointer): the owner's
+  NVIDIA GPU is the only way to see them (docs/RTX.md steps).
+- **Next:** (1) the art-direction plan (workflow `pc-look-plan`; result goes to
+  `docs/research/m7_look_plan.md`) and its top items; (2) `tools/integration/check_all.sh`, remove the
+  temporary `m7-pc` trigger from `.github/workflows/desktop.yml`, merge into `main`, re-export web
+  (`tools/export_web.sh`, commit `server/public`), Pi deploy; (3) owner tests the Windows zip + RTX.
+- Look-dev: `tests/visual/road_lookdev.tscn -- --wet=0.6 --quality=2 --frames=24 --shot=...` (~1 min);
+  `--mirror=0.02` is the SSR control. Full track_view renders take 5-10 min on llvmpipe.
+
 ## Latest (~04:45 UTC 16 Oct, session 9, cloud): TMNF port + Stadium remake started (M8)
 
 - Owner said "Yes" to porting TMNF's model into SpeedFest and asked for a separate TMNF remake in
@@ -26,37 +50,6 @@
   `game/tracks/**`, `game/weather/track_surface.gd`, `server/lib/rotation.js`, track tests.
 - Still the owner's call: port TMNF's real model (`TM_FAITHFUL`, session 9). Map jumps are validated
   by the AutoDriver, so they'll be re-checked if the physics changes.
-
-## Latest (~05:00 UTC 16 Oct, session 10, cloud): M7-1 PC build on branch `m7-pc`, nearly ready
-
-- **`main`** has the M7 physics (handling, barriers, wall rides, non-magnetic rails). The Pi
-  session took M7-6 maps on `m7-maps` (24 new maps, not merged when this was written). Don't
-  touch `m7-maps` or session 9's TMNF work; `TM_FAITHFUL` is the owner's decision.
-- **Branch `m7-pc` (pushed, `main` merged in at 235df42):** M7-1. Done and tested:
-  physics interpolation (car, wheels, ghost sub-tick, world-space particles via `InterpAnchor`),
-  frame pacing (V-Sync modes, VRR cap, exclusive fullscreen, F11), AA without MSAA (Auto: FXAA/
-  TAA/FSR 2, SMAA on software GPUs), PC presets, look pass (night roads reflect: `water_gloss` in
-  road.gdshader + `Track.NIGHT_DAMP`; real lights at city neon), perf overlay (Show FPS: ms, worst
-  frame, GPU/CPU ms, pipeline compiles), desktop exports + GitHub Actions "Desktop builds" (green;
-  artifacts SpeedFest-windows / SpeedFest-linux), optional-RTX hooks + `docs/RTX.md`.
-  A review workflow (26 agents) confirmed 8 bugs in the branch; all fixed (PROGRESS ~05:00).
-- **Next on `m7-pc`, in order** (PLAN.md M7 item 1 has the checklist):
-  1. Pipeline compiles mid-race: `tests/integration/perf_probe.tscn -- --track=downtown
-     --quality=2 --autodrive --frames=700` prints `PSO frame=N ...`; add a warm-up only if
-     draw/specialization compiles grow during the race.
-  2. RTX on a Linux build of the fork: `/home/user/nvidia-rtx/godot` (shallow clone, branch
-     `nvidia-pt-dlss`), `scons platform=linuxbsd target=editor arch=x86_64 -j4 debug_symbols=no
-     wayland=no` (SCons from a venv; sowrap needs no X11 dev packages; ~2 h on 4 cores; don't
-     SIGSTOP it, the harness kills stopped jobs). Copy `game/` to a scratch dir (the fork upgrades
-     the project to 4.8: never commit from it), run with `-- --rtx` under Xvfb (lavapipe has
-     `VK_KHR_ray_tracing_pipeline`). Then `#if defined(RT)` branches: opaque `unshaded` shaders
-     (env_neon, env_screen, track_neon, track_stripes, track_chevron) become lit paint under the
-     tracer; UV2 reads as UV1 (env_neon, env_screen, env_terrain, road, track_ground, track_puddle).
-  3. Remove `m7-pc` from `.github/workflows/desktop.yml` branches, `tools/integration/check_all.sh`,
-     merge into `main` (conflicts expected with `m7-maps` in car.gd/race.gd/track.gd/docs if it
-     merged first), re-export web, owner tests the Windows zip (and RTX on their PC).
-- Look-dev: `tests/visual/road_lookdev.tscn -- --wet=0.6 --quality=2 --frames=24 --shot=...` renders
-  in ~1 min (a full downtown track_view takes 5-10 min on llvmpipe). `--mirror=0.02` is the SSR control.
 
 ## Latest (~00:15 UTC 16 Oct, session 9, cloud): TMNF reverse engineered, port not started
 
