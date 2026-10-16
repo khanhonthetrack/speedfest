@@ -43,6 +43,22 @@ noise, so SpeedFest only lets you turn path tracing on when Ray Reconstruction i
    Write down fps, ghosting, whether neon lights the road, the puddles, the rain overlay, and the smear
    after a respawn. Send screenshots. This decides whether the RTX mode is worth more work.
 
+## What has been verified without an RTX card (session 10)
+A Linux build of the fork (`nvidia-pt-dlss` @ 135dff388, 4.8-dev, built in the cloud container) ran
+SpeedFest on Mesa's software Vulkan (lavapipe), which exposes `VK_KHR_ray_tracing_pipeline`:
+- the project imports and all 142 scripts compile on 4.8-dev; test_interpolation 15/15,
+  test_race_logic 41/41 and the TM lab pass; tracks render exactly like on 4.7.2 with path tracing off;
+- `tests/core/test_settings` 14/14 on the fork: the fork is detected, `can_path_trace()` is true,
+  the status line says DLSS is unavailable (no Streamline on Linux), path tracing stays off without
+  the Ray Reconstruction denoiser, and `--rtx` turns it on (SSR/SSAO/SSIL/fog off, bounces set);
+- with `--rtx` the fork's path tracer runs and compiles SpeedFest's materials into RT hit shaders,
+  including the `#if defined(RT)` branches (e.g. track_stripes' emission).
+Not verifiable there: actual path-traced frames. lavapipe can't build the fork's RT pipelines
+("OpTypeForwardPointer is not supported yet": the fork's RT shaders use forward-declared buffer
+references, which Mesa's SPIR-V front end doesn't translate). A default-material cube fails the same
+way, so it's the driver, not SpeedFest. Frames, DLSS, Ray Reconstruction, Frame Generation and Reflex
+need the owner's NVIDIA GPU (steps above).
+
 ## Known limits of the fork's path tracer (from its source; details in the research doc)
 - Transparent and additive materials (rain, nitro flames, glows, ghosts) are drawn on top as raster
   and don't appear in reflections. Opaque GPU particles disappear. Decals don't show.
