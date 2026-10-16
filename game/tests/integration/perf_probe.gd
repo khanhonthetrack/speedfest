@@ -20,7 +20,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var f: int = TestHooks.frame
-	if f in [120, 300, 450, 600, 690]:
+	var every := int(TestHooks.arg("every", 0))      # --every=N: sample every N frames instead
+	if (every > 0 and f % every == 0) or (every <= 0 and f in [120, 300, 450, 600, 690]):
 		var lights := 0
 		for n in get_tree().root.find_children("*", "Light3D", true, false):
 			if (n as Light3D).visible:

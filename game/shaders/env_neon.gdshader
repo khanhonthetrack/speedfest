@@ -11,6 +11,9 @@ float h11(float x) {
 }
 
 void vertex() {
+#if defined(RT)
+	k = 1.0;   // the path tracer reads UV2 as UV: no animation data, keep the neon steady
+#else
 	float mode = UV2.x;
 	float ph = UV2.y;
 	k = 1.0;
@@ -25,8 +28,16 @@ void vertex() {
 	} else if (mode > 3.5) {
 		k = 0.25 + 0.75 * pow(0.5 + 0.5 * sin(TIME * 6.0 - ph * 6.2831), 3.0);
 	}
+#endif
 }
 
+// RT = NVIDIA's path-tracing fork (docs/RTX.md): the tracer ignores `unshaded`, so the colour goes
+// to EMISSION (a real emitter) instead of ALBEDO (it would be lit like paint).
 void fragment() {
+#if defined(RT)
+	ALBEDO = vec3(0.0);
+	EMISSION = COLOR.rgb * energy * k;
+#else
 	ALBEDO = COLOR.rgb * energy * k;
+#endif
 }

@@ -18,5 +18,10 @@ void fragment() {
 		c = mix(vec3(0.03), c, k);
 		e = energy;
 	}
+#if defined(RT)
+	ALBEDO = vec3(0.0);
+	EMISSION = c * e;
+#else
 	ALBEDO = c * e;
+#endif
 }

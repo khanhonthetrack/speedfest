@@ -18,5 +18,11 @@ void fragment() {
 	vec3 c = mix(bg.rgb, fg.rgb * energy, clamp(chev + border * 0.6, 0.0, 1.0));
 	// slow sweep in the direction of travel
 	float sweep = 0.75 + 0.25 * sin(uv.x * 6.0 - TIME * 5.0);
+#if defined(RT)
+	float lit = clamp(chev + border * 0.6, 0.0, 1.0);
+	ALBEDO = bg.rgb * (1.0 - lit);
+	EMISSION = c * mix(1.0, sweep, chev) * lit;
+#else
 	ALBEDO = c * mix(1.0, sweep, chev);
+#endif
 }

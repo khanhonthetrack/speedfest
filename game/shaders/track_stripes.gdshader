@@ -11,5 +11,10 @@ void fragment() {
 	float k = fract((UV.x + UV.y) / stripe);
 	float aa = fwidth((UV.x + UV.y) / stripe) * 1.5;
 	float m = smoothstep(0.5 - aa, 0.5 + aa, k);
+#if defined(RT)
+	ALBEDO = color_b.rgb * m;
+	EMISSION = color_a.rgb * energy * (1.0 - m);
+#else
 	ALBEDO = mix(color_a.rgb * energy, color_b.rgb, m);
+#endif
 }

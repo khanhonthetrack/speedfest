@@ -12,8 +12,13 @@ varying float seed;
 float h11(float x) { return fract(sin(x * 91.3458) * 47453.5453); }
 
 void vertex() {
+#if defined(RT)
+	prog = 4.0;   // UV2 reads as UV under the path tracer: show the sweeping gradient everywhere
+	seed = 0.0;
+#else
 	prog = UV2.x;
 	seed = UV2.y;
+#endif
 }
 
 void fragment() {
@@ -51,5 +56,10 @@ void fragment() {
 	// subtle LED pixel grid
 	vec2 px = fract(uv * vec2(160.0, 90.0));
 	col *= 0.75 + 0.25 * step(0.2, px.x) * step(0.2, px.y);
+#if defined(RT)
+	ALBEDO = vec3(0.01) * (1.0 - border);
+	EMISSION = col * energy * border;
+#else
 	ALBEDO = col * energy * border + vec3(0.01) * (1.0 - border);
+#endif
 }
