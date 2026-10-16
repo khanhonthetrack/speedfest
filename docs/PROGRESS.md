@@ -785,3 +785,19 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - `tests/test_blocks` (no install needed): builds every catalogued shape a family recreates (108 of
   578) and checks mesh, collision/surface ids and footprint bounds; in `tools/test_all.sh`.
   Stadium tests: lab 44, body 22, shapes 11, gbx 3, blocks 3. A01 builds 330 of 393 blocks.
+
+- Later in session 9 (`stadium`): **Platform** (decks: a slab whose closed sides end in a lip over a
+  fabric skirt, swept and mitred per side; turbo plate; checkpoint arch; grid/border/screen walls from
+  a measured plan section): roads 99-99.5%, walls 99.7-100%. **Road/Main** (the measured road section
+  swept along straights, slopes (sheared 8 m per block), corners and GT curves 2-5; T/cross junctions =
+  deck + straight curbs on closed sides + the curb revolved round each open corner; crowned dead ends
+  and base with a low nose; turbo/free-wheel pads with their U-frame and pods; checkpoint, start,
+  finish, multilap gates): plain pieces 96.8-100%, decorated gates 89-91% (thin posts, sign plates).
+  The start block wasn't decryptable; its ground variant's measurement gave its layout (road from
+  z 8, line near z 28). **Terrain zones**: dirt/water fields; dirt hills, pools, dirt borders as our own
+  bicubic surfaces through measured control heights (9 x 9, 4 m apart; `blocks/data/zone_heights.json`
+  from `tools/research/tmnf/zone_heights.py`): hills 71-95%, dirt borders 95-100% (decorated dead ends
+  use the plain one), pools 27-82% (the survey smears the basin walls). Placement: zone tiles at their
+  terrain level (level 0 = 9 m), a hill at level L spans levels L-2..L; the map builder lays collidable
+  grass on every cell without a zone tile. Pools are the banks round water cells.
+- Campaign maps now build mostly from recreated shapes, e.g. A13 422/465, A06 430/450, E03 1010/1196.

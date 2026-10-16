@@ -11,16 +11,17 @@
   main per milestone; it never touches SpeedFest's game/. The shared core now includes `TmBody`
   (stadium/core/tm_body.gd: TMNF's sub-stepped integrator, contacts with face normals for shallow
   pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3, blocks 3).
-- **M8-5 in progress (block library):** families in `stadium/blocks/shapes/` (Circuit 97-100%,
-  Tube 100% vs measurements; see PROGRESS). Measurements live only in the scratchpad (re-create them
+- **M8-5 in progress (block library):** families in `stadium/blocks/shapes/` (circuit, tube, platform,
+  road, zone: plain shapes 96-100% vs measurements, decorated ones lower; see PROGRESS). Measurements live only in the scratchpad (re-create them
   with `tools/research/tmnf/` from a TMNF install: decrypt_all.py -> extract_surf.py; README "Block
   measurements"). Fidelity: `stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless --
   --meas=<dir> --only=Tube/ [--dump=N]`; map check: `race/map_view.tscn -- --tmnf=<install>
   --track=A01 [--view=near:<BlockId>]` prints MISSING shapes.
-- **Next families by campaign use:** Platform (WallBorder 4082 uses, roads, loops, slopes), Road/Main
-  (roads, slopes, GT curves, start/finish/checkpoints, turbo), Control (RoadGlass/Camera/Pub),
-  Zones/terrain (Dirt, DirtHill, DirtBorder, Pool, Water; plus a global terrain body), Inflatable,
-  Fabric, Sculpt. Then M8-6 (environment, car model, race flow, menus, sounds).
+- **Next families by campaign use:** Control (RoadGlass/Camera/Pub), Inflatable (pillars and
+  decorations), Road/Dirt + DirtHigh, Platform loops/slopes/ToRoad/GT walls, Road tilt/GTDiag/slopes,
+  Fabric, Sculpt, Loop. Then M8-6 (environment, car model, race flow, menus, sounds).
+- Known approximations: pool tiles (coarse survey), decorated gates and light/sound tubes, start
+  block (from its ground variant); water is visual only (no water physics yet).
 
 ## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
 
