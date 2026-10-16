@@ -98,7 +98,11 @@ Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
      model (`car/tm_car_visual.gd`: TMNF's proportions, our lofted shapes and livery); (done)
      menus (`ui/menu.tscn` is the main scene; `ui/tm_race_menu.gd` pause/finish; `tests/test_menu`);
      (done) sounds (`audio/tm_sounds.gd` synthesized, `audio/tm_car_audio.gd`; `tests/test_sound`);
-     next HD Forward+ graphics (textures for blocks and stadium, materials, post). Stadium polish: outer roads, forecourts
+     (done) HD materials (`blocks/tm_surface.gdshader`, `car/tm_car_surface.gdshader`).
+  4. The owner's list (TRANSCRIPT, session 12): polish everything; menu polish, fonts, online
+     servers + one official server (5-min rounds, time trial, random campaign maps); RTX graphics
+     (see the RTX branch); downloaded open-licensed music (dark trap, hip hop) for menu and races;
+     better sounds from open-licensed packs; export builds and a way to share them. Stadium polish: outer roads, forecourts
      and parking, roof light panels, textures.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.
 - Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the
