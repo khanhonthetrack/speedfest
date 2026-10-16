@@ -214,31 +214,50 @@ func apply() -> void:
 
 ## Anti-aliasing and upscaling for a 3D viewport (the root one, or a SubViewport such as the garage).
 func apply_viewport(vp: Viewport) -> void:
-	vp.scaling_3d_scale = render_scale
 	if is_compat():
-		vp.msaa_3d = Viewport.MSAA_DISABLED if quality == 0 else Viewport.MSAA_2X
-		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+		_set_if(vp, &"scaling_3d_scale", render_scale)
+		_set_if(vp, &"msaa_3d", Viewport.MSAA_DISABLED if quality == 0 else Viewport.MSAA_2X)
+		_set_if(vp, &"screen_space_aa", Viewport.SCREEN_SPACE_AA_DISABLED)
 		return
 	# Forward+: no MSAA. Switching it at runtime recompiles pipelines (stutter), and post or
 	# temporal AA cleans up the thin neon lines and barrier edges better anyway.
-	vp.msaa_3d = Viewport.MSAA_DISABLED
+	# The final values are worked out first and each property is only written when it changes:
+	# every change rebuilds the render buffers (and throws away TAA/FSR 2/DLSS history).
 	var aa := effective_aa()
-	vp.screen_space_aa = [Viewport.SCREEN_SPACE_AA_DISABLED, Viewport.SCREEN_SPACE_AA_DISABLED,
-		Viewport.SCREEN_SPACE_AA_FXAA, Viewport.SCREEN_SPACE_AA_SMAA, Viewport.SCREEN_SPACE_AA_DISABLED,
-		Viewport.SCREEN_SPACE_AA_DISABLED][aa]
-	vp.use_taa = aa == AA.TAA
+	var mode := Viewport.SCALING_3D_MODE_BILINEAR
 	if aa == AA.FSR2:
-		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2       # at 100 % scale it is a TAA
+		mode = Viewport.SCALING_3D_MODE_FSR2           # at 100 % scale it is a TAA
 	elif render_scale < 0.999:
-		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
-	else:
-		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+		mode = Viewport.SCALING_3D_MODE_FSR
+	var want := {
+		&"msaa_3d": Viewport.MSAA_DISABLED,
+		&"screen_space_aa": [Viewport.SCREEN_SPACE_AA_DISABLED, Viewport.SCREEN_SPACE_AA_DISABLED,
+			Viewport.SCREEN_SPACE_AA_FXAA, Viewport.SCREEN_SPACE_AA_SMAA, Viewport.SCREEN_SPACE_AA_DISABLED,
+			Viewport.SCREEN_SPACE_AA_DISABLED][aa],
+		&"use_taa": aa == AA.TAA,
+		&"scaling_3d_mode": mode,
+		&"scaling_3d_scale": render_scale,
+		&"fsr_sharpness": 0.2,                       # Godot's default (0 = sharpest)
+	}
+	_dlss_overrides(want)
+	for k: StringName in want:
+		_set_if(vp, k, want[k])
 	vp.use_debanding = quality >= 1                                 # night-sky gradients
 	vp.anisotropic_filtering_level = [Viewport.ANISOTROPY_4X, Viewport.ANISOTROPY_8X,
 		Viewport.ANISOTROPY_16X, Viewport.ANISOTROPY_16X][quality]
 	vp.mesh_lod_threshold = [2.0, 1.0, 1.0, 0.75][quality]
 	vp.positional_shadow_atlas_size = [1024, 2048, 4096, 4096][quality]
 	_apply_dlss(vp)
+
+
+static func _set_if(o: Object, prop: StringName, value: Variant) -> void:
+	var cur: Variant = o.get(prop)
+	if typeof(cur) == TYPE_FLOAT and typeof(value) == TYPE_FLOAT:
+		if is_equal_approx(float(cur), float(value)):   # stored as float32 (0.67 reads back as 0.6700000166)
+			return
+	elif cur == value:
+		return
+	o.set(prop, value)
 
 
 ## Renderer-wide quality (Forward+): effect resolutions and shadow filtering, per the PC preset table.
@@ -369,20 +388,23 @@ func rtx_status() -> String:
 	return "RTX ready."
 
 
+## DLSS replaces the mainline AA/upscaling values (apply_viewport writes the result once).
+func _dlss_overrides(want: Dictionary) -> void:
+	if not dlss_active():
+		return
+	want[&"scaling_3d_mode"] = ClassDB.class_get_integer_constant(&"Viewport", &"SCALING_3D_MODE_DLSS")
+	want[&"scaling_3d_scale"] = float(DLSS_SCALES[dlss_mode if dlss_mode > 0 else 2])
+	want[&"screen_space_aa"] = Viewport.SCREEN_SPACE_AA_DISABLED
+	want[&"use_taa"] = false
+	want[&"fsr_sharpness"] = 0.0                    # under DLSS this is NIS sharpening (0 = off)
+
+
 func _apply_dlss(vp: Viewport) -> void:
 	if not is_rtx_fork():
 		return
-	var on := dlss_active()
-	vp.set(&"frame_generation", on and dlss_frame_gen and frame_gen_available())
+	_set_if(vp, &"frame_generation", dlss_active() and dlss_frame_gen and frame_gen_available())
 	if reflex_available():               # Reflex works with or without DLSS
 		_sl().call(&"set_parameter", _sl_const(&"STREAMLINE_PARAM_REFLEX_MODE"), reflex_mode)
-	if not on:
-		return
-	vp.scaling_3d_mode = ClassDB.class_get_integer_constant(&"Viewport", &"SCALING_3D_MODE_DLSS") as Viewport.Scaling3DMode
-	vp.scaling_3d_scale = float(DLSS_SCALES[dlss_mode if dlss_mode > 0 else 2])
-	vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
-	vp.use_taa = false
-	vp.fsr_sharpness = 0.0                       # under DLSS this is NIS sharpening
 
 
 ## Path tracing replaces SSR, SSAO, SSIL, SDFGI, VoxelGI and shadow maps; volumetric fog isn't traced.
