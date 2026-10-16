@@ -132,22 +132,25 @@ const TILT_TRANSITIONS := {
 	"Road/Tilt/Transition/2Left": [2, 1.0], "Road/Tilt/Transition/2Right": [2, -1.0],
 }
 
-## GT diagonals: S-curves moving the road sideways; footprint size -> [length along z, width along x,
-## the centre line's x at 17 evenly spaced z (measured)]. Mirror flips x; Slope rises 0.25 per metre
-## along z; Tilt lies in a tilted plane (shear, fitted per piece).
-const GT_DIAG := {
-	"2x2": [64.0, 64.0, [16.0, 16.2, 16.85, 18.0, 19.85, 22.35, 25.3, 28.6, 32.0, 35.4, 38.65, 41.65, 44.15,
-		45.95, 47.15, 47.8, 48.0]],
-	"3x2": [96.0, 64.0, [16.0, 16.25, 16.95, 18.4, 20.7, 23.8, 27.3, 31.15, 34.85, 38.2, 41.05, 43.4, 45.15,
-		46.5, 47.35, 47.85, 48.0]],
-	"4x3": [128.0, 96.0, [16.0, 16.95, 19.4, 23.25, 28.1, 33.7, 39.75, 46.1, 52.25, 58.25, 63.7, 68.5, 72.55,
-		75.8, 78.05, 79.4, 80.0]],
-}
+## GT diagonals: S-curves moving the road sideways, swept through TMNF's own frames (measured:
+## blocks/data/gt_diag_frames.json from tools/research/tmnf/sweep_frames.py; per frame the centre
+## x, z, the lateral's angle from +x toward +z in degrees, and the section's width scale); size ->
+## the footprint's width along x. Mirror flips x; Slope rises 0.25 per metre along z; Tilt lies in a
+## tilted plane (shear, fitted per piece).
+const GT_DIAG := {"2x2": 64.0, "3x2": 64.0, "4x3": 96.0}
+const GT_DIAG_FRAMES := "res://blocks/data/gt_diag_frames.json"
 const GT_DIAG_TILT := {"2x2Tilt": [0.251, -0.03], "2x2TiltMirror": [-0.251, 16.032], "3x2Tilt": [0.251, -0.032],
 	"3x2TiltMirror": [-0.251, 16.03]}
 
 ## Holes: the opening through the road (x0, x1, z0, z1); HolePillar covers it with a grate and runs
 ## pillars (radius PILLAR_R) through it: form -> pillar positions (x, z).
+## Segments of the corner (k = 1) and the GT curves' quarter circles (measured: TMNF's polygons).
+const CURVE_STEPS := {1: 16, 2: 32, 3: 48, 4: 32, 5: 96}
+## Y junctions: form -> [branch, slope (rise per metre along z), lift].
+const Y_SHAPED := {
+	"Curve2": ["curve", 0.0, 0.0], "Diag2": ["diag", 0.0, 0.0],
+	"Diag2SlopeUp": ["diag", -0.25, 16.0], "Diag2SlopeDown": ["diag", 0.25, 0.0],
+}
 const HOLE := [11.25, 20.75, 6.25, 25.75]
 const PILLAR_R := 1.375
 const HOLE_PILLARS := {
@@ -157,6 +160,8 @@ const HOLE_PILLARS := {
 
 ## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
 const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
+
+static var _diag_cache := {}
 
 var _road_mat := "asphalt"
 var _road_surf := S_ROAD
@@ -176,6 +181,8 @@ func handles(shape: String) -> bool:
 	if rest.begins_with("GTDiag/") and GT_DIAG.has(rest.trim_prefix("GTDiag/").substr(0, 3)):
 		return true
 	if rest.begins_with("Hole/") or (rest.begins_with("HolePillar/") and HOLE_PILLARS.has(_hole_form(rest))):
+		return true
+	if rest.begins_with("YShaped/") and Y_SHAPED.has(_form(rest.trim_prefix("YShaped/"))):
 		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
 		or rest.begins_with("GTCurve/") or rest.begins_with("Turbo/Air") or rest.begins_with("Turbo/Ground") \
@@ -210,6 +217,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_gt_diag(geo, _form(rest.trim_prefix("GTDiag/")), ground)
 	elif rest.begins_with("Hole/") or rest.begins_with("HolePillar/"):
 		_hole(geo, rest, ground)
+	elif rest.begins_with("YShaped/"):
+		_y_shaped(geo, _form(rest.trim_prefix("YShaped/")), ground)
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
@@ -283,13 +292,15 @@ func _sweep(geo: TmGeo, path: Array, lateral: Array, ground: bool, y_at := Calla
 
 ## GT curves (and the 1x1 corner, k = 1): the section around the footprint's corner (0, 32k).
 func _curve(geo: TmGeo, k: int, ground: bool) -> void:
-	_arc_road(geo, Vector2(0, 32.0 * k), 32.0 * k - 16.0, -90.0, ground)
+	_arc_road(geo, Vector2(0, 32.0 * k), 32.0 * k - 16.0, -90.0, ground, 0.0, 0.0, CURVE_STEPS.get(k, 0))
 
 
 ## A quarter-circle road of centre-line radius r about c (x, z), from angle a0 to a0 + 90 (degrees,
 ## from +x toward +z); bank: rise per metre toward the outside, rise: the centre line's lift.
-func _arc_road(geo: TmGeo, c: Vector2, r: float, a0: float, ground: bool, bank := 0.0, rise := 0.0) -> void:
-	var steps := maxi(8, int(r / 6.0))
+func _arc_road(geo: TmGeo, c: Vector2, r: float, a0: float, ground: bool, bank := 0.0, rise := 0.0,
+		steps := 0) -> void:
+	if steps <= 0:
+		steps = maxi(8, int(r / 6.0))
 	var path := []
 	var lat := []
 	for i in steps + 1:
@@ -368,29 +379,48 @@ static func _clip_x(sec: Array, lo: float, hi: float) -> Array:
 ## A GT diagonal, e.g. "2x2", "2x2Mirror", "3x2Slope", "2x2TiltMirror": the road swept along the
 ## measured centre line (read smoothly), then mirrored, sloped or tilted.
 func _gt_diag(geo: TmGeo, form: String, ground: bool) -> void:
-	var d: Array = GT_DIAG[form.substr(0, 3)]
-	var length := float(d[0])
-	var width := float(d[1])
-	var xs: Array = d[2]
+	var width: float = GT_DIAG[form.substr(0, 3)]
 	var mirror := form.contains("Mirror")
 	var path := []
 	var lat := []
-	var n := int(length / 2.0)
-	for i in n + 1:
-		var t := float(i) / n
-		var x := _ease(xs, t)
-		var dx := (_ease(xs, minf(1.0, t + 0.005)) - _ease(xs, maxf(0.0, t - 0.005))) / (length * (minf(1.0, t + 0.005) - maxf(0.0, t - 0.005)))
+	for f: Array in _diag_frames().get(form.substr(0, 3), []):
+		var a := deg_to_rad(float(f[2]))
+		var l := Vector3(cos(a), 0, sin(a)) * float(f[3])
 		if mirror:
-			x = width - x
-			dx = -dx
-		path.append(Vector3(x, 0, length * t))
-		lat.append(Vector3(1, 0, -dx).normalized())
+			l.z = -l.z
+		path.append(Vector3(width - float(f[0]) if mirror else float(f[0]), 0, float(f[1])))
+		lat.append(l)
 	_sweep(geo, path, lat, ground and not form.contains("Tilt"))
 	if form.contains("Slope"):
 		geo.shear_y(0.0, 0.25, 0.0)
 	elif form.contains("Tilt"):
 		var k: Array = GT_DIAG_TILT.get(form, [0.0, 0.0])
 		geo.shear_y(float(k[0]), 0.0, float(k[1]))
+
+
+## Y junctions: one branch (the 2-block GT curve or GT diagonal, both ending at the top centre,
+## x 48) cut where it meets its mirror image across x = 48, plus that image (measured: the outer
+## curbs meet in a V there); the slopes shear it, rising 0.25 per metre.
+func _y_shaped(geo: TmGeo, form: String, ground: bool) -> void:
+	var y: Array = Y_SHAPED[form]
+	if String(y[0]) == "curve":
+		_curve(geo, 2, ground)
+	else:
+		_gt_diag(geo, "2x2", ground)
+	geo.clip(Vector3(1, 0, 0), 48.0)
+	geo.add_mirror_x(48.0)
+	if float(y[1]) != 0.0 or float(y[2]) != 0.0:
+		geo.shear_y(0.0, float(y[1]), float(y[2]))
+
+
+static func _diag_frames() -> Dictionary:
+	if _diag_cache.is_empty():
+		var f := FileAccess.open(GT_DIAG_FRAMES, FileAccess.READ)
+		if f != null:
+			var parsed: Variant = JSON.parse_string(f.get_as_text())
+			if parsed is Dictionary:
+				_diag_cache = (parsed as Dictionary).get("frames", {})
+	return _diag_cache
 
 
 ## Tilted pieces: planar ones built flat then sheared, banked curves, and the transitions.
@@ -405,11 +435,12 @@ func _tilt(geo: TmGeo, base: String) -> void:
 			_gate(geo, 16.0)
 		else:
 			var p := build.split(":")
-			_arc_road(geo, Vector2(float(p[2]), float(p[3])), float(p[1]), float(p[4]), false)
+			_arc_road(geo, Vector2(float(p[2]), float(p[3])), float(p[1]), float(p[4]), false, 0.0, 0.0,
+				CURVE_STEPS.get(int((float(p[1]) + 16.0) / 32.0), 0))
 		geo.shear_y(float(t[1]), float(t[2]), float(t[3]))
 	elif TILT_BANKED.has(base):
 		var k: int = TILT_BANKED[base]
-		_arc_road(geo, Vector2(0, 32.0 * k), 32.0 * k - 16.0, -90.0, false, TILT, TILT_RISE)
+		_arc_road(geo, Vector2(0, 32.0 * k), 32.0 * k - 16.0, -90.0, false, TILT, TILT_RISE, CURVE_STEPS.get(k, 0))
 	else:
 		var tr: Array = TILT_TRANSITIONS[base]
 		var length := 32.0 * int(tr[0])

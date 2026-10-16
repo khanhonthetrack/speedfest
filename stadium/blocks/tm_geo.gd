@@ -287,6 +287,75 @@ func merge(other: TmGeo) -> void:
 	_surf.append_array(other._surf)
 
 
+## Keeps only what lies on the side of the plane n . p <= d (TMNF coords): triangles crossing it are
+## cut (normals and UVs interpolated). The cut is left open, for a piece whose mirror closes it.
+func clip(n: Vector3, d: float) -> void:
+	var gn := g(n)        # stored points are Godot's, and g() is its own inverse
+	for key in _vis:
+		var grp: Group = _vis[key]
+		var out := Group.new()
+		for k in range(0, grp.v.size(), 3):
+			var poly := []
+			for i in 3:
+				poly.append([grp.v[k + i], grp.n[k + i], grp.uv[k + i]])
+			poly = _clip_poly(poly, gn, d)
+			for i in range(1, poly.size() - 1):
+				for q: Array in [poly[0], poly[i], poly[i + 1]]:
+					out.v.append(q[0])
+					out.n.append((q[1] as Vector3).normalized())
+					out.uv.append(q[2])
+		_vis[key] = out
+	var col := PackedVector3Array()
+	var surf := PackedInt32Array()
+	for f in _surf.size():
+		var poly := []
+		for i in 3:
+			poly.append([_col[f * 3 + i], Vector3.ZERO, Vector2.ZERO])
+		poly = _clip_poly(poly, gn, d)
+		for i in range(1, poly.size() - 1):
+			col.append_array([poly[0][0], poly[i][0], poly[i + 1][0]])
+			surf.append(_surf[f])
+	_col = col
+	_surf = surf
+
+
+## Sutherland-Hodgman against one plane; points are [position, normal, uv].
+static func _clip_poly(poly: Array, n: Vector3, d: float) -> Array:
+	var out := []
+	for i in poly.size():
+		var a: Array = poly[i]
+		var b: Array = poly[(i + 1) % poly.size()]
+		var da := n.dot(a[0]) - d
+		var db := n.dot(b[0]) - d
+		if da <= 0.0:
+			out.append(a)
+		if (da < 0.0 and db > 0.0) or (da > 0.0 and db < 0.0):
+			var t := da / (da - db)
+			out.append([(a[0] as Vector3).lerp(b[0], t), (a[1] as Vector3).lerp(b[1], t), (a[2] as Vector2).lerp(b[2], t)])
+	return out
+
+
+## Adds this geometry's mirror image across the plane x = a (TMNF coords), e.g. the other half of a
+## symmetric piece built as one half.
+func add_mirror_x(a: float) -> void:
+	for key in _vis:
+		var grp: Group = _vis[key]
+		var count := grp.v.size()
+		for k in range(0, count, 3):
+			for i in [0, 2, 1]:      # reversed winding keeps the front side out
+				var v := grp.v[k + i]
+				var n := grp.n[k + i]
+				grp.v.append(Vector3(-2.0 * a - v.x, v.y, v.z))
+				grp.n.append(Vector3(-n.x, n.y, n.z))
+				grp.uv.append(grp.uv[k + i])
+	var faces := _surf.size()
+	for f in faces:
+		for i in [0, 2, 1]:
+			var v := _col[f * 3 + i]
+			_col.append(Vector3(-2.0 * a - v.x, v.y, v.z))
+		_surf.append(_surf[f])
+
+
 func is_empty() -> bool:
 	return _vis.is_empty() and _col.is_empty()
 

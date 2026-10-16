@@ -34,17 +34,18 @@ func _camera() -> void:
 		cam.position = Vector3(float(v[0]), float(v[1]), float(v[2]))
 		cam.look_at(Vector3(float(v[3]), float(v[4]), float(v[5])))
 	elif view.begins_with("near:"):
-		# near:<block id>[:index]: a 3/4 view of that block
+		# near:<block id>[:index[:zoom]]: a 3/4 view of that block (zoom 2: twice as close)
 		var parts := view.split(":")
 		var want := parts[1]
 		var idx := int(parts[2]) if parts.size() > 2 else 0
+		var zoom := float(parts[3]) if parts.size() > 3 else 1.0
 		for n in builder.root.get_node("Blocks").get_children():
 			if String(n.get_meta("block", "")) == want:
 				if idx > 0:
 					idx -= 1
 					continue
 				var c: Vector3 = (n as Node3D).global_position + Vector3(-16, 10, 16)
-				cam.position = c + Vector3(45, 40, -45)
+				cam.position = c + Vector3(45, 40, -45) / zoom
 				cam.look_at(c)
 				break
 	elif view == "start" and builder.has_start:
