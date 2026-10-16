@@ -24,6 +24,10 @@ const PLAYLIST = [
   { track: 'fullsend', duration_s: 180, weathers: ['dry', 'rain'] },
   { track: 'cruise', duration_s: 150, weathers: ['rain', 'dry'] },
   { track: 'plastic', duration_s: 150, weathers: ['dry'] },
+  { track: 'sausage', duration_s: 120, weathers: ['dry', 'rain'] },
+  { track: 'mixer', duration_s: 150, weathers: ['dry', 'rain'] },
+  { track: 'platform', duration_s: 120, weathers: ['dry'] },
+  { track: 'snake', duration_s: 150, weathers: ['rain', 'dry'] },
 ];
 
 const ALT_WEATHER_CHANCE = 0.25;

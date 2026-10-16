@@ -5,7 +5,7 @@ extends RefCounted
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 ## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake"]
 
 const DEFS := {
 	"downtown": {
@@ -169,6 +169,42 @@ const DEFS := {
 		"blurb": "Plastic drags you down: ride the turbo lines up the climb, the slalom and the half-pipe.",
 		"target_s": 18,
 		"weather": "dry",
+	},
+	"sausage": {
+		"name": "Sausage Run",
+		"short": "Sausage",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Rolling humps: crest them flat and stay planted, or float into the next dip.",
+		"target_s": 16,
+		"weather": "dry",
+	},
+	"mixer": {
+		"name": "Surface Mixer",
+		"short": "Mixer",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Asphalt, dirt hairpin, ice bend, grass slalom, plastic climb: a new surface every section.",
+		"target_s": 24,
+		"weather": "dry",
+	},
+	"platform": {
+		"name": "Stepping Stones",
+		"short": "Stones",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Narrow platforms and gaps: hop, land straight, line up the next lip.",
+		"target_s": 15,
+		"weather": "dry",
+	},
+	"snake": {
+		"name": "Snake Alley",
+		"short": "Snake",
+		"theme": "city",
+		"circuit": false,
+		"blurb": "S-bends between tower walls, rising and falling: rhythm and clean exits.",
+		"target_s": 22,
+		"weather": "rain",
 	},
 }
 

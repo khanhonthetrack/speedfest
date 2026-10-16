@@ -27,6 +27,10 @@ const RANGES := {
 	"fullsend": {"len": [700.0, 1500.0], "cps": [2, 3]},
 	"cruise": {"len": [600.0, 1200.0], "cps": [2, 3]},
 	"plastic": {"len": [500.0, 1000.0], "cps": [2, 3]},
+	"sausage": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"mixer": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"platform": {"len": [400.0, 1000.0], "cps": [2, 3]},
+	"snake": {"len": [500.0, 1100.0], "cps": [2, 3]},
 }
 
 var hits: Array = []
