@@ -496,3 +496,29 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   stays on branch `tmnf-physics` and is not merged into main until the owner approves it. Recorded
   the branch's state (AutoDriver 34/34, open test_tm items) and moved to the remake (block library,
   environment, race flow) on branch `stadium`.
+
+## Session 11 — 2026-10-16 (~13:00 UTC; Claude Code on the owner's Windows PC, RTX 2060)
+
+### User (verbatim)
+
+> Get familiar with https://github.com/khanhonthetrack/speedfest.
+> I want to optimize the game with RTX graphics. I am now on RTX card (2060), so I'm ready for some tests
+
+### Claude
+
+- Read HANDOFF, RTX.md, PC.md and the RTX research doc: the RTX hooks are written but have never
+  run on an NVIDIA GPU (the PLAN item "owner tests the RTX mode on an RTX PC"). The PC: RTX 2060
+  6 GB, driver 616.56 (Vulkan RT extensions present), 2560x1440 @ 144 Hz, Ryzen 5 2600X, 16 GB,
+  MSVC 14.51 (VS Build Tools 2026), 18.9 GB free on C:. Proposed: a 4.7.2 baseline, then build
+  NVIDIA's fork from source, then DLSS and path-tracing runs. Asked before downloading.
+
+### User (verbatim)
+
+> Yes, download all four into C:\dev and start: baseline on Godot 4.7.2 first, then build the fork editor.
+
+### Claude
+
+- Downloaded Godot 4.7.2 (SHA-512 checked), Streamline SDK v2.10.0 (release DLLs only, all
+  NVIDIA-signed), SCons 4.11.1 and a shallow clone of `nvidia-pt-dlss` @ 135dff3 into `C:\dev`.
+  Added `tests/integration/gpu_bench` + `tools/rtx_bench.ps1`, ran the baseline (PROGRESS), and
+  started the fork editor build. Work is on branch `m7-rtx`.

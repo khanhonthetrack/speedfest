@@ -858,3 +858,24 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   (`server/public`), boots on WebGL2. `main` fast-forwarded to `m7-look`.
 - Known, not new: the web (compat) car reads dark at night; it predates the look work.
 
+## 2026-10-16 ~13:30 UTC — Session 11 (owner's Windows PC, RTX 2060): real-GPU baseline
+
+- First run on a real GPU: RTX 2060 6 GB, driver 616.56, Ryzen 5 2600X, 2560x1440 @ 144 Hz.
+  Godot 4.7.2 official, Vulkan Forward+. All 143 scripts compile on Windows.
+- New `tests/integration/gpu_bench.tscn`: the race in real time (solo, AutoDriver, V-Sync and FPS
+  cap off), frame + GPU/CPU times over the same stretch (3 s after GO, 20 s). `tools/rtx_bench.ps1`
+  runs sets of configs (baseline / dlss / pt) and keeps BENCH lines, JSON and screenshots.
+- Baseline, Neon Downtown in rain, exclusive fullscreen 2560x1440 unless noted:
+
+  | preset | AA | fps | GPU ms | 1% low ms |
+  |---|---|---|---|---|
+  | Low | FXAA | 321 | 2.5 | 4.3 |
+  | Medium | TAA | 122 | 7.4 | 10.2 |
+  | High | FSR 2 native | 64 | 15.0 | 17.8 |
+  | Ultra | FSR 2 native | 45 | 21.3 | 29.9 |
+  | High, FSR 2 at 67 % (1715x965) | FSR 2 | 105 | 8.8 | 11.3 |
+  | High, 1920x1080 window | FSR 2 native | 100 | 9.3 | 12.0 |
+
+  GPU-bound everywhere (CPU ~1 ms), 0 pipeline compiles mid-race, AutoDriver 260 km/h.
+- Next: NVIDIA fork editor build on Windows (`C:\dev\godot-rtx`), then DLSS and path-tracing runs.
+
