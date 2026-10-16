@@ -496,3 +496,15 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   stays on branch `tmnf-physics` and is not merged into main until the owner approves it. Recorded
   the branch's state (AutoDriver 34/34, open test_tm items) and moved to the remake (block library,
   environment, race flow) on branch `stadium`.
+
+### User (verbatim, 16 Oct ~21:20 UTC, session 8 on the Pi)
+
+> Pull from repo and prepare the exe for the rtx version for pc for me to send it to friends
+
+### Claude
+
+- The Pi can't build Godot and the PC session was offline, so the RTX build runs in GitHub Actions
+  (`rtx-build` branch = `m7-rtx` + `main`, workflow `rtx.yml`): NVIDIA's fork built with MSVC, the
+  game exported with 4.7.2, smoke-tested on Windows. Download: artifact SpeedFest-windows-rtx of run
+  38965547516. The NVIDIA DLLs aren't in it (licence; a public download was blocked):
+  `add_nvidia_dlss.bat` in the folder adds them.

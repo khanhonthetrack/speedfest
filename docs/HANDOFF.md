@@ -1,5 +1,14 @@
 # HANDOFF: start here
 
+## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`
+
+- Owner asked for the RTX exe for friends. **`rtx-build`** = `m7-rtx` + `main`, plus
+  `.github/workflows/rtx.yml` (fork template via MSVC -> 4.7.2 export -> Windows smoke test) and
+  `tools/export_rtx.sh`, `tools/rtx/` (README, add_nvidia_dlss.bat/.ps1). First run green:
+  https://github.com/khanhonthetrack/speedfest/actions/runs/38965547516 (artifact
+  SpeedFest-windows-rtx). Details in `rtx-build`'s HANDOFF/PROGRESS and docs/RTX.md. When `m7-rtx`
+  goes into `main`, merge `rtx-build` with it (the workflow then only needs its branch filter changed).
+
 ## Latest (~14:45 UTC 16 Oct, session 8 auto-continue on the Pi): 24 new maps MERGED into `main`, deployed
 
 - **`main` now has all 34 maps** (`m7-maps` merged via branch `m7-maps-main`, no conflicts): the 24
