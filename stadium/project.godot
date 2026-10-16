@@ -34,6 +34,7 @@ window/stretch/aspect="expand"
 
 [physics]
 
+jolt_physics_3d/queries/enable_ray_cast_face_index=true
 jolt_physics_3d/queries/use_enhanced_internal_edge_removal=true
 
 3d/physics_engine="Jolt Physics"

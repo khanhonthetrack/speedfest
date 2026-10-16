@@ -9,8 +9,12 @@ var _families: Array = []          ## objects with handles(shape) -> bool and ma
 var _cache := {}                   ## shape name -> PackedScene-like template (Node3D), duplicated
 
 
+const FAMILIES := ["res://blocks/shapes/circuit.gd"]
+
+
 func _init() -> void:
-	pass
+	for path in FAMILIES:
+		register(load(path).new())
 
 
 func register(family: Object) -> void:
