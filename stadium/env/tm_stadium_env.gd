@@ -57,6 +57,18 @@ static func add(parent: Node) -> WorldEnvironment:
 	var hi := CLOUD_HI.srgb_to_linear()
 	sky_mat.set_shader_parameter("cloud_lo", Vector3(lo.r, lo.g, lo.b))
 	sky_mat.set_shader_parameter("cloud_hi", Vector3(hi.r, hi.g, hi.b))
+	var cn := FastNoiseLite.new()
+	cn.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	cn.frequency = 0.012
+	cn.fractal_octaves = 5
+	cn.seed = 17
+	var ct := NoiseTexture2D.new()
+	ct.width = 512
+	ct.height = 512
+	ct.seamless = true
+	ct.generate_mipmaps = true
+	ct.noise = cn
+	sky_mat.set_shader_parameter("cloud_noise", ct)
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.radiance_size = Sky.RADIANCE_SIZE_256

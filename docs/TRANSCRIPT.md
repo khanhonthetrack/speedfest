@@ -544,3 +544,21 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after campaign coverage reached 100%)
 
 > Start M8-6: ghosts and best times first, then the stadium environment, our own car model, menus and sounds.
+
+### User (verbatim, session 12, after ghosts, the stadium, the car model, menus and sounds)
+
+> Yes, continue with HD graphics: textures and materials for the blocks, the stadium and the car.
+
+### User (verbatim, session 12, while the HD graphics were in progress)
+
+> Steps afterwards (do it, don't ask me for permission, as I'm away for a few hours, do what you think is best):
+>
+> 1. Polish ALL the previous steps.
+> 2. Polish the menu, fonts etc (so it doesn't look trivial), add online servers functionality just like in TMNF. Run 1 official server so that my friends can hop in, it can be 5-min each round, time trial, and random campaign maps
+> 3. Look at the RTX branch of the repo and improve graphics further for RTX cards.
+> 4. Download and incorporate (royalty-free) dark trap music, and hip hop and gangsta music for the game (menu and when playing tracks). Don't create yourself. Use open access/open source if you can.
+> 5. Improve sounds - you can use some royalty free open access, but sounds YOU generate are kinda lame.
+> 6. Get ready for export. Then, show me how i could send it over to friends. Via installer or what?
+>
+>
+> Of course, all the time remember to regularly commit and push.

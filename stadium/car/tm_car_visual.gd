@@ -49,9 +49,31 @@ func _ghostly(m: StandardMaterial3D) -> StandardMaterial3D:
 	return m
 
 
-func _mat(key: String) -> StandardMaterial3D:
+## The car's own surface shader (HD graphics, not for ghosts): paint with flakes and a stripe,
+## carbon weave, tyre tread.
+func _surface(mode: int, colour: Color, stripe: float) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://car/tm_car_surface.gdshader")
+	m.set_shader_parameter("mode", mode)
+	m.set_shader_parameter("colour", colour)
+	m.set_shader_parameter("stripe_half", stripe)
+	m.set_shader_parameter("tyre_radius", T.WHEEL_RADIUS)
+	m.set_shader_parameter("tyre_half_width", T.WHEEL_HALF_WIDTH)
+	return m
+
+
+func _mat(key: String) -> Material:
 	if _mats.has(key):
 		return _mats[key]
+	if not ghost and TmMaterials.hd() and key in ["paint", "white", "carbon", "tyre"]:
+		var sm: ShaderMaterial
+		match key:
+			"paint": sm = _surface(0, paint_colour, 0.07)
+			"white": sm = _surface(0, Color(0.93, 0.93, 0.94), 0.0)
+			"carbon": sm = _surface(1, Color.BLACK, 0.0)
+			"tyre": sm = _surface(2, Color.BLACK, 0.0)
+		_mats[key] = sm
+		return sm
 	var m := StandardMaterial3D.new()
 	match key:
 		"paint":

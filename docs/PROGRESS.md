@@ -1115,3 +1115,21 @@ menus and sounds."
 - `tests/test_sound` (12): streams exist and aren't silent, loops wrap whole, rpm in and across
   gears, the engine follows throttle and speed, the countdown. STADIUM_TESTS PASS; test_race all
   65 tracks with the menus and sound in the race: 616 checks.
+
+## 2026-10-16 — Session 12: HD graphics: procedural textures and materials (M8-6), branch `stadium`
+Owner: "Yes, continue with HD graphics: textures and materials for the blocks, the stadium and the car."
+- TMNF's look measured locally (its textures viewed as a contact sheet, never copied): the
+  Stadium's road is light concrete (165, 164, 161), not dark asphalt; platforms (166, 165, 162);
+  grass (52, 75, 40); dirt (67, 61, 49); circuit panels dark with orange strips; parking blue.
+- `blocks/tm_surface.gdshader`: one procedural surface shader, patterns drawn in world space
+  (noise blended over the three planes, lines and tiles on the nearest plane; no UVs, so they run
+  on across blocks): concrete (grain, stains, panel seams), grass (mown stripes), dirt (lumps,
+  pebbles), perforated grid, brushed metal, turbo stripes, seat rows, animated screens and LED
+  boards, fabric, louvres (the stadium roof's underside), wall panels, paving; bump-mapped from a
+  height (screen-space derivatives), seams fading with distance. `TmMaterials` gives each key its
+  pattern, colour and scale (`SURFACES`); two seamless noise textures feed it. Water: glossy deep
+  teal with a world-space ripple normal.
+- `car/tm_car_surface.gdshader`: paint with metallic flakes under a clearcoat and a white stripe
+  along the top, carbon fibre twill, tyres with tread grooves, sipes and a lettering band.
+- Sky clouds from a seamless noise texture (the hash noise showed blocks).
+- Options: "HD graphics" (on by default; off = the flat colours, for slow machines; `--hd=0`).

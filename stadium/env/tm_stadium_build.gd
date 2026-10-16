@@ -243,7 +243,8 @@ static func _roof(geo: TmGeo, sz: float) -> void:
 			for k in n:
 				var k1 := (k + 1) % n
 				var e: Vector3 = (sec[k1] as Vector3) - (sec[k] as Vector3)
-				_quad(geo, prev[k], sec[k], sec[k1], prev[k1], "roof", Vector3(0.0, -e.z, e.y) * flip)
+				var mat := "roof_under" if k >= 4 and k <= 6 else "roof"   # the underside: louvres
+				_quad(geo, prev[k], sec[k], sec[k1], prev[k1], mat, Vector3(0.0, -e.z, e.y) * flip)
 		prev = sec
 	# the tube along the visor's front edge and the beams under the roof every 45 m
 	for i in xs.size() - 1:

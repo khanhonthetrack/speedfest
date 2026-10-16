@@ -34,8 +34,13 @@
 - **M8-6 sounds done:** `audio/tm_sounds.gd` (all synthesized: engine loops, skid, wind, cues),
   `audio/tm_car_audio.gd` (engine pitched by virtual gears, cues); `tests/test_sound`. The owner's
   list for this session (ghosts and best times, stadium, car, menus, sounds) is complete.
-- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the last of M8-6: HD Forward+
-  graphics (textures for blocks and stadium, materials, post); polish of the weakest decorations
+- **M8-6 HD graphics (textures and materials) done:** `blocks/tm_surface.gdshader` (procedural
+  world-space surfaces per material key), `car/tm_car_surface.gdshader`; TMNF's light concrete road.
+- **The owner's list (TRANSCRIPT, session 12, verbatim), being worked through in order:** polish
+  all steps; menu polish + fonts + online servers with one official server (5-min rounds, time
+  trial, random campaign maps); RTX graphics from the RTX branch; downloaded open-licensed dark
+  trap / hip-hop music; better sounds from open-licensed packs; export and how to share with friends.
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** that list; polish of the weakest decorations
   (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
   allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).

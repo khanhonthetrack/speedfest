@@ -12,7 +12,7 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 	["C", "Blue", Color(0.30, 0.52, 1.00)], ["D", "Red", Color(0.92, 0.25, 0.20)], ["E", "Black", Color(0.12, 0.12, 0.14)]]
 
 const SETTINGS_PATH := "user://settings.cfg"
-const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true}
+const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true}
 
 static var _theme: Theme
 static var _cfg: ConfigFile
@@ -107,6 +107,8 @@ static func setting(key: String) -> Variant:
 static func set_setting(key: String, value: Variant) -> void:
 	_settings().set_value("game", key, value)
 	_settings().save(SETTINGS_PATH)
+	if key == "hd":
+		TmMaterials.clear_cache()
 	apply()
 
 
