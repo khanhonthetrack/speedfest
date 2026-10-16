@@ -41,6 +41,8 @@ window/stretch/aspect="expand"
 
 [physics]
 
+jolt_physics_3d/queries/use_enhanced_internal_edge_removal=true
+
 3d/physics_engine="Jolt Physics"
 common/physics_ticks_per_second=60
 common/max_physics_steps_per_frame=6

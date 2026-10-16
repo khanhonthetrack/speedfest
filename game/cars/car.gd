@@ -371,6 +371,12 @@ func teleport(xform: Transform3D, p_linear_velocity: Vector3 = Vector3.ZERO) -> 
 		_pending_xform = x
 		_reset_dynamics(p_linear_velocity)
 		tm.teleport(x, p_linear_velocity)
+		# a teleport, not a move: Jolt would turn the jump into the kinematic body's velocity
+		var rid := get_rid()
+		PhysicsServer3D.body_set_mode(rid, PhysicsServer3D.BODY_MODE_STATIC)
+		PhysicsServer3D.body_set_state(rid, PhysicsServer3D.BODY_STATE_TRANSFORM, x)
+		PhysicsServer3D.body_set_mode(rid, PhysicsServer3D.BODY_MODE_KINEMATIC)
+		PhysicsServer3D.body_set_state(rid, PhysicsServer3D.BODY_STATE_LINEAR_VELOCITY, p_linear_velocity)
 		if is_inside_tree():
 			reset_physics_interpolation()
 		return

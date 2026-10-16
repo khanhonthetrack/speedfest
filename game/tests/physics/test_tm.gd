@@ -349,7 +349,7 @@ func _loop(id: String, kmh := 140.0) -> void:
 	var fast := kmh > 250.0
 	var o := Vector3(4000, 0, 400.0 if fast else 0.0)
 	var path := PhysicsTestGround.loop_path(18.0, 220.0, 150.0, 16.0, o)
-	var road := PhysicsTestGround.road_from_path(path)
+	var road := PhysicsTestGround.road_from_path(path, 0.0, 0.25)
 	add_child(road)
 	var car := Car.create(PhysicsTestGround.test_config(id))
 	add_child(car)

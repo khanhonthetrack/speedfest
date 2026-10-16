@@ -46,7 +46,7 @@ func _ready() -> void:
 	LOOP_R = float(TestHooks.arg("r", 18.0))
 	# loop at x = 0
 	loop_path = PhysicsTestGround.loop_path(LOOP_R, 220.0, 160.0, 12.0)
-	add_child(PhysicsTestGround.road_from_path(loop_path))
+	add_child(PhysicsTestGround.road_from_path(loop_path, 0.0, 0.25))
 	loop_from = float(loop_path.zones[0]["from"])
 	loop_to = float(loop_path.zones[0]["to"])
 	loop_car = _spawn(Transform3D(Basis.IDENTITY, Vector3(0, 0.6, -2)))
@@ -57,7 +57,7 @@ func _ready() -> void:
 	for spec in specs:
 		var o := Vector3(spec[1], 0, 0)
 		var lp := PhysicsTestGround.loop_path(LOOP_R, 260.0, 160.0, 12.0, o)
-		add_child(PhysicsTestGround.road_from_path(lp))
+		add_child(PhysicsTestGround.road_from_path(lp, 0.0, 0.25))
 		var ec := _spawn(Transform3D(Basis.IDENTITY, o + Vector3(0, 0.6, -2)))
 		var eai := _driver(ec, lp)
 		eai.target_speed_kmh = spec[2]

@@ -504,7 +504,18 @@ func _finish_run() -> void:
 # --- respawn / restart -------------------------------------------------------------------------------
 
 ## Back to the last checkpoint with the speed it was passed at. The clock keeps running.
+var _last_pos_text := ""
+
+
 func respawn() -> void:
+	_last_pos_text = "(%.0f, %.0f, %.0f) %.0f km/h" % [car.global_position.x, car.global_position.y, car.global_position.z, car.get_speed_kmh()]
+	if input_node is AutoDriver and track.path != null:
+		var d: float = (input_node as AutoDriver).get_distance()
+		var kinds := []
+		for z in track.path.zones:
+			if d >= float(z["from"]) - 30.0 and d <= float(z["to"]) + 10.0:
+				kinds.append("%s %.0f-%.0f" % [z.get("kind", "?"), z["from"], z["to"]])
+		_last_pos_text += " d=%.0f %s" % [d, str(kinds)]
 	if state != State.RUNNING:
 		return
 	car.teleport(_respawn_xf, _respawn_vel)
@@ -512,7 +523,7 @@ func respawn() -> void:
 	camera.snap()
 	_upside_down_s = 0.0
 	Audio.play_sfx("respawn")
-	_log("respawn cp=%d" % (next_cp - 1))
+	_log("respawn cp=%d at %s" % [next_cp - 1, _last_pos_text])
 	respawned.emit()
 
 

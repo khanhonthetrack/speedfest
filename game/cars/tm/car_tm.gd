@@ -27,6 +27,8 @@ const MAX_SPEED_HARD := 125.0                     ## m/s: checkpoint triggers ar
 const REACTOR_LIFT := 0.8                         ## x TMNF's air gravity, upward
 const REACTOR_PUSH := 7.0
 const TMNF_DT := 0.01
+const NITRO_TOP := 1.08                           ## nitro lifts the top-speed cap by this
+const RIGHTING_AFTER := 1.5                       ## s upside down and slow: SpeedFest self-rights
 
 var car: Car
 var body := TmBody.new()
@@ -44,6 +46,7 @@ static func kind_grip(kind: int) -> float:
 func _init(p_car: Car) -> void:
 	car = p_car
 	body.model.surface_override = SF_SURFACES
+	body.model.reverse_brake_min = 0.5        # a light brake (pad trigger) doesn't back up
 	body.collision_mask = 1
 	body.surface_fn = _surface_for_body
 	_com = car.center_of_mass
@@ -196,6 +199,31 @@ func frame(dt: float) -> void:
 			extra += Vector3.UP * T.GRAVITY * T.GRAVITY_AIR * REACTOR_LIFT + fwd0 * REACTOR_PUSH
 		else:
 			extra += fwd_g * REACTOR_PUSH
+	model.max_speed = float(car.params.get("tm_top", T.MAX_SPEED)) * (NITRO_TOP if car._nitro_active else 1.0)
+	# --- SpeedFest's roof drag: a car sliding on its roof or side settles (then self-rights) ---
+	var spd := body.lin_vel.length()
+	if body.body_contact and car._grounded < 2 and b0.y.dot(Vector3.UP) < 0.4 and spd > 0.5:
+		extra -= body.lin_vel / spd * minf(Car.ROOF_DRAG, spd / dt)
+	# --- SpeedFest's self-righting (TMNF has none: you respawn): upside down or on the side and
+	# slow for 1.5 s, the car rolls back onto its wheels ---
+	var up0 := b0.y
+	if up0.dot(Vector3.UP) < 0.3 and car._grounded < 2 and body.lin_vel.length() < 3.0:
+		car._upside_time += dt
+	else:
+		car._upside_time = 0.0
+	if car._upside_time > RIGHTING_AFTER and car._righting <= 0.0:
+		car._righting = 1.0
+	if car._righting > 0.0:
+		car._righting -= dt
+		if up0.dot(Vector3.UP) > 0.92:
+			car._righting = 0.0
+		else:
+			if up0.dot(Vector3.UP) < 0.5 and car._righting > 0.4:
+				extra += Vector3.UP * T.GRAVITY * model.gravity_coef * 1.2
+			var axis := up0.cross(Vector3.UP)
+			if axis.length_squared() < 1e-4:
+				axis = fwd0
+			body.ang_vel = axis.normalized() * 3.0
 	body.extra_accel = extra
 
 	# --- TMNF ---
@@ -208,13 +236,13 @@ func frame(dt: float) -> void:
 	if sp2 > MAX_SPEED_HARD * MAX_SPEED_HARD:
 		body.lin_vel *= MAX_SPEED_HARD / sqrt(sp2)
 	if car.frozen_controls and body.wheel_contact.count(true) >= 2:
-		var upb := body.xform.basis.y
-		body.lin_vel = upb * body.lin_vel.dot(upb)
-		body.ang_vel *= 0.6
+		body.lin_vel = Vector3.ZERO           # held on the start line
+		body.ang_vel = Vector3.ZERO
 	car.global_transform = _from_body()
 	car.linear_velocity = body.lin_vel
 	car.angular_velocity = body.ang_vel
-	_update_car_state(dt, gas, was_grounded, prev_vel, walls)
+	var rev_gas := clampf(float(car.controls.get("throttle", 0.0)), 0.0, 1.0) if car.frozen_controls else gas
+	_update_car_state(dt, rev_gas, was_grounded, prev_vel, walls)
 
 
 ## The rail moves the car (TrackRail.grind_step works on a state-like object).

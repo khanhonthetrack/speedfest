@@ -147,13 +147,13 @@ static func loop_path(r: float = 18.0, lead: float = 220.0, tail: float = 150.0,
 	var slope := shift / (TAU * r)
 	c.add_point(origin + Vector3(-slope * lead, 0, 0))
 	c.add_point(origin + Vector3(-slope * lead * 0.5, 0, -lead * 0.5))
-	var n := 32
+	# a dense polyline (no Bezier handles): smoothing bends a helix's tangents and twists its road
+	var n := 256
 	for i in n + 1:
 		var a := TAU * i / n
 		c.add_point(origin + Vector3(shift * float(i) / n, r - r * cos(a), -lead - r * sin(a)))
 	c.add_point(origin + Vector3(shift + slope * tail * 0.5, 0, -lead - tail * 0.5))
 	c.add_point(origin + Vector3(shift + slope * tail, 0, -lead - tail))
-	_smooth(c)
 	var p := PhysicsTestPath.new(c, false, width)
 	var loop_from := p.closest_distance(origin + Vector3(0, 0, -lead)) - 5.0
 	p.zones = [{"from": loop_from, "to": loop_from + TAU * r + 15.0, "kind": "loop"}]
@@ -220,12 +220,53 @@ static func wallride_path(r: float = 70.0, roll_deg: float = 85.0, ramp_len: flo
 
 
 ## Straight -> ramp (angle_deg, ramp_len) -> gap -> landing down-ramp -> straight.
+## A kicker along -Z from `origin`: a curved base (an arc over 60% of its length, like TM ramps; a
+## sharp crease from flat to the slope pitches a TMNF car into a spin) up to `angle_deg`, then straight
+## to the lip ~ramp_len along, and a vertical face back down to the floor.
 static func jump_ramp(angle_deg: float = 12.0, ramp_len: float = 22.0, origin: Vector3 = Vector3.ZERO) -> Node3D:
 	var root := Node3D.new()
 	var a := deg_to_rad(angle_deg)
-	var h := sin(a) * ramp_len
-	var ramp := _slab(Vector3(14, 0.5, ramp_len), a, origin + Vector3(0, h * 0.5 - 0.25 * cos(a), -ramp_len * 0.5 * cos(a)))
-	root.add_child(ramp)
+	var arc := ramp_len * 0.6
+	var r := arc / a
+	var prof: Array[Vector2] = []          # (distance along -Z, height)
+	var n := 16
+	for i in n + 1:
+		var t := a * i / n
+		prof.append(Vector2(r * sin(t), r - r * cos(t)))
+	prof.append(prof[n] + Vector2(cos(a), sin(a)) * (ramp_len - arc))
+	var lip: Vector2 = prof[prof.size() - 1]
+	prof.append(Vector2(lip.x, 0.0))
+	var faces := PackedVector3Array()
+	var hw := 7.0
+	for i in prof.size() - 1:
+		var p0 := origin + Vector3(0, prof[i].y, -prof[i].x)
+		var p1 := origin + Vector3(0, prof[i + 1].y, -prof[i + 1].x)
+		var l0 := p0 + Vector3(-hw, 0, 0)
+		var r0 := p0 + Vector3(hw, 0, 0)
+		var l1 := p1 + Vector3(-hw, 0, 0)
+		var r1 := p1 + Vector3(hw, 0, 0)
+		faces.append_array(PackedVector3Array([l0, l1, r0, r0, l1, r1]))
+	var body := StaticBody3D.new()
+	body.collision_layer = 1
+	var cs := CollisionShape3D.new()
+	var shape := ConcavePolygonShape3D.new()
+	shape.backface_collision = true
+	shape.set_faces(faces)
+	cs.shape = shape
+	body.add_child(cs)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for v in faces:
+		st.add_vertex(v)
+	st.generate_normals()
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.1, 0.6, 0.9)
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = mat
+	body.add_child(mi)
+	root.add_child(body)
 	return root
 
 

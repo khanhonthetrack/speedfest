@@ -34,6 +34,8 @@ var slide_grip := T.SLIDE_GRIP                ## grip of a sliding wheel (drift 
 var max_speed := T.MAX_SPEED                  ## m/s: the over-speed push starts here
 ## Extra surfaces a host defines (id -> [top speed, accel, brake, grip]); SpeedFest's ice and plastic
 var surface_override := {}
+## Brake input that engages reverse at a standstill (TMNF's exact threshold isn't decoded yet).
+var reverse_brake_min := 0.1
 
 # --- persistent state ---
 var steer := 0.0                              ## current steering (-1..1, + = left), slewed
@@ -217,7 +219,7 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 func _ground_drive(v: Vector3, w: Vector3, gas: float, brake: float, speed: float, kmh: float,
 		surf: Array, drive_adh: float, flag_sliding: bool) -> void:
 	# reverse gear: brake near a standstill backs up; gas or moving forward ends it
-	if brake > 0.1 and v.z < 0.5 and absf(v.x) < 2.0:
+	if brake > reverse_brake_min and v.z < 0.5 and absf(v.x) < 2.0:
 		reverse = true
 	if gas > 0.1 and (v.z > 0.0 or absf(v.x) > 2.0):
 		reverse = false
