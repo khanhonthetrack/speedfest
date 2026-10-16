@@ -39,6 +39,10 @@ const RANGES := {
 	"dropzone": {"len": [500.0, 1100.0], "cps": [2, 3]},
 	"rally": {"len": [600.0, 1200.0], "cps": [2, 3]},
 	"spiral": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"neonrush": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"zigzag": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"coastline": {"len": [700.0, 1400.0], "cps": [2, 3]},
+	"finale": {"len": [800.0, 1500.0], "cps": [3, 4]},
 }
 
 var hits: Array = []

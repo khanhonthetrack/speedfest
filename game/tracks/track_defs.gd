@@ -5,7 +5,7 @@ extends RefCounted
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 ## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake", "nosteer", "canyon", "icepipe", "grassland", "skyline", "dropzone", "rally", "spiral"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake", "nosteer", "canyon", "icepipe", "grassland", "skyline", "dropzone", "rally", "spiral", "neonrush", "zigzag", "coastline", "finale"]
 
 const DEFS := {
 	"downtown": {
@@ -276,6 +276,42 @@ const DEFS := {
 		"circuit": false,
 		"blurb": "One full banked turn up the tower, then the dive back down to the finish.",
 		"target_s": 20,
+		"weather": "dry",
+	},
+	"neonrush": {
+		"name": "Neon Rush",
+		"short": "Neon",
+		"theme": "city",
+		"circuit": false,
+		"blurb": "Pure flow: boost, a long facade wall ride, through a tower, a second wall ride, dive to the finish.",
+		"target_s": 20,
+		"weather": "rain",
+	},
+	"zigzag": {
+		"name": "Zig Zag",
+		"short": "ZigZag",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Alternating 90s, each exit with a side turbo on the outside line.",
+		"target_s": 18,
+		"weather": "dry",
+	},
+	"coastline": {
+		"name": "Coastline",
+		"short": "Shore",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Full speed along the shore: long sweeps above the waves; in the rain the apexes flood.",
+		"target_s": 24,
+		"weather": "dry",
+	},
+	"finale": {
+		"name": "Grand Finale",
+		"short": "Finale",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "A bit of everything: loop, wall ride, ice, dirt, half-pipe and the jump through the arch.",
+		"target_s": 28,
 		"weather": "dry",
 	},
 }

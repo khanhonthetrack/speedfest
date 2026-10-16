@@ -36,6 +36,10 @@ const PLAYLIST = [
   { track: 'dropzone', duration_s: 120, weathers: ['dry', 'rain'] },
   { track: 'rally', duration_s: 180, weathers: ['dry', 'rain'] },
   { track: 'spiral', duration_s: 150, weathers: ['dry', 'rain'] },
+  { track: 'neonrush', duration_s: 150, weathers: ['rain', 'dry', 'storm'] },
+  { track: 'zigzag', duration_s: 120, weathers: ['dry', 'rain'] },
+  { track: 'coastline', duration_s: 180, weathers: ['dry', 'rain', 'storm'] },
+  { track: 'finale', duration_s: 180, weathers: ['dry', 'rain'] },
 ];
 
 const ALT_WEATHER_CHANCE = 0.25;
