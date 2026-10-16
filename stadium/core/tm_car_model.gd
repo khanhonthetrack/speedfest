@@ -27,6 +27,7 @@ class WheelInput:
 
 # --- per-car scaling (SpeedFest's cars; 1.0 for the Stadium car) ---
 var accel_mul := 1.0                          ## engine acceleration curve (and the speedslide value)
+var launch_mul := 1.0                         ## extra on the first step of the curve (0-101 km/h)
 var steer_mul := 1.0                          ## steering yaw torque
 var grip_mul := 1.0                           ## side friction caps
 var brake_mul := 1.0                          ## brake force and caps
@@ -258,6 +259,8 @@ func _ground_drive(v: Vector3, w: Vector3, gas: float, brake: float, speed: floa
 	if caps > 1e-5:
 		slip_blend = 1.0 - clampf((over - caps) / caps / T.SLIP_BLEND_SCALE, 0.0, 1.0)
 	var curve_accel := (T.lin(T.REVERSE_ACCEL, kmh) if reverse else T.step(T.ACCEL, kmh)) * accel_mul
+	if not reverse and kmh >= 0.0 and kmh < 101.0:
+		curve_accel *= launch_mul
 	var accel := (1.0 - slip_blend) * T.SLIP_ACCEL * accel_mul + slip_blend * curve_accel
 	var rev := -1.0 if reverse else 0.0
 	var f_long: float = curve_accel * turbo_strength + (gas * surf[1] + rev * surf[1] * brake) * accel

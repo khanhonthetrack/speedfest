@@ -63,6 +63,7 @@ func _init(p_car: Car) -> void:
 ## Per-car multipliers from Tuning.physics_params.
 func apply_params(p: Dictionary) -> void:
 	model.accel_mul = float(p.get("tm_accel", 1.0))
+	model.launch_mul = float(p.get("tm_launch", 1.0))
 	model.steer_mul = float(p.get("tm_steer", 1.0))
 	model.grip_mul = float(p.get("tm_grip", 1.0))
 	model.brake_mul = float(p.get("tm_brake", 1.0))

@@ -26,6 +26,9 @@ const DRIFT_RANGE := Vector2(-0.45, 1.7)
 const NITRO_RANGE := Vector2(3.5, 12.0)          # m/s^2
 const NITRO_TIME_RANGE := Vector2(2.0, 9.0)      # s
 const POWER_SCALE := 1.35
+## The same ranges for TMNF handling (fitted the same way; see top_range() / accel_range())
+const TOP_KMH_RANGE_TM := Vector2(250.0, 405.0)
+const ACCEL_S_RANGE_TM := Vector2(3.15, 2.35)
 ## TMNF handling: the car's top speed (where TMNF's over-speed push starts) = v_top x this
 const TM_TOP_SCALE := 1.12
 
@@ -97,6 +100,8 @@ static func physics_params(car_id: String, tuning: Dictionary) -> Dictionary:
 	var kz := CarPhysicsDefs.base("kaze")
 	var pw_ref := float(kz["power"]) * POWER_SCALE / float(kz["mass"])
 	p["tm_accel"] = pow(float(p["power"]) / float(p["mass"]) / pw_ref, 0.6)
+	# launch character from the torque curve's low end (big-block Brute pulls hardest off the line)
+	p["tm_launch"] = sqrt(float(b["torque_low"]) / float(kz["torque_low"])) * (1.0 - 0.04 * turbo)
 	p["tm_top"] = v_top * (1.0 + 0.11 * gearing) * TM_TOP_SCALE
 	p["tm_steer"] = float(p["steer_speed"])
 	p["tm_grip"] = float(p["grip"]) / float(kz["grip"])
@@ -155,6 +160,14 @@ static func traction_limit(p: Dictionary, v: float) -> float:
 
 ## 1D straight-line estimate: {top_speed_kmh, zero_to_100_s}. Deterministic.
 static func estimate(p: Dictionary) -> Dictionary:
+	if Car.handling() == "tmnf":
+		# TMNF handling: the top speed is the car's cap, the acceleration TMNF's staircase
+		# (16 m/s^2 to 101 km/h, 11 to 201: docs/research/tmnf_physics.md §3.6)
+		var am := float(p.get("tm_accel", 1.0))
+		var lm := float(p.get("tm_launch", 1.0))
+		var t100_tm := 27.78 / (16.0 * am * lm)
+		var t200_tm := 28.06 / (16.0 * am * lm) + 27.5 / (11.0 * am)
+		return {"top_speed_kmh": float(p.get("tm_top", 80.0)) * 3.6, "zero_to_100_s": t100_tm, "zero_to_200_s": t200_tm}
 	var m: float = p["mass"]
 	# top speed: highest v where full-throttle force in the best gear >= drag
 	var tops: Array = p["gear_top"]
@@ -192,6 +205,14 @@ static func estimate(p: Dictionary) -> Dictionary:
 	return {"top_speed_kmh": v_top * 3.6, "zero_to_100_s": t100 if t100 > 0.0 else 30.0, "zero_to_200_s": t200}
 
 
+static func top_range() -> Vector2:
+	return TOP_KMH_RANGE_TM if Car.handling() == "tmnf" else TOP_KMH_RANGE
+
+
+static func accel_range() -> Vector2:
+	return ACCEL_S_RANGE_TM if Car.handling() == "tmnf" else ACCEL_S_RANGE
+
+
 static func _norm(x: float, r: Vector2) -> float:
 	return clampf((x - r.x) / (r.y - r.x), 0.0, 1.0)
 
@@ -217,8 +238,8 @@ static func stats(car_id: String, tuning: Dictionary) -> Dictionary:
 		+ (2.0 - float(p["spring_hz"])) * 0.15 \
 		+ (0.2 if p["drive"] == "rwd" else 0.0)
 	return {
-		"top_speed": _norm(e["top_speed_kmh"], TOP_KMH_RANGE),
-		"accel": _norm(float(e["zero_to_100_s"]) + float(e["zero_to_200_s"]) * ACCEL_200_WEIGHT, ACCEL_S_RANGE),
+		"top_speed": _norm(e["top_speed_kmh"], top_range()),
+		"accel": _norm(float(e["zero_to_100_s"]) + float(e["zero_to_200_s"]) * ACCEL_200_WEIGHT, accel_range()),
 		"handling": _norm(handling, HANDLING_RANGE),
 		"drift": _norm(drift, DRIFT_RANGE),
 		"nitro": _norm(float(p["nitro_accel"]), NITRO_RANGE),

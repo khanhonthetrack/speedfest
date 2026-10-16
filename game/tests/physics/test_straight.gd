@@ -102,7 +102,9 @@ func _report_accel() -> void:
 		print("RESULT %s 0-100=%.2fs (est %.2f) top=%.1f km/h (est %.1f) nitro_top=%.1f" % [id, t100[i], st["zero_to_100_s"], vmax[i], st["top_speed_kmh"], nitro_vmax[i]])
 		TestHooks.check(t100[i] > 1.5 and t100[i] < 2.6, "zero_to_100_%s" % id, "%.2f s" % t100[i])   # M7: TM-quick launches
 		if tuning_arg.is_empty():
-			TestHooks.check(vmax[i] > 235.0 and vmax[i] < 330.0, "top_speed_%s" % id, "%.1f km/h" % vmax[i])
+			var top_lo := 250.0 if Car.handling() == "tmnf" else 235.0
+			var top_hi := 405.0 if Car.handling() == "tmnf" else 330.0
+			TestHooks.check(vmax[i] > top_lo and vmax[i] < top_hi, "top_speed_%s" % id, "%.1f km/h" % vmax[i])
 		TestHooks.check(absf(vmax[i] - float(st["top_speed_kmh"])) < 12.0, "top_estimate_%s" % id, "measured %.1f est %.1f" % [vmax[i], st["top_speed_kmh"]])
 		TestHooks.check(absf(t100[i] - float(st["zero_to_100_s"])) < 0.45, "accel_estimate_%s" % id, "measured %.2f est %.2f" % [t100[i], st["zero_to_100_s"]])
 		TestHooks.check(nitro_vmax[i] > vmax[i] + 8.0, "nitro_raises_top_%s" % id, "%.1f vs %.1f" % [nitro_vmax[i], vmax[i]])
@@ -114,4 +116,7 @@ func _report_accel() -> void:
 func _report_brake() -> void:
 	for i in cars.size():
 		print("RESULT %s brake 100-0 = %.1f m" % [cars[i].car_id, brake_dist[i]])
-		TestHooks.check(brake_dist[i] > 15.0 and brake_dist[i] < 45.0, "brake_100_0_%s" % cars[i].car_id, "%.1f m" % brake_dist[i])
+		# TMNF brakes at its 3 g cap from ~60 km/h: ~13 m from 100 km/h
+		var b_lo := 9.0 if Car.handling() == "tmnf" else 15.0
+		var b_hi := 20.0 if Car.handling() == "tmnf" else 45.0
+		TestHooks.check(brake_dist[i] > b_lo and brake_dist[i] < b_hi, "brake_100_0_%s" % cars[i].car_id, "%.1f m" % brake_dist[i])

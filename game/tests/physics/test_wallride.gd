@@ -1,5 +1,5 @@
 extends Node3D
-## Wall-ride test: AutoDriver through a left curve whose roll ramps to ~85 deg and back, on a
+## Wall-ride test: AutoDriver through a left curve whose roll ramps to ~85 deg (TMNF: 60) and back, on a
 ## floating road (falling off = fail). Variants: entry capped at ~142 km/h, fast (nitro), and a
 ## wide radius (little centripetal load; the stick force must hold the car on the wall).
 ## Run: tools/run_scene.sh res://tests/physics/test_wallride.tscn --headless -- --car=kaze [--roll=85]
@@ -15,7 +15,9 @@ var shot_done := false
 func _ready() -> void:
 	car_id = String(TestHooks.arg("car", "kaze"))
 	shotdir = String(TestHooks.arg("shotdir", ""))
-	var roll := float(TestHooks.arg("roll", 85.0))
+	# TMNF's side grip fades from ~46 deg of tilt and is gone above ~73 deg (an 85 deg wall can't be
+	# ridden along there): 60 deg for TMNF handling, 85 for the M7 car
+	var roll := float(TestHooks.arg("roll", 60.0 if Car.handling() == "tmnf" else 85.0))
 	# name, x offset, radius, entry cap km/h (0 = none), nitro, hold length
 	var specs := [
 		["slow", 0.0, 70.0, 142.0, false, 120.0],

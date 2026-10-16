@@ -186,7 +186,9 @@ func _physics_process(dt: float) -> void:
 		return
 	var cap := target_speed_kmh / 3.6
 	if cap > 0.0 and v > cap:
-		throttle = 0.0
+		# TMNF: off the throttle the car brakes itself (1 + 0.3 v m/s^2); a feather of throttle
+		# holds the speed instead, like a TM player
+		throttle = 0.01 if car.tm != null else 0.0
 		nitro = false
 	car.controls["throttle"] = throttle
 	car.controls["brake"] = brake
