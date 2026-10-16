@@ -20,6 +20,10 @@ const PLAYLIST = [
   { track: 'dust', duration_s: 150, weathers: ['dry', 'rain'] },
   { track: 'blackout', duration_s: 150, weathers: ['rain', 'dry'] },
   { track: 'glide', duration_s: 150, weathers: ['dry', 'rain'] },
+  { track: 'techlab', duration_s: 150, weathers: ['dry', 'rain'] },
+  { track: 'fullsend', duration_s: 180, weathers: ['dry', 'rain'] },
+  { track: 'cruise', duration_s: 150, weathers: ['rain', 'dry'] },
+  { track: 'plastic', duration_s: 150, weathers: ['dry'] },
 ];
 
 const ALT_WEATHER_CHANCE = 0.25;

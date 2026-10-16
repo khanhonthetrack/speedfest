@@ -5,7 +5,7 @@ extends RefCounted
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 ## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic"]
 
 const DEFS := {
 	"downtown": {
@@ -131,6 +131,42 @@ const DEFS := {
 		"theme": "arena",
 		"circuit": false,
 		"blurb": "Hit the reactor pad on the kicker and fly the long gap, steering in the air to the landing.",
+		"target_s": 18,
+		"weather": "dry",
+	},
+	"techlab": {
+		"name": "Tech Lab",
+		"short": "Tech",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Narrow deck, tight hairpins and chicanes: brake late, turn in early, drift the hairpin.",
+		"target_s": 22,
+		"weather": "dry",
+	},
+	"fullsend": {
+		"name": "Full Send",
+		"short": "Send",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Never brake: wide banked sweepers, long drops and boosts at 300+ km/h.",
+		"target_s": 24,
+		"weather": "dry",
+	},
+	"cruise": {
+		"name": "Autopilot",
+		"short": "Cruise",
+		"theme": "city",
+		"circuit": false,
+		"blurb": "Cruise control locks your speed through a wall ride and a loop: you only steer.",
+		"target_s": 20,
+		"weather": "rain",
+	},
+	"plastic": {
+		"name": "Plastic Fantastic",
+		"short": "Plastic",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Plastic drags you down: ride the turbo lines up the climb, the slalom and the half-pipe.",
 		"target_s": 18,
 		"weather": "dry",
 	},

@@ -23,6 +23,10 @@ const RANGES := {
 	"dust": {"len": [500.0, 1100.0], "cps": [2, 3]},
 	"blackout": {"len": [500.0, 1100.0], "cps": [2, 3]},
 	"glide": {"len": [400.0, 1000.0], "cps": [2, 3]},
+	"techlab": {"len": [400.0, 900.0], "cps": [2, 3]},
+	"fullsend": {"len": [700.0, 1500.0], "cps": [2, 3]},
+	"cruise": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"plastic": {"len": [500.0, 1000.0], "cps": [2, 3]},
 }
 
 var hits: Array = []
