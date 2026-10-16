@@ -275,6 +275,18 @@ func shear_y(kx: float, kz: float, dy: float) -> void:
 		_col[k] = Vector3(v.x, v.y - kx * v.x + kz * v.z + dy, v.z)
 
 
+## Adds everything another builder holds (built separately, e.g. to be sheared on its own).
+func merge(other: TmGeo) -> void:
+	for key in other._vis:
+		var src: Group = other._vis[key]
+		var dst := _group(key)
+		dst.v.append_array(src.v)
+		dst.n.append_array(src.n)
+		dst.uv.append_array(src.uv)
+	_col.append_array(other._col)
+	_surf.append_array(other._surf)
+
+
 func is_empty() -> bool:
 	return _vis.is_empty() and _col.is_empty()
 

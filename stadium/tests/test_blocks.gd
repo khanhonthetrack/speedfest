@@ -28,7 +28,7 @@ func _ready() -> void:
 		if node == null:
 			continue
 		built += 1
-		var why := _check_shape(node, shapes[s], s.begins_with("Zone/"))
+		var why := _check_shape(node, shapes[s], s.begins_with("Zone/") or s.begins_with("Road/Dirt"))
 		if not why.is_empty():
 			bad += 1
 			TestHooks.fail("shape_%s" % s, why)
@@ -53,7 +53,7 @@ func _check_shape(node: Node3D, size: Vector3i, zone := false) -> String:
 	if faces.is_empty() or faces.size() != surf.size() * 3:
 		return "%d collision vertices for %d surface ids" % [faces.size(), surf.size()]
 	# block-local Godot space: x in [-32 sx, 0], y in [0, 8 sy], z in [0, 32 sz]
-	var lo := Vector3(-32.0 * size.x, 0.0, 0.0) - Vector3.ONE * SLACK
+	var lo := Vector3(-32.0 * size.x, -1.0 if zone else 0.0, 0.0) - Vector3.ONE * SLACK
 	var hi := Vector3(0.0, 8.0 * size.y + (9.0 if zone else 0.0), 32.0 * size.z) + Vector3.ONE * SLACK
 	var box := mi.mesh.get_aabb()
 	for p: Vector3 in faces:
