@@ -1,5 +1,5 @@
 class_name WaterSpray
-extends Node3D
+extends InterpAnchor
 ## Water thrown up by a car's rear tires: a big splash plume in puddles, a light mist off wet
 ## asphalt at speed. Child of the car (local Car or RemoteCar); particles live in world space so
 ## the spray trails behind. CPUParticles3D, so it works on Compatibility (web) too.

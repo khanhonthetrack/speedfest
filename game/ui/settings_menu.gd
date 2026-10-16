@@ -31,6 +31,7 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build()
 	_load()
+	Settings.changed.connect(_refresh_choices)   # e.g. F11 switched the window mode
 	MenuKit.wire_focus_sounds(self)
 	Audio.play_music("menu")
 	(quality_row.get_child(Settings.quality) as Control).grab_focus.call_deferred()
@@ -60,11 +61,15 @@ func _load() -> void:
 	for k in vol_sliders:
 		(vol_sliders[k]["slider"] as HSlider).set_value_no_signal(float(Settings.get(k)))
 		vol_sliders[k]["value"].text = "%d%%" % roundi(float(Settings.get(k)) * 100.0)
+	_refresh_choices()
+	url_edit.text = Settings.server_url
+
+
+func _refresh_choices() -> void:
 	for k in checks:
 		(checks[k] as CheckButton).set_pressed_no_signal(bool(Settings.get(k)))
 	for k in chip_rows:
 		MenuKit.select_chip(chip_rows[k], int(Settings.get(k)) - int(chip_offsets.get(k, 0)))
-	url_edit.text = Settings.server_url
 
 
 func _apply_setting(key: String, value: Variant) -> void:

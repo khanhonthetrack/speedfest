@@ -39,6 +39,7 @@ var _glow_light: OmniLight3D
 var _plate: Label3D
 var _flames: MeshInstance3D
 var _particles: Node3D
+var _particle_anchor: InterpAnchor     # world-space nitro particles follow the drawn car pose
 var _head_spots: Array[SpotLight3D] = []
 var _paint_mat: ShaderMaterial
 var _lights_mat: ShaderMaterial
@@ -97,6 +98,7 @@ func build(p_car_id: String, p_style: Dictionary) -> void:
 	_plate = null
 	_flames = null
 	_particles = null
+	_particle_anchor = null
 	_head_spots.clear()
 	_built_body_key = ""
 	_rim_design = -1
@@ -353,6 +355,11 @@ func _build_wheels() -> void:
 		_calipers_mm = MultiMeshInstance3D.new()
 		_calipers_mm.name = "Calipers"
 		add_child(_calipers_mm)
+		# Under an interpolated Car these would make their MultiMesh interpolate its instances too:
+		# the wheel poses (already set between ticks by Car._process) would be lerped a second time,
+		# as matrices, which shrinks a fast-spinning wheel. OFF still follows the car's drawn pose.
+		_wheels_mm.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+		_calipers_mm.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	for pair in [[_wheels_mm, wheel], [_calipers_mm, cal]]:
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -439,7 +446,10 @@ func _build_nitro() -> void:
 		gp.emitting = false
 		_particles = gp
 	_particles.name = "NitroParticles"
-	add_child(_particles)
+	_particle_anchor = InterpAnchor.new()
+	_particle_anchor.name = "NitroAnchor"
+	_particle_anchor.add_child(_particles)
+	add_child(_particle_anchor)
 	_place_particles()
 
 
@@ -484,7 +494,8 @@ func _place_particles() -> void:
 		for e in ex:
 			c += e
 		c /= float(ex.size())
-	_particles.position = c + Vector3(0, 0, 0.1)
+	_particle_anchor.offset = Transform3D(Basis.IDENTITY, c + Vector3(0, 0, 0.1))
+	_particle_anchor.follow()
 	if _particles is CPUParticles3D:
 		var cp := _particles as CPUParticles3D
 		cp.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX

@@ -14,6 +14,9 @@ func _ready() -> void:
 	var saved := {}
 	for k in KEYS:
 		saved[k] = Settings.get(k)
+	# the AA checks are about the mainline path: a fork player's saved DLSS/path tracing would override it
+	Settings.dlss_mode = 0
+	Settings.rtx_path_tracing = false
 	var vp := get_viewport()
 	if Settings.is_compat():
 		Settings.quality = 2

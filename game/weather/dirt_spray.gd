@@ -1,5 +1,5 @@
 class_name DirtSpray
-extends Node3D
+extends InterpAnchor
 ## Dust and clippings thrown up by the rear tires on grass, gravel or sand (session 4 ground
 ## patches, res://weather/track_surface.gd). Child of the local Car; particles live in world space
 ## so they trail. CPUParticles3D, so it works on Compatibility (web) too.

@@ -17,6 +17,8 @@ var _rec := {}                       # tick -> car position seen in _physics_pro
 var _frames: Array = []              # [tick, lag, drawn position, drawn wheel spin]
 var _recorder := GhostRecorder.new()
 var _driving := false
+var _spray: WaterSpray
+var _spray_worst := 0.0              # world-space emitters must sit on the drawn car (InterpAnchor)
 
 
 func _ready() -> void:
@@ -30,6 +32,9 @@ func _ready() -> void:
 	add_child(car)
 	TestHooks.check(car.is_physics_interpolated(), "interp_car_on")
 	TestHooks.check(car.visual.is_physics_interpolated(), "interp_car_visual_inherits")
+	var wheels := car.visual.find_child("Wheels", false, false) as MultiMeshInstance3D
+	TestHooks.check(wheels != null and not wheels.is_physics_interpolated(), "interp_wheel_multimesh_off",
+		"an interpolated MultiMeshInstance3D lerps its instance matrices again (shrinking spinning wheels)")
 	car.queue_free()
 	var cam := ChaseCamera.new()
 	add_child(cam)
@@ -50,6 +55,8 @@ func _start_drive() -> void:
 	add_child(_car)
 	_car.teleport(Transform3D(Basis.IDENTITY, Vector3(0, 0.6, 0)), Vector3(0, 0, -20))
 	_car.controls["throttle"] = 1.0
+	_spray = WaterSpray.create("kaze", true)
+	_car.add_child(_spray)
 	_recorder.start()
 	_driving = true
 
@@ -69,7 +76,9 @@ func _physics_process(_delta: float) -> void:
 func _process(_delta: float) -> void:
 	if not _driving or _k < 10:      # dropped onto the pad: wheels turn once they touch down
 		return
-	_frames.append([_k, _car.display_tick_lag(), _car.get_global_transform_interpolated().origin, float(_car._vis_spin_arr[0])])
+	var drawn := _car.get_global_transform_interpolated().origin
+	_frames.append([_k, _car.display_tick_lag(), drawn, float(_car._vis_spin_arr[0])])
+	_spray_worst = maxf(_spray_worst, _spray.global_position.distance_to(drawn))
 	if _k >= DRIVE_TICKS:
 		_driving = false
 		_check_drive()
@@ -102,4 +111,6 @@ func _check_drive() -> void:
 	TestHooks.check(worst_ghost < 0.08 and worst_naive > 0.3, "interp_ghost_on_the_car",
 		"ghost of the same run is %.3f m off the drawn car (%.2f m when sampled at the last tick)" % [worst_ghost, worst_naive])
 	TestHooks.check(still_wheels == 0, "interp_wheels_turn_every_frame", "%d frames with the wheels standing still" % still_wheels)
+	TestHooks.check(_spray.top_level and not _spray.is_physics_interpolated() and _spray_worst < 0.001, "interp_spray_follows_drawn_car",
+		"world-space spray %.3f m off the drawn car" % _spray_worst)
 	TestHooks.finish()

@@ -243,7 +243,7 @@ func _build_stage() -> void:
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.05, 0.055, 0.075)
 	env.fog_density = 0.035
-	Settings.tune_environment(env)
+	Settings.tune_environment(env, false)       # a SubViewport: no DLSS pass, so no path tracing
 	var we := WorldEnvironment.new()
 	we.environment = env
 	_stage.add_child(we)

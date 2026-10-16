@@ -91,7 +91,9 @@ func local_shadows() -> bool:
 
 ## Scenery authors environments at max quality; this strips what the current
 ## renderer/quality can't afford. Call after configuring an Environment.
-func tune_environment(env: Environment) -> void:
+## path_trace = false for environments drawn in a SubViewport: the RTX fork's denoiser runs only in
+## a viewport's DLSS pass, and SubViewports don't get one.
+func tune_environment(env: Environment, path_trace := true) -> void:
 	if env == null:
 		return
 	if is_compat():
@@ -112,7 +114,7 @@ func tune_environment(env: Environment) -> void:
 	env.sdfgi_enabled = env.sdfgi_enabled and quality >= 3
 	env.volumetric_fog_enabled = env.volumetric_fog_enabled and quality >= 2
 	env.glow_enabled = env.glow_enabled and quality >= 1
-	_apply_path_tracing(env)
+	_apply_path_tracing(env, path_trace)
 
 
 ## Configure a key light's shadow according to quality.
@@ -366,6 +368,8 @@ func _apply_dlss(vp: Viewport) -> void:
 		return
 	var on := dlss_active()
 	vp.set(&"frame_generation", on and dlss_frame_gen and frame_gen_available())
+	if reflex_available():               # Reflex works with or without DLSS
+		_sl().call(&"set_parameter", _sl_const(&"STREAMLINE_PARAM_REFLEX_MODE"), reflex_mode)
 	if not on:
 		return
 	vp.scaling_3d_mode = ClassDB.class_get_integer_constant(&"Viewport", &"SCALING_3D_MODE_DLSS") as Viewport.Scaling3DMode
@@ -373,15 +377,13 @@ func _apply_dlss(vp: Viewport) -> void:
 	vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	vp.use_taa = false
 	vp.fsr_sharpness = 0.0                       # under DLSS this is NIS sharpening
-	if reflex_available():
-		_sl().call(&"set_parameter", _sl_const(&"STREAMLINE_PARAM_REFLEX_MODE"), reflex_mode)
 
 
 ## Path tracing replaces SSR, SSAO, SSIL, SDFGI, VoxelGI and shadow maps; volumetric fog isn't traced.
-func _apply_path_tracing(env: Environment) -> void:
+func _apply_path_tracing(env: Environment, allowed := true) -> void:
 	if not is_rtx_fork():
 		return
-	var pt := path_tracing_active()
+	var pt := allowed and path_tracing_active()
 	env.set(&"pathtracing_enabled", pt)
 	if not pt:
 		return
