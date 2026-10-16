@@ -60,12 +60,44 @@ var _ledge: Array = CAMERA_LEDGE
 var _floor := 0.0
 
 
+## The camera light rig (Control/CameraLight): its section (x, y), measured: a block 16 m wide and
+## 8 m tall with feet, under a 1 m top bar reaching out to the spotlights; the straight piece is
+## this section along z, the base its right half revolved about (16, 16).
+const LIGHT := [[28.243, 7.0, "structure", S_METAL], [24.0, 7.0, "structure", S_METAL], [24.0, 1.0, "structure", S_METAL],
+	[28.0, 1.0, "structure", S_METAL], [28.0, 0.0, "structure", S_METAL], [24.0, 0.0, "structure", S_METAL],
+	[8.0, 0.0, "structure", S_METAL], [4.0, 0.0, "structure", S_METAL], [4.0, 1.0, "structure", S_METAL],
+	[8.0, 1.0, "structure", S_METAL], [8.0, 7.0, "lamp", S_METAL], [3.757, 7.0, "structure", S_METAL],
+	[3.879, 7.5, "structure", S_METAL], [4.0, 8.0, "glass", S_METAL], [8.0, 8.0, "glass", S_METAL],
+	[24.0, 8.0, "glass", S_METAL], [28.0, 8.0, "structure", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
+const LIGHT_HALF := [[16.0, 0.0, "structure", S_METAL], [24.0, 0.0, "structure", S_METAL], [28.0, 0.0, "structure", S_METAL],
+	[28.0, 1.0, "structure", S_METAL], [24.0, 1.0, "structure", S_METAL], [24.0, 7.0, "lamp", S_METAL],
+	[28.243, 7.0, "structure", S_METAL], [28.121, 7.5, "structure", S_METAL], [28.0, 8.0, "glass", S_METAL],
+	[24.0, 8.0, "glass", S_METAL], [16.0, 8.0, "structure", S_METAL]]
+## The camera pub (Control/CameraPub): a block with rounded top edges along z, a screen on each
+## side (x0, x1 of the left one, y0, y1, z0, z1); on the ground it stands on a low plinth (measured).
+const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
+	[28.851, 7.396, "structure", S_METAL], [28.669, 7.729, "structure", S_METAL], [28.285, 7.965, "structure", S_METAL],
+	[28.0, 8.0, "glass", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
+	[3.331, 7.729, "structure", S_METAL], [3.149, 7.396, "structure", S_METAL], [3.111, 7.207, "structure", S_METAL]]
+const PUB_GROUND := [[0.0, 1.0, "structure", S_METAL], [32.0, 1.0, "structure", S_METAL], [32.0, 1.5, "structure", S_METAL],
+	[31.06, 2.0, "structure", S_METAL], [28.887, 2.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
+	[28.851, 7.396, "structure", S_METAL], [28.669, 7.729, "structure", S_METAL], [28.285, 7.965, "structure", S_METAL],
+	[28.0, 8.0, "glass", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
+	[3.331, 7.729, "structure", S_METAL], [3.149, 7.396, "structure", S_METAL], [3.111, 7.207, "structure", S_METAL],
+	[3.113, 2.0, "structure", S_METAL], [0.942, 2.0, "structure", S_METAL], [0.0, 1.5, "structure", S_METAL]]
+const PUB_SCREEN := [2.67, 3.113, 2.47, 6.81, 11.36, 20.64]
+
+
 func handles(shape: String) -> bool:
 	return shape.begins_with("Control/RoadCamera/") or shape.begins_with("Control/RoadGlass/") \
-		or shape.begins_with("Control/RoadPub/")
+		or shape.begins_with("Control/RoadPub/") \
+		or shape in ["Control/CameraLight/StraightAir", "Control/CameraLight/BaseAir", "Control/CameraPub/StraightAir",
+			"Control/CameraPub/StraightGround"]
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
+	if shape.begins_with("Control/Camera"):
+		return _camera_piece(shape)
 	var parts := shape.split("/")
 	var ground := parts[2].contains("Ground")
 	var form := parts[2].trim_suffix("Ground").trim_suffix("Air")
@@ -96,6 +128,32 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_revolve(geo, Vector3(16, 0, 16), 0.0, -PI, 12)
 		_:
 			_junction(geo, ARMS[form])
+	return geo.build()
+
+
+## Camera lights and camera pubs: measured sections along z, or revolved (the light's base).
+func _camera_piece(shape: String) -> Node3D:
+	var geo := TmGeo.new()
+	var along := func(table: Array) -> void:
+		var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
+		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(0, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "structure", S_METAL)
+	match shape:
+		"Control/CameraLight/StraightAir":
+			along.call(LIGHT)
+		"Control/CameraLight/BaseAir":
+			var sec := LIGHT_HALF.map(func(q: Array) -> Array: return [Vector2(float(q[0]) - 16.0, q[1]), q[2], q[3]])
+			var path := []
+			var outs := []
+			for i in 33:
+				var a := TAU * i / 32.0
+				path.append(Vector3(16, 0, 16))
+				outs.append(Vector3(cos(a), 0, sin(a)))
+			geo.wall_sweep(sec, path, outs, false)
+		"Control/CameraPub/StraightAir", "Control/CameraPub/StraightGround":
+			along.call(PUB_GROUND if shape.ends_with("Ground") else PUB)
+			var s: Array = PUB_SCREEN
+			for x0: float in [s[0], 32.0 - s[1]]:
+				geo.box(Vector3(x0, s[2], s[4]), Vector3(x0 + s[1] - s[0], s[3], s[5]), "screen", S_METAL)
 	return geo.build()
 
 

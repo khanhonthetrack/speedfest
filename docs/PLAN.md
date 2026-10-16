@@ -124,7 +124,7 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       34/34 (1 respawn), suites pass except per-car test_tm items (branch HANDOFF)
 - [x] 4. Remake: `.Challenge.Gbx` reader (header + medals, LZO1X body, blocks chunk): `stadium/gbx/`,
       65/65 official campaign tracks read from a TMNF install at runtime (242 block types)
-- [ ] 5. Remake: recreated Stadium block library (32 x 8 x 32 grid, TMNF-compatible shapes).
+- [x] 5. Remake: recreated Stadium block library (32 x 8 x 32 grid, TMNF-compatible shapes).
       Done: catalogue + placement, map builder/view, Circuit, Tube, Platform (decks, walls incl. GT
       curve walls, loops, slopes, ToRoad, checkpoints incl. ring, sloped and banked), Road/Main
       complete (roads, GT curves at TMNF's segment counts, junctions, gates, slope transitions, tilt,
@@ -132,8 +132,8 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       Control, Inflatable, Road/Dirt + DirtHigh; every campaign checkpoint built; session 12: circuit
       slope turns, Stretch, turbo gates and variants, ramps, zone clips, loops, diagonal/curved tilt
       transitions: every drivable campaign shape built; Fabric grandstands; every Sculpt piece as
-      lofts (99.8% of campaign blocks built or empty). Open: decorations (inflatable tube/advert
-      pillars, airship, camera lights and pubs, three Fabric pieces)
+      lofts; the last decorations: **100% of campaign blocks built** (session 12). Polish left:
+      inflatable castles, camera light base, bump (see stadium/CLAUDE.md)
 - [ ] 6. Remake: stadium environment, our own car model, race flow (countdown, checkpoints, medals,
       ghosts), TMNF-like menus, sounds, HD Forward+ graphics, our own maps.
       Done: race flow (`TmRace`, measured triggers `TmTriggers`, `race/race.tscn` with HUD; all 65

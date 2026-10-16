@@ -12,6 +12,7 @@ const S_ROAD := 16
 const S_STANDS := 0
 const S_METAL := 4
 const S_RUBBER := 9
+const SculptShapes := preload("res://blocks/shapes/sculpt.gd")
 
 ## The roof shell's closed section: its underside from the foot up to the top edge, then its top
 ## surface back down (measured, simplified to 5 cm).
@@ -74,6 +75,22 @@ const CROSS_ROOF := [7.7, 7.98]
 ## (measured: the radial sections are the straight's). In: about (0, 0), the section's x being the
 ## distance from it. Out: about (64, 0), the distance being 64 - x, and the rest of the footprint
 ## (beyond 64 m from that corner) roofed flat at the shell's top (ROOF_TOP: underside, top).
+## The Out pillar corner: a square truss post (x0, x1, z0, z1), 24 m, open like TMNF's posts.
+const PILLAR_OUT_POST := [22.55, 28.11, 3.9, 9.45]
+## Cross3x3: the flat roof over 3 x 3 cells (underside, top) with a round opening (centre (48, 48),
+## radius), a tilted fabric canopy over it (its top line (x, y) along z CANOPY_Z, CANOPY_T thick)
+## and advert boards round the base (x0, x1, z0, z1; 0.17..2.67 m), measured. Cross3x3Screen: the
+## same 32 m higher (CROSS_SCREEN_LIFT) with the big screen hanging under it (lofted:
+## blocks/data/sculpt_lofts.json "Fabric/FabricCross3x3Screen#screen").
+const CROSS3_HOLE := 35.21
+const CANOPY := [Vector2(0.0, 16.0), Vector2(18.05, 15.75), Vector2(33.03, 15.08), Vector2(48.89, 13.88), Vector2(64.72, 12.49),
+	Vector2(80.28, 11.78), Vector2(85.41, 11.89), Vector2(90.64, 12.22), Vector2(96.0, 12.85)]
+const CANOPY_Z := [17.24, 78.88]
+const CANOPY_T := 0.36
+const CROSS3_BOARDS := [[21.14, 27.03, 15.93, 15.99], [69.03, 74.92, 15.93, 15.99], [21.14, 27.03, 79.95, 80.02],
+	[69.03, 74.92, 79.95, 80.02], [15.96, 16.02, 35.79, 41.68], [15.95, 16.02, 45.21, 50.8], [15.96, 16.02, 54.3, 60.2],
+	[79.95, 80.01, 35.79, 41.68], [79.94, 80.0, 45.21, 50.8], [79.95, 80.01, 54.3, 60.2]]
+const CROSS_SCREEN_LIFT := 32.0
 const CORNER_STEPS := 18
 const ROOF_TOP := [47.69, 48.04]
 const ROOF_TOP_AIR := [47.63, 47.98]
@@ -104,7 +121,8 @@ func handles(shape: String) -> bool:
 	return shape in ["Fabric/FabricStraight1x1", "Fabric/FabricStraight1x1Air", "Fabric/FabricPillarGround",
 		"Fabric/FabricPillarAir", "Fabric/FabricCross1x1", "Fabric/FabricCornerIn", "Fabric/FabricCornerInAir",
 		"Fabric/FabricCornerOut", "Fabric/FabricCornerOutAir", "Fabric/FabricPillarCornerInAir",
-		"Fabric/FabricPillarCornerInGround", "Fabric/FabricPillarCornerOutGround"]
+		"Fabric/FabricPillarCornerInGround", "Fabric/FabricPillarCornerOutGround", "Fabric/FabricPillarCornerOutAir",
+		"Fabric/FabricCross3x3", "Fabric/FabricCross3x3Screen"]
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
@@ -157,6 +175,16 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_arc_in(geo, _shift(PILLAR_STANDS, 32.0))
 		"Fabric/FabricPillarCornerOutGround":
 			_revolve(geo, PILLAR_STANDS, Vector2(32, 0), 90.0, 32.0)
+		"Fabric/FabricPillarCornerOutAir":
+			var p: Array = PILLAR_OUT_POST
+			_open_post(geo, Vector3(p[0], 0, p[2]), Vector3(p[1], 24, p[3]))
+		"Fabric/FabricCross3x3", "Fabric/FabricCross3x3Screen":
+			var lift := CROSS_SCREEN_LIFT if shape.ends_with("Screen") else 0.0
+			_cross3(geo, lift)
+			if lift > 0.0:
+				var sculpt := SculptShapes.new()
+				for tube: Dictionary in SculptShapes.lofts().get(shape + "#screen", []):
+					sculpt._tube(geo, tube, "screen", S_METAL)
 		_:
 			return null
 	return geo.build()
@@ -212,6 +240,39 @@ func _arc_in(geo: TmGeo, table: Array) -> void:
 				geo.tri(a, d, b, "structure", S_METAL)
 			else:
 				geo.tri(a, b, d, "structure", S_METAL)
+
+
+## The 3 x 3 roof (lifted by lift): the plate round its opening (four quarters), the canopy, and
+## the advert boards on the ground under it.
+func _cross3(geo: TmGeo, lift: float) -> void:
+	var c := Vector2(48, 48)
+	for q in 4:
+		var a0 := PI * 0.5 * q
+		var poly := PackedVector2Array()
+		var steps := 12
+		for i in steps + 1:
+			var a := a0 + PI * 0.5 * float(i) / steps
+			poly.append(c + Vector2(cos(a), sin(a)) * CROSS3_HOLE)
+		# out to the block's edges: the corner of this quarter
+		var d1 := Vector2(cos(a0 + PI * 0.5), sin(a0 + PI * 0.5))
+		var d0 := Vector2(cos(a0), sin(a0))
+		poly.append(c + d1 * 48.0)
+		poly.append(c + (d0 + d1) * 48.0)
+		poly.append(c + d0 * 48.0)
+		var loop := []
+		for p in poly:
+			loop.append([p, "structure", S_ROAD])
+		geo.extrude_y(loop, CROSS_ROOF[0] + lift, CROSS_ROOF[1] + lift, true, "fabric", S_ROAD)
+	var sec := []
+	for p: Vector2 in CANOPY:
+		sec.append([Vector2(p.x, p.y + lift), "fabric", S_ROAD])
+	for i in range(CANOPY.size() - 1, -1, -1):
+		var p: Vector2 = CANOPY[i]
+		sec.append([Vector2(p.x, p.y + lift - CANOPY_T), "structure", S_ROAD])
+	geo.wall_sweep(sec, [Vector3(0, 0, CANOPY_Z[0]), Vector3(0, 0, CANOPY_Z[1])], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
+		true, "structure", S_ROAD)
+	for b: Array in CROSS3_BOARDS:
+		geo.box(Vector3(b[0], 0.17 + lift, b[2]), Vector3(b[1], 2.67 + lift, b[3]), "screen", S_METAL)
 
 
 ## A section table moved along x.

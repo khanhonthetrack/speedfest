@@ -40,4 +40,9 @@ for p in StartGround:0.1:165 EndGround:0.1:184.5; do
   n=${p%%:*}; r=${p#*:}; a=${r%%:*}; b=${r#*:}; S="Sculpt/ArchRing/$n"
   SPEC="$SPEC,$S=$S:$ARCH:$a:$b:1:32:z"
 done
+# the airship: a blimp along z (body, gondola, tail fins)
+SPEC="$SPEC,Other/Airship=Other/Airship:StadiumAirship:0.6:183.9:2:40:z"
+# the big screen hanging under Fabric/FabricCross3x3Screen
+F=Fabric/FabricCross3x3Screen
+SPEC="$SPEC,$F#screen=$F:StadiumControlStands2+StadiumRoadDetails+StadiumScreen8x1A+StadiumControlScreen2x1:5.8:39.4:1:32"
 "$PY" -I "$T/loft_sections.py" "$MEAS" "$OUT" "$SPEC"

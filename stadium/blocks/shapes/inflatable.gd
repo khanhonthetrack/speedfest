@@ -18,6 +18,13 @@ const BULGE := 2.1              ## how far a pillow bulges out of its seam line
 ## [seam line offset from the cell's -z edge (straight) or radius about (0, 32) (corner), y0, y1]
 const PILLAR := [8.0, 0.0, 8.0]
 const SUPPORT := [9.7, 0.0, 8.0]
+## The tube's mouth in a T pillar: the flared box (x0 at z 5, x0 at z 8, y0, y1), the pipe's and
+## its rubber ring's radii (about (16, 4), along z 0..5); measured.
+const TUBE_FLARE := [9.93, 7.67, 2.19, 5.81]
+const TUBE_PIPE := [1.42, 1.66]
+## The advert pillar's billboard frame (x0, x1, y0, y1, z0 = the screen, z1) and its posts (x).
+const ADVERT_BOARD := [9.37, 54.63, 5.24, 28.53, 5.066, 9.058]
+const ADVERT_POSTS := [8.0, 56.0]
 
 
 func handles(shape: String) -> bool:
@@ -32,6 +39,25 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	match name.trim_suffix("Ground").trim_suffix("Air"):
 		"TShapedPillar":
 			_straight_wall(geo, PILLAR[0], y0, PILLAR[2])
+		"TubeTShapedPillar":
+			# the wall with a tube's mouth: a flared box through it, its frame, and the pipe
+			# leaving toward -z with a rubber ring at its end (measured)
+			_straight_wall(geo, PILLAR[0], y0, PILLAR[2])
+			var flare := [[Vector2(TUBE_FLARE[0], 5.0), "structure", S_METAL], [Vector2(32.0 - TUBE_FLARE[0], 5.0), "structure", S_METAL],
+				[Vector2(32.0 - TUBE_FLARE[1], 8.0), "structure", S_METAL], [Vector2(TUBE_FLARE[1], 8.0), "structure", S_METAL]]
+			geo.extrude_y(flare, TUBE_FLARE[2], TUBE_FLARE[3], true, "structure", S_METAL)
+			geo.box(Vector3(TUBE_FLARE[1], 1.0, 7.367), Vector3(32.0 - TUBE_FLARE[1], 7.0, 8.0), "structure", S_METAL)
+			geo.pipe(Vector3(16, 4, 0), Vector3(16, 4, 5), TUBE_PIPE[0], 16, "pipe", S_METAL)
+			geo.pipe(Vector3(16, 4, 4.86), Vector3(16, 4, 5), TUBE_PIPE[1], 16, "rubber", S_RUBBER)
+		"AdvertTShapedPillar":
+			# a two-block cushion wall four levels high carrying a billboard frame through it
+			_straight_wall(geo, PILLAR[0], 0.0, 32.0, 64.0)
+			var b: Array = ADVERT_BOARD
+			geo.box(Vector3(b[0], b[2], b[4]), Vector3(b[1], b[3], b[5]), "structure", S_METAL)
+			geo.quad(Vector3(b[1], b[2], b[4] - 0.01), Vector3(b[0], b[2], b[4] - 0.01), Vector3(b[0], b[3], b[4] - 0.01),
+				Vector3(b[1], b[3], b[4] - 0.01), "screen", TmGeo.NO_COLLISION)
+			for x: float in ADVERT_POSTS:
+				geo.box(Vector3(x - 0.26, 2.0, 7.543), Vector3(x + 0.26, 30.0, 8.058), "structure", S_METAL)
 		"CornerPillar":
 			_arc_wall(geo, 32.0 - PILLAR[0], y0, PILLAR[2])
 		"TShaped":
@@ -69,16 +95,16 @@ static func _bulge(u: float) -> float:
 	return BULGE * sqrt(maxf(0.0, sin(PI * clampf(u, 0.0, 1.0))))
 
 
-## Cushion wall along x with its seam line at z = seam, pillows bulging toward -z.
-func _straight_wall(geo: TmGeo, seam: float, y0: float, y1: float) -> void:
+## Cushion wall along x (0..width) with its seam line at z = seam, pillows bulging toward -z.
+func _straight_wall(geo: TmGeo, seam: float, y0: float, y1: float, width := 32.0) -> void:
 	var loop := []
-	var n := int(32.0 / PILLOW)
+	var n := int(width / PILLOW)
 	for k in n:
 		for s in 8:
 			var u := s / 8.0
 			loop.append([Vector2(k * PILLOW + u * PILLOW, seam - _bulge(u)), "inflatable", S_RUBBER])
-	loop.append([Vector2(32, seam), "inflatable", S_RUBBER])
-	loop.append([Vector2(32, seam + 0.3), "inflatable", S_RUBBER])
+	loop.append([Vector2(width, seam), "inflatable", S_RUBBER])
+	loop.append([Vector2(width, seam + 0.3), "inflatable", S_RUBBER])
 	loop.append([Vector2(0, seam + 0.3), "inflatable", S_RUBBER])
 	geo.extrude_y(loop, y0, y1, true, "inflatable", S_RUBBER)
 

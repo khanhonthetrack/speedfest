@@ -49,6 +49,8 @@ const MIRRORED := {"Sculpt/Bridge/BridgeSuspendSlope2Mirror": "Sculpt/Bridge/Bri
 const MIRROR_X := {"Sculpt/ArchRing/StartGroundMirror": 64.0, "Sculpt/ArchRing/EndGroundMirror": 64.0}
 ## A piece's extra parts in the lofts (key suffix -> visual material).
 const PARTS := {"#struts": "structure", "#rail": "metal"}
+## Lofted pieces that are not white sculpture (shape -> visual material).
+const MATERIAL := {"Other/Airship": "fabric"}
 
 
 func handles(shape: String) -> bool:
@@ -61,7 +63,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	# mirrored pieces: x -> msum - x
 	var msum := 2.0 * float(MIRROR_X.get(shape, 16.0)) if MIRRORED.has(shape) else 0.0
 	for tube: Dictionary in lofts()[src]:
-		_tube(geo, tube, "sculpt", S_METAL, msum)
+		_tube(geo, tube, String(MATERIAL.get(src, "sculpt")), S_METAL, msum)
 	for part: String in PARTS:
 		for tube: Dictionary in lofts().get(src + part, []):
 			_tube(geo, tube, PARTS[part], S_METAL, msum)

@@ -536,3 +536,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after the drivable shapes and the Fabric grandstands)
 
 > Yes, continue with the Sculpt decorations, starting with A01's suspended bridge and the Sculpt/A rock.
+
+### User (verbatim, session 12, after every Sculpt piece)
+
+> Finish the last decorations first: inflatable tube/advert pillars, airship, camera lights and the remaining Fabric pieces.

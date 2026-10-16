@@ -134,6 +134,10 @@ const SLOPES := {
 	"UBottom": [9.345, 8.873, 8.457, 8.107, 7.825, 7.611, 7.463, 7.376, 7.345, 7.376, 7.463, 7.611, 7.825, 8.107, 8.457, 8.873, 9.345],
 	"UTop": [1.345, 1.817, 2.233, 2.583, 2.864, 3.079, 3.227, 3.314, 3.345, 3.314, 3.227, 3.079, 2.864, 2.583, 2.233, 1.817, 1.345],
 }
+## Road/Main/Bump: the road dipping 1.86 m in the middle of a two-level block (heights every 2 m).
+const BUMP := [9.345, 9.199, 8.885, 8.53, 8.199, 7.916, 7.692, 7.543, 7.483, 7.543, 7.692, 7.916, 8.199, 8.53, 8.885,
+	9.199, 9.345]
+const BUMP_T := 0.483
 
 ## Platform/ToRoad2: the running curb's edge line, an arc of this radius about (R, 0) from the
 ## road end (0, 0), and the angle where it stops short of the far corner.
@@ -256,6 +260,8 @@ func handles(shape: String) -> bool:
 		return true
 	if rest.begins_with("Stretch/") and _form(rest.trim_prefix("Stretch/")) in ["", "Slope", "Tilt"]:
 		return true
+	if rest in ["Bump/Air", "Bump/Ground"]:
+		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
 		or rest.begins_with("GTCurve/") \
 		or (rest.begins_with("Turbo/") and _form(rest.get_slice("/", 1)) in ["", "Up", "Down", "Left", "Right"]) \
@@ -300,6 +306,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_loop(geo, shape.begins_with("Loop/Left"))
 	elif rest.begins_with("Stretch/"):
 		_stretch(geo, _form(rest.trim_prefix("Stretch/")), ground)
+	elif rest.begins_with("Bump/"):
+		_bump(geo, ground)
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
@@ -718,6 +726,35 @@ func _junction(geo: TmGeo, form: String, ground: bool) -> void:
 			_nose(geo, 24.0, 1.0, ground)
 		_:
 			_cross(geo, ARMS[form], ground)
+
+
+## Bump: a road one level up whose curbs and shoulders stay level while the asphalt between them
+## dips through BUMP (measured): the curbs swept along z, the asphalt a slab (BUMP_T thick)
+## through the profile, and the channel's sides from the dip up to the road's level.
+func _bump(geo: TmGeo, ground: bool) -> void:
+	var curb := _curb_section(ground)
+	for side: float in [1.0, -1.0]:
+		var sec := curb.map(func(q: Array) -> Array:
+			var p: Vector2 = q[0]
+			return [Vector2((p.x - 16.0) * side, p.y), q[1], q[2]])
+		geo.wall_sweep(sec, [Vector3(16, 8, 0), Vector3(16, 8, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "metal", S_METAL)
+	var path := []
+	var lat := []
+	for i in BUMP.size():
+		path.append(Vector3(16, float(BUMP[i]), 2.0 * i))
+		lat.append(Vector3(1, 0, 0))
+	var half := 16.0 - ROAD_EDGE
+	var slab := [[Vector2(-half, -BUMP_T), "structure", S_METAL], [Vector2(half, -BUMP_T), "structure", S_METAL],
+		[Vector2(half, 0.0), _road_mat, _road_surf], [Vector2(-half, 0.0), "structure", S_METAL]]
+	geo.wall_sweep(slab, path, lat, true, "structure", S_METAL)
+	for x: float in [ROAD_EDGE, 32.0 - ROAD_EDGE]:
+		for i in BUMP.size() - 1:
+			var y0 := float(BUMP[i])
+			var y1 := float(BUMP[i + 1])
+			var a := Vector3(x, y0, 2.0 * i)
+			var b := Vector3(x, y1, 2.0 * (i + 1))
+			geo.quad(a, b, Vector3(x, 8.0 + TOP, b.z), Vector3(x, 8.0 + TOP, a.z), "structure", S_METAL)
+			geo.quad(a, Vector3(x, 8.0 + TOP, a.z), Vector3(x, 8.0 + TOP, b.z), b, "structure", S_METAL)
 
 
 ## A road piece following a measured height profile along z (every 2 m), the section sheared up as

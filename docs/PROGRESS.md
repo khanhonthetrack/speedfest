@@ -999,3 +999,13 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   builds past their footprint (Sculpt/B, arch rings). Loft data 657 KB.
 - Coverage 99.8% (100 placeholders: inflatable tube/advert pillars, airship, camera lights and
   pubs, three Fabric pieces, one bump); test_race all 65 tracks, 421 checks.
+- **Last decorations: campaign coverage 100%** (0 placeholders on all 65 tracks):
+  inflatable tube T-pillar (the cushion wall, a flared box, its frame and the tube's pipe with a
+  rubber ring; 94.6%) and advert T-pillar (a 64 x 32 m cushion wall carrying a billboard frame and
+  posts; 91.6%); the airship (a z-loft of the blimp, gondola and fins; 95.6%); camera lights (the
+  rig's measured section along z, 93.2%, and its right half revolved for the round base, 83.1%)
+  and camera pubs (a rounded block with side screens, 98.9-100%); Fabric: the Out pillar corner
+  post (98.5%), the 3 x 3 roof (flat plate round a 35 m opening, the tilted canopy, the advert
+  boards; 94.5%) and its screen variant 32 m higher with the big screen lofted under it (95.0%);
+  Road/Main/Bump (the curbs level, the asphalt dipping 1.86 m; 81%).
+- Numbers: STADIUM_TESTS PASS; test_race all 65 tracks, 421 checks; coverage 100.0% built or empty.
