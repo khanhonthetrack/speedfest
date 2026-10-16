@@ -1,26 +1,23 @@
 # HANDOFF: start here
 
-## Latest (~09:30 UTC 16 Oct, session 10, cloud): M7-1 PC build on branch `m7-pc`, merge next
+## Latest (~10:00 UTC 16 Oct, session 10, cloud): M7-1 PC build MERGED into `main`
 
-- **Other sessions:** the Pi session does M7-6 maps on `m7-maps` (24 new maps; a trial merge with
-  `m7-pc` is conflict-free); session 9 does M8 (TMNF handling port on `tmnf-physics` after
-  `m7-maps`, and the `stadium/` remake). Don't touch their branches or folders.
-- **Branch `m7-pc` (pushed, `main` merged in at 87e0654):** M7-1. Done and tested:
-  physics interpolation (car, wheels, ghost sub-tick, world-space particles via `InterpAnchor`),
-  frame pacing (V-Sync modes, VRR cap, exclusive fullscreen, F11), AA without MSAA (Auto: FXAA/
-  TAA/FSR 2, SMAA on software GPUs), PC presets, look pass (night roads reflect: `water_gloss` in
-  road.gdshader + `Track.NIGHT_DAMP`; real lights at city neon), perf overlay (Show FPS), desktop
-  exports + GitHub Actions "Desktop builds" (green; artifacts SpeedFest-windows / -linux; owner
-  guide `docs/PC.md`), optional RTX (`docs/RTX.md`). A 26-agent review confirmed 8 bugs: all fixed.
-- **Measured:** no draw-time pipeline compiles during a downtown race (perf_probe), so no warm-up.
-- **RTX:** a Linux build of NVIDIA's fork (`/home/user/nvidia-rtx/godot/bin/godot.linuxbsd.editor.x86_64`,
-  dies with this container) runs SpeedFest: detection/settings 14/14, RT shader branches compile.
-  Path-traced frames are impossible on lavapipe (Mesa lacks OpTypeForwardPointer): the owner's
-  NVIDIA GPU is the only way to see them (docs/RTX.md steps).
-- **Next:** (1) the art-direction plan (workflow `pc-look-plan`; result goes to
-  `docs/research/m7_look_plan.md`) and its top items; (2) `tools/integration/check_all.sh`, remove the
-  temporary `m7-pc` trigger from `.github/workflows/desktop.yml`, merge into `main`, re-export web
-  (`tools/export_web.sh`, commit `server/public`), Pi deploy; (3) owner tests the Windows zip + RTX.
+- **`main` now has M7-1** (branch `m7-pc` merged, CHECK_ALL PASS, web re-exported to
+  `server/public`, browser online test PASS): physics interpolation (car, wheels, ghost sub-tick,
+  world-space particles via `InterpAnchor`), frame pacing (V-Sync modes, VRR cap, exclusive
+  fullscreen, F11), AA without MSAA (Auto: FXAA/TAA/FSR 2; SMAA on software GPUs), PC presets,
+  night roads that reflect (`water_gloss` + `Track.NIGHT_DAMP`), real lights at city neon, perf
+  overlay (Show FPS), Windows/Linux exports + GitHub Actions "Desktop builds" (on `main` pushes
+  touching game/; artifacts SpeedFest-windows / -linux), optional RTX (`docs/RTX.md`).
+  Owner guides: `docs/PC.md` (download + settings), `docs/RTX.md` (fork + DLSS step by step).
+- **Pi:** `main` has a new `server/public` export: `cd ~/speedfest && git pull && docker restart speedfest`.
+- **Not in main yet:** the 24 new maps (`m7-maps`, M7-6). They were going in through `tmnf-physics`,
+  which now waits for the owner's approval, so the maps wait too. A trial merge of `m7-maps` into
+  this branch was conflict-free; merging `m7-maps` into `main` directly (it was verified with the M7
+  car: AutoDriver 24/24) is a decision for the owner / the Pi session.
+- **Next for M7-1 (session 10):** the art-direction plan (workflow `pc-look-plan`, result to
+  `docs/research/m7_look_plan.md`) and its top items, on a fresh branch from `main`; owner tests the
+  Windows zip and, on their RTX PC, the fork build (path-traced frames can't be rendered on lavapipe).
 - Look-dev: `tests/visual/road_lookdev.tscn -- --wet=0.6 --quality=2 --frames=24 --shot=...` (~1 min);
   `--mirror=0.02` is the SSR control. Full track_view renders take 5-10 min on llvmpipe.
 

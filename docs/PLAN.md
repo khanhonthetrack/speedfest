@@ -102,7 +102,8 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       - [x] RTX on a Linux fork build: detection/settings 14/14, `#if defined(RT)` branches compile
             (path-traced frames need an NVIDIA GPU: lavapipe can't build the fork's RT pipelines)
       - [x] perf overlay (GPU ms, pipeline compiles); measured 0 draw-time compiles mid-race: no warm-up needed
-      - [ ] art-direction plan (more "2005" fixes); check_all; merge to `main`; web re-export
+      - [x] check_all PASS; merged into `main` (session 10, ~10:00 UTC); web re-exported
+      - [ ] art-direction plan (more "2005" fixes) on a fresh branch
       - [ ] owner tests the Windows zip and the RTX mode on an RTX PC
 - [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with

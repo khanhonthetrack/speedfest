@@ -811,3 +811,17 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   TmBody, the research doc's load-transfer fix) come to main through branch `stadium`.
   Stadium tests 80/80.
 
+## 2026-10-16 ~10:00 UTC — Session 10: M7-1 merged into `main`
+
+- Pipeline compiles measured (perf_probe, downtown High, AutoDriver, 660 frames): 0 draw-time
+  compiles; specializations 37 -> 53 in the first ~300 frames (background, ubershaders), then flat.
+  No warm-up pass needed.
+- NVIDIA fork built for Linux (nvidia-pt-dlss @ 135dff388) and run on lavapipe: all scripts compile
+  on 4.8-dev, test_settings 14/14 (fork detected, can_path_trace, denoiser gating, --rtx), the RT
+  shader branches compile into the fork's hit shaders. Path-traced frames can't be rendered there
+  (Mesa can't translate OpTypeForwardPointer; a default cube fails too): docs/RTX.md.
+- `tools/integration/check_all.sh` on `m7-pc`: **CHECK_ALL PASS** (every suite, physics run_all,
+  server 16/16, AutoDriver arena/downtown/coast, net_smoke, live_smoke, online_round).
+- Merged `m7-pc` into `main` (main's new commits were stadium/ and docs only); CI trigger back to
+  `main` only; web re-export (boots on WebGL2, online_browser_test 2 clients PASS).
+
