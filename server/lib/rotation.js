@@ -28,6 +28,10 @@ const PLAYLIST = [
   { track: 'mixer', duration_s: 150, weathers: ['dry', 'rain'] },
   { track: 'platform', duration_s: 120, weathers: ['dry'] },
   { track: 'snake', duration_s: 150, weathers: ['rain', 'dry'] },
+  { track: 'nosteer', duration_s: 120, weathers: ['dry'] },
+  { track: 'canyon', duration_s: 180, weathers: ['dry', 'rain', 'storm'] },
+  { track: 'icepipe', duration_s: 150, weathers: ['dry'] },
+  { track: 'grassland', duration_s: 150, weathers: ['dry', 'rain'] },
 ];
 
 const ALT_WEATHER_CHANCE = 0.25;

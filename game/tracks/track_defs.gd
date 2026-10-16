@@ -5,7 +5,7 @@ extends RefCounted
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 ## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake", "nosteer", "canyon", "icepipe", "grassland"]
 
 const DEFS := {
 	"downtown": {
@@ -205,6 +205,42 @@ const DEFS := {
 		"blurb": "S-bends between tower walls, rising and falling: rhythm and clean exits.",
 		"target_s": 22,
 		"weather": "rain",
+	},
+	"nosteer": {
+		"name": "Locked In",
+		"short": "Locked",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "No-steering pads lock the wheel: line up before the pad, ride the chute and the jump on that line.",
+		"target_s": 16,
+		"weather": "dry",
+	},
+	"canyon": {
+		"name": "Canyon Run",
+		"short": "Canyon",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "A cliff wall ride above the sea, a long drop into the canyon, a super boost to the finish jump.",
+		"target_s": 25,
+		"weather": "dry",
+	},
+	"icepipe": {
+		"name": "Ice Pipe",
+		"short": "IcePipe",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Steep banked ice turns, left-right-left-right: let the banking do the turning.",
+		"target_s": 20,
+		"weather": "dry",
+	},
+	"grassland": {
+		"name": "Green Mile",
+		"short": "Green",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Every corner has a grass cut: shorter but slidey, or the grippy asphalt line. Pick per corner.",
+		"target_s": 22,
+		"weather": "dry",
 	},
 }
 

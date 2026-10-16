@@ -31,6 +31,10 @@ const RANGES := {
 	"mixer": {"len": [600.0, 1200.0], "cps": [2, 3]},
 	"platform": {"len": [400.0, 1000.0], "cps": [2, 3]},
 	"snake": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"nosteer": {"len": [500.0, 1000.0], "cps": [2, 3]},
+	"canyon": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"icepipe": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"grassland": {"len": [500.0, 1100.0], "cps": [2, 3]},
 }
 
 var hits: Array = []
