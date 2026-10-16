@@ -59,8 +59,12 @@ func _ready() -> void:
 	if TestHooks.has_arg("rtx"):                     # force path tracing on a fork build (tests/screenshots)
 		rtx_path_tracing = true
 		rtx_allow_noisy = true
-	if TestHooks.has_arg("dlss"):
-		dlss_mode = maxi(0, DLSS_NAMES.find(String(TestHooks.arg("dlss", "Quality"))))
+	if TestHooks.has_arg("dlss"):                    # --dlss[=Quality|dlaa|balanced|performance|off]
+		var want := String(TestHooks.arg("dlss", "Quality")).to_lower()
+		dlss_mode = 2
+		for i in DLSS_NAMES.size():
+			if String(DLSS_NAMES[i]).to_lower() == want:
+				dlss_mode = i
 	if TestHooks.has_arg("aa"):                      # --aa=FSR2 / TAA / SMAA / FXAA / Off / Auto
 		aa_mode = maxi(0, AA_NAMES.find(String(TestHooks.arg("aa", "Auto")).replace("FSR2", "FSR 2")))
 	apply()
@@ -195,7 +199,9 @@ func apply() -> void:
 	if not is_web():
 		DisplayServer.window_set_vsync_mode(vsync_mode as DisplayServer.VSyncMode)
 		Engine.max_fps = max_fps()
-		if not TestHooks.is_testing():
+		# automated runs (screenshots, timed tests) keep the default window; `-- --rtx` etc. don't
+		var automated := TestHooks.has_arg("frames") or TestHooks.has_arg("shot") or TestHooks.has_arg("shots")
+		if not automated and DisplayServer.get_name() != "headless":
 			var want: DisplayServer.WindowMode = [DisplayServer.WINDOW_MODE_WINDOWED, DisplayServer.WINDOW_MODE_FULLSCREEN,
 				DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN][window_mode]
 			if DisplayServer.window_get_mode() != want:

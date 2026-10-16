@@ -9,6 +9,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WHICH="${1:-all}"
+case "$WHICH" in windows|linux|all) ;; *) echo "usage: tools/export_desktop.sh [windows|linux|all] [--debug]" >&2; exit 2 ;; esac
 MODE="--export-release"
 [[ "${2:-}" == "--debug" ]] && MODE="--export-debug"
 RUN=(godot --headless)

@@ -12,11 +12,16 @@ var name_dialog_edit: LineEdit
 var _menu_box: VBoxContainer
 
 
+static var _start_scene_done := false
+
+
 func _ready() -> void:
 	# exported builds can't take a scene path on the command line: `-- --start_scene=res://race/
 	# race.tscn --track=arena --autodrive` lets tests and screenshots drive a shipped PC build
+	# (once per launch: coming back to the menu later must show the menu)
 	var start := String(TestHooks.arg("start_scene", ""))
-	if start.begins_with("res://") and ResourceLoader.exists(start):
+	if not _start_scene_done and start.begins_with("res://") and ResourceLoader.exists(start):
+		_start_scene_done = true
 		get_tree().change_scene_to_file.call_deferred(start)
 		return
 	theme = UITheme.get_theme()

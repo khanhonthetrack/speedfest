@@ -44,8 +44,8 @@ jobs:
         with:
           path: |
             ~/godot-bin
-            ~/.local/share/godot/export_templates/4.7.2.stable
-          key: godot-4.7.2-stable-linux64-desktop-templates-v1
+            ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_STATUS }}
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_STATUS }}-linux64-desktop-templates-v1
 
       - name: Download Godot 4.7.2 + export templates (checksums verified)
         if: steps.godot-cache.outputs.cache-hit != 'true'
