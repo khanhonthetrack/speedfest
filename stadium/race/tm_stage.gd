@@ -71,22 +71,10 @@ static func load_from_args() -> TmChallenge:
 ## Sun, sky colour and plain grass from the map's edge to the horizon (the map's own ground is
 ## built with it by TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-55, -30, 0)
-	sun.shadow_enabled = true
-	parent.add_child(sun)
-	var we := WorldEnvironment.new()
-	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.55, 0.7, 0.9)
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.6, 0.62, 0.7)
-	we.environment = env
-	parent.add_child(we)
+	TmStadiumEnv.add(parent)
 	var w := float(builder.challenge.size.x) * 32.0
 	var d := float(builder.challenge.size.z) * 32.0
-	var gm := StandardMaterial3D.new()
-	gm.albedo_color = Color(0.32, 0.5, 0.22)
+	var gm := TmMaterials.get_material("grass")
 	var far := 3000.0
 	for r in [Rect2(-far, -far, w + 2.0 * far, far), Rect2(-far, d, w + 2.0 * far, far), Rect2(-far, 0, far, d), Rect2(w, 0, far, d)]:
 		var ground := MeshInstance3D.new()

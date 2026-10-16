@@ -1029,3 +1029,20 @@ menus and sounds."
 - Tests: `tests/test_ghost` (19 checks: sampling, save/load, records, deltas); `test_race` checks
   per track that the finish saved a record and its ghost and that the ghost waits at the start
   after a restart. STADIUM_TESTS PASS; test_race all 65 tracks, 616 checks (421 before).
+
+## 2026-10-16 — Session 12: stadium environment, step 1: Day sky and sun (M8-6), branch `stadium`
+- `env/tm_stadium_env.gd` (`TmStadiumEnv`) and `env/tm_sky.gdshader`: TMNF's "Day" mood from our
+  own numbers read off its files (decrypted locally: `ConstructionDecorationMood/Day`, the
+  `Moods/Day/*.tga` colour tables at its day time): latitude 48 deg, day time 0.65 (15:36, an
+  equinox sun: 23 deg up in the south-west, TMNF north = +z), sun white at intensity 1 with shadow
+  intensity 0.4, ambient (94, 96, 108), the sky gradient (17 stops, zenith (62, 105, 159) to horizon
+  (213, 229, 240)), clouds between (196, 209, 218) and (250, 251, 251). The sky shader draws the
+  gradient, the sun's disc and glow and an fbm cloud layer; linear tone mapping (the mood's colours
+  as they are), light haze, SSAO and a little glow. `TmStage.add_environment` uses it.
+- The stadium surround found: `Zone/Square32.Solid.Gbx` (10.5 MB, visual only) holds the whole
+  Stadium around a 32 x 32 map: two lens-shaped grandstands on the long sides (a 20 m wall, a
+  seating rake to a 46 m deck, a roof from 130 m at the field down to 84 m, masts on the midline),
+  terraces on the short sides with the big screens, six flagpoles a quarter and a floodlight tower
+  at each end, then roads, forecourts and parking down to an edge 100 m below the field. New tools:
+  `visual_mesh.py` (visual meshes and lights of a solid), `vsection.py` (vertical and plan cuts as
+  PNGs). Next: rebuild it from our own measured profiles and outlines.

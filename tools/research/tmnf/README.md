@@ -65,6 +65,11 @@ and width per frame, read from the three asphalt vertices each frame leaves; the
 an optional slope sheared off: how the slope corners were found to be the flat walls sheared).
 `loft_sections.py` (lofts for hand-sculpted pieces: horizontal or across-z slices followed up the
 piece and resampled to rings; `sculpt_lofts.sh MEAS` writes `stadium/blocks/data/sculpt_lofts.json`).
+`visual_mesh.py SOLID.Gbx out.json` (session 12: a solid's visual meshes, not its collision: walks
+the tree with its locations and reads each indexed triangle visual and its material's name, plus
+the lights hung in the tree; the stadium surround is `raw/Zone__Square32.Solid.Gbx`, 400 meshes, a
+High and a Low level of detail), `vsection.py VIS.json out.png --at CX,CZ --deg A` (a vertical cut
+of such a measurement drawn as a PNG, `--y H` for a plan cut, `--print` for the segments).
 
 ## Block measurements (session 9, for the Stadium remake's block library)
 
