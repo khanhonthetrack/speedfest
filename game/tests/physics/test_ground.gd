@@ -37,7 +37,13 @@ static func road_from_path(path: TrackPath, wall_h: float = 0.0, step: float = 1
 		var rt := r + t.basis.y * wall_h
 		if i > 0:
 			var c := Color(0.22, 0.22, 0.25) if (i / 10) % 2 == 0 else Color(0.32, 0.30, 0.34)
-			_quad(faces, verts, cols, prev_l, l, r, prev_r, c)
+			# DECK_CELLS quads across, like the tracks' decks: one quad across a twisting road is
+			# two planar triangles whose along-road slopes differ by ~twist x half-width, a bump at
+			# every diagonal that TMNF's impulse contacts feel as hops
+			for j in TrackBuilder.DECK_CELLS:
+				var f0 := float(j) / TrackBuilder.DECK_CELLS
+				var f1 := float(j + 1) / TrackBuilder.DECK_CELLS
+				_quad(faces, verts, cols, prev_l.lerp(prev_r, f0), l.lerp(r, f0), l.lerp(r, f1), prev_l.lerp(prev_r, f1), c)
 			if wall_h > 0.0:
 				var wc := Color(0.9, 0.2, 0.6)
 				_quad(faces, verts, cols, prev_l, prev_lt, lt, l, wc)

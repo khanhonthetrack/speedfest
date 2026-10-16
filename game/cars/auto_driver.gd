@@ -209,9 +209,14 @@ func _stanley(car: Car, speed: float) -> float:
 	var psi := atan2(pf.dot(xf.basis.x), pf.dot(car_f))
 	var delta := psi + atan2(-STANLEY_K * e, speed + 2.0)
 	if car.tm != null:
-		# TMNF: the steering is a yaw-rate command; close the heading + line error in ~0.3 s
+		# TMNF: the steering is a yaw-rate command: the path's own turn rate in the road plane (feed-
+		# forward; without it a curve needs a standing line error, ~6 m on a tight wall at 200 km/h)
+		# + the heading and line error closed in ~0.3 s
+		var ta := path.sample_transform(_wrap(_d + car.get_wheelbase() * 0.5 - 2.0))
+		var tb := path.sample_transform(_wrap(_d + car.get_wheelbase() * 0.5 + 2.0))
+		var kg := (ta.basis.z - tb.basis.z).dot(tf.basis.x) / 4.0
 		var w_max := car.tm.max_yaw_rate(speed)
-		return clampf(delta * STANLEY_TM_RATE / maxf(w_max, 0.05), -1.0, 1.0)
+		return clampf((speed * kg + delta * STANLEY_TM_RATE) / maxf(w_max, 0.05), -1.0, 1.0)
 	return clampf(delta / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
 
 

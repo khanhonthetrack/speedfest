@@ -21,6 +21,8 @@ const T := preload("tm_tuning.gd")
 const GRAVITY := Vector3(0.0, -T.GRAVITY, 0.0)
 const IGNORED_SURFACES := [13, 23]   ## water and the like: the chassis ignores them
 const CHASSIS_CLEARANCE := 0.09      ## the Stadium car's lowest chassis point above the road at rest
+const NORMAL_MIN_DEPTH := 0.002      ## contact pairs shallower than this take the face normal
+const NEAR_CONTACT := 0.25           ## m: a shallow pair this close to a found contact joins it
 
 var model := TmCarModel.new()
 var xform := Transform3D()
@@ -61,6 +63,7 @@ var _body_half: Array[Vector3] = []
 var _body_xforms: Array[Transform3D] = []
 var _query := PhysicsShapeQueryParameters3D.new()
 var _ray := PhysicsRayQueryParameters3D.new()
+var _nray := PhysicsRayQueryParameters3D.new()
 var _inv_inertia := Vector3.ONE / T.INERTIA
 var _body_hit := false
 var _space: PhysicsDirectSpaceState3D
@@ -69,6 +72,7 @@ var _space: PhysicsDirectSpaceState3D
 func _init() -> void:
 	setup(T.WHEELS, T.WHEEL_RADIUS, T.WHEEL_HALF_WIDTH, T.BODY_ELLIPSOIDS, Vector3.ONE)
 	_ray.hit_back_faces = false
+	_nray.hit_back_faces = true
 
 
 ## Collision geometry. wheels: 4 centres (FL, FR, RL, RR) at the static length; ellipsoids:
@@ -195,6 +199,9 @@ func _substep(h: float) -> void:
 ## car), depth, point on the surface], ...], one per surface direction. Double-sided triangles (road
 ## meshes made for rays) can resolve a deep contact out of their back face: the normal is turned to
 ## the side the shape's centre is on and the depth re-measured from the ellipsoid's extent.
+## A shallow pair's point difference has no usable direction (the query returns world points in
+## float32: ~0.1 mm steps at 1 km from the origin, so a 0.01 mm contact reads as straight up or down):
+## its normal is the face normal under the point, or that of a nearby contact already found.
 func _contacts(shape: Shape3D, xf: Transform3D, half: Vector3) -> Array:
 	_query.shape = shape
 	_query.transform = xf
@@ -207,16 +214,28 @@ func _contacts(shape: Shape3D, xf: Transform3D, half: Vector3) -> Array:
 		var p: Vector3 = res[k + 1]
 		var d := p - a
 		var depth := d.length()
-		if depth < 1e-6:
-			continue
-		var n := d / depth
 		var to_c := xf.origin - p
-		if to_c.dot(n) < 0.0:
-			n = -n
-			var u := inv_b * n
-			var ext := Vector3(half.x * u.x, half.y * u.y, half.z * u.z).length()
-			depth = ext - to_c.dot(n)
-			if depth <= 1e-6:
+		var n: Vector3
+		if depth >= NORMAL_MIN_DEPTH:
+			n = d / depth
+			if to_c.dot(n) < 0.0:
+				n = -n
+				var u := inv_b * n
+				var ext := Vector3(half.x * u.x, half.y * u.y, half.z * u.z).length()
+				depth = ext - to_c.dot(n)
+				if depth <= 1e-6:
+					continue
+		else:
+			var near := false
+			for c in out:
+				if ((c[2] as Vector3) - p).length_squared() < NEAR_CONTACT * NEAR_CONTACT:
+					c[1] = maxf(c[1], depth)
+					near = true
+					break
+			if near:
+				continue
+			n = _face_normal(p, to_c)
+			if n == Vector3.ZERO:
 				continue
 		var merged := false
 		for c in out:
@@ -230,6 +249,20 @@ func _contacts(shape: Shape3D, xf: Transform3D, half: Vector3) -> Array:
 		if not merged:
 			out.append([n, depth, p])
 	return out
+
+
+## Normal of the face at a contact point, turned toward `to_c` (the shape's centre); zero if the
+## short ray finds no face.
+func _face_normal(p: Vector3, to_c: Vector3) -> Vector3:
+	var u := to_c.normalized()
+	_nray.from = p + u * 0.05
+	_nray.to = p - u * 0.05
+	_nray.collision_mask = collision_mask
+	var hit := _space.intersect_ray(_nray)
+	if hit.is_empty():
+		return Vector3.ZERO
+	var n: Vector3 = hit.normal
+	return n if n.dot(u) >= 0.0 else -n
 
 
 ## Surface id and turbo pad direction of what lies under a contact point.
