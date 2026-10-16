@@ -522,3 +522,13 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   NVIDIA-signed), SCons 4.11.1 and a shallow clone of `nvidia-pt-dlss` @ 135dff3 into `C:\dev`.
   Added `tests/integration/gpu_bench` + `tools/rtx_bench.ps1`, ran the baseline (PROGRESS), and
   started the fork editor build. Work is on branch `m7-rtx`.
+- Later: RT shader fixes, the DLSS model setting and the RTX 2060 numbers (PROGRESS ~16:30 UTC,
+  docs/RTX.md). The push from this PC was refused (login `khanhcrypto` has no write access).
+
+### User (verbatim)
+
+> Keep m7-rtx local for now; I'll test-drive the RTX build first.
+
+### Claude
+
+- `m7-rtx` stays local (not pushed, not merged) until the owner has driven the RTX build.
