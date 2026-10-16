@@ -76,6 +76,9 @@ const ARCH_STRUT := [Vector3(0.97, 7.8, 5.9), Vector3(1.08, 9.6, 8.2), Vector3(1
 	Vector3(1.9, 11.4, 10.6), Vector3(2.34, 11.9, 11.4), Vector3(2.85, 12.5, 12.1), Vector3(3.44, 13.0, 12.85),
 	Vector3(4.1, 13.5, 13.5)]
 
+## Curved grid walls: GT curve size -> frame segments round the quarter circle (measured).
+const CURVE_WALL_SEGMENTS := {"2": 2, "3": 4}
+
 ## Platform to Road/Main ramp: the road's surface heights every 2 m from the deck (z 0) up to the
 ## road block's level (z 32).
 const TO_ROAD_MAIN := [8.0, 8.008, 8.017, 8.071, 8.125, 8.248, 8.372, 8.522, 8.672, 8.85, 9.028, 9.137,
@@ -131,6 +134,7 @@ func handles(shape: String) -> bool:
 		or (shape.begins_with("Platform/Slope/") and SLOPES.has(shape.trim_prefix("Platform/Slope/"))) \
 		or (shape.begins_with("Platform/Checkpoint/") and CHECKPOINT_SHEAR.has(shape.trim_prefix("Platform/Checkpoint/"))) \
 		or shape == "Platform/Checkpoint/RingVAir" or shape.begins_with("Platform/ToRoad/") \
+		or (shape.begins_with("Platform/GTCurve/") and CURVE_WALL_SEGMENTS.has(shape.substr(17, 1))) \
 		or shape in ["Platform/Loop/StartAir", "Platform/Loop/StartGround", "Platform/Loop/EndAir"]
 
 
@@ -151,6 +155,13 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 				_loop(geo, Vector2(32, 32), PI * 1.5, PI)
 			else:
 				_loop(geo, Vector2(0, 32), PI, PI * 0.5)
+		"GTCurve":
+			# "2Wall1Air": a grid wall k blocks round the curve, `units` levels high
+			var k := int(parts[2].substr(0, 1))
+			var units := int(parts[2].trim_suffix("Air").substr(5))
+			if units < 1:
+				return null
+			_curve_wall(geo, k, units)
 		"Turbo":
 			_turbo(geo)
 		"Checkpoint":
@@ -397,6 +408,37 @@ func _checkpoint_arch(geo: TmGeo) -> void:
 	for c: Vector2 in [Vector2(8, 2), Vector2(24, 2), Vector2(8, 30), Vector2(24, 30), Vector2(2, 8), Vector2(2, 24),
 			Vector2(30, 8), Vector2(30, 24)]:
 		geo.box(Vector3(c.x - 0.5, 0, c.y - 0.5), Vector3(c.x + 0.5, 3.42, c.y + 0.5), "stands", S_METAL)
+
+
+## Grid wall round a GT curve: on the arc of radius 32 k about the footprint's corner (0, 32 k), the
+## grid panel 1.0 .. 1.345 m in from it between rails the wall's full depth, with frame posts at the
+## ends and joints (measured: 2 segments on the 2-block curve, 4 on the 3-block one).
+func _curve_wall(geo: TmGeo, k: int, units: int) -> void:
+	var r := 32.0 * k
+	var c := Vector2(0, r)
+	var h := 8.0 * units
+	_sector(geo, c, r - 1.345, r - 1.0, -90.0, 0.0, 0.089, h - 0.089, "grid", S_METAL)
+	_sector(geo, c, r - 1.345, r, -90.0, 0.0, 0.0, 0.089, "wall", S_DECK)
+	_sector(geo, c, r - 1.345, r, -90.0, 0.0, h - 0.089, h, "wall", S_DECK)
+	var n: int = CURVE_WALL_SEGMENTS[str(k)]
+	for i in n + 1:
+		var a := -90.0 + 90.0 * i / n
+		_sector(geo, c, r - 1.345, r - 1.0, maxf(-90.0, a - 0.47), minf(0.0, a + 0.47), 0.089, h - 0.089, "metal", S_METAL)
+
+
+## A vertical prism over an annular sector (radii r0 .. r1 about c, angles a0 .. a1 in degrees from +x
+## toward +z) from y0 to y1, closed.
+func _sector(geo: TmGeo, c: Vector2, r0: float, r1: float, a0: float, a1: float, y0: float, y1: float,
+		mat: String, surf: int) -> void:
+	var steps := maxi(2, int(ceil(absf(a1 - a0) / 2.0)))
+	var loop := []
+	for i in steps + 1:
+		var a := deg_to_rad(lerpf(a0, a1, float(i) / steps))
+		loop.append([c + Vector2(cos(a), sin(a)) * r1, mat, surf])
+	for i in range(steps, -1, -1):
+		var a := deg_to_rad(lerpf(a0, a1, float(i) / steps))
+		loop.append([c + Vector2(cos(a), sin(a)) * r0, mat, surf])
+	geo.extrude_y(loop, y0, y1, true, mat, surf)
 
 
 ## Grid walls `units` blocks high on the cell's -z edge (0 -> 1.345 m): the measured plan
