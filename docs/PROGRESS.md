@@ -988,3 +988,14 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   (BridgeSuspendSlope2 and its x-mirror: a slab falling from 200 m to the ground, a strut rising
   back, side struts): 90.0-90.1% (the crest road bits and see-through awnings not recreated).
   A01 now has no placeholder (373 built, 24 empty). Coverage 99.1% (386 placeholders).
+- **All Sculpt pieces** (23 shapes): the rest of the bridges (straights, slope starts/ends,
+  pillars, the suspended end; bodies with the slab section, side struts, rails) and the arch rings
+  (rising curves 130 x 106 x 185 m) lofted across z; pillars up y with flat tops; every Mirror
+  piece is its partner mirrored in x (98-100% of vertices; the arch rings about x 64). The loft
+  rings now keep corners (the nearest sample snapped onto each vertex turning more than 20 deg):
+  blocky sections keep their edges (bridges 83 -> 94%, Sculpt A 92.8 -> 98.3%). Fidelity: Sculpt
+  A/B/C 98.3/97.2/98.5%, suspended pieces 95.3-95.9%, arch rings 93.0-95.8%, straights 94%,
+  slopes 87.5-91%, pillars 80.7-81.7% (their stepped heads). test_blocks: OVERHANG for pieces TMNF
+  builds past their footprint (Sculpt/B, arch rings). Loft data 657 KB.
+- Coverage 99.8% (100 placeholders: inflatable tube/advert pillars, airship, camera lights and
+  pubs, three Fabric pieces, one bump); test_race all 65 tracks, 421 checks.

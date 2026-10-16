@@ -5,7 +5,8 @@ extends Node
 
 const SLACK := 1.0
 ## Pieces whose own TMNF mesh reaches further out than their footprint (measured), extra slack m.
-const OVERHANG := {"Sculpt/B/Ground": 1.5}
+const OVERHANG := {"Sculpt/B/Ground": 1.5, "Sculpt/ArchRing/StartGround": 2.5, "Sculpt/ArchRing/StartGroundMirror": 2.5,
+	"Sculpt/ArchRing/EndGround": 2.5, "Sculpt/ArchRing/EndGroundMirror": 2.5}
 
 
 func _ready() -> void:

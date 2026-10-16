@@ -70,12 +70,12 @@ Commit like this, so a failing gate never lands:
 Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
-- Block library: campaign coverage 99.1% built or empty (41523 blocks, 386 placeholders, 0 unknown).
+- Block library: campaign coverage 99.8% built or empty (41523 blocks, 100 placeholders, 0 unknown).
   **Every drivable campaign shape is built** (session 12 finished them: Circuit slope turns,
   Stretch, turbo gates and variants, ramps, zone clips, loops, diagonal/curved tilt transitions);
   plain pieces score 97-100% in the fidelity test. The Fabric grandstands are built too
-  (`blocks/shapes/fabric.gd`, 14 shapes), and the Sculpt A/B/C and A01's suspended bridges as
-  lofts (`blocks/shapes/sculpt.gd`; A01 has no placeholder left). What is left is decoration.
+  (`blocks/shapes/fabric.gd`, 14 shapes), and every Sculpt piece (sculptures, bridges, arch rings)
+  as lofts (`blocks/shapes/sculpt.gd`; A01 has no placeholder left). What is left is decoration.
 - Hand-sculpted pieces: loft them. `tools/research/tmnf/loft_sections.py` (slices + rings, `:z` for
   leaning pieces, `:flat` for flat tops), add the shape's line to `sculpt_lofts.sh`, regenerate
   `blocks/data/sculpt_lofts.json`; `sculpt.gd` builds every shape found there (mirrored pieces via
@@ -84,12 +84,11 @@ Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
 - Next, in order (counts = campaign uses; `campaign_coverage` prints the live list):
   1. (done) drivable shapes. Optional polish: the dead end's rounded curb ends (Deadend, Ramp,
      99%), the loop's internal struts, the platform turbo's underside (94.5-97.4%).
-  2. Decorations: the rest of the Sculpt bridges (BridgeSlopeEnd 103, BridgeStraightSmall 38,
-     BridgePillar 52, SuspendSlopeEnd 8, BridgeStraight 3) and arch rings (78), Inflatable
-     tube/advert T-pillars (~60), Other/Airship (12), Control/CameraLight (15) and CameraPub,
-     Fabric/FabricPillarCornerOutAir (4) and Cross3x3 (4), dirt fences/signs/awnings.
-     Polish: Fabric trusses, screens and spotlights; the In pillar corners (86.7-93.4%); the
-     bridge's crest road and awnings.
+  2. Decorations (the last 100 placeholders): Inflatable tube/advert T-pillars (59),
+     Other/Airship (12), Control/CameraLight (15) and CameraPub (5), Fabric/FabricPillarCornerOutAir
+     (4) and Cross3x3 (4), Road/Main/Bump/Air (1); dirt fences/signs/awnings. Polish: Fabric
+     trusses, screens and spotlights; the In pillar corners (86.7-93.4%); the Sculpt pillars' heads
+     (81%), the bridges' rails, crest road and awnings.
   3. The rest of M8-6: ghosts and best times, stadium environment (sky, stands, lighting), our own
      car model, TMNF-like menus, sounds, HD Forward+ graphics.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.

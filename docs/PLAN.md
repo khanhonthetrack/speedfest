@@ -131,9 +131,9 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       GT diagonals from TMNF's frames, holes and pillars, Y junctions), terrain zones + ground,
       Control, Inflatable, Road/Dirt + DirtHigh; every campaign checkpoint built; session 12: circuit
       slope turns, Stretch, turbo gates and variants, ramps, zone clips, loops, diagonal/curved tilt
-      transitions: every drivable campaign shape built; Fabric grandstands; Sculpt A/B/C and A01's
-      suspended bridges as lofts (99.1% of campaign blocks built or empty). Open: decorations (the
-      other Sculpt bridges, arch rings, inflatable tube/advert, airship, camera lights)
+      transitions: every drivable campaign shape built; Fabric grandstands; every Sculpt piece as
+      lofts (99.8% of campaign blocks built or empty). Open: decorations (inflatable tube/advert
+      pillars, airship, camera lights and pubs, three Fabric pieces)
 - [ ] 6. Remake: stadium environment, our own car model, race flow (countdown, checkpoints, medals,
       ghosts), TMNF-like menus, sounds, HD Forward+ graphics, our own maps.
       Done: race flow (`TmRace`, measured triggers `TmTriggers`, `race/race.tscn` with HUD; all 65

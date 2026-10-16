@@ -84,21 +84,46 @@ def centroid(loop):
     return (sum(p[0] for p in loop) / len(loop), sum(p[1] for p in loop) / len(loop))
 
 
-def resample(loop, n):
+def resample(loop, n, corner_deg=20.0):
+    """n points evenly along the loop, the nearest one moved onto each corner (a vertex turning
+    more than corner_deg), so blocky sections keep their edges."""
     if area(loop) < 0:
         loop = loop[::-1]
-    lens = [math.dist(loop[i], loop[(i + 1) % len(loop)]) for i in range(len(loop))]
+    m = len(loop)
+    lens = [math.dist(loop[i], loop[(i + 1) % m]) for i in range(m)]
     total = sum(lens)
-    out, i, acc = [], 0, 0.0
-    for k in range(n):
-        target = total * k / n
-        while acc + lens[i] < target:
-            acc += lens[i]
+    starts = [0.0] * m
+    for i in range(1, m):
+        starts[i] = starts[i - 1] + lens[i - 1]
+
+    def at(target):
+        target %= total
+        i = 0
+        while i < m - 1 and starts[i + 1] <= target:
             i += 1
-        t = (target - acc) / lens[i] if lens[i] > 0 else 0
-        p, q = loop[i], loop[(i + 1) % len(loop)]
-        out.append((p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t))
-    return out
+        t = (target - starts[i]) / lens[i] if lens[i] > 0 else 0
+        p, q = loop[i], loop[(i + 1) % m]
+        return (p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t)
+    pos = [total * k / n for k in range(n)]
+    corners = []
+    for i in range(m):
+        a, b, c = loop[i - 1], loop[i], loop[(i + 1) % m]
+        u = (b[0] - a[0], b[1] - a[1])
+        w = (c[0] - b[0], c[1] - b[1])
+        lu, lw = math.hypot(*u), math.hypot(*w)
+        if lu > 1e-6 and lw > 1e-6:
+            cosang = max(-1.0, min(1.0, (u[0] * w[0] + u[1] * w[1]) / (lu * lw)))
+            if math.degrees(math.acos(cosang)) > corner_deg:
+                corners.append((math.degrees(math.acos(cosang)), starts[i]))
+    taken = set()
+    for _, s in sorted(corners, reverse=True):      # sharpest corners first
+        k = min((k for k in range(n) if k not in taken),
+                key=lambda k: min(abs(pos[k] - s), total - abs(pos[k] - s)), default=None)
+        if k is not None:
+            pos[k] = s
+            taken.add(k)
+    pos.sort()
+    return [at(p) for p in pos]
 
 
 def align(ring, prev):

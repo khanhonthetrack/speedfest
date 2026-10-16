@@ -34,8 +34,21 @@ static func lofts() -> Dictionary:
 	return _lofts
 
 
-## Mirrored pieces: the same lofts with x mirrored across the block (x -> 32 - x), measured.
-const MIRRORED := {"Sculpt/Bridge/BridgeSuspendSlope2Mirror": "Sculpt/Bridge/BridgeSuspendSlope2"}
+## Mirrored pieces: the same lofts with x mirrored (across the block's middle, x -> 32 - x, unless
+## MIRROR_X names another plane), measured.
+const MIRRORED := {"Sculpt/Bridge/BridgeSuspendSlope2Mirror": "Sculpt/Bridge/BridgeSuspendSlope2",
+	"Sculpt/Bridge/BridgeSuspendSlopeEndMirror": "Sculpt/Bridge/BridgeSuspendSlopeEnd",
+	"Sculpt/Bridge/BridgeSlopeStartAirMirror": "Sculpt/Bridge/BridgeSlopeStartAir",
+	"Sculpt/Bridge/BridgeSlopeEndAirMirror": "Sculpt/Bridge/BridgeSlopeEndAir",
+	"Sculpt/Bridge/BridgeSlopeStartGroundMirror": "Sculpt/Bridge/BridgeSlopeStartGround",
+	"Sculpt/Bridge/BridgePillarAirMirror": "Sculpt/Bridge/BridgePillarAir",
+	"Sculpt/Bridge/BridgePillarGroundMirror": "Sculpt/Bridge/BridgePillarGround",
+	"Sculpt/ArchRing/StartGroundMirror": "Sculpt/ArchRing/StartGround",
+	"Sculpt/ArchRing/EndGroundMirror": "Sculpt/ArchRing/EndGround"}
+## The plane the x-mirror reflects across, if not the block's middle (x = 16): measured.
+const MIRROR_X := {"Sculpt/ArchRing/StartGroundMirror": 64.0, "Sculpt/ArchRing/EndGroundMirror": 64.0}
+## A piece's extra parts in the lofts (key suffix -> visual material).
+const PARTS := {"#struts": "structure", "#rail": "metal"}
 
 
 func handles(shape: String) -> bool:
@@ -45,11 +58,13 @@ func handles(shape: String) -> bool:
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var geo := TmGeo.new()
 	var src: String = MIRRORED.get(shape, shape)
-	var mirror := MIRRORED.has(shape)
+	# mirrored pieces: x -> msum - x
+	var msum := 2.0 * float(MIRROR_X.get(shape, 16.0)) if MIRRORED.has(shape) else 0.0
 	for tube: Dictionary in lofts()[src]:
-		_tube(geo, tube, "sculpt", S_METAL, mirror)
-	for tube: Dictionary in lofts().get(src + "#struts", []):
-		_tube(geo, tube, "structure", S_METAL, mirror)
+		_tube(geo, tube, "sculpt", S_METAL, msum)
+	for part: String in PARTS:
+		for tube: Dictionary in lofts().get(src + part, []):
+			_tube(geo, tube, PARTS[part], S_METAL, msum)
 	match shape:
 		"Sculpt/A/Ground", "Sculpt/B/Ground", "Sculpt/C/Ground":
 			# the three sculptures share their plinth (measured: the same pads and curbs)
@@ -65,10 +80,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 ## One lofted tube: its rings joined ring to ring (horizontal rings up y, or rings across z for
 ## "axis": "z"); the start closed flat underneath (y) or drawn in to its base point (z); the end
 ## drawn up to its apex or closed flat at top_y. Faces are turned outward afterwards (by majority,
-## the rings' winding is not relied on); mirror: x -> 32 - x.
-func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, mirror := false) -> void:
+## the rings' winding is not relied on); msum > 0 mirrors: x -> msum - x.
+func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0) -> void:
 	var along_z := String(tube.get("axis", "y")) == "z"
-	var mx := func(p: Vector3) -> Vector3: return Vector3(32.0 - p.x, p.y, p.z) if mirror else p
+	var mx := func(p: Vector3) -> Vector3: return Vector3(msum - p.x, p.y, p.z) if msum > 0.0 else p
 	var rings := []
 	for r: Array in tube["rings"]:
 		var a := float(r[0])
