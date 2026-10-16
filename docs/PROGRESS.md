@@ -842,3 +842,19 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Tests: scenery 45/45, test_build 56/56, interpolation 15/15, race logic 41/41, garage 15/15.
 - Next: steps 7 (tunnels), 6 (curbs/stripes/barrier/chevrons), 8 (barrier line light), 9 (probes).
 
+## 2026-10-16 ~14:00 UTC — Session 10: look plan steps 6-7; `m7-look` merged into `main`
+
+- Step 7, tunnels: real light instead of emissive walls on Forward+ (High+). Fixtures every 4 m
+  (dark housing + white lens), ribs every 6 m, SpotLights every 8 m alternating sides (energy 8,
+  attenuation 0.8, range 14), negative-density FogVolumes so the street fog doesn't fill the tube.
+  The fake tunnel light on web/Low now comes in pools along the tube instead of a flat glow.
+- Step 6, curbs/stripes/barrier: `track_stripes.gdshader` is a lit shader (wetness, self_lit,
+  retro-reflection toward the camera, RT branch); painted curbs get wet with the road. Neon
+  barrier: chamfered profile, LED segments (`seam_every`). Road paint glow fades with distance.
+- RT (`#if defined(RT)`) branches for env_neon, env_screen, track_neon, track_stripes,
+  track_chevron (emission; no UV2 read).
+- Step 9 (reflection probes, `TrackProbes`) started and parked on branch `m7-probes` (untested).
+- `check_all.sh` on a clean `m7-look`: **CHECK_ALL PASS** (42 OK). Web re-exported
+  (`server/public`), boots on WebGL2. `main` fast-forwarded to `m7-look`.
+- Known, not new: the web (compat) car reads dark at night; it predates the look work.
+

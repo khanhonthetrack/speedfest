@@ -103,7 +103,10 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
             (path-traced frames need an NVIDIA GPU: lavapipe can't build the fork's RT pipelines)
       - [x] perf overlay (GPU ms, pipeline compiles); measured 0 draw-time compiles mid-race: no warm-up needed
       - [x] check_all PASS; merged into `main` (session 10, ~10:00 UTC); web re-exported
-      - [ ] art-direction plan (more "2005" fixes) on a fresh branch
+      - [x] art-direction plan (`docs/research/m7_look_plan.md`, 9 steps); steps 1-7 on `m7-look`
+            (fog/bloom, starry arena, facades with depth, grounded car, flood SpotLights, painted
+            curbs + LED barrier, tunnel lighting), check_all PASS, merged into `main`
+      - [ ] look step 9 (reflection probes, WIP on `m7-probes`); optional 8 (barrier line light), 6.6 (chevrons)
       - [ ] owner tests the Windows zip and the RTX mode on an RTX PC
 - [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
