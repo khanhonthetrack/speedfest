@@ -13,7 +13,9 @@ uniform vec4 sheen_color : source_color = vec4(0.45, 0.6, 1.0, 1.0);   // horizo
 uniform vec4 light_color : source_color = vec4(0.2, 0.9, 1.0, 1.0);   // reflected light streaks
 uniform float sheen = 1.0;                 // fake reflection strength (lower where SSR is on)
 uniform float rim_glow = 0.4;              // thin bright rim so puddles read at speed
+#if !defined(RT)
 instance uniform float seed = 0.0;
+#endif
 
 float hash(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
@@ -47,12 +49,20 @@ vec2 ripple_grad(vec2 m, float cell, float t, float salt) {
 }
 
 void fragment() {
+#if defined(RT)
+	// RTX fork: instance uniforms don't exist in ray-tracing hit shaders; seed from the position
+	float seed = fract(dot(MODEL_MATRIX[3].xz, vec2(0.0173, 0.0291))) * 3.0 + 0.11;
+#endif
 	vec2 uv = UV / max(extent, 0.001);
 	float n = vnoise(UV * 2.1 + seed * 13.7) * 0.65 + vnoise(UV * 5.3 + seed * 5.1) * 0.35;
 	float e = dot(uv, uv) + (n - 0.5) * 0.45;
+#if !defined(RT)
+	// Ray-tracing hit shaders have no discard. (Track hides puddles under path tracing for now:
+	// docs/RTX.md, "Known issues".)
 	if (e > 1.0) {
 		discard;
 	}
+#endif
 	float rim = smoothstep(0.8, 1.0, e);
 
 	vec2 grad = vec2(0.0);

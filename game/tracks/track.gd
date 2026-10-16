@@ -465,6 +465,16 @@ func _build_puddles() -> void:
 		_puddle_root.add_child(mi)
 		_puddle_meshes.append(mi)
 		k += 1
+	Settings.changed.connect(_show_puddles)
+
+
+## Which puddles the weather shows. None under path tracing (NVIDIA's RTX fork): once the puddle's
+## hit shader is in use, the fork stops drawing every other custom material (docs/RTX.md, "Known
+## issues"). Their grip effect (`surface`) stays.
+func _show_puddles() -> void:
+	var pt := Settings.path_tracing_active()
+	for mi in _puddle_meshes:
+		mi.visible = not pt and (weather == "storm" or (weather == "rain" and not bool(mi.get_meta("storm_only", false))))
 
 
 ## A grid lying on the road from d0 to d0+len, `w` wide, centered `x` m right of the centerline.
@@ -596,8 +606,7 @@ func apply_weather(mode: String) -> void:
 	if _puddle_mat != null:
 		_puddle_mat.set_shader_parameter("extent", maxf(Weather.puddle_extent(weather), 0.01))
 		_puddle_mat.set_shader_parameter("rain", Weather.rain_density(weather))
-	for mi in _puddle_meshes:
-		mi.visible = weather == "storm" or (weather == "rain" and not bool(mi.get_meta("storm_only", false)))
+	_show_puddles()
 	var style: String = layout.get("wall_style", "concrete")
 	var road_mat := TrackBuilder.road_material(String(layout.get("road_style", style)), layout.get("wet", false))
 	var damp := NIGHT_DAMP if theme != "coast" and not Settings.is_compat() and Settings.quality >= 1 else 0.0
