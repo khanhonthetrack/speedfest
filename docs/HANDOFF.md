@@ -1,5 +1,20 @@
 # HANDOFF: start here
 
+## Latest (~14:00 UTC 16 Oct, session 10, cloud): look plan steps 1-7 MERGED into `main`
+
+- **`main` = `m7-look`** (CHECK_ALL PASS, web re-exported). Steps from
+  `docs/research/m7_look_plan.md` now in main: 1-2 fog lit by the lights and kept off the sky,
+  bloom only on real highlights (starry arena sky); 3 facades with depth (interior-mapped rooms);
+  4 contact shadow, tail light, headlight beams; 5 arena flood SpotLights; 6 lit, wet,
+  retro-reflective curbs + chamfered LED barrier; 7 real tunnel lighting (fixtures, SpotLights,
+  fog cut-outs). Mostly Forward+ (PC); the web look is unchanged except the tunnel light pools.
+- **Pi:** new `server/public` export on `main`: `cd ~/speedfest && git pull && docker restart speedfest`.
+- **Next in this lane:** step 9 reflection probes on branch `m7-probes` (WIP, untested: merge
+  `main` into it, check probe captures with track_view `--warm`, watch for capture hitches);
+  optional step 8 (barrier line light in road.gdshader) and 6.6 (chevrons mounted on the barrier).
+- Still for the owner: test the Windows zip (Actions → Desktop builds → artifacts) and the RTX
+  build (`docs/RTX.md`); decide on `m7-maps` (24 maps) and `tmnf-physics`.
+
 ## Latest (~10:00 UTC 16 Oct, session 10, cloud): M7-1 PC build MERGED into `main`
 
 - **`main` now has M7-1** (branch `m7-pc` merged, CHECK_ALL PASS, web re-exported to
