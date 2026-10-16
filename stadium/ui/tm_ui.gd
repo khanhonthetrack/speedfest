@@ -12,10 +12,11 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 	["C", "Blue", Color(0.30, 0.52, 1.00)], ["D", "Red", Color(0.92, 0.25, 0.20)], ["E", "Black", Color(0.12, 0.12, 0.14)]]
 
 const SETTINGS_PATH := "user://settings.cfg"
-const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true}
+const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true}
 
 static var _theme: Theme
 static var _cfg: ConfigFile
+static var _ui_player: AudioStreamPlayer
 
 
 static func _box(bg: Color, border: Color, width: int, radius := 6) -> StyleBoxFlat:
@@ -72,7 +73,22 @@ static func button(text: String, action: Callable, min_width := 320) -> Button:
 	b.custom_minimum_size = Vector2(min_width, 54)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.pressed.connect(action)
+	b.pressed.connect(play.bind("click"))
+	b.mouse_entered.connect(play.bind("move"))
 	return b
+
+
+## A menu sound (TmSounds name) on a player that outlives scene changes.
+static func play(name: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	if not is_instance_valid(_ui_player):
+		_ui_player = AudioStreamPlayer.new()
+		_ui_player.process_mode = Node.PROCESS_MODE_ALWAYS
+		tree.root.add_child(_ui_player)
+	_ui_player.stream = TmSounds.get_stream(name)
+	_ui_player.play()
 
 
 # --- settings ---
@@ -94,8 +110,9 @@ static func set_setting(key: String, value: Variant) -> void:
 	apply()
 
 
-## Applies the window settings (the scenes read the rest themselves).
+## Applies the sound and window settings (the scenes read the rest themselves).
 static func apply() -> void:
+	AudioServer.set_bus_mute(0, not bool(setting("sound")))
 	if DisplayServer.get_name() == "headless":
 		return
 	var full := bool(setting("fullscreen"))

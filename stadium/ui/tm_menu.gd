@@ -259,7 +259,7 @@ func select(track: String, race_on_repeat := true) -> void:
 func _page_options() -> void:
 	var root := _root("OPTIONS")
 	var col := _column(root, 200)
-	for opt: Array in [["fullscreen", "Fullscreen"], ["shadows", "Shadows"], ["ghost", "Race against your best ghost"]]:
+	for opt: Array in [["fullscreen", "Fullscreen"], ["shadows", "Shadows"], ["sound", "Sound"], ["ghost", "Race against your best ghost"]]:
 		var c := CheckButton.new()
 		c.text = String(opt[1])
 		c.button_pressed = bool(TmUi.setting(opt[0]))

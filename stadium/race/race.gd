@@ -24,6 +24,7 @@ var run: TmGhost                   ## this run, being recorded
 var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarVisual)
 var new_record := false            ## the last finish set a new record
 var menu: TmRaceMenu               ## pause and finish menus
+var audio: TmCarAudio              ## engine, skid, wind and the race's cues
 var track_id := ""                 ## the campaign track raced ("" for a track file)
 var next_id := ""                  ## the campaign track after it ("" if none)
 
@@ -91,6 +92,10 @@ func _ready() -> void:
 	menu.restarted.connect(restart)
 	menu.next_track.connect(_next_track)
 	menu.to_menu.connect(_to_menu)
+	audio = TmCarAudio.new()
+	audio.car = car
+	audio.race = race
+	add_child(audio)
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
 	# the map's collision is in the physics space from the next physics frame
@@ -150,6 +155,7 @@ func _on_finished(time_ms: int) -> void:
 	run.finish_ms = time_ms
 	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
 	hud.show_finish(time_ms, best, new_record)
+	audio.cue("record" if new_record else "finish")
 	if new_record:
 		best = TmRecords.best(challenge)
 		best_ghost = run if TmUi.setting("ghost") else null
@@ -211,6 +217,7 @@ func respawn() -> void:
 		restart()
 		return
 	place_car(builder.waypoints[race.respawn_index]["spawn"])
+	audio.cue("respawn", -6.0)
 
 
 ## The car standing still at a spawn point: on the ground when it lies just below (spawns sit up

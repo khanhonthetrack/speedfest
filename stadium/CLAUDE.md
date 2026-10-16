@@ -97,7 +97,8 @@ Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
      surround `Zone/Square32.Solid.Gbx` with `visual_mesh.py` + `vsection.py`); (done) our own car
      model (`car/tm_car_visual.gd`: TMNF's proportions, our lofted shapes and livery); (done)
      menus (`ui/menu.tscn` is the main scene; `ui/tm_race_menu.gd` pause/finish; `tests/test_menu`);
-     next sounds, HD Forward+ graphics. Stadium polish: outer roads, forecourts
+     (done) sounds (`audio/tm_sounds.gd` synthesized, `audio/tm_car_audio.gd`; `tests/test_sound`);
+     next HD Forward+ graphics (textures for blocks and stadium, materials, post). Stadium polish: outer roads, forecourts
      and parking, roof light panels, textures.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.
 - Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the

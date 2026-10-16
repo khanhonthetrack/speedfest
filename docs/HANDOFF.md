@@ -31,8 +31,11 @@
   measured proportions, our own lofted shapes and livery; the ghost uses it too).
 - **M8-6 menus done:** `ui/menu.tscn` is the main scene (main, campaign with records and medals,
   options, no-TMNF help), the race's pause and finish menus (`ui/tm_race_menu.gd`); `tests/test_menu`.
-- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of M8-6 in the owner's
-  order: sounds (then HD graphics); polish of the weakest decorations
+- **M8-6 sounds done:** `audio/tm_sounds.gd` (all synthesized: engine loops, skid, wind, cues),
+  `audio/tm_car_audio.gd` (engine pitched by virtual gears, cues); `tests/test_sound`. The owner's
+  list for this session (ghosts and best times, stadium, car, menus, sounds) is complete.
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the last of M8-6: HD Forward+
+  graphics (textures for blocks and stadium, materials, post); polish of the weakest decorations
   (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
   allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).

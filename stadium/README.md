@@ -32,6 +32,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid: catalogue (layout data), placement, map builder, shape families in `blocks/shapes/` |
 | `race/` | race rules (`TmRace`), waypoint triggers (`TmTriggers`), race scene + HUD, map viewer, drive test |
 | `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
+| `audio/` | sounds, all synthesized at start (`tm_sounds.gd`), the race's engine and cues (`tm_car_audio.gd`) |
 | `ui/` | menus: main, campaign, options (`tm_menu.gd`, the main scene), the race's pause and finish menus, theme and settings |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
@@ -52,7 +53,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
    folder with `-- --records=<dir>`). From the next attempt the record's ghost races with you,
    and every checkpoint shows the difference to the record (blue ahead, red behind). Options:
    fullscreen, shadows, the ghost on or off, clear all records.
-Not there yet: textures (flat colours), sounds.
+Not there yet: textures (flat colours).
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with

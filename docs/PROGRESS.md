@@ -1098,3 +1098,20 @@ menus and sounds."
 - `tests/test_menu` (12 checks with TMNF, 6 without): the pages, 65 campaign tracks, 15 tiles a
   series, the header-only load equal to the full one, details, a record on its tile and medal,
   Race handing the track over, pause/resume, the finish menu, retry. STADIUM_TESTS PASS.
+
+## 2026-10-16 — Session 12: sounds (M8-6), branch `stadium`
+- `audio/tm_sounds.gd` (`TmSounds`): every sound synthesized at start (our own, no sound files;
+  0.3 s once): the engine under load (a harmonic stack of 110.25 Hz, odd harmonics stronger, a
+  firing buzz, a little noise; one second of whole periods so it loops seamlessly) and off the
+  throttle (softer), tyre skid (band noise with a squeal), wind (dark noise), and the cues:
+  countdown beep and go, checkpoint, finish and record arpeggios, respawn whoosh, wall thud,
+  turbo whoosh, menu click and move. `TmSounds.rpm(kmh)`: virtual gears (55, 105, 160, 220,
+  290 km/h) each sweeping 5200-9800 rpm, so the note climbs and drops at every shift.
+- `audio/tm_car_audio.gd` (`TmCarAudio`, in the race): the two engine loops crossfaded by the
+  throttle and pitched by the rpm, skid while wheels slide on the ground, wind with speed, the
+  countdown's beeps and go, checkpoints and laps, wall hits (from `wheel_hit_wall`), turbo
+  starts; the race cues the finish (or the record), respawns. Menu buttons click; a Sound option
+  mutes everything.
+- `tests/test_sound` (12): streams exist and aren't silent, loops wrap whole, rpm in and across
+  gears, the engine follows throttle and speed, the countdown. STADIUM_TESTS PASS; test_race all
+  65 tracks with the menus and sound in the race: 616 checks.
