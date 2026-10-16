@@ -15,30 +15,31 @@
   main per milestone; it never touches SpeedFest's game/. The shared core now includes `TmBody`
   (stadium/core/tm_body.gd: TMNF's sub-stepped integrator, contacts with face normals for shallow
   pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3/8 with
-  TMNF_DIR, blocks 3, race 37); `TMNF_DIR=<install>` also races A01.
-- **M8-6 step 1 done (race flow):** `stadium/race/race.tscn -- --tmnf=<install> --track=A01` is a
-  playable time attack: countdown, 10 ms clock, checkpoints/laps/finish through TMNF's measured
-  trigger slabs (`race/tm_triggers.gd`), respawn (Enter) and restart (Backspace), TMNF-layout HUD with
-  medals. `tests/test_race -- --tmnf=<install> --tracks=A01,B05,...` races any campaign tracks
-  (all 65 pass; checkpoint blocks without a recreated shape are taken by hand and listed).
-- **M8-5 in progress (block library):** families in `stadium/blocks/shapes/` (circuit, tube, platform,
-  road, zone, control, inflatable, dirt: plain shapes 84-100% vs measurements, decorated ones
-  lower; see PROGRESS). 95.7% of the campaign's blocks are built or empty (`tests/campaign_coverage`).
-  Terrain-like pieces (zones, dirt) are bicubic surfaces through surveyed control heights
-  (`blocks/data/*_heights.json`, from `tools/research/tmnf/zone_heights.py` / `terrain_heights.py`).
-  Measurements live only in the scratchpad (re-create them with `tools/research/tmnf/` from a TMNF
-  install: decrypt_all.py -> extract_surf.py; README "Block measurements"). Fidelity:
-  `stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless -- --meas=<dir> --only=Tube/
-  [--dump=N]`; map check: `race/map_view.tscn -- --tmnf=<install> --track=A01
-  [--view=near:<BlockId>]` prints MISSING shapes.
-- **Next:** drivable shapes still missing: road tilt (+ tilted road checkpoints), GTDiag, YShaped,
-  HolePillar, grass checkpoint, Platform GT-curve walls; then decorations by campaign use: Fabric
-  grandstands (~550), Sculpt (~350; the suspended bridge's mirror is missing from the catalogue),
-  inflatable tube/advert pillars, dirt fences/signs; then the rest of M8-6 (ghosts and best times,
-  environment, car model, menus, sounds, HD graphics).
+  TMNF_DIR, blocks 4, race 37); `TMNF_DIR=<install>` also races A01.
+- **Play it:** `race/race.tscn` is the main scene (press Play in the editor): it finds TMNF in its
+  usual install folders (or `--tmnf=<install>`, `TMNF_DIR`) and races A01; `--track=B05` or
+  `--map=<file.Challenge.Gbx>` for others. Enter respawns, Backspace restarts.
+- **M8-6 step 1 done (race flow):** countdown, 10 ms clock, checkpoints/laps/finish through TMNF's
+  measured trigger slabs (`race/tm_triggers.gd`), respawn and restart, TMNF-layout HUD with medals.
+  `tests/test_race -- --tmnf=<install> --tracks=A01,B05,...` races any campaign tracks; all 65 pass
+  and every checkpoint block is built (none taken by hand).
+- **M8-5 nearly done for drivable blocks (block library):** families in `stadium/blocks/shapes/`
+  (circuit, tube, platform, road, zone, control, inflatable, dirt). Road/Main is complete: straights,
+  slopes, junctions, GT curves (TMNF's own segment counts), tilted roads and transitions, GT diagonals
+  (TMNF's own sweep frames, `blocks/data/gt_diag_frames.json`), holes and hole pillars, Y junctions;
+  plain pieces 97-100% vs measurements. Campaign coverage 96.8% built or empty (1309 placeholders,
+  0 unknown), almost all of the rest decoration. Terrain-like pieces (zones, dirt) are bicubic
+  surfaces through surveyed control heights (`blocks/data/*_heights.json`). Measurements stay out of
+  the repo: `tools/research/tmnf/setup_measurements.sh <dir>` recreates them from public sources.
+- **Next (in order; `stadium/CLAUDE.md` "Where things stand" keeps the live list):** the last drivable
+  shapes (Circuit/Slope GTCurve 2out*Top and Corner InAirLeftTop, Zone dirt/grass clips, Road/Main
+  Stretch and Turbo/UpAir, Ramp/Air, Platform/Turbo/UpAir); then decorations by campaign use: Fabric
+  grandstands (~550), Sculpt (~350, incl. the suspended bridge pairs on A01), inflatable tube/advert
+  pillars, airship, dirt fences/signs; then the rest of M8-6 (ghosts and best times, environment,
+  car model, menus, sounds, HD graphics).
 - Known approximations: pool tiles (coarse survey), decorated gates and light/sound tubes, start
   block (from its ground variant), inflatable decorations and castles; water is visual only (no
-  water physics yet).
+  water physics yet); grass is surface 2 although TMNF's material table says 0 (open question).
 
 ## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
 

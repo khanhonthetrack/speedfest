@@ -863,3 +863,48 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - A01's route is fully built (only Sculpt decorations left). Campaign coverage 95.7% built or empty;
   race test: all 65 tracks, 421 checks; 36 checkpoint blocks still taken by hand (grass 14, tilted /
   sloped road 22).
+
+## 2026-10-16 — Session 9: drivable road pieces finished, curves at TMNF's resolution, hand-off kit (branch `stadium`)
+
+- **Tilted roads** (`blocks/shapes/road.gd`): pieces lying in one tilted plane are their flat
+  counterpart sheared by a fitted plane (`TmGeo.shear_y`: straight, corners, GT curves, tilted and
+  sloped road checkpoints); banked curves sweep the section with the bank in the lateral; flat-to-tilt
+  transitions run through separate measured ease tables for the bank and the centre's drop (95-99.7%).
+- **GT diagonals** (S-curves, 2x2/3x2/4x3, mirror/slope/tilt variants), **grass checkpoint** (the road
+  gate over the grass), **road holes** (the section clipped round the opening) and **hole pillars**
+  (grate, round pillars through it).
+- **Platform GT-curve walls** (`2Wall1Air`): the grid panel on the 32k-radius arc, full-depth rails,
+  frame posts at the joints (100%).
+- **Y junctions** (Road/Main/YShaped Curve2, Diag2, Diag2SlopeUp/Down): one branch (the 2-block GT
+  curve or GT diagonal, both ending at the top centre) clipped at x 48 plus its mirror image; the outer
+  curbs meet in a V exactly as measured (98-100%). New `TmGeo.clip(n, d)` (keeps n . p <= d, cuts
+  crossing triangles) and `TmGeo.add_mirror_x(a)`. E02 is now fully built (907/907 blocks).
+  Measurement quirk: Diag2SlopeUp's mesh sits offset by (40, 0, 80) under a location the extractor
+  doesn't apply; the fidelity check used a local copy moved back (98%). The piece is unused in the campaign.
+- **Curves at TMNF's resolution:** the measured meshes show TMNF's quarter circles in 16 (corner),
+  32 (GT 2), 48 (GT 3), 32 (GT 4) and 96 (GT 5) segments; ours had 8-21, and the chords pulled the
+  curbs in by up to 0.3 m. `CURVE_STEPS` fixes road and tilted-road curves: GT curves 95.3-99.5% ->
+  99.9-100%, tilted curves 99.1-100%.
+- **GT diagonals from TMNF's own frames:** each sweep frame leaves three asphalt vertices (left
+  edge, centre, right edge); `tools/research/tmnf/sweep_frames.py` extracts them (33/65/41 frames for
+  2x2/3x2/4x3: centre, lateral angle, width scale) into `blocks/data/gt_diag_frames.json`, and the
+  diagonals sweep through them (94-98.8% -> 99.7-100%). The 2x2 centre line is the cubic Bezier
+  (16,0) (16,32) (48,32) (48,64) at 32 even steps (within 0.05 m); the 3x2 and 4x3 are not single
+  cubics (asymmetric), so the frames are kept as data.
+- Catalogue regenerated from a from-scratch measurement run (7 names the old decrypt had corrupted
+  fixed, 10 blocks added: tilt and tube clips, the bridges' mirrored and end halves): no unknown
+  campaign blocks left.
+- **Playable:** `race/race.tscn` is the project's main scene (press Play): it finds TMNF in its usual
+  install folders (or `--tmnf=`, `TMNF_DIR`) and races A01; a message instead of quitting when TMNF
+  isn't installed.
+- **Hand-off kit for another agent:** `stadium/CLAUDE.md` (read order, rules, what is never in the
+  repo, setup, tests, how a block family gets recreated, gotchas, current state);
+  `tools/research/tmnf/setup_measurements.sh WORK` recreates the TMNF install and every measurement
+  from public sources only (official installer checked by SHA-256, ModTMNF, GBX.NET; about 10 min,
+  669 meshes, byte-identical to the earlier run).
+- `map_view` `--view=near:<BlockId>[:index[:zoom]]`.
+- Numbers: campaign coverage 96.8% built or empty (41523 blocks, 1309 placeholders, 0 unknown; the
+  rest is almost all decoration: Fabric, Sculpt, inflatable tubes/adverts, airship); every campaign
+  checkpoint is built: `test_race --tracks=all` (new: every campaign track found in the install)
+  passes all 65 tracks, 421 checks, none taken by hand.
+- `stadium/CLAUDE.md` now has a "Where things stand" section: the live to-do list for the next agent.

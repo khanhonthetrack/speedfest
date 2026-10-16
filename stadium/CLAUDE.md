@@ -46,18 +46,40 @@ blocks against measurements, and for the fidelity test.
 
 ## Tests (gate every commit on them)
     TMNF_DIR=/tmp/tmnf/tmnf/app stadium/tools/test_all.sh            # STADIUM_TESTS PASS
-    stadium/tools/run.sh res://tests/test_race.tscn --headless --timeout 1800 -- \
-        --tmnf=/tmp/tmnf/tmnf/app --tracks=A01,A02,...,E05             # all 65 campaign tracks
+    stadium/tools/run.sh res://tests/test_race.tscn --headless --timeout 3000 -- \
+        --tmnf=/tmp/tmnf/tmnf/app --tracks=all                         # all 65 campaign tracks (~20 min)
     stadium/tools/run.sh res://tests/campaign_coverage.tscn --headless --timeout 1200 -- --tmnf=...
     stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless -- \
         --meas=/tmp/tmnf/blocks/meas --only=Road/Tilt [--dump=40]      # ours vs measured, per shape
     stadium/tools/run.sh res://race/map_view.tscn -- --tmnf=... --track=A11 \
-        --view=near:StadiumRoadDirtHigh --frames=30 --shot=/abs/out.png  # look at it (Read the png)
+        --view=near:StadiumRoadDirtHigh[:index[:zoom]] --frames=30 --shot=/abs/out.png  # look (Read the png)
     stadium/tools/run.sh res://race/race.tscn --realtime -- --tmnf=... --track=A01   # play it
 
 Commit like this, so a failing gate never lands:
 
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
+
+## Where things stand (keep this section current: it is the next agent's to-do list)
+Updated 2026-10-16 (session 9). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
+  campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
+- Block library: campaign coverage 96.8% built or empty (41523 blocks, 1309 placeholders, 0 unknown).
+  Road/Main is complete; plain pieces score 97-100% in the fidelity test.
+- Next, in order (counts = campaign uses; `campaign_coverage` prints the live list):
+  1. Last drivable shapes: Circuit/Slope/GTCurve/2outAir{Left,Right}Top (11 each),
+     Circuit/Slope/Corner/InAirLeftTop (9), Zone/Dirt/DirtClip and Zone/Grass/Clip (11 each),
+     Road/Main/Stretch/Air (10) and SlopeAir (8), Road/Main/Turbo/UpAir (10), Ramp/Air (9),
+     Platform/Turbo/UpAir (8), Control/CameraLight (15).
+  2. Decorations: Fabric grandstands (~550: pillars, 1x1 straights/crosses, corners), Sculpt (~350:
+     A/B/C rocks, bridges incl. A01's suspended pair, arch rings), Inflatable tube/advert T-pillars
+     (~60), Other/Airship (12), dirt fences/signs/awnings.
+  3. The rest of M8-6: ghosts and best times, stadium environment (sky, stands, lighting), our own
+     car model, TMNF-like menus, sounds, HD Forward+ graphics.
+- Open questions: grass surface id (see Gotchas); water has no physics yet.
+- Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the
+  vertex angles in the measurement before choosing a step); swept pieces leave three asphalt vertices
+  per frame (`sweep_frames.py` reads the frames exactly); symmetric pieces are one half clipped
+  (`TmGeo.clip`) plus its mirror (`add_mirror_x`).
 
 ## How a block family gets recreated
 1. Pick by campaign use: `campaign_coverage` prints the MISSING shapes with their counts.
@@ -67,8 +89,10 @@ Commit like this, so a failing gate never lands:
    maps, profiles, centre lines, banks). All print numbers only.
 3. Find how TMNF built it. So far every piece has been one of: a measured section swept along a
    path (`TmGeo.wall_sweep`, `sweep`), revolved, extruded (`extrude_y`), a flat piece sheared into
-   a slope or bank (`TmGeo.shear_y`), or, for hand-sculpted terrain, a bicubic surface through
-   surveyed control heights (`zone_heights.py`, `terrain_heights.py` -> `blocks/data/*.json`).
+   a slope or bank (`TmGeo.shear_y`), half a symmetric piece clipped and mirrored (`TmGeo.clip`,
+   `add_mirror_x`), swept through TMNF's own frames (`sweep_frames.py`), or, for hand-sculpted
+   terrain, a bicubic surface through surveyed control heights (`zone_heights.py`,
+   `terrain_heights.py` -> `blocks/data/*.json`).
    Fit planes and curves to the measurement before assuming a formula.
 4. Write the generator in `blocks/shapes/<family>.gd` (`handles(shape)`, `make(shape, ...)`);
    register a new family in `blocks/tm_block_lib.gd` `FAMILIES`.
@@ -78,6 +102,9 @@ Commit like this, so a failing gate never lands:
    `docs/PLAN.md`.
 
 ## Gotchas
+- A measurement can sit under a location `extract_surf.py` doesn't apply (seen once:
+  YShaped/Diag2SlopeUpAir is offset by (40, 0, 80)); if a fidelity score is absurdly low, check the
+  mesh's bounds against the block's footprint first.
 - Faces are authored in TMNF block-local coordinates (x right, y up, z forward); Godot = x negated.
 - Godot re-enables `_physics_process` when a node enters the tree: switch it off after `add_child`.
 - Race waypoints come from the catalogue's waypoint type and `race/tm_triggers.gd` (measured gate

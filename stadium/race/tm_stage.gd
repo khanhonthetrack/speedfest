@@ -17,6 +17,21 @@ static func campaign_file(tmnf_root: String, track: String) -> String:
 	return ""
 
 
+## The official campaign's track names (A01 .. E05) found in a TMNF install, in order.
+static func campaign_tracks(tmnf_root: String) -> Array[String]:
+	var base := tmnf_root.path_join("GameData/Tracks/Campaigns/Nations")
+	var out: Array[String] = []
+	for colour in ["White", "Green", "Blue", "Red", "Black"]:
+		var d := DirAccess.open(base.path_join(colour))
+		if d == null:
+			continue
+		for f in d.get_files():
+			if f.to_lower().ends_with(".challenge.gbx"):
+				out.append(f.substr(0, 3))
+	out.sort()
+	return out
+
+
 ## Where TMNF installs itself (the official installer, Steam), tried when no install is named.
 const TMNF_PLACES := [
 	"C:/Program Files (x86)/TmNationsForever", "C:/Program Files/TmNationsForever",

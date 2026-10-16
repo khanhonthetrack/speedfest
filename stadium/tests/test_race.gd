@@ -1,7 +1,7 @@
 extends Node
 ## Race layer test. Always: TmRace's rules (countdown, clock, checkpoints in any order, finish,
 ## laps, respawn point, medals) and TmTriggers' crossing test on placed blocks. With
-## --tmnf=/path/to/TMNF it also races official tracks (--tracks=A01,B05, default A01): the car
+## --tmnf=/path/to/TMNF it also races official tracks (--tracks=A01,B05 or all; default A01): the car
 ## rests on the start block through the countdown and accelerates on it, then is put before each
 ## checkpoint's respawn point and driven through its trigger, and finally through the finish,
 ## which must end the race.
@@ -17,7 +17,8 @@ func _ready() -> void:
 	if root.is_empty():
 		print("TEST_SKIP tracks: pass --tmnf=/path/to/TMNF to race the official tracks")
 	else:
-		for track in String(TestHooks.arg("tracks", "A01")).split(","):
+		var tracks := String(TestHooks.arg("tracks", "A01"))
+		for track in (TmStage.campaign_tracks(root) if tracks == "all" else Array(tracks.split(","))):
 			await _track(track)
 	TestHooks.finish()
 

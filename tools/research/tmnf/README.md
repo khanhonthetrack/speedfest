@@ -47,7 +47,9 @@ Shape-reading helpers (numbers only, on `meas/*.json`): `describe.py`, `section.
 `section_loop.py`, `hmap.py` (height bands per cell), `matmap.py` (one material's heights),
 `vprofile.py` (heights along a line), `ridge.py`, `hgrid.py`, `center.py` (a road's centre line),
 `bank.py` (height and bank along a curve), `zone_heights.py` / `terrain_heights.py` (surveyed
-control heights for terrain-like blocks), `material_surfaces.py` (physics surface per material).
+control heights for terrain-like blocks), `sweep_frames.py` (a swept road's frames: centre, lateral
+and width per frame, read from the three asphalt vertices each frame leaves; the GT diagonals'
+`blocks/data/gt_diag_frames.json`), `material_surfaces.py` (physics surface per material).
 
 ## Block measurements (session 9, for the Stadium remake's block library)
 
