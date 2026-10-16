@@ -18,6 +18,7 @@ for line in open(SP + '/pak_Stadium.txt'):
     if len(parts) >= 6 and not line.startswith('#'):
         hashes[parts[4]] = parts[5]
 T = os.path.dirname(os.path.abspath(__file__)) + '/'
+os.makedirs('raw', exist_ok=True)
 ok = bad = 0
 for f in files:
     nice = hashes.get(f['path'], f['path'].split('\\')[-1])

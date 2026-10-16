@@ -2,6 +2,10 @@
 
 ## Latest (16 Oct, session 9, cloud): Stadium remake first; SpeedFest TMNF port PAUSED
 
+- **Another agent continuing the remake: start with `stadium/CLAUDE.md`** (read order, rules, setup,
+  tests, the block-family workflow). The local TMNF data (install, measurements) is never in the repo;
+  `tools/research/tmnf/setup_measurements.sh /tmp/tmnf` recreates it from public sources.
+
 - Owner (TRANSCRIPT, session 9): "Focus on the TMNF port first. After that, port car physics to
   speedfest after my approval." So the **Stadium remake (`stadium/`) comes first**. SpeedFest's
   TMNF handling stays on branch **`tmnf-physics`, not merged into main until the owner approves**

@@ -30,6 +30,24 @@ Pipeline (Linux, all in a scratch directory outside the repo):
 Format knowledge for the packs (salts, Blowfish variant, header layout) comes from GBX.NET
 (https://github.com/BigBang1112/gbx-net, `Src/GBX.NET.PAK`); the scripts are a Python reimplementation.
 
+## Cold start: recreate all local data in one go
+
+    apt-get install -y p7zip-full innoextract
+    tools/research/tmnf/setup_measurements.sh /tmp/tmnf [--quick]
+
+Downloads the official installer (SHA-256 checked), unpacks it, clones ModTMNF (its
+`Analysis/Docs/Generated.zip` class hierarchy) and GBX.NET (`Resources/FileHashes.txt`), builds
+`classmap.json` and the Stadium pack listing, decrypts block infos, mobils, materials and solids,
+and writes `blocks/blockinfos.json`, `material_surfaces.json`, `campaign_blocks.json` and
+`blocks/meas/*.json`. Checked from scratch in session 9: the meshes come out byte-identical to the
+ones the block library was measured against. Everything stays outside the repo.
+
+Shape-reading helpers (numbers only, on `meas/*.json`): `describe.py`, `section.py`,
+`section_loop.py`, `hmap.py` (height bands per cell), `matmap.py` (one material's heights),
+`vprofile.py` (heights along a line), `ridge.py`, `hgrid.py`, `center.py` (a road's centre line),
+`bank.py` (height and bank along a curve), `zone_heights.py` / `terrain_heights.py` (surveyed
+control heights for terrain-like blocks), `material_surfaces.py` (physics surface per material).
+
 ## Block measurements (session 9, for the Stadium remake's block library)
 
 The remake recreates every Stadium block with our own generators; these scripts measure the

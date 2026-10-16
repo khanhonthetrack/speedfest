@@ -35,6 +35,10 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
+## Continue the work
+Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with
+`tools/research/tmnf/setup_measurements.sh` (never committed).
+
 ## Run
 ```bash
 godot --headless --path stadium --import                         # once, and after a new class_name
