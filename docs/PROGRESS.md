@@ -667,3 +667,21 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   large reads bypass it, so `pak_search.py` backtracks; Adler-32 verifies. Inline nodes (no index)
   also re-key.
 - Not done: porting the model into `car.gd` (owner decision, see HANDOFF / tmnf_physics §6).
+
+## 2026-10-16 ~04:45 UTC — Session 9: TMNF port and Stadium remake started (M8)
+
+- Owner: "Yes" (port TMNF's model as SpeedFest's default) + a separate TMNF remake in Godot; answers
+  recorded in TRANSCRIPT and PLAN M8 (recreated assets only, campaign/TMX maps read at runtime from
+  the player's files, Godot 4.7 Forward+).
+- New project `stadium/` (Forward+, Jolt, 100 Hz physics, interpolation). `core/tm_tuning.gd`
+  holds every TMNF constant and curve; `core/tm_car_model.gd` is the handling tick (steer slew,
+  per-wheel side grip with slide states and the damper factor, uncapped axle yaw damping + steering
+  torque, staircase drive with speedslide blend, brake caps that flag sliding, coasting drag, wall
+  slow-down, slope adherence, turbo, dirt, air control and drag). Steering/drive/brake only run with
+  a wheel on the ground, like TMNF.
+- `stadium/tests/test_model_lab` 44/44: 0-100 1.74 s, 0-400 12.18 s, radius 15.75 m @ 100 km/h,
+  48.2 @ 200, 132.6 @ 400, slip < 1.1°, brake 100 km/h -> 1 m/s in 1.36 s / 12.9 m, brake-tap drift
+  heading 100° / exit 218 km/h, turbo 42 / 147 m/s², wall slow-down 500 ms, air 2.5 g / no steering.
+- Decompiled `M6GetModulationFromDamperAbsorbVal`: side-grip cap × curve 0x224 at
+  (len − 0.7)/(0 − 0.7), len = suspension length (1.0 at rest, 0.51 fully extended).
+

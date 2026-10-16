@@ -1,5 +1,19 @@
 # HANDOFF: start here
 
+## Latest (~04:45 UTC 16 Oct, session 9, cloud): TMNF port + Stadium remake started (M8)
+
+- Owner said "Yes" to porting TMNF's model into SpeedFest and asked for a separate TMNF remake in
+  Godot (TRANSCRIPT session 9; answers in PLAN M8). New Godot project **`stadium/`**
+  (stadium/README.md): `core/tm_tuning.gd` + `core/tm_car_model.gd` = TMNF force model 6 as one
+  engine-independent 10 ms tick; `tests/test_model_lab` drives it on ideal flat ground and matches
+  `tools/research/tmnf/tmnf_model.py` (44/44: accel, turn radii, response, brakes, drift, coast,
+  surfaces, turbo, walls, air). The damper grip factor is decompiled and applied
+  (tmnf_physics §3.5).
+- **Next (in order):** M8-2 the remake's 100 Hz car body; then M8-3 the SpeedFest port on branch
+  `tmnf-physics`, merged after the Pi's `m7-maps` (it touches car.gd and every map, so wait for
+  m7-maps to land, then retune all maps with the AutoDriver).
+- Still open in the RE (small): reverse-switch threshold, turbo pad-direction scaling, burnout/donut.
+
 ## Latest (~02:50 UTC 16 Oct, session 8 auto-continue on the Pi): M7-6 maps claimed
 
 - The owner asked this Pi session to auto-continue after the usage limit. At 02:45 UTC it found
