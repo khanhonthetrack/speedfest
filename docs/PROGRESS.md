@@ -699,3 +699,27 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Next: look pass (the downtown road renders pitch black at night: no reflections, no light from
   the neon), RTX verification on the fork build + shader RT branches, warm-up/perf HUD, merge.
 
+## 2026-10-16 ~05:00 UTC — Session 10: M7-1 look pass, review fixes (branch `m7-pc`)
+
+- Merged `main` (session 9 TMNF research, Pi notes) into `m7-pc`; owner's "Update the repo and
+  continue" recorded in TRANSCRIPT.
+- **Look pass ("looks like 2005").** The night roads rendered pitch black: a look-dev scene
+  (`tests/visual/road_lookdev`) showed SSR works (mirror control) but the road's wet model stayed
+  at roughness >= 0.34 outside puddles, where SSR fades out. `road.gdshader` `water_gloss`
+  (Forward+): a water film takes wet asphalt to ~0.12, puddle patches to ~0.04. Night themes are
+  damp even when dry (`Track.NIGHT_DAMP` 0.6, visual only). City neon signs/billboards near the
+  road get real OmniLights (budget after lamps). Downtown now shows neon, barrier and sign
+  reflections on the road. AgX tested and rejected for now (lifted blacks, dull neon).
+- **Perf overlay** (Show FPS): FPS, ms, worst frame, GPU/CPU ms, pipelines compiled mid-game.
+- **Review workflow** (5 area reviewers + an adversarial verifier per finding, 26 agents): 18
+  findings, 8 confirmed, all fixed:
+  - wheel MultiMesh double-interpolated (matrix lerp shrank fast-spinning wheels; web too): OFF on
+    Wheels/Calipers (verified in 4.7.2 source: OFF children still follow the parent's drawn pose);
+  - world-space particles (spray, dirt, nitro) jittered by up to a tick of travel: `InterpAnchor`;
+  - RTX: lobby SubViewport never path traces, Reflex without DLSS, viewport AA written once
+    (each write rebuilt buffers), fsr_sharpness restored, F11 refreshes Settings, test isolation;
+  - launch args (`--dlss` case, `--start_scene` once, window mode for owner runs), export script
+    arg check, CI cache key.
+- Tests: test_interpolation 15/15, test_settings 12/12 (+7/7 compat), test_scenery 45/45,
+  test_weather 73/73, test_race_logic 41/41, test_remote_car 10/10; CI "Desktop builds" green.
+

@@ -97,7 +97,8 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       - [x] PC presets (SSR/SSAO/SSIL/vol. fog/shadows per quality), `test_settings` 12/12
       - [x] Windows + Linux export, GitHub Actions "Desktop builds" (artifacts; Release on v* tags)
       - [x] RTX hooks (fork detection, DLSS, frame gen, Reflex, path tracing) + Settings block
-      - [ ] look pass: night roads that reflect, real lights at neon, AgX, probes ("looks like 2005")
+      - [x] look pass: night roads reflect (water_gloss, NIGHT_DAMP), real lights at neon; AgX tried (kept ACES)
+      - [x] review workflow over the branch: 8 confirmed bugs fixed
       - [ ] RTX verified on a Linux fork build (lavapipe RT), `#if defined(RT)` shader branches
       - [ ] material warm-up at load + perf HUD (GPU ms, pipeline compiles); merge to `main`; tag v0.7.0
       - [ ] owner tests the Windows zip and the RTX mode on an RTX PC
