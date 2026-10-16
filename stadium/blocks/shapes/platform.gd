@@ -73,9 +73,15 @@ const CHECKPOINT_ARCH := [
 ]
 
 
+## Loops: the riding surface's radius, and the plan's depth outside it (the fins).
+const LOOP_R := 30.705
+const LOOP_OUT := 32.05
+
+
 func handles(shape: String) -> bool:
 	return shape.begins_with("Platform/Road/") or shape.begins_with("Platform/Wall/") \
-		or shape == "Platform/Turbo/Air" or shape == "Platform/Checkpoint/Air"
+		or shape == "Platform/Turbo/Air" or shape == "Platform/Checkpoint/Air" \
+		or shape in ["Platform/Loop/StartAir", "Platform/Loop/StartGround", "Platform/Loop/EndAir"]
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
@@ -87,6 +93,14 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			if not ARMS.has(form):
 				return null
 			_deck(geo, _closed(ARMS[form]))
+		"Loop":
+			# a quarter of a loop in the y-z plane, riding on the inside: the start rises from the
+			# road (at the +z edge) to vertical at the -z edge, the end (stacked 4 levels above,
+			# sharing the centre) carries on to the ceiling at the +z edge
+			if parts[2].begins_with("Start"):
+				_loop(geo, Vector2(32, 32), PI * 1.5, PI)
+			else:
+				_loop(geo, Vector2(0, 32), PI, PI * 0.5)
 		"Turbo":
 			_turbo(geo)
 		"Checkpoint":
@@ -175,6 +189,34 @@ func _turbo(geo: TmGeo) -> void:
 	var hi := Vector3(31.0, TOP, 31.0)
 	geo.box(lo, hi, "structure", S_METAL, "turbo", S_TURBO)
 	geo.box(Vector3(10.64, 1.21, 2.64), Vector3(21.36, UNDER, 29.36), "fabric", S_SLIDING)
+
+
+## The grid wall's plan (x across, depth) swept round an arc in the y-z plane about c = (y, z) from
+## angle a0 to a1 (angle 0 = +z, PI/2 = +y): depth 1.345 (the wall's back) rides at LOOP_R.
+func _loop(geo: TmGeo, c: Vector2, a0: float, a1: float) -> void:
+	var steps := 24
+	var n := WALL_PLAN.size()
+	var at := func(q: Array, a: float) -> Vector3:
+		var r := LOOP_OUT - float(q[1])
+		return Vector3(float(q[0]), c.x + r * sin(a), c.y + r * cos(a))
+	for i in steps:
+		var b0 := lerpf(a0, a1, float(i) / steps)
+		var b1 := lerpf(a0, a1, float(i + 1) / steps)
+		var mid := (b0 + b1) * 0.5
+		var centre := Vector3(16.0, c.x + (LOOP_OUT - 0.67) * sin(mid), c.y + (LOOP_OUT - 0.67) * cos(mid))
+		for k in n:
+			var q0: Array = WALL_PLAN[k]
+			var q1: Array = WALL_PLAN[(k + 1) % n]
+			var a: Vector3 = at.call(q0, b0)
+			var b: Vector3 = at.call(q1, b0)
+			var cc: Vector3 = at.call(q1, b1)
+			var d: Vector3 = at.call(q0, b1)
+			var out := (a + b + cc + d) * 0.25 - centre
+			# faces point away from the section's middle
+			if (b - a).cross(cc - a).dot(out) < 0.0:
+				geo.quad(a, d, cc, b, q0[2], q0[3])
+			else:
+				geo.quad(a, b, cc, d, q0[2], q0[3])
 
 
 ## The checkpoint arch over the deck (measured section, 13.4 -> 18.6 m along z).

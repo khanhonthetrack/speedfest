@@ -83,6 +83,16 @@ const GATE_ARCH := [
 	[17.593, 8.743, "structure", 22]
 ]
 
+## Road slope pieces: road-surface heights along z every 2 m at the centre line (measured).
+const SLOPES := {
+	"BiSlopeStart": [1.345, 1.376, 1.407, 1.438, 1.469, 1.556, 1.643, 1.730, 1.817, 1.964, 2.112, 2.260, 2.408, 2.623, 2.838, 3.053, 3.267, 3.549, 3.830, 4.112, 4.393, 4.743, 5.093, 5.443, 5.792, 6.208, 6.624, 7.041, 7.457, 7.929, 8.401, 8.873, 9.345],
+	"BiSlopeEnd": [1.345, 1.826, 2.307, 2.770, 3.234, 3.666, 4.098, 4.499, 4.900, 5.265, 5.630, 5.962, 6.294, 6.592, 6.890, 7.155, 7.420, 7.652, 7.883, 8.083, 8.282, 8.446, 8.610, 8.742, 8.874, 8.975, 9.076, 9.148, 9.220, 9.264, 9.308, 9.327, 9.345],
+	"Base": [1.345, 1.407, 1.631, 1.997, 2.490, 3.097, 3.793, 4.553, 5.345, 6.137, 6.897, 7.593, 8.199, 8.692, 9.058, 9.283, 9.345],
+	"Base2": [1.345, 1.469, 1.918, 2.650, 3.636, 4.849, 6.241, 7.761, 9.345, 10.929, 12.449, 13.840, 15.054, 16.040, 16.771, 17.220, 17.345],
+	"UBottom": [9.345, 8.873, 8.457, 8.107, 7.825, 7.611, 7.463, 7.376, 7.345, 7.376, 7.463, 7.611, 7.825, 8.107, 8.457, 8.873, 9.345],
+	"UTop": [1.345, 1.817, 2.233, 2.583, 2.864, 3.079, 3.227, 3.314, 3.345, 3.314, 3.227, 3.079, 2.864, 2.583, 2.233, 1.817, 1.345],
+}
+
 ## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
 const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
 
@@ -94,6 +104,8 @@ func handles(shape: String) -> bool:
 	if not shape.begins_with("Road/Main/"):
 		return false
 	var rest := shape.trim_prefix("Road/Main/")
+	if rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
+		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
 		or rest.begins_with("GTCurve/") or rest.begins_with("Turbo/Air") or rest.begins_with("Turbo/Ground") \
 		or rest.begins_with("FreeWheeling/") or rest.begins_with("Checkpoint/") or rest.begins_with("MultiLap/") \
@@ -117,6 +129,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var form := _form(rest)
 	if ARMS.has(form):
 		_junction(geo, form, ground)
+	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
+		_profile_slope(geo, SLOPES[_form(rest.trim_prefix("Slope/"))], ground)
 	elif rest.begins_with("Slope/Straight"):
 		_sweep(geo, [Vector3(16, 0, 0), Vector3(16, 8, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], ground)
 	elif rest.begins_with("GTCurve/"):
@@ -221,6 +235,20 @@ func _junction(geo: TmGeo, form: String, ground: bool) -> void:
 			_nose(geo, 24.0, 1.0, ground)
 		_:
 			_cross(geo, ARMS[form], ground)
+
+
+## A road piece following a measured height profile along z (every 2 m), the section sheared up as
+## TMNF does; ground pieces keep their base on the terrain (1 m).
+func _profile_slope(geo: TmGeo, heights: Array, ground: bool) -> void:
+	var path := []
+	var lat := []
+	for i in heights.size():
+		path.append(Vector3(16, float(heights[i]) - TOP, 2.0 * i))
+		lat.append(Vector3(1, 0, 0))
+	var y_at := Callable()
+	if ground:
+		y_at = func(y: float, i: int) -> float: return 1.0 - (path[i] as Vector3).y if y <= 1.001 else y
+	_sweep(geo, path, lat, ground, y_at)
 
 
 func _straight(geo: TmGeo, z0: float, z1: float, ground: bool) -> void:
