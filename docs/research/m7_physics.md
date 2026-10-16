@@ -1,5 +1,9 @@
 # M7 physics: why it has "no feel", the Trackmania target, and the rewrite plan
 
+> **Superseded for the TM targets (session 9):** the real TMNF model and numbers, reverse engineered
+> from the game, are in `docs/research/tmnf_physics.md`. The "(ours)" targets below were guesses;
+> several differ from TMNF (gravity 2.5-3 g, acceleration curve, turn radii, drift, walls).
+
 Owner (session 7): "The physics is horrible. There is no feel ... learn or copy from Trackmania how
 the car behaves", "The barriers are super annoying", "The wall rides are terrible. It slows you
 down, pulls you down. These cars don't have any grip?", "Rails should not be magnetic".

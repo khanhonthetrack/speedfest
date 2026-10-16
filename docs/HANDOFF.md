@@ -1,6 +1,23 @@
 # HANDOFF: start here
 
-## Latest (~23:00 UTC, session 8, Pi): STOPPED on owner request. M7 physics done on branch `m7-physics`
+## Latest (~00:15 UTC 16 Oct, session 9, cloud): TMNF reverse engineered, port not started
+
+- Owner asked to study ModTMNF + REA and reverse engineer TrackMania Nations Forever (TRANSCRIPT
+  session 9). **Done:** `docs/research/tmnf_physics.md` describes the real Stadium car (force model 6,
+  tuning `20juin2006`, geometry, surfaces, walls, turbo, air) with numbers;
+  `tools/research/tmnf/tmnf_model.py` is our runnable reconstruction (0-100 1.74 s, full-lock radius
+  16 m @ 100 km/h / 48 m @ 200, 30/25 m/s² gravity ground/air, wheel-to-wall 500 ms slow-down...).
+  Pipeline and scripts: `tools/research/tmnf/README.md` (nothing from the game is committed).
+- Parallel session 10 merged its own M7 handling (guessed targets, docs/research/m7_physics.md) and
+  moved on to the PC build. **Open decision for the owner:** port TMNF's model into `car.gd`
+  (a `TM_FAITHFUL` mode, test_tm targets from `tmnf_model.py`) — it changes how every map plays
+  (heavier gravity, staircase acceleration without drag, much tighter turning, wheel-wall penalty).
+  §6 of tmnf_physics.md lists the differences one by one.
+- To redo the analysis in a fresh container: install Ghidra 12.1.4 + `npm i -g rea-agents`, download
+  the TMNF installer (README step 1), unpack, `map2seeds.py`, start `rea_bridge.py` (~8 min Ghidra
+  analysis), then `dc.py`/`asm.py`. Decrypting packs needs only Python + pycryptodome.
+
+## Earlier (~23:00 UTC, session 8, Pi): STOPPED on owner request. M7 physics done on branch `m7-physics`
 
 - **Branch `m7-physics` (87a4543, NOT merged):** M7 items 2-4 (Trackmania handling, barriers,
   wall rides) are implemented in `game/cars/car.gd`, `car_input.gd`, `tuning.gd`,

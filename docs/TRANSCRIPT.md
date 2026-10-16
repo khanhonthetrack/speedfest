@@ -425,6 +425,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   docs/research/m7_physics.md with TMNF's real car model and tuning values, then rebuild the
   handling on them. Rule for the public repo: only our own write-up and numbers (facts) go in;
   no Nadeo binaries, assets or decompiled code.
+- Result (~00:15 UTC 16 Oct): downloaded TMNF from Ubisoft's CDN, analysed TmForever.exe with REA +
+  Ghidra using the map's 63k names, decrypted the Stadium car's tuning, geometry and surface files
+  from the packs, and wrote the model up in docs/research/tmnf_physics.md with a runnable
+  reconstruction (tools/research/tmnf/tmnf_model.py). Headlines: gravity 30 m/s² on the ground and
+  25 in the air; acceleration is a staircase (16/11/7/5.5 m/s²) with no drag under throttle; the
+  yaw rate depends on speed only, so the car almost never slides on asphalt (16 m radius at
+  100 km/h); the brake drift is a grip state; wheels touching a wall trigger a 500 ms slow-down; no
+  air steering; grip fades on walls beyond ~46° of tilt and is zero past ~73°.
 > approaching limit. stop what you're doing and save your progress in a document NOW
 
 ### Claude

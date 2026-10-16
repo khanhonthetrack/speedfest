@@ -651,3 +651,19 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - That tuning selects force model 6 (`ComputeForcesModel6`). Decompiling it and its helpers next;
   the write-up goes to docs/research/tmnf_physics.md. Only our own description and the numbers
   go into the repo, no game files or decompiled code.
+
+## 2026-10-16 ~00:15 UTC — Session 9: TMNF car physics reverse engineered
+
+- `docs/research/tmnf_physics.md`: the Stadium car's force model 6 described from the code
+  (`ComputeForcesModel6` and helpers, rigid-body and collision layers) with the real tuning
+  (`20juin2006`, the last of 30 tunings in StadiumCar.VehicleTunings.Gbx), geometry from
+  StadiumCar.Solid.Gbx (wheelbase 2.988 m, wheel radius 0.364 m), the surface table, turbo and walls.
+- `tools/research/tmnf/tmnf_model.py`: runnable flat-ground reconstruction; prints 0-100 1.74 s,
+  0-200 4.26 s, full-lock radius 15.8 m @ 100 km/h / 48 m @ 200 / 133 m @ 400, braking 3 g above
+  60 km/h, 8 m drop in 0.8 s.
+- Pack decryption: TmForever re-keys the cipher IV on every node read (parent class id; class ids
+  read from each class's `GetMwClassId`, parents from ModTMNF's hierarchy), on tuning names and on
+  `CPlugSurfaceGeom` boxes; its reader inflates 256-byte input blocks into a 1024-byte buffer and
+  large reads bypass it, so `pak_search.py` backtracks; Adler-32 verifies. Inline nodes (no index)
+  also re-key.
+- Not done: porting the model into `car.gd` (owner decision, see HANDOFF / tmnf_physics §6).
