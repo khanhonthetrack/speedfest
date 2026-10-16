@@ -105,8 +105,8 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [])
 
 
 ## Sweeps a closed vertical section along a path. section: Array of [Vector2(d, y), mat, surface]
-## where d is the offset along `outward` (horizontal unit vector per path point) and y the height
-## above the path point. Any loop orientation and path direction: both are fixed so faces point
+## where d is the offset along `outward` (horizontal vector per path point; all path points equal
+## = a revolve about that point) and y the height above the path point. Any loop orientation and path direction: both are fixed so faces point
 ## out. caps: close both ends with the section polygon (cap_mat, cap_surface). y_at: optional
 ## func(y: float, i: int) -> float, the section's heights at path point i (e.g. a lowered top).
 func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_mat := "wall_dark", cap_surface := 4,
@@ -118,7 +118,10 @@ func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_m
 	var outs := outward.duplicate()
 	# frames: lateral L = outward, up U, travel F = L x U; the path must run along F
 	var f0 := (outs[0] as Vector3).cross(Vector3.UP)
-	var reversed := f0.dot((pts[1] as Vector3) - (pts[0] as Vector3)) < 0.0
+	var travel := (pts[1] as Vector3) - (pts[0] as Vector3)
+	if travel.length_squared() < 1e-10:
+		travel = (outs[1] as Vector3) - (outs[0] as Vector3)   # a revolve about one point
+	var reversed := f0.dot(travel) < 0.0
 	if reversed:
 		pts.reverse()
 		outs.reverse()
