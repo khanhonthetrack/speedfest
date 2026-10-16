@@ -100,10 +100,14 @@ def _(r, n):
 @chunk(0x0900F004)
 def _(r, n):
     r.ident(); r.vec(6); kind = r.i32()
-    if kind != 7: raise ValueError('surface kind %d' % kind)
-    r.i32(); nv = r.u32(); r.p += 12 * nv
-    nt = r.u32(); r.p += nt * (16 + 12 + 4)
-    r.i32(); nc = r.u32(); r.p += nc * 32
+    if kind == 0: r.f32()          # sphere: radius
+    elif kind == 1: r.vec(3)       # ellipsoid: half axes
+    elif kind == 6: r.vec(6)       # box
+    elif kind == 7:                # mesh
+        r.i32(); nv = r.u32(); r.p += 12 * nv
+        nt = r.u32(); r.p += nt * (16 + 12 + 4)
+        r.i32(); nc = r.u32(); r.p += nc * 32
+    else: raise ValueError('surface kind %d' % kind)
     r.i16()
 
 

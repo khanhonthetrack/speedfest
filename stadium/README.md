@@ -27,11 +27,12 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | dir | contents |
 |---|---|
 | `core/` | tuning + car model (shared with SpeedFest) |
-| `car/` | car body, input, visuals (placeholder), chase camera |
+| `car/` | car body, input, our own car model (`tm_car_visual.gd`), chase camera |
 | `gbx/` | `.Challenge.Gbx` reader: header, medals, LZO body, blocks |
 | `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid: catalogue (layout data), placement, map builder, shape families in `blocks/shapes/` |
 | `race/` | race rules (`TmRace`), waypoint triggers (`TmTriggers`), race scene + HUD, map viewer, drive test |
-| `ui/`, `env/` | menus, stadium environment (planned) |
+| `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
+| `ui/` | menus (planned) |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
@@ -47,7 +48,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 4. Your best time per track and its ghost are saved (Godot's user folder, `records/`; another
    folder with `-- --records=<dir>`). From the next attempt the record's ghost races with you,
    and every checkpoint shows the difference to the record (blue ahead, red behind).
-Not there yet: our own car model (a placeholder body), textures (flat colours), sounds, menus.
+Not there yet: textures (flat colours), sounds, menus.
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with

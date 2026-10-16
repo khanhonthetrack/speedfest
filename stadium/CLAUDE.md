@@ -94,8 +94,9 @@ Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
      `race/tm_records.gd`, HUD record and split differences; `tests/test_ghost`); (done) the
      stadium environment: Day sky and sun (`env/tm_stadium_env.gd`, `env/tm_sky.gdshader`) and the
      Stadium around the map (`env/tm_stadium_build.gd`, our own tables measured from TMNF's
-     surround `Zone/Square32.Solid.Gbx` with `visual_mesh.py` + `vsection.py`); next our own car
-     model, TMNF-like menus, sounds, HD Forward+ graphics. Stadium polish: outer roads, forecourts
+     surround `Zone/Square32.Solid.Gbx` with `visual_mesh.py` + `vsection.py`); (done) our own car
+     model (`car/tm_car_visual.gd`: TMNF's proportions, our lofted shapes and livery); next
+     TMNF-like menus, sounds, HD Forward+ graphics. Stadium polish: outer roads, forecourts
      and parking, roof light panels, textures.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.
 - Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the

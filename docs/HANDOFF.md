@@ -27,8 +27,10 @@
   own measurements of TMNF's surround (`env/tm_stadium_build.gd`: grandstands, roofs, masts,
   terraces, big screens, flags, floodlight towers, the ground and its edge). Research tools for it:
   `tools/research/tmnf/visual_mesh.py`, `vsection.py`.
+- **M8-6 our own car model done:** `car/tm_car_visual.gd` (an open-wheel racer with TMNF's
+  measured proportions, our own lofted shapes and livery; the ghost uses it too).
 - **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of M8-6 in the owner's
-  order: our own car model, menus, sounds (then HD graphics); polish of the weakest decorations
+  order: menus, sounds (then HD graphics); polish of the weakest decorations
   (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
   allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).

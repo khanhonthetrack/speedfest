@@ -1068,3 +1068,15 @@ menus and sounds."
   TMNF's Stadium maps); other sizes keep the plain grass.
 - Not yet: the outer roads, forecourts and parking (the outer ground is plain concrete), the
   roofs' light panels, textures (flat colours, like the blocks).
+
+## 2026-10-16 — Session 12: our own car model (M8-6), branch `stadium`
+- `car/tm_car_visual.gd` rewritten: our own open-wheel Stadium car instead of the placeholder
+  ellipsoids. Proportions measured from TMNF's car visual locally (`visual_mesh.py` on
+  `StadiumCar.Solid.Gbx`: 3.94 m long, 1.64 m wide body, 1.1 m tall, the driver just behind the
+  middle, guards over the front wheels, pods over the rear ones; the visual's origin sits 0.441 m
+  below and 0.29 m behind the physics origin); the shapes are ours: lofts of superellipse sections
+  (Catmull-Rom between our stations) for the nose tub, the engine body, the sidepods and the
+  airbox; the helmet with its visor; front guards that steer with the wheels, rear pods; wishbones
+  and driveshafts; lathed tyres with five-spoke rims; floor, splitter, spoiler and rear lights;
+  our livery (red, white pods and airbox, carbon parts). The ghost uses the same model,
+  translucent blue. The TmCarVisual API is unchanged.
