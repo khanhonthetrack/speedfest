@@ -33,6 +33,13 @@ func _bake_frames() -> void:
 			var rr := r0 - t * r0.dot(t)
 			right = rr.normalized() if rr.length_squared() > 1e-6 else right
 			up = right.cross(t).normalized()
+		var axis := _loop_axis_at(d)
+		if axis != Vector3.ZERO:
+			# a loop's sideways axis (like TrackPath): the road is the loop's cylinder
+			var ra := axis - t * axis.dot(t)
+			if ra.length_squared() > 1e-6:
+				right = ra.normalized()
+				up = right.cross(t).normalized()
 		var u := up
 		var tilt := _tilt_at(d)
 		if absf(tilt) > 1e-5:

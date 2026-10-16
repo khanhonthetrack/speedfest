@@ -31,6 +31,9 @@ const PROFILE_STEP := 2.0
 const ZONE_LEAD := 70.0            # full throttle this many meters before loop/jump zones
 const STANLEY_K := 1.6
 const STANLEY_TM_RATE := 3.0        # 1/s: TMNF handling, yaw rate per rad of Stanley error
+const HOLD_TM_RATE := 5.0           # 1/s: TMNF heading hold with no side grip (loop sides)
+const YAW_I_RATE := 4.0             # 1/s: TMNF yaw-rate tracking, integral gain
+const YAW_I_MAX := 0.6              # its limit (steer units)
 const WALL_LEAD := 40.0             # Stanley + full throttle this far around wall-ride zones
 const STANLEY_JUMP_LEAD := 45.0     # Stanley steering this many meters before a jump (clean takeoff)
 
@@ -46,6 +49,8 @@ var _full := PackedByteArray()
 var _kappa := PackedFloat32Array()      # signed horizontal curvature (+ = turning right)
 var _stan := PackedByteArray()          # 1 where Stanley steering is used (loops, jump run-ups)
 var _profile_path: TrackPath = null
+var _yaw_i := 0.0        # TMNF yaw-rate tracking: integral term (steer units)
+var _yaw_used := false
 
 
 func get_progress() -> float:
@@ -132,7 +137,13 @@ func _physics_process(dt: float) -> void:
 		steer = clampf(ang / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
 
 	if car.tm != null and car.is_grounded() and car.tm.side_adherence() < 0.05:
-		steer = 0.0   # TMNF: no side grip on a near-vertical wall; steering would only yaw the car
+		# TMNF: no side grip on a near-vertical surface: steering only yaws the car, and the
+		# velocity snaps to the heading when the grip returns (the loop's top). The contacts yaw it
+		# too (an oblique crossing of a loop's cylinder): hold the heading along the path.
+		steer = _heading_hold(car, speed)
+	if not _yaw_used:
+		_yaw_i = move_toward(_yaw_i, 0.0, 2.0 * dt)   # TMNF yaw tracking idle: let go of the integral
+	_yaw_used = false
 
 	# --- speed target ---
 	var vt := _target_speed(speed)
@@ -186,15 +197,36 @@ func _physics_process(dt: float) -> void:
 		return
 	var cap := target_speed_kmh / 3.6
 	if cap > 0.0 and v > cap:
-		# TMNF: off the throttle the car brakes itself (1 + 0.3 v m/s^2); a feather of throttle
-		# holds the speed instead, like a TM player
-		throttle = 0.01 if car.tm != null else 0.0
+		# TMNF: off the throttle the car brakes itself (1 + 0.3 v m/s^2), and any throttle switches
+		# that drag off: a feather of throttle just over the cap, a lift above it, like a TM player
+		throttle = 0.01 if car.tm != null and v < cap + 0.5 else 0.0
 		nitro = false
 	car.controls["throttle"] = throttle
 	car.controls["brake"] = brake
 	car.controls["steer"] = steer
 	car.controls["handbrake"] = false
 	car.controls["nitro"] = nitro
+
+
+## TMNF with no side grip: a yaw-rate command that keeps the car pointing along the path.
+func _heading_hold(car: Car, speed: float) -> float:
+	var xf := car.global_transform
+	var tf := path.sample_transform(_wrap(_d + car.get_wheelbase() * 0.5))
+	var pf := -tf.basis.z
+	var psi := atan2(pf.dot(xf.basis.x), pf.dot(-xf.basis.z))
+	return _tm_yaw_steer(car, speed, psi * HOLD_TM_RATE)
+
+
+## TMNF: steering for a wanted yaw rate (rad/s, + = right like the steering): the steady-state
+## command (the steering sets a yaw rate) + an integral of the tracking error, which takes out what
+## else yaws the car (the contacts on an oblique loop crossing, the bank, the model's lag).
+func _tm_yaw_steer(car: Car, speed: float, w_want: float) -> float:
+	var w_max := maxf(car.tm.max_yaw_rate(speed), 0.05)
+	var yaw := -car.angular_velocity.dot(car.global_transform.basis.y)
+	var dt := get_physics_process_delta_time()
+	_yaw_i = clampf(_yaw_i + (w_want - yaw) / w_max * YAW_I_RATE * dt, -YAW_I_MAX, YAW_I_MAX)
+	_yaw_used = true
+	return clampf(w_want / w_max + _yaw_i, -1.0, 1.0)
 
 
 ## Stanley controller on the road surface: heading error + lateral error, both measured in the
@@ -215,8 +247,7 @@ func _stanley(car: Car, speed: float) -> float:
 		var ta := path.sample_transform(_wrap(_d + car.get_wheelbase() * 0.5 - 2.0))
 		var tb := path.sample_transform(_wrap(_d + car.get_wheelbase() * 0.5 + 2.0))
 		var kg := (ta.basis.z - tb.basis.z).dot(tf.basis.x) / 4.0
-		var w_max := car.tm.max_yaw_rate(speed)
-		return clampf((speed * kg + delta * STANLEY_TM_RATE) / maxf(w_max, 0.05), -1.0, 1.0)
+		return _tm_yaw_steer(car, speed, speed * kg + delta * STANLEY_TM_RATE)
 	return clampf(delta / maxf(car.max_steer_at(speed), 0.05), -1.0, 1.0)
 
 

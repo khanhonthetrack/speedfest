@@ -12,6 +12,7 @@ for c in kaze brute veloce kitsune pixie goliath; do
   run res://tests/physics/test_handling.tscn --headless -- --car=$c
   run res://tests/physics/test_circuit.tscn --headless -- --car=$c
   run res://tests/physics/test_wallride.tscn --headless -- --car=$c
+  run res://tests/physics/test_tm.tscn --headless -- --car=$c
 done
 run res://tests/physics/test_stunts.tscn --headless -- --car=kaze --r=25
 for t in min max; do

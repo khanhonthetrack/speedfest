@@ -278,7 +278,8 @@ func _barriers(id: String) -> void:
 		TestHooks.check(max_tilt <= float(sp[3]), "tm_wall_no_flip_%d_%s" % [int(ang), id], "tilt %.0f" % max_tilt)
 		TestHooks.check(max_pop <= 0.5, "tm_wall_no_pop_%d_%s" % [int(ang), id], "%.2f m" % max_pop)
 		if ang < 50.0:
-			TestHooks.check(align <= 10.0, "tm_wall_aligns_%d_%s" % [int(ang), id], "%.0f deg" % align)
+			# TMNF's wheel side keeps half its speed into the wall: the car bounces off nose-out
+			TestHooks.check(align <= (15.0 if car.tm != null else 10.0), "tm_wall_aligns_%d_%s" % [int(ang), id], "%.0f deg" % align)
 		else:
 			TestHooks.check(bounce <= 3.0, "tm_wall_no_big_bounce_%d_%s" % [int(ang), id], "%.1f m/s" % bounce)
 		await _done(car)

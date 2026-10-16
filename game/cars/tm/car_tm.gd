@@ -69,6 +69,20 @@ func apply_params(p: Dictionary) -> void:
 	model.brake_mul = float(p.get("tm_brake", 1.0))
 	model.slide_grip = float(p.get("tm_slide", T.SLIDE_GRIP))
 	model.max_speed = float(p.get("tm_top", T.MAX_SPEED))
+	# part-rally tyres (0 < loose_grip <= 0.5, e.g. the Goliath's 0.45): the loose surfaces' values
+	# move toward the dirt road's (what full rally tyres get, see _surface_for_body)
+	var over := SF_SURFACES.duplicate()
+	var t := clampf(float(p.get("loose_grip", 0.0)) / 0.75, 0.0, 1.0)
+	if t > 0.0:
+		var dirt_road: Array = T.surface_vals(T.Surface.DIRT_ROAD)
+		for kind in TrackSurface.KINDS.size():
+			var id: int = SURFACE_OF_KIND[kind]
+			if not TrackSurface.KIND_LOOSE[kind] or over.has(id):
+				continue
+			var base: Array = T.surface_vals(id)
+			over[id] = [lerpf(base[0], dirt_road[0], t), lerpf(base[1], dirt_road[1], t),
+				lerpf(base[2], dirt_road[2], t), lerpf(base[3], dirt_road[3], t)]
+	model.surface_override = over
 
 
 ## SpeedFest transform (Car) -> the body's pose, and back.

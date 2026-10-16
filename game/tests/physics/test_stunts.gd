@@ -34,6 +34,7 @@ var jump_was_grounded := true
 var jump_air_start := 0
 
 var extra: Array = []   # [{name, car, ai, path, from, to, entry, min, air, ticks, done}]
+var slow_entry_max := 150.0
 
 var tick := 0
 var cam: Camera3D
@@ -49,16 +50,20 @@ func _ready() -> void:
 	add_child(PhysicsTestGround.road_from_path(loop_path, 0.0, 0.25))
 	loop_from = float(loop_path.zones[0]["from"])
 	loop_to = float(loop_path.zones[0]["to"])
-	loop_car = _spawn(Transform3D(Basis.IDENTITY, Vector3(0, 0.6, -2)))
+	loop_car = _spawn(_path_start(loop_path))
 	loop_ai = _driver(loop_car, loop_path)
-	var specs := [["slow", -200.0, 143.0, false], ["fast", -400.0, 0.0, true]]
+	# slow: the lowest entry that still makes the loop. TMNF's 3 g on the ground needs ~187 km/h at
+	# the bottom of an 18 m loop just to clear the top (sqrt(5 g r)), M7's 1 g ~108 km/h
+	var slow_cap := 200.0 if Car.handling() == "tmnf" else 143.0
+	slow_entry_max = slow_cap + 7.0
+	var specs := [["slow", -200.0, slow_cap, false], ["fast", -400.0, 0.0, true]]
 	if not bool(TestHooks.arg("fast", true)):
 		specs.pop_back()   # r < 18 at 250+ km/h (> 30 g) is outside the supported envelope
 	for spec in specs:
 		var o := Vector3(spec[1], 0, 0)
 		var lp := PhysicsTestGround.loop_path(LOOP_R, 260.0, 160.0, 12.0, o)
 		add_child(PhysicsTestGround.road_from_path(lp, 0.0, 0.25))
-		var ec := _spawn(Transform3D(Basis.IDENTITY, o + Vector3(0, 0.6, -2)))
+		var ec := _spawn(_path_start(lp))
 		var eai := _driver(ec, lp)
 		eai.target_speed_kmh = spec[2]
 		eai.use_nitro = spec[3]
@@ -92,6 +97,12 @@ func _ready() -> void:
 	cam.fov = 60
 	add_child(cam)
 	cam.current = true
+
+
+## On the path's start, along it (the loop paths' leads run along the helix's sideways slope).
+func _path_start(p: TrackPath) -> Transform3D:
+	var t := p.sample_transform(2.0)
+	return Transform3D(t.basis, t.origin + t.basis.y * 0.6)
 
 
 func _spawn(xf: Transform3D) -> Car:
@@ -190,7 +201,7 @@ func _check_extra(e: Dictionary) -> void:
 		print("RESULT loop_%s %s entry=%.0f km/h min=%.0f km/h air=%d/%d up_y=%.2f" % [n, car_id, e["entry"], e["min"], e["air"], e["ticks"], car.global_transform.basis.y.y])
 		TestHooks.check(e["air"] < e["ticks"] * 0.1 and car.global_transform.basis.y.y > 0.9, "loop_%s_%s" % [n, car_id], "air %d/%d" % [e["air"], e["ticks"]])
 		if n == "slow":
-			TestHooks.check(e["entry"] < 150.0, "loop_slow_entry_%s" % car_id, "%.0f km/h" % e["entry"])
+			TestHooks.check(e["entry"] < slow_entry_max, "loop_slow_entry_%s" % car_id, "%.0f km/h" % e["entry"])
 	if TestHooks.has_arg("etrace") and e["name"] == "fast" and d > 250.0 and d < 400.0 and tick % 3 == 0:
 		print("  E d=%.1f v=%.0f gnd=%d%d%d%d comp=%s load=%s up=%s" % [d, car.get_speed_kmh(), int(car.get_wheel_contact(0)), int(car.get_wheel_contact(1)), int(car.get_wheel_contact(2)), int(car.get_wheel_contact(3)), car._comp, car._load, car.global_transform.basis.y])
 	elif tick > 60 * 35:
