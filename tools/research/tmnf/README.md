@@ -29,3 +29,25 @@ Pipeline (Linux, all in a scratch directory outside the repo):
 
 Format knowledge for the packs (salts, Blowfish variant, header layout) comes from GBX.NET
 (https://github.com/BigBang1112/gbx-net, `Src/GBX.NET.PAK`); the scripts are a Python reimplementation.
+
+## Block measurements (session 9, for the Stadium remake's block library)
+
+The remake recreates every Stadium block with our own generators; these scripts measure the
+originals on a local install (numbers only, nothing from the game is committed):
+1. `campaign_blocks.py CAMPAIGN_DIR out.json`: block types used by the official campaign (242).
+2. `decrypt_all.py SCRATCH 'ConstructionBlockInfo'` (or `@list.txt`): decrypts pack entries into
+   `raw/`. `pak_generic.py` now also re-keys on typed inline nodes (GBX.NET's "(direct)" reads, e.g.
+   CSceneMobil's CHmsItem, CPlugVisualIndexed's index buffer), uses GBX.NET's parent-id exceptions
+   (block infos 0x24005000, zones 0x2401C000), only looks for node reads in the body, and requires
+   a valid node index before a class id (vertex data holds class-id-like words). TMF packs use the
+   plain CBC IV (version < 12): a misplaced re-key corrupts only 8 bytes, so only zlib's Adler-32 at
+   the end notices; false positives were the cause, not buffering. All 308 block infos and the
+   campaign's 431 solids decrypt with the fast path.
+3. `blockinfo_dump.py raw blockinfos.json`: `gbxnode.py` (a small GBX node reader, chunk layouts
+   from GBX.NET) reads each CGameCtnBlockInfo: units (offset, dir, clips, pylons), ground/air
+   mobils per variant (roads: base, dead end, corner, straight (+A/B/C), T, cross), spawn location,
+   waypoint type. 239/242 campaign types parse.
+4. `extract_surf.py` (run in the scratch dir): each solid's collision mesh (CPlugSurfaceGeom chunk
+   0x0900F004, GmSurf mesh: vertices + cooked triangles, material names from the reference table)
+   in block space: the surface's tree location (the first 0x0904F01A after it) composed with the
+   root tree's (the last one in the file). `surfmesh.py FILE --tris` prints one mesh.

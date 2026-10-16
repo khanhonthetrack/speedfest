@@ -17,8 +17,16 @@ def main():
     dobj = zlib.decompressobj()
     # first block: no folds possible
     out += dobj.decompress(s.read(INB)); consumed = INB
-    uds = struct.unpack_from('<I', out, 13)[0]
-    sc = pg.Scanner(struct.unpack_from('<I', out, 17 + uds)[0], struct.unpack_from('<I', out, 9)[0], 25 + uds)
+    class NoScan:   # until the header (user data can be large) is decompressed: no node reads yet
+        nodes = {}; done = 0; extra = {}; xdone = 0; xpend = None
+        def scan(self, b): return []
+    sc = NoScan()
+    def header_scanner():
+        nonlocal sc
+        if isinstance(sc, NoScan) and len(out) >= 21:
+            uds = struct.unpack_from('<I', out, 13)[0]
+            if len(out) >= 25 + uds:
+                sc = pg.Scanner(struct.unpack_from('<I', out, 17 + uds)[0], struct.unpack_from('<I', out, 9)[0], 25 + uds)
     folded = 0
     stack = []   # frames: (cands, i, snapshot)
     def snap():
@@ -30,8 +38,11 @@ def main():
         L = sn[2]
         sc.nodes = {p: c for p, c in sc.nodes.items() if p <= L - 260}
         sc.done = max(0, L - 256)
+        sc.extra = {p: c for p, c in sc.extra.items() if p <= L - 260}
+        sc.xdone = max(0, L - 256); sc.xpend = None
     t0 = time.time(); best = 0; steps = 0; deepest = [0]
     while consumed < total:
+        header_scanner()
         calls = sc.scan(bytes(out))
         pend = [c for c in calls[folded:]]
         avail = [c for c in pend if c[0] <= len(out)]
@@ -56,8 +67,11 @@ def main():
             n = min(INB, total - consumed)
             try:
                 more = dobj.decompress(s.read(n))
-            except zlib.error:
+            except zlib.error as e:
+                if os.environ.get('PAK_DEBUG'): print('  try', consumed, j, e)
                 fr[1] += 1; continue
+            if os.environ.get('PAK_DEBUG') and j != fr[0][0]:
+                print('  decision at cipher', consumed, 'out', len(out), 'folds', j, 'model', fr[0][0], 'avail', [(p, c.hex()) for p, c in avail])
             out += more; consumed += n; folded += j
             ok = True; break
         steps += 1
