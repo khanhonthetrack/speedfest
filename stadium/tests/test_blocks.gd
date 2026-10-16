@@ -27,7 +27,7 @@ func _ready() -> void:
 		if node == null:
 			continue
 		built += 1
-		var why := _check_shape(node, shapes[s])
+		var why := _check_shape(node, shapes[s], s.begins_with("Zone/"))
 		if not why.is_empty():
 			bad += 1
 			TestHooks.fail("shape_%s" % s, why)
@@ -38,7 +38,8 @@ func _ready() -> void:
 	TestHooks.finish()
 
 
-func _check_shape(node: Node3D, size: Vector3i) -> String:
+## zone: terrain tiles stand 9 m up (level 0 is the ground), so their bounds reach 9 m higher.
+func _check_shape(node: Node3D, size: Vector3i, zone := false) -> String:
 	var mi := node.get_node_or_null("Mesh") as MeshInstance3D
 	if mi == null or mi.mesh == null or mi.mesh.get_surface_count() == 0:
 		return "no visual mesh"
@@ -52,7 +53,7 @@ func _check_shape(node: Node3D, size: Vector3i) -> String:
 		return "%d collision vertices for %d surface ids" % [faces.size(), surf.size()]
 	# block-local Godot space: x in [-32 sx, 0], y in [0, 8 sy], z in [0, 32 sz]
 	var lo := Vector3(-32.0 * size.x, 0.0, 0.0) - Vector3.ONE * SLACK
-	var hi := Vector3(0.0, 8.0 * size.y, 32.0 * size.z) + Vector3.ONE * SLACK
+	var hi := Vector3(0.0, 8.0 * size.y + (9.0 if zone else 0.0), 32.0 * size.z) + Vector3.ONE * SLACK
 	var box := mi.mesh.get_aabb()
 	for p: Vector3 in faces:
 		box = box.expand(p)
