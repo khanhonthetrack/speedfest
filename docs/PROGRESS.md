@@ -638,3 +638,35 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   LIVE room (listed first) instead of the test's room. Guests now skip LIVE unless `--code=LIVE`;
   3-client round PASS.
 - Checks: PHYSICS_ALL_OK, test_tracks 203/203, check_all (full) all suites OK incl. online_round.
+
+## 2026-10-16 ~00:45 UTC — Session 10: M7-1 PC build (branch `m7-pc`, pushed, not merged yet)
+
+- **Smoothness.** 3D physics interpolation (project setting on, jitter fix 0, tree OFF, only `Car` ON).
+  Measured (30 Hz physics vs 60 fps probe): the body is drawn at lerp(previous tick, last tick,
+  fraction), so it sits `1 - fraction` ticks behind the newest state (`Car.display_tick_lag()`).
+  The PB ghost is sampled there (the research's `+fraction` would have put it a tick ahead) and the
+  wheels (spin, suspension, steer) are posed between ticks. `tests/race/test_interpolation` 13/13
+  (the wheel check fails with the old posing; the ghost check shows the old sampling 0.3+ m off).
+- **Frame pacing + AA.** Settings: V-Sync Off/On/Adaptive/Mailbox, FPS limit incl. VRR
+  (r - r²/3600), Window/Borderless/exclusive Fullscreen (PC default, F11), AA Auto/Off/FXAA/SMAA/
+  TAA/FSR 2. Forward+ never uses MSAA (`msaa_3d=0`; switching it recompiled pipelines). Auto AA:
+  Low FXAA, Medium TAA, High/Ultra FSR 2 native, SMAA on software GPUs (llvmpipe needs seconds per
+  frame for FSR 2). `tests/core/test_settings` 12/12 on Forward+, Compatibility and headless; it
+  found `screen_get_refresh_rate()` returning NaN under Xvfb.
+- **Presets** (research 1.7): SSR + SSAO from Medium (half size), volumetric fog from High,
+  SSIL/SDFGI Ultra; global SSAO/SSIL/fog/shadow-filter quality and atlas sizes; sun 150/250/350 m
+  with blended splits and PCSS on Ultra.
+- **Exports + CI.** `tools/export_desktop.sh [windows|linux|all] [--debug]` (+ `BAKE_SHADERS=1`),
+  shader baker on, Windows icon/version resources. A Linux debug export boots and renders a race
+  (`-- --start_scene=res://race/race.tscn`). `.github/workflows/desktop.yml`: verified 4.7.2 +
+  templates download, compile check, Windows (98 MB) + Linux (88 MB) zips as artifacts, Release on
+  `v*` tags. First run green in 4 min (on `m7-pc`; that trigger is temporary).
+- **Optional RTX.** Researched NVIDIA's fork (path tracing, DLSS/RR, FG, Reflex) and had every
+  claim re-checked against its source (`docs/research/m7_pc_rtx.md`, 3 of 129 claims corrected).
+  Settings detects the fork at runtime and drives it through strings only, so mainline stays
+  inert; an NVIDIA RTX block appears only on a fork build. `docs/RTX.md` is the owner's
+  step-by-step. lavapipe here exposes `VK_KHR_ray_tracing_pipeline`, so a Linux build of the fork
+  (compiling now) can path trace SpeedFest for real (undenoised, no Streamline on Linux).
+- Next: look pass (the downtown road renders pitch black at night: no reflections, no light from
+  the neon), RTX verification on the fork build + shader RT branches, warm-up/perf HUD, merge.
+

@@ -1,5 +1,31 @@
 # HANDOFF: start here
 
+## Latest (~00:45 UTC 2026-10-16, session 10, cloud): M7 physics merged; M7-1 PC build on branch `m7-pc`
+
+- **`main`** has the M7 physics (handling, barriers, wall rides, non-magnetic rails), verified on
+  every track (PROGRESS session 10) and exported to `server/public` (1f4fbcb). Pi deploy pending:
+  `cd ~/speedfest && git pull && docker restart speedfest`.
+- **Branch `m7-pc` (pushed, not merged):** M7-1. Done: physics interpolation (car, wheels, ghost),
+  frame pacing + AA without MSAA, PC presets, desktop exports + GitHub Actions "Desktop builds",
+  optional-RTX hooks + `docs/RTX.md`. Research: `docs/research/m7_pc_rtx.md` (read section 7, the
+  verification, before trusting anything in it).
+- **Next on `m7-pc`, in order** (PLAN.md M7 item 1 has the checklist):
+  1. Look pass: the downtown road is pitch black at night. Ideas: damp/glossy night asphalt even when
+     dry, real OmniLights at neon signs within `Settings.light_budget()`, AgX vs ACES screenshots,
+     reflection probes per sector.
+  2. RTX on a Linux build of the fork: `/home/user/nvidia-rtx/godot` (shallow clone, branch
+     `nvidia-pt-dlss`), built with `scons platform=linuxbsd target=editor -j4 debug_symbols=no
+     wayland=no` (SCons from a venv; Godot's sowrap needs no X11 dev packages). Copy `game/` to a
+     scratch dir (the fork upgrades the project to 4.8: never commit from it), run with `-- --rtx`
+     under Xvfb (lavapipe has Vulkan RT). Then add `#if defined(RT)` branches (neon shaders are
+     `unshaded`, which the tracer ignores; UV2 reads as UV1; no MultiMesh instance colour).
+  3. Material warm-up at track load, perf HUD (GPU ms, `PIPELINE_COMPILATIONS_DRAW`).
+  4. Remove `m7-pc` from `.github/workflows/desktop.yml` branches, `check_all.sh`, merge into `main`,
+     tag `v0.7.0` (CI attaches the Windows/Linux zips to a Release), owner tests on the RTX PC.
+- Screenshots on llvmpipe are slow: a downtown race needs > 10 min for 260 frames. Use
+  `tests/tracks/track_view.tscn` (`--views="chase:300;drive:520"`) for look checks.
+- Don't touch the TMNF reverse-engineering session's work (owner, session 10).
+
 ## Latest (~23:00 UTC, session 8, Pi): STOPPED on owner request. M7 physics done on branch `m7-physics`
 
 - **Branch `m7-physics` (87a4543, NOT merged):** M7 items 2-4 (Trackmania handling, barriers,

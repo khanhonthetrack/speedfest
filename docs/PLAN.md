@@ -91,6 +91,16 @@ Owner's words in TRANSCRIPT (session 7, last entry). Priority order:
       not look like 2005, and it must run smoothly (frame pacing / physics interpolation, perf
       budget). **Optional RTX**: a path-traced mode when the game runs on NVIDIA's RTX Godot fork,
       plus whatever mainline offers for RTX cards.
+      Session 10, branch `m7-pc` (research: `docs/research/m7_pc_rtx.md`, owner guide `docs/RTX.md`):
+      - [x] physics interpolation (car, wheels, ghost sub-tick), `test_interpolation` 13/13
+      - [x] frame pacing (V-Sync modes, VRR FPS cap, exclusive fullscreen), AA without MSAA (TAA/FSR 2/SMAA/FXAA)
+      - [x] PC presets (SSR/SSAO/SSIL/vol. fog/shadows per quality), `test_settings` 12/12
+      - [x] Windows + Linux export, GitHub Actions "Desktop builds" (artifacts; Release on v* tags)
+      - [x] RTX hooks (fork detection, DLSS, frame gen, Reflex, path tracing) + Settings block
+      - [ ] look pass: night roads that reflect, real lights at neon, AgX, probes ("looks like 2005")
+      - [ ] RTX verified on a Linux fork build (lavapipe RT), `#if defined(RT)` shader branches
+      - [ ] material warm-up at load + perf HUD (GPU ms, pipeline compiles); merge to `main`; tag v0.7.0
+      - [ ] owner tests the Windows zip and the RTX mode on an RTX PC
 - [x] 2. **Handling with Trackmania feel**: research how TM cars behave (grip, steering,
       acceleration, drift, slopes, air, landing, walls) and rebuild the car model to match, with
       measurable targets and tests. Done (sessions 8 + 10, merged into `main`): TM lab 336/336,
