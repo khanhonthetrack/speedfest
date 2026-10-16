@@ -25,6 +25,7 @@ var batches := SceneryBatches.new(300.0)
 var occupancy: Dictionary = {}     # Vector2i (4 m cells) -> true
 var footprints: Array = []         # [pos, radius, kind] for tests
 var lamp_spots: Array = []         # Transform3D of lamp heads (for real lights)
+var neon_spots: Array = []         # [position in front of a sign/billboard, colour, size] (real lights)
 var n_buildings := 0
 var n_signs := 0
 
@@ -335,6 +336,7 @@ func _sign(p: Vector3, b: Basis, txt: String, letter_h: float, col: Color, max_w
 		neon.add_box(Transform3D(b, p - b.x * fw * 0.5), Vector3(0.07, fh, 0.07), fc, Vector2(0, 0))
 	neon.add_arrays(arr, Transform3D(b.scaled_local(Vector3(s, s, s)), p + b.z * 0.02), col, Vector2(mode, rng.randf()))
 	n_signs += 1
+	neon_spots.append([p + b.z * (1.5 + th), col, maxf(tw, th)])
 
 
 func _frontage() -> void:
@@ -598,6 +600,7 @@ func _billboard_panel(pc: Vector3, fb: Basis, bw: float, bh: float) -> void:
 	var screen := batches.at("screen", pc)
 	var neon := batches.at("neon", pc)
 	var col: Color = NEON[rng.randi_range(0, NEON.size() - 1)]
+	neon_spots.append([pc + fb.z * 4.0, col, bw])
 	screen.add_quad(pc + fb * Vector3(-bw * 0.5, -bh * 0.5, 0), pc + fb * Vector3(-bw * 0.5, bh * 0.5, 0), pc + fb * Vector3(bw * 0.5, bh * 0.5, 0), pc + fb * Vector3(bw * 0.5, -bh * 0.5, 0), col, Vector2(float(rng.randi_range(2, 4)), rng.randf()))
 	var txt: String = BRANDS[rng.randi_range(0, BRANDS.size() - 1)]
 	var arr := batches.text_arrays(txt)
@@ -610,11 +613,14 @@ func _billboard_panel(pc: Vector3, fb: Basis, bw: float, bh: float) -> void:
 
 
 func _real_lights() -> void:
-	# A few real lights near lamps; most light is faked with pools and bloom.
+	# Real lights near lamps (half the budget) and, on Forward+, next to the neon signs and
+	# billboards closest to the road, so the road and the walls pick up their colour; the rest of
+	# the light is faked with pools and bloom. A few stay free for the cars' headlights.
 	var budget := Settings.light_budget()
 	var n := 0
 	if not Settings.is_compat():
 		n = mini(budget / 2, lamp_spots.size())
+		_neon_lights(maxi(0, budget - n - 8))
 	elif Settings.quality >= 3:
 		n = mini(budget / 4, lamp_spots.size())
 	if n <= 0:
@@ -638,6 +644,44 @@ func _real_lights() -> void:
 		sl.distance_fade_begin = 140.0
 		sl.distance_fade_length = 40.0
 		root.add_child(sl)
+		made += 1
+		k += stride
+
+
+func _neon_lights(n: int) -> void:
+	if n <= 0 or neon_spots.is_empty():
+		return
+	# signs that face the road from up to 22 m off its edge and not far above or below it
+	var near: Array = []
+	for spot: Array in neon_spots:
+		var p: Vector3 = spot[0]
+		var clear := field.query(p, 22.0)
+		if field.q_index < 0 or clear > 22.0:
+			continue
+		var dy := p.y - field.pos[field.q_index].y
+		if dy < -4.0 or dy > 26.0:
+			continue
+		near.append([float(field.q_index), spot])
+	near.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	var stride := maxf(1.0, float(near.size()) / n)
+	var k := 0.0
+	var made := 0
+	while int(k) < near.size() and made < n:
+		var spot: Array = near[int(k)][1]
+		var col: Color = spot[1]
+		var ol := OmniLight3D.new()
+		ol.name = "NeonLight%d" % made
+		ol.position = spot[0]
+		ol.light_color = col.lightened(0.15)
+		ol.light_energy = 3.0
+		ol.light_specular = 0.8           # long neon streaks on the damp road
+		ol.omni_range = clampf(10.0 + float(spot[2]) * 0.8, 12.0, 24.0)
+		ol.omni_attenuation = 1.4
+		ol.shadow_enabled = false
+		ol.distance_fade_enabled = true
+		ol.distance_fade_begin = 160.0
+		ol.distance_fade_length = 50.0
+		root.add_child(ol)
 		made += 1
 		k += stride
 

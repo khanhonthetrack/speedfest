@@ -849,6 +849,7 @@ static func road_material(style: String, wet: bool) -> ShaderMaterial:
 			s.set_shader_parameter("lane_count", 3)
 	var fake := 1.0 if (Settings.is_compat() or Settings.quality < 2) else 0.3
 	s.set_shader_parameter("tunnel_fake", 0.9 * fake)
+	s.set_shader_parameter("water_gloss", 0.0 if Settings.is_compat() else 1.0)
 	var ta := pbr_texture("asphalt", "albedo") if use_pbr() else null
 	if ta != null:
 		s.set_shader_parameter("tex_albedo", ta)

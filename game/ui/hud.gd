@@ -47,6 +47,8 @@ var _lines_target: float = 0.0
 var _speed_kmh: float = 0.0
 var _nitro_active: bool = false
 var _fps_accum: float = 0.0
+var _fps_worst: float = 0.0          # longest frame in the current half second
+var _pso_base := -1                  # pipeline compilations when the counter was switched on
 var _cp_total: int = 0
 
 
@@ -208,9 +210,11 @@ func _process(delta: float) -> void:
 		_speed_lines.visible = _lines_intensity > 0.003
 	if _fps.visible:
 		_fps_accum += delta
+		_fps_worst = maxf(_fps_worst, delta)
 		if _fps_accum >= 0.5:
 			_fps_accum = 0.0
-			_fps.text = "%d FPS" % Engine.get_frames_per_second()
+			_fps.text = _perf_text()
+			_fps_worst = 0.0
 
 
 func _update_speed_lines_target() -> void:
@@ -222,8 +226,32 @@ func _update_speed_lines_target() -> void:
 	_lines_target = t
 
 
+## "144 FPS  6.9 ms (max 8.1)  GPU 4.2  CPU 2.0  compiles 0": frame times in ms, worst frame of
+## the last half second, measured GPU/CPU render time, and shader pipelines compiled mid-game
+## (each one is a stutter; should stay 0 during a race).
+func _perf_text() -> String:
+	var fps := Engine.get_frames_per_second()
+	var t := "%d FPS  %.1f ms (max %.1f)" % [fps, 1000.0 / maxf(fps, 1.0), _fps_worst * 1000.0]
+	var rid := get_viewport().get_viewport_rid()
+	var gpu := RenderingServer.viewport_get_measured_render_time_gpu(rid)
+	if gpu > 0.0:
+		t += "  GPU %.1f  CPU %.1f" % [gpu, RenderingServer.viewport_get_measured_render_time_cpu(rid)]
+	if not Settings.is_compat():
+		var pso := _pso_count()
+		if _pso_base < 0:
+			_pso_base = pso
+		t += "  compiles %d" % (pso - _pso_base)
+	return t
+
+
+static func _pso_count() -> int:
+	return int(Performance.get_monitor(Performance.PIPELINE_COMPILATIONS_DRAW)
+		+ Performance.get_monitor(Performance.PIPELINE_COMPILATIONS_SPECIALIZATION))
+
+
 func _on_settings_changed() -> void:
 	_fps.visible = Settings.show_fps
+	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), Settings.show_fps)
 	_update_speed_lines_target()
 	_tacho.set_speed(_speed_kmh, Settings.units_mph)
 

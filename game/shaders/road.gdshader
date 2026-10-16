@@ -11,6 +11,9 @@ uniform vec4 curb_b : source_color = vec4(0.92, 0.92, 0.92, 1.0);
 uniform int center_mode = 1;      // 0 none, 1 dashed white lanes, 2 double yellow
 uniform int lane_count = 3;
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
+// Forward+ (SSR): a water film makes wet asphalt glossy enough for screen-space reflections
+// (SSR fades out on rough surfaces); puddle patches go almost mirror-like. 0 = the old look (web).
+uniform float water_gloss : hint_range(0.0, 1.0) = 0.0;
 uniform float tech_panels = 0.0;   // arena: panel seams and a glowing center guide
 uniform float paint_glow = 0.1;    // retro-reflective paint: stays readable in the dark
 uniform vec4 tunnel_light : source_color = vec4(1.0, 0.62, 0.3, 1.0);
@@ -131,7 +134,9 @@ void fragment() {
 	float puddle = smoothstep(0.55, 0.72, vnoise(v_world * 0.09) * 0.7 + vnoise(v_world * 0.31) * 0.3);
 	float wet = wetness * (0.65 + 0.35 * puddle);
 	col *= 1.0 - 0.35 * wet;
-	rough = mix(rough, 0.06, wet);
+	float film = smoothstep(0.0, 0.9, wetness);
+	float rough_film = mix(mix(rough, 0.12, film), 0.04, puddle * smoothstep(0.2, 0.6, wetness));
+	rough = mix(mix(rough, 0.06, wet), rough_film, water_gloss);
 	// water fills the texture: flatter normals where it's wet, flattest in the puddles
 	tex_n = mix(tex_n, vec3(0.5, 0.5, 1.0), wet * 0.75);
 

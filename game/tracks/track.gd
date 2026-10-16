@@ -12,6 +12,9 @@ signal finish_reached(car: Node)
 const START_BACKOFF := 6.0
 const SPAWN_HEIGHT := 0.6       # car origin above the road surface
 const GATE_TRIGGER_H := 40.0    # checkpoint/finish trigger height
+## Night streets read as damp asphalt even when dry (street-racer look): on Forward+ the neon and
+## windows then show up in the road's screen-space reflections. Visual only; grip follows the weather.
+const NIGHT_DAMP := 0.6
 
 var track_id: String = "arena"
 var path: TrackPath
@@ -596,7 +599,8 @@ func apply_weather(mode: String) -> void:
 		mi.visible = weather == "storm" or (weather == "rain" and not bool(mi.get_meta("storm_only", false)))
 	var style: String = layout.get("wall_style", "concrete")
 	var road_mat := TrackBuilder.road_material(String(layout.get("road_style", style)), layout.get("wet", false))
-	road_mat.set_shader_parameter("wetness", Weather.road_wetness(weather))
+	var damp := NIGHT_DAMP if theme != "coast" and not Settings.is_compat() and Settings.quality >= 1 else 0.0
+	road_mat.set_shader_parameter("wetness", maxf(Weather.road_wetness(weather), damp))
 
 
 # ---------------------------------------------------------------- API

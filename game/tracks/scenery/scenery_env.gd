@@ -290,6 +290,11 @@ func _coast() -> void:
 
 
 func _quality_extras() -> void:
+	if TestHooks.has_arg("tonemap") and not Settings.is_compat():      # look-dev: --tonemap=agx
+		if String(TestHooks.arg("tonemap", "")) == "agx":
+			env.tonemap_mode = Environment.TONE_MAPPER_AGX
+			env.tonemap_agx_white = float(TestHooks.arg("agx_white", 10.0))
+			env.tonemap_agx_contrast = float(TestHooks.arg("agx_contrast", 1.25))
 	if env.ssr_enabled:
 		# Settings' 48 steps only reach a few metres: the wet-road neon reflections need more.
 		env.ssr_max_steps = 192 if Settings.quality <= 2 else 256
