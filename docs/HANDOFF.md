@@ -10,18 +10,29 @@
 - The remake works on branch **`stadium`** (only `stadium/` and the research docs) and is merged into
   main per milestone; it never touches SpeedFest's game/. The shared core now includes `TmBody`
   (stadium/core/tm_body.gd: TMNF's sub-stepped integrator, contacts with face normals for shallow
-  pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3, blocks 3).
+  pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3/8 with
+  TMNF_DIR, blocks 3, race 37); `TMNF_DIR=<install>` also races A01.
+- **M8-6 step 1 done (race flow):** `stadium/race/race.tscn -- --tmnf=<install> --track=A01` is a
+  playable time attack: countdown, 10 ms clock, checkpoints/laps/finish through TMNF's measured
+  trigger slabs (`race/tm_triggers.gd`), respawn (Enter) and restart (Backspace), TMNF-layout HUD with
+  medals. `tests/test_race -- --tmnf=<install> --tracks=A01,B05,...` races any campaign tracks
+  (all 65 pass; checkpoint blocks without a recreated shape are taken by hand and listed).
 - **M8-5 in progress (block library):** families in `stadium/blocks/shapes/` (circuit, tube, platform,
-  road, zone: plain shapes 96-100% vs measurements, decorated ones lower; see PROGRESS). Measurements live only in the scratchpad (re-create them
-  with `tools/research/tmnf/` from a TMNF install: decrypt_all.py -> extract_surf.py; README "Block
-  measurements"). Fidelity: `stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless --
-  --meas=<dir> --only=Tube/ [--dump=N]`; map check: `race/map_view.tscn -- --tmnf=<install>
-  --track=A01 [--view=near:<BlockId>]` prints MISSING shapes.
-- **Next families by campaign use:** Control (RoadGlass/Camera/Pub), Inflatable (pillars and
-  decorations), Road/Dirt + DirtHigh, Platform loops/slopes/ToRoad/GT walls, Road tilt/GTDiag/slopes,
-  Fabric, Sculpt, Loop. Then M8-6 (environment, car model, race flow, menus, sounds).
+  road, zone, control, inflatable: plain shapes 84-100% vs measurements, decorated ones lower; see
+  PROGRESS). 93.8% of the campaign's blocks are built or empty (`tests/campaign_coverage`).
+  Measurements live only in the scratchpad (re-create them with `tools/research/tmnf/` from a TMNF
+  install: decrypt_all.py -> extract_surf.py; README "Block measurements"). Fidelity:
+  `stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless -- --meas=<dir> --only=Tube/
+  [--dump=N]`; map check: `race/map_view.tscn -- --tmnf=<install> --track=A01
+  [--view=near:<BlockId>]` prints MISSING shapes.
+- **Next:** the shapes A01 still lacks (Platform/ToRoad, the vertical checkpoint ring, the suspended
+  bridge slope and its mirror, which the catalogue lacks), so A01 drives end to end; then by
+  campaign use: Fabric, Road/Dirt + DirtHigh, road tilt/GTDiag, Platform 2-unit slopes and GT walls,
+  Sculpt, Loop; then the rest of M8-6 (ghosts and best times, environment, car model, menus, sounds,
+  HD graphics).
 - Known approximations: pool tiles (coarse survey), decorated gates and light/sound tubes, start
-  block (from its ground variant); water is visual only (no water physics yet).
+  block (from its ground variant), inflatable decorations and castles; water is visual only (no
+  water physics yet).
 
 ## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
 

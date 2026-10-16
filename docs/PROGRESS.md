@@ -801,3 +801,43 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   terrain level (level 0 = 9 m), a hill at level L spans levels L-2..L; the map builder lays collidable
   grass on every cell without a zone tile. Pools are the banks round water cells.
 - Campaign maps now build mostly from recreated shapes, e.g. A13 422/465, A06 430/450, E03 1010/1196.
+- Later in session 9 (`stadium`, 9688fb7 .. 26bc002): **Control** (camera and glass galleries swept
+  like roads, with corners, junction plans with rounded notches, the round pavilion base, half-round
+  dead ends and ground plinths; the pub's pipes with screens): galleries 88-100%, pub 62-91%.
+  **Inflatable** (scalloped cushion walls, straight and round corners, roofs; cactus, palm, snow tree
+  and castles as simple primitives): walls 84-95%. **Platform loops** (the grid-wall plan swept round
+  quarter circles, start and end sharing a centre): 84-92%. **Road slope transitions** from measured
+  height profiles (bi-slopes, S-ramps, crest, valley): 93-99.9%. `tests/campaign_coverage`: 93.8% of
+  the campaign's 41,523 blocks are built or empty. Most used missing shapes: Fabric (~550), Sculpt
+  (~350, decoration), Road/Dirt (~300), Platform/ToRoad (~120), road tilt (~100), GTDiag (~100),
+  Platform 2-unit slopes (92), GT-curve platform walls (~80), the vertical checkpoint ring (44).
+
+## 2026-10-16 — Session 9: race flow (M8-6 step 1), branch `stadium`
+
+- `race/tm_race.gd` (`TmRace`, pure logic): a 1.5 s countdown with the car held still, then the race
+  clock in 10 ms ticks (one per physics tick); checkpoints in any order, each once per lap; the
+  finish (or the lap line on the last lap) counts only with every checkpoint of the lap; laps
+  (`nb_laps` when the map is a lap race); respawn at the last checkpoint or lap line (the clock keeps
+  running), a restart when none is taken or after the finish; medals against the map's times.
+- `race/tm_triggers.gd` (`TmTriggers`): checkpoint, finish and lap-line triggers as TMNF has them:
+  thin gate-shaped slabs (0.4 m thick). Measured from the packs' 17 trigger solids (local only); the
+  repo keeps our own description: each slab's mid-plane and its cross-section outline (road gates at
+  z 16, the finish at z 12, platform gates at z 15.88, rings as 18-gons of radius 13.26). A car takes
+  a trigger when its centre of mass crosses the mid-plane inside the outline between two ticks.
+- `race/race.tscn`: a map from the player's files (`--map=` or `--tmnf= --track=`), the car on the
+  start block (spawns are placed on the ground below them by a ray), the chase camera, the race HUD
+  (`TmRaceHud`, TMNF's layout: clock bottom centre, speed bottom right, map and medal times top
+  left, checkpoints/laps top right, countdown, checkpoint times and the result with its medal in the
+  middle). The race steps the car itself after the clock (TmCar's own tick is switched off after
+  add_child, which turns it back on). Keys: Enter respawn, Backspace/Delete restart.
+  `race/tm_stage.gd` (`TmStage`) holds the map loading and the sky/horizon shared with map_view.
+- `tests/test_race` (in `tools/test_all.sh`): rules and triggers always; with `--tmnf` it races
+  tracks (`--tracks=A01,...`, default A01): the car rests through the countdown, launches, is driven
+  through every checkpoint's trigger from its block and through the finish, which ends the race.
+  All 65 campaign tracks pass (421 checks; 105 checkpoint blocks on 38 tracks are taken by hand
+  because their shapes are not recreated yet: the vertical ring 44, grass 14, tilted road 19,
+  tilted platform 15, dirt-high 8, sloped 5). Stadium tests: lab 44, body 22, shapes 11, gbx 8,
+  blocks 3, race 37.
+- A01 is not drivable end to end yet: the block after the start (Platform/ToRoad/ToRoadMainAir),
+  the vertical checkpoint ring and the suspended bridge slope (plus its mirror, which the catalogue
+  lacks) are placeholders.

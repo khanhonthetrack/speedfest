@@ -19,17 +19,19 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 - `core/tm_car_model.gd` (`TmCarModel`): one 10 ms tick of the handling (steering, side grip, yaw,
   drive/brake, slopes, walls, turbo, dirt, air), engine independent. SpeedFest's car uses the same
   model (task: TMNF handling as SpeedFest's default).
-- Planned: `car/tm_car.gd`, a custom 100 Hz body (not RigidBody3D) with collision sub-steps of at
-  most 0.3 m, ellipsoid wheels and chassis, and TMNF's contact impulses; Jolt is used for queries.
+- `core/tm_body.gd` (`TmBody`) and `car/tm_car.gd` (`TmCar`): a custom 100 Hz body (not RigidBody3D)
+  with collision sub-steps of at most 0.3 m, ellipsoid wheels and chassis, and TMNF's contact
+  impulses; Jolt is used for queries only.
 
 ## Layout
 | dir | contents |
 |---|---|
 | `core/` | tuning + car model (shared with SpeedFest) |
-| `car/` | car body, visuals, camera (planned) |
-| `gbx/` | `.Challenge.Gbx` reader: header, medals, LZO body, blocks (planned) |
-| `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid (planned) |
-| `race/`, `ui/`, `env/` | race flow, menus, stadium environment (planned) |
+| `car/` | car body, input, visuals (placeholder), chase camera |
+| `gbx/` | `.Challenge.Gbx` reader: header, medals, LZO body, blocks |
+| `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid: catalogue (layout data), placement, map builder, shape families in `blocks/shapes/` |
+| `race/` | race rules (`TmRace`), waypoint triggers (`TmTriggers`), race scene + HUD, map viewer, drive test |
+| `ui/`, `env/` | menus, stadium environment (planned) |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
@@ -37,4 +39,10 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 ```bash
 godot --headless --path stadium --import                         # once, and after a new class_name
 stadium/tools/run.sh res://tests/test_model_lab.tscn --headless  # car model vs the reference (44 checks)
+TMNF_DIR=/path/to/TmNationsForever stadium/tools/test_all.sh     # every lab (STADIUM_TESTS PASS)
+stadium/tools/run.sh res://race/race.tscn --realtime -- --tmnf=/path/to/TmNationsForever --track=A01
+                                         # play a campaign track (or --map=/path/X.Challenge.Gbx)
+stadium/tools/run.sh res://race/map_view.tscn -- --tmnf=/path/to/TMNF --track=A01 --shot=/abs/out.png
 ```
+Race keys: arrows/WASD (or a pad) drive, Enter respawns at the last checkpoint, Backspace/Delete
+restarts.
