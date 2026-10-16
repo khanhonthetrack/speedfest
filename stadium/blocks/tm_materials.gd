@@ -95,7 +95,9 @@ const SURFACES := {
 
 ## HD graphics: the surface shader (TmUi setting "hd"; --hd=0 turns it off for a run).
 static func hd() -> bool:
-	return bool(TmUi.setting("hd")) and String(TestHooks.arg("hd", "1")) != "0"
+	# not under the RTX fork's path tracing, which draws custom shaders wrongly (the car vanished;
+	# tested on an RTX 2060): there the standard materials, which it traces fully
+	return bool(TmUi.setting("hd")) and String(TestHooks.arg("hd", "1")) != "0" and not TmRtx.path_tracing_active()
 
 
 ## Forgets the made materials (after the HD setting changes; the next scene makes them anew).

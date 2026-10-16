@@ -1163,3 +1163,18 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
 - `tests/test_online` (8, needs Node; skipped without it): starts the server with short rounds,
   joins, races in online mode, sees a second player's car, its finish ranked, results, next
   track. The gate also runs the server's `npm test`. STADIUM_TESTS PASS.
+
+## 2026-10-16 — Session 12: the official server, RTX graphics (owner's list, steps 2-3), branch `stadium`
+- **The official server runs** on the owner's PC: `stadium/server/run_official.ps1` starts the
+  server (bound to 127.0.0.1) and a Cloudflare quick tunnel (cloudflared from Cloudflare's GitHub
+  release, signature checked, in `C:\dev\tools\cloudflared`); its address is published in
+  `stadium/server/official.json`, which the game's "Join the official server" reads. Checked from
+  outside: the status page answers through the tunnel and a game client joins over wss.
+  `server/README.md` lists other hosts (a permanent one: Render, the Pi, any VPS).
+- **RTX** (`stadium/RTX.md`): graphics presets Low / High / Ultra (Ultra: SDFGI, SSR, SSIL,
+  volumetric haze, 4 shadow splits; checked in screenshots: bounce light and water reflections);
+  on NVIDIA's fork (`env/tm_rtx.gd`, ported from SpeedFest's m7-rtx branch) DLSS with the Fast
+  model on RTX 20/30 and experimental path tracing, all tested on this PC's RTX 2060 with the fork
+  built in `C:\dev\godot-rtx`: DLSS renders correctly; path tracing renders the stadium and, with
+  the standard materials it switches to, the car (soft shadows, reflections). `env/rt.gdshaderinc`
+  makes our shaders compile as hit shaders. Settings can be forced per run with `--set_<key>=`.

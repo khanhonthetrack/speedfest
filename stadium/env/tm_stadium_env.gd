@@ -97,6 +97,7 @@ static func add(parent: Node) -> WorldEnvironment:
 	env.glow_intensity = 0.25
 	env.glow_bloom = 0.02
 	env.glow_hdr_threshold = 1.2
+	TmRtx.apply_environment(env, sun)
 	var we := WorldEnvironment.new()
 	we.name = "Environment"
 	we.environment = env

@@ -40,7 +40,14 @@
   all steps; menu polish + fonts + online servers with one official server (5-min rounds, time
   trial, random campaign maps); RTX graphics from the RTX branch; downloaded open-licensed dark
   trap / hip-hop music; better sounds from open-licensed packs; export and how to share with friends.
-- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** that list; polish of the weakest decorations
+- **Done from that list:** polish (TMNF's outer ground, roof lamps, brake lights); menus restyled
+  with fonts; **online play** (`stadium/server`, `net/tm_online.gd`, `race/tm_race_online.gd`);
+  **the official server runs on the owner's PC** through a Cloudflare quick tunnel
+  (`stadium/server/run_official.ps1`; address in `stadium/server/official.json`; if the PC
+  restarts, run it again with `-Publish`); RTX (`stadium/RTX.md`: Ultra preset; DLSS and path
+  tracing on NVIDIA's fork, tested on the RTX 2060).
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of that list (music,
+  sounds, export); polish of the weakest decorations
   (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
   allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).

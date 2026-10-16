@@ -308,6 +308,16 @@ func _page_options() -> void:
 		var key: String = opt[0]
 		c.toggled.connect(func(on: bool) -> void: TmUi.set_setting(key, on))
 		col.add_child(c)
+	col.add_child(_cycle("GRAPHICS", "quality", TmRtx.QUALITY_NAMES))
+	if TmRtx.is_fork():   # NVIDIA's RTX build of Godot
+		col.add_child(_cycle("DLSS", "dlss", TmRtx.DLSS_NAMES))
+		var pt := CheckButton.new()
+		pt.text = "Path tracing (experimental, RTX 40/50)"
+		pt.button_pressed = bool(TmUi.setting("path_tracing"))
+		pt.custom_minimum_size = Vector2(520, 54)
+		pt.toggled.connect(func(on: bool) -> void: TmUi.set_setting("path_tracing", on))
+		col.add_child(pt)
+		col.add_child(TmUi.label(TmRtx.status(), 18, TmUi.DIM, TmUi.BOLD))
 	var clear := TmUi.button("CLEAR ALL RECORDS", Callable(), 520)
 	clear.pressed.connect(func() -> void:
 		if _clear_armed:
@@ -447,6 +457,17 @@ func _connect(address: String) -> void:
 ## In the server: race its round's track.
 func _joined() -> void:
 	race(String(Online.round.get("track", "A01")))
+
+
+## A button that steps through a setting's values (an index into names).
+func _cycle(title: String, key: String, names: Array) -> Button:
+	var b := TmUi.button("", Callable(), 520)
+	var show := func() -> void: b.text = "%s:  %s" % [title, String(names[clampi(int(TmUi.setting(key)), 0, names.size() - 1)]).to_upper()]
+	show.call()
+	b.pressed.connect(func() -> void:
+		TmUi.set_setting(key, (int(TmUi.setting(key)) + 1) % names.size())
+		show.call())
+	return b
 
 
 func _page_notmnf() -> void:

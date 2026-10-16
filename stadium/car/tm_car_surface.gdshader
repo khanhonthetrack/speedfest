@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://env/rt.gdshaderinc"
 // Our car's surfaces, in the parts' own space (they move with the car and the wheels):
 // mode 0 paint (metallic flakes under a clearcoat, a white stripe along the top), 1 carbon fibre
 // (a 2x2 twill weave that catches the light by direction), 2 tyre (tread grooves and sipes, a
@@ -39,8 +40,10 @@ void fragment() {
 		ALBEDO = col;
 		METALLIC = 0.55 + (flake - 0.5) * 0.4 * fade;
 		ROUGHNESS = 0.32 + (flake - 0.5) * 0.2 * fade;
-		CLEARCOAT = 1.0;
+#if !defined(RT)
+		CLEARCOAT = 1.0;              // (the RTX fork's hit shaders have no clearcoat)
 		CLEARCOAT_ROUGHNESS = 0.06;
+#endif
 	} else if (mode == 1) {
 		vec3 a = abs(onrm);
 		vec2 uv = a.y > a.x && a.y > a.z ? opos.xz : (a.x > a.z ? opos.zy : opos.xy);
@@ -55,8 +58,10 @@ void fragment() {
 		ALBEDO = vec3(0.025, 0.026, 0.03) + vec3(0.05) * sheen;
 		METALLIC = 0.35;
 		ROUGHNESS = mix(0.4, 0.25 + 0.2 * (1.0 - ridge), fade);
+#if !defined(RT)
 		CLEARCOAT = 0.8;
 		CLEARCOAT_ROUGHNESS = 0.1;
+#endif
 	} else {
 		float r = length(opos.yz);
 		float ang = atan(opos.z, opos.y);

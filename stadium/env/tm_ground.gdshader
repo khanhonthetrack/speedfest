@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://env/rt.gdshaderinc"
 // The Stadium's outer ground (HD): the measured class grid (TmStadiumBuild, one texel per 16 m
 // cell: R grass, G road, B parking, A forecourt) filtered smoothly and sharpened, so the borders
 // curve instead of stepping; each class with its own surface: mown grass, asphalt, blue parking

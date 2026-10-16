@@ -14,7 +14,7 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 
 const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true,
-	"name": "Player", "server": "", "colour": 0}
+	"name": "Player", "server": "", "colour": 0, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2}
 ## Car colours to pick from (online, the others see yours).
 const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.95, 0.70, 0.05), Color(0.10, 0.65, 0.30),
 	Color(0.92, 0.92, 0.94), Color(0.10, 0.10, 0.12), Color(0.95, 0.40, 0.05), Color(0.55, 0.20, 0.85)]
@@ -89,6 +89,7 @@ static func theme() -> Theme:
 		t.set_color("font_pressed_color", kind, Color.WHITE)
 		t.set_color("font_disabled_color", kind, Color(1, 1, 1, 0.3))
 		t.set_font_size("font_size", kind, 26)
+	t.set_stylebox("pressed", "CheckButton", t.get_stylebox("normal", "CheckButton"))
 	t.set_stylebox("panel", "PanelContainer", _box(PANEL, Color(1, 1, 1, 0.08), 1, 10))
 	_theme = t
 	return t
@@ -110,7 +111,8 @@ static func button(text: String, action: Callable, min_width := 320) -> Button:
 	b.text = text
 	b.custom_minimum_size = Vector2(min_width, 54)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	b.pressed.connect(action)
+	if action.is_valid():
+		b.pressed.connect(action)
 	b.pressed.connect(play.bind("click"))
 	b.mouse_entered.connect(play.bind("move"))
 	b.mouse_entered.connect(b.grab_focus)
@@ -139,8 +141,12 @@ static func _settings() -> ConfigFile:
 	return _cfg
 
 
+## A setting; --set_<key>=value on the command line overrides it for a run (tests, screenshots).
 static func setting(key: String) -> Variant:
-	return _settings().get_value("game", key, DEFAULTS.get(key))
+	var v: Variant = _settings().get_value("game", key, DEFAULTS.get(key))
+	if TestHooks.has_arg("set_" + key):
+		v = TestHooks.arg("set_" + key, v)
+	return v
 
 
 static func set_setting(key: String, value: Variant) -> void:
@@ -154,6 +160,9 @@ static func set_setting(key: String, value: Variant) -> void:
 ## Applies the sound and window settings (the scenes read the rest themselves).
 static func apply() -> void:
 	AudioServer.set_bus_mute(0, not bool(setting("sound")))
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree:
+		TmRtx.apply_viewport(tree.root)
 	if DisplayServer.get_name() == "headless":
 		return
 	var full := bool(setting("fullscreen"))
