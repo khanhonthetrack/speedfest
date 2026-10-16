@@ -7,6 +7,8 @@ extends Node3D
 ##   side:D        side view of D (from the right, 40 m out)
 ##   orbit:D       elevated three-quarter view of D (good for stunts)
 ##   cp:N          chase view 22 m before checkpoint N (0-based; "cp:finish" for the finish gate)
+##   car:D         the car parked at D, seen from 6 m behind it (paint / glass reflections)
+## --weather=rain|storm|dry applies Track.apply_weather; --hold=N frames per view (default 14).
 ## Each view is held for a few frames, then saved as <out>/<tag>_<i>.png.
 
 var track: Track
@@ -16,7 +18,8 @@ var out: String
 var tag: String
 var idx := 0
 var timer := 0
-const HOLD := 14
+var hold := 14
+var car: Car
 
 
 func _ready() -> void:
@@ -28,7 +31,10 @@ func _ready() -> void:
 	track = Track.build(id)
 	add_child(track)
 	print("BUILD_MS %d" % (Time.get_ticks_msec() - t0))
-	var car := Car.create(Profile.get_config())
+	if TestHooks.has_arg("weather"):
+		track.apply_weather(String(TestHooks.arg("weather", "rain")))
+	hold = int(TestHooks.arg("hold", 14))
+	car = Car.create(Profile.get_config())
 	add_child(car)
 	car.freeze = true
 	car.global_transform = track.get_start_transform()
@@ -42,7 +48,7 @@ func _ready() -> void:
 
 func _process(_dt: float) -> void:
 	timer += 1
-	if timer == HOLD:
+	if timer == hold:
 		TestHooks.save_screenshot("%s/%s_%d.png" % [out, tag, idx])
 		var info := "VIEW %d %s draw_calls=%d prims=%d objects=%d" % [idx, views[idx],
 			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
@@ -86,6 +92,10 @@ func _apply(v: String) -> void:
 		"side":
 			cam.global_position = f.origin + f.basis.x * 45.0 + Vector3.UP * 8.0
 			cam.look_at(f.origin + Vector3.UP * 4.0, Vector3.UP)
+		"car":
+			car.global_transform = track._pose_at(d)
+			cam.global_position = f.origin + f.basis.z * 6.0 + f.basis.y * 2.2 + f.basis.x * 1.2
+			cam.look_at(f.origin + f.basis.y * 0.6, f.basis.y)
 		"orbit":
 			cam.global_position = f.origin + f.basis.x * 40.0 + f.basis.z * 40.0 + Vector3.UP * 30.0
 			cam.look_at(f.origin, Vector3.UP)
