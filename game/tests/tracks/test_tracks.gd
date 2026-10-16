@@ -35,6 +35,10 @@ const RANGES := {
 	"canyon": {"len": [600.0, 1200.0], "cps": [2, 3]},
 	"icepipe": {"len": [500.0, 1100.0], "cps": [2, 3]},
 	"grassland": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"skyline": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"dropzone": {"len": [500.0, 1100.0], "cps": [2, 3]},
+	"rally": {"len": [600.0, 1200.0], "cps": [2, 3]},
+	"spiral": {"len": [500.0, 1100.0], "cps": [2, 3]},
 }
 
 var hits: Array = []

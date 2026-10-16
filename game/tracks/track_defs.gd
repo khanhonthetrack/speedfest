@@ -5,7 +5,7 @@ extends RefCounted
 ## rails: short stadium map with a start-ledge jump onto a grind rail (owner, session 5).
 ## rooftop / cliff / twister / pipes: 10-30 s maps, one clever idea each (owner, session 6).
 
-const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake", "nosteer", "canyon", "icepipe", "grassland"]
+const IDS: Array[String] = ["downtown", "arena", "coast", "rooftop", "cliff", "twister", "pipes", "infield", "dunes", "rails", "frost", "dust", "blackout", "glide", "techlab", "fullsend", "cruise", "plastic", "sausage", "mixer", "platform", "snake", "nosteer", "canyon", "icepipe", "grassland", "skyline", "dropzone", "rally", "spiral"]
 
 const DEFS := {
 	"downtown": {
@@ -240,6 +240,42 @@ const DEFS := {
 		"circuit": false,
 		"blurb": "Every corner has a grass cut: shorter but slidey, or the grippy asphalt line. Pick per corner.",
 		"target_s": 22,
+		"weather": "dry",
+	},
+	"skyline": {
+		"name": "Skyline Hop",
+		"short": "Skyline",
+		"theme": "city",
+		"circuit": false,
+		"blurb": "Roof to roof, each hop lower, then land the grind rail across to the finish tower.",
+		"target_s": 18,
+		"weather": "rain",
+	},
+	"dropzone": {
+		"name": "Drop Zone",
+		"short": "Drops",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "Three big drops off the towers, each landing straight into a banked turn.",
+		"target_s": 16,
+		"weather": "dry",
+	},
+	"rally": {
+		"name": "Rally Stage",
+		"short": "Rally",
+		"theme": "coast",
+		"circuit": false,
+		"blurb": "Narrow dirt road, gravel shoulders, crests hiding the bends and a gravel hairpin.",
+		"target_s": 26,
+		"weather": "dry",
+	},
+	"spiral": {
+		"name": "Spiral",
+		"short": "Spiral",
+		"theme": "arena",
+		"circuit": false,
+		"blurb": "One full banked turn up the tower, then the dive back down to the finish.",
+		"target_s": 20,
 		"weather": "dry",
 	},
 }
