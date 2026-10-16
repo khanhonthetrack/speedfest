@@ -452,3 +452,16 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   the TMNF reverse-engineering work (another session). Found and fixed a fast-loop body slam,
   made rails non-magnetic, fixed a broken online test, ran the full matrices and merged the
   physics into `main`. Next: the PC build (M7-1), then track pieces and 30+ maps (M7-6).
+
+### User (verbatim, session 8 on the Pi)
+
+> Turn on autocontinue
+
+> I want to autocontimue after hittinh usage limit
+
+### Claude
+
+- Scheduled a wake-up for 02:45 UTC (after the 5-hour limit reset) that resumes from HANDOFF and
+  chains the next wake-up before stopping again. At 02:45 it found sessions 9 and 10 had finished
+  the physics merge and the TMNF research, deployed the Pi, and took M7-6 (maps) on `m7-maps`,
+  leaving the PC build to session 10.
