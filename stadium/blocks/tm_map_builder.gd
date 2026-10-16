@@ -56,11 +56,11 @@ func _build() -> void:
 		var flags := int(blk["flags"])
 		var shape := TmBlockCatalogue.shape_name(entry, ground, flags & 0x3F, (flags >> 6) & 0x3F)
 		var xf := TmBlockCatalogue.block_transform(entry, coord, dir, ground)
+		var node: Node3D = null if shape.is_empty() else lib.make(shape, entry, ground)
+		_waypoint(id, entry, ground, xf, node != null or shape.is_empty())
 		if shape.is_empty():
 			stats["empty"] += 1      # this variant has no geometry (e.g. a support's bare position)
 			continue
-		var node := lib.make(shape, entry, ground)
-		var built := node != null
 		if node == null:
 			stats["placeholder"] += 1
 			missing[shape] = int(missing.get(shape, 0)) + 1
@@ -73,19 +73,25 @@ func _build() -> void:
 		blocks_node.add_child(node)
 		if String(entry.get("kind", "")) in ["flat", "frontier"]:
 			_zone_cells[Vector2i(coord.x, coord.z)] = true
-		var wp := int(entry.get("waypoint", TmBlockCatalogue.Waypoint.NONE))
-		var spawn_world := xf * TmBlockCatalogue.spawn(entry, ground)
-		if wp != TmBlockCatalogue.Waypoint.NONE:
-			waypoints.append({"kind": wp, "block": id, "xform": xf, "spawn": spawn_world, "built": built})
-		match wp:
-			TmBlockCatalogue.Waypoint.START, TmBlockCatalogue.Waypoint.START_FINISH:
-				start = spawn_world
-				has_start = true
-			TmBlockCatalogue.Waypoint.CHECKPOINT:
-				checkpoints.append(spawn_world)
-			TmBlockCatalogue.Waypoint.FINISH:
-				finishes.append(spawn_world)
 	_terrain()
+
+
+## Records a waypoint block (start, finish, checkpoint, lap line) for the race, whether or not its
+## shape is recreated yet (built false: a placeholder without a floor).
+func _waypoint(id: String, entry: Dictionary, ground: bool, xf: Transform3D, built: bool) -> void:
+	var wp := int(entry.get("waypoint", TmBlockCatalogue.Waypoint.NONE))
+	if wp == TmBlockCatalogue.Waypoint.NONE:
+		return
+	var spawn_world := xf * TmBlockCatalogue.spawn(entry, ground)
+	waypoints.append({"kind": wp, "block": id, "xform": xf, "spawn": spawn_world, "built": built})
+	match wp:
+		TmBlockCatalogue.Waypoint.START, TmBlockCatalogue.Waypoint.START_FINISH:
+			start = spawn_world
+			has_start = true
+		TmBlockCatalogue.Waypoint.CHECKPOINT:
+			checkpoints.append(spawn_world)
+		TmBlockCatalogue.Waypoint.FINISH:
+			finishes.append(spawn_world)
 
 
 ## The stadium ground: grass at 9 m (level 0) on every map cell without a terrain zone tile.

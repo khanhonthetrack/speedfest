@@ -41,6 +41,9 @@ def mobil_solids(name):
 def solid_name(s):
     s = s.split('Media/Solid/', 1)[-1]
     return s[:-len('.Solid.Gbx')] if s.endswith('.Solid.Gbx') else s
+# variants whose external mobil wasn't decryptable: the solid named by our measurements
+FALLBACK = {('StadiumRoadDirtCheckpoint', 'ground'): 'Road/Dirt/RoadDirtCheckpoint/Ground',
+            ('StadiumPlatformCheckpointUp', 'air'): 'Platform/Checkpoint/UpAir'}
 out = {}
 for fname, v in sorted(bi.items()):
     if 'error' in v or not v.get('id'): continue
@@ -66,5 +69,9 @@ for fname, v in sorted(bi.items()):
         'ground': {'units': units(v['ground_units']), 'mobils': mobils(v['ground_mobils'])},
         'air': {'units': units(v['air_units']), 'mobils': mobils(v['air_mobils'])},
         'campaign_uses': camp.get(v['id'], [0])[0]}
+    for vn in ('air', 'ground'):
+        fb = FALLBACK.get((v['id'], vn))
+        if fb and out[v['id']][vn]['mobils'] == [['']]:
+            out[v['id']][vn]['mobils'] = [[fb]]
 json.dump(out, open(sys.argv[4], 'w'), indent=None, separators=(',', ':'), sort_keys=True)
 print(len(out), 'blocks;', sum(1 for v in out.values() if v['campaign_uses']), 'used by the campaign')
