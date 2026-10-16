@@ -187,7 +187,8 @@ func _drive_through(scene: Node, index: int) -> bool:
 	var before := _progress(race)
 	var spawn: Transform3D = wp["spawn"]
 	var local_z := ((wp["xform"] as Transform3D).affine_inverse() * spawn.origin).z
-	scene.place_car(spawn.translated(-spawn.basis.z * clampf(local_z - 1.0, 0.0, 10.0)))
+	# on a slope the road 10 m back can be up to 5 m higher than the spawn
+	scene.place_car(spawn.translated(-spawn.basis.z * clampf(local_z - 1.0, 0.0, 10.0)), 6.0)
 	car.lin_vel = car.global_transform.basis.z * 25.0
 	car.gas = 1.0
 	for i in 150:

@@ -59,26 +59,51 @@ const WALL_PLAN := [
 	[31.916, 1.100, "metal", 4], [32.000, 1.215, "metal", 4], [32.000, 1.345, "wall", 16],
 	[31.000, 1.345, "grid", 4], [24.000, 1.345, "platform", 16]
 ]
-const CHECKPOINT_ARCH := [
-	[16.000, 14.326, "structure", 4], [14.265, 14.262, "structure", 4], [12.541, 14.071, "structure", 4],
-	[10.839, 13.755, "structure", 4], [9.170, 13.315, "structure", 4], [7.545, 12.754, "structure", 4],
-	[5.973, 12.075, "structure", 4], [4.466, 11.284, "structure", 4], [3.032, 10.384, "structure", 4],
-	[3.937, 9.268, "metal", 4], [5.270, 10.104, "metal", 4], [6.673, 10.841, "metal", 4],
-	[8.134, 11.472, "metal", 4], [9.646, 11.994, "metal", 4], [11.199, 12.403, "metal", 4],
-	[12.782, 12.698, "metal", 4], [14.386, 12.875, "metal", 4], [16.000, 12.934, "metal", 4],
-	[17.614, 12.875, "metal", 4], [19.218, 12.698, "metal", 4], [20.801, 12.403, "metal", 4],
-	[22.354, 11.994, "metal", 4], [23.866, 11.472, "metal", 4], [25.327, 10.841, "metal", 4],
-	[26.730, 10.104, "metal", 4], [28.063, 9.268, "structure", 4], [28.968, 10.384, "structure", 4],
-	[27.534, 11.284, "structure", 4], [26.027, 12.075, "structure", 4], [24.455, 12.754, "structure", 4],
-	[22.830, 13.315, "structure", 4], [21.161, 13.755, "structure", 4], [19.459, 14.071, "structure", 4],
-	[17.735, 14.262, "structure", 4]
-]
-
+## The platform checkpoint's arch: the ring section moved out to radius 21.91 .. 23.30 about this
+## centre (and 0.1 m back along z), its half-angle, and the billboard (z, radius) on its back.
+const ARCH_CENTRE := Vector2(16, -8.976)
+const ARCH_DR := 9.348
+const ARCH_DZ := -0.105
+const ARCH_HALF := 33.8
+## The billboard: a band leaning in over the arch, curved in plan about a vertical axis at
+## ARCH_BOARD_AXIS (x, z); its section (radius from the axis, y) at the top, and its half-angle.
+const ARCH_BOARD_AXIS := Vector2(16, 4.43)
+const ARCH_BOARD := [[14.12, 15.53, "screen", S_METAL], [12.59, 17.65, "screen", S_METAL],
+	[12.75, 17.76, "screen", S_METAL], [14.28, 15.64, "screen", S_METAL]]
+const ARCH_BOARD_HALF := 44.0
+## The curved strut from the deck's front corner up to the arch (centre line, measured), mirrored.
+const ARCH_STRUT := [Vector3(0.97, 7.8, 5.9), Vector3(1.08, 9.6, 8.2), Vector3(1.27, 10.2, 9.0), Vector3(1.55, 10.8, 9.8),
+	Vector3(1.9, 11.4, 10.6), Vector3(2.34, 11.9, 11.4), Vector3(2.85, 12.5, 12.1), Vector3(3.44, 13.0, 12.85),
+	Vector3(4.1, 13.5, 13.5)]
 
 ## Platform to Road/Main ramp: the road's surface heights every 2 m from the deck (z 0) up to the
 ## road block's level (z 32).
 const TO_ROAD_MAIN := [8.0, 8.008, 8.017, 8.071, 8.125, 8.248, 8.372, 8.522, 8.672, 8.85, 9.028, 9.137,
 	9.247, 9.289, 9.331, 9.338, 9.345]
+
+## Platform slopes: a thin plate with a lip on every edge, sheared through the slope's surface
+## heights (every 2 m along z); its section across (x, y) at a top of 8 m, and the underside's rise
+## into the end lips (z from the end, y), measured.
+const SLOPE_PLATE := [
+	[0.0, TOP, "metal", S_METAL], [0.0, 7.9, "structure", S_METAL], [0.122, 7.9, "metal", S_METAL],
+	[0.249, 7.611, "metal", S_METAL], [0.505, 7.423, "metal", S_METAL], [0.847, UNDER, "structure", S_METAL],
+	[3.08, UNDER, "structure", S_METAL], [3.08, 7.12, "stands", S_METAL], [28.92, 7.12, "structure", S_METAL],
+	[28.92, UNDER, "structure", S_METAL], [31.153, UNDER, "metal", S_METAL], [31.495, 7.423, "metal", S_METAL],
+	[31.751, 7.611, "metal", S_METAL], [31.878, 7.9, "structure", S_METAL], [32.0, 7.9, "metal", S_METAL],
+	[32.0, TOP, "platform", S_DECK],
+]
+const SLOPE_END := [[0.0, 7.9], [0.122, 7.9], [0.249, 7.611], [0.505, 7.423], [0.847, UNDER], [3.07, UNDER], [3.09, 7.12]]
+const SLOPES := {
+	"2StraightAir": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],
+	"BiSlope2StartAir": [8.0, 8.0, 8.0, 8.092, 8.269, 8.521, 8.854, 9.268, 9.743, 10.271, 10.86, 11.52, 12.243,
+		13.045, 13.941, 14.926, 16.0],
+	"BiSlope2EndAir": [0.0, 0.99, 1.919, 2.776, 3.561, 4.279, 4.932, 5.519, 6.049, 6.53, 6.953, 7.306, 7.591,
+		7.805, 7.931, 7.971, 8.0],
+}
+## Checkpoints on slopes and banks: the flat checkpoint sheared, (kx, kz, dy) of TmGeo.shear_y.
+const CHECKPOINT_SHEAR := {
+	"UpAir": [0.0, 0.5, 0.0], "DownAir": [0.0, -0.5, 16.0], "LeftAir": [-0.5, 0.0, 16.0], "RightAir": [0.5, 0.0, 0.0],
+}
 
 ## Vertical checkpoint ring about (16, 16) in the x-y plane: the ring's section (z, radius) with
 ## rounded sign faces front and back; four 76-degree arcs between the diagonals.
@@ -103,6 +128,8 @@ const LOOP_OUT := 32.05
 func handles(shape: String) -> bool:
 	return shape.begins_with("Platform/Road/") or shape.begins_with("Platform/Wall/") \
 		or shape == "Platform/Turbo/Air" or shape == "Platform/Checkpoint/Air" \
+		or (shape.begins_with("Platform/Slope/") and SLOPES.has(shape.trim_prefix("Platform/Slope/"))) \
+		or (shape.begins_with("Platform/Checkpoint/") and CHECKPOINT_SHEAR.has(shape.trim_prefix("Platform/Checkpoint/"))) \
 		or shape == "Platform/Checkpoint/RingVAir" or shape.begins_with("Platform/ToRoad/") \
 		or shape in ["Platform/Loop/StartAir", "Platform/Loop/StartGround", "Platform/Loop/EndAir"]
 
@@ -130,8 +157,13 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			if parts[2] == "RingVAir":
 				_ring_v(geo)
 			else:
-				_deck(geo, _closed([0, 2]))
+				_deck(geo, _closed([]))       # a lip on every side, the body inset all round
 				_checkpoint_arch(geo)
+				if CHECKPOINT_SHEAR.has(parts[2]):
+					var k: Array = CHECKPOINT_SHEAR[parts[2]]
+					geo.shear_y(k[0], k[1], k[2])
+		"Slope":
+			_slope(geo, SLOPES[parts[2]])
 		"ToRoad":
 			var form := parts[2]
 			if form == "ToRoadMainAir":
@@ -256,9 +288,48 @@ func _loop(geo: TmGeo, c: Vector2, a0: float, a1: float) -> void:
 				geo.quad(a, b, cc, d, q0[2], q0[3])
 
 
-## A (z, radius) section revolved about the ring's axis (16, 16, z) from angle a0 to a1 (degrees,
-## from +x toward +y); caps close both ends.
-func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, caps := true) -> void:
+## A platform slope through surface heights h (every 32 / (n - 1) m along z): the lipped plate
+## swept along the profile (its underside rising into the end lips), on a square pillar in the
+## middle of the block.
+func _slope(geo: TmGeo, h: Array) -> void:
+	var height := func(z: float) -> float:
+		var f := clampf(z / 32.0, 0.0, 1.0) * (h.size() - 1)
+		var i := mini(int(f), h.size() - 2)
+		return lerpf(float(h[i]), float(h[i + 1]), f - i)
+	var under := func(z: float) -> float:
+		var e := minf(z, 32.0 - z)
+		for k in range(SLOPE_END.size() - 1, -1, -1):
+			if e >= float(SLOPE_END[k][0]):
+				if k == SLOPE_END.size() - 1:
+					return float(SLOPE_END[k][1])
+				var a: Array = SLOPE_END[k]
+				var b: Array = SLOPE_END[k + 1]
+				return lerpf(float(a[1]), float(b[1]), (e - float(a[0])) / (float(b[0]) - float(a[0])))
+		return 7.9
+	var zs: Array[float] = []
+	for q: Array in SLOPE_END:
+		zs.append(float(q[0]))
+	for k in range(2, 15):
+		zs.append(2.0 * k)
+	for q: Array in SLOPE_END:
+		zs.append(32.0 - float(q[0]))
+	zs.sort()
+	var path := []
+	var lat := []
+	for z in zs:
+		path.append(Vector3(16, float(height.call(z)) - TOP, z))
+		lat.append(Vector3(1, 0, 0))
+	var sec := SLOPE_PLATE.map(func(q: Array) -> Array: return [Vector2(float(q[0]) - 16.0, q[1]), q[2], q[3]])
+	var y_at := func(y: float, i: int) -> float:
+		return y if y >= TOP - 0.01 else maxf(y, float(under.call((path[i] as Vector3).z)))
+	geo.wall_sweep(sec, path, lat, true, "metal", S_METAL, y_at)
+	geo.box(Vector3(14.37, 0, 14.37), Vector3(17.64, float(height.call(16.0)) - 0.88, 17.64), "stands", S_METAL)
+
+
+## A (z, radius) section revolved about the axis through centre (x, y) along z from angle a0 to a1
+## (degrees, from +x toward +y); caps close both ends.
+func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, caps := true,
+		centre := Vector2(16, 16)) -> void:
 	var loop := []
 	for q in section:
 		loop.append([Vector2(float(q[0]), float(q[1])), String(q[2]), int(q[3])])
@@ -269,7 +340,7 @@ func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, ca
 		var a := deg_to_rad(lerpf(a0, a1, float(k) / steps))
 		var up := Vector3(cos(a), sin(a), 0)
 		var fwd := Vector3(-sin(a), cos(a), 0)
-		frames.append(Transform3D(Basis(Vector3(0, 0, 1), up, fwd), Vector3(16, 16, 0)))
+		frames.append(Transform3D(Basis(Vector3(0, 0, 1), up, fwd), Vector3(centre.x, centre.y, 0)))
 	geo.sweep(loop + [loop[0]], frames)
 	if caps:
 		var mat: String = loop[0][1]
@@ -293,11 +364,39 @@ func _ring_v(geo: TmGeo) -> void:
 		geo.box(Vector3(15.5, y + 0.16, 12.96), Vector3(16.5, y + 2.0, 19.04), "structure", S_METAL)
 
 
-## The checkpoint arch over the deck (measured section, 13.4 -> 18.6 m along z).
+## The checkpoint arch over the deck: the ring's section revolved on a circle of radius 23.3 about
+## (16, -8.976) between radial cuts 33.8 degrees either side of the top, a billboard leaning on its
+## back, and the two struts holding it from the deck's front corners.
 func _checkpoint_arch(geo: TmGeo) -> void:
-	var sec := CHECKPOINT_ARCH.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
-	# lateral = +x, so (d, y) = (x, y); the path runs along z
-	geo.wall_sweep(sec, [Vector3(0, 0, 13.4), Vector3(0, 0, 18.6)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "structure", S_METAL)
+	var sec := RING_SECTION.map(func(q: Array) -> Array: return [float(q[0]) + ARCH_DZ, float(q[1]) + ARCH_DR, q[2], q[3]])
+	_revolve_z(geo, sec, 90.0 - ARCH_HALF, 90.0 + ARCH_HALF, 16, true, ARCH_CENTRE)
+	# the billboard follows the arch down toward its ends
+	var path := []
+	var outward := []
+	var drop := []
+	for k in 13:
+		var a := deg_to_rad(lerpf(90.0 - ARCH_BOARD_HALF, 90.0 + ARCH_BOARD_HALF, k / 12.0))
+		var dir := Vector3(cos(a), 0, sin(a))
+		path.append(Vector3(ARCH_BOARD_AXIS.x, 0, ARCH_BOARD_AXIS.y))
+		outward.append(dir)
+		var x := ARCH_BOARD_AXIS.x + dir.x * 13.4
+		var r := ARCH_DR + 13.954
+		drop.append(0.5 * (sqrt(maxf(0.0, r * r - (x - 16.0) * (x - 16.0))) - r))
+	var board := ARCH_BOARD.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
+	geo.wall_sweep(board, path, outward, true, "screen", S_METAL,
+		func(y: float, i: int) -> float: return y + float(drop[i]))
+	for mirror in [false, true]:
+		for k in ARCH_STRUT.size() - 1:
+			var a: Vector3 = ARCH_STRUT[k]
+			var b: Vector3 = ARCH_STRUT[k + 1]
+			if mirror:
+				a.x = 32.0 - a.x
+				b.x = 32.0 - b.x
+			geo.pipe(a, b, 0.55, 6, "structure", S_METAL)
+	# short legs under the lips, two per side
+	for c: Vector2 in [Vector2(8, 2), Vector2(24, 2), Vector2(8, 30), Vector2(24, 30), Vector2(2, 8), Vector2(2, 24),
+			Vector2(30, 8), Vector2(30, 24)]:
+		geo.box(Vector3(c.x - 0.5, 0, c.y - 0.5), Vector3(c.x + 0.5, 3.42, c.y + 0.5), "stands", S_METAL)
 
 
 ## Grid walls `units` blocks high on the cell's -z edge (0 -> 1.345 m): the measured plan

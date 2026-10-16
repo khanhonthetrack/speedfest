@@ -259,6 +259,22 @@ static func arc(c: Vector2, r: float, a0: float, a1: float, y: float, steps: int
 	return [pts, rad]
 
 
+## Shears everything added so far vertically (TMNF coords): y += kx * x + kz * z + dy. Planes stay
+## planes; normals follow (inverse transpose). Sloped and banked variants of flat pieces use it.
+func shear_y(kx: float, kz: float, dy: float) -> void:
+	# stored points are Godot's (x negated): TMNF x = -v.x
+	for key in _vis:
+		var grp: Group = _vis[key]
+		for k in grp.v.size():
+			var v := grp.v[k]
+			grp.v[k] = Vector3(v.x, v.y - kx * v.x + kz * v.z + dy, v.z)
+			var n := grp.n[k]
+			grp.n[k] = Vector3(n.x + kx * n.y, n.y, n.z - kz * n.y).normalized()
+	for k in _col.size():
+		var v := _col[k]
+		_col[k] = Vector3(v.x, v.y - kx * v.x + kz * v.z + dy, v.z)
+
+
 func is_empty() -> bool:
 	return _vis.is_empty() and _col.is_empty()
 

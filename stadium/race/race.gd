@@ -107,10 +107,11 @@ func respawn() -> void:
 
 
 ## The car standing still at a spawn point: on the ground when it lies just below (spawns sit up
-## to 2.1 m above the road), else in the air there (a ring checkpoint over a jump).
-func place_car(spawn: Transform3D) -> void:
+## to 2.1 m above the road), else in the air there (a ring checkpoint over a jump). look_up: how far
+## above the point to look for the ground (tests start cars off-spawn on slopes).
+func place_car(spawn: Transform3D, look_up := 1.5) -> void:
 	var xf := spawn.orthonormalized()
-	var q := PhysicsRayQueryParameters3D.create(xf.origin + xf.basis.y * 1.5, xf.origin - xf.basis.y * 2.5, TmCar.WORLD_MASK)
+	var q := PhysicsRayQueryParameters3D.create(xf.origin + xf.basis.y * look_up, xf.origin - xf.basis.y * 2.5, TmCar.WORLD_MASK)
 	var hit := get_world_3d().direct_space_state.intersect_ray(q)
 	if not hit.is_empty():
 		var up: Vector3 = hit["normal"]

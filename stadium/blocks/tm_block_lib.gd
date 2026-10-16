@@ -7,6 +7,7 @@ extends RefCounted
 
 var _families: Array = []          ## objects with handles(shape) -> bool and make(shape, entry, ground)
 var _cache := {}                   ## shape name -> PackedScene-like template (Node3D), duplicated
+var load_errors: Array[String] = []  ## family scripts that failed to load (a parse error)
 
 
 const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.gd",
@@ -16,7 +17,11 @@ const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.g
 
 func _init() -> void:
 	for path in FAMILIES:
-		register(load(path).new())
+		var script: GDScript = load(path)
+		if script == null or not script.can_instantiate():
+			load_errors.append(path)
+			continue
+		register(script.new())
 
 
 func register(family: Object) -> void:

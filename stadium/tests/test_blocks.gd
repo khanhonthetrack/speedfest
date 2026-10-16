@@ -8,6 +8,7 @@ const SLACK := 1.0
 
 func _ready() -> void:
 	var lib := TmBlockLib.new()
+	TestHooks.check(lib.load_errors.is_empty(), "families_load", "%s" % [lib.load_errors])
 	var cat := TmBlockCatalogue.data()
 	TestHooks.check(cat.size() > 250, "catalogue_loaded", "%d blocks" % cat.size())
 	var shapes := {}          # shape name -> footprint (units, of the first block using it)
