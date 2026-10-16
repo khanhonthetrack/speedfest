@@ -6,7 +6,7 @@ name: Desktop builds
 
 on:
   push:
-    branches: [main, m7-pc]   # m7-pc: temporary, to validate the workflow before the merge
+    branches: [main]
     tags: ["v*"]
     paths:
       - "game/**"
