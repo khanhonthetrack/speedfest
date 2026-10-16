@@ -147,6 +147,9 @@ void fragment() {
 	NORMAL_MAP = tex_n;
 	NORMAL_MAP_DEPTH = normal_depth;
 	EMISSION = edge_color.rgb * edge * edge_emission * (1.0 - curb_zone) + tech_glow * edge_emission * 0.5;
-	EMISSION += paint * paint_a * paint_glow;
-	EMISSION += tunnel_light.rgb * (0.16 + 0.6 * col) * tunnel_fake * in_tunnel * (1.0 - 0.4 * smoothstep(0.0, hw, ax));
+	// retro-reflective paint: lines near the car pop, far ones don't glow out to the horizon
+	EMISSION += paint * paint_a * paint_glow * (0.3 + 0.7 * 25.0 / (25.0 + length(VERTEX)));
+	// fake tunnel light (web, Low): pools under the fixtures every 8 m rather than an even glow
+	float pools = 0.4 + 0.6 * pow(0.5 + 0.5 * cos(6.2832 * UV.y / 8.0), 4.0);
+	EMISSION += tunnel_light.rgb * (0.16 + 0.6 * col) * tunnel_fake * in_tunnel * pools * (1.0 - 0.4 * smoothstep(0.0, hw, ax));
 }

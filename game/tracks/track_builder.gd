@@ -660,7 +660,7 @@ static func horizontal_curvature(path: TrackPath, d: float) -> float:
 
 static func material(key: String) -> Material:
 	var compat := Settings.is_compat()
-	var ck := "%s_%s" % [key, compat]
+	var ck := "%s_%s_%d" % [key, compat, Settings.quality]   # some values depend on the quality
 	if _mat_cache.has(ck):
 		return _mat_cache[ck]
 	var m: Material
@@ -697,10 +697,11 @@ static func material(key: String) -> Material:
 			var s := StandardMaterial3D.new()
 			s.albedo_color = Color(0.36, 0.34, 0.32)
 			s.roughness = 0.8
-			# fake sodium bounce light (there are no real lights on web / low quality)
-			s.emission_enabled = true
+			# fake sodium bounce light where there are no real tunnel lights (web, Low); on Forward+
+			# from Medium the downlights in _build_tunnel light it for real (M7 look plan step 7)
+			s.emission_enabled = compat or Settings.quality < 1
 			s.emission = Color(1.0, 0.6, 0.3)
-			s.emission_energy_multiplier = 0.25 if (compat or Settings.quality < 2) else 0.08
+			s.emission_energy_multiplier = 0.25
 			m = s
 		"sidewalk":
 			var s := StandardMaterial3D.new()
@@ -735,7 +736,11 @@ static func material(key: String) -> Material:
 		if key.begins_with("neon_"):
 			var s := ShaderMaterial.new()
 			s.shader = load("res://shaders/track_neon.gdshader")
-			s.set_shader_parameter("color", _neon_color(key.substr(5)))
+			var cname := key.substr(5)
+			if cname.ends_with("_seam"):
+				cname = cname.trim_suffix("_seam")
+				s.set_shader_parameter("seam_every", 2.0)   # LED modules on the barrier strip
+			s.set_shader_parameter("color", _neon_color(cname))
 			s.set_shader_parameter("energy", 2.6 if compat else 3.2)
 			m = s
 		else:
@@ -819,7 +824,7 @@ static func _neon_color(name: String) -> Color:
 
 
 static func road_material(style: String, wet: bool) -> ShaderMaterial:
-	var ck := "road_%s_%s_%s" % [style, wet, Settings.is_compat()]
+	var ck := "road_%s_%s_%s_%d" % [style, wet, Settings.is_compat(), Settings.quality]
 	if _mat_cache.has(ck):
 		return _mat_cache[ck]
 	var s := ShaderMaterial.new()
@@ -847,7 +852,8 @@ static func road_material(style: String, wet: bool) -> ShaderMaterial:
 			s.set_shader_parameter("edge_emission", 0.0)
 			s.set_shader_parameter("center_mode", 1)
 			s.set_shader_parameter("lane_count", 3)
-	var fake := 1.0 if (Settings.is_compat() or Settings.quality < 2) else 0.3
+	# fake tunnel bounce only where the tunnels have no real downlights (web, Low)
+	var fake := 1.0 if (Settings.is_compat() or Settings.quality < 1) else 0.0
 	s.set_shader_parameter("tunnel_fake", 0.9 * fake)
 	s.set_shader_parameter("water_gloss", 0.0 if Settings.is_compat() else 1.0)
 	var ta := pbr_texture("asphalt", "albedo") if use_pbr() else null
@@ -860,6 +866,38 @@ static func road_material(style: String, wet: bool) -> ShaderMaterial:
 	s.set_shader_parameter("paint_glow", 0.5 if style == "concrete" else 0.15)
 	_mat_cache[ck] = s
 	return s
+
+
+## Painted stripes, one shared material per kind (curb, hazard, hazard_neon) and renderer/quality,
+## so Track.apply_weather() can make them wet with the road (M7 look plan step 6).
+static func stripe_material(kind: String) -> ShaderMaterial:
+	var ck := "stripes_%s_%s_%d" % [kind, Settings.is_compat(), Settings.quality]
+	if _mat_cache.has(ck):
+		return _mat_cache[ck]
+	var compat := Settings.is_compat()
+	var s := ShaderMaterial.new()
+	s.shader = load("res://shaders/track_stripes.gdshader")
+	match kind:
+		"curb":
+			s.set_shader_parameter("color_a", Color(0.75, 0.75, 0.75))
+			s.set_shader_parameter("color_b", Color(0.55, 0.03, 0.04))
+			s.set_shader_parameter("stripe", 2.4)
+			s.set_shader_parameter("profile_len", 1.34)
+			s.set_shader_parameter("self_lit", 0.35 if compat else 0.1)
+		_:
+			s.set_shader_parameter("color_a", Color(1.0, 0.15, 0.75) if kind == "hazard_neon" else Color(1.0, 0.75, 0.05))
+			s.set_shader_parameter("self_lit", 0.5 if compat else 0.2)    # a jump warning must stay readable
+	_mat_cache[ck] = s
+	return s
+
+
+## The stripe materials made so far (for wetness).
+static func stripe_materials() -> Array[ShaderMaterial]:
+	var out: Array[ShaderMaterial] = []
+	for k: String in _mat_cache:
+		if k.begins_with("stripes_"):
+			out.append(_mat_cache[k])
+	return out
 
 
 static func shader_material(path: String, params := {}) -> ShaderMaterial:
@@ -1000,12 +1038,11 @@ static func build_road(root: Node3D, data: Dictionary, layout: Dictionary) -> vo
 		top.commit(mesh, road_mat)
 		sides.commit(mesh, side_mat)
 		loop_glow.commit(mesh, material(edge_key if platform else "neon_magenta"))
-		curbs.commit(mesh, shader_material("res://shaders/track_stripes.gdshader", {
-			"color_a": Color(0.95, 0.95, 0.95), "color_b": Color(0.85, 0.05, 0.08), "energy": 0.9, "stripe": 2.4}))
+		curbs.commit(mesh, stripe_material("curb"))
 		match ("neon" if platform else style):
 			"neon":
 				wall.commit(mesh, material("barrier_neon_body"))
-				neon.commit(mesh, material("neon_cyan"))
+				neon.commit(mesh, material("neon_cyan_seam"))
 			"guardrail":
 				wall.commit(mesh, material("metal"))
 			_:
@@ -1052,7 +1089,9 @@ static func _build_wall_run(path: TrackPath, ds: PackedFloat32Array, side: float
 		var s := PackedVector2Array()
 		match style:
 			"neon":
-				p = PackedVector2Array([Vector2(o, -0.4), Vector2(o, 1.05), Vector2(o + 0.5, 1.05), Vector2(o + 0.5, -0.4)])
+				# chamfered top (M7 look plan step 6): the flat-shaded bevels catch the light as two lines
+				p = PackedVector2Array([Vector2(o, -0.4), Vector2(o, 0.94), Vector2(o + 0.06, 1.0), Vector2(o + 0.12, 1.05),
+					Vector2(o + 0.44, 1.05), Vector2(o + 0.5, 1.0), Vector2(o + 0.5, -0.4)])
 				s = PackedVector2Array([Vector2(o - 0.02, 0.72), Vector2(o - 0.02, 0.86)])
 			"guardrail":
 				p = PackedVector2Array([Vector2(o + 0.1, 0.45), Vector2(o + 0.04, 0.55), Vector2(o + 0.04, 0.7), Vector2(o + 0.1, 0.8), Vector2(o + 0.2, 0.8), Vector2(o + 0.2, 0.45)])
@@ -1141,8 +1180,6 @@ static func _build_tunnel(root: Node3D, path: TrackPath, d0: float, d1: float, s
 	var frames: Array[Transform3D] = []
 	var inner: Array = []
 	var outer: Array = []
-	var lights_l: Array = []
-	var lights_r: Array = []
 	for d in ds:
 		frames.append(path.sample_transform(d))
 		var rw := path.width_at(d) * 0.5
@@ -1162,25 +1199,51 @@ static func _build_tunnel(root: Node3D, path: TrackPath, d0: float, d1: float, s
 		inner.append(ip)
 		var oh := hw + 1.6
 		outer.append(PackedVector2Array([Vector2(-oh, -0.5), Vector2(-oh, 9.4), Vector2(oh, 9.4), Vector2(oh, -0.5)]))
-		var lx := hw * 0.45
-		lights_r.append(PackedVector2Array([Vector2(lx - 0.25, 7.62), Vector2(lx + 0.25, 7.58)]))
-		lights_l.append(PackedVector2Array([Vector2(-lx - 0.25, 7.58), Vector2(-lx + 0.25, 7.62)]))
 	# Inner profile is ordered right->left over the top, so its loft normals point inward; flip for outer.
 	var shell := Acc.new()
 	var lit := Acc.new()
+	var housings := Acc.new()
 	loft(shell, frames, ds, inner)
 	var outer_acc := Acc.new()
 	loft(outer_acc, frames, ds, outer)
-	# light strips face down: reverse order gives downward normals
-	var lr2: Array = []
-	var ll2: Array = []
-	for i in lights_r.size():
-		var a: PackedVector2Array = lights_r[i]
-		var b: PackedVector2Array = lights_l[i]
-		lr2.append(PackedVector2Array([a[1] - Vector2(0, 0.05), a[0] - Vector2(0, 0.05)]))
-		ll2.append(PackedVector2Array([b[1] - Vector2(0, 0.05), b[0] - Vector2(0, 0.05)]))
-	loft(lit, frames, ds, lr2)
-	loft(lit, frames, ds, ll2)
+	# M7 look plan step 7: discrete light fixtures every 4 m on both sides (housing + lens) instead
+	# of two continuous glowing strips, and concrete ribs every 6 m that catch the light
+	var fixture_d: Array[float] = []
+	var fd := d0 + 2.0
+	while fd < d1 - 1.0:
+		fixture_d.append(fd)
+		fd += 4.0
+	for d in fixture_d:
+		var f := path.sample_transform(d)
+		var lx := (path.width_at(d) * 0.5 + 1.2) * 0.45
+		for sx: float in [-1.0, 1.0]:
+			housings.box(Transform3D(f.basis, f * Vector3(sx * lx, 7.66, 0)), Vector3(0.5, 0.12, 1.3))
+			lit.box(Transform3D(f.basis, f * Vector3(sx * lx, 7.59, 0)), Vector3(0.42, 0.02, 1.2))
+	var rd := d0 + 3.0
+	while rd < d1 - 3.0:
+		var rds := PackedFloat32Array([rd - 0.25, rd, rd + 0.25])
+		var rframes: Array[Transform3D] = []
+		var rprof: Array = []
+		for i in 3:
+			rframes.append(path.sample_transform(rds[i]))
+			var rw2 := path.width_at(rds[i]) * 0.5
+			var hw2 := rw2 + 1.2
+			var rp := PackedVector2Array()
+			rp.append(Vector2(hw2, 0.3))
+			rp.append(Vector2(hw2, 5.0))
+			for k in range(1, 8):
+				var a := PI * k / 8.0
+				rp.append(Vector2(hw2 * cos(a), 5.0 + 3.2 * sin(a)))
+			rp.append(Vector2(-hw2, 5.0))
+			rp.append(Vector2(-hw2, 0.3))
+			if i == 1:
+				# the middle ring stands 0.2 m proud of the bore
+				var c := Vector2(0.0, 4.0)
+				for k in rp.size():
+					rp[k] = rp[k] + (c - rp[k]).normalized() * 0.2
+			rprof.append(rp)
+		loft(shell, rframes, rds, rprof)
+		rd += 6.0
 	# portals: faces between the outer box and the inner arch at both ends
 	for end in [0, 1]:
 		var i := 0 if end == 0 else frames.size() - 1
@@ -1214,24 +1277,57 @@ static func _build_tunnel(root: Node3D, path: TrackPath, d0: float, d1: float, s
 	var mesh := ArrayMesh.new()
 	shell.commit(mesh, material("tunnel"))
 	outer_acc.commit(mesh, material("concrete") if style != "guardrail" else material("rock"))
-	lit.commit(mesh, material("neon_sodium"))
+	housings.commit(mesh, material("metal_dark"))
+	lit.commit(mesh, material("neon_white") if style != "guardrail" else material("neon_sodium"))
 	var mi := MeshInstance3D.new()
 	mi.name = "Tunnel"
 	mi.mesh = mesh
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 	root.add_child(mi)
-	# A few real lights inside the tunnel when the budget allows (Forward+ only).
+	# Real downlights under every other fixture, alternating sides (Forward+ from Medium): pools
+	# with darker gaps and fixture reflections on the damp road, instead of uniform orange.
+	if not Settings.is_compat() and Settings.quality >= 1:
+		var k := 0
+		var ld := d0 + 2.0
+		while ld < d1 - 1.0:
+			var f := path.sample_transform(ld)
+			var sx := -1.0 if k % 2 == 0 else 1.0
+			var lx := (path.width_at(ld) * 0.5 + 1.2) * 0.45
+			var sl := SpotLight3D.new()
+			sl.name = "TunnelLight%d" % k
+			sl.light_color = Color(1.0, 0.92, 0.82) if style != "guardrail" else Color(1.0, 0.65, 0.3)
+			sl.light_energy = float(TestHooks.arg("tunnel_energy", 8.0))
+			sl.light_specular = 1.0
+			sl.light_volumetric_fog_energy = 0.3
+			sl.spot_attenuation = 0.8
+			sl.spot_range = 14.0       # the road is ~7.8 m below the fixture
+			sl.spot_angle = 60.0
+			sl.spot_angle_attenuation = 1.2
+			sl.shadow_enabled = false
+			sl.distance_fade_enabled = true
+			sl.distance_fade_begin = 80.0
+			sl.distance_fade_length = 30.0
+			var pos := f * Vector3(sx * lx, 7.5, 0)
+			var aim := (f.basis * Vector3(-sx * 0.27, -1.0, 0.0)).normalized()   # down, ~15 deg inward
+			sl.transform = Transform3D(Basis.looking_at(aim, f.basis.z), pos)
+			root.add_child(sl)
+			k += 1
+			ld += 8.0
+	# High+: clear the volumetric haze inside, so the downlights make pools instead of soup
 	if not Settings.is_compat() and Settings.quality >= 2:
-		var count := mini(6, int((d1 - d0) / 30.0))
-		for k in count:
-			var d := lerpf(d0, d1, (k + 0.5) / count)
-			var ol := OmniLight3D.new()
-			ol.light_color = Color(1.0, 0.65, 0.3)
-			ol.light_energy = 2.0
-			ol.omni_range = 16.0
-			ol.light_volumetric_fog_energy = 0.3
-			ol.position = path.sample_transform(d) * Vector3(0, 6.5, 0)
-			root.add_child(ol)
+		var seg := d0
+		while seg < d1 - 1.0:
+			var len := minf(20.0, d1 - seg)
+			var f := path.sample_transform(seg + len * 0.5)
+			var fv := FogVolume.new()
+			fv.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
+			fv.size = Vector3((path.width_at(seg) * 0.5 + 2.8) * 2.0, 9.0, len)
+			var fm := FogMaterial.new()
+			fm.density = -0.004
+			fv.material = fm
+			fv.transform = Transform3D(f.basis, f * Vector3(0, 4.5, 0))
+			root.add_child(fv)
+			seg += 20.0
 
 
 # ----------------------------------------------------------------- supports
@@ -1781,8 +1877,7 @@ static func build_jump_dressing(root: Node3D, data: Dictionary, layout: Dictiona
 			var hw := path.width_at(d) * 0.5
 			bars.box(Transform3D(f.basis, f.origin + f.basis.y * -0.2), Vector3(hw * 2.0 + 0.1, 0.3, 0.25))
 	var mesh := ArrayMesh.new()
-	stripes.commit(mesh, shader_material("res://shaders/track_stripes.gdshader", {
-		"color_a": Color(1.0, 0.15, 0.75) if neon_style else Color(1.0, 0.75, 0.05)}))
+	stripes.commit(mesh, stripe_material("hazard_neon" if neon_style else "hazard"))
 	bars.commit(mesh, material("neon_magenta" if neon_style else "neon_amber"))
 	var mi := MeshInstance3D.new()
 	mi.name = "JumpDressing"

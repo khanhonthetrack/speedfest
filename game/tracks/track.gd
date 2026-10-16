@@ -601,7 +601,10 @@ func apply_weather(mode: String) -> void:
 	var style: String = layout.get("wall_style", "concrete")
 	var road_mat := TrackBuilder.road_material(String(layout.get("road_style", style)), layout.get("wet", false))
 	var damp := NIGHT_DAMP if theme != "coast" and not Settings.is_compat() and Settings.quality >= 1 else 0.0
-	road_mat.set_shader_parameter("wetness", maxf(Weather.road_wetness(weather), damp))
+	var wet := maxf(Weather.road_wetness(weather), damp)
+	road_mat.set_shader_parameter("wetness", wet)
+	for sm in TrackBuilder.stripe_materials():    # curbs and jump stripes get wet with the road
+		sm.set_shader_parameter("wetness", wet)
 
 
 # ---------------------------------------------------------------- API
