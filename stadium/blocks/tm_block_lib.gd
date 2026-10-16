@@ -9,7 +9,7 @@ var _families: Array = []          ## objects with handles(shape) -> bool and ma
 var _cache := {}                   ## shape name -> PackedScene-like template (Node3D), duplicated
 
 
-const FAMILIES := ["res://blocks/shapes/circuit.gd"]
+const FAMILIES := ["res://blocks/shapes/circuit.gd", "res://blocks/shapes/tube.gd"]
 
 
 func _init() -> void:
@@ -34,3 +34,11 @@ func make(shape: String, entry: Dictionary, ground: bool) -> Node3D:
 			break
 	_cache[shape] = made
 	return null if made == null else made.duplicate()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		for t: Variant in _cache.values():
+			if t != null:
+				(t as Node3D).free()
+		_cache.clear()

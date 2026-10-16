@@ -1,7 +1,8 @@
 class_name TmMaterials
 extends RefCounted
 ## Visual materials of the recreated blocks, by key (our own look in the TMNF Stadium style; flat
-## colours for now, procedural textures later). Unknown keys get a magenta debug material.
+## colours for now, procedural textures later): [albedo, roughness, metallic(, emission energy)].
+## Unknown keys get a magenta debug material.
 
 static var _cache := {}
 
@@ -25,6 +26,9 @@ const COLORS := {
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
 	"fabric": [Color(0.85, 0.86, 0.90), 0.8, 0.0],
+	"pipe": [Color(0.82, 0.84, 0.88), 0.35, 0.55],
+	"rubber_dark": [Color(0.10, 0.10, 0.11), 0.9, 0.0],
+	"lamp": [Color(1.0, 0.96, 0.85), 0.3, 0.0, 3.0],
 }
 
 
@@ -36,6 +40,10 @@ static func get_material(key: String) -> Material:
 	m.albedo_color = spec[0]
 	m.roughness = spec[1]
 	m.metallic = spec[2]
+	if spec.size() > 3:
+		m.emission_enabled = true
+		m.emission = spec[0]
+		m.emission_energy_multiplier = spec[3]
 	if (spec[0] as Color).a < 1.0:
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		m.cull_mode = BaseMaterial3D.CULL_DISABLED

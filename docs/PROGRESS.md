@@ -756,3 +756,32 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   TmBody, the research doc's load-transfer fix) come to main through branch `stadium`.
   Stadium tests 80/80.
 
+
+## 2026-10-16 — Session 9: Stadium block library (M8-5), branch `stadium`
+
+- Measuring (local only, nothing from the packs is committed): the TMF pack decryptor now handles
+  block infos and solids (re-key on typed inline nodes, parent-id exceptions, body-only scan with a
+  node-index check, root re-key after the reference table): 239/242 campaign block types parsed and
+  532 collision meshes measured as JSON in the scratchpad (`tools/research/tmnf/`: pak_generic,
+  pak_search, blockinfo_dump, extract_surf, export_blockinfo; describe/section/section_loop print
+  numbers from a measurement).
+- `stadium/blocks/data/block_catalogue.json`: layout data only (296 blocks: footprint units, clips,
+  spawn, waypoint, shape names per variant). `TmBlockCatalogue`: TMNF placement (dir rotates
+  (x, z) -> (-z, x), the rotated footprint's min corner at coord x (32, 8, 32), Godot = TMNF with x
+  negated), checked on the campaign: 96.8% of classic-block clips meet a clip. `TmMapBuilder` builds
+  a map from the library (placeholders where a shape isn't recreated); `race/map_view` shows it.
+- `TmGeo` (faces authored in TMNF coords, per-face surface ids for TmBody, wall sweeps with sheared
+  ends and per-point section heights), `TmMaterials` (flat-colour palette).
+- Families, checked by `tests/test_block_fidelity` (rays every 1 m vs the local measurements):
+  - **Circuit** (base, borders, curves, diagonals, slopes): every measured shape 97-100%. Measured
+    rules: ground variants lift only the wall below the 8 m ledge onto the terrain; curves (but the
+    1x1 outer corner) lower the top to 13.81 m in the middle (ramps 5-10 m from each end, 2-6 m on
+    the 1x1 inner corner); a curve's ledge fills only its footprint cells; diagonals are the
+    straight section sheared along each cell edge, mitred in the middle; slope Top/Bottom walls use
+    measured section tables (section_loop.py).
+  - **Tube** (pipe roads, junctions, up/down/cross, pillars 1/4/8, caps, branches): 100% on every
+    plain shape (hub collars mitred against the other arms reproduce TMNF's merged junctions);
+    the decorated light/sound-system tubes are approximations (70-93%).
+- `tests/test_blocks` (no install needed): builds every catalogued shape a family recreates (108 of
+  578) and checks mesh, collision/surface ids and footprint bounds; in `tools/test_all.sh`.
+  Stadium tests: lab 44, body 22, shapes 11, gbx 3, blocks 3. A01 builds 330 of 393 blocks.

@@ -10,10 +10,17 @@
 - The remake works on branch **`stadium`** (only `stadium/` and the research docs) and is merged into
   main per milestone; it never touches SpeedFest's game/. The shared core now includes `TmBody`
   (stadium/core/tm_body.gd: TMNF's sub-stepped integrator, contacts with face normals for shallow
-  pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3).
-- **Next (M8-5, M8-6):** the recreated Stadium block library on the 32 x 8 x 32 grid (measure block
-  dimensions/collision locally from the player's own Stadium pack as numbers only, write our own
-  parametric generators), then the stadium environment, car model, race flow, menus, sounds.
+  pairs). Stadium tests: `stadium/tools/test_all.sh` (lab 44, body 22, shapes 11, gbx 3, blocks 3).
+- **M8-5 in progress (block library):** families in `stadium/blocks/shapes/` (Circuit 97-100%,
+  Tube 100% vs measurements; see PROGRESS). Measurements live only in the scratchpad (re-create them
+  with `tools/research/tmnf/` from a TMNF install: decrypt_all.py -> extract_surf.py; README "Block
+  measurements"). Fidelity: `stadium/tools/run.sh res://tests/test_block_fidelity.tscn --headless --
+  --meas=<dir> --only=Tube/ [--dump=N]`; map check: `race/map_view.tscn -- --tmnf=<install>
+  --track=A01 [--view=near:<BlockId>]` prints MISSING shapes.
+- **Next families by campaign use:** Platform (WallBorder 4082 uses, roads, loops, slopes), Road/Main
+  (roads, slopes, GT curves, start/finish/checkpoints, turbo), Control (RoadGlass/Camera/Pub),
+  Zones/terrain (Dirt, DirtHill, DirtBorder, Pool, Water; plus a global terrain body), Inflatable,
+  Fabric, Sculpt. Then M8-6 (environment, car model, race flow, menus, sounds).
 
 ## Latest (~08:00 UTC 16 Oct, session 8 auto-continue on the Pi): m7-maps follow-up for tmnf-physics
 

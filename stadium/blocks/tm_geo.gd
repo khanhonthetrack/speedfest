@@ -87,27 +87,30 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 ## basis.x = lateral, basis.y = up, origin = profile origin). The front side is to the right of the
 ## profile's direction of travel when looking along +frame z... i.e. author profiles so that
 ## (p[k+1] - p[k]) turned by -90 deg (lateral, up) -> (up, -lateral) is the outward normal.
-func sweep(profile: Array, frames: Array, smooth := false) -> void:
+## profiles: optional per-frame profiles (same point count and materials) instead of one profile.
+func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = []) -> void:
 	for f in frames.size() - 1:
 		var f0: Transform3D = frames[f]
 		var f1: Transform3D = frames[f + 1]
+		var pr0: Array = profile if profiles.is_empty() else profiles[f]
+		var pr1: Array = profile if profiles.is_empty() else profiles[f + 1]
 		for k in profile.size() - 1:
-			var p0: Vector2 = profile[k][0]
-			var p1: Vector2 = profile[k + 1][0]
 			var mat: String = profile[k][1]
 			var surf: int = profile[k][2]
-			var a := f0.origin + f0.basis.x * p0.x + f0.basis.y * p0.y
-			var b := f0.origin + f0.basis.x * p1.x + f0.basis.y * p1.y
-			var c := f1.origin + f1.basis.x * p1.x + f1.basis.y * p1.y
-			var d := f1.origin + f1.basis.x * p0.x + f1.basis.y * p0.y
+			var a := f0.origin + f0.basis.x * (pr0[k][0] as Vector2).x + f0.basis.y * (pr0[k][0] as Vector2).y
+			var b := f0.origin + f0.basis.x * (pr0[k + 1][0] as Vector2).x + f0.basis.y * (pr0[k + 1][0] as Vector2).y
+			var c := f1.origin + f1.basis.x * (pr1[k + 1][0] as Vector2).x + f1.basis.y * (pr1[k + 1][0] as Vector2).y
+			var d := f1.origin + f1.basis.x * (pr1[k][0] as Vector2).x + f1.basis.y * (pr1[k][0] as Vector2).y
 			quad(a, b, c, d, mat, surf)
 
 
 ## Sweeps a closed vertical section along a path. section: Array of [Vector2(d, y), mat, surface]
 ## where d is the offset along `outward` (horizontal unit vector per path point) and y the height
 ## above the path point. Any loop orientation and path direction: both are fixed so faces point
-## out. caps: close both ends with the section polygon (cap_mat, cap_surface).
-func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_mat := "wall_dark", cap_surface := 4) -> void:
+## out. caps: close both ends with the section polygon (cap_mat, cap_surface). y_at: optional
+## func(y: float, i: int) -> float, the section's heights at path point i (e.g. a lowered top).
+func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_mat := "wall_dark", cap_surface := 4,
+		y_at := Callable()) -> void:
 	var loop := section.duplicate()
 	if TmGeo.loop_area(loop) < 0.0:
 		loop = TmGeo.reversed_loop(loop)
@@ -115,19 +118,28 @@ func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_m
 	var outs := outward.duplicate()
 	# frames: lateral L = outward, up U, travel F = L x U; the path must run along F
 	var f0 := (outs[0] as Vector3).cross(Vector3.UP)
-	if f0.dot((pts[1] as Vector3) - (pts[0] as Vector3)) < 0.0:
+	var reversed := f0.dot((pts[1] as Vector3) - (pts[0] as Vector3)) < 0.0
+	if reversed:
 		pts.reverse()
 		outs.reverse()
 	var frames := []
+	var loops := []
 	for i in pts.size():
 		var l: Vector3 = outs[i]
 		frames.append(Transform3D(Basis(l, Vector3.UP, l.cross(Vector3.UP)), pts[i]))
+		var li := loop
+		if y_at.is_valid():
+			var src := (pts.size() - 1 - i) if reversed else i
+			li = loop.map(func(q: Array) -> Array: return [Vector2((q[0] as Vector2).x, y_at.call((q[0] as Vector2).y, src)), q[1], q[2]])
+		var closed_i := li.duplicate()
+		closed_i.append(li[0])
+		loops.append(closed_i)
 	var closed := loop.duplicate()
 	closed.append(loop[0])
-	sweep(closed, frames)
+	sweep(closed, frames, false, loops if y_at.is_valid() else [])
 	if caps:
-		_section_cap(loop, frames[0], -1.0, cap_mat, cap_surface)
-		_section_cap(loop, frames[frames.size() - 1], 1.0, cap_mat, cap_surface)
+		_section_cap((loops[0] as Array).slice(0, loop.size()), frames[0], -1.0, cap_mat, cap_surface)
+		_section_cap((loops[loops.size() - 1] as Array).slice(0, loop.size()), frames[frames.size() - 1], 1.0, cap_mat, cap_surface)
 
 
 ## Polygon cap of a section at a frame, facing along +frame z (side > 0) or -z.

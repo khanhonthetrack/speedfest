@@ -34,6 +34,61 @@ const WALL := [
 	[-0.245, 0.0, "rubber", S_RUBBER],
 ]
 
+## Level walls across a slope (Top: at the top of the slope, facing down it; Bottom: at its foot):
+## the wall's section (z, y, material, surface) reshaped to sit on the ramp, the same at every x
+## (measured: tools/research/tmnf/section_loop.py).
+const SLOPE_TOP_WALL := [
+	[9.405, 6.495, "structure", S_ASPHALT], [9.027, 6.629, "structure", S_ASPHALT],
+	[8.681, 6.753, "wall", S_RUBBER], [9.039, 7.164, "wall", S_RUBBER], [9.112, 7.429, "wall", S_RUBBER],
+	[9.115, 7.780, "wall", S_RUBBER], [9.082, 7.893, "wall", S_RUBBER], [8.985, 7.892, "rubber_white", S_RUBBER],
+	[8.985, 8.034, "logo", S_METAL], [8.985, 11.351, "rubber_white", S_RUBBER], [8.985, 11.492, "wall", S_RUBBER],
+	[9.115, 11.627, "wall", S_RUBBER], [9.117, 19.417, "rubber_white", S_RUBBER],
+	[9.118, 19.798, "rubber_white", S_RUBBER], [9.048, 20.130, "rubber_white", S_RUBBER],
+	[8.883, 20.274, "rubber_white", S_RUBBER], [8.573, 20.250, "rubber_white", S_RUBBER],
+	[8.214, 20.107, "rubber_white", S_RUBBER], [7.944, 19.972, "wall", S_RUBBER],
+	[6.323, 19.162, "wall", S_RUBBER], [6.153, 19.020, "wall", S_RUBBER], [6.103, 18.820, "wall", S_RUBBER],
+	[6.102, 18.409, "wall", S_RUBBER], [6.101, 18.334, "wall", S_RUBBER], [6.145, 18.302, "rubber", S_RUBBER],
+	[6.386, 18.247, "stands", S_CONCRETE], [6.386, 15.850, "screen", S_METAL],
+	[6.386, 12.818, "stands", S_CONCRETE], [6.386, 12.612, "rubber", S_RUBBER],
+	[6.281, 12.232, "rubber", S_RUBBER], [5.421, 11.802, "rubber", S_RUBBER], [5.386, 11.683, "rubber", S_RUBBER],
+	[5.055, 11.340, "rubber", S_RUBBER], [4.924, 11.128, "rubber", S_RUBBER], [4.843, 10.885, "rubber", S_RUBBER],
+	[4.843, 10.624, "rubber", S_RUBBER], [4.908, 10.454, "rubber_white", S_RUBBER],
+	[0.000, 8.000, "wall_dark", S_METAL], [0.000, 0.243, "stands", S_CONCRETE],
+	[5.387, 2.937, "rubber", S_RUBBER], [5.575, 2.787, "wall", S_RUBBER], [9.228, 4.614, "wall", S_RUBBER],
+	[9.449, 4.828, "rubber", S_RUBBER], [9.568, 5.093, "rubber", S_RUBBER], [9.630, 5.353, "rubber", S_RUBBER],
+	[9.597, 5.611, "rubber", S_RUBBER], [9.405, 5.983, "structure", S_ASPHALT]
+]
+const SLOPE_BOTTOM_WALL := [
+	[22.595, 5.089, "structure", S_ASPHALT], [22.627, 5.132, "structure", S_ASPHALT],
+	[23.319, 6.072, "wall", S_RUBBER], [22.961, 6.126, "wall", S_RUBBER], [22.888, 6.318, "wall", S_RUBBER],
+	[22.885, 6.665, "wall", S_RUBBER], [22.918, 6.811, "wall", S_RUBBER],
+	[23.015, 6.908, "rubber_white", S_RUBBER], [23.015, 7.049, "logo", S_METAL],
+	[23.015, 10.366, "rubber_white", S_RUBBER], [23.015, 10.508, "wall", S_RUBBER],
+	[22.885, 10.512, "wall", S_RUBBER], [22.883, 18.299, "rubber_white", S_RUBBER],
+	[22.882, 18.681, "rubber_white", S_RUBBER], [22.952, 19.081, "rubber_white", S_RUBBER],
+	[23.117, 19.391, "rubber_white", S_RUBBER], [23.427, 19.677, "rubber_white", S_RUBBER],
+	[23.786, 19.893, "rubber_white", S_RUBBER], [24.056, 20.028, "wall", S_RUBBER],
+	[25.677, 20.838, "wall", S_RUBBER], [25.847, 20.867, "wall", S_RUBBER], [25.897, 20.717, "wall", S_RUBBER],
+	[25.898, 20.306, "wall", S_RUBBER], [25.898, 20.232, "wall", S_RUBBER], [25.855, 20.157, "rubber", S_RUBBER],
+	[25.614, 19.862, "stands", S_CONCRETE], [25.614, 17.464, "screen", S_METAL],
+	[25.614, 14.432, "stands", S_CONCRETE], [25.614, 14.226, "rubber", S_RUBBER],
+	[25.719, 13.951, "rubber", S_RUBBER], [26.579, 14.381, "rubber", S_RUBBER],
+	[26.614, 14.297, "rubber", S_RUBBER], [26.945, 14.286, "rubber", S_RUBBER],
+	[27.076, 14.203, "rubber", S_RUBBER], [27.157, 14.041, "rubber", S_RUBBER],
+	[27.157, 13.780, "rubber", S_RUBBER], [27.092, 13.546, "rubber_white", S_RUBBER],
+	[32.000, 16.000, "wall_dark", S_METAL], [32.000, 8.243, "stands", S_CONCRETE],
+	[26.613, 5.550, "rubber", S_RUBBER], [26.425, 5.213, "wall", S_RUBBER], [22.772, 3.386, "wall", S_RUBBER],
+	[22.551, 3.379, "rubber", S_RUBBER], [22.432, 3.525, "rubber", S_RUBBER], [22.370, 3.723, "rubber", S_RUBBER],
+	[22.404, 4.014, "rubber", S_RUBBER], [22.595, 4.578, "structure", S_ASPHALT]
+]
+
+## Curved borders (but the 1x1 outer corner) lower the wall's top (above the screen, 12.66 m) by
+## TOP_DROP in their middle (16 -> 13.81 m), ramping between these distances (m along the face)
+## from each end (measured).
+const TOP_DROP := 2.19
+const TOP_DIP_CORNER := [2.2, 6.0]
+const TOP_DIP_GT := [5.3, 10.4]
+
 ## Circuit slope road heights (z, y) of the base blocks: start eases 0 -> 0.5, end 0.5 -> 0.
 const SLOPE_START := [[0, 8.0], [1.92, 8.0], [3.98, 8.0], [6, 8.09], [8, 8.27], [10, 8.52], [12, 8.85], [14, 9.27],
 	[16, 9.74], [18, 10.27], [20, 10.86], [22, 11.52], [24, 12.24], [26, 13.05], [28, 13.94], [30, 14.93], [32, 16.0]]
@@ -47,8 +102,15 @@ func handles(shape: String) -> bool:
 		or shape.begins_with("Circuit/Slope/")
 
 
+var _cells: Array = []        ## the shape's footprint cells (bottom layer, Vector2i x, z units)
+
+
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var geo := TmGeo.new()
+	_cells = []
+	for u in TmBlockCatalogue.shape_units(shape):
+		if int(u[1]) == 0:
+			_cells.append(Vector2i(int(u[0]), int(u[2])))
 	var ground := shape.contains("Ground")
 	var dy := 1.0 if ground else 0.0
 	var parts := shape.split("/")
@@ -89,10 +151,12 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 		k = int(variant.substr(0, 1))
 	if kind == "Corner" or kind == "GTCurve":
 		var s := 32.0 * k
+		# curves wider than the 1x1 outer corner lower their top in the middle (see TOP_DIP)
+		var dip: Array = TOP_DIP_CORNER if kind == "Corner" else TOP_DIP_GT
 		if inner:
 			var r := s - (32.0 - FACE)
-			var a := TmGeo.arc(Vector2(0, 0), r, 0.0, PI * 0.5, dy, 8 * k)
-			geo.wall_sweep(section, a[0], a[1])
+			var a := _arc_dip(Vector2(0, 0), r, 0.0, PI * 0.5, 8 * k, dip)
+			geo.wall_sweep(section, a[0], a[1], true, "wall_dark", S_METAL, _dip_fn(a[2]))
 			# ledge: the footprint outside the stands' foot circle
 			var poly := PackedVector2Array()
 			for i in 8 * k + 1:
@@ -104,11 +168,11 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 			_ledge(geo, poly, dy)
 		else:
 			var r := s - FACE
-			var a := TmGeo.arc(Vector2(0, s), r, -PI * 0.5, 0.0, dy, 6 * k)
+			var a := _arc_dip(Vector2(0, s), r, -PI * 0.5, 0.0, 6 * k, [] if kind == "Corner" else dip)
 			var outs := []
 			for d in a[1]:
 				outs.append(-(d as Vector3))
-			geo.wall_sweep(section, a[0], outs)
+			geo.wall_sweep(section, a[0], outs, true, "wall_dark", S_METAL, _dip_fn(a[2]))
 			var poly := PackedVector2Array()
 			for i in 6 * k + 1:
 				var ang := -PI * 0.5 + PI * 0.5 * float(i) / (6 * k)
@@ -117,26 +181,77 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 			_ledge(geo, poly, dy)
 		return true
 	if kind == "Diag":
+		# 45 deg walls across the cell's corner: the straight wall's section sheared along each
+		# cell edge it meets (so the ends match the neighbouring straights), mitred at the middle
 		if inner:
-			var out := Vector3(1, 0, 1).normalized()
-			_line_wall(geo, section, Vector3(0, 0, FACE), Vector3(FACE, 0, 0), out, dy, false)
-			var e := FACE + LEDGE_D * sqrt(2.0)
+			_diag_wall(geo, section, Vector3(0, 0, FACE), Vector3(FACE, 0, 0), Vector3(0, 0, 1), Vector3(1, 0, 0))
+			var e := FACE + LEDGE_D
 			_ledge(geo, PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(32, 32), Vector2(0, 32), Vector2(0, e)]), dy)
 		else:
-			var out := Vector3(-1, 0, 1).normalized()
-			_line_wall(geo, section, Vector3(0, 0, FACE), Vector3(32 - FACE, 0, 32), out, dy, false)
-			var e := LEDGE_D * sqrt(2.0)
-			_ledge(geo, PackedVector2Array([Vector2(0, 32 - (32 - FACE) + e), Vector2(32 - FACE - e, 32), Vector2(0, 32)]), dy)
+			_diag_wall(geo, section, Vector3(0, 0, FACE), Vector3(32 - FACE, 0, 32), Vector3(0, 0, 1), Vector3(-1, 0, 0))
+			var e := LEDGE_D
+			_ledge(geo, PackedVector2Array([Vector2(0, FACE + e), Vector2(32 - FACE - e, 32), Vector2(0, 32)]), dy)
 		return true
 	return false
 
 
-## The wall section with the ledge (straights: the ledge is part of the section) or without.
-func _section(_dy: float) -> Array:
+## Arc points (TMNF x, z plane at y 0) about c from angle a0 to a1 in `steps` plus knots at the
+## dip's ramp ends; returns [points, radial dirs, top drop per point]. The drop ramps 0 -> TOP_DROP
+## between dip[0] and dip[1] metres (along the face) from each end.
+static func _arc_dip(c: Vector2, r: float, a0: float, a1: float, steps: int, dip: Array) -> Array:
+	var span := absf(a1 - a0)
+	var ts := []
+	for i in steps + 1:
+		ts.append(float(i) / steps)
+	for m in dip:
+		ts.append(float(m) / (r * span))
+		ts.append(1.0 - float(m) / (r * span))
+	ts.sort()
+	var pts := []
+	var rad := []
+	var drops := []
+	var last := -1.0
+	for t: float in ts:
+		if t - last < 1e-4:
+			continue
+		last = t
+		var ang := lerpf(a0, a1, t)
+		var d := Vector3(cos(ang), 0.0, sin(ang))
+		pts.append(Vector3(c.x, 0.0, c.y) + d * r)
+		rad.append(d)
+		var from_end := minf(t, 1.0 - t) * r * span
+		drops.append(0.0 if dip.is_empty() else TOP_DROP * clampf((from_end - float(dip[0])) / (float(dip[1]) - float(dip[0])), 0.0, 1.0))
+	return [pts, rad, drops]
+
+
+## The section's heights at a curve point: the top (above the screen) lowered by its drop.
+static func _dip_fn(drops: Array) -> Callable:
+	return func(y: float, i: int) -> float: return y - float(drops[i]) if y > 14.5 else y
+
+
+## A diagonal wall a -> b: at a its section runs along l_a (the outward of the straight wall that
+## continues it there), at b along l_b; the two sheared halves meet on the mitre at the middle.
+func _diag_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, l_a: Vector3, l_b: Vector3) -> void:
+	geo.wall_sweep(section, [a, (a + b) * 0.5, b], [l_a, (l_a + l_b) * 0.5, l_b])
+
+
+## The wall section (d, y) with the ground variants' heights (see _lift).
+func _section(dy: float) -> Array:
 	var out := []
 	for p in WALL:
-		out.append([Vector2(float(p[0]), float(p[1])), String(p[2]), int(p[3])])
+		out.append([Vector2(float(p[0]), _lift(float(p[1]), dy)), String(p[2]), int(p[3])])
 	return out
+
+
+## Ground variants stand on the terrain (dy = 1 m): the wall's lower part (below the 8 m ledge)
+## rises by dy and its foot and floors sit on the terrain; the ledge top and the upper wall keep
+## their heights (measured).
+static func _lift(y: float, dy: float) -> float:
+	if dy == 0.0 or y >= 7.5:
+		return y
+	if y <= FLOOR_Y + 0.01:
+		return dy
+	return y + dy
 
 
 ## A straight wall from a to b (TMNF x, z; y = base), outward horizontal; full = with the ledge
@@ -154,25 +269,61 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - 8.33) < 0.01)[0])
 		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "wall_dark", S_METAL])
 		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
-		sec.insert(at + 3, [Vector2(e, FLOOR_Y), "stands", S_CONCRETE])
-		sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "structure", S_METAL])
-	var lifted := []
-	for p in sec:
-		lifted.append([(p[0] as Vector2) + Vector2(0, dy), p[1], p[2]])
-	geo.wall_sweep(lifted, [a, b], [outward, outward])
+		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "stands", S_CONCRETE])
+		sec.insert(at + 4, [Vector2(3.595, _lift(FLOOR_Y, dy)), "structure", S_METAL])
+	geo.wall_sweep(sec, [a, b], [outward, outward])
 
 
-## Ledge behind a curved wall: a solid prism over the polygon (TMNF x, z), floor 0.24 m, top 8 m.
+## Ledge behind a curved wall: a solid prism over the polygon (TMNF x, z), floor 0.24 m (ground:
+## the terrain), top 8 m; clipped to the block's footprint cells (big curves leave out the cells
+## near their centre or far corner).
 func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
-	geo.flat_polygon(poly, LEDGE_Y + dy, "wall_dark", S_METAL)
-	geo.flat_polygon(poly, FLOOR_Y + dy, "structure", S_METAL, true)
+	if _cells.is_empty():
+		_prism(geo, poly, dy)
+		return
+	var pieces := []
+	for c: Vector2i in _cells:
+		var o := Vector2(c) * 32.0
+		var sq := PackedVector2Array([o, o + Vector2(32, 0), o + Vector2(32, 32), o + Vector2(0, 32)])
+		for p: PackedVector2Array in Geometry2D.intersect_polygons(poly, sq):
+			if absf(_area(p)) > 0.01:
+				pieces.append(p)
+	# merge the per-cell pieces into whole polygons
+	var merged := []
+	for p: PackedVector2Array in pieces:
+		var cur := p
+		var rest := []
+		for q: PackedVector2Array in merged:
+			var m := Geometry2D.merge_polygons(cur, q)
+			if m.size() == 1:
+				cur = m[0]
+			else:
+				rest.append(q)
+		rest.append(cur)
+		merged = rest
+	for p: PackedVector2Array in merged:
+		_prism(geo, p, dy)
+
+
+static func _area(p: PackedVector2Array) -> float:
+	var a := 0.0
+	for i in p.size():
+		a += p[i].cross(p[(i + 1) % p.size()])
+	return a * 0.5
+
+
+func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
+	var lo := _lift(FLOOR_Y, dy)
+	var hi := LEDGE_Y
+	geo.flat_polygon(poly, hi, "wall_dark", S_METAL)
+	geo.flat_polygon(poly, lo, "structure", S_METAL, true)
 	for i in poly.size():
 		var p: Vector2 = poly[i]
 		var q: Vector2 = poly[(i + 1) % poly.size()]
-		var a := Vector3(p.x, FLOOR_Y + dy, p.y)
-		var b := Vector3(q.x, FLOOR_Y + dy, q.y)
-		var c := Vector3(q.x, LEDGE_Y + dy, q.y)
-		var d := Vector3(p.x, LEDGE_Y + dy, p.y)
+		var a := Vector3(p.x, lo, p.y)
+		var b := Vector3(q.x, lo, q.y)
+		var c := Vector3(q.x, hi, q.y)
+		var d := Vector3(p.x, hi, p.y)
 		# outward: away from the polygon's centroid
 		var mid := (a + b) * 0.5
 		var cen := Vector3.ZERO
@@ -194,30 +345,30 @@ func _slope(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 	if variant.begins_with("Base"):
 		_ramp(geo, prof, dy)
 		return true
-	var section := _section(dy)
+	var section := _section(0.0)
 	if variant.ends_with("Left") or variant.ends_with("Right"):
 		var x := 32.0 - FACE if variant.ends_with("Left") else FACE
 		var out := Vector3(-1, 0, 0) if variant.ends_with("Left") else Vector3(1, 0, 0)
 		var path := []
 		var outs := []
 		for p in prof:
-			path.append(Vector3(x, float(p[1]) - 8.0 + dy, float(p[0])))
+			path.append(Vector3(x, float(p[1]) - 8.0, float(p[0])))
 			outs.append(out)
 		_full_wall(geo, section, path, outs, dy)
 		return true
 	if variant.ends_with("Top") or variant.ends_with("Bottom"):
-		# level walls across the slope (measured base heights)
-		var top := variant.ends_with("Top")
-		var z := 32.0 - FACE if top else FACE
-		var base := 4.63 if top else 3.65
-		_line_wall(geo, section, Vector3(0, base, z), Vector3(32, base, z),
-			Vector3(0, 0, -1) if top else Vector3(0, 0, 1), dy, true)
+		if kind != "Straight":
+			return false
+		var table: Array = SLOPE_TOP_WALL if variant.ends_with("Top") else SLOPE_BOTTOM_WALL
+		var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1] + dy), q[2], q[3]])
+		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(32, 0, 0)], [Vector3(0, 0, 1), Vector3(0, 0, 1)])
 		return true
 	return false
 
 
-## A wall with its ledge swept along a (sloped) path.
-func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, _dy: float) -> void:
+## A wall with its ledge swept along a (sloped) path. Ground variants keep the air heights, with
+## the foot raised onto the terrain (dy) where the path runs below it.
+func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float) -> void:
 	var sec := []
 	for p in section:
 		if (p[0] as Vector2).x >= LEDGE_D - 0.01 and (p[0] as Vector2).y < LEDGE_Y + 0.01:
@@ -232,7 +383,10 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, _dy: float
 	sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
 	sec.insert(at + 3, [Vector2(e, FLOOR_Y), "stands", S_CONCRETE])
 	sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "structure", S_METAL])
-	geo.wall_sweep(sec, path, outs)
+	var y_at := Callable()
+	if dy > 0.0:
+		y_at = func(y: float, i: int) -> float: return maxf(y, dy - (path[i] as Vector3).y)
+	geo.wall_sweep(sec, path, outs, true, "wall_dark", S_METAL, y_at)
 
 
 ## The circuit ramp: road surface y(z) on x 0..32, solid down to the block floor.

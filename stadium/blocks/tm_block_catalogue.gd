@@ -41,10 +41,14 @@ static func variant(entry: Dictionary, ground: bool) -> Dictionary:
 	return entry.get("ground" if ground else "air", {})
 
 
-## Footprint in units (x, y, z) of the ground or air variant.
+## Footprint in units (x, y, z) of the ground or air variant (a ground variant without units of
+## its own has the air one's).
 static func footprint(entry: Dictionary, ground: bool) -> Vector3i:
 	var size := Vector3i.ONE
-	for u in variant(entry, ground).get("units", []):
+	var units: Array = variant(entry, ground).get("units", [])
+	if units.is_empty():
+		units = variant(entry, false).get("units", [])
+	for u in units:
 		size.x = maxi(size.x, int(u[0]) + 1)
 		size.y = maxi(size.y, int(u[1]) + 1)
 		size.z = maxi(size.z, int(u[2]) + 1)
@@ -61,6 +65,26 @@ static func shape_name(entry: Dictionary, ground: bool, index: int, alt: int) ->
 	if g.is_empty():
 		return ""
 	return String(g[clampi(alt, 0, g.size() - 1)])
+
+
+static var _shape_units := {}
+
+
+## The unit footprint ([[ox, oy, oz, clips]...]) of the first block variant using a shape name
+## (a ground variant without units of its own uses the air one's); [] if no block uses it.
+static func shape_units(shape: String) -> Array:
+	if _shape_units.is_empty():
+		for id: String in data():
+			var entry: Dictionary = data()[id]
+			for ground in [false, true]:
+				var units: Array = variant(entry, ground).get("units", [])
+				if units.is_empty():
+					units = variant(entry, false).get("units", [])
+				for group: Array in variant(entry, ground).get("mobils", []):
+					for sh: String in group:
+						if not sh.is_empty() and not _shape_units.has(sh):
+							_shape_units[sh] = units
+	return _shape_units.get(shape, [])
 
 
 ## TMNF position (block-local or world) -> Godot.

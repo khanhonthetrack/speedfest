@@ -111,9 +111,11 @@ func _physics_process(_delta: float) -> void:
 				var e := _err(h1, h2, o1, o2)
 				if e <= tol:
 					ok += 1
-				elif e > worst:
-					worst = e
-					worst_at = p
+				else:
+					_dump(shape, "v", p, h1 - o1, h2 - o2)
+					if e > worst:
+						worst = e
+						worst_at = p
 				z += step
 			x += step
 		# horizontal rays along x and z at a few heights through the footprint
@@ -127,9 +129,11 @@ func _physics_process(_delta: float) -> void:
 					var e := _err(h1, h2, o1, o2)
 					if e <= tol:
 						ok += 1
-					elif e > worst:
-						worst = e
-						worst_at = ray[0]
+					else:
+						_dump(shape, "h", ray[0], h1 - o1, h2 - o2)
+						if e > worst:
+							worst = e
+							worst_at = ray[0]
 				t += step * 2.0
 		if TestHooks.has_arg("probe"):
 			var pv := String(TestHooks.arg("probe", "")).split(",")
@@ -141,6 +145,18 @@ func _physics_process(_delta: float) -> void:
 		print("FIDELITY %-46s %5.1f%% of %d samples within %.2f m (worst %.2f m near %s)" % [shape, share * 100.0, n, tol, worst, worst_at])
 		TestHooks.check(share >= min_ok, "fidelity_%s" % shape, "%.1f%%" % (share * 100.0))
 	TestHooks.finish()
+
+
+## --dump=N: print the first N disagreeing samples per shape (TMNF x of the start, hits).
+var _dumped := {}
+
+
+func _dump(shape: String, kind: String, at: Vector3, ours: Vector3, meas: Vector3) -> void:
+	var n := int(TestHooks.arg("dump", 0))
+	if int(_dumped.get(shape, 0)) >= n:
+		return
+	_dumped[shape] = int(_dumped.get(shape, 0)) + 1
+	print("  DIFF %s %s from (%.1f, %.1f, %.1f): ours %s measured %s" % [shape, kind, -at.x, at.y, at.z, ours, meas])
 
 
 func _hit(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3) -> Vector3:
