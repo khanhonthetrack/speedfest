@@ -766,3 +766,42 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Next: respawns on the 4 tracks, the other physics suites' targets, garage stats, check_all,
   online round, web export, then merge into main.
 
+## 2026-10-16 ~04:10-08:00 UTC — Session 8 (Pi, auto-continue): M7-6 maps finished on `m7-maps`
+
+- Batches 5-6: Skyline Hop (rooftop hops + rail), Drop Zone (stunt drops), Rally Stage
+  (dirt/gravel), Spiral (banked climb), Neon Rush (speedfun), Zig Zag (tech, side pads),
+  Coastline (fullspeed), Grand Finale (mixed). 24 new maps, 34 tracks. AutoDriver (m7 handling)
+  6 cars × 24 maps, 0 respawns, 13-25 s. Fixes found on the way: rails need the car to arrive
+  within 0.35 m of ride height, so a rail after a gap starts just below the ledge (Skyline);
+  loops entered at 300+ km/h stall at the top (Grand Finale: no boost before its loop).
+- Private-room track chips scroll (two rows visible) so the room view fits 34 tracks.
+- Weather puddles for all new maps (bd65cbc): test_weather 193/193, test_tracks 649/649.
+- These were merged by session 9 into `tmnf-physics` (except bd65cbc, see HANDOFF).
+
+## 2026-10-16 — Session 9: TMNF port in SpeedFest, physics suites retargeted; then PAUSED (M8-3)
+
+- **Phantom walls (TmBody, shared core):** Jolt's `collide_shape` returns world points in float32
+  (~0.1 mm steps at 1 km from the origin), so a 0.01 mm contact pair's point difference reads as
+  straight up or down: on a 60 deg bank that is a "wall" (500 ms wall slow-down, and the backface
+  re-measure turned it into a 6 cm push). Pairs under 2 mm now take the face normal (short ray) or
+  join a nearby contact. Wide wall ride: 0 air ticks, no speed loss (was falling off).
+- **Test roads** (`PhysicsTestGround.road_from_path`): 8 deck cells across like the tracks (one quad
+  across a twisting road is two planar triangles with a slope step at the diagonal: hops at speed).
+  `PhysicsTestPath` now honours loop axes (its locked right vector twisted the test loop ~12 deg).
+- **AutoDriver, TMNF:** Stanley gets the path's in-plane curvature as feed-forward (a curve needed a
+  standing ~6 m line error); the steering tracks a wanted yaw rate with an integral term (on an
+  oblique loop crossing the wheel impulses yaw the car at ~4 rad/s^2: real rigid-contact geometry,
+  as in TMNF); with no side grip it holds the heading along the path instead of letting go; over a
+  speed cap it lifts (any throttle switches TMNF's drag off, so a feather crept up).
+- Graded `loose_grip` (part-rally tyres blend the loose surfaces toward the dirt road's values):
+  Goliath keeps 0.67 of its speed on sand, between road cars (~0.29) and the Kitsune (0.81).
+- Tests retargeted to TMNF: wall ride at 60 deg (on_wall = roll - 5), slow loop entry 200 km/h (an
+  18 m loop needs ~187 km/h under 3 g), stunt cars spawn on the path (angled lead), wall bounce up
+  to 15 deg (TMNF keeps half the speed into a wall), roof slide = slowest speed (the self-righting
+  roll moves the car later); `test_tm` added to `run_all.sh`.
+- **Results:** AutoDriver 34/34 tracks, 1 respawn (blackout). straight/tuning/input/loose/stunts/
+  handling/circuit/wallride pass for all 6 cars. test_tm per-car failures listed in HANDOFF.
+  Stadium tests (lab 44, body 22, shapes 11, gbx 3) still pass with the new TmBody.
+- **Owner: "Focus on the TMNF port first. After that, port car physics to speedfest after my
+  approval."** The SpeedFest port is paused on `tmnf-physics` (not merged); work moves to the
+  Stadium remake on branch `stadium`.

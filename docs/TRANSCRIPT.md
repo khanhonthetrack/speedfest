@@ -475,3 +475,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - "Yes" = port TMNF's model into SpeedFest's `car.gd`. The remake goes in a separate folder.
   Asked the owner about assets (TMNF's own files vs. recreations, given the public repo and web
   hosting), content, the SpeedFest default and the engine build before starting.
+
+### User (verbatim, 16 Oct, session 9)
+
+> Focus on the TMNF port first. After that, port car physics to speedfest after my approval.
+
+### Claude
+
+- Read as: the Stadium remake (`stadium/`, the TMNF copy) comes first; SpeedFest's TMNF handling
+  stays on branch `tmnf-physics` and is not merged into main until the owner approves it. Recorded
+  the branch's state (AutoDriver 34/34, open test_tm items) and moved to the remake (block library,
+  environment, race flow) on branch `stadium`.
