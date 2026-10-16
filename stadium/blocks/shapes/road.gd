@@ -251,6 +251,21 @@ func _profile_slope(geo: TmGeo, heights: Array, ground: bool) -> void:
 	_sweep(geo, path, lat, ground, y_at)
 
 
+## The road (asphalt and curbs) swept along z through measured surface heights (evenly spaced over
+## the block), its underside cut off at floor_y where it rises off a platform deck; mat: the
+## surface's material (the platform's own where the ramp is part of a platform block).
+func ramp(geo: TmGeo, heights: Array, floor_y: float, mat := "asphalt") -> void:
+	_road_mat = mat
+	var path := []
+	var lat := []
+	for i in heights.size():
+		path.append(Vector3(16, float(heights[i]) - TOP, 32.0 * i / (heights.size() - 1)))
+		lat.append(Vector3(1, 0, 0))
+	var y_at := func(y: float, i: int) -> float: return maxf(y, floor_y - (path[i] as Vector3).y)
+	_sweep(geo, path, lat, false, y_at)
+	_road_mat = "asphalt"
+
+
 func _straight(geo: TmGeo, z0: float, z1: float, ground: bool) -> void:
 	_sweep(geo, [Vector3(16, 0, z0), Vector3(16, 0, z1)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], ground)
 

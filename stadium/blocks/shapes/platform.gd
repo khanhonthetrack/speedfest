@@ -9,6 +9,8 @@ extends RefCounted
 ## the sides it continues through, as for the tubes: the dead end opens to +z, the corner to +z and
 ## -x, the straight to +z and -z, the T adds -x.
 
+const RoadShapes := preload("res://blocks/shapes/road.gd")
+
 const S_DECK := 16              # StadiumPlatform (TmTuning.Surface.ASPHALT)
 const S_METAL := 4
 const S_TURBO := 7
@@ -73,6 +75,26 @@ const CHECKPOINT_ARCH := [
 ]
 
 
+## Platform to Road/Main ramp: the road's surface heights every 2 m from the deck (z 0) up to the
+## road block's level (z 32).
+const TO_ROAD_MAIN := [8.0, 8.008, 8.017, 8.071, 8.125, 8.248, 8.372, 8.522, 8.672, 8.85, 9.028, 9.137,
+	9.247, 9.289, 9.331, 9.338, 9.345]
+
+## Vertical checkpoint ring about (16, 16) in the x-y plane: the ring's section (z, radius) with
+## rounded sign faces front and back; four 76-degree arcs between the diagonals.
+const RING_SECTION := [
+	[18.2, 13.954, "rubber_white", S_METAL], [14.011, 13.954, "rubber_white", S_METAL],
+	[13.976, 13.852, "logo", S_METAL], [13.59, 13.555, "logo", S_METAL], [13.48, 13.258, "logo", S_METAL],
+	[13.59, 12.961, "logo", S_METAL], [13.976, 12.664, "rubber_white", S_METAL],
+	[14.011, 12.563, "rubber_white", S_METAL], [18.2, 12.563, "rubber_white", S_METAL],
+	[18.235, 12.664, "logo", S_METAL], [18.621, 12.961, "logo", S_METAL], [18.731, 13.258, "logo", S_METAL],
+	[18.621, 13.555, "logo", S_METAL], [18.235, 13.852, "rubber_white", S_METAL],
+]
+const RING_ARC := 38.0          ## each arc spans +-38 degrees about an axis direction
+## The billboard bands leaning out of the ring's front face over each diagonal (17-73 degrees).
+const RING_PANEL := [[13.35, 16.39, "screen", S_METAL], [14.52, 14.365, "screen", S_METAL],
+	[14.52, 14.125, "screen", S_METAL], [13.35, 16.15, "screen", S_METAL]]
+
 ## Loops: the riding surface's radius, and the plan's depth outside it (the fins).
 const LOOP_R := 30.705
 const LOOP_OUT := 32.05
@@ -81,6 +103,7 @@ const LOOP_OUT := 32.05
 func handles(shape: String) -> bool:
 	return shape.begins_with("Platform/Road/") or shape.begins_with("Platform/Wall/") \
 		or shape == "Platform/Turbo/Air" or shape == "Platform/Checkpoint/Air" \
+		or shape == "Platform/Checkpoint/RingVAir" or shape == "Platform/ToRoad/ToRoadMainAir" \
 		or shape in ["Platform/Loop/StartAir", "Platform/Loop/StartGround", "Platform/Loop/EndAir"]
 
 
@@ -104,8 +127,17 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Turbo":
 			_turbo(geo)
 		"Checkpoint":
+			if parts[2] == "RingVAir":
+				_ring_v(geo)
+			else:
+				_deck(geo, _closed([0, 2]))
+				_checkpoint_arch(geo)
+		"ToRoad":
+			if parts[2] != "ToRoadMainAir":
+				return null
+			# the deck, and the road rising off it to the Road/Main block above (one level up)
 			_deck(geo, _closed([0, 2]))
-			_checkpoint_arch(geo)
+			RoadShapes.new().ramp(geo, TO_ROAD_MAIN, TOP, "platform")
 		"Wall":
 			match parts[2]:
 				"BorderAir":
@@ -217,6 +249,43 @@ func _loop(geo: TmGeo, c: Vector2, a0: float, a1: float) -> void:
 				geo.quad(a, d, cc, b, q0[2], q0[3])
 			else:
 				geo.quad(a, b, cc, d, q0[2], q0[3])
+
+
+## A (z, radius) section revolved about the ring's axis (16, 16, z) from angle a0 to a1 (degrees,
+## from +x toward +y); caps close both ends.
+func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, caps := true) -> void:
+	var loop := []
+	for q in section:
+		loop.append([Vector2(float(q[0]), float(q[1])), String(q[2]), int(q[3])])
+	if TmGeo.loop_area(loop) < 0.0:
+		loop = TmGeo.reversed_loop(loop)
+	var frames := []
+	for k in steps + 1:
+		var a := deg_to_rad(lerpf(a0, a1, float(k) / steps))
+		var up := Vector3(cos(a), sin(a), 0)
+		var fwd := Vector3(-sin(a), cos(a), 0)
+		frames.append(Transform3D(Basis(Vector3(0, 0, 1), up, fwd), Vector3(16, 16, 0)))
+	geo.sweep(loop + [loop[0]], frames)
+	if caps:
+		var mat: String = loop[0][1]
+		geo._section_cap(loop, frames[0], -1.0, mat, loop[0][2])
+		geo._section_cap(loop, frames[steps], 1.0, mat, loop[0][2])
+
+
+## The vertical checkpoint ring (no deck: cars pass through it, usually in the air): four arcs, the
+## brackets holding it to the cells above and below, a light either side of each diagonal gap, and
+## billboard bands on the front face.
+func _ring_v(geo: TmGeo) -> void:
+	for k in 4:
+		var c := 90.0 * k
+		_revolve_z(geo, RING_SECTION, c - RING_ARC, c + RING_ARC, 16)
+		_revolve_z(geo, RING_PANEL, c + 17.0, c + 73.0, 12)
+		for a in [c + 40.0, c + 50.0]:
+			_revolve_z(geo, [[13.6, 12.6, "lamp", TmGeo.NO_COLLISION], [15.0, 12.6, "lamp", TmGeo.NO_COLLISION],
+				[15.0, 13.6, "lamp", TmGeo.NO_COLLISION], [13.6, 13.6, "lamp", TmGeo.NO_COLLISION]], a - 1.0, a + 1.0, 1)
+	for y in [0.0, 29.83]:
+		geo.box(Vector3(14.7, y, 14.41), Vector3(17.3, y + 2.17, 17.59), "structure", S_METAL)
+		geo.box(Vector3(15.5, y + 0.16, 12.96), Vector3(16.5, y + 2.0, 19.04), "structure", S_METAL)
 
 
 ## The checkpoint arch over the deck (measured section, 13.4 -> 18.6 m along z).
