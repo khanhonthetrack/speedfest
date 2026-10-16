@@ -4,7 +4,7 @@ extends Node3D
 ## the wall ride and loop where it holds the line), each printing a TM line with the measurement and
 ## asserting the target from docs/research/m7_physics.md "Target spec".
 ##   tools/run_scene.sh res://tests/physics/test_tm.tscn --headless -- [--car=kaze] [--only=accel,turn,...]
-## Groups: accel, response, turn, spin, drift, wall, wallride, loop, landing, air.
+## Groups: accel, response, turn, spin, drift, wall, wallride, loop, landing, air, fx (special pads).
 
 var _cars: Array = []
 var _only: Array = []
@@ -37,6 +37,8 @@ func _ready() -> void:
 			await _landing(id)
 		if _want("air"):
 			await _air(id)
+		if _want("fx"):
+			await _effects(id)
 	TestHooks.finish()
 
 
@@ -431,4 +433,58 @@ func _air(id: String) -> void:
 	var g := -(car.linear_velocity.y - vy0) / 0.5
 	print("TM air %s effective_gravity=%.1f m/s^2 (%.2f g)" % [id, g, g / 9.8])
 	TestHooks.check(g >= 12.0 and g <= 18.0, "tm_air_gravity_%s" % id, "%.1f" % g)
+	await _done(car)
+
+
+## Special pads (M7, TM2020 blocks): engine off, no steering, cruise control, reactor, reset.
+func _effects(id: String) -> void:
+	# engine off: full throttle doesn't accelerate; a reset pad gives the engine back
+	var car := await _spawn(id, 100.0, Vector3(-800, 0, -600))
+	car.apply_effect("engine_off")
+	var v0 := car.get_speed_kmh()
+	for i in 60:
+		_ctl(car, 1.0, 0.0, 0.0)
+		await get_tree().physics_frame
+	var v_off := car.get_speed_kmh()
+	car.apply_effect("reset")
+	for i in 60:
+		_ctl(car, 1.0, 0.0, 0.0)
+		await get_tree().physics_frame
+	var v_on := car.get_speed_kmh()
+	print("TM fx engine_off %s %.0f -> %.0f km/h, after reset %.0f" % [id, v0, v_off, v_on])
+	TestHooks.check(v_off < v0, "tm_fx_engine_off_%s" % id, "%.0f -> %.0f" % [v0, v_off])
+	TestHooks.check(v_on > v_off + 10.0, "tm_fx_reset_%s" % id, "%.0f vs %.0f" % [v_on, v_off])
+	await _done(car)
+	# no steering: full lock does nothing while it lasts
+	car = await _spawn(id, 150.0, Vector3(-700, 0, -600))
+	car.apply_effect("no_steer", 1.0)
+	var h0 := _heading(car)
+	for i in 50:
+		_ctl(car, 1.0, 0.0, 1.0)
+		await get_tree().physics_frame
+	var turned := rad_to_deg(absf(angle_difference(h0, _heading(car))))
+	print("TM fx no_steer %s turned %.1f deg" % [id, turned])
+	TestHooks.check(turned < 2.0, "tm_fx_no_steer_%s" % id, "%.1f deg" % turned)
+	await _done(car)
+	# cruise: holds the speed even with the brake held
+	car = await _spawn(id, 150.0, Vector3(-600, 0, -600))
+	car.apply_effect("cruise", 3.0)
+	for i in 150:
+		_ctl(car, 0.0, 1.0, 0.0)
+		await get_tree().physics_frame
+	var v_cr := car.get_speed_kmh()
+	print("TM fx cruise %s held %.0f km/h" % [id, v_cr])
+	TestHooks.check(absf(v_cr - 150.0) < 6.0, "tm_fx_cruise_%s" % id, "%.0f" % v_cr)
+	await _done(car)
+	# reactor: in the air it mostly cancels gravity and pushes forward
+	car = await _spawn(id, 120.0, Vector3(-500, 40, -600))
+	car.apply_effect("reactor", 2.0)
+	await get_tree().physics_frame
+	var vy0 := car.linear_velocity.y
+	for i in 30:
+		_ctl(car, 0.0, 0.0, 0.0)
+		await get_tree().physics_frame
+	var g := -(car.linear_velocity.y - vy0) / 0.5
+	print("TM fx reactor %s effective_gravity=%.1f m/s^2" % [id, g])
+	TestHooks.check(g < 5.0, "tm_fx_reactor_%s" % id, "%.1f" % g)
 	await _done(car)

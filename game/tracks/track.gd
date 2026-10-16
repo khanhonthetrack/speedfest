@@ -112,6 +112,7 @@ func _build_geometry() -> void:
 	TrackBuilder.build_loop_gantries(self, data, layout)
 	_build_gates()
 	_build_boost_pads()
+	_build_effect_pads()
 	_build_puddles()
 	_build_ground_patches()
 	apply_weather("dry")
@@ -419,6 +420,68 @@ func _build_boost_pads() -> void:
 func _on_boost_body(body: Node3D, fwd: Vector3, accel: float, dur: float) -> void:
 	if body is Car:
 		(body as Car).apply_boost(fwd, accel, dur)
+
+
+## Special pads (M7): the same chevron pad as a boost, colored per effect.
+const EFFECT_COLORS := {
+	"engine_off": [Color(0.9, 0.05, 0.05), Color(0.3, 0.0, 0.0)],
+	"no_steer": [Color(0.75, 0.1, 1.0), Color(0.25, 0.0, 0.4)],
+	"cruise": [Color(0.1, 1.0, 0.35), Color(0.0, 0.35, 0.1)],
+	"reactor": [Color(0.85, 1.0, 0.05), Color(0.45, 0.6, 0.0)],
+	"reset": [Color(0.95, 0.95, 1.0), Color(0.3, 0.3, 0.35)],
+}
+
+
+func _build_effect_pads() -> void:
+	if data.get("effects", []).is_empty():
+		return
+	var root := Node3D.new()
+	root.name = "EffectPads"
+	add_child(root)
+	for e in data["effects"]:
+		var kind := String(e["kind"])
+		var cols: Array = EFFECT_COLORS.get(kind, EFFECT_COLORS["reset"])
+		var mat := TrackBuilder.shader_material("res://shaders/track_boost.gdshader", {
+			"color_a": cols[0], "color_b": cols[1], "speed": 6.0})
+		var d0: float = e["d"]
+		var len: float = e["len"]
+		var pw := float(e["pw"]) if float(e["pw"]) > 0.0 else path.width_at(d0) - 2.0
+		var px := float(e["x"])
+		var acc := TrackBuilder.Acc.new()
+		var ds := TrackBuilder.ring_ds(d0, d0 + len, 1.0)
+		var frames: Array[Transform3D] = []
+		var prof: Array = []
+		var dsl := PackedFloat32Array()
+		for dd in ds:
+			var f := path.sample_transform(dd)
+			frames.append(Transform3D(f.basis, f.origin + f.basis.y * 0.035 + f.basis.x * px))
+			prof.append(PackedVector2Array([Vector2(-pw * 0.5, 0), Vector2(pw * 0.5, 0)]))
+			dsl.append(dd - d0)
+		TrackBuilder.loft(acc, frames, dsl, prof)
+		var mesh := ArrayMesh.new()
+		acc.commit(mesh, mat)
+		var mi := MeshInstance3D.new()
+		mi.mesh = mesh
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.set_instance_shader_parameter("pad_len", len)
+		root.add_child(mi)
+		var mid := path.sample_transform(d0 + len * 0.5)
+		var area := Area3D.new()
+		area.name = "Effect_" + kind
+		area.collision_layer = TrackBuilder.LAYER_TRIGGER
+		area.collision_mask = TrackBuilder.MASK_CAR
+		area.monitorable = false
+		area.transform = Transform3D(mid.basis, mid.origin + mid.basis.x * px)
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(pw, 3.0, len)
+		cs.shape = box
+		cs.position = Vector3(0, 1.0, 0)
+		area.add_child(cs)
+		root.add_child(area)
+		area.body_entered.connect(func(body: Node3D) -> void:
+			if body is Car:
+				(body as Car).apply_effect(kind, float(e["dur"])))
 
 
 # ---------------------------------------------------------------- weather / puddles

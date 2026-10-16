@@ -30,6 +30,8 @@ const RESTART_HOLD_MS := 1500
 const FINISH_SHOW_MS := 2500
 const MIN_FINISH_MS := 1000              # ignore a finish trigger right after GO (teleport artifacts)
 const STUCK_RESPAWN_S := 3.0             # upside down and not moving for this long -> respawn
+const EFFECT_TEXT := {"engine_off": "ENGINE OFF", "no_steer": "NO STEERING", "cruise": "CRUISE CONTROL",
+	"reactor": "REACTOR BOOST", "reset": "EFFECTS CLEARED"}
 const RESULTS_FALLBACK_MS := 9000        # show results from the live leaderboard if round_end is late
 const LOBBY_FALLBACK_MS := 25000         # go back to the lobby even if the room never says so
 const LIVE_FALLBACK_MS := 45000          # LIVE: the next round_start is due ~14 s after round end
@@ -181,6 +183,9 @@ func _build_world() -> void:
 		camera.auto_landing_shake = false
 	if car.has_signal("wall_hit"):
 		car.connect("wall_hit", _on_car_wall_hit)
+	if car.has_signal("effect_started"):
+		car.connect("effect_started", func(kind: String) -> void:
+			hud.show_message(String(EFFECT_TEXT.get(kind, "")), 1.6))
 
 	ghost_player = GhostPlayer.new()
 	ghost_player.name = "PBGhost"
