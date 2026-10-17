@@ -1,8 +1,8 @@
 {
 	"name": "Corkscrew",
 	"author": "SpeedFest",
-	"start": [8, 1, 2, 0],
-	"medals": {"author": 35420, "gold": 37600, "silver": 43000, "bronze": 54000},
-	"bot_grip": 30,
-	"pieces": [["start"], ["s", 2], ["up"], ["gt", 3, "r"], ["up"], ["s", 2], ["cp"], ["gt", 3, "r"], ["s", 1], ["up"], ["gt", 3, "r"], ["s", 2], ["turbo"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["cp"], ["s", 2], ["down"], ["down"], ["down"], ["s", 2], ["gt", 4, "r"], ["s", 4], ["finish"]]
+	"start": [2,  1,  1,  0],
+	"medals": {"author": 46630, "gold": 49500, "silver": 56000, "bronze": 70000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 3], ["climb", 1], ["s", 3], ["cp"], ["s", 9], ["gt", 5, "r"], ["s", 2], ["climb", 0], ["s", 3], ["cp"], ["s", 4], ["gt", 5, "r"], ["s", 4], ["turbo"], ["s", 4], ["cp"], ["s", 1], ["gt", 4, "r"], ["s", 2], ["gt", 4, "r"], ["s", 3], ["gt", 3, "r"], ["dive", 2], ["s", 2], ["down"], ["gt", 4, "r"], ["s", 6], ["gt", 4, "r"], ["s", 1], ["finish"]]
 }

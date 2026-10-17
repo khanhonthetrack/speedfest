@@ -10,10 +10,13 @@
   (`race/tm_track_decor.gd`), adverts on every screen (`env/tm_adverts.gd`), graded light, SMAA,
   run-off after the finish with a trackside finish camera, speed FOV, respawn keeping the
   checkpoint speed, records keyed by layout, `tracks/campaign.json`.
-- Next, from the review: bigger tracks using more of the field, more decoration kinds (Fabric
-  stands by the start and finish, inflatable rows outside curves, lights by the checkpoints), a
-  seat pattern in the stands, a result panel at the finish; the bot's weave at 250+ km/h
-  (below). After a track or server change: `stadium/server/restart_server.ps1` (keeps the address).
+- **Bigger tracks done** (PROGRESS "bigger tracks"): all 11 re-laid across the field (66-82% of
+  its box, 2.8-4.1 km, up to level 6, bridges and crossings, pillars under raised curves), new
+  `climb`/`dive` pieces, the bot slows for crests, 3-4 checkpoints each, medals re-set (38-59 s).
+- Next, from the review: more decoration kinds (Fabric stands by the start and finish, inflatable
+  rows outside curves, lights by the checkpoints), a seat pattern in the stands, a result panel at
+  the finish; the bot's weave at 250+ km/h (below). After a track or server change:
+  `stadium/server/restart_server.ps1` (keeps the address).
 
 ## Latest (17 Oct, session 12, owner's Windows PC): the remake is a standalone game
 - **Owner (verbatim in TRANSCRIPT):** "No, I want this to be a standalone game!!" and "But still,

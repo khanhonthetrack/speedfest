@@ -1,8 +1,8 @@
 {
 	"name": "Night Shift",
 	"author": "SpeedFest",
-	"start": [2, 1, 2, 0],
-	"medals": {"author": 35260, "gold": 37400, "silver": 43000, "bronze": 53000},
-	"bot_grip": 50,
-	"pieces": [["start"], ["s", 6], ["cp"], ["s", 4], ["gt", 4, "r"], ["s", 2], ["up"], ["s", 3], ["turbo"], ["s", 2], ["down"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 3], ["jump", 1], ["s", 1], ["gt", 2, "l"], ["s", 6], ["cp"], ["s", 4], ["turbo"], ["s", 4], ["finish"]]
+	"start": [26,  1,  3,  1],
+	"medals": {"author": 46870, "gold": 49700, "silver": 57000, "bronze": 71000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 6], ["gt", 4, "r"], ["cp"], ["s", 1], ["climb", 0], ["s", 3], ["dive", 0], ["s", 4], ["gt", 4, "r"], ["s", 4], ["gt", 4, "r"], ["cp"], ["turbo"], ["s", 3], ["gt", 4, "r"], ["s", 14], ["gt", 4, "r"], ["s", 3], ["gt", 3, "l"], ["gt", 3, "l"], ["s", 6], ["cp"], ["s", 3], ["jump", 1], ["s", 4], ["gt", 4, "l"], ["s", 1], ["finish"]]
 }

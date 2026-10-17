@@ -1,8 +1,8 @@
 {
 	"name": "Full Circle",
 	"author": "SpeedFest",
-	"start": [16, 1, 2, 0],
-	"medals": {"author": 22530, "gold": 23900, "silver": 28000, "bronze": 34000},
-	"bot_grip": 60,
-	"pieces": [["start"], ["s", 3], ["turbo"], ["s", 2], ["loop", "r"], ["s", 2], ["cp"], ["s", 1], ["gt", 3, "l"], ["s", 2], ["turbo"], ["s", 2], ["loop", "l"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["finish"]]
+	"start": [2,  1,  1,  0],
+	"medals": {"author": 38350, "gold": 40700, "silver": 47000, "bronze": 58000},
+	"bot_grip": 50,
+	"pieces": [["start"], ["s", 3], ["turbo"], ["s", 3], ["loop", "r"], ["s", 2], ["cp"], ["s", 12], ["gt", 5, "r"], ["s", 1], ["climb", 0], ["s", 1], ["cp"], ["s", 2], ["dive", 0], ["s", 2], ["gt", 5, "r"], ["s", 6], ["turbo"], ["s", 6], ["loop", "r"], ["s", 2], ["cp"], ["s", 2], ["gt", 4, "r"], ["s", 4], ["finish"]]
 }

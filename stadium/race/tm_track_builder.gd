@@ -11,6 +11,9 @@ extends RefCounted
 ##   ["start"], ["finish"], ["cp"] (a checkpoint), ["turbo"], ["s", n] (n straight road blocks),
 ##   ["l"] / ["r"] (a road corner), ["gt", 2..5, "l" | "r"] (a GT curve of that size),
 ##   ["up"] / ["down"] (a slope one level up / down), ["up2"] / ["down2"] (two levels),
+##   ["climb", n] / ["dive", n] (a long hill, n + 2 levels up / down over n + 4 blocks: TMNF's
+##   slope start (2 blocks), n slope blocks, its slope end (2 blocks); ["climb", n, "cp" | "turbo"]:
+##   the middle slope block a checkpoint or a turbo),
 ##   ["jump", gap] (a low ramp, then gap empty blocks; ["jump", gap, "high"]: the high ramp),
 ##   ["loop", "l" | "r"] (a full loop, coming out 4 blocks to that side), ["block", id] (any block
 ##   with two clips, entered at its first).
@@ -27,6 +30,7 @@ const LOOP_SHIFT := 64.0         ## and how far each half turn drifts sideways (
 const LOOP_EASE := 40.0          ## the line eases into and out of a loop's drift over this (m)
 const LOOP_GRIP_COS := 0.32      ## where the loop is steeper than this (|cos| of its tilt), hold straight
 const STEP := 8.0                ## path point spacing (m)
+const CREST_R := 256.0           ## the slope end's crest radius (m: 14 degrees over its 64 m)
 const RUN_OFF := 3               ## straights after the finish line to stop on
 
 ## A path point: steer towards it; hold straight (BLIND: over jumps); steer towards it for the
@@ -37,7 +41,7 @@ enum Drive { STEER, BLIND, LOOP, WALL }
 
 var blocks: Array = []           ## [{name, dir, coord, flags, ground}] like TmChallenge.blocks
 ## The line to drive: [{p: Vector3 (Godot), dir: Vector3 (Godot, unit), mode: Drive, r: float
-## (the turn's radius there, m; 0 straight)}].
+## (the turn's radius there, m; 0 straight), rv: float (a crest's radius, m; absent: none)}].
 var path: Array = []
 var errors: Array[String] = []
 var checkpoints := 0
@@ -69,8 +73,9 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 
 
 ## Pillars under raised road, the way TMNF's tracks hold it up: under every other one-block piece
-## off the ground, a StadiumTube right under the road and StadiumTubePillars down to the ground
-## (turned across the road), where nothing else is in the way.
+## off the ground (and every other cell a raised GT curve's road crosses), a StadiumTube right
+## under the road and StadiumTubePillars down to the ground (turned across the road), where
+## nothing else is in the way.
 func add_pillars() -> void:
 	var n := 0
 	for blk: Dictionary in blocks.duplicate():
@@ -88,12 +93,39 @@ func add_pillars() -> void:
 		if not free:
 			continue
 		# across the road: a straight runs along z when its dir is even (and so do the others here)
-		var d := int(blk["dir"]) % 2
+		_pillar(c, int(blk["dir"]) % 2)
+	# raised GT curves: under every other cell whose middle the line passes close to (the road's
+	# middle there, turned across the road's main direction)
+	var cells: Array[Vector3i] = []
+	var along_z := {}
+	for pt: Dictionary in path:
+		var p: Vector3 = pt["p"]
+		var w := Vector3i(floori(-p.x / 32.0), roundi((p.y - ROAD_Y) / 8.0), floori(p.z / 32.0))
+		if w.y <= GROUND_LEVEL or not String(_occupied.get(w, "")).begins_with("StadiumRoadMainGTCurve"):
+			continue
+		var mid := to_godot(centre(w))
+		if Vector2(p.x - mid.x, p.z - mid.z).length() > 8.0 or along_z.has(w):
+			continue
+		var d: Vector3 = pt["dir"]
+		along_z[w] = absf(d.z) >= absf(d.x)
+		cells.append(w)
+	for i in cells.size():
+		var c := cells[i]
+		var free := i % 2 == 0
 		for y in range(GROUND_LEVEL, c.y):
-			var id := "StadiumTube" if y == c.y - 1 else "StadiumTubePillar"
-			var w := Vector3i(c.x, y, c.z)
-			_occupied[w] = id
-			blocks.append({"name": id, "dir": d, "coord": w, "flags": GROUND_FLAG if y == GROUND_LEVEL else 0, "ground": y == GROUND_LEVEL})
+			free = free and not _occupied.has(Vector3i(c.x, y, c.z))
+		if free:
+			_pillar(c, 0 if along_z[c] else 1)
+
+
+## A StadiumTube under raised road at cell c and StadiumTubePillars down to the ground (d: 0 when
+## the road runs along z).
+func _pillar(c: Vector3i, d: int) -> void:
+	for y in range(GROUND_LEVEL, c.y):
+		var id := "StadiumTube" if y == c.y - 1 else "StadiumTubePillar"
+		var w := Vector3i(c.x, y, c.z)
+		_occupied[w] = id
+		blocks.append({"name": id, "dir": d, "coord": w, "flags": GROUND_FLAG if y == GROUND_LEVEL else 0, "ground": y == GROUND_LEVEL})
 
 
 ## The TmChallenge of a track spec (uid "SF-<id>"; its `path` is the bot's line).
@@ -307,6 +339,8 @@ func piece(p: Array) -> void:
 			_through("StadiumRoadMainSlopeBase2", 0, 1)
 		"down2":
 			_through("StadiumRoadMainSlopeBase2", 1, 0)
+		"climb", "dive":
+			_hill(kind == "climb", int(p[1]) if p.size() > 1 else 1, String(p[2]) if p.size() > 2 else "")
 		"jump":
 			_jump(int(p[1]) if p.size() > 1 else 2, p.size() > 2 and String(p[2]) == "high")
 		"loop":
@@ -341,6 +375,32 @@ func _finish() -> void:
 	var a := entry_face()
 	if not place("StadiumRoadMain", 0, -1, 1, [0]).is_empty():
 		_segment(a, heading, a + vec(heading) * 16.0, heading)
+
+
+## A long hill the way TMNF's tracks climb: the slope start (2 blocks, 1 level: flat into the
+## 14-degree slope), n slope blocks (a level each; the middle one a checkpoint or a turbo if `mid`
+## says so) and the slope end (2 blocks, 1 level), or the same downhill from the top.
+func _hill(up: bool, n: int, mid: String) -> void:
+	var ids: Array[String] = ["StadiumRoadMainBiSlopeStart"]
+	for i in n:
+		var id := "StadiumRoadMainSlopeStraight"
+		if i == n / 2 and mid == "cp":
+			id = "StadiumRoadMainCheckpointUp" if up else "StadiumRoadMainCheckpointDown"
+		elif i == n / 2 and mid == "turbo":
+			id = "StadiumRoadMainTurboUp" if up else "StadiumRoadMainTurboDown"
+		ids.append(id)
+	ids.append("StadiumRoadMainBiSlopeEnd")
+	if not up:
+		ids.reverse()
+	for id in ids:
+		var from := path.size() - 1
+		# clip 0 is the low end on all of them (the Down gates face the other way, downhill)
+		if not _through(id, 0 if up else 1, 1 if up else 0):
+			return
+		# the slope end is a crest either way: a car over ~315 km/h takes off there
+		if id == "StadiumRoadMainBiSlopeEnd":
+			for i in range(maxi(from, 0), path.size()):
+				path[i]["rv"] = CREST_R
 
 
 ## A ramp (its open side towards the car) and `gap` empty blocks to fly over.

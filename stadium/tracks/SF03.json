@@ -1,8 +1,8 @@
 {
 	"name": "Highline",
 	"author": "SpeedFest",
-	"start": [2, 1, 4, 3],
-	"medals": {"author": 34090, "gold": 36200, "silver": 41000, "bronze": 52000},
-	"bot_grip": 40,
-	"pieces": [["start"], ["s", 2], ["up"], ["up"], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["up2"], ["s", 3], ["gt", 3, "l"], ["s", 1], ["cp"], ["s", 2], ["down2"], ["s", 1], ["down"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["down"], ["jump", 1], ["s", 3], ["gt", 3, "r"], ["turbo"], ["s", 4], ["cp"], ["s", 4], ["finish"]]
+	"start": [2,  1,  2,  3],
+	"medals": {"author": 53460, "gold": 56700, "silver": 65000, "bronze": 81000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 2], ["climb", 1], ["s", 2], ["cp"], ["s", 2], ["gt", 4, "l"], ["s", 2], ["climb", 0], ["s", 5], ["gt", 3, "r"], ["s", 4], ["gt", 3, "l"], ["s", 1], ["cp"], ["s", 1], ["gt", 3, "l"], ["s", 4], ["dive", 2], ["s", 1], ["jump", 1], ["s", 2], ["gt", 3, "l"], ["s", 1], ["down"], ["s", 4], ["gt", 3, "r"], ["gt", 3, "l"], ["s", 2], ["gt", 3, "l"], ["turbo"], ["s", 2], ["cp"], ["s", 8], ["cp"], ["s", 9], ["gt", 3, "r"], ["s", 1], ["finish"]]
 }

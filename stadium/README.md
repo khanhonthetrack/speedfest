@@ -61,8 +61,12 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 ## Make a track
 A track is a list of pieces laid end to end (`tracks/SF01.json`; pieces in
 `race/tm_track_builder.gd`): `["start"]`, `["s", 3]`, `["gt", 3, "r"]`, `["cp"]`, `["up"]`,
-`["jump", 1]`, `["loop", "r"]`, `["turbo"]`, `["finish"]`, ... A loop needs a straight block (or a
-turbo, a checkpoint) before and after it and about 300 km/h in (a turbo a block or two before it).
+`["climb", 2]` / `["dive", 2]` (long hills: 4 levels over 6 blocks), `["jump", 1]`, `["loop", "r"]`,
+`["turbo"]`, `["finish"]`, ... A loop needs a straight block (or a turbo, a checkpoint) before and
+after it and about 300 km/h in (a turbo a block or two before it). Give a jump's landing a few
+straight blocks (at 400 km/h a low ramp flies 200 m), and a hill's crest some road after it (over
+~315 km/h the car takes off there; the bot slows for crests). The field is 32 x 32 blocks: our
+tracks use most of it (`tests/tmp/track_dump`, untracked, prints a map; recreate it from PROGRESS).
 Save it as `tracks/<ID>.json`, then
 
     stadium/tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals

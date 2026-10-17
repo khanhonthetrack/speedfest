@@ -1382,3 +1382,44 @@ handled below as they come.
     Full Circle 22.53.
 - **Released `stadium-v0.2`** (owner: "Yes, tag stadium-v0.2 and push it"): tag on `6f35e4f`, CI built
   both zips (Windows 53 MB, Linux 44 MB) and made the GitHub Release https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2.
+
+## 2026-10-17 — Session 12: bigger tracks with more elevation (review), branch `stadium`
+From the independent review ("tracks bare and tiny, 5-15% of the field"). All 11 tracks re-laid
+across the 32 x 32 field, each keeping its character:
+
+| Track | box of the field | road cells | line | levels | cps | author |
+|---|---|---|---|---|---|---|
+| SF01 Kickoff | 82% (was 35%) | 16% (5%) | 3.9 km (1.4) | 1-3 | 4 | 54.44 |
+| SF02 Drift King | 76% (59%) | 16% (11%) | 3.3 km (2.3) | 1 | 3 | 48.08 |
+| SF03 Highline | 74% (43%) | 15% (7%) | 3.8 km (1.9) | 1-6 | 4 | 53.46 |
+| SF04 Switchback | 68% (20%) | 10% (6%) | 2.8 km (1.8) | 1-3 | 4 | 59.25 |
+| SF05 Full Send | 77% (61%) | 12% (8%) | 3.1 km (2.2) | 1-3 | 3 | 41.04 |
+| SF06 Skyway | 66% (22%) | 12% (6%) | 2.8 km (1.6) | 1-5 | 3 | 40.37 |
+| SF07 Night Shift | 69% (76%) | 15% (8%) | 3.6 km (2.3) | 1-3 | 3 | 46.87 |
+| SF08 Corkscrew | 79% (23%) | 15% (7%) | 3.6 km (1.8) | 1-6 | 3 | 46.63 |
+| SF09 Rush Hour | 69% (29%) | 11% (5%) | 3.0 km (1.6) | 1-3 | 4 | 54.86 |
+| SF10 Last Call | 69% (63%) | 15% (10%) | 4.1 km (2.6) | 1-6 | 4 | 53.82 |
+| SF11 Full Circle | 79% (25%) | 13% (6%) | 3.3 km (1.6) | 1-11 (loops) | 3 | 38.35 |
+
+- Elevation: long hills up to level 6 (Highline, Corkscrew, Last Call), Skyway's raised lap at
+  level 5 with a jump between two raised roads (Rush Hour has one at level 3), Night Shift's road
+  passing under its own bridge, Corkscrew's dive under its raised side, Last Call's long straight
+  under its high road. Raised roads stand on pillars, and now raised GT curves too
+  (`TmTrackBuilder.add_pillars`: every other cell whose middle the line passes within 8 m of).
+- New pieces `["climb", n]` / `["dive", n]` (`TmTrackBuilder._hill`): TMNF's way up a hill, the
+  slope start (`BiSlopeStart`, 2 blocks), n slope blocks (`SlopeStraight`; with `"cp"` or `"turbo"`
+  the middle one is `CheckpointUp/Down` or `TurboUp/Down`) and the slope end (`BiSlopeEnd`, 2
+  blocks): n + 2 levels over n + 4 blocks. `up`/`down` (SlopeBase, an S-step in one block) launch
+  the car at speed; the long hills don't, up to ~315 km/h.
+- The bot slows for crests as it does for curves: the slope end's line points carry the crest's
+  radius (`rv`, 256 m) and `TmBot` keeps under sqrt(30 m/s^2 x rv) (~315 km/h) with room to brake.
+  Found by tracing DNFs at some grips: at 350+ km/h the car flew off a crest (1.5 s in the air),
+  landed sideways (27 m/s lateral) and left the road at the next curve (Full Circle, Last Call).
+  Other lessons: a low ramp at 447 km/h after a turbo flies 230 m, past its landing straight (Full
+  Send: the turbo moved after the jump); a jump just before a curve throws the car off (Night
+  Shift: the jump moved two blocks earlier). Every track now finishes at all five grips (30-75).
+- A checkpoint every ~12-15 s (3-4 per track), so a respawn doesn't send the car far back.
+- `tests/tmp/track_dump` (untracked) recreated: prints each track's map (highest road level per
+  column, S/F/C/T/J, / slopes; `--decor`), the share of the field's box and cells it uses, the
+  line's length and levels. README "Make a track" lists the new pieces and the lessons.
+- Medals re-set with `--write_medals` (author = the bot's best of grips 30-75; table above).

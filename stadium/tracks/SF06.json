@@ -1,8 +1,8 @@
 {
 	"name": "Skyway",
 	"author": "SpeedFest",
-	"start": [28, 1, 3, 1],
-	"medals": {"author": 24010, "gold": 25500, "silver": 29000, "bronze": 37000},
+	"start": [28,  1,  1,  0],
+	"medals": {"author": 40370, "gold": 42800, "silver": 49000, "bronze": 61000},
 	"bot_grip": 60,
-	"pieces": [["start"], ["s", 1], ["up"], ["up"], ["up"], ["s", 3], ["cp"], ["s", 2], ["gt", 4, "r"], ["s", 3], ["turbo"], ["s", 3], ["gt", 4, "r"], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 2], ["down"], ["down"], ["down"], ["s", 2], ["finish"]]
+	"pieces": [["start"], ["s", 2], ["climb", 2], ["s", 2], ["cp"], ["s", 3], ["gt", 4, "l"], ["s", 1], ["gt", 4, "r"], ["s", 1], ["gt", 4, "l"], ["s", 2], ["jump", 1], ["s", 2], ["turbo"], ["s", 1], ["gt", 5, "l"], ["s", 2], ["cp"], ["s", 1], ["gt", 3, "l"], ["s", 4], ["cp"], ["s", 5], ["gt", 3, "r"], ["s", 1], ["dive", 2], ["s", 1], ["gt", 3, "r"], ["s", 1], ["finish"]]
 }

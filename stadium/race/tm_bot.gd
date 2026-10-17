@@ -26,6 +26,7 @@ const OFF_LINE := 70.0            ## this far from the line's next point (steere
 const AIR_TICKS := 5              ## this long without a wheel on anything: in the air
 const LOOP_WN := 2.0              ## loops: how fast the steering pulls the car back onto the line
 const LOOP_ZETA := 0.8            ## (rad/s) and how well damped
+const CREST_G := TmTuning.GRAVITY * TmTuning.GRAVITY_GROUND   ## what holds the car down over a crest
 
 
 func _ready() -> void:
@@ -94,6 +95,11 @@ func _physics_process(_delta: float) -> void:
 		var r := float(path[i]["r"])
 		if r > 0.0:
 			allowed = minf(allowed, sqrt(grip * r + 2.0 * braking * dist))
+		# over a crest no faster than gravity holds the car on the road: flying off one at speed
+		# it lands sideways
+		var rv := float(path[i].get("rv", 0.0))
+		if rv > 0.0:
+			allowed = minf(allowed, sqrt(CREST_G * rv + 2.0 * braking * dist))
 	# in the air (off a crest as well as a jump): steer with the car's spin, which TMNF damps
 	# three times as hard (TmCarModel air control), so the car lands straight
 	_air_ticks = 0 if car.wheel_contact.has(true) else _air_ticks + 1
