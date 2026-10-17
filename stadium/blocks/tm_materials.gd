@@ -22,7 +22,7 @@ const COLORS := {
 	"wall": [Color(0.88, 0.89, 0.91), 0.75, 0.0],
 	"wall_dark": [Color(0.32, 0.34, 0.38), 0.8, 0.0],
 	"logo": [Color(0.12, 0.30, 0.72), 0.6, 0.0],
-	"screen": [Color(0.05, 0.06, 0.08), 0.3, 0.0],
+	"screen": [Color(0.12, 0.22, 0.48), 0.3, 0.0, 0.7],     # lit displays, as in TMNF
 	"stands": [Color(0.36, 0.42, 0.55), 0.85, 0.0],
 	"structure": [Color(0.30, 0.31, 0.34), 0.7, 0.3],
 	"grass": [Color8(66, 98, 48), 0.95, 0.0],

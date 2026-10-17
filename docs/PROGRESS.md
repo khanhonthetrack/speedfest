@@ -1306,3 +1306,42 @@ load trackmania maps, such as gbx, then it should be doable in this game".
   (Kickoff, right after the GT3) takes off with a yaw rate and lands sideways; Kickoff finished by
   luck before and still does. Fix for later: the road-frame steering for STEER points too, then
   re-medal.
+
+## 2026-10-17 — Session 12: quality pass (owner), branch `stadium`
+Owner: "the tracks looks bad, not many ornaments and background. second, the checkpoints looks
+very cheap, not like in TMNF, ale also it doesnt show which one is start and which one is finish.
+The car looks weird, like where is the human? Car parts dont looks connected. When driviing, the
+car looks blurry. 1. Run an indpeendent review of the game. 2. Fix my concerns and the review
+comments". An independent reviewer agent (read-only, screenshots) was started; its findings are
+handled below as they come.
+- **Gates** (`blocks/tm_gate_dress.gd`, from `road.gd` `_gate`): TMNF's measured arch painted light,
+  its inner face tinted in the gate's colour with thin lamp strips along its inner edges (green
+  start, red finish, cyan checkpoint, amber lap), a lit START / FINISH / CHECKPOINT banner on the
+  crown facing both ways (chequered bands on the finish), the side screens lit, a white start line
+  and a chequered finish band on the road. Sheared with sloped and banked checkpoints
+  (`TmGeo.sheared`). A full-bright inner face filled the screen with bloom as the camera passed
+  under it: now a tint (emission 0.3) and the strips carry the light (2.2).
+- **Car** (`car/tm_car_visual.gd`): the engine cover and airbox moved behind the driver (the helmet
+  was buried in them), an open cockpit (dark well, rim, windscreen) with the driver (helmet with a
+  stripe and visor, neck, shoulders, arms, gloves on the steering wheel), the airbox low and narrow
+  enough that the chase camera sees the helmet, a front wing with end plates instead of the loose
+  splitter, brackets from the front guards to the uprights, the rear guards reaching in over the
+  engine cover, thicker wishbones.
+- **Blur**: the chase camera is placed every rendered frame from the car's interpolated transform,
+  but Godot's physics interpolation smoothed it again between ticks, so it trailed the car and
+  shook against it; TAA turned that into smear. Measured with a throwaway probe (on-screen
+  frame-to-frame shake of the car at 144 fps): 1.7-2.4 px before, 0.9-1.4 px after. The camera and
+  the wheel pivots are no longer interpolated a second time; TAA off, 4x MSAA (`project.godot`,
+  `TmRtx.apply_viewport`).
+- **Track decoration** (`race/tm_track_decor.gd`, called by `TmTrackBuilder.build` after the
+  pillars; seeded by the track id): rows of glass booths, advert structures and camera booms (TMNF's
+  Control road blocks, the campaign's most-used decoration after inflatables) beside every straight
+  of 3+ blocks, a cell away from the road; 18 inflatable palm trees, cacti and snow trees near the
+  track; two sculptures further out; the airship over the field. Lessons: right next to the road
+  (as TMNF places them) the bot, landing a jump slightly off the road, got stuck on a booth; and a
+  sculpture beside raised road caught the car: nothing tall in a column the track uses at any
+  height. All 11 tracks still finish within gold with the new contact physics (45/45).
+- **Screens**: the shared "screen" material had no emission, so every display (advert structures,
+  Fabric and platform boards, camera booths, in TMNF's tracks too) was a black slab; now lit LED
+  boards like the stadium's big screens.
+
