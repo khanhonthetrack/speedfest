@@ -21,6 +21,9 @@ var _count: Label
 var _centre: Label
 var _delta: Label
 var _flash_left := 0.0
+var _centre_y := 0.0
+var _delta_y := 0.0
+const FINISH_LIFT := 190.0
 
 const AHEAD := Color(0.35, 0.6, 1.0)
 const BEHIND := Color(1.0, 0.3, 0.25)
@@ -35,6 +38,8 @@ func _ready() -> void:
 	_count = _label(30, Control.PRESET_TOP_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, 22))
 	_centre = _label(60, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -120), TmUi.HEAD)
 	_delta = _label(40, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, 40), TmUi.HEAD)
+	_centre_y = _centre.position.y
+	_delta_y = _delta.position.y
 	_update_info()
 	if race:
 		race.checkpoint_taken.connect(_on_checkpoint)
@@ -71,6 +76,8 @@ func reset() -> void:
 	_flash_left = 0.0
 	_centre.text = ""
 	_delta.text = ""
+	_centre.position.y = _centre_y
+	_delta.position.y = _delta_y
 
 
 func _flash(text: String, colour: Color, secs: float, delta_ms := 0, has_delta := false) -> void:
@@ -111,6 +118,9 @@ func show_finish(time_ms: int, prev: Dictionary, record: bool) -> void:
 		line += "\nNew record!"
 	var b := int(prev.get("time_ms", -1))
 	_flash("%s\n%s" % [TmRace.time_text(time_ms), line], MEDAL_COLOURS[m], 1e9, time_ms - b, b >= 0)
+	# the result high up, clear of the car and of the finish menu below it
+	_centre.position.y = _centre_y - FINISH_LIFT
+	_delta.position.y = _delta_y - FINISH_LIFT + 40.0
 
 
 func _process(delta: float) -> void:

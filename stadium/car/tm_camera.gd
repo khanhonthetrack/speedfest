@@ -13,6 +13,7 @@ extends Camera3D
 
 var _dir := Vector3.FORWARD
 var _up := Vector3.UP
+var frozen := false                   ## after the finish: stays where it is and watches the car
 
 
 func _ready() -> void:
@@ -30,7 +31,19 @@ func _ready() -> void:
 		_place(1.0)
 
 
+## Stops following: a cut to a trackside spot (up, back and beside the road, clear of the
+## finish arch the chase camera is under at that moment), which then turns to watch the car.
+func freeze() -> void:
+	frozen = true
+	var b := global_basis
+	var flat := Vector3(-b.z.x, 0.0, -b.z.z).normalized()
+	var side := Vector3(b.x.x, 0.0, b.x.z).normalized()
+	global_position += Vector3.UP * 6.0 - flat * 14.0 + side * 9.0
+	reset_physics_interpolation()
+
+
 func snap() -> void:
+	frozen = false
 	if target:
 		_dir = target.global_transform.basis.z
 		_up = target.global_transform.basis.y
@@ -40,6 +53,12 @@ func snap() -> void:
 
 func _process(delta: float) -> void:
 	if target == null:
+		return
+	if frozen:
+		var at := target.get_global_transform_interpolated().origin + Vector3.UP * look_height
+		if global_position.distance_to(at) > 1.0:
+			var want := global_transform.looking_at(at, Vector3.UP)
+			global_transform = Transform3D(global_basis.slerp(want.basis, 1.0 - exp(-6.0 * delta)), global_position)
 		return
 	var k := 1.0 - exp(-follow_rate * delta)
 	var fwd := target.get_global_transform_interpolated().basis.z

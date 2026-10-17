@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 TestHooks="*res://autoload/test_hooks.gd"
 Online="*res://net/tm_online.gd"
 Music="*res://audio/tm_music.gd"
+Adverts="*res://env/tm_adverts.gd"
 
 [display]
 

@@ -2,7 +2,7 @@ class_name TmGateDress
 extends RefCounted
 ## What tells a start, a finish and a checkpoint apart (the arch itself is TMNF's measured one,
 ## blocks/shapes/road.gd _gate): the arch's inner face glows in the gate's colour (green start, red
-## finish, cyan checkpoint, amber lap line; materials "gate_glow_<kind>"), a lit banner on the arch
+## finish, cyan checkpoint, a start/finish line red like the finish line; materials "gate_glow_<kind>"), a lit banner on the arch
 ## says START / FINISH / CHECKPOINT to both sides (the finish's with chequered bands), and the
 ## road is marked: a white line under the start, a chequered band under the finish. All visual
 ## (no collision). Built in TMNF block-local coordinates like the block, then sheared with it
@@ -12,7 +12,7 @@ const KINDS := {
 	"start": [Color(0.30, 1.00, 0.45), "START"],
 	"finish": [Color(1.00, 0.22, 0.18), "FINISH"],
 	"cp": [Color(0.25, 0.82, 1.00), "CHECKPOINT"],
-	"lap": [Color(1.00, 0.72, 0.15), "LAP"],
+	"lap": [Color(1.00, 0.22, 0.18), "FINISH"],      # a start/finish line: where the race ends
 }
 const ROAD_X := [5.54, 26.46]          ## the asphalt across (road.gd ROAD_EDGE)
 const BANNER := [10.3, 21.7, 9.15, 11.75]   ## x0, x1, y0, y1 (over the arch's crown at 8.8)

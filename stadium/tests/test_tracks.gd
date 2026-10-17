@@ -35,7 +35,8 @@ func _track(id: String) -> int:
 	var mb := TmMapBuilder.build(ch)
 	var finishes := 0
 	for wp: Dictionary in mb.waypoints:
-		if int(wp["kind"]) == TmBlockCatalogue.Waypoint.FINISH:
+		# the finish: a start/finish line with road after it (or, where that doesn't fit, a finish)
+		if int(wp["kind"]) in [TmBlockCatalogue.Waypoint.FINISH, TmBlockCatalogue.Waypoint.START_FINISH]:
 			finishes += 1
 	TestHooks.check(int(mb.stats["placeholder"]) == 0 and int(mb.stats["unknown"]) == 0 and mb.has_start
 		and mb.checkpoints.size() == b.checkpoints and finishes == 1, "%s_builds" % id,

@@ -87,6 +87,7 @@ func _ready() -> void:
 		bot = TmBot.new()
 		bot.car = car
 		bot.path = challenge.path
+		bot.grip = float(TmTracks.spec(String(TestHooks.arg("track", ""))).get("bot_grip", bot.grip))
 		add_child(bot)
 		input.car = null
 	cam = TmCamera.new()
@@ -171,6 +172,8 @@ func _show_ghost() -> void:
 
 func _on_finished(time_ms: int) -> void:
 	car.controls_enabled = false
+	car.auto_brake = true
+	cam.freeze()
 	run.record(time_ms, car.global_transform, car.model.steer, car.local_velocity().z)
 	run.finish_ms = time_ms
 	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
@@ -280,5 +283,6 @@ func place_car(spawn: Transform3D, look_up := 1.5) -> void:
 		xf = Transform3D(Basis(up.cross(fwd), up, fwd), hit["position"])
 	car.place(xf)
 	car.controls_enabled = true
+	car.auto_brake = false
 	_prev = car.global_position
 	cam.snap()

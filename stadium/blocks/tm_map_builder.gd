@@ -10,6 +10,7 @@ var lib: TmBlockLib
 var root: Node3D
 var start := Transform3D()          ## car spawn (Godot, TmCar frame)
 var has_start := false
+var _start_is_line := false
 var checkpoints: Array[Transform3D] = []
 var finishes: Array[Transform3D] = []
 ## Waypoint blocks for the race: [{kind (TmBlockCatalogue.Waypoint), block (id), xform (block,
@@ -86,8 +87,12 @@ func _waypoint(id: String, entry: Dictionary, ground: bool, xf: Transform3D, bui
 	waypoints.append({"kind": wp, "block": id, "xform": xf, "spawn": spawn_world, "built": built})
 	match wp:
 		TmBlockCatalogue.Waypoint.START, TmBlockCatalogue.Waypoint.START_FINISH:
-			start = spawn_world
-			has_start = true
+			# a start/finish line is the start of a lap race; with a start line too (our tracks
+			# finish on one, with road after it), the start line is where the car starts
+			if wp == TmBlockCatalogue.Waypoint.START or not has_start or not _start_is_line:
+				start = spawn_world
+				has_start = true
+				_start_is_line = _start_is_line or wp == TmBlockCatalogue.Waypoint.START
 		TmBlockCatalogue.Waypoint.CHECKPOINT:
 			checkpoints.append(spawn_world)
 		TmBlockCatalogue.Waypoint.FINISH:

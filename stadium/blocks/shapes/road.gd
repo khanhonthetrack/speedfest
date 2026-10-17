@@ -867,9 +867,9 @@ func _gate(geo: TmGeo, zc: float) -> void:
 	for mirror in [false, true]:
 		var sign := []
 		for q in GATE_SIGN:
-			sign.append([Vector2(32.0 - q[0] if mirror else q[0], q[1]), "screen_on", TmGeo.NO_COLLISION])
+			sign.append([Vector2(32.0 - q[0] if mirror else q[0], q[1]), "screen", TmGeo.NO_COLLISION])
 		geo.wall_sweep(sign, [Vector3(0, 0, zc - 2.25), Vector3(0, 0, zc + 2.25)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
-			true, "screen_on", TmGeo.NO_COLLISION)
+			true, "screen", TmGeo.NO_COLLISION)
 
 
 ## Turbo (and free-wheel) gate: the U-frame round the road (sheared with it, see _turbo_sides).

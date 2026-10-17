@@ -14,6 +14,7 @@ const WORLD_MASK := 1
 
 var body := TmBody.new()
 var controls_enabled := true
+var auto_brake := false             ## with the controls off: brake (after the finish, to stop on the run-off)
 var tick_count := 0
 
 var model: TmCarModel:
@@ -75,7 +76,7 @@ func step_tick() -> void:
 	var st := body.steer
 	if not controls_enabled:
 		body.gas = 0.0
-		body.brake = 0.0
+		body.brake = 1.0 if auto_brake else 0.0
 		body.steer = 0.0
 	body.xform = transform
 	body.step(get_world_3d().direct_space_state, DT)

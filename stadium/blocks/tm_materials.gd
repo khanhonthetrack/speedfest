@@ -34,18 +34,18 @@ const COLORS := {
 	"fabric": [Color(0.93, 0.93, 0.94), 0.8, 0.0],
 	"pipe": [Color(0.82, 0.84, 0.88), 0.35, 0.55],
 	"rubber_dark": [Color(0.10, 0.10, 0.11), 0.9, 0.0],
-	"lamp": [Color(1.0, 0.96, 0.85), 0.3, 0.0, 3.0],
+	"lamp": [Color(1.0, 0.96, 0.85), 0.3, 0.0, 2.0],
 	"sculpt": [Color(0.84, 0.86, 0.90), 0.55, 0.1],
 	# gates (blocks/tm_gate_dress.gd): the painted arch, its lit inner face per kind, the banner
 	"gate": [Color(0.86, 0.87, 0.90), 0.35, 0.55],
 	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 0.3],
 	"gate_glow_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 0.3],
 	"gate_glow_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 0.3],
-	"gate_glow_lap": [Color(1.00, 0.72, 0.15), 0.4, 0.0, 0.3],
+	"gate_glow_lap": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 0.3],
 	"gate_lamp_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.2],
 	"gate_lamp_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.2],
 	"gate_lamp_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.2],
-	"gate_lamp_lap": [Color(1.00, 0.72, 0.15), 0.4, 0.0, 2.2],
+	"gate_lamp_lap": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.2],
 	"banner": [Color(0.03, 0.04, 0.07), 0.4, 0.2],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
@@ -100,8 +100,8 @@ const SURFACES := {
 	"rubber": [0, Color(0.3, 0.3, 0.3), 0.0, 0.05, 0.005],
 	"rubber_white": [0, Color(0.3, 0.3, 0.3), 0.0, 0.05, 0.005],
 	"rubber_dark": [0, Color(0.3, 0.3, 0.3), 0.0, 0.05, 0.005],
-	"inflatable": [0, Color(0.3, 0.3, 0.3), 0.0, 0.04, 0.0],
-	"lamp": [0, Color(0.3, 0.3, 0.3), 0.0, 0.0, 0.0],
+	"inflatable": [14, Color(0.95, 0.95, 0.95), 2.4, 0.04, 0.03],
+	"lamp": [13, Color(0.10, 0.10, 0.12), 4.0, 0.0, 0.0],
 }
 
 
@@ -220,4 +220,10 @@ static func _surface(key: String, spec: Array) -> ShaderMaterial:
 	m.set_shader_parameter("bump", float(s[4]))
 	m.set_shader_parameter("noise_fine", _noise_fine)
 	m.set_shader_parameter("noise_coarse", _noise_coarse)
+	if int(s[0]) == 8:
+		var ads: Node = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("Adverts")
+		if ads:
+			m.set_shader_parameter("advert_tex", ads.call("texture"))
+			m.set_shader_parameter("has_advert", true)
+			m.set_shader_parameter("ad_scale", 3.0 if key == "screen_on" else 1.0)
 	return m

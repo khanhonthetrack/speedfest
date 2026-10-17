@@ -27,6 +27,7 @@ const LOOP_SHIFT := 64.0         ## and how far each half turn drifts sideways (
 const LOOP_EASE := 40.0          ## the line eases into and out of a loop's drift over this (m)
 const LOOP_GRIP_COS := 0.32      ## where the loop is steeper than this (|cos| of its tilt), hold straight
 const STEP := 8.0                ## path point spacing (m)
+const RUN_OFF := 3               ## straights after the finish line to stop on
 
 ## A path point: steer towards it; hold straight (BLIND: over jumps); steer towards it for the
 ## turn the car makes at its speed (LOOP: into, round and out of loops, at 300 km/h and more); or
@@ -279,11 +280,7 @@ func piece(p: Array) -> void:
 				heading = res["exit_heading"]
 				_point(entry_face(), vec(heading))
 		"finish":
-			var a := entry_face()
-			if place("StadiumRoadMainFinishLine", 0, -1).is_empty():
-				return
-			# on through the finish and a block past it
-			_segment(a, heading, a + vec(heading) * 64.0, heading)
+			_finish()
 		"cp":
 			_through("StadiumRoadMainCheckpoint", 1, 0)
 		"turbo":
@@ -316,6 +313,32 @@ func piece(p: Array) -> void:
 			_through(String(p[1]), 0, 1)
 		_:
 			errors.append("unknown piece %s" % kind)
+
+
+## The finish with road to stop on: TMNF's through start/finish line block (it finishes a
+## one-lap race), up to RUN_OFF straights and a rounded dead end, as far as the cells ahead are
+## free; else the finish block that ends in its nose (the car flew off it into the grass).
+func _finish() -> void:
+	var free := 0
+	while free < RUN_OFF + 2:
+		var w := cell + SIDE[heading] * free
+		if _occupied.has(w) or w.x < 0 or w.z < 0 or w.x >= MAP or w.z >= MAP:
+			break
+		free += 1
+	if free < 3:
+		var a := entry_face()
+		if place("StadiumRoadMainFinishLine", 0, -1).is_empty():
+			return
+		_segment(a, heading, a + vec(heading) * 64.0, heading)
+		return
+	if not _through("StadiumRoadMainStartFinishLine", 1, 0):
+		return
+	for _i in mini(RUN_OFF, free - 2):
+		if not _through("StadiumRoadMain", 0, 1, 0.0, 3, [0, 2]):
+			return
+	var a := entry_face()
+	if not place("StadiumRoadMain", 0, -1, 1, [0]).is_empty():
+		_segment(a, heading, a + vec(heading) * 16.0, heading)
 
 
 ## A ramp (its open side towards the car) and `gap` empty blocks to fly over.

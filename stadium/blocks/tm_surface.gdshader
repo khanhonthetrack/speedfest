@@ -6,7 +6,8 @@ shader_type spatial;
 // face is closest to. Relief is bump-mapped from a height (screen-space derivatives), fading out
 // with distance against shimmer.
 // pattern: 0 plain, 1 concrete, 2 grass, 3 dirt, 4 perforated grid, 5 brushed metal, 6 turbo
-// stripes, 7 seat rows, 8 screen/LED (animated), 9 fabric, 10 louvres, 11 wall panels, 12 paving.
+// stripes, 7 seat rows, 8 screen/LED (the adverts scrolling, else animated bands), 9 fabric,
+// 10 louvres, 11 wall panels, 12 paving, 13 lamp grid (floodlights), 14 striped vinyl (inflatables).
 
 uniform int pattern = 0;
 uniform vec3 albedo : source_color = vec3(0.65);
@@ -19,6 +20,12 @@ uniform float variation = 0.08;     // albedo noise
 uniform float bump = 0.02;          // relief strength
 uniform sampler2D noise_fine : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D noise_coarse : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D advert_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform bool has_advert = false;
+uniform float ad_scale = 1.0;       // the ads' size on this material's screens (big screens: 3)
+const float AD_PANELS = 8.0;        // ads side by side in advert_tex (env/tm_adverts.gd)
+const float AD_W = 8.0;             // one ad's width on a screen (m)
+const float AD_H = 4.0;             // and height
 
 varying vec3 wpos;
 varying vec3 wnrm;
@@ -133,10 +140,18 @@ void fragment() {
 		col *= 1.0 - mix(gap, 0.12, aa) * 0.3;
 		col *= 1.0 + (fine - 0.5) * variation;
 		h += row * 0.5;
-	} else if (pattern == 8) {     // LED boards and screens: scrolling bands on a pixel grid
-		float band = 0.55 + 0.45 * sin(uv.x * 0.25 - TIME * 2.0 + sin(uv.y * 0.6 + TIME) * 0.8);
+	} else if (pattern == 8) {     // LED boards and screens: the adverts scrolling on a pixel grid
 		float px = 1.0 - mix(seams(uv, vec2(0.12), 0.012), 0.08, aa) * 0.6;
-		emit = mix(albedo2, albedo, band) * px;
+		if (has_advert && abs(n.y) < 0.7) {
+			// read from the front: "right" as a viewer facing the screen sees it, v down
+			vec3 right = normalize(cross(-n, vec3(0.0, 1.0, 0.0)));
+			vec2 ad = vec2(dot(wpos, right) / (AD_W * AD_PANELS * ad_scale) + TIME * 0.012 / ad_scale,
+				-wpos.y / (AD_H * ad_scale));
+			emit = texture(advert_tex, ad).rgb * px * 1.6;
+		} else {
+			float band = 0.55 + 0.45 * sin(uv.x * 0.25 - TIME * 2.0 + sin(uv.y * 0.6 + TIME) * 0.8);
+			emit = mix(albedo2, albedo, band) * px;
+		}
 		col = albedo * 0.2;
 	} else if (pattern == 9) {     // fabric: soft weave, seams every `scale`
 		col *= 1.0 + (fine - 0.5) * variation;
@@ -159,6 +174,18 @@ void fragment() {
 		col *= 1.0 + (tile - 0.5) * variation * 1.5 + (micro - 0.5) * variation;
 		col *= 1.0 - s * 0.35;
 		h -= s * 0.6;
+	} else if (pattern == 13) {    // lamp grid: round lamps in rows on a dark panel
+		vec2 c = fract(uv / scale) - 0.5;
+		float lit = 1.0 - smoothstep(0.26, 0.34, length(c));
+		lit = mix(lit, 0.35, aa);
+		emit = mix(albedo2 * 0.15, albedo, lit);
+		col = mix(albedo2, albedo, lit * 0.5);
+	} else if (pattern == 14) {    // striped vinyl: colour and white bands, puffed between seams
+		float s = stripes(uv.x + uv.y * 0.15, scale, 0.5);
+		col = mix(albedo, albedo2, mix(s, 0.5, aa));
+		float puff = sin(fract((uv.x + uv.y * 0.15) / (scale * 0.5)) * 3.14159);
+		col *= 0.85 + 0.15 * puff;
+		h += puff * 0.6;
 	} else {                       // plain: a little grain
 		col *= 1.0 + (fine - 0.5) * variation;
 		h += micro * 0.2;
@@ -182,5 +209,5 @@ void fragment() {
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = rough;
 	METALLIC = metal;
-	EMISSION = (pattern == 6 || pattern == 8 ? emit : albedo) * emission_energy;
+	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy;
 }
