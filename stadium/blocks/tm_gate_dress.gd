@@ -54,7 +54,18 @@ static func dress(root: Node3D, kind: String, zc: float, top: float, shear := Ve
 	geo.box(Vector3(x0, y0, zc - BANNER_T * 0.5), Vector3(x1, y1, zc + BANNER_T * 0.5), "banner", TmGeo.NO_COLLISION)
 	for edge: float in [y0, y1 - 0.16]:
 		geo.box(Vector3(x0 - 0.05, edge, zc - BANNER_T * 0.5 - 0.05), Vector3(x1 + 0.05, edge + 0.16, zc + BANNER_T * 0.5 + 0.05),
-			"gate_glow_" + kind, TmGeo.NO_COLLISION)
+			"gate_lamp_" + kind, TmGeo.NO_COLLISION)
+	# lamp strips along the arch's inner edges, front and back (road.gd GATE_ARCH's inner line)
+	var inner := _arch_inner()
+	for zs: float in [zc - 2.12, zc + 2.12]:
+		for i in inner.size() - 1:
+			var a: Vector2 = inner[i]
+			var c: Vector2 = inner[i + 1]
+			var n := Vector2(c.y - a.y, a.x - c.x).normalized() * 0.09   # towards the road
+			geo.quad(Vector3(a.x, a.y, zs), Vector3(c.x, c.y, zs), Vector3(c.x + n.x, c.y + n.y, zs),
+				Vector3(a.x + n.x, a.y + n.y, zs), "gate_lamp_" + kind, TmGeo.NO_COLLISION)
+			geo.quad(Vector3(a.x, a.y, zs), Vector3(a.x + n.x, a.y + n.y, zs), Vector3(c.x + n.x, c.y + n.y, zs),
+				Vector3(c.x, c.y, zs), "gate_lamp_" + kind, TmGeo.NO_COLLISION)
 	for px: float in [x0 + 1.4, x1 - 1.6]:
 		geo.box(Vector3(px, 7.9, zc - 0.12), Vector3(px + 0.2, y0, zc + 0.12), "gate", TmGeo.NO_COLLISION)
 	holder.add_child(geo.build())
@@ -96,6 +107,15 @@ static func dress(root: Node3D, kind: String, zc: float, top: float, shear := Ve
 		m.uv1_scale = Vector3((ROAD_X[1] - ROAD_X[0]) / 3.0, 1.0, 1.0)
 		band.material_override = m
 		holder.add_child(band)
+
+
+## The arch's inner (underside) line, from one foot to the other (the "metal" points of GATE_ARCH).
+static func _arch_inner() -> Array:
+	var out := []
+	for q: Array in load("res://blocks/shapes/road.gd").GATE_ARCH:
+		if String(q[2]) == "metal" or (out.size() > 0 and String(q[2]) == "structure" and int(q[3]) == 4 and float(q[1]) < 4.0):
+			out.append(Vector2(float(q[0]), float(q[1])))
+	return out
 
 
 ## A flat band across the asphalt at z, `depth` long, just above the road.

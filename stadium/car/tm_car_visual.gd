@@ -23,13 +23,14 @@ const TUB := [[2.13, 0.24, 0.34, 0.08, 2.2], [2.00, 0.20, 0.42, 0.20, 2.4], [1.7
 const ENGINE := [[-0.40, 0.16, 0.62, 0.40, 2.8], [-0.62, 0.15, 0.84, 0.58, 3.2], [-0.90, 0.15, 0.90, 0.64, 3.4],
 	[-1.15, 0.17, 0.89, 0.60, 3.2], [-1.45, 0.30, 0.91, 0.54, 3.0], [-1.75, 0.55, 0.93, 0.42, 2.6],
 	[-1.82, 0.70, 0.93, 0.30, 2.4]]
-const AIRBOX := [[-0.42, 0.66, 0.96, 0.10, 2.4], [-0.55, 0.70, 1.08, 0.15, 2.6], [-0.80, 0.74, 1.10, 0.19, 2.8],
-	[-1.10, 0.76, 1.00, 0.22, 2.8], [-1.38, 0.82, 0.93, 0.22, 2.4]]
+## (low and narrow enough that the chase camera sees the driver's helmet over it)
+const AIRBOX := [[-0.42, 0.66, 0.88, 0.08, 2.4], [-0.56, 0.70, 0.94, 0.11, 2.6], [-0.82, 0.74, 0.97, 0.15, 2.8],
+	[-1.10, 0.76, 0.96, 0.19, 2.8], [-1.38, 0.82, 0.93, 0.20, 2.4]]
 ## The cockpit: its opening on the tub (centre, half width, half length; visual coordinates).
 const COCKPIT := [Vector3(0.0, 0.595, -0.02), 0.25, 0.40]
 const PODS := [[0.75, 0.16, 0.28, 0.36, 2.4], [0.50, 0.14, 0.40, 0.66, 3.4], [0.10, 0.14, 0.44, 0.80, 3.6],
 	[-0.40, 0.14, 0.44, 0.80, 3.6], [-0.80, 0.15, 0.42, 0.70, 3.2], [-1.05, 0.18, 0.38, 0.50, 2.6]]
-const HELMET := Vector3(0.0, 0.86, -0.20)
+const HELMET := Vector3(0.0, 0.90, -0.18)
 const HELMET_R := 0.155
 ## The guards over the front wheels and the pods over the rear ones: [angle from, to (deg, from
 ## straight ahead over the top to behind), radius over the tyre, inner and outer x].

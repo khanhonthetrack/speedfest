@@ -586,3 +586,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 >
 > 1. Run an indpeendent review of the game.
 > 2. Fix my concerns and the review comments
+
+### User (verbatim, session 12, after a usage limit stopped the review)
+
+> Try again

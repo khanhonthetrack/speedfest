@@ -38,10 +38,14 @@ const COLORS := {
 	"sculpt": [Color(0.84, 0.86, 0.90), 0.55, 0.1],
 	# gates (blocks/tm_gate_dress.gd): the painted arch, its lit inner face per kind, the banner
 	"gate": [Color(0.86, 0.87, 0.90), 0.35, 0.55],
-	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.6],
-	"gate_glow_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.6],
-	"gate_glow_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.6],
-	"gate_glow_lap": [Color(1.00, 0.72, 0.15), 0.4, 0.0, 2.6],
+	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 0.3],
+	"gate_glow_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 0.3],
+	"gate_glow_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 0.3],
+	"gate_glow_lap": [Color(1.00, 0.72, 0.15), 0.4, 0.0, 0.3],
+	"gate_lamp_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.2],
+	"gate_lamp_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.2],
+	"gate_lamp_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.2],
+	"gate_lamp_lap": [Color(1.00, 0.72, 0.15), 0.4, 0.0, 2.2],
 	"banner": [Color(0.03, 0.04, 0.07), 0.4, 0.2],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
