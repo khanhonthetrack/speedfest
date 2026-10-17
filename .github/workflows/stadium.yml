@@ -1,8 +1,8 @@
 # SpeedFest Stadium builds: exports Windows + Linux with the official Godot 4.7.2 release and
 # templates (both checked against the release's SHA512-SUMS.txt), zipped with PLAYING.txt and the
 # credits. Download them from the run's artifacts; a pushed tag stadium-v* also attaches them to a
-# GitHub Release, the easy link to send to friends. The game reads tracks from the player's own
-# TMNF install, so no Nadeo data is in the build.
+# GitHub Release, the easy link to send to friends. The game is standalone with its own tracks
+# (stadium/tracks); TMNF tracks load only from the player's own files, so no Nadeo data is in the build.
 name: Stadium builds
 
 on:
