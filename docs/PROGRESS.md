@@ -1423,3 +1423,27 @@ across the 32 x 32 field, each keeping its character:
   column, S/F/C/T/J, / slopes; `--decor`), the share of the field's box and cells it uses, the
   line's length and levels. README "Make a track" lists the new pieces and the lessons.
 - Medals re-set with `--write_medals` (author = the bot's best of grips 30-75; table above).
+
+## 2026-10-17 — Session 12: more kinds of decoration (review), branch `stadium`
+From the review ("more kinds of decoration"). `race/tm_track_decor.gd` adds three kinds, all built
+from blocks already recreated, placed before the booth rows and the scattered inflatables:
+- **Fabric grandstands framing the start and the finish** (`StadiumFabricStraight1x1`): a row on
+  each side of the gate two cells out, facing the road, the roofs arching over the cell between
+  (48 m up), from a cell behind the gate to two past it. The start and the finish now sit in a
+  white wave tunnel (13-16 pieces a track). The shells' undersides were the dark steel colour;
+  now a light membrane (`fabric_under` in `blocks/shapes/fabric.gd` and `TmMaterials`; TMNF's
+  tracks get it too).
+- **An inflatable wall with a billboard beyond each curve** (GT 3+ on the ground, straight on from
+  where the line comes in, a free row between): TMNF's cushion wall (`StadiumInflatablePillar`),
+  two cells deep and as wide as the curve, laid round its rectangle the editor's way (read off
+  B09 and A04: the T piece's variant index is 4 / 1 / 2 / 3 on the -z / +x / +z / -x side, the
+  corners 5-8 at (+x,-z), (+x,+z), (-x,+z), (-x,-z); the direction is index % 4 for a T piece,
+  index - 5 for a corner; 0 is the inside), with the inflatable billboard
+  (`StadiumInflatableAdvert`, four levels, ads on its screen) on the side facing the curve where
+  no raised road passes within two cells.
+- **Camera booths and light rigs by the checkpoints** (on the ground): a `CameraPub` (two screens)
+  a cell out on each side of the gate, a light rig (`ControlLight`; its raised piece set on the
+  grass, the only one recreated) either side of it along the road.
+- The rules learned so far hold (`_clear`, `_try`): a free cell between any decoration and the road,
+  nothing on a column the track uses at any height, billboards away from raised road. The bot's
+  times are unchanged on all 11 tracks.

@@ -16,19 +16,19 @@ const SculptShapes := preload("res://blocks/shapes/sculpt.gd")
 
 ## The roof shell's closed section: its underside from the foot up to the top edge, then its top
 ## surface back down (measured, simplified to 5 cm).
-const SHELL := [[59.8, 1.0, "structure", S_ROAD], [59.42, 4.35, "structure", S_ROAD], [58.7, 8.7, "structure", S_ROAD],
-	[57.55, 12.97, "structure", S_ROAD], [55.9, 17.13, "structure", S_ROAD], [53.8, 21.15, "structure", S_ROAD],
-	[51.27, 24.98, "structure", S_ROAD], [48.33, 28.6, "structure", S_ROAD], [45.04, 31.98, "structure", S_ROAD],
-	[41.47, 35.09, "structure", S_ROAD], [37.64, 37.89, "structure", S_ROAD], [33.59, 40.37, "structure", S_ROAD],
-	[29.34, 42.51, "structure", S_ROAD], [24.91, 44.28, "structure", S_ROAD], [20.27, 45.7, "structure", S_ROAD],
-	[15.4, 46.78, "structure", S_ROAD], [10.34, 47.38, "structure", S_ROAD], [5.13, 47.69, "structure", S_ROAD],
+const SHELL := [[59.8, 1.0, "fabric_under", S_ROAD], [59.42, 4.35, "fabric_under", S_ROAD], [58.7, 8.7, "fabric_under", S_ROAD],
+	[57.55, 12.97, "fabric_under", S_ROAD], [55.9, 17.13, "fabric_under", S_ROAD], [53.8, 21.15, "fabric_under", S_ROAD],
+	[51.27, 24.98, "fabric_under", S_ROAD], [48.33, 28.6, "fabric_under", S_ROAD], [45.04, 31.98, "fabric_under", S_ROAD],
+	[41.47, 35.09, "fabric_under", S_ROAD], [37.64, 37.89, "fabric_under", S_ROAD], [33.59, 40.37, "fabric_under", S_ROAD],
+	[29.34, 42.51, "fabric_under", S_ROAD], [24.91, 44.28, "fabric_under", S_ROAD], [20.27, 45.7, "fabric_under", S_ROAD],
+	[15.4, 46.78, "fabric_under", S_ROAD], [10.34, 47.38, "fabric_under", S_ROAD], [5.13, 47.69, "fabric_under", S_ROAD],
 	[0.0, 47.69, "structure", S_METAL], [0.0, 48.04, "fabric", S_ROAD], [5.15, 48.1, "fabric", S_ROAD],
 	[10.37, 47.78, "fabric", S_ROAD], [15.46, 47.18, "fabric", S_ROAD], [20.37, 46.09, "fabric", S_ROAD],
 	[25.04, 44.66, "fabric", S_ROAD], [29.5, 42.88, "fabric", S_ROAD], [33.78, 40.73, "fabric", S_ROAD],
 	[37.86, 38.23, "fabric", S_ROAD], [41.72, 35.41, "fabric", S_ROAD], [45.32, 32.28, "fabric", S_ROAD],
 	[48.63, 28.88, "fabric", S_ROAD], [51.59, 25.23, "fabric", S_ROAD], [54.14, 21.36, "fabric", S_ROAD],
 	[56.26, 17.3, "fabric", S_ROAD], [57.93, 13.1, "fabric", S_ROAD], [59.09, 8.78, "fabric", S_ROAD],
-	[59.82, 4.41, "fabric", S_ROAD], [60.04, 1.85, "structure", S_ROAD]]
+	[59.82, 4.41, "fabric", S_ROAD], [60.04, 1.85, "fabric_under", S_ROAD]]
 ## The stands: the quarter-pipe from the floor up to the seats, the seats' top, the back down to
 ## the ground (measured).
 const STANDS := [[45.88, 1.0, "platform", S_ROAD], [47.08, 1.2, "platform", S_ROAD], [48.23, 1.56, "platform", S_ROAD],
@@ -49,12 +49,12 @@ const SHELL_AIR := [[55.77, 7.99, "fabric", S_ROAD], [54.62, 12.83, "fabric", S_
 	[42.73, 32.01, "fabric", S_ROAD], [39.33, 35.14, "fabric", S_ROAD], [35.7, 37.96, "fabric", S_ROAD],
 	[31.85, 40.46, "fabric", S_ROAD], [27.81, 42.61, "fabric", S_ROAD], [23.61, 44.4, "fabric", S_ROAD],
 	[19.21, 45.83, "fabric", S_ROAD], [14.58, 46.91, "fabric", S_ROAD], [9.78, 47.51, "fabric", S_ROAD],
-	[4.85, 47.81, "fabric", S_ROAD], [0.0, 47.98, "structure", S_METAL], [0.0, 47.63, "structure", S_ROAD],
-	[9.75, 47.11, "structure", S_ROAD], [14.52, 46.51, "structure", S_ROAD], [19.11, 45.43, "structure", S_ROAD],
-	[23.48, 44.01, "structure", S_ROAD], [27.66, 42.24, "structure", S_ROAD], [31.67, 40.1, "structure", S_ROAD],
-	[35.49, 37.62, "structure", S_ROAD], [39.1, 34.82, "structure", S_ROAD], [42.47, 31.71, "structure", S_ROAD],
-	[45.57, 28.33, "structure", S_ROAD], [48.34, 24.71, "structure", S_ROAD], [50.72, 20.88, "structure", S_ROAD],
-	[52.7, 16.86, "structure", S_ROAD], [54.26, 12.7, "structure", S_ROAD], [55.4, 7.99, "structure", S_ROAD]]
+	[4.85, 47.81, "fabric", S_ROAD], [0.0, 47.98, "structure", S_METAL], [0.0, 47.63, "fabric_under", S_ROAD],
+	[9.75, 47.11, "fabric_under", S_ROAD], [14.52, 46.51, "fabric_under", S_ROAD], [19.11, 45.43, "fabric_under", S_ROAD],
+	[23.48, 44.01, "fabric_under", S_ROAD], [27.66, 42.24, "fabric_under", S_ROAD], [31.67, 40.1, "fabric_under", S_ROAD],
+	[35.49, 37.62, "fabric_under", S_ROAD], [39.1, 34.82, "fabric_under", S_ROAD], [42.47, 31.71, "fabric_under", S_ROAD],
+	[45.57, 28.33, "fabric_under", S_ROAD], [48.34, 24.71, "fabric_under", S_ROAD], [50.72, 20.88, "fabric_under", S_ROAD],
+	[52.7, 16.86, "fabric_under", S_ROAD], [54.26, 12.7, "fabric_under", S_ROAD], [55.4, 7.99, "fabric_under", S_ROAD]]
 const DECK_AIR := [47.93, 60.13, 7.61, 8.0]
 const WALL_AIR := [53.76, 54.28]
 ## Under a raised grandstand: on the ground, a one-cell stands block (quarter-pipe front, seats at
@@ -103,13 +103,13 @@ const SHELL_IN_AIR := [[56.56, 1.54, "fabric", S_ROAD], [56.33, 3.73, "fabric", 
 	[39.36, 34.91, "fabric", S_ROAD], [35.71, 37.76, "fabric", S_ROAD], [31.86, 40.28, "fabric", S_ROAD],
 	[27.83, 42.45, "fabric", S_ROAD], [23.64, 44.25, "fabric", S_ROAD], [19.25, 45.7, "fabric", S_ROAD],
 	[14.6, 46.81, "fabric", S_ROAD], [9.77, 47.42, "fabric", S_ROAD], [4.69, 47.68, "fabric", S_ROAD],
-	[0.4, 47.68, "structure", S_METAL], [0.4, 47.57, "structure", S_ROAD], [4.67, 47.57, "structure", S_ROAD],
-	[9.63, 47.32, "structure", S_ROAD], [14.44, 46.72, "structure", S_ROAD], [19.09, 45.62, "structure", S_ROAD],
-	[23.46, 44.19, "structure", S_ROAD], [27.56, 42.44, "structure", S_ROAD], [31.63, 40.26, "structure", S_ROAD],
-	[35.4, 37.79, "structure", S_ROAD], [39.09, 34.93, "structure", S_ROAD], [42.42, 31.85, "structure", S_ROAD],
-	[45.52, 28.45, "structure", S_ROAD], [48.26, 24.83, "structure", S_ROAD], [50.64, 20.96, "structure", S_ROAD],
-	[52.62, 16.92, "structure", S_ROAD], [54.17, 12.73, "structure", S_ROAD], [55.26, 8.43, "structure", S_ROAD],
-	[55.95, 4.05, "structure", S_ROAD], [56.19, 1.84, "structure", S_ROAD]]
+	[0.4, 47.68, "structure", S_METAL], [0.4, 47.57, "fabric_under", S_ROAD], [4.67, 47.57, "fabric_under", S_ROAD],
+	[9.63, 47.32, "fabric_under", S_ROAD], [14.44, 46.72, "fabric_under", S_ROAD], [19.09, 45.62, "fabric_under", S_ROAD],
+	[23.46, 44.19, "fabric_under", S_ROAD], [27.56, 42.44, "fabric_under", S_ROAD], [31.63, 40.26, "fabric_under", S_ROAD],
+	[35.4, 37.79, "fabric_under", S_ROAD], [39.09, 34.93, "fabric_under", S_ROAD], [42.42, 31.85, "fabric_under", S_ROAD],
+	[45.52, 28.45, "fabric_under", S_ROAD], [48.26, 24.83, "fabric_under", S_ROAD], [50.64, 20.96, "fabric_under", S_ROAD],
+	[52.62, 16.92, "fabric_under", S_ROAD], [54.17, 12.73, "fabric_under", S_ROAD], [55.26, 8.43, "fabric_under", S_ROAD],
+	[55.95, 4.05, "fabric_under", S_ROAD], [56.19, 1.84, "fabric_under", S_ROAD]]
 const DECK_IN_AIR := [47.99, 61.84, 1.46, 1.84]
 ## The In pillar corners' arcs: centre (c, c) and segments (see _arc_in).
 const PILLAR_ARC_C := 5.533
