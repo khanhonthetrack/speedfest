@@ -16,6 +16,7 @@ class Group:
 var _vis := {}                      ## material key -> Group
 var _col := PackedVector3Array()
 var _surf := PackedInt32Array()
+var sheared := Vector3.ZERO           ## the shear_y applied so far: (kx, kz, dy)
 
 
 static func g(p: Vector3) -> Vector3:
@@ -287,6 +288,7 @@ static func arc(c: Vector2, r: float, a0: float, a1: float, y: float, steps: int
 ## Shears everything added so far vertically (TMNF coords): y += kx * x + kz * z + dy. Planes stay
 ## planes; normals follow (inverse transpose). Sloped and banked variants of flat pieces use it.
 func shear_y(kx: float, kz: float, dy: float) -> void:
+	sheared += Vector3(kx, kz, dy)
 	# stored points are Godot's (x negated): TMNF x = -v.x
 	for key in _vis:
 		var grp: Group = _vis[key]

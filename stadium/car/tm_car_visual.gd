@@ -3,7 +3,9 @@ extends Node3D
 ## Our own Stadium car: an open-wheel racer with TMNF's proportions (measured from the Stadium
 ## car's visual locally: 3.94 m long, 1.64 m wide body, 1.1 m tall, the driver just behind the
 ## middle, guards over the front wheels and pods over the rear ones), its shapes our own: lofted
-## superellipse sections, wishbones, five-spoke wheels, our livery. The wheels follow suspension,
+## superellipse sections, an open cockpit with the driver in it (helmet and visor, shoulders, arms
+## on the steering wheel), the engine cover and airbox behind the driver's head, a front wing,
+## wishbones, guards held on brackets, five-spoke wheels, our livery. The wheels follow suspension,
 ## steering and spin. Parent it to a TmCar; or, as a ghost (ghost = true), to any Node3D and feed
 ## ghost_speed and ghost_steer (a replayed run): translucent, no shadow.
 
@@ -13,22 +15,26 @@ const T := preload("res://core/tm_tuning.gd")
 ## stations below are in visual coordinates (ground at y 0, nose towards +z).
 const VIS := Vector3(0.0, 0.441, 0.29)
 ## Lofts: [z, bottom, top, half width, roundness] stations (visual coordinates).
+## The tub dips to the cockpit's rim (z 0.40 .. -0.40), where the driver sits.
 const TUB := [[2.13, 0.24, 0.34, 0.08, 2.2], [2.00, 0.20, 0.42, 0.20, 2.4], [1.70, 0.17, 0.52, 0.26, 2.6],
-	[1.30, 0.16, 0.62, 0.29, 2.6], [0.90, 0.15, 0.72, 0.31, 2.6], [0.50, 0.14, 0.78, 0.34, 2.8],
-	[0.15, 0.14, 0.62, 0.36, 3.0], [-0.20, 0.14, 0.66, 0.40, 3.0], [-0.40, 0.14, 0.70, 0.45, 3.0]]
-const ENGINE := [[0.05, 0.16, 0.55, 0.30, 2.6], [-0.30, 0.15, 0.86, 0.62, 3.2], [-0.70, 0.15, 0.92, 0.70, 3.4],
-	[-1.10, 0.17, 0.90, 0.62, 3.2], [-1.45, 0.30, 0.92, 0.55, 3.0], [-1.75, 0.55, 0.94, 0.42, 2.6],
+	[1.30, 0.16, 0.62, 0.29, 2.6], [0.90, 0.15, 0.70, 0.31, 2.6], [0.50, 0.14, 0.70, 0.34, 2.8],
+	[0.15, 0.14, 0.60, 0.36, 3.0], [-0.20, 0.14, 0.60, 0.40, 3.0], [-0.45, 0.14, 0.64, 0.45, 3.0]]
+## The engine cover rises behind the driver; the airbox over it starts as the headrest.
+const ENGINE := [[-0.40, 0.16, 0.62, 0.40, 2.8], [-0.62, 0.15, 0.84, 0.58, 3.2], [-0.90, 0.15, 0.90, 0.64, 3.4],
+	[-1.15, 0.17, 0.89, 0.60, 3.2], [-1.45, 0.30, 0.91, 0.54, 3.0], [-1.75, 0.55, 0.93, 0.42, 2.6],
 	[-1.82, 0.70, 0.93, 0.30, 2.4]]
-const AIRBOX := [[-0.10, 0.70, 0.80, 0.12, 2.4], [-0.35, 0.70, 1.00, 0.16, 2.6], [-0.65, 0.72, 1.04, 0.20, 2.8],
-	[-1.00, 0.74, 0.96, 0.24, 2.8], [-1.30, 0.80, 0.92, 0.24, 2.4]]
+const AIRBOX := [[-0.42, 0.66, 0.96, 0.10, 2.4], [-0.55, 0.70, 1.08, 0.15, 2.6], [-0.80, 0.74, 1.10, 0.19, 2.8],
+	[-1.10, 0.76, 1.00, 0.22, 2.8], [-1.38, 0.82, 0.93, 0.22, 2.4]]
+## The cockpit: its opening on the tub (centre, half width, half length; visual coordinates).
+const COCKPIT := [Vector3(0.0, 0.595, -0.02), 0.25, 0.40]
 const PODS := [[0.75, 0.16, 0.28, 0.36, 2.4], [0.50, 0.14, 0.40, 0.66, 3.4], [0.10, 0.14, 0.44, 0.80, 3.6],
 	[-0.40, 0.14, 0.44, 0.80, 3.6], [-0.80, 0.15, 0.42, 0.70, 3.2], [-1.05, 0.18, 0.38, 0.50, 2.6]]
-const HELMET := Vector3(0.0, 0.86, -0.25)
-const HELMET_R := 0.17
+const HELMET := Vector3(0.0, 0.86, -0.20)
+const HELMET_R := 0.155
 ## The guards over the front wheels and the pods over the rear ones: [angle from, to (deg, from
 ## straight ahead over the top to behind), radius over the tyre, inner and outer x].
 const FRONT_GUARD := [-20.0, 120.0, 0.42, 0.66, 0.92]
-const REAR_POD := [-10.0, 160.0, 0.43, 0.60, 0.92]
+const REAR_POD := [-10.0, 160.0, 0.43, 0.40, 0.92]   ## reaching in over the engine cover: one piece with it
 
 var car: TmCar
 var ghost := false
@@ -102,6 +108,18 @@ func _mat(key: String) -> Material:
 			m.albedo_color = Color(0.05, 0.06, 0.09)
 			m.metallic = 0.6
 			m.roughness = 0.1
+		"cockpit":
+			m.albedo_color = Color(0.03, 0.03, 0.035)
+			m.roughness = 0.9
+		"suit":
+			m.albedo_color = paint_colour.darkened(0.35) if not ghost else ghost_tint
+			m.roughness = 0.8
+		"glass":
+			m.albedo_color = Color(0.7, 0.8, 0.9, 0.3)
+			m.roughness = 0.05
+			m.metallic = 0.2
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			m.cull_mode = BaseMaterial3D.CULL_DISABLED
 		"light":
 			m.albedo_color = Color(0.9, 0.08, 0.05)
 			m.emission_enabled = true
@@ -248,31 +266,17 @@ func _ready() -> void:
 	_part(_loft(ENGINE, "paint", 40))
 	_part(_loft(PODS, "white", 36))
 	_part(_loft(AIRBOX, "white", 28))
-	# the floor, the nose's splitter and the spoiler at the tail
-	_part(_box(Vector3(0.0, 0.13, -0.4), Vector3(1.2, 0.03, 2.0), "carbon"))
-	_part(_box(Vector3(0.0, 0.17, 2.02), Vector3(0.9, 0.025, 0.28), "carbon"))
+	# the floor under the pods, the front wing with its end plates, the spoiler at the tail
+	_part(_box(Vector3(0.0, 0.13, -0.4), Vector3(1.0, 0.03, 1.9), "carbon"))
+	_part(_box(Vector3(0.0, 0.16, 2.0), Vector3(0.9, 0.03, 0.30), "carbon"))
+	_part(_box(Vector3(0.0, 0.20, 1.93), Vector3(0.84, 0.02, 0.12), "paint"))
 	_part(_box(Vector3(0.0, 0.99, -1.74), Vector3(0.84, 0.03, 0.22), "carbon"))
 	for s: float in [-1.0, 1.0]:
+		_part(_box(Vector3(s * 0.455, 0.21, 1.98), Vector3(0.025, 0.16, 0.36), "carbon"))
 		_part(_box(Vector3(s * 0.43, 0.94, -1.72), Vector3(0.025, 0.14, 0.26), "carbon"))
 		_part(_box(Vector3(s * 0.2, 0.86, -1.81), Vector3(0.14, 0.05, 0.02), "light"))
-	# the driver's helmet with its visor
-	var helmet := MeshInstance3D.new()
-	var hm := SphereMesh.new()
-	hm.radius = HELMET_R
-	hm.height = HELMET_R * 2.0
-	helmet.mesh = hm
-	helmet.material_override = _mat("white")
-	helmet.position = HELMET - VIS
-	_part(helmet)
-	var visor := MeshInstance3D.new()
-	var vm := SphereMesh.new()
-	vm.radius = HELMET_R * 1.02
-	vm.height = HELMET_R * 0.8
-	visor.mesh = vm
-	visor.material_override = _mat("visor")
-	visor.position = HELMET - VIS + Vector3(0.0, 0.01, 0.03)
-	visor.scale = Vector3(0.92, 1.0, 1.0)
-	_part(visor)
+	_cockpit()
+	_driver()
 	# wheels: guards over the front ones, pods over the rear ones, wishbones and driveshafts
 	for i in 4:
 		var front := i < 2
@@ -285,21 +289,118 @@ func _ready() -> void:
 		var inner_x := side * (0.22 if front else 0.36)
 		for dy: float in [-0.1, 0.1]:
 			for dz: float in [-0.16, 0.16]:
-				_part(_pipe(Vector3(inner_x, c.y + dy, c.z + dz), hub + Vector3(0.0, dy, 0.0), 0.018, "carbon"))
+				_part(_pipe(Vector3(inner_x, c.y + dy, c.z + dz), hub + Vector3(0.0, dy, 0.0), 0.024, "carbon"))
 		if not front:
 			_part(_pipe(Vector3(side * 0.3, c.y, c.z), hub, 0.035, "metal"))
 	for i in 4:
 		var pivot := Node3D.new()
+		# steered, sprung and spun every rendered frame (_process): not interpolated again between
+		# physics ticks on top of the car's own interpolation
+		pivot.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 		add_child(pivot)
 		var spin := Node3D.new()
 		pivot.add_child(spin)
 		spin.add_child(_tyre())
 		spin.add_child(_rim(signf(T.WHEELS[i].x)))
 		if i < 2:
-			var g := _guard(Vector3.ZERO, FRONT_GUARD, signf(T.WHEELS[i].x))
+			var sx := signf(T.WHEELS[i].x)
+			var g := _guard(Vector3.ZERO, FRONT_GUARD, sx)
 			g.position.x = -T.WHEELS[i].x
 			pivot.add_child(g)
+			# the guard's bracket down to the upright, inside the wheel (it steers with it)
+			var gx := (float(FRONT_GUARD[3]) - absf(T.WHEELS[i].x)) * sx + sx * 0.012
+			var br := _box(Vector3(gx, 0.0, 0.0), Vector3(0.025, 0.40, 0.12), "carbon")
+			br.position = Vector3(gx, 0.21, 0.0)
+			pivot.add_child(br)
+			var up := _box(Vector3.ZERO, Vector3(0.06, 0.24, 0.07), "metal")
+			up.position = Vector3(-sx * 0.16, 0.0, 0.0)
+			pivot.add_child(up)
 		_wheels.append(pivot)
+
+
+## The cockpit's opening: a dark well on the tub, its rim in the car's colour, a low windscreen.
+func _cockpit() -> void:
+	var c: Vector3 = COCKPIT[0]
+	var hw: float = COCKPIT[1]
+	var hl: float = COCKPIT[2]
+	var well := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 1.0
+	cm.bottom_radius = 1.0
+	cm.height = 0.04
+	cm.radial_segments = 28
+	well.mesh = cm
+	well.material_override = _mat("cockpit")
+	well.scale = Vector3(hw, 1.0, hl)
+	well.position = c - VIS
+	_part(well)
+	var rim := MeshInstance3D.new()
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.93
+	tm.outer_radius = 1.06
+	tm.rings = 28
+	tm.ring_segments = 8
+	rim.mesh = tm
+	rim.material_override = _mat("paint")
+	rim.scale = Vector3(hw, 0.35, hl)
+	rim.position = c - VIS + Vector3(0.0, 0.02, 0.0)
+	_part(rim)
+	var screen := _box(Vector3(0.0, 0.70, 0.43), Vector3(0.34, 0.012, 0.16), "glass")
+	screen.rotation.x = deg_to_rad(-38.0)
+	_part(screen)
+
+
+## The driver: helmet (a stripe in the car's colour, a dark visor), neck, shoulders in a race
+## suit, arms to gloved hands on the steering wheel.
+func _driver() -> void:
+	var h := HELMET - VIS
+	_part(_sphere(h, HELMET_R, "white"))
+	var stripe := _sphere(h, HELMET_R * 1.01, "paint")
+	stripe.scale = Vector3(0.28, 1.0, 1.0)
+	_part(stripe)
+	var visor := _sphere(h + Vector3(0.0, 0.015, 0.045), HELMET_R * 0.94, "visor")
+	visor.scale = Vector3(0.95, 0.42, 0.98)
+	_part(visor)
+	_part(_pipe(h + Vector3(0.0, -0.20, -0.01), h + Vector3(0.0, -0.08, 0.0), 0.06, "suit"))
+	var shoulders := MeshInstance3D.new()
+	var cap := CapsuleMesh.new()
+	cap.radius = 0.11
+	cap.height = 0.50
+	shoulders.mesh = cap
+	shoulders.material_override = _mat("suit")
+	shoulders.rotation.z = PI * 0.5
+	shoulders.position = Vector3(0.0, 0.60, -0.16) - VIS
+	_part(shoulders)
+	var wheel_c := Vector3(0.0, 0.70, 0.30)
+	for s: float in [-1.0, 1.0]:
+		var shoulder := Vector3(s * 0.19, 0.64, -0.12)
+		var elbow := Vector3(s * 0.21, 0.60, 0.10)
+		var hand := wheel_c + Vector3(s * 0.11, 0.0, 0.0)
+		_part(_pipe(shoulder - VIS, elbow - VIS, 0.045, "suit"))
+		_part(_pipe(elbow - VIS, hand - VIS, 0.04, "suit"))
+		_part(_sphere(hand - VIS, 0.045, "carbon"))
+	var wheel := MeshInstance3D.new()
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.10
+	tm.outer_radius = 0.13
+	tm.rings = 20
+	tm.ring_segments = 6
+	wheel.mesh = tm
+	wheel.material_override = _mat("carbon")
+	wheel.rotation.x = deg_to_rad(70.0)
+	wheel.position = wheel_c - VIS
+	_part(wheel)
+
+
+func _sphere(c: Vector3, r: float, mat: String) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = r
+	sm.height = r * 2.0
+	mi.mesh = sm
+	mi.material_override = _mat(mat)
+	mi.position = c
+	return mi
 
 
 ## The tyre: a lathed rounded section around the axle (along x).

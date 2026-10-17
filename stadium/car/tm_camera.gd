@@ -16,6 +16,10 @@ var _up := Vector3.UP
 
 
 func _ready() -> void:
+	# placed every rendered frame from the car's interpolated transform: Godot's physics
+	# interpolation on top of that made it trail the car by up to a tick and shake against it,
+	# which TAA then smeared (the car looked blurry while driving)
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	fov = 72.0
 	near = 0.1
 	far = 4000.0

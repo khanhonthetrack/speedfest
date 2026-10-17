@@ -238,6 +238,8 @@ static var _diag_cache := {}
 
 var _road_mat := "asphalt"
 var _road_surf := S_ROAD
+var _gate_kind := "cp"            ## the gate's kind for this shape (TmGateDress.kind_of)
+var _gates: Array[float] = []     ## where this shape's gates stand (z), dressed after building
 
 
 func handles(shape: String) -> bool:
@@ -283,6 +285,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var geo := TmGeo.new()
 	_road_mat = "asphalt"
 	_road_surf = S_ROAD
+	_gate_kind = TmGateDress.kind_of(rest)
+	_gates.clear()
 	var form := _form(rest)
 	var base := _form(shape).trim_suffix("/")
 	if shape == "Grass/Checkpoint/Ground":
@@ -345,7 +349,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_gate(geo, 28.0)
 	else:
 		return null
-	return geo.build()
+	var node := geo.build()
+	for zc: float in _gates:
+		TmGateDress.dress(node, _gate_kind, zc, TOP, geo.sheared)
+	return node
 
 
 ## The closed cross-section as wall_sweep points: (d = x - 16, y).
@@ -846,18 +853,23 @@ func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN -
 
 ## Checkpoint / finish / multilap gate centred at z: the arch on brackets over the curbs, and the
 ## two sign boards on top (visual only).
+## Painted light like TMNF's, its inner face lit in the gate's colour; TmGateDress adds the banner
+## and the road marking once the block is built.
 func _gate(geo: TmGeo, zc: float) -> void:
-	var sec := GATE_ARCH.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
+	_gates.append(zc)
+	var glow := "gate_glow_" + _gate_kind
+	var sec := GATE_ARCH.map(func(q: Array) -> Array:
+		return [Vector2(q[0], q[1]), glow if String(q[2]) == "metal" else "gate", q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, zc - 2.1), Vector3(0, 0, zc + 2.1)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
-		true, "structure", S_METAL)
+		true, "gate", S_METAL)
 	for x0 in [2.9, 27.7]:
-		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "structure", S_METAL)
+		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate", S_METAL)
 	for mirror in [false, true]:
 		var sign := []
 		for q in GATE_SIGN:
-			sign.append([Vector2(32.0 - q[0] if mirror else q[0], q[1]), "screen", TmGeo.NO_COLLISION])
+			sign.append([Vector2(32.0 - q[0] if mirror else q[0], q[1]), "screen_on", TmGeo.NO_COLLISION])
 		geo.wall_sweep(sign, [Vector3(0, 0, zc - 2.25), Vector3(0, 0, zc + 2.25)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
-			true, "screen", TmGeo.NO_COLLISION)
+			true, "screen_on", TmGeo.NO_COLLISION)
 
 
 ## Turbo (and free-wheel) gate: the U-frame round the road (sheared with it, see _turbo_sides).

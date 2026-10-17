@@ -575,3 +575,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, while the standalone tracks were being started)
 
 > But still, in the end if someeone wants to load trackmania maps, such as gbx, then it should be doable in this game
+
+### User (verbatim, session 12, after stadium-v0.1 was released)
+
+> ok but please re-create all the nadeo tracks manually in the game. not just 10 random tracks
+
+### User (verbatim, session 12, instead of an answer about the campaign)
+
+> ok stop. I have concerns about quality. first the tracks looks bad, not many ornaments and background. second, the checkpoints looks very cheap, not like in TMNF, ale also it doesnt show which one is start and which one is finish. The car looks weird, like where is the human? Car parts dont looks connected. When driviing, the car looks blurry.
+>
+> 1. Run an indpeendent review of the game.
+> 2. Fix my concerns and the review comments
