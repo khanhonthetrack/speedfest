@@ -67,7 +67,7 @@ jobs:
         run: sudo ln -sf "$HOME/godot-bin/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux.x86_64" /usr/local/bin/godot
 
       - name: Export Windows + Linux
-        run: stadium/tools/export.sh all
+        run: bash stadium/tools/export.sh all
 
       - name: Upload Windows build
         uses: actions/upload-artifact@v4

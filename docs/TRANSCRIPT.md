@@ -562,3 +562,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 >
 >
 > Of course, all the time remember to regularly commit and push.
+
+### User (verbatim, session 12, after the list was done)
+
+> Yes, tag stadium-v0.1 and push it so the workflow makes a GitHub Release with the zips.
