@@ -2,9 +2,9 @@ class_name TmRaceHud
 extends CanvasLayer
 ## Race HUD in TMNF's layout: the clock at the bottom centre, speed at the bottom right, the map
 ## and its medal times at the top left, checkpoints and laps at the top right, the countdown and
-## checkpoint times in the middle, the result with its medal at the finish. Against the track's
-## record (best): the record under the medal times, and at each checkpoint and the finish the
-## difference to the record's split, blue when ahead, red when behind (as TMNF shows it).
+## checkpoint times in the middle, the finish time (then the race menu's result panel). Against
+## the track's record (best): the record under the medal times, and at each checkpoint and the
+## finish the difference to the record's split, blue when ahead, red when behind (as TMNF shows it).
 
 var race: TmRace
 var car: TmCar
@@ -22,9 +22,7 @@ var _count: Label
 var _centre: Label
 var _delta: Label
 var _flash_left := 0.0
-var _centre_y := 0.0
-var _delta_y := 0.0
-const FINISH_LIFT := 190.0
+const FINISH_FLASH := 1.5           ## seconds: then the race menu shows the result panel
 
 const AHEAD := Color(0.35, 0.6, 1.0)
 const BEHIND := Color(1.0, 0.3, 0.25)
@@ -45,8 +43,6 @@ func _ready() -> void:
 	_count = _label(30, Control.PRESET_TOP_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, 22))
 	_centre = _label(60, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -120), TmUi.HEAD)
 	_delta = _label(40, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, 40), TmUi.HEAD)
-	_centre_y = _centre.position.y
-	_delta_y = _delta.position.y
 	_update_info()
 	if race:
 		race.checkpoint_taken.connect(_on_checkpoint)
@@ -101,8 +97,6 @@ func reset() -> void:
 	_flash_left = 0.0
 	_centre.text = ""
 	_delta.text = ""
-	_centre.position.y = _centre_y
-	_delta.position.y = _delta_y
 
 
 func _flash(text: String, colour: Color, secs: float, delta_ms := 0, has_delta := false) -> void:
@@ -134,18 +128,12 @@ func _on_lap(lap: int, time_ms: int) -> void:
 	_flash("%s\nLap %d / %d" % [TmRace.time_text(time_ms), lap + 1, race.laps], Color.WHITE, 2.5, time_ms - b, b >= 0)
 
 
-## The finish: the time, its medal, the difference to the record before this run (prev) and
-## whether it is a new record.
-func show_finish(time_ms: int, prev: Dictionary, record: bool) -> void:
+## The finish: the time in its medal's colour and the difference to the record before this run
+## (prev), for the moment until the race menu's result panel (TmRaceMenu.show_finish) takes over.
+func show_finish(time_ms: int, prev: Dictionary, _record: bool) -> void:
 	var m := TmRace.medal(time_ms, challenge) if challenge else ""
-	var line := ("%s medal" % m.capitalize()) if not m.is_empty() else "Finished"
-	if record:
-		line += "\nNew record!"
 	var b := int(prev.get("time_ms", -1))
-	_flash("%s\n%s" % [TmRace.time_text(time_ms), line], MEDAL_COLOURS[m], 1e9, time_ms - b, b >= 0)
-	# the result high up, clear of the car and of the finish menu below it
-	_centre.position.y = _centre_y - FINISH_LIFT
-	_delta.position.y = _delta_y - FINISH_LIFT + 40.0
+	_flash(TmRace.time_text(time_ms), MEDAL_COLOURS[m], FINISH_FLASH, time_ms - b, b >= 0)
 
 
 func _process(delta: float) -> void:

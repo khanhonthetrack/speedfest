@@ -97,6 +97,19 @@ func _race_menu() -> void:
 	TestHooks.check(names == ["RETRY", "NEXT TRACK", "MENU"], "race_menu_finish", str(names))
 	(_buttons(rm)[0] as Button).pressed.emit()
 	TestHooks.check(restarts[0] == 1 and not rm.finished, "race_menu_retry")
+	# the result panel: the time, the medal it earns, the record, the medal times and what's left
+	rm.show_finish({"name": "Kickoff", "time_ms": 55000, "prev_ms": 56230, "record": true,
+		"medals": {"author": 54440, "gold": 57800, "silver": 66000, "bronze": 82000}})
+	await get_tree().process_frame
+	var texts := _labels(rm)
+	names = _buttons(rm).map(func(b: Button) -> String: return b.text)
+	TestHooks.check(texts.has("0:55.00") and texts.has("GOLD MEDAL") and texts.has("NEW RECORD") and texts.has("-1.23")
+		and texts.has("+0.56") and texts.has("0:54.44") and names == ["RETRY", "NEXT TRACK", "MENU"], "race_menu_result",
+		"%s %s" % [texts, names])
+	rm.toggle_pause()
+	rm.toggle_pause()
+	await get_tree().process_frame
+	TestHooks.check(_labels(rm).has("GOLD MEDAL"), "race_menu_result_after_pause")
 	rm.queue_free()
 
 

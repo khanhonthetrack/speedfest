@@ -184,6 +184,8 @@ func _on_finished(time_ms: int) -> void:
 	run.finish_ms = time_ms
 	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
 	hud.show_finish(time_ms, best, new_record)
+	var result := {"name": challenge.name, "time_ms": time_ms, "prev_ms": int(best.get("time_ms", -1)), "record": new_record,
+		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms}}
 	audio.cue("record" if new_record else "finish")
 	if online:
 		online.on_finish(time_ms)
@@ -192,9 +194,9 @@ func _on_finished(time_ms: int) -> void:
 		best_ghost = run if TmUi.setting("ghost") else null
 		hud.best = best
 	var this_run := run
-	get_tree().create_timer(1.5).timeout.connect(func() -> void:
+	get_tree().create_timer(TmRaceHud.FINISH_FLASH).timeout.connect(func() -> void:
 		if run == this_run and race.state == TmRace.State.FINISHED:
-			menu.show_finish())
+			menu.show_finish(result))
 
 
 func _unhandled_input(event: InputEvent) -> void:

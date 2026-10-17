@@ -1458,3 +1458,15 @@ backs darker, a seat every 0.5 m), sectors 20 m wide in two blues with concrete 
 them, a walkway every 12 rows; each detail fades to its average where a pixel covers half of it
 (the old rows faded out from 50 m), and flat tops using the material (booth roofs, the Fabric
 stands' decks) stay plain.
+
+## 2026-10-17 — Session 12: a result panel at the finish (review), branch `stadium`
+From the review ("a result panel instead of the stacked HUD text"). At the finish the HUD flashes
+the time in its medal's colour with the difference to the record for 1.5 s
+(`TmRaceHud.FINISH_FLASH`), then `TmRaceMenu.show_finish(result)` opens one result panel in the
+middle of the screen, on darker glass: the track's name, the time, the medal it earns (a disc in
+the medal's colour, or "NO MEDAL"), NEW RECORD and the difference to the record before this run,
+the four medal times (beaten ones bright; the others dim with the time still to find), and RETRY /
+NEXT TRACK / MENU in a row. `race/race.gd` passes {name, time_ms, prev_ms, record, medals}; the
+panel comes back with its result after the pause menu. `tests/test_menu`: race_menu_result,
+race_menu_result_after_pause. Note for screenshots: `race.tscn --bot` records its finishes like a
+player's; pass `--records=<scratch dir>` so the player's records stay theirs.
