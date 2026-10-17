@@ -22,11 +22,17 @@ const GROUND_FLAG := 4096
 const MAP := 32
 const SIDE: Array[Vector3i] = [Vector3i(0, 0, 1), Vector3i(-1, 0, 0), Vector3i(0, 0, -1), Vector3i(1, 0, 0)]
 const ROAD_Y := 1.345            ## the road's top above its level's base (m)
-const LOOP_R := 44.0             ## the loops' radius (blocks/shapes/road.gd LOOP_BASE_R)
+const LOOP_R := 44.0 - ROAD_Y    ## the loop road's radius (blocks/shapes/road.gd: LOOP_BASE_R less TOP)
 const LOOP_SHIFT := 64.0         ## and how far each half turn drifts sideways (LOOP_FRAMES m)
+const LOOP_EASE := 40.0          ## the line eases into and out of a loop's drift over this (m)
+const LOOP_GRIP_COS := 0.32      ## where the loop is steeper than this (|cos| of its tilt), hold straight
 const STEP := 8.0                ## path point spacing (m)
 
-enum Drive { STEER, BLIND }      ## a path point: steer towards it, or hold straight (loops, jumps)
+## A path point: steer towards it; hold straight (BLIND: over jumps); steer towards it for the
+## turn the car makes at its speed (LOOP: into, round and out of loops, at 300 km/h and more); or
+## hold straight but look through it (WALL: a loop's steep sides, where the tyres don't grip:
+## TmTuning slope adherence, none below |cos| 0.3).
+enum Drive { STEER, BLIND, LOOP, WALL }
 
 var blocks: Array = []           ## [{name, dir, coord, flags, ground}] like TmChallenge.blocks
 ## The line to drive: [{p: Vector3 (Godot), dir: Vector3 (Godot, unit), mode: Drive, r: float
@@ -37,6 +43,8 @@ var checkpoints := 0
 var cell := Vector3i(16, GROUND_LEVEL, 2)
 var heading := 0
 var _occupied := {}
+var _loops: Array = []           ## each loop's line: {piece, start, end (path indices), face, exit, f, lat}
+var _pieces := 0
 
 
 ## Lays out a track spec.
@@ -46,9 +54,12 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 	b.cell = Vector3i(int(s[0]), int(s[1]), int(s[2]))
 	b.heading = posmod(int(s[3]), 4)
 	for p: Array in spec.get("pieces", []):
+		b._pieces += 1
 		b.piece(p)
 		if not b.errors.is_empty():
 			break
+	if b.errors.is_empty():
+		b.ease_loops()
 	if b.errors.is_empty():
 		b.add_pillars()
 	return b
@@ -336,13 +347,101 @@ func _loop(right: bool) -> void:
 		return
 	cell = e + SIDE[side_h] * 4
 	heading = h
-	# the line: a helix (blocks/shapes/road.gd _loop: each half turn drifts 64 m sideways), up
-	# through the first block, over the top above the entry and down through the second
+	# the line: a helix on the road (blocks/shapes/road.gd _loop: each half turn drifts 64 m
+	# sideways), up through the first block, over the top above the entry and down through the
+	# second; held straight where it is steep. Loop points also carry the road's normal (n) and
+	# the line's curvature about it (k, 1/m, + = to the left; 0: the helix is the cylinder's
+	# straight line). ease_loops eases the line into the drift and out of it.
 	var f := vec(h)
 	var lat := vec(side_h)
 	var n := 48
+	var start := path.size()
 	for i in range(1, n + 1):
 		var th := TAU * float(i) / n
 		var p := face + lat * (LOOP_SHIFT * th / PI) + Vector3(0, LOOP_R * (1.0 - cos(th)), 0) + f * (LOOP_R * sin(th))
 		var t := lat * (LOOP_SHIFT / PI) + Vector3(0, LOOP_R * sin(th), 0) + f * (LOOP_R * cos(th))
-		_point(p, t.normalized())
+		_point(p, t.normalized(), Drive.WALL if absf(cos(th)) < LOOP_GRIP_COS else Drive.LOOP)
+		path[path.size() - 1]["n"] = to_godot(Vector3(0, cos(th), 0) - f * sin(th))
+		path[path.size() - 1]["k"] = 0.0
+	_loops.append({"piece": _pieces, "start": start, "end": path.size() - 1, "face": to_godot(face),
+		"exit": to_godot(face + lat * LOOP_SHIFT * 2.0), "f": to_godot(f), "lat": to_godot(lat)})
+
+
+## TMNF's loop drifts sideways from its first frame on (blocks/shapes/road.gd _loop): its road
+## turns ~25 deg off the straight that leads in, and back onto the one that leads out. A car can't
+## turn that sharply at loop speeds, and a wheel that meets the curb brings TMNF's wall slow-down
+## (~60 m/s^2 for half a second: the car falls before the top). So the line eases into the drift
+## over LOOP_EASE m either side of the entry (on the straight before it and the loop's floor), and
+## out of it either side of the exit: in the loop unrolled flat, the corner between the two
+## straight lines becomes a parabola, at most LOOP_EASE * k / 4 (~4.6 m) inside the corner. Each
+## end needs a straight block next to the loop.
+func ease_loops() -> void:
+	var k := LOOP_SHIFT / (PI * LOOP_R)          # sideways drift per metre forward
+	for lp: Dictionary in _loops:
+		var face: Vector3 = lp["face"]
+		var ex: Vector3 = lp["exit"]
+		var f: Vector3 = lp["f"]
+		var lat: Vector3 = lp["lat"]
+		var start: int = lp["start"]
+		var end: int = lp["end"]
+		var n := end - start + 1
+		# how much straight road the line has before the entry and after the exit
+		var t_in := 0.0
+		var j := start - 1
+		while j >= 0 and _on_straight(j, face, f, lat) and -(path[j]["p"] - face).dot(f) <= LOOP_EASE + 0.01:
+			t_in = maxf(t_in, -(path[j]["p"] - face).dot(f))
+			j -= 1
+		var t_out := 0.0
+		j = end + 1
+		while j < path.size() and _on_straight(j, ex, f, lat) and (path[j]["p"] - ex).dot(f) <= LOOP_EASE + 0.01:
+			t_out = maxf(t_out, (path[j]["p"] - ex).dot(f))
+			j += 1
+		if t_in < 31.9 or t_out < 31.9:
+			errors.append("loop (piece %d) needs a straight block before and after it" % lp["piece"])
+			return
+		for i in range(maxi(0, start - 8), mini(path.size(), end + 9)):
+			# the point's distance forward of the entry (the loop: along its circle), and its tangent
+			# per metre forward
+			var s: float
+			var tan: Vector3
+			if i < start:
+				s = (path[i]["p"] - face).dot(f)
+				tan = f
+			elif i <= end:
+				var th := TAU * float(i - start + 1) / n
+				s = LOOP_R * th
+				tan = lat * k + Vector3.UP * sin(th) + f * cos(th)
+			else:
+				s = LOOP_R * TAU + (path[i]["p"] - ex).dot(f)
+				tan = f
+			# the shift across, and its change per metre forward (the entry and exit points count
+			# as the loop's: their tangent is the loop's)
+			var du := 0.0
+			var slope := 0.0
+			var bend := 0.0                      # the shift's second derivative
+			var d := s - LOOP_R * TAU
+			if absf(s) <= t_in:
+				du = k * pow(absf(s) - t_in, 2) / (4.0 * t_in)
+				slope = (-1.0 if i < start else 1.0) * k * (absf(s) - t_in) / (2.0 * t_in)
+				bend = k / (2.0 * t_in)
+			elif absf(d) <= t_out:
+				du = -k * pow(absf(d) - t_out, 2) / (4.0 * t_out)
+				slope = (-1.0 if i > end else 1.0) * k * (absf(d) - t_out) / (2.0 * t_out)
+				bend = -k / (2.0 * t_out)
+			else:
+				continue
+			var dir := (tan + lat * slope).normalized()
+			var nrm: Vector3 = path[i].get("n", Vector3.UP)
+			var drift := (k if i >= start and i <= end else 0.0) + slope
+			path[i]["p"] = path[i]["p"] + lat * du
+			path[i]["dir"] = dir
+			path[i]["mode"] = Drive.LOOP
+			path[i]["n"] = nrm
+			path[i]["k"] = bend / pow(1.0 + drift * drift, 1.5) * signf(lat.dot(nrm.cross(dir)))
+
+
+## Path point i lies on the straight line through `at` along f (steered, heading along f).
+func _on_straight(i: int, at: Vector3, f: Vector3, lat: Vector3) -> bool:
+	var pt: Dictionary = path[i]
+	return int(pt["mode"]) == Drive.STEER and absf((pt["p"] - at).dot(lat)) < 0.5 \
+		and absf((pt["p"] - at).y) < 0.5 and (pt["dir"] as Vector3).dot(f) > 0.999 and float(pt["r"]) == 0.0

@@ -148,7 +148,9 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       out by `race/tm_track_builder.gd` from the recreated blocks, `race/tm_tracks.gd`, the driving
       bot `race/tm_bot.gd` that finishes each track and sets its medals (`tests/test_tracks`); menu,
       race and the online server use them by default; TMNF's campaign and .Challenge.Gbx files stay
-      as extras. Open: loops (the car loses ~9 g in them), more tracks, a track editor
+      as extras. Loops fixed (the bot's eased line and loop steering, a seam contact fix; SF11 Full
+      Circle has two). Open: the bot's high-speed weaving (re-medal after), more tracks, a track
+      editor
 - [x] 8. Release `stadium-v0.1` (2026-10-17): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1 (Windows 53 MB and Linux
       44 MB zips, built by CI from the tag)
 

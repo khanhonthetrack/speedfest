@@ -201,7 +201,9 @@ func _substep(h: float) -> void:
 ## the side the shape's centre is on and the depth re-measured from the ellipsoid's extent.
 ## A shallow pair's point difference has no usable direction (the query returns world points in
 ## float32: ~0.1 mm steps at 1 km from the origin, so a 0.01 mm contact reads as straight up or down):
-## its normal is the face normal under the point, or that of a nearby contact already found.
+## its normal is the face normal under the point, or that of a nearby contact already found. The
+## deep pairs go first, so a shallow one finds the contact it belongs to: a wheel pressed into the
+## road also grazes the end cap under a block seam, and alone that pair's face could be the cap.
 func _contacts(shape: Shape3D, xf: Transform3D, half: Vector3) -> Array:
 	_query.shape = shape
 	_query.transform = xf
@@ -209,11 +211,20 @@ func _contacts(shape: Shape3D, xf: Transform3D, half: Vector3) -> Array:
 	var res := _space.collide_shape(_query, 16)
 	var out: Array = []
 	var inv_b := xf.basis.transposed()
+	for pass_i in 2:
+		_contact_pass(res, pass_i == 0, out, xf, inv_b, half)
+	return out
+
+
+## One pass of _contacts over the query's pairs: the deep ones, or the shallow ones.
+func _contact_pass(res: Array, deep: bool, out: Array, xf: Transform3D, inv_b: Basis, half: Vector3) -> void:
 	for k in range(0, res.size() - 1, 2):
 		var a: Vector3 = res[k]
 		var p: Vector3 = res[k + 1]
 		var d := p - a
 		var depth := d.length()
+		if (depth >= NORMAL_MIN_DEPTH) != deep:
+			continue
 		var to_c := xf.origin - p
 		var n: Vector3
 		if depth >= NORMAL_MIN_DEPTH:
@@ -248,13 +259,26 @@ func _contacts(shape: Shape3D, xf: Transform3D, half: Vector3) -> Array:
 				break
 		if not merged:
 			out.append([n, depth, p])
-	return out
 
 
 ## Normal of the face at a contact point, turned toward `to_c` (the shape's centre); zero if the
-## short ray finds no face.
+## short ray finds no face. A face edge-on to the contact (more than 60 deg off: on a seam
+## between blocks the ray can hit the end cap below it) gives way to the faces either side of it.
 func _face_normal(p: Vector3, to_c: Vector3) -> Vector3:
 	var u := to_c.normalized()
+	var n := _ray_normal(p, u)
+	if n == Vector3.ZERO or n.dot(u) >= 0.5:
+		return n
+	var across := (n - u * n.dot(u)).normalized()
+	for side: float in [0.02, -0.02]:
+		var m := _ray_normal(p + across * side, u)
+		if m.dot(u) > n.dot(u):
+			n = m
+	return n
+
+
+## The face normal the short ray along -u through p finds, turned toward u; zero if none.
+func _ray_normal(p: Vector3, u: Vector3) -> Vector3:
 	_nray.from = p + u * 0.05
 	_nray.to = p - u * 0.05
 	_nray.collision_mask = collision_mask

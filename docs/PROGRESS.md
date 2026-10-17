@@ -1256,3 +1256,53 @@ load trackmania maps, such as gbx, then it should be doable in this game".
   https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1 (SpeedFestStadium-windows.zip 53 MB, -linux.zip 44 MB;
   release notes = PLAYING.txt). The exported Windows build was checked locally without TMNF:
   the campaign page lists the 10 tracks, Drift King races with its medals.
+
+## 2026-10-17 — Session 12: loops fixed (the bot gets round them), new track SF11 Full Circle, branch `stadium`
+- **Cause of the "9 g in loops"**: not the contact physics. TMNF's loop (measured `Loop/RightAir`:
+  the curbs move 1 m sideways per 180/64-deg frame from frame 0 on) is a helix on a cylinder about
+  the lateral axis: its road turns ~25.5 deg off the straight that leads in (unrolled), and back at
+  the exit. A car going straight follows the cylinder's straight line, a vertical circle; the road
+  drifts away and the outer wheel meets the curb ~13 m sideways (6 m up). The curb is a wheel side
+  contact, so TMNF's wall slow-down (~60 m/s^2 for 500 ms, `WALL_SLOWDOWN`) brakes the car: the
+  "9 g with wheel contact flickering" (the flicker is normal impulse contact under ~20 g). The bot
+  steered, but its gain (2.2 x angle) is ~3x too low at 360 km/h, where TMNF's full lock only turns
+  the car at ~0.86 rad/s (a ~116 m radius), and it aimed at the raw kink.
+- Checked with the car put on the helix at the loop's entry (no steering, gas): 300 km/h goes round
+  with 203 km/h at the top and no curb contact; wheel impulse losses are small (5-8 m/s^2 at the
+  bottom, the persistent ~3 m/s approach the 0.8 impulse leaves); 30 m/s^2 ground gravity costs the
+  rest. A loop needs about 280 km/h or more: at the top the car needs >= 129 km/h (30 x 42.7 m) to
+  stay on the ceiling (269 km/h in: 85 km/h at the top, it falls).
+- **The line** (`TmTrackBuilder`): the loop's helix now lies on the road (radius 44 - 1.345 m, it
+  was the base circle) and `ease_loops` (after laying out) eases it into the drift over 40 m either
+  side of the entry and the exit: in the loop unrolled flat, a parabola between the two straight
+  lines, at most 4.6 m inside the corner, ending at 52 deg (still full grip). A loop needs a
+  straight block before and after it (layout error otherwise). Points carry their mode: `LOOP`
+  (the eased stretches, the loop's floor and ceiling), `WALL` (|cos tilt| < 0.32: no side grip
+  there, hold straight), with the road's normal `n` and the line's curvature `k` about it.
+- **The bot** (`TmBot`): on LOOP points it steers in the road's own frame (aiming at a 3D point on
+  a cylinder reads the helix's twist as a turn): the line's curvature plus a pull back from its
+  offset and heading (2 rad/s, damping 0.8), as a share of the yaw rate full lock gives at that
+  speed (TMNF's steady yaw rate, tmnf_physics 3.4). The heading, not the velocity: up the steep
+  side gravity bends the velocity, not the heading, and the grip at the top brings them together.
+  In the air (5 ticks without a wheel on anything) it steers with the car's spin (TMNF damps it 3x),
+  so it lands straighter. Straight-and-curve driving (STEER points) is unchanged.
+- **A contact bug under high load** (`TmBody._contacts`), found at a loop's exit: a wheel 43 mm into
+  the road at a block seam also grazes the straight block's end cap under the seam (a 1 mm pair at
+  the edge). Shallow pairs take a face normal from a short ray, and if that pair came first in the
+  query's results the ray found the cap: normal (0, 0, -1), against the travel, and the "ground"
+  impulse took 20% of 83 m/s (-47 km/h in one tick). Now the deep pairs go first (a shallow pair
+  joins the contact it belongs to), and a face edge-on to the contact (> 60 deg off) gives way to
+  the faces either side of it. This could hit any seam: with only this fix the bot's times
+  dropped on most tracks (Drift King 33.56 vs its 33.98 author time, Night Shift 34.41 vs 34.95,
+  Last Call 38.58 vs 39.44). Shared core: sync
+  `game/cars/tm` on `tmnf-physics` when that branch moves on. model lab 44, car body 22, shapes 11.
+- Loop test runs (tracks made for it, then deleted): entries 279-404 km/h all go round with no curb
+  contact, the car within 3-6 m of the line (279: 137 km/h at the top; 361: 270; 404: 311).
+- **New track SF11 Full Circle**: a right loop after a turbo (in at 324 km/h), a checkpoint, a GT3,
+  a left loop after a turbo (381 km/h), a GT3 and the finish. `--write_medals`: the bot finished at
+  every grip (30-75), best 22.48 s at grip 60: author 22.48, gold 23.9, silver 27, bronze 34.
+- The shipped tracks' medals are unchanged; all ten still finish within gold. Known weakness (not
+  new): the bot weaves at 250+ km/h on STEER points (its 2.2 gain), so a flight off a slope crest
+  (Kickoff, right after the GT3) takes off with a yaw rate and lands sideways; Kickoff finished by
+  luck before and still does. Fix for later: the road-frame steering for STEER points too, then
+  re-medal.

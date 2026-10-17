@@ -1,0 +1,8 @@
+{
+	"name": "Full Circle",
+	"author": "SpeedFest",
+	"start": [16, 1, 2, 0],
+	"medals": {"author": 22480, "gold": 23900, "silver": 27000, "bronze": 34000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 3], ["turbo"], ["s", 2], ["loop", "r"], ["s", 2], ["cp"], ["s", 1], ["gt", 3, "l"], ["s", 2], ["turbo"], ["s", 2], ["loop", "l"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["finish"]]
+}

@@ -69,12 +69,14 @@ Commit like this, so a failing gate never lands:
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
-- **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF10.json`, laid out by
+- **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF11.json`, laid out by
   `race/tm_track_builder.gd`, listed by `race/tm_tracks.gd`; `tests/test_tracks` (in the gate)
   drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then
   `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
   (README "Make a track"). `tests/tmp/track_dump` (untracked; recreate: prints an ASCII map) helps.
-  Released as `stadium-v0.1` (GitHub Release). Next: **fix loops** (HANDOFF), then more tracks.
+  Released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
+  "loops fixed"). Next: the bot's steering on ordinary road (it weaves at 250+ km/h: give STEER
+  points the road-frame steering loops use, then re-medal), then more tracks.
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
 - Block library: **campaign coverage 100%** (41523 blocks, 0 placeholders, 0 unknown).
@@ -145,6 +147,11 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
    `docs/PLAN.md`.
 
 ## Gotchas
+- Loops: TMNF's loop drifts ~25 deg sideways from its first frame (a helix on a cylinder), so the
+  car must be steered into it; a wheel on the curb brings TMNF's wall slow-down (~60 m/s^2 for
+  500 ms), which reads like "the car loses 9 g". The bot's line eases into it
+  (`TmTrackBuilder.ease_loops`). Debug speed losses by tallying each velocity change by cause
+  (model force, gravity, wheel and chassis impulses) per tick before blaming the contacts.
 - A measurement can sit under a location `extract_surf.py` doesn't apply (seen once:
   YShaped/Diag2SlopeUpAir is offset by (40, 0, 80)); if a fidelity score is absurdly low, check the
   mesh's bounds against the block's footprint first.

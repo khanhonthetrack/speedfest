@@ -61,7 +61,9 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 ## Make a track
 A track is a list of pieces laid end to end (`tracks/SF01.json`; pieces in
 `race/tm_track_builder.gd`): `["start"]`, `["s", 3]`, `["gt", 3, "r"]`, `["cp"]`, `["up"]`,
-`["jump", 1]`, `["turbo"]`, `["finish"]`, ... Save it as `tracks/<ID>.json`, then
+`["jump", 1]`, `["loop", "r"]`, `["turbo"]`, `["finish"]`, ... A loop needs a straight block (or a
+turbo, a checkpoint) before and after it and about 300 km/h in (a turbo a block or two before it).
+Save it as `tracks/<ID>.json`, then
 
     stadium/tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals
 

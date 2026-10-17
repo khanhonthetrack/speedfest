@@ -74,6 +74,13 @@ again upside-down (|cos| = 1, e.g. the top of a loop). There is no stick force: 
 springs (pressed by speed and curvature) hold the car while gravity drags it down. A fast car crosses
 a curved wall before it slides off; a slow one falls.
 
+Loops (remake, session 12): the Stadium loop is a helix on a cylinder (radius 42.66 m to the road,
+64 m sideways per half turn from the first frame on, measured), so its road turns ~25.5° off the
+straight leading in. Nothing in the model pushes the car sideways (gravity has no component along
+the cylinder's axis), so the car must be steered into the drift on the loop's floor, while it still
+grips; a wheel on the curb is a side contact and brings the wall slow-down (§3.9). On the 30 m/s²
+ground gravity the car needs ≥ 129 km/h at the top (g·R) and so about 280 km/h in.
+
 ### 3.4 Steering
 - Input slews to the target at **20/s** [0x94] (full lock in 0.05 s, keyboard or pad alike).
 - Steer angle **δ = steer · asin(1 / (2 + 0.85·|v|))** [0x6c, 0x70], v in m/s: 30° at rest, 2.2° at

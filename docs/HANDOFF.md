@@ -11,10 +11,19 @@
 - **Released `stadium-v0.1`** (owner-approved, held until the game was standalone):
   https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1: the Windows and Linux zips CI built from the tag; that
   link is what to send to friends. Next release: tag `stadium-v0.2` the same way.
-- **Known issue, next to fix:** loops. The car decelerates at ~9 g inside a loop (wheel contact
-  flickers under the g-load) and falls before the top, even at 330 km/h; TMNF's campaign loops
-  (B13, C04) are affected too. Start from `tests/test_tracks.gd --trace` on a track with
-  `["loop", "r"]` after two turbos (see PROGRESS) and `core/tm_body.gd`'s contact handling.
+- **Loops fixed** (PROGRESS, "loops fixed"): the ~9 g was TMNF's wall slow-down. The measured
+  loop drifts ~25 deg sideways from its first frame, so a car going straight meets the curb. The
+  bot's line now eases into and out of the drift (`TmTrackBuilder.ease_loops`), and on loops the bot
+  steers in the road's frame for the yaw rate the car has at speed (`TmBot._loop_steer`). It gets
+  round from ~280 km/h in (the car needs >= 129 km/h at the top). A contact bug found on the way is
+  fixed too (`TmBody._contacts`: a block seam's end cap could give a wheel a backwards normal,
+  -20% speed in one tick). New track **SF11 Full Circle** (two loops). Players steer into a loop's
+  drift themselves, in TMNF's tracks (B13, C04) too: the model has no force that would carry the
+  car sideways.
+- **Next:** the bot weaves at 250+ km/h on ordinary road (its old 2.2 steering gain), so flights
+  off slope crests (Kickoff) take off with a yaw rate; give STEER points the road-frame steering
+  too, then re-run `--write_medals` on every track. Then more tracks (loops: a straight block before
+  and after, enter at 300+ km/h).
 - The official server (owner's PC, Cloudflare quick tunnel, address in
   `stadium/server/official.json`) runs the new code; after pulling server or track changes run
   `stadium/server/restart_server.ps1` (keeps the address).
