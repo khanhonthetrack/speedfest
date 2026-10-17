@@ -96,3 +96,15 @@ originals on a local install (numbers only, nothing from the game is committed):
    table pushed it into another 256-byte refill: the Fabric solids failed); `body_start()` parses
    the table. The backtracking search (`pak_search.py`) is a last resort: on small files Adler-32
    can accept a wrong path, so check its outputs by parsing them.
+
+## Reference renders (session 13): the original's look next to ours
+
+    python3 -I tools/research/tmnf/ref_visuals.py WORK OUT     # after setup_measurements.sh WORK
+
+writes, for local use only (never commit OUT), every decrypted solid's visual meshes with texture
+coordinates (`visual_mesh.py --uv`), each material's texture names (`materials.json`) and the
+install's `.dds` images as PNG. Started with `--ref=OUT`, the remake draws blocks with them (our
+collision stays; `stadium/blocks/tm_ref_visuals.gd`), and `race/map_view.tscn` can put TMNF's car
+next to ours (`--car=both --car_ahead=40 --view=car:35:6`). TMNF's v coordinate runs up (flipped
+on load). Seen on the first renders: TMNF's own text reads mirrored under our x negation, so the
+remake's world may be a mirror image of TMNF's (to verify before relying on it).

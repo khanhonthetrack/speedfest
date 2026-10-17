@@ -40,6 +40,14 @@ func make(shape: String, entry: Dictionary, ground: bool) -> Node3D:
 		if fam.handles(shape):
 			made = fam.make(shape, entry, ground)
 			break
+	if made != null and TmRefVisuals.active():
+		var ref := TmRefVisuals.visual(shape)    # research: the original's look, our collision
+		if ref != null:
+			for c in made.get_children():
+				if c is MeshInstance3D:
+					made.remove_child(c)
+					c.free()
+			made.add_child(ref)
 	_cache[shape] = made
 	return null if made == null else made.duplicate()
 

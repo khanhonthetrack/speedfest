@@ -2,11 +2,12 @@
 tree (children, locations), reads each indexed triangle visual (vertices, triangles) with its
 material's name, and the lights hung in the tree, all in solid space -> JSON (local measurements,
 never committed). Layouts follow GBX.NET's chunk descriptions (format knowledge only).
-usage: python3 -I visual_mesh.py SOLID.Gbx OUT.json"""
+usage: python3 -I visual_mesh.py SOLID.Gbx OUT.json [--uv]   (--uv: texture coordinates and normals too)"""
 import sys, os, json, struct
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gbxnode
 from gbxnode import chunk, Ext
+WANT_UV = '--uv' in sys.argv   # also texture coordinates (2 sets) and normals, for reference renders
 
 
 # --- CPlugTree 0x0904F000 (and CPlugTreeVisualMip 0x09015000, CPlugTreeLight 0x09062000)
@@ -50,11 +51,15 @@ def _(r, n):
     n['flags'] = chunk_flags(r.i32())
     ntc = r.i32(); n['count'] = cnt = r.i32()
     n['streams'] = [r.noderef() for _ in range(r.u32())]
+    n['uvs'] = []
     for _ in range(ntc):
         v = r.i32()
         if v >= 3:
             assert r.i32() == cnt; fl = r.i32()
-        r.p += cnt * (8 + (4 if v >= 1 else 0) + (4 if v >= 2 else 0) if v < 3 else 8)
+        stride = 8 + (4 if v >= 1 else 0) + (4 if v >= 2 else 0) if v < 3 else 8
+        if WANT_UV and len(n['uvs']) < 2:   # u, v lead each texcoord vertex
+            n['uvs'].append([struct.unpack_from('<2f', r.d, r.p + i * stride) for i in range(cnt)])
+        r.p += cnt * stride
         if v >= 3: r.p += 4 * ((cnt * fl) & 0xFF)
     if n['flags'] & 7: raise ValueError('skinned visual')
     n['box'] = r.vec(6)
@@ -67,11 +72,14 @@ def _(r, n):
     has_n = not bit(22) or bit(7); has_c = not bit(22) or bit(8)
     if not n.get('streams'):
         stride = 12 + ((4 if bit(20) else 12) if has_n else 0) + ((4 if bit(21) else 16) if has_c else 0)
-        verts = []
+        verts = []; norms = []
         for i in range(n['count']):
             verts.append(struct.unpack_from('<3f', r.d, r.p + i * stride))
+            if WANT_UV and has_n and not bit(20):
+                norms.append(struct.unpack_from('<3f', r.d, r.p + i * stride + 12))
         r.p += stride * n['count']
         n['verts'] = verts
+        if norms: n['norms'] = norms
     per = (~((fl >> 17) & 0xFF) & 8) | 4
     for _ in range(2):
         k = r.i32(); r.p += k * per
@@ -132,9 +140,14 @@ def walk(tree, m, path, out, lights):
     v = tree.get('visual')
     if isinstance(v, gbxnode.Node) and v.get('verts') and v.get('indices'):
         idx = v['indices']
-        out.append(dict(name=name, mat=short(tree.get('shader')),
-                        verts=[[round(c, 3) for c in apply(m, p)] for p in v['verts']],
-                        tris=[idx[i:i + 3] for i in range(0, len(idx) - 2, 3)]))
+        o = dict(name=name, mat=short(tree.get('shader')),
+                 verts=[[round(c, 3) for c in apply(m, p)] for p in v['verts']],
+                 tris=[idx[i:i + 3] for i in range(0, len(idx) - 2, 3)])
+        if WANT_UV:
+            R = m[:9] + (0, 0, 0)
+            if v.get('norms'): o['norms'] = [[round(c, 4) for c in apply(R, q)] for q in v['norms']]
+            o['uvs'] = [[[round(c, 5) for c in t] for t in uv] for uv in v.get('uvs', [])]
+        out.append(o)
     if 'light' in tree:
         lights.append(dict(name=name, light=short(tree['light']), loc=[round(c, 4) for c in m]))
     for c in tree.get('children', []) or []:
@@ -144,6 +157,7 @@ def walk(tree, m, path, out, lights):
 
 
 if __name__ == '__main__':
+    sys.argv = [a for a in sys.argv if a != '--uv']
     root, r = gbxnode.load(sys.argv[1])
     out, lights = [], []
     walk(root.get('tree'), ID, '', out, lights)
