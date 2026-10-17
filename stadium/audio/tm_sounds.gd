@@ -1,13 +1,19 @@
 class_name TmSounds
 extends RefCounted
-## The remake's sounds, synthesized at start (our own; no sound files): engine loops on and off
-## the throttle (a harmonic stack with a firing buzz), tyre skid and wind (filtered noise), and
-## the race's cues (countdown, checkpoint, finish, record, respawn, wall hit, turbo, menu). Each
-## stream is made once and cached.
+## The remake's sounds: open-licensed recordings in audio/sfx (an engine loop under load and one
+## coasting, tyre squeal, wind, Kenney's interface and impact sounds; audio/sfx/CREDITS.md), and,
+## for any file missing, our synthesized stand-ins below (engine harmonics, filtered noise, tone
+## cues). Each stream is loaded or made once and cached.
 
 const RATE := 22050
 const ENGINE_F0 := 110.25            ## Hz; 200 samples a period, so the loop wraps seamlessly
-const ENGINE_RPM := 4000.0           ## the rpm at which a loop plays at its own pitch (9800 rpm: 270 Hz)
+const ENGINE_RPM := 7500.0           ## the rpm the recorded load loop was taken at (about 7500: its 999 Hz peak)
+const COAST_RPM := 3600.0            ## the coast loop's
+const FILES := {"engine_load": "engine_load.wav", "engine_coast": "engine_coast.wav", "skid": "skid.wav",
+	"wind": "wind.ogg", "beep": "beep.ogg", "go": "beep.ogg", "checkpoint": "checkpoint.ogg", "finish": "finish.ogg",
+	"record": "record.ogg", "respawn": "respawn.ogg", "hit": "hit.ogg", "turbo": "turbo.ogg", "click": "ui_click.ogg",
+	"move": "ui_move.ogg"}
+const LOOPS := ["engine_load", "engine_coast", "skid", "wind"]
 
 static var _cache := {}
 
@@ -51,13 +57,33 @@ static func _lowpass(x: PackedFloat32Array, k: float) -> PackedFloat32Array:
 	return y
 
 
+## A recorded sound from audio/sfx, looping where it should; null if there is none.
+static func _recorded(name: String) -> AudioStream:
+	var path := "res://audio/sfx/" + String(FILES.get(name, ""))
+	if not FILES.has(name) or not ResourceLoader.exists(path):
+		return null
+	var s: AudioStream = load(path)
+	if name in LOOPS:
+		if s is AudioStreamWAV:
+			var w := s as AudioStreamWAV
+			w.loop_mode = AudioStreamWAV.LOOP_FORWARD
+			w.loop_begin = 0
+			w.loop_end = int(w.get_length() * w.mix_rate)
+		elif s is AudioStreamOggVorbis:
+			(s as AudioStreamOggVorbis).loop = true
+	return s
+
+
 const NAMES := ["engine_load", "engine_coast", "skid", "wind", "beep", "go", "checkpoint", "finish", "record",
 	"respawn", "hit", "turbo", "click", "move"]
 
 
-static func get_stream(name: String) -> AudioStreamWAV:
+static func get_stream(name: String) -> AudioStream:
 	if not _cache.has(name):
-		var s: AudioStreamWAV
+		var s: AudioStream = _recorded(name)
+		if s:
+			_cache[name] = s
+			return s
 		match name:
 			"engine_load": s = _make_engine_load()
 			"engine_coast": s = _make_engine_coast()

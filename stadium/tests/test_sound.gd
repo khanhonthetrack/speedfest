@@ -1,6 +1,6 @@
 extends Node
-## Sounds (no TMNF install needed): every synthesized stream exists and isn't silent, the loops
-## wrap whole, the virtual rpm climbs through each gear and drops at the shifts, the engine
+## Sounds (no TMNF install needed): every stream (the recordings in audio/sfx) exists and isn't
+## silent, the loops loop, the virtual rpm climbs through each gear and drops at the shifts, the engine
 ## follows the throttle and the speed, and the countdown beeps then says go.
 
 
@@ -27,17 +27,20 @@ func _streams() -> void:
 	var bad := []
 	for name: String in TmSounds.NAMES:
 		var w := TmSounds.get_stream(name)
-		if w == null or w.data.is_empty() or _rms(w) < 0.01:
+		if w == null or w.get_length() <= 0.0 or (w is AudioStreamWAV and _rms(w as AudioStreamWAV) < 0.01):
 			bad.append(name)
 	TestHooks.check(bad.is_empty(), "sound_streams_not_silent", str(bad))
-	TestHooks.check(Time.get_ticks_msec() - t0 < 4000, "sound_synthesis_quick", "%d ms" % (Time.get_ticks_msec() - t0))
+	TestHooks.check(Time.get_ticks_msec() - t0 < 4000, "sound_loading_quick", "%d ms" % (Time.get_ticks_msec() - t0))
 	var loops_ok := true
-	for name: String in ["engine_load", "engine_coast", "skid", "wind"]:
+	for name: String in TmSounds.LOOPS:
 		var w := TmSounds.get_stream(name)
-		loops_ok = loops_ok and w.loop_mode == AudioStreamWAV.LOOP_FORWARD and w.loop_end == w.data.size() / 2
-	TestHooks.check(loops_ok, "sound_loops_whole")
-	var n := TmSounds.get_stream("engine_load").data.size() / 2
-	TestHooks.check(n % 200 == 0 and is_equal_approx(TmSounds.RATE / TmSounds.ENGINE_F0, 200.0), "engine_loop_whole_periods", "%d" % n)
+		if w is AudioStreamWAV:
+			loops_ok = loops_ok and (w as AudioStreamWAV).loop_mode == AudioStreamWAV.LOOP_FORWARD and (w as AudioStreamWAV).loop_end > 0
+		elif w is AudioStreamOggVorbis:
+			loops_ok = loops_ok and (w as AudioStreamOggVorbis).loop
+	TestHooks.check(loops_ok, "sound_loops_loop")
+	var recorded := TmSounds.FILES.keys().all(func(k: String) -> bool: return ResourceLoader.exists("res://audio/sfx/" + String(TmSounds.FILES[k])))
+	TestHooks.check(recorded and TmSounds.get_stream("engine_load").resource_path.ends_with("engine_load.wav"), "sound_recordings_used")
 
 
 func _rpm() -> void:
@@ -87,7 +90,7 @@ func _countdown() -> void:
 		await get_tree().process_frame
 		for v in audio.get_children():
 			if v is AudioStreamPlayer and (v as AudioStreamPlayer).playing and (v as AudioStreamPlayer).stream in [TmSounds.get_stream("beep"), TmSounds.get_stream("go")]:
-				var key := "go" if (v as AudioStreamPlayer).stream == TmSounds.get_stream("go") else "beep%d" % v.get_index()
+				var key := "go" if (v as AudioStreamPlayer).pitch_scale > 1.2 else "beep%d" % v.get_index()
 				if not heard.has(key):
 					heard.append(key)
 		if race.time_ms > 500:

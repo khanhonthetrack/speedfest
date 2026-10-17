@@ -1190,3 +1190,14 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
 - `audio/tm_music.gd` (autoload "Music"): a menu playlist and a race playlist, shuffled,
   crossfading between tracks and across scenes, a "now playing" toast; options: music on/off and
   volume (quieter while racing, under the engine).
+
+## 2026-10-17 — Session 12: recorded sounds (owner's list, step 5), branch `stadium`
+- Our synthesized sounds replaced by open-licensed recordings (`stadium/audio/sfx`, credits in
+  `CREDITS.md`, Kenney's licence files beside them): the engine under load is qubodup's rally-car
+  loop (CC BY 3.0, about 7500 rpm), coasting domasx2's loop (CC0), tyre squeal audible-edge's loop
+  (CC BY 3.0), wind SketchMan3's loop (CC0); cues and menu sounds from Kenney's Interface and
+  Impact Sounds (CC0): countdown bong (pitched up for GO), confirmation chimes for checkpoints and
+  the finish, a rising one for a record and turbo, a falling one for a respawn, a metal impact for
+  wall hits, click and tick in the menus. `TmSounds` loads them (loops set to loop) and keeps the
+  synthesized ones only as stand-ins for a missing file; the engine's two layers each have their
+  own rpm reference. `tests/test_sound` (12) checks the recordings are used.

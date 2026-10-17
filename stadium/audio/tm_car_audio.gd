@@ -49,12 +49,13 @@ func _ready() -> void:
 		car.wheel_hit_wall.connect(_on_hit)
 
 
-## Plays a one-shot cue (TmSounds name).
-func cue(name: String, db := 0.0) -> void:
+## Plays a one-shot cue (TmSounds name), optionally pitched.
+func cue(name: String, db := 0.0, pitch := 1.0) -> void:
 	var v := _voices[_next_voice]
 	_next_voice = (_next_voice + 1) % _voices.size()
 	v.stream = TmSounds.get_stream(name)
 	v.volume_db = db
+	v.pitch_scale = pitch
 	v.play()
 
 
@@ -74,12 +75,13 @@ func _process(delta: float) -> void:
 	var kmh := car.speed_kmh()
 	var k := 1.0 - exp(-delta * 8.0)
 	_throttle += (clampf(car.gas, 0.0, 1.0) - _throttle) * k
-	engine_pitch = TmSounds.rpm(kmh) / TmSounds.ENGINE_RPM
+	var r := TmSounds.rpm(kmh)
+	engine_pitch = r / TmSounds.ENGINE_RPM
 	engine_mix = _throttle
-	_load.pitch_scale = engine_pitch
-	_coast.pitch_scale = engine_pitch
-	_load.volume_db = _db(lerpf(0.12, 0.75, _throttle))
-	_coast.volume_db = _db(lerpf(0.55, 0.12, _throttle))
+	_load.pitch_scale = clampf(engine_pitch, 0.3, 2.5)
+	_coast.pitch_scale = clampf(r / TmSounds.COAST_RPM, 0.5, 3.0)
+	_load.volume_db = _db(lerpf(0.18, 0.8, _throttle))
+	_coast.volume_db = _db(lerpf(0.5, 0.08, _throttle))
 	var sliding := car.model.any_sliding and car.model.grounded and absf(kmh) > 25.0
 	_skid_level += ((0.55 if sliding else 0.0) - _skid_level) * (1.0 - exp(-delta * 12.0))
 	_skid.volume_db = _db(_skid_level)
@@ -96,7 +98,7 @@ func _process(delta: float) -> void:
 		elif race.state == TmRace.State.RACING and not _was_racing:
 			_was_racing = true
 			_digit = -1
-			cue("go", -2.0)
+			cue("go", -2.0, 1.5)
 	if car.model.turbo_until_ms > _turbo_until:
 		if car.model.turbo_until_ms > car.now_ms:
 			cue("turbo", -3.0)
