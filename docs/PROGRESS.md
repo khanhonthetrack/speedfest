@@ -1447,3 +1447,14 @@ from blocks already recreated, placed before the booth rows and the scattered in
 - The rules learned so far hold (`_clear`, `_try`): a free cell between any decoration and the road,
   nothing on a column the track uses at any height, billboards away from raised road. The bot's
   times are unchanged on all 11 tracks.
+
+## 2026-10-17 — Session 12: seats in the stands (review), branch `stadium`
+From the review ("a seat pattern in the stands"). The long sides' seating rake (27.6 m rising to
+45.9 m, `env/tm_stadium_build.gd` LENS_SECTION) was hidden from everywhere on the field: the LED
+face measured in front of it ran from 25.1 m to the rake's top (46.1). It is now a ribbon two ads
+high (23-31 m, on the ads' 4 m grid), and the rake shows above it. The rake's surface (`stands`,
+`blocks/tm_surface.gdshader` pattern 7) is drawn as seating: rows of seats by height (0.45 m, the
+backs darker, a seat every 0.5 m), sectors 20 m wide in two blues with concrete stairs between
+them, a walkway every 12 rows; each detail fades to its average where a pixel covers half of it
+(the old rows faded out from 50 m), and flat tops using the material (booth roofs, the Fabric
+stands' decks) stay plain.

@@ -133,13 +133,23 @@ void fragment() {
 		float grate = stripes(uv.x * 1.0, 0.08, 0.3);
 		col *= 1.0 - mix(grate, 0.3, aa) * 0.25;
 		emit = albedo * st * 0.15;
-	} else if (pattern == 7) {     // seat rows: backs and seats by height, gaps between seats
-		float row = stripes(wpos.y, 0.42, 0.45);
-		float gap = stripes(uv.x + uv.y * 0.0, 0.5, 0.12);
-		col = mix(albedo, albedo2, row * 0.7);
-		col *= 1.0 - mix(gap, 0.12, aa) * 0.3;
+	} else if (pattern == 7) {     // stands: rows of seats in sectors of two colours, aisles between
+		// on a rake (not a flat top): rows by height (the dark seat backs, a seat every 0.5 m),
+		// sectors `scale` m wide along the stand in albedo / albedo2, concrete stairs between them
+		// (each detail fades to its average where a pixel covers half of it)
+		float rake = 1.0 - smoothstep(0.8, 0.97, abs(n.y));
+		float along = abs(n.x) > abs(n.z) ? wpos.z : wpos.x;
+		float sector = mod(floor(along / scale), 2.0);
+		vec3 seat = mix(albedo, albedo2, sector);
+		float row = mix(stripes(wpos.y, 0.45, 0.4), 0.4, clamp(fwidth(wpos.y) / 0.22 - 0.5, 0.0, 1.0));
+		float gap = mix(stripes(along, 0.5, 0.12), 0.12, clamp(fwidth(along) / 0.25 - 0.5, 0.0, 1.0));
+		float aisle = stripes(along + scale * 0.5, scale, 1.4 / scale) * rake;
+		float walk = stripes(wpos.y, 5.4, 0.16) * rake;     // a walkway every 12 rows
+		col = mix(seat, seat * 0.45, row * rake);
+		col *= 1.0 - gap * 0.3 * rake;
+		col = mix(col, vec3(0.62, 0.63, 0.65), max(aisle, walk));
 		col *= 1.0 + (fine - 0.5) * variation;
-		h += row * 0.5;
+		h += (row * 0.5 - max(aisle, walk) * 0.3) * rake;
 	} else if (pattern == 8) {     // LED boards and screens: the adverts scrolling on a pixel grid
 		float px = 1.0 - mix(seams(uv, vec2(0.12), 0.012), 0.08, aa) * 0.6;
 		if (has_advert && abs(n.y) < 0.7) {

@@ -6,10 +6,10 @@ extends RefCounted
 ## y up from the field's grass, z forward), metres; build() places it on the map. The surround is
 ## symmetric in x and z, so each table holds one quarter:
 ## - on each long side (z) a lens-shaped grandstand: a 20 m wall at the field, a ledge, a seating
-##   rake up to a 46 m deck, the same facing out on the far side, a ribbon of LED boards along the
-##   inner face; over its inner half a roof band (a thin visor at the field, a thick main part
-##   falling to the masts) arched along x and dipping past the stand's tips; masts on the midline
-##   with cables;
+##   rake up to a 46 m deck (rows of seats, tm_surface pattern 7), the same facing out on the far
+##   side, a ribbon of LED boards along the inner face; over its inner half a roof band (a thin
+##   visor at the field, a thick main part falling to the masts) arched along x and dipping past
+##   the stand's tips; masts on the midline with cables;
 ## - on each short side (x) a terrace (a 21 m wall, a ledge, a raised block with the big screen),
 ##   six flagpoles a quarter and a floodlight tower at each end;
 ## - the field-level apron between the field and the buildings, the ground falling outside to the
@@ -32,7 +32,11 @@ const LENS_MID_Z := -746.1          ## the grandstand's midline (it is symmetric
 const LENS_SECTION := [[0.0, -24.0, "concrete"], [0.0, 20.1, "concrete"], [2.8, 21.1, "concrete"],
 	[11.1, 21.1, "concrete"], [23.0, 27.6, "stands"], [57.6, 45.9, "concrete"], [1e4, 45.9, "concrete"],
 	[1e4, -24.0, "concrete"]]
-const LED := [14.0, 25.1, 46.1, 593.0]   ## the LED boards: d, bottom, top, half length in x
+## The LED boards: d, bottom, top, half length in x. Measured as one face from 25.1 m to the rake's
+## top (46.1), it hid the whole seating rake from the field: we keep a ribbon two ads high (8 m,
+## its bottom on the ramp, its rows on the ads' 4 m grid: 32-40 m above the map's base) and the
+## seats show above it.
+const LED := [14.0, 23.0, 31.0, 593.0]
 const FIN := [[66.0, 45.9], [87.3, 60.8]]  ## the glass screen behind the rake's top (d, y)
 
 ## The roof band (z from -528.8 at the field to -785.0), every 100 m in x: [x, top and underside at
