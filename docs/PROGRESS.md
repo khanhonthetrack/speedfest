@@ -1251,3 +1251,8 @@ load trackmania maps, such as gbx, then it should be doable in this game".
   needs TMNF. `stadium/server/restart_server.ps1` restarts just the node process (the tunnel and its
   address stay); the official server was restarted with the new code.
 - `PLAYING.txt` and `stadium/README.md` (play, make a track, share) say the game is standalone.
+- **Released `stadium-v0.1`** (the owner's earlier "Yes, tag stadium-v0.1 and push it", held until
+  the game was standalone): tag on `befd60e`, CI built both zips and made the GitHub Release
+  https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1 (SpeedFestStadium-windows.zip 53 MB, -linux.zip 44 MB;
+  release notes = PLAYING.txt). The exported Windows build was checked locally without TMNF:
+  the campaign page lists the 10 tracks, Drift King races with its medals.

@@ -74,7 +74,7 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
   drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then
   `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
   (README "Make a track"). `tests/tmp/track_dump` (untracked; recreate: prints an ASCII map) helps.
-  Next: **fix loops** (HANDOFF), then more tracks; the release `stadium-v0.1` (HANDOFF).
+  Released as `stadium-v0.1` (GitHub Release). Next: **fix loops** (HANDOFF), then more tracks.
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
 - Block library: **campaign coverage 100%** (41523 blocks, 0 placeholders, 0 unknown).

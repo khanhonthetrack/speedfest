@@ -8,9 +8,9 @@
   proves each track finishable and sets its medals (`tests/test_tracks`, in the gate), menu / race
   / online server on our tracks by default. TMNF's campaign (from an install) and any
   `.Challenge.Gbx` (Open a track file) still load. PROGRESS has the details.
-- **Release:** the owner approved tagging `stadium-v0.1` (the workflow attaches the Windows and
-  Linux zips to a GitHub Release); it was held until the game was standalone. Check whether the tag
-  exists (`git ls-remote --tags origin stadium-v0.1`) before doing it again.
+- **Released `stadium-v0.1`** (owner-approved, held until the game was standalone):
+  https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1: the Windows and Linux zips CI built from the tag; that
+  link is what to send to friends. Next release: tag `stadium-v0.2` the same way.
 - **Known issue, next to fix:** loops. The car decelerates at ~9 g inside a loop (wheel contact
   flickers under the g-load) and falls before the top, even at 330 km/h; TMNF's campaign loops
   (B13, C04) are affected too. Start from `tests/test_tracks.gd --trace` on a track with
