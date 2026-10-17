@@ -30,6 +30,7 @@ var _clear_armed := false
 
 func _ready() -> void:
 	TmUi.apply()
+	Music.play_list("menu")
 	_scene()
 	_layer = CanvasLayer.new()
 	add_child(_layer)
@@ -37,6 +38,7 @@ func _ready() -> void:
 	if not tmnf.is_empty():
 		tracks = TmStage.campaign_tracks(tmnf)
 	selected = String(TestHooks.arg("track", tracks[0] if not tracks.is_empty() else ""))
+	Music.toast(self)
 	for i in TmUi.SERIES.size():
 		if selected.begins_with(String(TmUi.SERIES[i][0])):
 			series = i
@@ -300,7 +302,7 @@ func select(track: String, race_on_repeat := true) -> void:
 func _page_options() -> void:
 	var root := _root("OPTIONS")
 	var col := _column(root, 200)
-	for opt: Array in [["fullscreen", "Fullscreen"], ["hd", "HD graphics (textures, ambient occlusion)"], ["shadows", "Shadows"], ["sound", "Sound"], ["ghost", "Race against your best ghost"]]:
+	for opt: Array in [["fullscreen", "Fullscreen"], ["hd", "HD graphics (textures, ambient occlusion)"], ["shadows", "Shadows"], ["sound", "Sound"], ["music", "Music"], ["ghost", "Race against your best ghost"]]:
 		var c := CheckButton.new()
 		c.text = String(opt[1])
 		c.button_pressed = bool(TmUi.setting(opt[0]))
@@ -308,6 +310,17 @@ func _page_options() -> void:
 		var key: String = opt[0]
 		c.toggled.connect(func(on: bool) -> void: TmUi.set_setting(key, on))
 		col.add_child(c)
+	var vol := HBoxContainer.new()
+	vol.add_child(TmUi.label("MUSIC VOLUME  ", 22, TmUi.TEXT, TmUi.BOLD, 1))
+	var slider := HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 1.0
+	slider.step = 0.05
+	slider.value = float(TmUi.setting("music_volume"))
+	slider.custom_minimum_size = Vector2(320, 40)
+	slider.value_changed.connect(func(v: float) -> void: TmUi.set_setting("music_volume", v))
+	vol.add_child(slider)
+	col.add_child(vol)
 	col.add_child(_cycle("GRAPHICS", "quality", TmRtx.QUALITY_NAMES))
 	if TmRtx.is_fork():   # NVIDIA's RTX build of Godot
 		col.add_child(_cycle("DLSS", "dlss", TmRtx.DLSS_NAMES))

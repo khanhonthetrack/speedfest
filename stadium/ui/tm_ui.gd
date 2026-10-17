@@ -14,7 +14,7 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 
 const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true,
-	"name": "Player", "server": "", "colour": 0, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2}
+	"name": "Player", "server": "", "colour": 0, "music": true, "music_volume": 0.7, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2}
 ## Car colours to pick from (online, the others see yours).
 const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.95, 0.70, 0.05), Color(0.10, 0.65, 0.30),
 	Color(0.92, 0.92, 0.94), Color(0.10, 0.10, 0.12), Color(0.95, 0.40, 0.05), Color(0.55, 0.20, 0.85)]
@@ -154,6 +154,11 @@ static func set_setting(key: String, value: Variant) -> void:
 	_settings().save(SETTINGS_PATH)
 	if key == "hd":
 		TmMaterials.clear_cache()
+	if key in ["music", "music_volume"]:
+		var tree := Engine.get_main_loop() as SceneTree
+		var m := tree.root.get_node_or_null("Music") if tree else null
+		if m:
+			m.apply_volume()
 	apply()
 
 

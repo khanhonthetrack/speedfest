@@ -37,6 +37,8 @@ var _prev := Vector3.ZERO          ## the car's position at the previous tick
 
 func _ready() -> void:
 	TmUi.apply()
+	Music.play_list("race")
+	Music.toast(self)
 	challenge = TmStage.load_from_args()
 	if not challenge.ok():
 		push_error("race: %s" % challenge.error)

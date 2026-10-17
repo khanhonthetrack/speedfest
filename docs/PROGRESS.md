@@ -1178,3 +1178,15 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
   built in `C:\dev\godot-rtx`: DLSS renders correctly; path tracing renders the stadium and, with
   the standard materials it switches to, the car (soft shadows, reflections). `env/rt.gdshaderinc`
   makes our shaders compile as hit shaders. Settings can be forced per run with `--set_<key>=`.
+
+## 2026-10-17 — Session 12: music (owner's list, step 4), branch `stadium`
+- Eight instrumentals downloaded from OpenGameArt under open licences (no music of our own, as the
+  owner asked): dark trap and hip hop: Trappist (Axton Crolley, CC BY 3.0), Friendly Trap mix
+  (Of Far Different Nature et al., CC BY 4.0), the Instrumental Hip-Hop theme (Gichco, CC0),
+  Cauliflower - Day 27 (Zane Little Music, CC0), ZeWrungVergeun, WiFi Trasherino and
+  Baeddle;Ceity (Sudocolon, CC0), Dark-Waves-Hip-Hop (Dogers, CC BY-SA 3.0). Licences checked on
+  each page; converted to OGG Vorbis (14 MB) with `soundfile` (in blocks: libsndfile's Vorbis
+  encoder overflows its stack on one big write); credits in `stadium/audio/music/CREDITS.md`.
+- `audio/tm_music.gd` (autoload "Music"): a menu playlist and a race playlist, shuffled,
+  crossfading between tracks and across scenes, a "now playing" toast; options: music on/off and
+  volume (quieter while racing, under the engine).
