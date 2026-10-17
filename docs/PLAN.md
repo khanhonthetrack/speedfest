@@ -141,8 +141,15 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       record and split differences; session 12); stadium environment (Day sky and sun from the
       mood's numbers, the Stadium around the map from our own measurements; session 12); our own
       car model; menus (main, campaign, options, pause, finish); sounds (synthesized); HD materials (procedural
-      surface shaders) (session 12). Open: the owner's list (polish, online, RTX, music, sounds,
-      export), our own maps
+      surface shaders) (session 12); the owner's list (polish, online with the official server, RTX,
+      music, recorded sounds, exports; session 12).
+- [x] 7. Remake: **standalone** (owner, 2026-10-17: "I want this to be a standalone game", and
+      TMNF's .gbx tracks still loadable): our own tracks `stadium/tracks/*.json` (SF01..SF10) laid
+      out by `race/tm_track_builder.gd` from the recreated blocks, `race/tm_tracks.gd`, the driving
+      bot `race/tm_bot.gd` that finishes each track and sets its medals (`tests/test_tracks`); menu,
+      race and the online server use them by default; TMNF's campaign and .Challenge.Gbx files stay
+      as extras. Open: loops (the car loses ~9 g in them), more tracks, a track editor
+- [ ] 8. Release `stadium-v0.1` (tag: the workflow attaches the Windows and Linux zips)
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

@@ -1,0 +1,8 @@
+{
+	"name": "Night Shift",
+	"author": "SpeedFest",
+	"start": [2, 1, 2, 0],
+	"medals": {"author": 34950, "gold": 37100, "silver": 42000, "bronze": 53000},
+	"bot_grip": 50,
+	"pieces": [["start"], ["s", 6], ["cp"], ["s", 4], ["gt", 4, "r"], ["s", 2], ["up"], ["s", 3], ["turbo"], ["s", 2], ["down"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 3], ["jump", 1], ["s", 1], ["gt", 2, "l"], ["s", 6], ["cp"], ["s", 4], ["turbo"], ["s", 4], ["finish"]]
+}

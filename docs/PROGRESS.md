@@ -1213,3 +1213,41 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
 - CI: `.github/workflows/stadium.yml` builds both zips on every push to `stadium` (artifacts) and
   attaches them to a GitHub Release on a `stadium-v*` tag. How to share: `stadium/README.md`
   "Share it with friends".
+
+## 2026-10-17 — Session 12: standalone game, our own tracks (owner), branch `stadium`
+Owner: "No, I want this to be a standalone game!!" and "But still, in the end if someeone wants to
+load trackmania maps, such as gbx, then it should be doable in this game".
+- **Our own tracks** (no TMNF needed): `stadium/tracks/SF01..SF10.json`, each a list of pieces
+  (start, straights, road corners, GT curves 2-5, checkpoints, turbos, one- and two-level slopes,
+  jumps, loops, any two-clip block) that `race/tm_track_builder.gd` (`TmTrackBuilder`) lays end to
+  end on the block grid: each piece's entry and exit come from the block catalogue's clip sides,
+  turned to fit; errors name the piece that collides or leaves the map. Raised road gets TMNF's
+  pillars (a `StadiumTube` under the road, `StadiumTubePillar`s to the ground, under every other
+  one-block piece, as the campaign does). Loops are laid like TMNF's (B13): two loop blocks, the
+  second turned round behind and beside the first, the exit 4 blocks to the side.
+- `race/tm_tracks.gd` (`TmTracks`): the list (file names = ids). `TmStage.load_from_args`:
+  `--track=SF01` (the default), `--track=A01` from a TMNF install, `--map=` any .Challenge.Gbx.
+- **The driving bot** `race/tm_bot.gd` (`TmBot`, race scene `--bot`): follows the line the builder
+  lays through the track (`TmChallenge.path`: arcs through the curves, a helix through loops,
+  blind over jumps), steering at a point ahead and braking for the turns ahead at a cornering grip.
+  `tests/test_tracks` (in the gate): every track lays out, builds without placeholders, has its
+  checkpoints and one finish, and the bot finishes it within gold at the track's `bot_grip`.
+  `--write_medals`: the bot races at grips 30-75, its best time is the author time, gold +6%,
+  silver +20%, bronze +50%. Author times: Kickoff 24.19, Drift King 33.98, Highline 34.77,
+  Switchback 43.33, Full Send 26.61, Skyway 23.95, Night Shift 34.95, Corkscrew 34.71,
+  Rush Hour 30.22, Last Call 39.44 (its checkpoint moved three blocks past a climb the bot
+  flew over).
+- Lessons from the bot: a two-level slope (SlopeBase2) launches the car over a checkpoint right
+  after it; the high ramp at 340 km/h throws the car sideways (low ramps are fine at 270, flying
+  about 110 m); **loops don't work yet**: in the loop the car decelerates at ~9 g with the wheels'
+  contact flickering (not slip: lateral speed stays under 5 m/s; not the bot: the loop is a sheared
+  helix, the bot follows it), even entering at 330 km/h; it falls before the top. The campaign's
+  loops (B13, C04) are affected too. No shipped track has a loop until that's fixed.
+- Menu: the campaign's first tab is ours (SPEEDFEST, tiles with the track names), TMNF's five
+  series follow when it's installed, else a "+ TMNF TRACKS" page explains how to add them; Open a
+  track file races any .Gbx. `tests/test_menu` covers both.
+- Online: the server rotates our tracks by default (`stadium/server/lib/rounds.js` reads
+  `stadium/tracks`; `--tracks=tmnf` or `TRACKS=tmnf` for TMNF's campaign); online play no longer
+  needs TMNF. `stadium/server/restart_server.ps1` restarts just the node process (the tunnel and its
+  address stay); the official server was restarted with the new code.
+- `PLAYING.txt` and `stadium/README.md` (play, make a track, share) say the game is standalone.

@@ -1,6 +1,25 @@
 # HANDOFF: start here
 
-## Latest (~19:00 UTC 16 Oct, session 12, owner's Windows PC): remake continues on `stadium`
+## Latest (17 Oct, session 12, owner's Windows PC): the remake is a standalone game
+- **Owner (verbatim in TRANSCRIPT):** "No, I want this to be a standalone game!!" and "But still,
+  in the end if someeone wants to load trackmania maps, such as gbx, then it should be doable in
+  this game". Done: our own campaign `stadium/tracks/SF01..SF10.json` (piece lists laid out by
+  `race/tm_track_builder.gd` from the recreated blocks), the driving bot `race/tm_bot.gd` that
+  proves each track finishable and sets its medals (`tests/test_tracks`, in the gate), menu / race
+  / online server on our tracks by default. TMNF's campaign (from an install) and any
+  `.Challenge.Gbx` (Open a track file) still load. PROGRESS has the details.
+- **Release:** the owner approved tagging `stadium-v0.1` (the workflow attaches the Windows and
+  Linux zips to a GitHub Release); it was held until the game was standalone. Check whether the tag
+  exists (`git ls-remote --tags origin stadium-v0.1`) before doing it again.
+- **Known issue, next to fix:** loops. The car decelerates at ~9 g inside a loop (wheel contact
+  flickers under the g-load) and falls before the top, even at 330 km/h; TMNF's campaign loops
+  (B13, C04) are affected too. Start from `tests/test_tracks.gd --trace` on a track with
+  `["loop", "r"]` after two turbos (see PROGRESS) and `core/tm_body.gd`'s contact handling.
+- The official server (owner's PC, Cloudflare quick tunnel, address in
+  `stadium/server/official.json`) runs the new code; after pulling server or track changes run
+  `stadium/server/restart_server.ps1` (keeps the address).
+
+## Earlier (~19:00 UTC 16 Oct, session 12, owner's Windows PC): remake continues on `stadium`
 
 - **The remake now builds, tests and measures on the owner's Windows PC** (Git Bash): Godot at
   `C:\dev\godot-4.7.2` (`export PATH=/c/dev/bin:$PATH` for the `godot` wrapper), TMNF unpacked and

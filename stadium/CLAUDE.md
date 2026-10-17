@@ -1,9 +1,10 @@
 # CLAUDE.md: continuing the Stadium remake (TMNF Stadium in Godot)
 
 You are continuing **SpeedFest Stadium**: TrackMania Nations Forever's Stadium environment rebuilt
-in Godot 4.7.2 (Forward+) with our own assets, TMNF's real car physics, and the player's own TMNF
-tracks loaded at runtime. The repo root `CLAUDE.md` applies too (persistence, work sequentially,
-commit format, attribution). This file covers the remake.
+in Godot 4.7.2 (Forward+) with our own assets and TMNF's real car physics, a **standalone game**
+with its own tracks (`tracks/*.json`), which also loads the player's own TMNF tracks at runtime
+(its campaign from an install, any `.Challenge.Gbx`). The repo root `CLAUDE.md` applies too
+(persistence, work sequentially, commit format, attribution). This file covers the remake.
 
 ## Read first
 1. `docs/HANDOFF.md`: the top section is the remake's current state and next steps.
@@ -67,7 +68,13 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF10.json`, laid out by
+  `race/tm_track_builder.gd`, listed by `race/tm_tracks.gd`; `tests/test_tracks` (in the gate)
+  drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then
+  `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
+  (README "Make a track"). `tests/tmp/track_dump` (untracked; recreate: prints an ASCII map) helps.
+  Next: **fix loops** (HANDOFF), then more tracks; the release `stadium-v0.1` (HANDOFF).
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
 - Block library: **campaign coverage 100%** (41523 blocks, 0 placeholders, 0 unknown).

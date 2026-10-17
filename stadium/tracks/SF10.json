@@ -1,0 +1,8 @@
+{
+	"name": "Last Call",
+	"author": "SpeedFest",
+	"start": [28, 1, 28, 1],
+	"medals": {"author": 39440, "gold": 41900, "silver": 48000, "bronze": 60000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 4], ["gt", 3, "l"], ["s", 2], ["up"], ["up"], ["s", 2], ["cp"], ["s", 2], ["gt", 4, "r"], ["turbo"], ["s", 3], ["down"], ["down"], ["s", 1], ["jump", 1], ["s", 2], ["gt", 3, "l"], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 3], ["up"], ["up"], ["s", 3], ["cp"], ["s", 2], ["down"], ["down"], ["turbo"], ["s", 3], ["gt", 3, "l"], ["s", 4], ["turbo"], ["s", 4], ["finish"]]
+}

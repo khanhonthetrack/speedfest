@@ -272,7 +272,7 @@ func _page_campaign() -> void:
 		b.clip_text = true
 		b.custom_minimum_size = Vector2(150, 92)
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.add_theme_font_size_override("font_size", 22)
+		b.add_theme_font_size_override("font_size", 18 if TmTracks.has(t) else 22)
 		if not m.is_empty():
 			var st := StyleBoxFlat.new()
 			st.bg_color = Color(0.06, 0.09, 0.16, 0.85)

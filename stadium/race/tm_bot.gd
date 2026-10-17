@@ -51,6 +51,9 @@ func _physics_process(_delta: float) -> void:
 		car.gas = 1.0
 		car.brake = 0.0
 		car.steer = 0.0
+		_slow_ticks += 1
+		if _slow_ticks > STUCK_TICKS:
+			failed = "past the end of the line without finishing (missed a checkpoint?)"
 		return
 	var pt: Dictionary = path[index]
 	var v := car.lin_vel.length()
