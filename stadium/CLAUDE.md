@@ -81,8 +81,8 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
   box, 2.8-4.1 km, up to level 6; `climb`/`dive` pieces; the bot slows for crests), Fabric stands
   at the start and finish, inflatable billboard walls outside curves, camera booths by
   checkpoints, seats in the stands, a result panel at the finish.
-  Next: the bot's steering on ordinary road (it weaves at 250+ km/h: give STEER points the
-  road-frame steering loops use, then re-medal). Screenshots with `--bot`: add
+  The bot steers in the road's frame over 100 km/h (no more weave); medals re-set; v0.3 released.
+  Next: whatever the owner asks after playing v0.3. Screenshots with `--bot`: add
   `--records=<scratch dir>` (a finish is recorded like the player's).
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.

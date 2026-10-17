@@ -73,7 +73,7 @@ func _track(id: String) -> int:
 		return -1
 	# the bot races it: with the track's grip (bot_grip), or, writing medals, its best of several
 	var grips: Array = [float(TestHooks.arg("grip", spec.get("bot_grip", 40.0)))]
-	if TestHooks.has_arg("write_medals") and not TestHooks.has_arg("grip"):
+	if (TestHooks.has_arg("write_medals") or TestHooks.has_arg("sweep")) and not TestHooks.has_arg("grip"):
 		grips = [30.0, 40.0, 50.0, 60.0, 75.0]
 	var best := {}
 	for g: float in grips:

@@ -26,6 +26,15 @@ const OFF_LINE := 70.0            ## this far from the line's next point (steere
 const AIR_TICKS := 5              ## this long without a wheel on anything: in the air
 const LOOP_WN := 2.0              ## loops: how fast the steering pulls the car back onto the line
 const LOOP_ZETA := 0.8            ## (rad/s) and how well damped
+## Ordinary road over FRAME_KMH: the same road-frame steering, a little softer and better damped,
+## with the curvature taken PREVIEW_S ahead (the steering's lag). Its old aim-at-a-point steering
+## (gain 2.2) weaved at 250+ km/h, where TMNF's car answers the wheel slowly, so it took off over
+## crests with a yaw rate and landed sideways; it still steers below FRAME_KMH, where the yaw rate
+## model has no grip on the slow steering ramp.
+const ROAD_WN := 1.6
+const ROAD_ZETA := 0.95
+const FRAME_KMH := 100.0
+const PREVIEW_S := 0.25
 const CREST_G := TmTuning.GRAVITY * TmTuning.GRAVITY_GROUND   ## what holds the car down over a crest
 
 
@@ -79,6 +88,8 @@ func _physics_process(_delta: float) -> void:
 	var steer := 0.0
 	if steered and int(pt["mode"]) == TmTrackBuilder.Drive.LOOP:
 		steer = _loop_steer(pos, v)
+	elif steered and v * 3.6 > FRAME_KMH:
+		steer = _frame_steer(pos, v, ROAD_WN, ROAD_ZETA, _k_ahead(pos, v * PREVIEW_S))
 	elif steered:
 		var aim := _ahead(pos, clampf(v * 0.4, LOOK_MIN, LOOK_MAX))
 		var b := car.global_transform.basis
@@ -135,6 +146,27 @@ func _ahead(pos: Vector3, look: float) -> Vector3:
 ## 3.4: the car turns slowly at loop speeds). The heading, not the velocity: up a loop's steep
 ## side gravity bends the velocity but not the heading, and the grip brings the two together.
 func _loop_steer(pos: Vector3, v: float) -> float:
+	return _frame_steer(pos, v, LOOP_WN, LOOP_ZETA, NAN)
+
+
+## The line's curvature `look` metres ahead of the car (the next points' k).
+func _k_ahead(pos: Vector3, look: float) -> float:
+	var from := pos
+	var left := look
+	for i in range(index, path.size()):
+		var p: Vector3 = path[i]["p"]
+		var d := from.distance_to(p)
+		if d >= left:
+			return float(path[i].get("k", 0.0))
+		left -= d
+		from = p
+	return 0.0
+
+
+## Steering in the road's frame (see _loop_steer): the line's curvature k_ff (NAN: the current
+## segment's) plus a pull back onto the line (wn rad/s, damping zeta), as a share of the yaw rate
+## full lock gives at this speed.
+func _frame_steer(pos: Vector3, v: float, wn: float, zeta: float, k_ff: float) -> float:
 	var a: Dictionary = path[maxi(index - 1, 0)]
 	var c: Dictionary = path[index]
 	var pa: Vector3 = a["p"]
@@ -147,8 +179,8 @@ func _loop_steer(pos: Vector3, v: float) -> float:
 	var off := (pos - pa.lerp(c["p"], t)).dot(left)
 	var psi := atan2(b.z.dot(left), b.z.dot(fwd))
 	var vv := maxf(v, 5.0)
-	var curv := lerpf(float(a.get("k", 0.0)), float(c.get("k", 0.0)), t) \
-		- LOOP_WN * LOOP_WN / (vv * vv) * off - 2.0 * LOOP_ZETA * LOOP_WN / vv * psi
+	var k := lerpf(float(a.get("k", 0.0)), float(c.get("k", 0.0)), t) if is_nan(k_ff) else k_ff
+	var curv := k - wn * wn / (vv * vv) * off - 2.0 * zeta * wn / vv * psi
 	var ramp := 0.0
 	if v >= TmTuning.STEER_MIN_SPEED:
 		ramp = sin(v / TmTuning.STEER_RAMP_SPEED * PI * 0.5) if v <= TmTuning.STEER_RAMP_SPEED else 1.0

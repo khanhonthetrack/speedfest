@@ -19,8 +19,8 @@
   inflatable variant rule is written down there), seats in the stands (the LED face cut to a
   ribbon so the rake shows; `tm_surface` pattern 7), a result panel at the finish
   (`TmRaceMenu.show_finish(result)`). The official server was restarted on the new tracks.
-- Next: the bot's weave at 250+ km/h (below); after the owner has played the new tracks, a
-  `stadium-v0.3` release (owner's approval). After a track or server change:
+- The bot's weave is fixed (road-frame steering on ordinary road over 100 km/h; PROGRESS) and the
+  medals re-set; released as `stadium-v0.3` (owner: "continue and incorporate in v0.3"). After a track or server change:
   `stadium/server/restart_server.ps1` (keeps the address). Screenshots with `--bot`: pass
   `--records=<scratch dir>` (its finishes are recorded like the player's).
 

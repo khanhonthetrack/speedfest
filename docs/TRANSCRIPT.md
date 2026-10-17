@@ -594,3 +594,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after the quality pass)
 
 > Yes, tag stadium-v0.2 and push it so the workflow makes a new GitHub Release with the zips.
+
+### User (verbatim, session 12, after the review follow-ups were pushed)
+
+> continue and incorporate in v0.3

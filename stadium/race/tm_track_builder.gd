@@ -278,8 +278,9 @@ func entry_face() -> Vector3:
 	return centre(cell) - vec(heading) * 16.0
 
 
-func _point(p: Vector3, dir: Vector3, mode := Drive.STEER, r := 0.0) -> void:
-	path.append({"p": to_godot(p), "dir": to_godot(dir).normalized(), "mode": mode, "r": r})
+## k: the line's signed curvature there (1/m, + to the left), for the bot's road-frame steering.
+func _point(p: Vector3, dir: Vector3, mode := Drive.STEER, r := 0.0, k := 0.0) -> void:
+	path.append({"p": to_godot(p), "dir": to_godot(dir).normalized(), "mode": mode, "r": r, "k": k})
 
 
 ## The line from a (heading ha) to b (heading hb), both TMNF metres: straight on, or a quarter
@@ -295,11 +296,14 @@ func _segment(a: Vector3, ha: int, b: Vector3, hb: int, r := 0.0, mode := Drive.
 	var rr := absf((b - a).dot(f0))
 	var o := a + f1 * rr
 	var n := maxi(2, ceili(rr * PI * 0.5 / STEP))
+	# a left turn when the new heading lies to the left of the old one (Godot: up x forward = left)
+	var left := to_godot(f1).dot(Vector3.UP.cross(to_godot(f0))) > 0.0
+	var k := (1.0 if left else -1.0) / maxf(rr, 1.0)
 	for i in range(1, n + 1):
 		var t := float(i) / n * PI * 0.5
 		var p := o - f1 * rr * cos(t) + f0 * rr * sin(t)
 		p.y = lerpf(a.y, b.y, float(i) / n)
-		_point(p, f0 * cos(t) + f1 * sin(t), mode, r if r > 0.0 else rr)
+		_point(p, f0 * cos(t) + f1 * sin(t), mode, r if r > 0.0 else rr, k)
 
 
 # --- pieces -------------------------------------------------------------------------------------

@@ -2,8 +2,8 @@
 	"name": "Kickoff",
 	"author": "SpeedFest",
 	"start": [16,  1,  1,  0],
-	"medals": {"author": 54440, "gold": 57800, "silver": 66000, "bronze": 82000},
-	"bot_grip": 60,
+	"medals": {"author": 48470, "gold": 51400, "silver": 59000, "bronze": 73000},
+	"bot_grip": 75,
 	"pieces": [["start"], ["s", 4], ["gt", 4, "r"], ["s", 7], ["gt", 3, "l"], ["s", 2], ["cp"], ["s", 2], ["climb", 0], ["s", 2], ["cp"], ["s", 3], ["gt", 3, "l"], ["s", 3], ["dive", 0], ["s", 2], ["jump", 1], ["s", 8], ["gt", 4, "l"], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 8], ["turbo"], ["s", 2], ["gt", 3, "r"], ["gt", 3, "r"], ["s", 6], ["cp"], ["s", 7], ["gt", 3, "l"], ["s", 2], ["gt", 3, "l"], ["s", 1], ["finish"]]
 
 }

@@ -2,7 +2,7 @@
 	"name": "Full Send",
 	"author": "SpeedFest",
 	"start": [2,  1,  1,  0],
-	"medals": {"author": 41040, "gold": 43600, "silver": 50000, "bronze": 62000},
-	"bot_grip": 60,
+	"medals": {"author": 36760, "gold": 39000, "silver": 45000, "bronze": 56000},
+	"bot_grip": 75,
 	"pieces": [["start"], ["s", 8], ["jump", 2], ["s", 8], ["cp"], ["s", 2], ["gt", 5, "r"], ["s", 4], ["jump", 2], ["s", 4], ["turbo"], ["s", 3], ["gt", 5, "r"], ["climb", 0], ["cp"], ["s", 1], ["dive", 0], ["s", 3], ["gt", 4, "r"], ["s", 2], ["turbo"], ["s", 1], ["cp"], ["s", 1], ["gt", 3, "l"], ["gt", 3, "l"], ["s", 2], ["jump", 3], ["s", 2], ["finish"]]
 }

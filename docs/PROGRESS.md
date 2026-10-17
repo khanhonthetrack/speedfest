@@ -1470,3 +1470,19 @@ NEXT TRACK / MENU in a row. `race/race.gd` passes {name, time_ms, prev_ms, recor
 panel comes back with its result after the pause menu. `tests/test_menu`: race_menu_result,
 race_menu_result_after_pause. Note for screenshots: `race.tscn --bot` records its finishes like a
 player's; pass `--records=<scratch dir>` so the player's records stay theirs.
+
+## 2026-10-17 — Session 12: the bot's weave fixed, v0.3 (owner: "continue and incorporate in v0.3")
+- The follow-up session's work checked by eye first (bigger tracks across the field, Fabric stands,
+  billboard walls, camera booths, seats, the result panel): fine.
+- **The bot's steering on ordinary road** (`race/tm_bot.gd`): over 100 km/h it now steers in the
+  road's frame like on loops (`_frame_steer`: the line's curvature taken 0.25 s ahead, plus a pull
+  back from the car's offset and heading, wn 1.6 rad/s, damping 0.95, as a share of the yaw rate
+  full lock gives at that speed); below, the old aim-at-a-point steering. Road arcs now carry their
+  signed curvature `k` (`TmTrackBuilder._segment`). A sweep over grips 30-75 on all 11 tracks
+  (`tests/test_tracks --sweep`, new: every grip, no medals written): the old steering finished all
+  55 runs but got slower at grip 75 (the weave); the new one is faster at every grip (best times
+  5-15% lower on 10 tracks) and fails 4 runs at grips 60-75 (a crest flight landing just before a
+  raised curve, too fast to turn in), which `--write_medals` skips. Medals re-set: Kickoff 48.47,
+  Drift King 41.81, Highline 50.95, Switchback 55.09, Full Send 36.76, Skyway 35.26, Night Shift
+  42.85, Corkscrew 45.61, Rush Hour 56.91, Last Call 47.31, Full Circle 34.94.
+
