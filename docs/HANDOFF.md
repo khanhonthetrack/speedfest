@@ -1,5 +1,15 @@
 # HANDOFF: start here
 
+## Latest (17 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
+- Owner (TRANSCRIPT, session 13): the remake looks cheap (gates, billboards, stadium, "2005");
+  wants TMNF's graphics (or better, RTX), TMNF's menus, online, a campaign like TMNF's, a better
+  engine sound, a car whose rims sit in the tyres. Answers: our own A-E campaign (65 originals),
+  Track Editor + replays, accounts + ladder, the Pi hosts the master/official servers.
+- Work branch `claude/tmnf-replica-graphics-nb1kcg` (from `stadium` @ 9a6ae41). Plan: PLAN.md M9
+  (steps 0-8, in order). Merge it into `stadium` when a step is done and checked.
+- Local reference data in a fresh container: `pip install pycryptodome py7zr numpy`, then
+  `tools/research/tmnf/setup_measurements.sh <dir outside the repo>` (stadium/CLAUDE.md).
+
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,
   11 tracks); the link to send to friends. Next release: tag `stadium-v0.3` the same way.

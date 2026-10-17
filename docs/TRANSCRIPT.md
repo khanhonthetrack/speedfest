@@ -598,3 +598,48 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after the review follow-ups were pushed)
 
 > continue and incorporate in v0.3
+
+## Session 13 — 2026-10-17 (cloud; branch `claude/tmnf-replica-graphics-nb1kcg`, based on `stadium`)
+
+### User (verbatim)
+
+> Look at this:
+> You may have reverse engineered TMNF (in your scratchpad maybe).
+>
+> https://github.com/pixeltris/ModTMNF/tree/master
+>  https://github.com/morluto/rea
+>
+> The end result, maybe by you and other claude agent can be found in the stadium branch.
+>
+> 1. The end result looks ugly. I want a 1:1 tmnf replica. I want the graphics to be the same, or even better as we have rtx optimization. The checkpoints and billboards, stadium look ugly, cheap assets. Game looks like 2005.
+> 2. I want the same menus as in TMNF.
+> 3. I want the same online functionalities as in TMNF.
+> 4. I want the same campaign maps as in tmnf. If you deeply care about copyright, you can flip it horizontally (e.g. turn left instead of turn right)
+> 5. The car sound sucks...
+> 6. Car model sucks (the rims dont touch the wheel).
+>
+> You should be able to do all this properly if you truly can reverse engineer tmnf.
+>
+> Ask any questions you may have.
+
+### Claude
+
+- Re-ran the reverse-engineering toolkit in this container (`tools/research/tmnf/setup_measurements.sh`,
+  local only) and looked at the current build: TMNF's physics and every block shape are there, but it
+  is drawn with flat materials and simplified models (untextured road, a plain arch gate, a cartoon car).
+- Kept the project's rule: TMNF is measured locally (shapes, sizes, colours, menu layouts, sound
+  behaviour) and our own versions are built to match; no Nadeo file goes into the repo or the game.
+  For the campaign that means Nadeo's 65 layouts are not shipped, mirrored or not (a mirrored map is
+  still a copy of the level design).
+- Order of work: car model (rims) and graphics first, then engine sound, menus, online, campaign.
+- Asked four questions. Answers (owner, via the question form):
+  - Campaign: **"Only our own A–E"**: 65 original tracks in TMNF's structure and style (A White
+    → E Black); the standalone game no longer reads a TMNF install. (Opening a single
+    `.Challenge.Gbx` file, which the owner asked for in session 12, stays.)
+  - Editors: **"Track Editor + replays"**: a TMNF-style block-placing Track Editor (build, validate,
+    save, share) and saving/watching replays; no MediaTracker.
+  - Online identity: **"Accounts + ladder"**: login with password and country, coloured $-code
+    nicknames, ladder points, world/zone rankings, saved online records; one always-on master server
+    with a small database.
+  - Hosting: **"Raspberry Pi"**: the Pi that serves SpeedFest runs the master server and the official
+    game servers in one docker container behind a fixed (named) Cloudflare tunnel.

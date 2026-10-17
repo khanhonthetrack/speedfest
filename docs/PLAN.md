@@ -158,6 +158,34 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
 - [x] 8. Release `stadium-v0.1` (2026-10-17): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1 (Windows 53 MB and Linux
       44 MB zips, built by CI from the tag)
 
+### M9 — "A 1:1 TMNF replica" (owner, session 13, 2026-10-17) ☐
+Owner's words and answers in TRANSCRIPT (session 13). Branch `claude/tmnf-replica-graphics-nb1kcg`
+(started from `stadium`; only `stadium/`, `docs/`, `tools/research/`). Rule unchanged: TMNF is
+measured locally, our own assets are built to match it, no Nadeo file is committed or shipped.
+Work sequentially, push after every step. Research notes go to `docs/research/m9_*.md`.
+- [ ] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
+      light), menus (screens, flow, layout), online (accounts, ladder, server modes, browser, votes,
+      chat), sound (engine layers, gears, cues), campaign style (A-E statistics: lengths, times,
+      checkpoints, block families per series)
+- [ ] 1. Car model: wheels that hold together (tyre, rim seated in the bead, hub, brake), TMNF's
+      body from the measured visual mesh proportions, the driver, PBR paint/carbon/rubber
+- [ ] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
+      adverts (our own brand art), the stadium (stands with crowd, roof, floodlights), light (TMNF's
+      day mood with modern GI/SSR/AO), RTX/Ultra preset; side-by-side checks against local
+      reference renders
+- [ ] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
+- [ ] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
+      campaign A-E tabs with medals), in-race menus
+- [ ] 5. Replays: save, browse and watch replays (with free and chase cameras)
+- [ ] 6. Track Editor: place the recreated blocks on the 32 x 8 x 32 grid, validate by driving
+      (author time), save/load/share
+- [ ] 7. Online: master server (accounts with password and zone, $-code nicknames, ladder points,
+      world/zone rankings, records, server list), dedicated servers (Time Attack, Rounds, Team,
+      Laps), server browser, chat, votes, spectators; docker + named Cloudflare tunnel for the Pi
+- [ ] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
+      difficulty curve and block style; the TMNF-install campaign tabs removed (single
+      `.Challenge.Gbx` files still open)
+
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
 instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.
