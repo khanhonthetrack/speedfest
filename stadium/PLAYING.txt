@@ -1,0 +1,24 @@
+SPEEDFEST STADIUM - how to play
+===============================
+
+1. Install TrackMania Nations Forever (free) from Steam or Ubisoft. The game races TMNF's own
+   campaign tracks from your install; it never contains them. It finds TMNF in its usual folder
+   (C:\Program Files (x86)\TmNationsForever or Steam's). Elsewhere: start the game with
+   -- --tmnf="D:\Games\TmNationsForever", or set the TMNF_DIR environment variable.
+2. Unzip this folder anywhere and run SpeedFestStadium.exe (Linux: SpeedFestStadium.x86_64).
+   Windows may warn "Windows protected your PC" because the game isn't signed: click
+   "More info" -> "Run anyway".
+3. PLAY races the campaign (your best times and ghosts are saved). ONLINE -> "Join the official
+   server" races everyone else on 5-minute rounds of random campaign tracks; or type a server's
+   address there.
+
+Straight into a track: SpeedFestStadium.exe -- --race=B05
+
+Keys: arrows / WASD or a gamepad to drive, Enter respawns at the last checkpoint, Backspace
+restarts, Escape pauses, T chats online.
+
+Options: graphics Low / High / Ultra (Ultra for strong graphics cards), HD textures, shadows,
+sound, music and its volume, the ghost of your best run.
+
+Music and sounds: open-licensed works by their authors; see CREDITS-music.md and
+CREDITS-sounds.md. Fonts: Orbitron and Rajdhani (SIL Open Font License).

@@ -46,8 +46,12 @@
   (`stadium/server/run_official.ps1`; address in `stadium/server/official.json`; if the PC
   restarts, run it again with `-Publish`); RTX (`stadium/RTX.md`: Ultra preset; DLSS and path
   tracing on NVIDIA's fork, tested on the RTX 2060).
-- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the rest of that list (music,
-  sounds, export); polish of the weakest decorations
+- **Also done:** music (8 open-licensed trap / hip-hop instrumentals, `audio/tm_music.gd`), recorded
+  sounds (`audio/sfx`), exports (`stadium/tools/export.sh`, `stadium/export_presets.cfg`, CI
+  `.github/workflows/stadium.yml`; Godot 4.7.2 templates installed on this PC; how to share:
+  `stadium/README.md` "Share it with friends"). The owner's list is complete.
+- **Next (live list: `stadium/CLAUDE.md` "Where things stand"):** the owner's next requests; a
+  permanent host for the official server (it runs on the owner's PC through a quick tunnel); polish of the weakest decorations
   (inflatable castles, camera light base, bump) and the stadium's outer roads/parking when time
   allows.
 - The `m7-rtx` checkout's `.import` line-ending noise is in `git stash` on this PC (harmless).

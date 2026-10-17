@@ -7,7 +7,8 @@ extends Node3D
 ## isn't installed. Race starts race/race.tscn with the track in TestHooks' args.
 ## Online: the server list (the official server, published in the repo, or any address),
 ## your name and car colour; Connect joins the server's round (race in online mode).
-## Args: --page=main|campaign|online|options|notmnf, --track=B05 (selected), --menu_dry (tests: Race
+## Args: --race=B05 (straight into that campaign track; exported builds can't be given a scene),
+## --page=main|campaign|online|options|notmnf, --track=B05 (selected), --menu_dry (tests: Race
 ## only records the choice).
 
 signal raced(track: String, map: String)
@@ -43,6 +44,10 @@ func _ready() -> void:
 		if selected.begins_with(String(TmUi.SERIES[i][0])):
 			series = i
 	show_page(String(TestHooks.arg("page", "main")))
+	if TestHooks.has_arg("race") and not tracks.is_empty():
+		var go := String(TestHooks.arg("race", "A01"))
+		TestHooks.args.erase("race")
+		race.call_deferred(go)
 
 
 ## The 3D backdrop: sky, the Stadium, a grass field and our car.

@@ -1,0 +1,94 @@
+# SpeedFest Stadium builds: exports Windows + Linux with the official Godot 4.7.2 release and
+# templates (both checked against the release's SHA512-SUMS.txt), zipped with PLAYING.txt and the
+# credits. Download them from the run's artifacts; a pushed tag stadium-v* also attaches them to a
+# GitHub Release, the easy link to send to friends. The game reads tracks from the player's own
+# TMNF install, so no Nadeo data is in the build.
+name: Stadium builds
+
+on:
+  push:
+    branches: [stadium]
+    tags: ["stadium-v*"]
+    paths:
+      - "stadium/**"
+      - ".github/workflows/stadium.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only used to create/upload the Release on stadium-v* tags
+
+concurrency:
+  group: stadium-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.7.2"
+  GODOT_STATUS: "stable"
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot + export templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot-bin
+            ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_STATUS }}
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_STATUS }}-linux64-desktop-templates-v1
+
+      - name: Download Godot 4.7.2 + export templates (checksums verified)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          TAG="${GODOT_VERSION}-${GODOT_STATUS}"
+          BASE="https://github.com/godotengine/godot/releases/download/${TAG}"
+          EDITOR="Godot_v${TAG}_linux.x86_64"
+          TPZ="Godot_v${TAG}_export_templates.tpz"
+          mkdir -p ~/godot-dl ~/godot-bin && cd ~/godot-dl
+          curl -fsSL --retry 5 -O "$BASE/SHA512-SUMS.txt"
+          curl -fsSL --retry 5 -O "$BASE/${EDITOR}.zip"
+          curl -fsSL --retry 5 -C - -O "$BASE/${TPZ}"
+          grep -E "  (${EDITOR}\.zip|${TPZ})$" SHA512-SUMS.txt | sha512sum -c -
+          unzip -o "${EDITOR}.zip" -d ~/godot-bin
+          chmod +x ~/godot-bin/${EDITOR}
+          TPL=~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_STATUS}
+          mkdir -p "$TPL"
+          unzip -j -o "${TPZ}" 'templates/version.txt' 'templates/icudt_godot.dat' \
+            'templates/linux_*.x86_64' 'templates/windows_*_x86_64*.exe' -d "$TPL"
+          ls -la "$TPL"
+          rm -rf ~/godot-dl
+
+      - name: Godot on PATH
+        run: sudo ln -sf "$HOME/godot-bin/Godot_v${GODOT_VERSION}-${GODOT_STATUS}_linux.x86_64" /usr/local/bin/godot
+
+      - name: Export Windows + Linux
+        run: stadium/tools/export.sh all
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeedFestStadium-windows
+          path: build/stadium/SpeedFestStadium-windows.zip
+          compression-level: 0
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeedFestStadium-linux
+          path: build/stadium/SpeedFestStadium-linux.zip
+          compression-level: 0
+
+      - name: GitHub Release (stadium-v* tags only)
+        if: startsWith(github.ref, 'refs/tags/stadium-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
+            && gh release upload "$GITHUB_REF_NAME" build/stadium/SpeedFestStadium-windows.zip build/stadium/SpeedFestStadium-linux.zip --clobber \
+            || gh release create "$GITHUB_REF_NAME" build/stadium/SpeedFestStadium-windows.zip build/stadium/SpeedFestStadium-linux.zip \
+                 --title "SpeedFest Stadium $GITHUB_REF_NAME" --notes-file stadium/PLAYING.txt

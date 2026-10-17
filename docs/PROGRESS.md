@@ -1201,3 +1201,15 @@ Owner: "Yes, continue with HD graphics: textures and materials for the blocks, t
   wall hits, click and tick in the menus. `TmSounds` loads them (loops set to loop) and keeps the
   synthesized ones only as stand-ins for a missing file; the engine's two layers each have their
   own rpm reference. `tests/test_sound` (12) checks the recordings are used.
+
+## 2026-10-17 — Session 12: exports and sharing (owner's list, step 6), branch `stadium`
+- Godot 4.7.2 export templates downloaded from Godot's GitHub release (SHA512 checked against
+  `SHA512-SUMS.txt`) and the Windows and Linux ones installed on this PC.
+- `stadium/export_presets.cfg` (Windows, Linux: one executable each, data embedded; tests,
+  tools and the server left out), `stadium/tools/export.sh` (exports and zips each build with
+  `PLAYING.txt`, the music and sound credits and the font licences): Windows zip 52 MB, Linux
+  42 MB. The exported Windows build checked: menu, a race (C03) with HD materials, HUD, music.
+  `--race=B05` on the menu goes straight into a track (exported builds can't be given a scene).
+- CI: `.github/workflows/stadium.yml` builds both zips on every push to `stadium` (artifacts) and
+  attaches them to a GitHub Release on a `stadium-v*` tag. How to share: `stadium/README.md`
+  "Share it with friends".

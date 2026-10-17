@@ -99,10 +99,13 @@ Updated 2026-10-16 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
      menus (`ui/menu.tscn` is the main scene; `ui/tm_race_menu.gd` pause/finish; `tests/test_menu`);
      (done) sounds (`audio/tm_sounds.gd` synthesized, `audio/tm_car_audio.gd`; `tests/test_sound`);
      (done) HD materials (`blocks/tm_surface.gdshader`, `car/tm_car_surface.gdshader`).
-  4. The owner's list (TRANSCRIPT, session 12): polish everything; menu polish, fonts, online
-     servers + one official server (5-min rounds, time trial, random campaign maps); RTX graphics
-     (see the RTX branch); downloaded open-licensed music (dark trap, hip hop) for menu and races;
-     better sounds from open-licensed packs; export builds and a way to share them. Stadium polish: outer roads, forecourts
+  4. (done) The owner's list (TRANSCRIPT, session 12): polish; menus with fonts; online play
+     (`stadium/server`, `net/tm_online.gd`, `race/tm_race_online.gd`) and the official server
+     (`stadium/server/run_official.ps1`, address in `official.json`); RTX (`stadium/RTX.md`);
+     music (`audio/tm_music.gd`, `audio/music`); recorded sounds (`audio/sfx`); exports
+     (`tools/export.sh`, CI `.github/workflows/stadium.yml`; README "Share it with friends").
+     Open: a permanent host for the official server (it runs on the owner's PC through a
+     Cloudflare quick tunnel; the address changes if it restarts: `run_official.ps1 -Publish`). Stadium polish: outer roads, forecourts
      and parking, roof light panels, textures.
 - Open questions: grass surface id (see Gotchas); water has no physics yet.
 - Lessons that saved the most time: TMNF's curves are polygons with fixed segment counts (count the

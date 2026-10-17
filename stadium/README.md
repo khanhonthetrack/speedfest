@@ -55,6 +55,19 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
    fullscreen, shadows, the ghost on or off, clear all records.
 Not there yet: textures (flat colours).
 
+## Share it with friends
+Builds: `stadium/tools/export.sh all` (Godot 4.7.2 export templates installed) writes
+`build/stadium/SpeedFestStadium-windows.zip` (~52 MB) and `-linux.zip` (~42 MB): one portable
+executable (no installer needed: unzip and run) with `PLAYING.txt` and the credits. Every push to
+`stadium` also builds them on GitHub (Actions → "Stadium builds" → the run's artifacts).
+- **Easiest:** send the zip through Google Drive / OneDrive / Dropbox / WeTransfer.
+- **A permanent download link:** tag a release, e.g. `git tag stadium-v0.1 && git push origin
+  stadium-v0.1`; the workflow attaches both zips to a GitHub Release
+  (https://github.com/khanhonthetrack/speedfest/releases), the link to send.
+- Friends need TrackMania Nations Forever installed (free; the game reads its tracks from there).
+  Windows SmartScreen warns about the unsigned exe: "More info" → "Run anyway".
+- Online: "Join the official server" works while the server runs (`stadium/server/README.md`).
+
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with
 `tools/research/tmnf/setup_measurements.sh` (never committed).
