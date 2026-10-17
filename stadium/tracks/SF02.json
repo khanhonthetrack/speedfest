@@ -1,0 +1,8 @@
+{
+	"name": "Drift King",
+	"author": "SpeedFest",
+	"start": [4, 1, 2, 0],
+	"medals": {"author": 33980, "gold": 36100, "silver": 41000, "bronze": 51000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 2], ["gt", 4, "r"], ["s", 2], ["cp"], ["s", 1], ["gt", 4, "l"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["gt", 3, "r"], ["s", 1], ["cp"], ["s", 1], ["gt", 5, "r"], ["turbo"], ["s", 3], ["gt", 4, "r"], ["s", 2], ["cp"], ["s", 1], ["gt", 3, "l"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["turbo"], ["s", 2], ["finish"]]
+}

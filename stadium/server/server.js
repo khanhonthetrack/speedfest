@@ -1,6 +1,6 @@
 'use strict';
 // SpeedFest Stadium online server: one always-on time-attack room like a TMNF server. Rounds of
-// ROUND_MS on random campaign tracks (players load them from their own TMNF install), players'
+// ROUND_MS on random tracks of the game's own (stadium/tracks; or TMNF's campaign), players'
 // best times ranked live, their cars' positions relayed (10 per second) so everyone sees everyone,
 // results between rounds, chat. WebSocket on /ws (JSON messages, see docs below); GET / gives the
 // status as JSON for the game's server list.
@@ -11,13 +11,14 @@
 //                   {t:'players', players}  {t:'states', s:{id:[px,py,pz,qx,qy,qz,qw,v,s]}}
 //                   {t:'results', ranking}  {t:'chat', from, text}  {t:'error', msg}
 //
-// Env: PORT (8090), ROUND_MS (300000), RESULTS_MS (15000), NAME ("SpeedFest Stadium"), MAX_PLAYERS (32);
-// or arguments --port= --host= --round-ms= --results-ms= --name= --max-players= (the game's tests use
-// them; --host=127.0.0.1 behind a tunnel).
+// Env: PORT (8090), ROUND_MS (300000), RESULTS_MS (15000), NAME ("SpeedFest Stadium"), MAX_PLAYERS (32),
+// TRACKS (the game's own: SF01,SF02,..; "tmnf" for TMNF's campaign A01..E05, when every player has
+// TMNF installed); or arguments --port= --host= --round-ms= --results-ms= --name= --max-players=
+// --tracks= (the game's tests use them; --host=127.0.0.1 behind a tunnel).
 
 const http = require('http');
 const { WebSocketServer } = require('ws');
-const { Rounds } = require('./lib/rounds');
+const { Rounds, TRACKS, TMNF_CAMPAIGN } = require('./lib/rounds');
 
 const VERSION = 1;
 const MAX_FRAME = 4096;
@@ -37,9 +38,11 @@ function finiteArray(a, n, limit) {
 function createServer(opts = {}) {
   const name = opts.name || process.env.NAME || 'SpeedFest Stadium';
   const maxPlayers = Number(opts.maxPlayers || process.env.MAX_PLAYERS || 32);
+  const list = String(opts.tracks || process.env.TRACKS || '').trim();
   const rounds = new Rounds({
     roundMs: Number(opts.roundMs || process.env.ROUND_MS || 5 * 60 * 1000),
     resultsMs: Number(opts.resultsMs || process.env.RESULTS_MS || 15 * 1000),
+    tracks: list === 'tmnf' ? TMNF_CAMPAIGN : list ? list.split(',').map((t) => t.trim()).filter(Boolean) : TRACKS,
   });
   const players = new Map();      // id -> {id, name, colour, ws, state, chatAt}
   let nextId = 1;
@@ -159,7 +162,8 @@ if (require.main === module) {
   const args = Object.fromEntries(process.argv.slice(2).filter((a) => a.startsWith('--') && a.includes('='))
     .map((a) => [a.slice(2, a.indexOf('=')), a.slice(a.indexOf('=') + 1)]));
   const port = Number(args.port || process.env.PORT || 8090);
-  const srv = createServer({ roundMs: args['round-ms'], resultsMs: args['results-ms'], name: args.name, maxPlayers: args['max-players'] });
+  const srv = createServer({ roundMs: args['round-ms'], resultsMs: args['results-ms'], name: args.name, maxPlayers: args['max-players'],
+    tracks: args.tracks });
   srv.listen(port, () => console.log(`SpeedFest Stadium server on http://${args.host || 'localhost'}:${port} (WebSocket /ws), round ${srv.rounds.track}`), args.host);
 }
 

@@ -1,0 +1,8 @@
+{
+	"name": "Full Send",
+	"author": "SpeedFest",
+	"start": [3, 1, 2, 0],
+	"medals": {"author": 26610, "gold": 28300, "silver": 32000, "bronze": 40000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 9], ["jump", 2], ["s", 5], ["cp"], ["s", 2], ["gt", 5, "r"], ["turbo"], ["turbo"], ["s", 6], ["jump", 2], ["s", 3], ["gt", 5, "r"], ["s", 3], ["cp"], ["s", 4], ["turbo"], ["s", 6], ["finish"]]
+}

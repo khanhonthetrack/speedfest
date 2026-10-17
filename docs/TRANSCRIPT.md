@@ -566,3 +566,12 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after the list was done)
 
 > Yes, tag stadium-v0.1 and push it so the workflow makes a GitHub Release with the zips.
+
+### User (verbatim, session 12, before the release was tagged)
+
+> Wait: TrackMania Nations Forever installed (free); the game reads the tracks from it. ?
+> No, I want this to be a standalone game!!
+
+### User (verbatim, session 12, while the standalone tracks were being started)
+
+> But still, in the end if someeone wants to load trackmania maps, such as gbx, then it should be doable in this game

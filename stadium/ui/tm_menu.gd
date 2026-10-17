@@ -1,14 +1,14 @@
 class_name TmMenu
 extends Node3D
 ## The remake's menus (the project's main scene), laid out like TMNF's: the Stadium behind, our
-## car on the field with the camera slowly circling it, and on top the pages: main (Play, open a
-## track file, options, quit), the campaign (the five series as tabs, each track with your best
-## time and medal, the selected track's details and Race), options, and what to do when TMNF
-## isn't installed. Race starts race/race.tscn with the track in TestHooks' args.
-## Online: the server list (the official server, published in the repo, or any address),
-## your name and car colour; Connect joins the server's round (race in online mode).
-## Args: --race=B05 (straight into that campaign track; exported builds can't be given a scene),
-## --page=main|campaign|online|options|notmnf, --track=B05 (selected), --menu_dry (tests: Race
+## car on the field with the camera slowly circling it, and on top the pages: main (Play, online,
+## open a track file, options, quit), the campaign (tabs: our own tracks, TmTracks, and, when TMNF
+## is installed, its five series; each track with your best time and medal, the selected track's
+## details and Race), options, and how to add TMNF's campaign. Race starts race/race.tscn with the
+## track in TestHooks' args. Online: the server list (the official server, published in the repo,
+## or any address), your name and car colour; Connect joins the server's round (race in online mode).
+## Args: --race=SF01 (straight into that track; exported builds can't be given a scene),
+## --page=main|campaign|online|options|notmnf, --track=SF01 (selected), --menu_dry (tests: Race
 ## only records the choice).
 
 signal raced(track: String, map: String)
@@ -16,7 +16,7 @@ signal raced(track: String, map: String)
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
 
 var tmnf := ""
-var tracks: Array[String] = []
+var tracks: Array[String] = []     ## ours (TmTracks), then TMNF's campaign when it's installed
 var page := ""
 var selected := ""
 var series := 0
@@ -36,16 +36,17 @@ func _ready() -> void:
 	_layer = CanvasLayer.new()
 	add_child(_layer)
 	tmnf = TmStage.find_tmnf()
+	tracks = TmTracks.ids()
 	if not tmnf.is_empty():
-		tracks = TmStage.campaign_tracks(tmnf)
+		tracks.append_array(TmStage.campaign_tracks(tmnf))
 	selected = String(TestHooks.arg("track", tracks[0] if not tracks.is_empty() else ""))
 	Music.toast(self)
-	for i in TmUi.SERIES.size():
-		if selected.begins_with(String(TmUi.SERIES[i][0])):
+	for i in _series_count():
+		if _series_tracks(i).has(selected):
 			series = i
 	show_page(String(TestHooks.arg("page", "main")))
 	if TestHooks.has_arg("race") and not tracks.is_empty():
-		var go := String(TestHooks.arg("race", "A01"))
+		var go := String(TestHooks.arg("race", tracks[0]))
 		TestHooks.args.erase("race")
 		race.call_deferred(go)
 
@@ -148,7 +149,7 @@ func show_page(name: String) -> void:
 	_clear()
 	match name:
 		"campaign":
-			_page_campaign() if not tracks.is_empty() else _page_notmnf()
+			_page_campaign()
 		"options":
 			_page_options()
 		"online":
@@ -177,25 +178,44 @@ func _page_main() -> void:
 	col.add_child(TmUi.button("OPEN A TRACK FILE", _open_file))
 	col.add_child(TmUi.button("OPTIONS", func() -> void: show_page("options")))
 	col.add_child(TmUi.button("QUIT", func() -> void: get_tree().quit()))
-	var note := TmUi.label("TMNF found: %s" % tmnf if not tmnf.is_empty() else "TMNF not found: open a track file, or see Play", 18, TmUi.DIM)
+	var note := TmUi.label("%d tracks, plus TMNF's campaign (found: %s)" % [TmTracks.ids().size(), tmnf] if not tmnf.is_empty()
+		else "%d tracks. Have TrackMania Nations Forever? Its campaign shows up in Play, and Open a track file races any .Gbx" % TmTracks.ids().size(), 18, TmUi.DIM)
 	note.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 56)
 	note.position.x = 60
 	root.add_child(note)
 	play.grab_focus.call_deferred()
 
 
+## The campaign's tabs: ours, then TMNF's five series when it's installed.
+func _series_count() -> int:
+	return 1 + (TmUi.SERIES.size() if not tmnf.is_empty() else 0)
+
+
+## A tab: [title, colour, text colour when picked].
+func _series_tab(i: int) -> Array:
+	if i == 0:
+		return ["SPEEDFEST", TmUi.ACCENT, Color.BLACK]
+	var s: Array = TmUi.SERIES[i - 1]
+	return ["TMNF " + String(s[1]).to_upper(), s[2], Color.BLACK if i < 4 else Color.WHITE]
+
+
 func _series_tracks(i: int) -> Array[String]:
-	var letter := String(TmUi.SERIES[i][0])
+	if i == 0:
+		return TmTracks.ids()
 	var out: Array[String] = []
+	if i > TmUi.SERIES.size() or tmnf.is_empty():
+		return out
+	var letter := String(TmUi.SERIES[i - 1][0])
 	for t in tracks:
-		if t.begins_with(letter):
+		if t.begins_with(letter) and not TmTracks.has(t):
 			out.append(t)
 	return out
 
 
 func header(track: String) -> TmChallenge:
 	if not _headers.has(track):
-		_headers[track] = TmChallenge.load_file(TmStage.campaign_file(tmnf, track), true)
+		_headers[track] = TmTracks.challenge(track) if TmTracks.has(track) \
+			else TmChallenge.load_file(TmStage.campaign_file(tmnf, track), true)
 	return _headers[track]
 
 
@@ -212,26 +232,30 @@ func _page_campaign() -> void:
 	tabs.add_theme_constant_override("separation", 8)
 	left.add_child(tabs)
 	var group := ButtonGroup.new()
-	for i in TmUi.SERIES.size():
-		var s: Array = TmUi.SERIES[i]
+	series = clampi(series, 0, _series_count() - 1)
+	for i in _series_count():
+		var s := _series_tab(i)
 		var b := Button.new()
-		b.text = String(s[1]).to_upper()
+		b.text = String(s[0])
 		b.toggle_mode = true
 		b.button_group = group
 		b.button_pressed = i == series
-		b.custom_minimum_size = Vector2(140, 48)
+		b.custom_minimum_size = Vector2(150 if i == 0 else 128, 48)
+		b.add_theme_font_size_override("font_size", 18 if i > 0 else 20)
 		var st := StyleBoxFlat.new()
-		st.bg_color = Color(s[2], 0.9)
+		st.bg_color = Color(s[1], 0.9)
 		st.set_corner_radius_all(6)
 		b.add_theme_stylebox_override("pressed", st)
-		b.add_theme_color_override("font_pressed_color", Color.BLACK if i < 3 else Color.WHITE)
+		b.add_theme_color_override("font_pressed_color", s[2])
 		b.pressed.connect(func() -> void:
 			series = i
 			var first := _series_tracks(i)
-			if not first.is_empty() and not selected.begins_with(String(s[0])):
+			if not first.is_empty() and not first.has(selected):
 				selected = first[0]
 			show_page("campaign"))
 		tabs.add_child(b)
+	if tmnf.is_empty():
+		tabs.add_child(TmUi.button("+ TMNF TRACKS", func() -> void: show_page("notmnf"), 220))
 	var grid := GridContainer.new()
 	grid.columns = 5
 	grid.add_theme_constant_override("h_separation", 10)
@@ -244,7 +268,8 @@ func _page_campaign() -> void:
 		var ms := int(best.get("time_ms", -1))
 		var m := TmRace.medal(ms, ch)
 		var b := Button.new()
-		b.text = "%s\n%s" % [t, TmRace.time_text(ms)]
+		b.text = "%s\n%s" % [ch.name.to_upper() if TmTracks.has(t) else t, TmRace.time_text(ms)]
+		b.clip_text = true
 		b.custom_minimum_size = Vector2(150, 92)
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		b.add_theme_font_size_override("font_size", 22)
@@ -288,7 +313,7 @@ func select(track: String, race_on_repeat := true) -> void:
 	var best := TmRecords.best(ch)
 	var ms := int(best.get("time_ms", -1))
 	var m := TmRace.medal(ms, ch)
-	_detail.add_child(TmUi.label(track, 22, TmUi.ACCENT))
+	_detail.add_child(TmUi.label(track + ("   ·   TMNF CAMPAIGN" if not TmTracks.has(track) else ""), 22, TmUi.ACCENT))
 	_detail.add_child(TmUi.label(ch.name if ch.ok() else "(unreadable: %s)" % ch.error, 34, Color.WHITE))
 	_detail.add_child(TmUi.label("by %s" % ch.author, 20, TmUi.DIM))
 	_detail.add_child(HSeparator.new())
@@ -445,7 +470,7 @@ func _server_status(address: String) -> void:
 		var left := maxi(0, int(float(r.get("end", 0)) - float(d.get("now", 0))))
 		var trk := String(r.get("track", ""))
 		var trk_name := trk
-		if not tmnf.is_empty() and not trk.is_empty():
+		if TmTracks.has(trk) or (not tmnf.is_empty() and not trk.is_empty()):
 			trk_name = "%s  %s" % [trk, header(trk).name]
 		_official_label.text = "%s   ·   %s   ·   %d/%d players   ·   %d:%02d left" % [String(d.get("name", "")), trk_name,
 			int(d.get("players", 0)), int(d.get("maxPlayers", 0)), left / 60000, (left / 1000) % 60])
@@ -454,9 +479,6 @@ func _server_status(address: String) -> void:
 
 func _connect(address: String) -> void:
 	if address.is_empty():
-		return
-	if tmnf.is_empty():
-		_online_status.text = "Online races use the campaign tracks: install TMNF first (see Play)"
 		return
 	_online_status.text = "Connecting to %s ..." % address
 	for c in Online.connected.get_connections():
@@ -474,7 +496,7 @@ func _connect(address: String) -> void:
 
 ## In the server: race its round's track.
 func _joined() -> void:
-	race(String(Online.round.get("track", "A01")))
+	race(String(Online.round.get("track", tracks[0] if not tracks.is_empty() else "")))
 
 
 ## A button that steps through a setting's values (an index into names).
@@ -488,16 +510,18 @@ func _cycle(title: String, key: String, names: Array) -> Button:
 	return b
 
 
+## How to add TMNF's tracks: its campaign (from an install) and any .Challenge.Gbx file.
 func _page_notmnf() -> void:
-	var root := _root("PLAY")
+	var root := _root("TMNF TRACKS")
 	var col := _column(root, 200)
-	var text := TmUi.label("TrackMania Nations Forever isn't installed where the remake looks for it.\n" +
-		"Install it (free, from Ubisoft/Nadeo or Steam) to race its campaign, start the remake with\n" +
-		"--tmnf=\"<its folder>\" or set TMNF_DIR, or open any .Challenge.Gbx track file.", 22, TmUi.TEXT)
+	var text := TmUi.label("SpeedFest races TrackMania Nations Forever's tracks too.\n" +
+		"Its campaign (65 tracks) shows up in Play when TMNF is installed (free, from Ubisoft/Nadeo\n" +
+		"or Steam) in its usual folder; else start SpeedFest with --tmnf=\"<its folder>\" or set TMNF_DIR.\n" +
+		"Any .Challenge.Gbx track file, yours or downloaded, races with Open a track file.", 22, TmUi.TEXT)
 	col.add_child(text)
 	var open := TmUi.button("OPEN A TRACK FILE", _open_file)
 	col.add_child(open)
-	col.add_child(TmUi.button("BACK", func() -> void: show_page("main"), 200))
+	col.add_child(TmUi.button("BACK", func() -> void: show_page("campaign"), 200))
 	open.grab_focus.call_deferred()
 
 

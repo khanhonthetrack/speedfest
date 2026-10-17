@@ -54,17 +54,23 @@ static func find_tmnf() -> String:
 	return ""
 
 
-## The challenge named by the args: --map=/path/X.Challenge.Gbx, or --tmnf=/path --track=A01 (the
-## install found by find_tmnf() when not named; A01 by default).
+## The challenge named by the args: --map=/path/X.Challenge.Gbx (any TMNF track file), or
+## --track=SF01 (our own tracks, TmTracks; the first by default), or --track=A01 for TMNF's
+## campaign from a TMNF install (--tmnf=/path, else the one find_tmnf() finds).
 static func load_from_args() -> TmChallenge:
 	var path := String(TestHooks.arg("map", ""))
 	if path.is_empty():
+		var track := String(TestHooks.arg("track", ""))
+		if track.is_empty() and not TmTracks.ids().is_empty():
+			track = TmTracks.ids()[0]
+		if TmTracks.has(track):
+			return TmTracks.challenge(track)
 		var root := find_tmnf()
 		if root.is_empty():
 			var none := TmChallenge.new()
-			none.error = "TMNF not found. Install TrackMania Nations Forever (free), or start with --tmnf=<its folder> or --map=<file.Challenge.Gbx>, or set TMNF_DIR."
+			none.error = "Track %s is from TrackMania Nations Forever's campaign: install TMNF (free) to race it, or open a .Challenge.Gbx file." % track
 			return none
-		path = campaign_file(root, String(TestHooks.arg("track", "A01")))
+		path = campaign_file(root, track)
 	return TmChallenge.load_file(path)
 
 

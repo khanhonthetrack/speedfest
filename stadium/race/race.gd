@@ -4,9 +4,10 @@ extends Node3D
 ## (after the race clock) and tests each tick's motion against the waypoint triggers (TmTriggers).
 ## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart,
 ## Escape = pause (TmRaceMenu: resume, restart, menu); after the finish: retry, next track, menu.
-## Args: --map=/path/X.Challenge.Gbx, or --tmnf=/path/to/TMNF --track=A01 (without them: the TMNF
-## install in its usual place, A01); --laps=N overrides the map's lap count; TmCarInput's --auto_*
-## and TestHooks' --shot/--frames for tests. The menu (ui/menu.tscn, the main scene) starts it.
+## Args: --track=SF01 (our own tracks, TmTracks; the first by default), --map=/path/X.Challenge.Gbx
+## (any TMNF track file), or --track=A01 with a TMNF install (--tmnf=/path/to/TMNF, else its usual
+## place); --laps=N overrides the map's lap count; --bot: TmBot drives (our tracks); TmCarInput's
+## --auto_* and TestHooks' --shot/--frames for tests. The menu (ui/menu.tscn, the main scene) starts it.
 ## Best times and ghosts: every run is recorded (TmGhost); a finish that beats the track's record
 ## is saved (TmRecords) and its ghost races against you from the next attempt on.
 
@@ -26,6 +27,7 @@ var new_record := false            ## the last finish set a new record
 var menu: TmRaceMenu               ## pause and finish menus
 var audio: TmCarAudio              ## engine, skid, wind and the race's cues
 var online: TmRaceOnline           ## the online side, in a server (Online)
+var bot: TmBot                     ## the driving bot (--bot), else null
 var track_id := ""                 ## the campaign track raced ("" for a track file)
 var next_id := ""                  ## the campaign track after it ("" if none)
 
@@ -81,6 +83,12 @@ func _ready() -> void:
 	input = TmCarInput.new()
 	input.car = car
 	add_child(input)
+	if TestHooks.has_arg("bot") and not challenge.path.is_empty():
+		bot = TmBot.new()
+		bot.car = car
+		bot.path = challenge.path
+		add_child(bot)
+		input.car = null
 	cam = TmCamera.new()
 	cam.target = car
 	add_child(cam)
@@ -192,11 +200,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			menu.toggle_pause()
 
 
-## Where the raced track sits in the campaign (track_id, next_id), when it is a campaign track.
+## Where the raced track sits in its campaign (track_id, next_id): ours (TmTracks) or TMNF's.
 func _campaign_place() -> void:
 	if TestHooks.has_arg("map"):
 		return
-	track_id = String(TestHooks.arg("track", "A01"))
+	track_id = String(TestHooks.arg("track", ""))
+	if track_id.is_empty() or TmTracks.has(track_id):
+		if track_id.is_empty() and not TmTracks.ids().is_empty():
+			track_id = TmTracks.ids()[0]
+		next_id = TmTracks.next(track_id)
+		return
 	var all := TmStage.campaign_tracks(TmStage.find_tmnf())
 	var i := all.find(track_id)
 	if i >= 0 and i + 1 < all.size():
@@ -240,6 +253,8 @@ func restart() -> void:
 	run = TmGhost.new()
 	new_record = false
 	hud.reset()
+	if bot:
+		bot.reset()
 	place_car(builder.start if builder.has_start else Transform3D())
 
 

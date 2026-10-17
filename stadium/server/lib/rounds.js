@@ -1,17 +1,33 @@
 'use strict';
 // Round logic of the SpeedFest Stadium online server, like a TMNF time-attack server: each round
-// is a campaign track (A01..E05, read by every player from their own TMNF install) raced for
-// ROUND_MS; players may restart any time and their best time counts; then RESULTS_MS of results
-// and the next track, random but not one of the last few. Pure logic (the clock is passed in),
+// is one of the game's own tracks (SF01.., the files in stadium/tracks: every player has them)
+// raced for ROUND_MS; players may restart any time and their best time counts; then RESULTS_MS of
+// results and the next track, random but not one of the last few. TMNF_CAMPAIGN (A01..E05) is
+// there for groups whose players all have TMNF installed. Pure logic (the clock is passed in),
 // so the tests drive it without timers.
 
-const CAMPAIGN = [];
+const fs = require('fs');
+const path = require('path');
+
+const TMNF_CAMPAIGN = [];
 for (const [letter, count] of [['A', 15], ['B', 15], ['C', 15], ['D', 15], ['E', 5]]) {
-  for (let i = 1; i <= count; i++) CAMPAIGN.push(letter + String(i).padStart(2, '0'));
+  for (let i = 1; i <= count; i++) TMNF_CAMPAIGN.push(letter + String(i).padStart(2, '0'));
 }
 
+/** The game's own track ids: the track files' names in `dir` (stadium/tracks), sorted. */
+function ownTracks(dir = path.join(__dirname, '..', '..', 'tracks')) {
+  try {
+    return fs.readdirSync(dir).filter((f) => /^[A-Za-z0-9_-]+\.json$/.test(f)).map((f) => f.slice(0, -5)).sort();
+  } catch {
+    return [];
+  }
+}
+
+const TRACKS = ownTracks();
+
 class Rounds {
-  constructor({ roundMs = 5 * 60 * 1000, resultsMs = 15 * 1000, tracks = CAMPAIGN, recent = 12, random = Math.random } = {}) {
+  constructor({ roundMs = 5 * 60 * 1000, resultsMs = 15 * 1000, tracks = TRACKS, recent = 12, random = Math.random } = {}) {
+    if (!tracks.length) throw new Error('no tracks to race (stadium/tracks is empty?)');
     this.roundMs = roundMs;
     this.resultsMs = resultsMs;
     this.tracks = tracks.slice();
@@ -85,4 +101,4 @@ class Rounds {
   }
 }
 
-module.exports = { Rounds, CAMPAIGN };
+module.exports = { Rounds, TRACKS, TMNF_CAMPAIGN, ownTracks };

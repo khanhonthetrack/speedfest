@@ -26,6 +26,7 @@ var lap_race := false
 var nb_laps := 0
 var size := Vector3i(32, 32, 32)
 var blocks: Array = []
+var path: Array = []           ## our own tracks only (TmTrackBuilder): the line the driving bot follows
 
 
 ## header_only: just the header (name, author, uid, medal times; no blocks): quick, for lists.

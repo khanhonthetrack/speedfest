@@ -1,8 +1,8 @@
 extends Node
-## Online (needs Node.js; skipped without it): the stadium server started with short rounds, the
-## Online client joins, races the round's track in online mode (with a TMNF install, --tmnf=),
-## sees a second player's car from the positions the server relays, reports a finish that the
-## server ranks, and follows the server to the next round's track.
+## Online (needs Node.js; skipped without it): the stadium server started with short rounds on
+## the game's own tracks, the Online client joins, races the round's track in online mode, sees a
+## second player's car from the positions the server relays, reports a finish that the server
+## ranks, and follows the server to the next round's track.
 
 const PORT := 18091
 var _pid := -1
@@ -23,13 +23,10 @@ func _ready() -> void:
 	TestHooks.check(ok and Online.server_name == "Test", "online_joins", "%s" % Online.server_name)
 	if ok:
 		var trk := String(Online.round.get("track", ""))
-		TestHooks.check(trk.length() == 3 and Online.players.size() == 1 and int(Online.players[0]["id"]) == Online.my_id,
+		TestHooks.check(TmTracks.has(trk) and Online.players.size() == 1 and int(Online.players[0]["id"]) == Online.my_id,
 			"online_round_and_players", "%s %s" % [trk, Online.players])
 		TestHooks.check(absf(Online.time_left_ms() - 6000) < 1500, "online_clock", "%d" % Online.time_left_ms())
-		if TmStage.find_tmnf().is_empty():
-			TestHooks.ok("online_race_skipped_no_tmnf")
-		else:
-			await _race(trk)
+		await _race(trk)
 	Online.leave()
 	OS.kill(_pid)
 	TestHooks.finish()
