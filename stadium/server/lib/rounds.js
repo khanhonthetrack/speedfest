@@ -14,10 +14,16 @@ for (const [letter, count] of [['A', 15], ['B', 15], ['C', 15], ['D', 15], ['E',
   for (let i = 1; i <= count; i++) TMNF_CAMPAIGN.push(letter + String(i).padStart(2, '0'));
 }
 
-/** The game's own track ids: the track files' names in `dir` (stadium/tracks), sorted. */
+/** The game's campaign: stadium/tracks/campaign.json (the track ids, in order); without it, the
+ *  track files' names, sorted. */
 function ownTracks(dir = path.join(__dirname, '..', '..', 'tracks')) {
   try {
-    return fs.readdirSync(dir).filter((f) => /^[A-Za-z0-9_-]+\.json$/.test(f)).map((f) => f.slice(0, -5)).sort();
+    const listed = JSON.parse(fs.readFileSync(path.join(dir, 'campaign.json'), 'utf8'));
+    if (Array.isArray(listed) && listed.length) return listed.map(String);
+  } catch { /* no manifest: the files */ }
+  try {
+    return fs.readdirSync(dir).filter((f) => /^[A-Za-z0-9_-]+\.json$/.test(f) && f !== 'campaign.json')
+      .map((f) => f.slice(0, -5)).sort();
   } catch {
     return [];
   }

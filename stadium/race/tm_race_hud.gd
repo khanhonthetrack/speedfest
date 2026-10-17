@@ -17,6 +17,7 @@ var best := {}:                    ## the track's record {time_ms, splits}, set 
 var _clock: Label
 var _speed: Label
 var _info: Label
+var _times: GridContainer           ## medal and record times, two aligned columns
 var _count: Label
 var _centre: Label
 var _delta: Label
@@ -35,6 +36,12 @@ func _ready() -> void:
 	_clock = _label(52, Control.PRESET_CENTER_BOTTOM, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -40), TmUi.HEAD)
 	_speed = _label(40, Control.PRESET_BOTTOM_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, -40), TmUi.HEAD)
 	_info = _label(22, Control.PRESET_TOP_LEFT, HORIZONTAL_ALIGNMENT_LEFT, Vector2(28, 22))
+	_times = GridContainer.new()
+	_times.columns = 2
+	_times.add_theme_constant_override("h_separation", 18)
+	_times.add_theme_constant_override("v_separation", 0)
+	_times.position = Vector2(28, 100)
+	add_child(_times)
 	_count = _label(30, Control.PRESET_TOP_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, 22))
 	_centre = _label(60, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -120), TmUi.HEAD)
 	_delta = _label(40, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, 40), TmUi.HEAD)
@@ -49,10 +56,28 @@ func _ready() -> void:
 func _update_info() -> void:
 	if _info == null or challenge == null:
 		return
-	_info.text = "%s\nby %s\n\nAuthor  %s\nGold    %s\nSilver  %s\nBronze  %s\n\nBest    %s" % [challenge.name,
-		challenge.author, TmRace.time_text(challenge.author_ms), TmRace.time_text(challenge.gold_ms),
-		TmRace.time_text(challenge.silver_ms), TmRace.time_text(challenge.bronze_ms),
-		TmRace.time_text(int(best.get("time_ms", -1)))]
+	_info.text = "%s\nby %s" % [challenge.name, challenge.author]
+	if _times == null:
+		return
+	for c in _times.get_children():
+		c.queue_free()
+	var rows := [["Author", challenge.author_ms, "author"], ["Gold", challenge.gold_ms, "gold"],
+		["Silver", challenge.silver_ms, "silver"], ["Bronze", challenge.bronze_ms, "bronze"],
+		["", -2, ""], ["Best", int(best.get("time_ms", -1)), ""]]
+	for r: Array in rows:
+		for col in 2:
+			var l := Label.new()
+			l.add_theme_font_override("font", TmUi.font(TmUi.BOLD))
+			l.add_theme_font_size_override("font_size", 22)
+			l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+			l.add_theme_constant_override("outline_size", 4)
+			l.add_theme_color_override("font_color", MEDAL_COLOURS[r[2]])
+			if int(r[1]) == -2:
+				l.text = " "
+			else:
+				l.text = String(r[0]) if col == 0 else TmRace.time_text(int(r[1]))
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if col == 1 else HORIZONTAL_ALIGNMENT_LEFT
+			_times.add_child(l)
 
 
 func _label(size: int, preset: Control.LayoutPreset, align: HorizontalAlignment, offset: Vector2, font_key := TmUi.BOLD) -> Label:

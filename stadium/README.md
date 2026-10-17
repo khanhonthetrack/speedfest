@@ -68,7 +68,10 @@ Save it as `tracks/<ID>.json`, then
     stadium/tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals
 
 lays it out (errors name the piece that collides or leaves the map), builds it, lets the driving
-bot race it at a few grips and writes the medals (author = the bot's best) into the file. Look at
+bot race it at a few grips and writes the medals (author = the bot's best) into the file. Add its
+id to `tracks/campaign.json` to put it in the campaign (the menu and the server's rotation). The
+builder dresses it by itself (`race/tm_track_decor.gd`; `"decorate": false` turns that off) and
+puts road to stop on after the finish line. Look at
 it with `race/map_view.tscn -- --track=<ID> --shot=/abs/out.png`.
 
 ## Share it with friends

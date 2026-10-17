@@ -35,6 +35,7 @@ const GHOST_LINGER_MS := 1000      ## the ghost stays this long at its finish, t
 
 var _triggers: Array = []          ## [{index, kind, xform, trig}]: waypoints with a trigger
 var _prev := Vector3.ZERO          ## the car's position at the previous tick
+var _cp_states := {}               ## checkpoint index -> the car as it crossed it {xform, lin, ang}
 
 
 func _ready() -> void:
@@ -152,7 +153,12 @@ func _physics_process(_delta: float) -> void:
 		run.record(race.time_ms, car.global_transform, car.model.steer, car.local_velocity().z)
 		for t: Dictionary in _triggers:
 			if TmTriggers.crossed(t["trig"], t["xform"], _prev, p) >= 0.0:
-				race.cross(int(t["index"]), int(t["kind"]))
+				var index := int(t["index"])
+				var before := race.respawn_index
+				race.cross(index, int(t["kind"]))
+				if race.respawn_index == index and before != index:
+					# TMNF respawns you at the checkpoint as you crossed it: speed and heading kept
+					_cp_states[index] = {"xform": car.global_transform, "lin": car.lin_vel, "ang": car.ang_vel}
 	_prev = p
 
 
@@ -255,6 +261,7 @@ func restart() -> void:
 	race.restart()
 	run = TmGhost.new()
 	new_record = false
+	_cp_states.clear()
 	hud.reset()
 	if bot:
 		bot.reset()
@@ -266,7 +273,18 @@ func respawn() -> void:
 	if race.state != TmRace.State.RACING or race.respawn_index < 0:
 		restart()
 		return
-	place_car(builder.waypoints[race.respawn_index]["spawn"])
+	var st: Dictionary = _cp_states.get(race.respawn_index, {})
+	if st.is_empty():
+		place_car(builder.waypoints[race.respawn_index]["spawn"])
+	else:
+		var xf: Transform3D = st["xform"]
+		car.place(Transform3D(xf.basis, xf.origin - xf.basis.y.normalized() * car.body.rest_height()))
+		car.lin_vel = st["lin"]
+		car.ang_vel = st["ang"]
+		car.controls_enabled = true
+		car.auto_brake = false
+		_prev = car.global_position
+		cam.snap()
 	audio.cue("respawn", -6.0)
 
 

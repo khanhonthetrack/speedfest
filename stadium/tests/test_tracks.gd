@@ -24,7 +24,34 @@ func _ready() -> void:
 		var ms := await _track(id)
 		report.append("%s %s" % [id, TmRace.time_text(ms) if ms > 0 else "DNF"])
 	print("TRACK_TIMES ", ", ".join(report))
+	if not ids.is_empty() and not TestHooks.has_arg("write_medals"):
+		await _respawn_check(ids[0])
 	TestHooks.finish()
+
+
+## Respawning after a checkpoint puts the car back there with the speed it crossed it at (TMNF).
+func _respawn_check(id: String) -> void:
+	TestHooks.args["track"] = id
+	TestHooks.args["bot"] = true
+	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	while not scene.ready_to_race:
+		await get_tree().physics_frame
+	var race: TmRace = scene.race
+	while race.taken.is_empty() and race.time_ms < LIMIT_MS and scene.bot.failed.is_empty():
+		await get_tree().physics_frame
+	var crossed: float = scene.car.speed_kmh()
+	var at: Vector3 = scene.car.global_position
+	for i in 60:
+		await get_tree().physics_frame
+	scene.respawn()
+	var back: float = scene.car.speed_kmh()
+	TestHooks.check(not race.taken.is_empty() and crossed > 50.0 and absf(back - crossed) < 3.0
+		and scene.car.global_position.distance_to(at) < 3.0, "respawn_keeps_checkpoint_speed",
+		"crossed %.0f km/h, back at %.0f km/h, %.1f m from the crossing" % [crossed, back, scene.car.global_position.distance_to(at)])
+	scene.queue_free()
+	await get_tree().physics_frame
+	TestHooks.args.erase("bot")
 
 
 func _track(id: String) -> int:

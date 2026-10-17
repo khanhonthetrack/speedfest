@@ -1,10 +1,13 @@
 class_name TmTracks
 extends RefCounted
-## SpeedFest's own tracks, the game's campaign: tracks/*.json (track specs, laid out by
-## TmTrackBuilder from the recreated blocks), in file name order. Ids are the file names (SF01 ..).
+## SpeedFest's own tracks: tracks/*.json (track specs, laid out by TmTrackBuilder from the
+## recreated blocks; ids are the file names, SF01 ..). The campaign (the menu, the server's
+## rotation) is the list in tracks/campaign.json, in its order; any other track file can still be
+## raced by id (--track=), e.g. one being made or tested.
 ## TMNF's campaign (from a TMNF install) and .Challenge.Gbx files are optional extras (TmStage).
 
 const DIR := "res://tracks"
+const CAMPAIGN := "campaign.json"
 
 static var _specs := {}
 static var _ids: Array[String] = []
@@ -16,7 +19,7 @@ static func _load() -> void:
 	var files := Array(DirAccess.get_files_at(DIR))
 	files.sort()
 	for f: String in files:
-		if not f.ends_with(".json"):
+		if not f.ends_with(".json") or f == CAMPAIGN:
 			continue
 		var text := FileAccess.get_file_as_string(DIR.path_join(f))
 		var spec: Variant = JSON.parse_string(text)
@@ -26,10 +29,13 @@ static func _load() -> void:
 		var id := f.get_basename()
 		(spec as Dictionary)["id"] = id
 		_specs[id] = spec
-		_ids.append(id)
+	var listed: Variant = JSON.parse_string(FileAccess.get_file_as_string(DIR.path_join(CAMPAIGN)))
+	for id: String in (listed if listed is Array else _specs.keys()):
+		if _specs.has(id):
+			_ids.append(id)
 
 
-## Our track ids, in order.
+## The campaign's track ids, in order.
 static func ids() -> Array[String]:
 	_load()
 	return _ids.duplicate()

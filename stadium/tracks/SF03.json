@@ -2,7 +2,7 @@
 	"name": "Highline",
 	"author": "SpeedFest",
 	"start": [2, 1, 4, 3],
-	"medals": {"author": 34770, "gold": 36900, "silver": 42000, "bronze": 53000},
+	"medals": {"author": 34090, "gold": 36200, "silver": 41000, "bronze": 52000},
 	"bot_grip": 40,
 	"pieces": [["start"], ["s", 2], ["up"], ["up"], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["up2"], ["s", 3], ["gt", 3, "l"], ["s", 1], ["cp"], ["s", 2], ["down2"], ["s", 1], ["down"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["down"], ["jump", 1], ["s", 3], ["gt", 3, "r"], ["turbo"], ["s", 4], ["cp"], ["s", 4], ["finish"]]
 }

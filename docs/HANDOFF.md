@@ -1,5 +1,18 @@
 # HANDOFF: start here
 
+## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
+- Owner (TRANSCRIPT): bare tracks, cheap checkpoints, start and finish indistinguishable, no
+  driver, parts not connected, blur while driving; "Run an indpeendent review of the game" and
+  fix both. Done (PROGRESS "quality pass"): gates dressed per kind (`blocks/tm_gate_dress.gd`), the
+  driver and a reworked car, the blur (double interpolation + TAA), track decoration
+  (`race/tm_track_decor.gd`), adverts on every screen (`env/tm_adverts.gd`), graded light, SMAA,
+  run-off after the finish with a trackside finish camera, speed FOV, respawn keeping the
+  checkpoint speed, records keyed by layout, `tracks/campaign.json`.
+- Next, from the review: bigger tracks using more of the field, more decoration kinds (Fabric
+  stands by the start and finish, inflatable rows outside curves, lights by the checkpoints), a
+  seat pattern in the stands, a result panel at the finish; the bot's weave at 250+ km/h
+  (below). After a track or server change: `stadium/server/restart_server.ps1` (keeps the address).
+
 ## Latest (17 Oct, session 12, owner's Windows PC): the remake is a standalone game
 - **Owner (verbatim in TRANSCRIPT):** "No, I want this to be a standalone game!!" and "But still,
   in the end if someeone wants to load trackmania maps, such as gbx, then it should be doable in

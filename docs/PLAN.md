@@ -151,6 +151,9 @@ Remake folder: `stadium/` (own Godot project, see stadium/README.md). Work seque
       as extras. Loops fixed (the bot's eased line and loop steering, a seam contact fix; SF11 Full
       Circle has two). Open: the bot's high-speed weaving (re-medal after), more tracks, a track
       editor
+- [x] 9. Quality pass (owner + independent review, session 12): gates, driver, blur, decoration,
+      adverts, light, AA, finish run-off and camera, respawn speed, records by layout. Open: bigger
+      tracks, more decoration kinds, stands' seats, result panel
 - [x] 8. Release `stadium-v0.1` (2026-10-17): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.1 (Windows 53 MB and Linux
       44 MB zips, built by CI from the tag)
 

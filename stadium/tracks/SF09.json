@@ -2,7 +2,7 @@
 	"name": "Rush Hour",
 	"author": "SpeedFest",
 	"start": [24, 1, 28, 2],
-	"medals": {"author": 30220, "gold": 32100, "silver": 37000, "bronze": 46000},
+	"medals": {"author": 30150, "gold": 32000, "silver": 37000, "bronze": 46000},
 	"bot_grip": 75,
 	"pieces": [["start"], ["s", 3], ["turbo"], ["s", 3], ["jump", 1], ["s", 2], ["r"], ["s", 3], ["cp"], ["s", 2], ["l"], ["s", 3], ["gt", 2, "l"], ["s", 2], ["turbo"], ["s", 3], ["gt", 3, "r"], ["s", 2], ["cp"], ["s", 1], ["r"], ["s", 6], ["finish"]]
 }

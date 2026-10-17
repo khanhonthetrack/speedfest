@@ -2,7 +2,7 @@
 	"name": "Corkscrew",
 	"author": "SpeedFest",
 	"start": [8, 1, 2, 0],
-	"medals": {"author": 34710, "gold": 36800, "silver": 42000, "bronze": 53000},
+	"medals": {"author": 35420, "gold": 37600, "silver": 43000, "bronze": 54000},
 	"bot_grip": 30,
 	"pieces": [["start"], ["s", 2], ["up"], ["gt", 3, "r"], ["up"], ["s", 2], ["cp"], ["gt", 3, "r"], ["s", 1], ["up"], ["gt", 3, "r"], ["s", 2], ["turbo"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["cp"], ["s", 2], ["down"], ["down"], ["down"], ["s", 2], ["gt", 4, "r"], ["s", 4], ["finish"]]
 }

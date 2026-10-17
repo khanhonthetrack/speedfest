@@ -10,6 +10,9 @@ extends Camera3D
 @export var look_height := 0.9
 @export var follow_rate := 8.0        ## 1/s, how fast the view direction follows the car
 @export var up_rate := 4.0
+@export var base_fov := 72.0
+@export var fast_fov := 84.0          ## at FAST_KMH and over: a wider view for the sense of speed
+const FAST_KMH := 350.0
 
 var _dir := Vector3.FORWARD
 var _up := Vector3.UP
@@ -21,7 +24,7 @@ func _ready() -> void:
 	# interpolation on top of that made it trail the car by up to a tick and shake against it,
 	# which TAA then smeared (the car looked blurry while driving)
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
-	fov = 72.0
+	fov = base_fov
 	near = 0.1
 	far = 4000.0
 	process_priority = 100
@@ -70,6 +73,8 @@ func _process(delta: float) -> void:
 	_dir = _dir.slerp(want, k).normalized() if _dir.dot(want) > -0.99 else want
 	var up_want := target.get_global_transform_interpolated().basis.y if target.wheel_contact.has(true) else Vector3.UP
 	_up = _up.slerp(up_want, 1.0 - exp(-up_rate * delta)).normalized()
+	var fast := clampf((absf(target.speed_kmh()) - 120.0) / (FAST_KMH - 120.0), 0.0, 1.0)
+	fov = lerpf(fov, lerpf(base_fov, fast_fov, fast), 1.0 - exp(-2.5 * delta))
 	_place(k)
 
 

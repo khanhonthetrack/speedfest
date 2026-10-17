@@ -332,7 +332,7 @@ func select(track: String, race_on_repeat := true) -> void:
 func _page_options() -> void:
 	var root := _root("OPTIONS")
 	var col := _column(root, 200)
-	for opt: Array in [["fullscreen", "Fullscreen"], ["hd", "HD graphics (textures, ambient occlusion)"], ["shadows", "Shadows"], ["sound", "Sound"], ["music", "Music"], ["ghost", "Race against your best ghost"]]:
+	for opt: Array in [["fullscreen", "Fullscreen"], ["hd", "HD textures and shading"], ["shadows", "Shadows"], ["sound", "Sound"], ["music", "Music"], ["ghost", "Race against your best ghost"]]:
 		var c := CheckButton.new()
 		c.text = String(opt[1])
 		c.button_pressed = bool(TmUi.setting(opt[0]))
@@ -401,8 +401,9 @@ func _page_online() -> void:
 		var st := StyleBoxFlat.new()
 		st.bg_color = TmUi.CAR_COLOURS[i]
 		st.set_corner_radius_all(22)
-		st.set_border_width_all(4 if i == int(TmUi.setting("colour")) else 0)
-		st.border_color = Color.WHITE
+		# a ring on every swatch (the black one vanished on the dark panel), thick on the chosen one
+		st.set_border_width_all(4 if i == int(TmUi.setting("colour")) else 2)
+		st.border_color = Color.WHITE if i == int(TmUi.setting("colour")) else Color(0.6, 0.65, 0.75)
 		b.add_theme_stylebox_override("normal", st)
 		b.add_theme_stylebox_override("hover", st)
 		b.pressed.connect(func() -> void:
@@ -422,7 +423,7 @@ func _page_online() -> void:
 	col.add_child(row)
 	var addr := LineEdit.new()
 	addr.text = String(TmUi.setting("server"))
-	addr.placeholder_text = "e.g. 192.168.1.20:8090 or https://name.trycloudflare.com"
+	addr.placeholder_text = "IP:port or https://address"
 	addr.custom_minimum_size = Vector2(520, 46)
 	row.add_child(addr)
 	row.add_child(TmUi.button("CONNECT", func() -> void:

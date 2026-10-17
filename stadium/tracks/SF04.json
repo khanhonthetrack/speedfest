@@ -2,7 +2,7 @@
 	"name": "Switchback",
 	"author": "SpeedFest",
 	"start": [14, 1, 2, 0],
-	"medals": {"author": 43330, "gold": 46000, "silver": 52000, "bronze": 65000},
+	"medals": {"author": 43340, "gold": 46000, "silver": 53000, "bronze": 66000},
 	"bot_grip": 75,
 	"pieces": [["start"], ["s", 2], ["r"], ["s", 3], ["l"], ["s", 2], ["l"], ["s", 4], ["cp"], ["s", 2], ["r"], ["s", 3], ["r"], ["s", 5], ["turbo"], ["s", 3], ["l"], ["s", 2], ["cp"], ["s", 2], ["l"], ["s", 6], ["l"], ["s", 3], ["r"], ["s", 3], ["l"], ["s", 2], ["finish"]]
 }

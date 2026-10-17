@@ -75,8 +75,10 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
   `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
   (README "Make a track"). `tests/tmp/track_dump` (untracked; recreate: prints an ASCII map) helps.
   Released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
-  "loops fixed"). Next: the bot's steering on ordinary road (it weaves at 250+ km/h: give STEER
-  points the road-frame steering loops use, then re-medal), then more tracks.
+  "loops fixed"). Quality pass done (HANDOFF): gates, driver, decoration (`race/tm_track_decor.gd`),
+  adverts (`env/tm_adverts.gd`), finish run-off. The campaign is the list in `tracks/campaign.json`.
+  Next: the bot's steering on ordinary road (it weaves at 250+ km/h: give STEER points the
+  road-frame steering loops use, then re-medal), bigger tracks, more decoration kinds.
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
 - Block library: **campaign coverage 100%** (41523 blocks, 0 placeholders, 0 unknown).

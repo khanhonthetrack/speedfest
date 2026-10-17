@@ -100,7 +100,9 @@ func add_pillars() -> void:
 static func challenge(spec: Dictionary) -> TmChallenge:
 	var b := build(spec)
 	var ch := TmChallenge.new()
-	ch.uid = "SF-" + String(spec.get("id", "track"))
+	# keyed by the layout too: records of an older layout of the same track don't carry over
+	var layout := "%08x" % (hash(JSON.stringify([spec.get("start", []), spec.get("pieces", [])])) & 0xffffffff)
+	ch.uid = "SF-%s-%s" % [String(spec.get("id", "track")), layout]
 	ch.name = String(spec.get("name", "Track"))
 	ch.author = String(spec.get("author", "SpeedFest"))
 	ch.environment = "Stadium"

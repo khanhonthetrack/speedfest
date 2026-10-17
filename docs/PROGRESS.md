@@ -1344,4 +1344,39 @@ handled below as they come.
 - **Screens**: the shared "screen" material had no emission, so every display (advert structures,
   Fabric and platform boards, camera booths, in TMNF's tracks too) was a black slab; now lit LED
   boards like the stadium's big screens.
+- **The independent review** (a read-only agent with its own screenshots; its report, summarised):
+  tracks bare and tiny (5-15% of the field), placeholder-looking screens (a blue zig-zag),
+  floodlights blank, the driver hidden by the airbox, paint flakes sparkling like frost without
+  TAA, a "jelly" metallic body, the carbon weave like bricks, washed-out light, aliasing once TAA
+  was off, the car flying off the finish block's nose into the grass, no sense of speed, respawn
+  stopping the car dead, records keyed by the track id (a stale record from an older layout),
+  the campaign listing every file in tracks/, a misaligned HUD, clipped menu texts. Done since:
+  - Finish: our tracks finish on TMNF's through start/finish line block with up to three
+    straights and a rounded dead end after it (the map builder keeps the start line as the start
+    when both exist); after the line the car brakes by itself (`TmCar.auto_brake`) and the camera
+    cuts to a trackside spot by the line and watches it (`TmCamera.freeze`); the result text sits
+    high. Medal times re-set (below).
+  - Screens: `env/tm_adverts.gd` (autoload Adverts) draws a strip of our own fictional ads once
+    with the UI fonts; every screen material scrolls it (read the right way from the front, LED
+    grid; 3x on the big screens). Floodlights: a lamp grid. Inflatables: striped and puffed.
+  - Light graded (sun 1.1, ambient 0.75, exposure 0.85, saturation 1.25, contrast 1.12, shadows
+    0.85); SMAA on top of 4x MSAA; the finish chequer mipmapped and filtered.
+  - Car: flakes only where they cover a pixel and none on the white parts; painted, not chrome
+    (metallic 0.12, clearcoat 0.5); a fainter, finer carbon weave; a dark race suit; sidepods in
+    the body colour; brake lights clear of the tail.
+  - Race feel: the field of view widens with speed (72 deg to 84 at 350 km/h); respawn puts the
+    car back at the checkpoint as it crossed it, speed and heading kept, like TMNF
+    (`tests/test_tracks` respawn_keeps_checkpoint_speed); `--bot` uses the track's grip.
+  - Records keyed by the layout (`SF-<id>-<hash of start and pieces>`); the campaign is the list in
+    `tracks/campaign.json` (menu and server; other track files still race by id); the HUD's medal
+    times in an aligned grid in medal colours; menu texts that ran into their controls shortened;
+    a ring on every car-colour swatch (the black one vanished).
+  - Not done from the review (next): bigger tracks using more of the field with more elevation and
+    more kinds of decoration (Fabric stands at the start and finish, inflatable rows outside
+    curves, lights by the checkpoints), a seat pattern in the stands, a result panel, the leaks
+    reported at exit, `map_view near:` ignoring rotation.
 
+  - Medals re-set for the new finish and contact physics (`--write_medals`; author = the bot's
+    best): Kickoff 23.85, Drift King 33.60, Highline 34.09, Switchback 43.34, Full Send 25.89,
+    Skyway 24.01, Night Shift 35.26, Corkscrew 35.42, Rush Hour 30.15, Last Call 37.60,
+    Full Circle 22.53.
