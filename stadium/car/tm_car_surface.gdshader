@@ -82,9 +82,15 @@ void fragment() {
 			col *= 1.0 - (groove * 0.6 + sipe * 0.35) * fade;
 			rough = 0.95;
 		} else if (r > tyre_radius * 0.74 && r < tyre_radius * 0.84) {
-			// the sidewall's lettering band: dashes like letters, in pale grey
-			float letters = step(0.45, fract(ang * 40.0 / 3.14159)) * step(0.6, sin(ang * 3.0) * 0.5 + 0.5);
-			col = mix(col, vec3(0.55), letters * 0.8 * fade);
+			// the sidewall's lettering: two words a side, each a row of letter-like blocks of
+			// varying width, in a dull grey (moulded rubber, not paint)
+			float u = ang / 6.28318 + 0.5;
+			float word = fract(u * 2.0);
+			float inword = step(0.08, word) * step(word, 0.36);
+			float g = fract(word * 34.0);
+			float stem = step(0.18, g) * step(g, 0.72 + 0.2 * fract(sin(floor(word * 34.0) * 12.9) * 43758.5));
+			float band = smoothstep(0.0, 0.15, (r / tyre_radius - 0.74) / 0.10) * smoothstep(1.0, 0.85, (r / tyre_radius - 0.74) / 0.10);
+			col = mix(col, vec3(0.16), inword * stem * band * 0.9 * fade);
 		}
 		ALBEDO = col;
 		ROUGHNESS = rough;

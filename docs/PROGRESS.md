@@ -1486,3 +1486,30 @@ player's; pass `--records=<scratch dir>` so the player's records stay theirs.
   Drift King 41.81, Highline 50.95, Switchback 55.09, Full Send 36.76, Skyway 35.26, Night Shift
   42.85, Corkscrew 45.61, Rush Hour 56.91, Last Call 47.31, Full Circle 34.94.
 
+
+## 2026-10-17 — Session 13 (M9): reference renders, a new car (branch `claude/tmnf-replica-graphics-nb1kcg`)
+Owner (TRANSCRIPT, session 13): "a 1:1 TMNF replica"; the car "sucks (the rims dont touch the wheel)".
+- **Reference renders (local only):** `tools/research/tmnf/ref_visuals.py WORK OUT` writes every
+  decrypted solid's visual meshes with texture coordinates (`visual_mesh.py --uv`), each
+  material's textures and the install's .dds images as PNG, outside the repo. With `--ref=OUT` the
+  remake draws blocks with them (our collision stays; `blocks/tm_ref_visuals.gd`), and
+  `race/map_view.tscn --car=ours|ref|both --car_ahead=40 --view=car:yaw:dist[:x,y,z]` shows TMNF's
+  car and ours from the same camera. TMNF's textures are plain .dds in `GameData/Stadium`
+  (D/N/S/O/L maps: diffuse, normal, specular, occlusion, light); its v runs up. Seen on the first
+  renders: TMNF's own text reads mirrored under our x negation (START reads TRATS): the remake's
+  world may be TMNF's mirror image (to check before relying on it; it matters for .Gbx tracks).
+- **New car** (`car/tm_car_visual.gd`, helper `car/tm_mesher.gd`): modelled to TMNF's measured
+  proportions with our own shapes, compared side by side with the original at every step:
+  - wheels that hold together: a lathed tyre whose bead sits under the rim's flange (the lip
+    overlaps the sidewall), five broad spokes into the barrel, a large hub with studs and a
+    centre-lock nut, a ventilated disc and a caliper on the upright (steers, doesn't spin);
+    subtle moulded lettering on the sidewall;
+  - a slim tub and low nose lofted through rounded-trapezoid sections whose top opens into a U
+    for the cockpit (rim, walls and floor are one surface); low angular sidepods with raked dark
+    inlets; a roll hoop that is the engine's intake; a flat engine deck with a glass strip and a
+    fin; front wing with a flap, rear wing (two elements, pylon, end plates); floor;
+  - wishbones, push and track rods, drive shafts re-aimed every frame to the moving wheels;
+    small guards over the front wheels (they steer with them) and over the rear ones;
+  - the driver (helmet with visor and stripe, collar, shoulders, arms on the wheel), windscreen,
+    mirrors, rain light (brake light). Geometry is built once and shared by all cars (ghosts,
+    online players); materials stay per car. Same public API (race, ghosts, menu unchanged).

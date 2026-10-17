@@ -36,14 +36,15 @@ func _cars() -> void:
 	if which.is_empty() or not builder.has_start:
 		return
 	var s := builder.start
-	# the visual's origin is on the ground; the start is the physics origin (the centre of mass)
-	_car_at = Transform3D(s.basis, s.origin - s.basis.y * TmCarVisual.VIS.y + s.basis.z * float(TestHooks.arg("car_ahead", 0.0)))
+	# the start is on the road; TMNF's visual has its origin there, ours sits VIS above it (the
+	# TmCar frame's origin is the centre of mass)
+	_car_at = Transform3D(s.basis, s.origin + s.basis.z * float(TestHooks.arg("car_ahead", 0.0)))
 	var side := s.basis.x
 	if which in ["ours", "both"]:
 		var ours := TmCarVisual.new()
 		ours.paint_colour = TmUi.car_colour()
 		add_child(ours)
-		ours.global_transform = Transform3D(s.basis, _car_at.origin + (side * 1.3 if which == "both" else Vector3.ZERO))
+		ours.global_transform = Transform3D(s.basis, _car_at * TmCarVisual.VIS + (side * 1.3 if which == "both" else Vector3.ZERO))
 	if which in ["ref", "both"] and TmRefVisuals.active():
 		var f := FileAccess.open(String(TestHooks.arg("ref", "")).path_join("vis/StadiumCar.json"), FileAccess.READ)
 		if f != null:
@@ -87,6 +88,9 @@ func _camera() -> void:
 		var dist := float(parts[2]) if parts.size() > 2 else 6.5
 		var b := _car_at.basis
 		var c := _car_at.origin + b.y * 0.45
+		if parts.size() > 3:      # car:yaw:dist:x,y,z looks at that point of the car (visual coords)
+			var t := parts[3].split(",")
+			c = _car_at * Vector3(float(t[0]), float(t[1]), float(t[2]))
 		var dir := (b.z * cos(yaw) + b.x * sin(yaw)).normalized()
 		cam.fov = 40.0
 		cam.global_position = c + dir * dist + b.y * dist * 0.28
