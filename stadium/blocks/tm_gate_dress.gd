@@ -133,14 +133,15 @@ static func _road_band(z: float, depth: float, top: float, mat: Material) -> Mes
 ## Black and white squares (a 2 x 2 texture, repeated by uv1_scale).
 static func checker() -> StandardMaterial3D:
 	if _checker == null:
-		var img := Image.create(2, 2, false, Image.FORMAT_RGB8)
-		img.set_pixel(0, 0, Color(0.95, 0.95, 0.95))
-		img.set_pixel(1, 1, Color(0.95, 0.95, 0.95))
-		img.set_pixel(1, 0, Color(0.04, 0.04, 0.05))
-		img.set_pixel(0, 1, Color(0.04, 0.04, 0.05))
+		# 64 x 64 (2 x 2 squares), mipmapped and filtered: a nearest 2 x 2 made moire far away
+		var img := Image.create(64, 64, false, Image.FORMAT_RGB8)
+		for x in 64:
+			for y in 64:
+				img.set_pixel(x, y, Color(0.95, 0.95, 0.95) if (x < 32) == (y < 32) else Color(0.04, 0.04, 0.05))
+		img.generate_mipmaps()
 		_checker = StandardMaterial3D.new()
 		_checker.albedo_texture = ImageTexture.create_from_image(img)
-		_checker.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		_checker.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		_checker.roughness = 0.75
 	return _checker
 

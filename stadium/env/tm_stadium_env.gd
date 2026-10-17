@@ -10,7 +10,7 @@ extends RefCounted
 const LATITUDE := 48.0
 const DAY_TIME := 0.65             ## of 24 h
 const SHADOW := 0.4                ## TMNF's shadow intensity (the sun light's)
-const SHADOW_OPACITY := 0.75       ## Godot's: our sky ambient is darker than TMNF's flat one
+const SHADOW_OPACITY := 0.85       ## Godot's: our sky ambient is darker than TMNF's flat one
 const AMBIENT := Color8(94, 96, 108)
 const CLOUD_LO := Color8(196, 209, 218)
 const CLOUD_HI := Color8(250, 251, 251)
@@ -39,7 +39,7 @@ static func add(parent: Node) -> WorldEnvironment:
 	var to_sun := sun_direction()
 	sun.basis = Basis.looking_at(-to_sun, Vector3.UP)
 	sun.light_color = Color.WHITE
-	sun.light_energy = 1.0
+	sun.light_energy = 1.1
 	sun.shadow_enabled = bool(TmUi.setting("shadows"))
 	sun.shadow_opacity = float(TestHooks.arg("shadow", SHADOW_OPACITY))
 	sun.directional_shadow_max_distance = 700.0
@@ -80,10 +80,15 @@ static func add(parent: Node) -> WorldEnvironment:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_sky_contribution = 0.6
 	env.ambient_light_color = AMBIENT
-	env.ambient_light_energy = 1.4
+	env.ambient_light_energy = 0.75
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	env.tonemap_exposure = 1.0
+	env.tonemap_exposure = 0.85
+	# graded for contrast and colour (the independent review: the image was washed out, pale
+	# grey-blue; filmic and AgX tonemapping made it worse)
+	env.adjustment_enabled = true
+	env.adjustment_saturation = 1.25
+	env.adjustment_contrast = 1.12
 	env.fog_enabled = true
 	env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
 	env.fog_light_color = (SKY[SKY.size() - 1] as Color)

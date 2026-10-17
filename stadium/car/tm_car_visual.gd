@@ -77,7 +77,9 @@ func _mat(key: String) -> Material:
 		var sm: ShaderMaterial
 		match key:
 			"paint": sm = _surface(0, paint_colour, 0.07)
-			"white": sm = _surface(0, Color(0.93, 0.93, 0.94), 0.0)
+			"white":
+				sm = _surface(0, Color(0.93, 0.93, 0.94), 0.0)
+				sm.set_shader_parameter("flakes", 0.0)
 			"carbon": sm = _surface(1, Color.BLACK, 0.0)
 			"tyre": sm = _surface(2, Color.BLACK, 0.0)
 		_mats[key] = sm
@@ -113,7 +115,8 @@ func _mat(key: String) -> Material:
 			m.albedo_color = Color(0.03, 0.03, 0.035)
 			m.roughness = 0.9
 		"suit":
-			m.albedo_color = paint_colour.darkened(0.35) if not ghost else ghost_tint
+			# a dark race suit: it stands out against the paint (the review couldn't see the driver)
+			m.albedo_color = Color(0.07, 0.07, 0.09) if not ghost else ghost_tint
 			m.roughness = 0.8
 		"glass":
 			m.albedo_color = Color(0.7, 0.8, 0.9, 0.3)
@@ -265,7 +268,7 @@ func _ready() -> void:
 	car = get_parent() as TmCar
 	_part(_loft(TUB, "paint", 40))
 	_part(_loft(ENGINE, "paint", 40))
-	_part(_loft(PODS, "white", 36))
+	_part(_loft(PODS, "paint", 36))      # one body with the tub (white, they read as separate)
 	_part(_loft(AIRBOX, "white", 28))
 	# the floor under the pods, the front wing with its end plates, the spoiler at the tail
 	_part(_box(Vector3(0.0, 0.13, -0.4), Vector3(1.0, 0.03, 1.9), "carbon"))
@@ -275,7 +278,7 @@ func _ready() -> void:
 	for s: float in [-1.0, 1.0]:
 		_part(_box(Vector3(s * 0.455, 0.21, 1.98), Vector3(0.025, 0.16, 0.36), "carbon"))
 		_part(_box(Vector3(s * 0.43, 0.94, -1.72), Vector3(0.025, 0.14, 0.26), "carbon"))
-		_part(_box(Vector3(s * 0.2, 0.86, -1.81), Vector3(0.14, 0.05, 0.02), "light"))
+		_part(_box(Vector3(s * 0.2, 0.86, -1.845), Vector3(0.14, 0.05, 0.02), "light"))
 	_cockpit()
 	_driver()
 	# wheels: guards over the front ones, pods over the rear ones, wishbones and driveshafts

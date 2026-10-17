@@ -81,7 +81,7 @@ static func dlss_preset(gpu_name: String) -> String:
 
 
 ## The viewport's anti-aliasing and upscaling: DLSS on the fork when on, else the project's
-## 4x MSAA (no TAA: it smeared the moving car).
+## 4x MSAA and SMAA for shader and thin-line edges (no TAA: it smeared the moving car).
 static func apply_viewport(vp: Viewport) -> void:
 	if not is_fork():
 		return
@@ -97,6 +97,7 @@ static func apply_viewport(vp: Viewport) -> void:
 		vp.scaling_3d_scale = 1.0
 		vp.use_taa = false
 		vp.msaa_3d = Viewport.MSAA_4X
+		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_SMAA
 
 
 ## The environment's effects for the quality preset, and path tracing on the fork.
