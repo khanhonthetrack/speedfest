@@ -1,6 +1,8 @@
 # HANDOFF: start here
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
+- **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,
+  11 tracks); the link to send to friends. Next release: tag `stadium-v0.3` the same way.
 - Owner (TRANSCRIPT): bare tracks, cheap checkpoints, start and finish indistinguishable, no
   driver, parts not connected, blur while driving; "Run an indpeendent review of the game" and
   fix both. Done (PROGRESS "quality pass"): gates dressed per kind (`blocks/tm_gate_dress.gd`), the

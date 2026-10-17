@@ -1380,3 +1380,5 @@ handled below as they come.
     best): Kickoff 23.85, Drift King 33.60, Highline 34.09, Switchback 43.34, Full Send 25.89,
     Skyway 24.01, Night Shift 35.26, Corkscrew 35.42, Rush Hour 30.15, Last Call 37.60,
     Full Circle 22.53.
+- **Released `stadium-v0.2`** (owner: "Yes, tag stadium-v0.2 and push it"): tag on `6f35e4f`, CI built
+  both zips (Windows 53 MB, Linux 44 MB) and made the GitHub Release https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2.
