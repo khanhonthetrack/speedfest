@@ -590,3 +590,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after a usage limit stopped the review)
 
 > Try again
+
+### User (verbatim, session 12, after the quality pass)
+
+> Yes, tag stadium-v0.2 and push it so the workflow makes a new GitHub Release with the zips.
