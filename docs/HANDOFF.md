@@ -13,10 +13,16 @@
 - **Bigger tracks done** (PROGRESS "bigger tracks"): all 11 re-laid across the field (66-82% of
   its box, 2.8-4.1 km, up to level 6, bridges and crossings, pillars under raised curves), new
   `climb`/`dive` pieces, the bot slows for crests, 3-4 checkpoints each, medals re-set (38-59 s).
-- Next, from the review: more decoration kinds (Fabric stands by the start and finish, inflatable
-  rows outside curves, lights by the checkpoints), a seat pattern in the stands, a result panel at
-  the finish; the bot's weave at 250+ km/h (below). After a track or server change:
-  `stadium/server/restart_server.ps1` (keeps the address).
+- **The rest of the review done** (PROGRESS, the four entries after "bigger tracks"): Fabric
+  grandstands framing the start and the finish, an inflatable wall with a billboard beyond each
+  ground curve, camera booths and light rigs by the checkpoints (`race/tm_track_decor.gd`; TMNF's
+  inflatable variant rule is written down there), seats in the stands (the LED face cut to a
+  ribbon so the rake shows; `tm_surface` pattern 7), a result panel at the finish
+  (`TmRaceMenu.show_finish(result)`). The official server was restarted on the new tracks.
+- Next: the bot's weave at 250+ km/h (below); after the owner has played the new tracks, a
+  `stadium-v0.3` release (owner's approval). After a track or server change:
+  `stadium/server/restart_server.ps1` (keeps the address). Screenshots with `--bot`: pass
+  `--records=<scratch dir>` (its finishes are recorded like the player's).
 
 ## Latest (17 Oct, session 12, owner's Windows PC): the remake is a standalone game
 - **Owner (verbatim in TRANSCRIPT):** "No, I want this to be a standalone game!!" and "But still,

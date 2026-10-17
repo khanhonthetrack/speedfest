@@ -77,8 +77,13 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
   Released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
   "loops fixed"). Quality pass done (HANDOFF): gates, driver, decoration (`race/tm_track_decor.gd`),
   adverts (`env/tm_adverts.gd`), finish run-off. The campaign is the list in `tracks/campaign.json`.
+  The review's open items are done (PROGRESS, 17 Oct): the tracks span the field (66-82% of its
+  box, 2.8-4.1 km, up to level 6; `climb`/`dive` pieces; the bot slows for crests), Fabric stands
+  at the start and finish, inflatable billboard walls outside curves, camera booths by
+  checkpoints, seats in the stands, a result panel at the finish.
   Next: the bot's steering on ordinary road (it weaves at 250+ km/h: give STEER points the
-  road-frame steering loops use, then re-medal), bigger tracks, more decoration kinds.
+  road-frame steering loops use, then re-medal). Screenshots with `--bot`: add
+  `--records=<scratch dir>` (a finish is recorded like the player's).
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.
 - Block library: **campaign coverage 100%** (41523 blocks, 0 placeholders, 0 unknown).
