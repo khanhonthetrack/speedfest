@@ -1781,3 +1781,13 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   downloaded nothing of Nadeo's). Proved on our own track: `tests/test_tracks`
   input_script_replays_the_run_SF01 (the bot's run written as a script and driven without the bot:
   identical splits 12.57 / 15.91 / 28.80 / 41.17 / 48.47 s) and steer_left_turns_left.
+- **Real national flags on the Stadium's 24 flagpoles** (owner: "put the flags of actual
+  countries"; `stadium/tools/texgen/flags.py`, `env/tm_flag.gdshader`, `env/tm_stadium_build.gd`
+  `_flags`): 24 flags drawn from their geometric definitions into one atlas (Poland, Germany,
+  France, Italy, the United Kingdom, the USA, Japan, Sweden, Finland, Norway, Denmark, the
+  Netherlands, Belgium, Austria, Czechia, Ukraine, Hungary, Spain (civil flag), Ireland,
+  Switzerland, Greece, Estonia, Lithuania, Latvia). Poland flies on the pole nearest the field's
+  middle in each corner, twenty others on the rest. Each flag is its own 26 x 17 m subdivided
+  plane waving in the wind (vertex wave growing to the free end, a slight sag, the sun showing
+  through; mirrored from behind like a real flag), one shared material with the atlas cell and
+  wave phase per flag (instance uniforms). The plain-colour flag materials are gone.

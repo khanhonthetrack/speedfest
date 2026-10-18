@@ -74,12 +74,6 @@ const COLORS := {
 	"parking": [Color8(50, 75, 157), 0.9, 0.0],
 	"road_dark": [Color8(86, 84, 87), 0.9, 0.0],
 	"plain": [Color(0.42, 0.47, 0.38), 1.0, 0.0],
-	"flag_0": [Color(0.85, 0.12, 0.12), 0.8, 0.0],
-	"flag_1": [Color(0.10, 0.30, 0.80), 0.8, 0.0],
-	"flag_2": [Color(0.95, 0.80, 0.10), 0.8, 0.0],
-	"flag_3": [Color(0.10, 0.60, 0.25), 0.8, 0.0],
-	"flag_4": [Color(0.95, 0.95, 0.95), 0.8, 0.0],
-	"flag_5": [Color(0.95, 0.45, 0.10), 0.8, 0.0],
 }
 
 ## Textured keys (HD): our own generated maps in assets/tex (stadium/tools/texgen: <name>_albedo,

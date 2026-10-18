@@ -74,6 +74,7 @@ const BOTTOM := -100.0              ## the edge's foot and the plain beyond
 ## The whole Stadium as one node, placed on a 32 x 32 map.
 static func build() -> Node3D:
 	var geo := TmGeo.new()
+	_flag_nodes.clear()
 	for sz: float in [-1.0, 1.0]:
 		_grandstand(geo, sz)
 		_roof(geo, sz)
@@ -87,6 +88,9 @@ static func build() -> Node3D:
 	_ground(geo)
 	var root := geo.build()
 	root.name = "Stadium"
+	for f in _flag_nodes:
+		root.add_child(f)
+	_flag_nodes.clear()
 	root.position = TmGeo.g(CENTRE)
 	for c in root.get_children():
 		if c is MeshInstance3D:
@@ -363,20 +367,58 @@ static func _tower(geo: TmGeo, sx: float, sz: float) -> void:
 	geo.pipe(Vector3(base.x, 228.0, base.z), hc - to_field * 2.0, 1.2, 6, "mast", TmGeo.NO_COLLISION)
 
 
-## Six flagpoles a quarter, with flags in our own colours.
+## The flags' atlas (stadium/tools/texgen/flags.py: FLAGS, 8 x 3 cells of 384 x 256 px with a 6 px
+## gutter) and which flag flies where: Poland on the pole nearest the field's middle in each
+## corner, twenty other countries on the rest.
+const FLAG_ATLAS := ["poland", "germany", "france", "italy", "united_kingdom", "usa", "japan", "sweden",
+	"finland", "norway", "denmark", "netherlands", "belgium", "austria", "czechia", "ukraine",
+	"hungary", "spain", "ireland", "switzerland", "greece", "estonia", "lithuania", "latvia"]
+const FLAG_CELL := Vector2(384.0, 256.0)
+const FLAG_PAD := 6.0
+const FLAG_SIZE := Vector2(26.0, 17.0)    ## flown from 4 m under the pole's top
+
+static var _flag_nodes: Array[Node3D] = []
+static var _flag_mat: ShaderMaterial
+
+
+## Six flagpoles a quarter, each flying a country's flag (its own mesh, waving: env/tm_flag.gdshader).
 static func _flags(geo: TmGeo, sx: float, sz: float) -> void:
+	var quarter := (1 if sx > 0 else 0) + (2 if sz > 0 else 0)
 	for i in FLAGPOLES.size():
 		var p: Vector2 = FLAGPOLES[i]
 		var foot := Vector3(sx * p.x, FLAGPOLE_FOOT, -sz * p.y)
 		var top := Vector3(foot.x, FLAGPOLE_TOP, foot.z)
 		geo.pipe(foot, top, 1.0, 6, "mast", TmGeo.NO_COLLISION)
 		var out := Vector3(foot.x, 0.0, foot.z).normalized()
-		var a := top + Vector3(0, -4.0, 0)
-		var b := a + out * 26.0
-		var mat := "flag_%d" % ((i + (3 if sx > 0 else 0) + (6 if sz > 0 else 0)) % 6)
-		var side := out.cross(Vector3.UP)
-		_quad(geo, a, b, b + Vector3(0, -17.0, 0), a + Vector3(0, -17.0, 0), mat, side)
-		_quad(geo, a, b, b + Vector3(0, -17.0, 0), a + Vector3(0, -17.0, 0), mat, -side)
+		var centre := top + Vector3(0.0, -4.0 - FLAG_SIZE.y * 0.5, 0.0) + out * FLAG_SIZE.x * 0.5
+		var flag := 0 if i == 0 else 1 + (quarter * (FLAGPOLES.size() - 1) + i - 1) % (FLAG_ATLAS.size() - 1)
+		_flag_nodes.append(_flag(TmGeo.g(centre), TmGeo.g(out), flag, float(quarter * 7 + i) * 1.7))
+
+
+## One flag: a 26 x 17 m plane centred at `at` (Godot), its length along `along` from the pole.
+static func _flag(at: Vector3, along: Vector3, index: int, wave_phase: float) -> MeshInstance3D:
+	if _flag_mat == null:
+		_flag_mat = ShaderMaterial.new()
+		_flag_mat.shader = preload("res://env/tm_flag.gdshader")
+		_flag_mat.set_shader_parameter("atlas", TmMaterials._tex("flags", "albedo"))
+		_flag_mat.set_shader_parameter("length_m", FLAG_SIZE.x)
+	var pm := PlaneMesh.new()
+	pm.orientation = PlaneMesh.FACE_Z
+	pm.size = FLAG_SIZE
+	pm.subdivide_width = 24
+	pm.subdivide_depth = 12
+	var mi := MeshInstance3D.new()
+	mi.name = "Flag_" + String(FLAG_ATLAS[index])
+	mi.mesh = pm
+	mi.material_override = _flag_mat
+	var x := along.normalized()
+	mi.transform = Transform3D(Basis(x, Vector3.UP, x.cross(Vector3.UP)), at)
+	var atlas := Vector2(8.0 * (FLAG_CELL.x + 2.0 * FLAG_PAD), 3.0 * (FLAG_CELL.y + 2.0 * FLAG_PAD))
+	var cell := Vector2(index % 8, index / 8) * (FLAG_CELL + Vector2.ONE * 2.0 * FLAG_PAD) + Vector2.ONE * (FLAG_PAD + 0.5)
+	mi.set_instance_shader_parameter(&"cell", Vector4(cell.x / atlas.x, cell.y / atlas.y,
+		(FLAG_CELL.x - 1.0) / atlas.x, (FLAG_CELL.y - 1.0) / atlas.y))
+	mi.set_instance_shader_parameter(&"phase", wave_phase)
+	return mi
 
 
 ## The bowl's edge: the buildings' inner walls joined across the corners (x, z loop: the z < 0
