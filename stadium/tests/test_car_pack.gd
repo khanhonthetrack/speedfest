@@ -1,0 +1,74 @@
+extends Node
+## Community car packs without downloads: writes (TmTestCar) a small TMNF car model of our own (a CPlugSolid
+## as TMNF's exporters write them: binary, and the old text format), a DXT1 Diffuse.dds with the
+## header quirks old exporters leave (a wrong linear size, a mipmap chain that stops at 2 x 2), a
+## Details.png and an engine sound, zips them like a ManiaPark pack, and checks TmSolid, TmCarPack
+## and a TmCarVisual driving it: parts, mirroring into our frame, wheels found and placed by where
+## they sit, textures decoded, lamps, the wheels spinning and steering.
+## The ManiaPark sample test is tests/test_compat_cars (needs a download).
+
+func _ready() -> void:
+	var writer := TmTestCar.new()
+	var bin := writer.solid(false)
+	var txt := writer.solid(true)
+	for pair: Array in [["binary", bin], ["text", txt]]:
+		var s := TmSolid.load_bytes(pair[1])
+		TestHooks.check(s.ok(), "solid_reads_%s" % pair[0], s.error)
+		if not s.ok():
+			continue
+		TestHooks.check(s.parts.size() == TmTestCar.PARTS.size(), "solid_parts_%s" % pair[0], "%d parts" % s.parts.size())
+		TestHooks.check(s.triangle_count() == TmTestCar.PARTS.size() * 12, "solid_triangles_%s" % pair[0], "%d" % s.triangle_count())
+		TestHooks.check(s.points.has(TmTestCar.LAMP[0]), "solid_points_%s" % pair[0], str(s.points.keys()))
+		# mirrored into our frame: TMNF's FL wheel (+x) is at -x
+		var fl: Dictionary = s.parts.filter(func(p: Dictionary) -> bool: return p["name"] == "dFLWheel")[0]
+		var c := (fl["xform"] as Transform3D).origin
+		TestHooks.check(c.is_equal_approx(Vector3(-0.8, 0.36, 1.4)), "solid_mirrored_%s" % pair[0], str(c))
+	var zip := ProjectSettings.globalize_path("user://test_car_pack.zip")
+	writer.zip(zip, bin)
+	var pack := TmCarPack.load_zip(zip)
+	TestHooks.check(pack.ok(), "pack_loads", pack.error)
+	if not pack.ok():
+		TestHooks.finish()
+		return
+	TestHooks.check(pack.textures.has("diffuse"), "pack_dds_with_quirks_decodes", str(pack.textures.keys()))
+	TestHooks.check(pack.textures.has("details"), "pack_png_decodes", str(pack.textures.keys()))
+	TestHooks.check(pack.sounds.has("engine_idle"), "pack_engine_sound", str(pack.sounds.keys()))
+	var surfaces := []
+	for i in pack.body.get_surface_count():
+		surfaces.append(pack.body.surface_get_name(i))
+	surfaces.sort()
+	TestHooks.check(surfaces == ["pack_details", "pack_skin"], "pack_body_by_material", str(surfaces))
+	var ok := true
+	for i in 4:
+		var w: Dictionary = pack.wheels[i]
+		var want: Vector3 = TmTuning.WHEELS[i]
+		ok = ok and not w.is_empty() and signf((w["centre"] as Vector3).x) == signf(want.x) \
+			and signf((w["centre"] as Vector3).z) == signf(want.z) and w["spin"] != null
+	TestHooks.check(ok, "pack_wheels_by_place", str(pack.wheels.map(func(w: Dictionary) -> Variant: return w.get("centre"))))
+	TestHooks.check(pack.lamps.has(TmTestCar.LAMP[0]), "pack_lamps", str(pack.lamps.keys()))
+	TestHooks.check(TmCarPack.material_of("WheelFLd") == "d" and TmCarPack.material_of("Skin") == "s"
+		and TmCarPack.material_of("gBody") == "g" and TmCarPack.material_of("sBody001") == "s"
+		and TmCarPack.material_of("ProjShad") == "" and TmCarPack.material_of("LightFL1") == "",
+		"pack_part_names", "")
+	TestHooks.check(TmCarPack.wheel_of("WheelRRs01") == [3, true] and TmCarPack.wheel_of("dFLHub") == [0, false]
+		and TmCarPack.wheel_of("sBody") == [-1, false], "pack_wheel_names", "")
+	# a visual drives it
+	var holder := Node3D.new()
+	add_child(holder)
+	var v := TmCarVisual.new()
+	v.pack = pack
+	v.ghost_speed = 20.0
+	v.ghost_steer = 1.0
+	holder.add_child(v)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var spin := (v._wheels[0].get_child(0) as Node3D).rotation.x
+	TestHooks.check(v._wheels.size() == 4 and absf(spin) > 0.0, "visual_wheels_spin", "spin %f" % spin)
+	TestHooks.check(v._wheels[0].rotation.y > 0.1 and is_zero_approx(v._wheels[2].rotation.y), "visual_front_wheels_steer",
+		"%f %f" % [v._wheels[0].rotation.y, v._wheels[2].rotation.y])
+	var rest: Vector3 = (pack.wheels[0]["centre"] as Vector3) - TmCarVisual.VIS
+	TestHooks.check(v._rest[0].is_equal_approx(rest), "visual_wheel_at_its_centre", str(v._rest[0]))
+	var bad := TmCarPack.load_zip(ProjectSettings.globalize_path("user://no_such_pack.zip"))
+	TestHooks.check(not bad.ok(), "pack_missing_file_fails", bad.error)
+	DirAccess.remove_absolute(zip)
+	TestHooks.finish()

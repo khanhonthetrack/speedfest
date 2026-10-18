@@ -17,6 +17,9 @@ extends Node3D
 ## Geometry is built once and shared by every car (static cache); materials are per car (paint
 ## colour, ghost). Parent it to a TmCar; or, as a ghost (ghost = true), to any Node3D and feed
 ## ghost_speed and ghost_steer (a replayed run): translucent, no shadow.
+## With a pack (TmCarPack: a community car, e.g. from ManiaPark, set before it enters the tree) it
+## draws that model and skin instead: its body, its wheels spinning, steering and riding the
+## suspension about their own centres, glows at its lamps (the rear ones brighter under braking).
 
 const T := preload("res://core/tm_tuning.gd")
 
@@ -77,7 +80,11 @@ var ghost_speed := 0.0            ## m/s along the car
 var ghost_steer := 0.0
 var paint_colour := Color(0.85, 0.08, 0.06)
 var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online players: theirs)
+var pack: TmCarPack               ## a community car to draw instead of ours (null: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
+var _rest: Array[Vector3] = []    ## per wheel: the pivot's place at rest (node space)
+var _radius: Array[float] = []    ## per wheel: the tyre's radius (its spin)
+var _brake_glow: Array[StandardMaterial3D] = []
 var _arms := []                   ## [MeshInstance3D, inner point (node space), outer offset from the wheel centre, wheel]
 var _spin := 0.0
 var _mats := {}
@@ -207,6 +214,12 @@ func _mat(key: String) -> Material:
 
 func _ready() -> void:
 	car = get_parent() as TmCar
+	if pack != null and pack.ok():
+		_pack_parts()
+		if not ghost:
+			add_child(contact_shadow())
+		return
+	pack = null
 	_shared_meshes()
 	_part(_instance("body"))
 	for i in 4:
@@ -224,6 +237,8 @@ func _ready() -> void:
 		spin.add_child(_instance("wheel" + axle + side, true))
 		pivot.add_child(_instance("hub" + axle + side, true))
 		_wheels.append(pivot)
+		_rest.append(pivot.position)
+		_radius.append(TYRE_R)
 	_suspension()
 	if not ghost:
 		add_child(contact_shadow())
@@ -320,6 +335,74 @@ func _part(mi: MeshInstance3D) -> void:
 	add_child(mi)
 
 
+## A community car's model: the body, and per wheel a pivot at the wheel's centre that steers and
+## rides the suspension, holding the hub and guard (fixed) and the wheel (spinning). A model whose
+## wheels are part of its body gets empty pivots.
+func _pack_parts() -> void:
+	var body := _pack_instance(pack.body)
+	body.position = -VIS
+	add_child(body)
+	for i in 4:
+		var w: Dictionary = pack.wheels[i]
+		var pivot := Node3D.new()
+		pivot.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+		pivot.position = ((w["centre"] as Vector3) - VIS) if not w.is_empty() else T.WHEELS[i]
+		add_child(pivot)
+		var spin := Node3D.new()
+		pivot.add_child(spin)
+		var radius := TYRE_R
+		if not w.is_empty():
+			if w["spin"] != null:
+				spin.add_child(_pack_instance(w["spin"], true))
+				radius = maxf(0.1, (w["spin"] as ArrayMesh).get_aabb().size.y * 0.5)
+			if w["fixed"] != null:
+				pivot.add_child(_pack_instance(w["fixed"], true))
+		_wheels.append(pivot)
+		_rest.append(pivot.position)
+		_radius.append(radius)
+	if ghost:
+		return
+	for name: String in pack.lamps:
+		var low := name.to_lower()
+		if not low.begins_with("lightr") and not low.begins_with("lightf") or low.contains("proj"):
+			continue
+		var rear := low.begins_with("lightr")
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.albedo_color = Color(1.0, 0.12, 0.08) if rear else Color(1.0, 0.95, 0.85)
+		m.emission_enabled = true
+		m.emission = m.albedo_color
+		m.emission_energy_multiplier = 1.6 if rear else 2.5
+		var glow := MeshInstance3D.new()
+		var sphere := SphereMesh.new()
+		sphere.radius = 0.05
+		sphere.height = 0.1
+		sphere.radial_segments = 8
+		sphere.rings = 4
+		glow.mesh = sphere
+		glow.material_override = m
+		glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		glow.position = (pack.lamps[name] as Vector3) - VIS
+		add_child(glow)
+		if rear:
+			_brake_glow.append(m)
+
+
+func _pack_instance(mesh: ArrayMesh, wheel := false) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	for s in mesh.get_surface_count():
+		var key := mesh.surface_get_name(s)
+		if not _mats.has(key):
+			_mats[key] = pack.material(key, ghost, paint_colour if not ghost else ghost_tint)
+		mi.set_surface_override_material(s, _mats[key])
+	if ghost:
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if wheel:
+		mi.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	return mi
+
+
 func _instance(name: String, wheel := false) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var mesh: ArrayMesh = _shared[name]
@@ -409,15 +492,18 @@ static func _tube_mesh(rx: float, ry: float) -> ArrayMesh:
 func _process(delta: float) -> void:
 	if car and _mats.has("light") and _mats["light"] is StandardMaterial3D:   # brake lights
 		(_mats["light"] as StandardMaterial3D).emission_energy_multiplier = 7.0 if car.brake > 0.1 else 1.6
+	for m in _brake_glow:
+		m.emission_energy_multiplier = 6.0 if car and car.brake > 0.1 else 1.6
 	var vz := car.local_velocity().z if car else ghost_speed
-	_spin += vz / TYRE_R * delta
+	_spin += vz * delta             # metres rolled: each wheel turns by its own radius
 	var steer_vis := deg_to_rad(T.lin([[0.0, 30.0], [100.0, 10.0]], absf(vz) * 3.6)) * (car.model.steer if car else ghost_steer)
 	for i in 4:
 		var w := _wheels[i]
-		w.position = T.WHEELS[i] + Vector3(0.0, T.SUSP_STATIC - (car.model.susp_len[i] if car else T.SUSP_STATIC), 0.0)
+		w.position = _rest[i] + Vector3(0.0, T.SUSP_STATIC - (car.model.susp_len[i] if car else T.SUSP_STATIC), 0.0)
 		w.rotation = Vector3(0.0, steer_vis if i < 2 else 0.0, 0.0)
-		(w.get_child(0) as Node3D).rotation = Vector3(_spin, 0.0, 0.0)
-	_aim_arms()
+		(w.get_child(0) as Node3D).rotation = Vector3(fmod(_spin / _radius[i], TAU), 0.0, 0.0)
+	if pack == null:
+		_aim_arms()
 
 
 # --- the shared geometry ------------------------------------------------------------------------
