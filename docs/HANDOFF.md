@@ -7,6 +7,13 @@
   Track Editor + replays, accounts + ladder, the Pi hosts the master/official servers.
 - Work branch `claude/tmnf-replica-graphics-nb1kcg` (from `stadium` @ 9a6ae41). Plan: PLAN.md M9
   (steps 0-8, in order). Merge it into `stadium` when a step is done and checked.
+- Done (pushed): M9-1 the new car (`car/tm_car_visual.gd`, `car/tm_mesher.gd`); M9-2 first pass:
+  textured road, gates, adverts, fabric roofs, stadium facades (PROGRESS 18 Oct; textures from
+  `stadium/tools/texgen/*.py` into `stadium/assets/tex/`, regenerate with `python3 <script>.py`;
+  needs numpy, pillow, fonttools, brotli). Next: M9-3 engine (TMNF's 6-layer engine and gear
+  model), then menus, replays, editor, online, campaign; more block families' textures later.
+- Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with
+  `--ref=<OUT>`; `race/map_view.tscn` views `car:`, `gate:<block>`, `rel:`, `near:` (see its header).
 - Local reference data in a fresh container: `pip install pycryptodome py7zr numpy`, then
   `tools/research/tmnf/setup_measurements.sh <dir outside the repo>` (stadium/CLAUDE.md).
 
