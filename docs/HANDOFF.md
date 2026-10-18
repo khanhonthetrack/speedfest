@@ -1,15 +1,27 @@
 # HANDOFF: start here
 
-## Latest (18 Oct, session 14, cloud): independent review of the remake vs Trackmania
-- `docs/research/stadium_review.md`: scorecard, why the gates ("horns"), car and light look the way
-  they do, and a ranked fix list. Branch `claude/trackmania-stadium-review-lds3no` (from `stadium`,
-  docs only). No game code changed; a prototype diff of the top fixes (light re-balance, AgX,
-  reflection probe, gate boards as framed screens / no boards) is
-  `docs/research/stadium_review_prototype.diff`, against M9 @ 77bb43c.
-- Session 13's M9 branch (`claude/tmnf-replica-graphics-nb1kcg`) owns the look work: apply the
-  review's §3 there (or after it is merged into `stadium`), not in parallel. Owner's call on the
-  gates: the review recommends B (no boards, a screen in the crown; cleanest in the prototype
-  renders) over A (TMNF's boards rebuilt as framed screens; still reads as horns).
+## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts
+- Branch **`claude/trackmania-stadium-review-lds3no`** = `stadium` + session 13's M9 branch (merged
+  in at 9ee8237; it had been idle) + session 14. Merge this one into `stadium` (it contains M9).
+  STADIUM_TESTS PASS at every commit (test_tracks 52 checks now).
+- Review: `docs/research/stadium_review.md` (scorecard, causes, ranked list; its §3 was re-ranked
+  by prototype renders: gates first, then local depth; AgX, a global light re-balance and SDFGI
+  were tried and rejected). Owner then said "go with option B and implement the fix list", then
+  flags of real countries, then Polish brands (TRANSCRIPT session 14). Done, one commit each
+  (PROGRESS "Session 14: the review's fix list"):
+  gates option B (`blocks/tm_gate_screen.gd`: crown LED screen with your time and split, a
+  spotlight in the gate's colour; no sign boards); contact shadow under the car; the map's sky
+  occlusion baked at load (`env/tm_occlusion.gd`, TM's "Compute Shadows" our way; textured
+  materials moved to `blocks/tm_textured.gdshader`); smooth shading on swept sections, chamfered
+  free-standing boxes, curb lettering upright from outside; road decals (tyre marks on the racing
+  line, scuffs, burnout, stains); car body AO, glossier paint, livery decals; a reflection probe
+  over the field; grass/dirt/platform/steel/wall textures with macro variation; the physics check
+  harness (`race.tscn --inputs=<TMInterface-style script>`, README "Check the physics against
+  TrackMania"); 24 real national flags waving on the masts (Poland in each corner); the adverts
+  as 16 Polish brands under parody names (`tools/texgen/brands.py`), ORLAN on the car.
+- Open: run the input harness against TMNF with a player's install and runs (physics times and the
+  world's handedness); SDFGI on Ultra needs tuning on a real GPU; M9's own next steps (M9-7
+  online, M9-8 the A-E campaign) are unchanged.
 - Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
 
 ## Latest (18 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
