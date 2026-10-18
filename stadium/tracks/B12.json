@@ -1,0 +1,8 @@
+{
+	"name": "B12-Race",
+	"author": "SpeedFest",
+	"start": [2, 8, 16, 3],
+	"medals": {"author": 30590, "gold": 32500, "silver": 37000, "bronze": 46000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["circuit", 1], ["s", 3], ["cp"], ["s", 3], ["gt", 3, "l"], ["s", 3], ["dive", 1], ["s", 2], ["gt", 3, "r"], ["s", 4], ["platform", 3, "walls"], ["turbo"], ["s", 3], ["gt", 3, "r"], ["s", 5], ["platform", 1, "walls"], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 2], ["loop", "r"], ["s", 2], ["gt", 4, "r"], ["s", 3], ["cp"], ["s", 3], ["finish"]]
+}

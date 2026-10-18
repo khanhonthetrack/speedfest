@@ -1,0 +1,9 @@
+{
+	"name": "B08-Endurance",
+	"author": "SpeedFest",
+	"start": [10, 1, 10, 0],
+	"laps": 5,
+	"medals": {"author": 86940, "gold": 92200, "silver": 105000, "bronze": 131000},
+	"bot_grip": 50,
+	"pieces": [["start"], ["s", 1], ["dirt"], ["s", 1], ["cp"], ["gt", 3, "r"], ["s", 2], ["gt", 3, "r"], ["s", 7], ["gt", 3, "r"], ["s", 2], ["gt", 3, "r"], ["road"], ["s", 1], ["close"]]
+}

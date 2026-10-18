@@ -1,0 +1,8 @@
+{
+	"name": "B14-Speed",
+	"author": "SpeedFest",
+	"start": [24, 12, 2, 0],
+	"medals": {"author": 17880, "gold": 19000, "silver": 22000, "bronze": 27000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 5], ["turbo"], ["s", 4], ["dive", 1], ["s", 2], ["turbo"], ["s", 3], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["gt", 3, "l"], ["s", 3], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["dive", 1], ["s", 2], ["turbo"], ["s", 2], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 2], ["finish"]]
+}

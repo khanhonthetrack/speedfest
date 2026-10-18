@@ -1938,3 +1938,7 @@ done for each) is checked against the code finding by finding, fixed, tested and
   track (it drives at about real time; `--series=White`, `--tracks=all` or a list drive more);
   a time limit from the line's length for long tracks. Road-gate checks (crown screens, respawn,
   replay turbo) run on SF01. `tests/test_track_areas`: a lap race (11 checks).
+- **Green B01-B15** (same day): in the campaign with medals from the bot: authors 11.7 s (B09) to
+  30.6 s (B12), B08 1:27 (5 laps of dirt and road); 1-6 checkpoints; more joins between surfaces,
+  loops and jumps, walled-platform obstacles (B06, B13), wide-platform dives (B14). B03's loop on a
+  high road became a jump (the bot fell out of the loop: too slow after the platform).
