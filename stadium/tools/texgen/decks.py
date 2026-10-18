@@ -195,6 +195,53 @@ def steel_truss(name='steel_truss', ppm=64, size_m=8.0, seed=301, base=(40, 40, 
     save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
 
 
+def circuit_kerb(name='circuit_kerb', ppm=64, size_m=16.0, seed=311, base=(26, 84, 170)):
+    """The blue strip along the circuit walls' foot, at lane level (world-mapped, 16 m): painted
+    steel plate with a little wear, two fine grooves along x, a darker joint plate at the tile's
+    edge (every 16 m)."""
+    w = h = int(size_m * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    mott = fbm(w, h, seed, beta=2.4, lo=1.0, hi=10.0)
+    fine = fbm(w, h, seed + 1, beta=0.6, lo=64.0)
+    wear = smoothstep(1.0, 2.2, fbm(w, h, seed + 2, beta=1.4, lo=6.0))
+    dv = (yy / ppm) % 2.0
+    groove = (1.0 - smoothstep(0.0, 0.012, np.abs(dv - 0.6))) + (1.0 - smoothstep(0.0, 0.012, np.abs(dv - 1.4)))
+    du = np.minimum(xx, w - 1 - xx) / ppm
+    joint = 1.0 - smoothstep(0.18, 0.2, du)
+    jline = 1.0 - smoothstep(0.0, 0.01, np.abs(du - 0.19))
+    tone = (1.0 + 0.04 * mott + 0.03 * fine) * (1.0 - 0.35 * groove)
+    col = srgb(base)[None, None, :] * tone[..., None]
+    col = lerp(col, srgb((150, 158, 170))[None, None, :] * (1.0 + 0.05 * fine)[..., None], wear * 0.5)
+    col = lerp(col, srgb((58, 62, 68))[None, None, :] * (1.0 + 0.1 * fine)[..., None], joint)
+    col *= (1.0 - 0.5 * jline)[..., None]
+    nrm = normal_from_height(0.2 * fine - 1.0 * groove + 0.6 * joint - 1.5 * jline, 0.45)
+    orm = np.stack([1.0 - 0.3 * groove, 0.62 + 0.05 * fine + 0.15 * wear, 0.25 + 0.4 * joint], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
+
+
+def circuit_bumper(name='circuit_bumper', ppm=64, size_u=16.0, size_v=1.6, seed=321):
+    """The black rubber bumper above the lane's blue strip (UV-mapped: u along the wall, v across the
+    band): moulded rubber, a light grey line along each edge, our emblem in white every 16 m."""
+    w, h = int(size_u * ppm), int(round(size_v * ppm / 4.0)) * 4
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    n = fbm(w, h, seed, beta=1.0, lo=16.0)
+    edge = smoothstep(0.1 * ppm, 0.06 * ppm, np.minimum(yy, h - 1 - yy))
+    line = (1.0 - smoothstep(0.0, 0.02 * ppm, np.abs(yy - 0.16 * ppm))) + \
+        (1.0 - smoothstep(0.0, 0.02 * ppm, np.abs(yy - (h - 0.16 * ppm))))
+    col = srgb((20, 20, 22))[None, None, :] * (1.0 + 0.15 * n)[..., None]
+    col = lerp(col, srgb((150, 152, 156))[None, None, :], np.clip(line, 0, 1) * 0.9)
+    col *= (1.0 - 0.3 * edge)[..., None]
+    logo = text_mask(w, h, 'SPEEDFEST', font('orbitron-latin-900-normal', int(0.3 * ppm)), (w / 2, h / 2),
+                     italic=-0.18, tracking=int(0.03 * ppm))
+    col = lerp(col, srgb((236, 238, 240))[None, None, :], logo)
+    nrm = normal_from_height(0.3 * n - 1.0 * line + 0.6 * logo, 0.4)
+    orm = np.stack([np.ones_like(n), 0.85 - 0.3 * logo - 0.2 * line, np.zeros_like(n)], -1)
+    flip = lambda a: np.ascontiguousarray(a[::-1])     # the lane side maps it upside down
+    nrm = flip(nrm)
+    nrm[..., 1] = 255 - nrm[..., 1]
+    save(name, flip(np.clip(col, 0, 1)), nrm, flip(orm))
+
+
 if __name__ == '__main__':
     platform_plate()
     tread_plate()
@@ -202,3 +249,5 @@ if __name__ == '__main__':
     circuit_panel()
     circuit_band()
     steel_truss()
+    circuit_kerb()
+    circuit_bumper()

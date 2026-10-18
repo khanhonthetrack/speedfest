@@ -28,9 +28,9 @@ const WALL := [
 	[-0.135, 7.07, "circuit_panel", S_RUBBER], [-0.135, 14.86, "circuit_trim", S_RUBBER], [-0.065, 15.61, "circuit_trim", S_RUBBER],
 	[0.105, 15.83, "circuit_trim", S_RUBBER], [0.415, 15.96, "circuit_trim", S_RUBBER], [0.775, 16.0, "fabric", S_METAL],
 	[2.665, 16.0, "fabric", S_METAL], [2.835, 15.94, "fabric", S_METAL], [2.885, 15.77, "fabric", S_METAL],
-	[2.885, 15.28, "fabric", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
-	[2.595, 9.63, "truss", S_CONCRETE], [2.595, 9.42, "rubber_dark", S_RUBBER], [3.565, 9.09, "rubber_dark", S_RUBBER],
-	[3.935, 8.81, "rubber_dark", S_RUBBER], [4.145, 8.33, "rubber_dark", S_RUBBER], [4.075, 8.0, "wall_dark", S_METAL],
+	[2.885, 15.28, "circuit_trim", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
+	[2.595, 9.63, "truss", S_CONCRETE], [2.595, 9.42, "circuit_bumper", S_RUBBER], [3.565, 9.09, "circuit_bumper", S_RUBBER],
+	[3.935, 8.81, "circuit_bumper", S_RUBBER], [4.145, 8.33, "circuit_bumper", S_RUBBER], [4.075, 8.0, "wall_dark", S_METAL],
 	[4.075, 0.24, "structure", S_METAL], [3.595, 0.24, "structure", S_METAL], [3.415, 0.0, "structure", S_METAL],
 	[-0.245, 0.0, "rubber_dark", S_RUBBER],
 ]

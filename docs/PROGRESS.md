@@ -2027,3 +2027,9 @@ TMNF's; the physics off asphalt and in jumps against TMNF; the look, UI, menus a
 to TMNF, compared side by side with screenshots. Worked in that order.
 - **M10-1 dark circuit screens**: the circuit walls' lane-side screens are "screen_dark" (glossy
   black, off), as TMNF's StadiumCircuitScreen; the adverts stay on the boards and other screens.
+- **Circuit wall foot** (owner: "on the right there is a blue line/blue kerbs, on the left just a
+  dark tile"): from TMNF's material placement, the lane-level strip along the wall is its bright
+  blue border texture, the rubber above it black with small logos and a grey line, a thin blue line
+  under the light cap at the top. Ours now: `circuit_kerb` (blue painted plate, fine grooves, a
+  joint plate every 16 m, world-mapped), `circuit_bumper` (black rubber, grey edge lines,
+  SPEEDFEST every 16 m) and the blue trim on the lane side's top edge; checked side by side.

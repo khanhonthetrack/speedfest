@@ -31,7 +31,8 @@ const COLORS := {
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
-	"circuit_floor": [Color8(36, 74, 124), 0.6, 0.2],
+	"circuit_floor": [Color8(26, 84, 170), 0.5, 0.25],
+	"circuit_bumper": [Color8(20, 20, 22), 0.85, 0.0],
 	"truss": [Color8(40, 40, 41), 0.55, 0.3],
 	"screen_dark": [Color(0.015, 0.018, 0.022), 0.2, 0.0],     # the circuit walls' screens: off, as TMNF's
 	"control_panel": [Color8(222, 223, 221), 0.55, 0.0],
@@ -106,6 +107,8 @@ const TEXTURED := {
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],
+	"circuit_floor": ["circuit_kerb", Vector2(16.0, 16.0), true],     # the lane-level blue strip
+	"circuit_bumper": ["circuit_bumper", Vector2(16.0, 2.0), false],  # the lane side's rubber, our name on it
 	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],
