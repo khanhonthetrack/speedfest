@@ -1942,3 +1942,9 @@ done for each) is checked against the code finding by finding, fixed, tested and
   30.6 s (B12), B08 1:27 (5 laps of dirt and road); 1-6 checkpoints; more joins between surfaces,
   loops and jumps, walled-platform obstacles (B06, B13), wide-platform dives (B14). B03's loop on a
   high road became a jump (the bot fell out of the loop: too slow after the platform).
+- **Blue C01-C15**: authors 11.6 s (C10) to 33.5 s (C09), C05 55.7 s (2 laps), C14 48.5 s (3
+  laps); 2-6 checkpoints. What the bot taught the layouts (the rules for every series now): a loop
+  needs speed (a turbo and two straights before it, never straight off a join or a landing); no
+  gate within ~4 blocks after a fast crest (an area slope's top launches the car 150-200 m over
+  it); no tight turn just after a crest. Builder: area slopes mark their crest (where the car
+  slows) at the top both ways (going down it was marked at the bottom).

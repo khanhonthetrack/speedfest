@@ -224,9 +224,12 @@ func _slope(up: bool, n: int) -> void:
 		var rise := 8.0 if (id == sl["start"] or id == sl["end"]) else 16.0
 		var y1 := y0 + (rise if up else -rise)
 		var z := Vector3((start.x + 0.5) * 32.0, y1, (start.z + 0.5) * 32.0) + TmTrackBuilder.vec(b.heading) * 16.0
+		var seg_from := b.path.size() - 1
 		b.segment(a, b.heading, z, b.heading)
-		if (up and id == sl["end"]) or (not up and id == sl["start"]):
-			b.path[b.path.size() - 1]["rv"] = TmTrackBuilder.CREST_R
+		if id == sl["end"]:
+			# the crest: the slope's top, where it ends going up and where it begins going down
+			for i in range(maxi(seg_from, 0), b.path.size()):
+				b.path[i]["rv"] = TmTrackBuilder.CREST_R
 		a = z
 		y0 = y1
 	b.cell.y = bottom + top_rise if up else bottom
