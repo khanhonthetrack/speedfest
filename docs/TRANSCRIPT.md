@@ -697,3 +697,15 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   M9 work and session 14's); its CI build passed. The tag `stadium-v0.4` was refused from the
   cloud session (HTTP 403 on tag refs), so the owner pushes it (command in HANDOFF); the Stadium
   builds workflow then makes the GitHub Release with the Windows and Linux zips.
+
+### User (verbatim, session 14, after the merge)
+
+> Change the ads not to be next to each other and one duplicate below another, but like in football stadiums, be a few of them, and changin on rotation. Similar with billboard. Just one but changing from time to time.
+
+### Claude
+
+- The screens showed the whole 16-ad strip tiled in world space: ads side by side along every
+  board, and the strip repeated every 4 m up a tall screen. Now each screen shows ads fitted to
+  its own height (one row, never stacked): long LED boards show a few ads, the same set along the
+  board as round a football pitch, and change to the next set together every few seconds; a
+  billboard shows one ad, which changes from time to time.
