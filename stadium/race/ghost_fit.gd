@@ -9,7 +9,11 @@ extends Node3D
 ## 0,2,3,1, the reading these runs settled: M10-3; 0,1,2,3 was the one before).
 ##
 ## run: tools/run.sh res://race/ghost_fit.tscn --headless -- --map=<X.Challenge.Gbx>
-##      --ghost=<X.json> [--horizon=500] [--every=1] [--cols=0,2,3,1] [--only=2,6] [--dump]
+##      --ghost=<X.json> [--horizon=500] [--every=1] [--cols=0,2,3,1] [--only=2,6] [--dump] [--vel=rec]
+## The start velocity is the centre of mass's from the neighbouring samples' positions (exact for a
+## constant acceleration): a ghost stores velocities with 8-bit direction angles (1.4 deg heading,
+## 0.7 deg pitch: up to ~0.7 m/s off at 190 km/h, 0.3-0.5 m after 0.5 s in the air). --vel=rec
+## takes the recorded one.
 
 const T := preload("res://core/tm_tuning.gd")
 ## The car's centre of mass from a TMNF ghost's position, in the car's frame: a ghost records the
@@ -94,6 +98,7 @@ func _fit(g: Dictionary) -> void:
 	var every := int(TestHooks.arg("every", 1))
 	var only := String(TestHooks.arg("only", ""))
 	var dump := TestHooks.has_arg("dump")
+	var vel_rec := String(TestHooks.arg("vel", "pos")) == "rec"
 	var hs := horizon / period
 	var by := {}                      # group -> [distances, |speed diffs|]
 	for i in range(0, samples.size() - hs, every):
@@ -108,6 +113,12 @@ func _fit(g: Dictionary) -> void:
 				and only.split(",").has(ids[0])):
 			continue
 		var st := state_of(s0)
+		if not vel_rec and i > 0:
+			var sa: Dictionary = samples[i - 1]
+			var sb: Dictionary = samples[i + 1]
+			var dt := (int(sb["t"]) - int(sa["t"])) / 1000.0
+			if dt > 0.0 and dt <= 0.2001:
+				st[1] = ((state_of(sb)[0] as Transform3D).origin - (state_of(sa)[0] as Transform3D).origin) / dt
 		car.body.reset()
 		car.model.reset()
 		car.body.xform = st[0]
@@ -115,12 +126,15 @@ func _fit(g: Dictionary) -> void:
 		car.body.lin_vel = st[1]
 		car.body.ang_vel = st[2]
 		car.model.steer = float(s0.get("steer", 0.0))     # (TMNF + right = our + left, mirrored)
+		var trace := int(TestHooks.arg("trace_at", -1)) == t0
 		for k in horizon / 10:
 			var c: Array = controls[t0 / 10 + k]
 			car.gas = float(c[0])
 			car.brake = float(c[1])
 			car.steer = float(c[2])
 			car.step_tick()
+			if trace:
+				_trace_tick(t0 + 10 * (k + 1))
 		var want := state_of(s1)
 		var d := car.body.xform.origin.distance_to((want[0] as Transform3D).origin)
 		var v_ours := car.body.lin_vel.length() * 3.6
@@ -133,14 +147,30 @@ func _fit(g: Dictionary) -> void:
 		by[key][0].append(d)
 		by[key][1].append(absf(v_ours - v_tm))
 		if dump:
-			print("FIT t %6d  %-22s apart %6.2f m  speed TMNF %6.1f ours %6.1f  ghost then %s" % [t0, group, d, v_tm, v_ours,
-				surfaces_of(s1)])
+			var dp := car.body.xform.origin - (want[0] as Transform3D).origin
+			var dv := car.body.lin_vel - (want[1] as Vector3)
+			print("FIT t %6d  %-22s apart %6.2f m (up %+.2f)  speed TMNF %6.1f ours %6.1f  vy %+.2f  ghost then %s" % [t0, group, d,
+				dp.y, v_tm, v_ours, dv.y, surfaces_of(s1)])
 	# medians and the 75th percentile: a few runs end in a crash where our terrain differs from TMNF's
 	for key: String in by:
 		var d: Array = by[key][0]
 		var sp: Array = by[key][1]
 		print("FIT_SUMMARY %-12s n %4d  apart median %5.2f p75 %5.2f m  |speed diff| median %5.2f p75 %5.2f km/h" % [
 			key, d.size(), _pct(d, 0.5), _pct(d, 0.75), _pct(sp, 0.5), _pct(sp, 0.75)])
+
+
+## --trace_at=<t>: our car tick by tick through the window starting at sample t (mirrored back to
+## TMNF's axes for the velocities: x negated).
+func _trace_tick(t: int) -> void:
+	var b := car.body
+	var v := b.lin_vel
+	var vl := b.xform.basis.transposed() * v
+	var w := []
+	for i in 4:
+		w.append(("%d:%.3f" % [b.wheel_surface[i], b.model.susp_len[i]]) if b.wheel_contact[i] else "  .  ")
+	print("TRACE %6d y %7.3f  v %6.1f hv %6.1f vy %+7.2f  fwd %6.1f side %+6.2f  w %+5.2f,%+5.2f,%+5.2f  body %s  %s" % [t,
+		b.xform.origin.y, v.length() * 3.6, Vector2(v.x, v.z).length() * 3.6, v.y, vl.z * 3.6, vl.x, b.ang_vel.x, b.ang_vel.y,
+		b.ang_vel.z, "hit" if b.body_contact else "-", " ".join(w)])
 
 
 static func _pct(xs: Array, q: float) -> float:

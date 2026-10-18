@@ -2073,3 +2073,11 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   origin, not its centre of mass (the recorded positions move like a point 0.29-0.40 m behind
   the recorded velocities' in turns; StadiumCar.Solid puts the centre of mass 0.4385 above and
   0.288 ahead of the origin): with that offset the asphalt fit tightens to 0.10 m.
+- (same day) **Tyre smoke fix**: freshly emitted puffs drew as black blobs in Forward+ (an
+  alpha-blended CPUParticles3D in index draw order; probe: plain colour or opaque drew fine, depth
+  order fixed it): puffs are now drawn back to front, light grey on the road, tan dust on dirt,
+  green bits on grass, on both renderers; and they grow as meant (a Curve's range is 0..1 unless
+  widened first: the growth to 2.6x was clamped to 1). `ghost_fit`: the start velocity now comes
+  from the neighbouring positions (a ghost stores velocities with 8-bit direction angles, up to
+  ~0.7 m/s off; in pure flight that alone made 0.38 m of the 0.5 s error, now 0.02 m), and
+  `--trace_at=<t>` prints our car tick by tick through one window.

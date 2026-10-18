@@ -104,6 +104,7 @@ func _puff() -> CPUParticles3D:
 	p.scale_amount_min = 0.6
 	p.scale_amount_max = 1.0
 	var grow := Curve.new()
+	grow.max_value = 3.0                # (a Curve's range is 0..1 unless widened first)
 	grow.add_point(Vector2(0.0, 0.5))
 	grow.add_point(Vector2(1.0, 2.6))
 	p.scale_amount_curve = grow
@@ -123,6 +124,8 @@ func _puff() -> CPUParticles3D:
 	quad.material = m
 	p.mesh = quad
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# sorted back to front: in index order the newest puffs drew black (seen in Forward+)
+	p.draw_order = CPUParticles3D.DRAW_ORDER_VIEW_DEPTH
 	add_child(p)
 	return p
 
