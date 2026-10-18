@@ -56,6 +56,8 @@ var _headers := {}
 var _tiles := {}
 var _detail: VBoxContainer
 var _clear_armed := false
+var _profile_focus := ""            ## after a pick rebuilds the profile page: "zone" or a swatch's index
+var _account_asked := false         ## the online page asked the master for the account (this visit)
 var _profile_changed := false
 var _grade: ColorRect
 
@@ -214,6 +216,8 @@ func show_page(name: String) -> void:
 	if page == "profile" and name != "profile" and _profile_changed:
 		_profile_changed = false
 		Master.push_profile()      # the account takes the profile's nickname and zone
+	if name != page:
+		_account_asked = false
 	page = name if PAGES.has(name) else "main"
 	_clear()
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25 if page == "profile" else 0.55)
@@ -429,7 +433,7 @@ func _card(t: String) -> Button:
 	var ms := int(TmRecords.best(ch).get("time_ms", -1))
 	var m := TmRace.medal(ms, ch)
 	var card := Button.new()
-	card.custom_minimum_size = Vector2(168, 162)
+	card.custom_minimum_size = Vector2(168, 180)       # the map, number and medal, name, best time
 	card.tooltip_text = ch.name
 	var box := VBoxContainer.new()
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
@@ -452,7 +456,7 @@ func _card(t: String) -> Button:
 	name_l.custom_minimum_size.x = 150
 	name_l.clip_text = true
 	box.add_child(name_l)
-	box.add_child(TmUi.label(TmRace.time_text(ms) if ms >= 0 else "--:--.--", 16, TmUi.TEXT if ms >= 0 else TmUi.DIM, TmUi.HEAD))
+	box.add_child(TmUi.label(TmRace.time_text(ms), 16, TmUi.TEXT if ms >= 0 else TmUi.DIM, TmUi.HEAD))
 	card.pressed.connect(func() -> void: select(t))
 	card.pressed.connect(func() -> void: TmUi.play("click"))
 	card.focus_entered.connect(func() -> void: select(t, false))
@@ -625,6 +629,11 @@ var track_selected := ""
 const TRACK_COLUMNS := [["TRACK", 360], ["MEDALS", 300], ["BLOCKS", 130], ["CHANGED", 230]]
 
 
+## The local time's offset from UTC in seconds (file times are UTC; the lists show local time).
+static func _utc_bias_s() -> int:
+	return int(Time.get_time_zone_from_system().get("bias", 0)) * 60
+
+
 ## The tracks you made (TmUserTracks.list, newest first): NEW TRACK opens the editor on a blank
 ## one; a row selects, a second press (or EDIT) edits it, PLAY races it, DELETE asks twice.
 func _page_editors() -> void:
@@ -679,7 +688,7 @@ func _page_editors() -> void:
 		var m: Dictionary = t.get("medals", {})
 		var medal_text := ("AUTHOR %s" % TmRace.time_text(int(m["author"]))) if TmUserTracks.is_validated(t) else "not validated"
 		var texts := [String(t.get("name", "")), medal_text, str((t.get("blocks", []) as Array).size()),
-			Time.get_datetime_string_from_unix_time(int(e["time"]), true).left(16)]
+			Time.get_datetime_string_from_unix_time(int(e["time"]) + _utc_bias_s(), true).left(16)]
 		for i in TRACK_COLUMNS.size():
 			var l := TmUi.label(String(texts[i]), 22, TmUi.ACCENT if i == 1 and TmUserTracks.is_validated(t) else (TmUi.DIM if i == 1 else TmUi.TEXT), TmUi.BOLD)
 			l.custom_minimum_size.x = int(TRACK_COLUMNS[i][1])
@@ -799,6 +808,7 @@ func _online_records(track: String, ch: TmChallenge) -> void:
 
 
 func _page_options() -> void:
+	_clear_armed = false          # a first press on an earlier visit doesn't count
 	var root := _root()
 	var panel := PanelContainer.new()
 	panel.position = Vector2(60, 130)
@@ -877,7 +887,8 @@ func _page_profile() -> void:
 		17, TmUi.DIM, TmUi.BOLD))
 	col.add_child(HSeparator.new())
 	col.add_child(TmUi.label("ZONE", 18, TmUi.DIM, TmUi.HEAD, 2))
-	col.add_child(_zone_picker())
+	var zone := _zone_picker()
+	col.add_child(zone)
 	col.add_child(HSeparator.new())
 	col.add_child(TmUi.label("CAR COLOUR", 18, TmUi.DIM, TmUi.HEAD, 2))
 	var swatches := HBoxContainer.new()
@@ -897,12 +908,20 @@ func _page_profile() -> void:
 		b.pressed.connect(func() -> void:
 			TmUi.set_setting("colour", i)
 			_paint_car()
+			_profile_focus = str(i)
 			show_page("profile"))
 		swatches.add_child(b)
 	col.add_child(HSeparator.new())
 	col.add_child(_medal_summary())
 	col.add_child(_back_button())
-	edit.grab_focus.call_deferred()
+	# after a pick (the page is rebuilt) the focus stays on what was picked
+	var focus: Control = edit
+	if _profile_focus == "zone":
+		focus = zone
+	elif _profile_focus.is_valid_int() and int(_profile_focus) < swatches.get_child_count():
+		focus = swatches.get_child(int(_profile_focus)) as Control
+	_profile_focus = ""
+	focus.grab_focus.call_deferred()
 
 
 ## The zone: World, or a country (data/zones.json, by continent), stored as "Continent|Country".
@@ -928,6 +947,7 @@ func _zone_picker() -> OptionButton:
 		var path: Variant = pick.get_item_metadata(i)
 		TmUi.set_setting("zone", path if path is String else "")
 		_profile_changed = true
+		_profile_focus = "zone"
 		show_page("profile"))
 	return pick
 
@@ -1026,8 +1046,10 @@ func _account_panel(acc: VBoxContainer) -> void:
 		acc.add_child(TmUi.label("Your nickname and zone come from Profile.", 18, TmUi.DIM, TmUi.BOLD))
 		acc.add_child(TmUi.button("LOG OUT", func() -> void:
 			await Master.log_out()
-			show_page("online"), 220))
-		if a.is_empty() or r.is_empty():
+			if page == "online":
+				show_page("online"), 220))
+		if (a.is_empty() or r.is_empty()) and not _account_asked:
+			_account_asked = true
 			_refresh_account()
 		return
 	var intro := TmUi.label("Log in to climb the ladder and keep online records. Or just join a server as a guest.", 19, TmUi.DIM, TmUi.BOLD)
@@ -1071,9 +1093,11 @@ func _account_panel(acc: VBoxContainer) -> void:
 	acc.add_child(note)
 
 
+## Asks the master for the account (once per visit to the page); rebuilds the page with it, or
+## with the log-in form when the master no longer knows the token.
 func _refresh_account() -> void:
 	var why := await Master.refresh()
-	if why.is_empty() and page == "online":
+	if (why.is_empty() or not Master.logged_in()) and page == "online":
 		show_page("online")
 
 

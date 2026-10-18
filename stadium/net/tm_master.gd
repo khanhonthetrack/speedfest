@@ -74,7 +74,8 @@ func _request(url: String, method: int, data: String, headers: Array) -> Diction
 		return {"code": 0, "body": {"error": error_string(err)}}
 	var res: Array = await req.request_completed
 	req.queue_free()
-	var parsed: Variant = JSON.parse_string((res[3] as PackedByteArray).get_string_from_utf8())
+	var text := (res[3] as PackedByteArray).get_string_from_utf8()
+	var parsed: Variant = JSON.parse_string(text) if not text.strip_edges().is_empty() else null
 	var code := int(res[1]) if int(res[0]) == HTTPRequest.RESULT_SUCCESS else 0
 	return {"code": code, "body": parsed if parsed is Dictionary else {"error": "no answer" if code == 0 else "bad answer"}}
 

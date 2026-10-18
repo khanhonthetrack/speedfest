@@ -33,22 +33,22 @@ usage limit). Each is checked by reading the code before it is fixed. Status: op
 | 23 | fixed: is_testing from the command line only | medium | `net/tm_master.gd:37` | Master server becomes unreachable for the whole session after the first scene change, and its HTTP calls lose their timeout |
 | 24 | fixed: TestHooks.is_testing from the command line only | low | `race/replay.gd:114` | Replay viewer never shows its error message in real play (black screen) |
 | 25 | fixed: the menu stores the page raced from (return_page) | low | `race/race.gd:301` | Races of a track file return to the wrong menu page (Gbx -> main, any .sftrack -> Editors) |
-| 26 | open | low | `tools/texgen/ui.py:29` | UI icon mipmaps are generated but never sampled, so medals and the logo alias when scaled down |
-| 27 | open | low | `server/lib/game.js:178` | Guest names made only of $-codes are accepted and show as blank names |
+| 26 | fixed: canvas textures default to Linear Mipmap (project.godot) | low | `tools/texgen/ui.py:29` | UI icon mipmaps are generated but never sampled, so medals and the logo alias when scaled down |
+| 27 | fixed: guests fall back to Player when codes-only; server test | low | `server/lib/game.js:178` | Guest names made only of $-codes are accepted and show as blank names |
 | 28 | fixed: selection on press only, DELETE names its target | high | `ui/tm_menu.gd:692` | Replays/Editors lists: focus or hover changes the selection, so DELETE/EDIT/PLAY/WATCH act on a different row than the highlighted one (wrong file deleted) |
 | 29 | fixed: is_testing from the command line only | high | `net/tm_master.gd:37` | Master never finds the server and requests lose their timeout once the menu has written any TestHooks arg (normal play) |
 | 30 | fixed: is_testing; load errors show a message, Esc back | medium | `race/race.gd:53` | A track or replay that fails to load quits the whole game (or shows nothing) when opened from the menu, because is_testing() is always true by then |
-| 31 | open | medium | `ui/tm_menu.gd:809` | 'CLEAR ALL RECORDS' stays armed across page visits: a single press later wipes every record |
+| 31 | fixed: disarmed on every visit to Options | medium | `ui/tm_menu.gd:809` | 'CLEAR ALL RECORDS' stays armed across page visits: a single press later wipes every record |
 | 32 | fixed: rows select on press, JOIN/SPECTATE the picked one | medium | `ui/tm_menu.gd:1088` | JOIN always joins the first listed server, never the one the player chose |
 | 33 | fixed: follow_focus on the lists | low | `ui/tm_menu.gd:540` | Replays and editors scroll lists don't follow keyboard/pad focus |
 | 34 | fixed earlier (integers) | low | `ui/tm_menu.gd:988` | Ladder points shown as floats ('1000.0 LADDER POINTS', '1000.0' in rankings) |
-| 35 | open | low | `ui/tm_race_menu.gd:82` | Race menu panel keeps the size of the previous content (old children still counted) when refilled |
+| 35 | fixed: old content removed before the panel sizes | low | `ui/tm_race_menu.gd:82` | Race menu panel keeps the size of the previous content (old children still counted) when refilled |
 | 36 | fixed earlier (--settings test file) | low | `tests/test_menu.gd:16` | Tests write to (and depend on) the player's real user://settings.cfg |
-| 37 | open | low | `ui/tm_menu.gd:874` | Profile page: choosing a zone or a car colour rebuilds the page and throws focus back to the nickname field |
-| 38 | open | low | `ui/tm_menu.gd:679` | Editors page 'CHANGED' column shows UTC instead of local time |
-| 39 | open | low | `ui/tm_menu.gd:997` | Online page: LOG OUT drags the player back to Online after the await; a rejected token leaves the logged-in panel showing |
+| 37 | fixed: focus stays on the picked swatch or zone | low | `ui/tm_menu.gd:874` | Profile page: choosing a zone or a car colour rebuilds the page and throws focus back to the nickname field |
+| 38 | fixed: local time (UTC offset added) | low | `ui/tm_menu.gd:679` | Editors page 'CHANGED' column shows UTC instead of local time |
+| 39 | fixed: guarded rebuild; a rejected token shows the log-in form; one account refresh per visit | low | `ui/tm_menu.gd:997` | Online page: LOG OUT drags the player back to Online after the await; a rejected token leaves the logged-in panel showing |
 | 40 | fixed: the server list scrolls | low | `ui/tm_menu.gd:1084` | Server list has no scroll: many servers push JOIN BY ADDRESS/CONNECT off the screen |
-| 41 | open | low | `audio/tm_music.gd:132` | 'NOW PLAYING' toast appears even when music is switched off |
+| 41 | fixed: the toast checks the music setting | low | `audio/tm_music.gd:132` | 'NOW PLAYING' toast appears even when music is switched off |
 
 ## Details
 

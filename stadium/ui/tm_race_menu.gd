@@ -48,6 +48,7 @@ func _ready() -> void:
 ## card, in a row.
 func _fill(title: String, items: Array, card: Control = null) -> void:
 	for c in _box.get_children():
+		_box.remove_child(c)       # out now, so the panel's size is the new content's
 		c.queue_free()
 	if not title.is_empty():
 		var t := TmUi.label(title, 34, TmUi.ACCENT)
@@ -82,7 +83,7 @@ func _fill(title: String, items: Array, card: Control = null) -> void:
 	_panel.reset_size()
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
 	if first:
-		first.grab_focus.call_deferred()
+		_focus.call_deferred(first)
 
 
 ## Pauses the race (or resumes it if the pause menu is open).
@@ -210,6 +211,12 @@ static func _medal(kind: String, size: int) -> Control:
 
 func _menu_text() -> String:
 	return "LEAVE SERVER" if online else ("EDITOR" if editing else "MENU")
+
+
+## Focus on a button if it's still shown (a second fill in the same frame took the first's away).
+func _focus(b: Control) -> void:
+	if is_instance_valid(b) and b.is_inside_tree():
+		b.grab_focus()
 
 
 ## Whether SAVE REPLAY was pressed for this finish.

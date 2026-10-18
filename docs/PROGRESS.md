@@ -1882,3 +1882,15 @@ done for each) is checked against the code finding by finding, fixed, tested and
   is hidden from the list, and file names lose $-codes and a leading `_`; Esc from watching the
   run comes back to the finish menu as it was (SAVE REPLAY still there, or SAVED).
   `tests/test_replay`: 29 checks (8 new).
+- **Batch 4** (menus, music, server): canvas textures sample their mipmaps (project setting
+  `default_texture_filter` = Linear Mipmap: the medals and the logo, drawn 2-5x their size, no
+  longer alias); a guest name that shows nothing without its $-codes becomes "Player" on the
+  server (test); CLEAR ALL RECORDS is disarmed on every visit to Options; the race menu removes
+  its old content before it takes its size (the second pause panel no longer doubles), and its
+  deferred focus skips a button a second fill took away; picking a colour or a zone on Profile
+  keeps the focus there; the Editors page's CHANGED column is local time; LOG OUT rebuilds the
+  Online page only if it is still shown, a rejected token shows the log-in form, and the account
+  is asked for once per visit (no refresh loop); no NOW PLAYING toast with the music off; Master
+  doesn't parse an empty answer. Also: the campaign cards are tall enough for their best time
+  (it was cut off at the bottom). `tests/test_menu` 31 checks (4 new), server tests 19.
+  With this, all 42 findings are fixed (the doc's status column).

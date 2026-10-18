@@ -56,6 +56,30 @@ test('two players: welcome, relay, finish ranking, round change, results', async
   }
 });
 
+test('guest names: $-codes kept up to 75 characters; a name that shows nothing is Player', async () => {
+  const srv = createServer({});
+  await new Promise((r) => srv.listen(0, r));
+  try {
+    const port = srv.httpServer.address().port;
+    const long = '$o$f00' + 'x'.repeat(80);
+    const a = client(port);
+    const b = client(port);
+    await a.open; await b.open;
+    a.ws.send(JSON.stringify({ t: 'hello', name: long, version: VERSION }));
+    const wa = await a.next('welcome');
+    b.ws.send(JSON.stringify({ t: 'hello', name: '$o$i$f00', version: VERSION }));
+    const wb = await b.next('welcome');
+    let pl;
+    do { pl = await a.next('players'); } while (pl.players.length < 2);
+    const name = (id) => pl.players.find((p) => p.id === id).name;
+    assert.strictEqual(name(wa.id), long.slice(0, 75));
+    assert.strictEqual(name(wb.id), 'Player');
+    a.ws.close(); b.ws.close();
+  } finally {
+    await new Promise((r) => srv.close(r));
+  }
+});
+
 test('wrong version is refused', async () => {
   const srv = createServer({});
   await new Promise((r) => srv.listen(0, r));

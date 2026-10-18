@@ -54,10 +54,13 @@
 - Session 14's work (review fixes, flags, Polish adverts, v0.4) is merged into this branch
   (from `claude/trackmania-stadium-review-lds3no`; gate PASS). This branch is ahead of `stadium`
   by M9-7: merge it into `stadium` when the owner says so.
-- Now: the session-13 code review's findings (42; 14 confirmed by its verifiers, the rest
-  unverified because the run hit the usage limit): `docs/research/m9_review_findings.md`, each
-  checked and fixed in turn (its status column). Then M9-8 the A-E campaign
-  (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
+- The session-13 code review's 42 findings (`docs/research/m9_review_findings.md`) are all
+  fixed, in four batches (PROGRESS "the M9 code review's findings"): testing mode only from the
+  command line, list selection, the editor's ground-only blocks, replays (laps, the roll after the
+  finish, keys, sound, back to the finish menu), menus, the music toast, guest names.
+- Now: M9-8 the A-E campaign (65 original tracks, White/Green/Blue/Red/Black;
+  `tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series, the
+  cards fit 3 rows of 5). M9-2's remaining families come with those tracks.
   M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
   tracks that use them.
 - Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with
