@@ -767,3 +767,13 @@ unfinished `ccr-1ce252fc-wl7p3m`), the owner chose: "stadium + M9 branch".
   docs conflicted (both sides kept). `PLAYING.txt` (the zips' how-to-play and the release notes)
   rewritten for the new game. Tagged `stadium-v0.4` on the result; CI makes the GitHub Release.
   Session 15's branch stays out (unfinished).
+
+### User (verbatim, after the release)
+
+> Yes, start the official server on this PC with run_official.ps1 -Publish so v0.4's ONLINE finds it.
+
+### Claude
+
+- Started it (`run_official.ps1 -Publish`): M9-7's server behind a new Cloudflare quick tunnel, the
+  address committed to `stadium/server/official.json`; checked from outside (status, server list,
+  a WebSocket join). It stops if the PC restarts: run the script again with `-Publish`.

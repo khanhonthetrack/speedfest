@@ -2010,4 +2010,10 @@ done for each) is checked against the code finding by finding, fixed, tested and
   replays, the online keys (T, V, F1/F2, F3), `--race=A01`.
 - Tag `stadium-v0.4` on the merge commit, pushed from the PC; CI "Stadium builds" makes the
   GitHub Release with the Windows and Linux zips. Session 15's unfinished branch
-  (`ccr-1ce252fc-wl7p3m`) is not included. The official server is down (HANDOFF).
+  (`ccr-1ce252fc-wl7p3m`) is not included.
+- The official server was down (no node / cloudflared on the PC). Owner: "Yes, start the official
+  server on this PC with run_official.ps1 -Publish so v0.4's ONLINE finds it." Started with M9-7's
+  server (master + one Time Attack server on the A-E campaign; data in the gitignored
+  `stadium/server/data/`); the new quick-tunnel address is in `official.json` (b150220). Checked
+  through the tunnel: `GET /`, `/api/servers`, and a spectator's `hello` on `wss://.../ws/main`
+  answered with `welcome`.

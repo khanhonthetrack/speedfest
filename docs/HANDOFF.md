@@ -13,10 +13,13 @@
   merge `stadium` into it first). Session 15's `ccr-1ce252fc-wl7p3m` (community tracks and car
   packs on admins' servers; unfinished) is **not** in the release: it forked before the Green..Black
   series, so merge `stadium` into it before it goes back.
-- **The official server is down** (no node / cloudflared running on the PC, the quick-tunnel address
-  in `stadium/server/official.json` doesn't answer), so ONLINE in v0.4 finds no official server.
-  M9-7's server (master `/api` + game servers) is meant for the Pi (Docker + named tunnel:
-  `stadium/server/README.md`); until then `run_official.ps1 -Publish` on the PC brings one up.
+- **The official server runs again on the owner's PC** with M9-7's server (master `/api` + one
+  Time Attack server `/ws/main` over the A-E campaign; accounts in the gitignored
+  `stadium/server/data/`): it had been down (no node / cloudflared), so the owner said "Yes, start
+  the official server on this PC with run_official.ps1 -Publish". New quick-tunnel address
+  published in `stadium/server/official.json` (b150220); checked through the tunnel (`/`,
+  `/api/servers`, a WebSocket join on `/ws/main`). If the PC restarts, run it again with
+  `-Publish`; the permanent home is still the Pi (Docker + named tunnel, `stadium/server/README.md`).
 
 ## Earlier (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium
