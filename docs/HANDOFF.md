@@ -1,6 +1,6 @@
 # HANDOFF: start here
 
-## Latest (17 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
+## Latest (18 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
 - Owner (TRANSCRIPT, session 13): the remake looks cheap (gates, billboards, stadium, "2005");
   wants TMNF's graphics (or better, RTX), TMNF's menus, online, a campaign like TMNF's, a better
   engine sound, a car whose rims sit in the tyres. Answers: our own A-E campaign (65 originals),
@@ -10,8 +10,16 @@
 - Done (pushed): M9-1 the new car (`car/tm_car_visual.gd`, `car/tm_mesher.gd`); M9-2 first pass:
   textured road, gates, adverts, fabric roofs, stadium facades (PROGRESS 18 Oct; textures from
   `stadium/tools/texgen/*.py` into `stadium/assets/tex/`, regenerate with `python3 <script>.py`;
-  needs numpy, pillow, fonttools, brotli). Next: M9-3 engine (TMNF's 6-layer engine and gear
-  model), then menus, replays, editor, online, campaign; more block families' textures later.
+  needs numpy, pillow, fonttools, brotli); M9-3 the engine (TMNF's six layers and gear model,
+  synthesized by `stadium/tools/sfxgen/engine.py`); M9-4 the menus (TMNF's structure and look:
+  `ui/tm_menu.gd`, `ui/tm_glass_box.gd`, `ui/tm_nick.gd` $-codes, `ui/tm_track_map.gd`, icons by
+  `tools/texgen/ui.py` in `assets/ui/`, the countdown figures in the race HUD).
+- Next, in order: M9-5 replays (save, browse, watch with free and chase cameras; then the EDITORS
+  entry on the main page with the replay editor), M9-6 the track editor, M9-7 online (master
+  server, accounts, ladder; Profile and Online get rankings), M9-8 the A-E campaign
+  (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
+  M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
+  tracks that use them.
 - Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with
   `--ref=<OUT>`; `race/map_view.tscn` views `car:`, `gate:<block>`, `rel:`, `near:` (see its header).
 - Local reference data in a fresh container: `pip install pycryptodome py7zr numpy`, then

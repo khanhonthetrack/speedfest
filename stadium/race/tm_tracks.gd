@@ -3,7 +3,8 @@ extends RefCounted
 ## SpeedFest's own tracks: tracks/*.json (track specs, laid out by TmTrackBuilder from the
 ## recreated blocks; ids are the file names, SF01 ..). The campaign (the menu, the server's
 ## rotation) is the list in tracks/campaign.json, in its order; any other track file can still be
-## raced by id (--track=), e.g. one being made or tested.
+## raced by id (--track=), e.g. one being made or tested. campaign.json is a list of ids (one
+## series) or {"series": [{"name": "White", "tracks": ["A01", ..]}, ..]} (the menu's tabs).
 ## TMNF's campaign (from a TMNF install) and .Challenge.Gbx files are optional extras (TmStage).
 
 const DIR := "res://tracks"
@@ -11,6 +12,7 @@ const CAMPAIGN := "campaign.json"
 
 static var _specs := {}
 static var _ids: Array[String] = []
+static var _series: Array = []
 
 
 static func _load() -> void:
@@ -30,15 +32,33 @@ static func _load() -> void:
 		(spec as Dictionary)["id"] = id
 		_specs[id] = spec
 	var listed: Variant = JSON.parse_string(FileAccess.get_file_as_string(DIR.path_join(CAMPAIGN)))
-	for id: String in (listed if listed is Array else _specs.keys()):
-		if _specs.has(id):
-			_ids.append(id)
+	var groups: Array = []
+	if listed is Dictionary and (listed as Dictionary).get("series") is Array:
+		for g: Variant in listed["series"]:
+			if g is Dictionary:
+				groups.append({"name": String(g.get("name", "")), "tracks": g.get("tracks", [])})
+	else:
+		groups.append({"name": "SpeedFest", "tracks": listed if listed is Array else _specs.keys()})
+	for g: Dictionary in groups:
+		var ids_in: Array[String] = []
+		for id: Variant in g["tracks"]:
+			if _specs.has(String(id)) and not _ids.has(String(id)):
+				_ids.append(String(id))
+				ids_in.append(String(id))
+		if not ids_in.is_empty():
+			_series.append({"name": g["name"], "tracks": ids_in})
 
 
 ## The campaign's track ids, in order.
 static func ids() -> Array[String]:
 	_load()
 	return _ids.duplicate()
+
+
+## The campaign's series, in order: [{name, tracks (ids)}].
+static func series() -> Array:
+	_load()
+	return _series.duplicate(true)
 
 
 static func has(id: String) -> bool:
@@ -70,3 +90,4 @@ static func next(id: String) -> String:
 static func reload() -> void:
 	_ids.clear()
 	_specs.clear()
+	_series.clear()

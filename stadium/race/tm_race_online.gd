@@ -90,7 +90,7 @@ func _car(id: int) -> Node3D:
 			var c: Array = p.get("colour", [0.85, 0.08, 0.06])
 			v.ghost_tint = Color(float(c[0]), float(c[1]), float(c[2])).lerp(Color.WHITE, 0.25)
 			var tag := Label3D.new()
-			tag.text = String(p["name"])
+			tag.text = TmNick.strip(String(p["name"]))
 			tag.font = TmUi.font(TmUi.BOLD)
 			tag.font_size = 48
 			tag.pixel_size = 0.01
@@ -153,7 +153,7 @@ func _refresh_board() -> void:
 	var i := 1
 	for p: Dictionary in rows:
 		var me := int(p["id"]) == Online.my_id
-		lines.append("%s%d. %s   %s" % ["> " if me else "", i, String(p["name"]), TmRace.time_text(int(p["best"]))])
+		lines.append("%s%d. %s   %s" % ["> " if me else "", i, TmNick.strip(String(p["name"])), TmRace.time_text(int(p["best"]))])
 		i += 1
 	_board.text = "\n".join(lines)
 
@@ -163,7 +163,7 @@ func _refresh_chat() -> void:
 	var lines := []
 	for e: Array in Online.chat_log.slice(-6):
 		if now - int(e[2]) < 12000 or _input.visible:
-			lines.append(("%s: %s" % [e[0], e[1]]) if not String(e[0]).is_empty() else "* " + String(e[1]))
+			lines.append(("%s: %s" % [TmNick.strip(String(e[0])), e[1]]) if not String(e[0]).is_empty() else "* " + TmNick.strip(String(e[1])))
 	_chat.text = "\n".join(lines)
 
 
@@ -171,7 +171,7 @@ func _on_results(ranking: Array) -> void:
 	var lines := ["ROUND OVER", ""]
 	var i := 1
 	for r: Dictionary in ranking.slice(0, 10):
-		lines.append("%d.  %s   %s" % [i, String(r["name"]), TmRace.time_text(int(r["time"]))])
+		lines.append("%d.  %s   %s" % [i, TmNick.strip(String(r["name"])), TmRace.time_text(int(r["time"]))])
 		i += 1
 	if ranking.is_empty():
 		lines.append("No finishes this round")

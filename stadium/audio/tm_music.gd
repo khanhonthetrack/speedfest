@@ -100,8 +100,9 @@ func _on_finished(p: AudioStreamPlayer) -> void:
 		_next()
 
 
-## A "now playing" toast for a scene: bottom right, fades after a few seconds.
-static func toast(parent: Node) -> void:
+## A "now playing" toast for a scene: bottom right (lift pixels up, the race keeps it above the
+## speed), on one line or two, fading after a few seconds.
+static func toast(parent: Node, lift := 92.0, one_line := false) -> void:
 	var music: Node = parent.get_node_or_null("/root/Music")
 	if music == null:
 		return
@@ -113,13 +114,13 @@ static func toast(parent: Node) -> void:
 	l.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	l.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	l.position.y -= 92
+	l.position.y -= lift
 	l.modulate.a = 0.0
 	layer.add_child(l)
 	var show := func(title: String, artist: String) -> void:
 		if not is_instance_valid(l):
 			return
-		l.text = "NOW PLAYING\n%s  ·  %s" % [title, artist]
+		l.text = ("NOW PLAYING     %s  ·  %s" if one_line else "NOW PLAYING\n%s  ·  %s") % [title, artist]
 		var tw := l.create_tween()
 		tw.tween_property(l, "modulate:a", 1.0, 0.4)
 		tw.tween_interval(4.0)

@@ -101,7 +101,7 @@ function createServer(opts = {}) {
         if (msg.version !== VERSION) { send(ws, { t: 'error', msg: `version mismatch: server ${VERSION}, game ${msg.version}` }); ws.close(); return; }
         if (players.size >= maxPlayers) { send(ws, { t: 'error', msg: 'server full' }); ws.close(); return; }
         const colour = finiteArray(msg.colour, 3, 2) ? msg.colour.map((c) => Math.min(1, Math.max(0, c))) : [0.85, 0.08, 0.06];
-        me = { id: nextId++, name: cleanText(msg.name, 16) || 'Player', colour, ws, state: null, stateAt: 0, chatAt: 0 };
+        me = { id: nextId++, name: cleanText(msg.name, 75) || 'Player', colour, ws, state: null, stateAt: 0, chatAt: 0 };
         players.set(me.id, me);
         send(ws, { t: 'welcome', id: me.id, name, now: Date.now(), round: rounds.info(), players: playerList() });
         broadcast({ t: 'players', players: playerList() });

@@ -167,15 +167,17 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       light), menus (screens, flow, layout), online (accounts, ladder, server modes, browser, votes,
       chat), sound (engine layers, gears, cues), campaign style (A-E statistics: lengths, times,
       checkpoints, block families per series)
-- [ ] 1. Car model: wheels that hold together (tyre, rim seated in the bead, hub, brake), TMNF's
+- [x] 1. Car model: wheels that hold together (tyre, rim seated in the bead, hub, brake), TMNF's
       body from the measured visual mesh proportions, the driver, PBR paint/carbon/rubber
 - [ ] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
       adverts (our own brand art), the stadium (stands with crowd, roof, floodlights), light (TMNF's
       day mood with modern GI/SSR/AO), RTX/Ultra preset; side-by-side checks against local
-      reference renders
-- [ ] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
-- [ ] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
-      campaign A-E tabs with medals), in-race menus
+      reference renders. First pass done (road, gates, adverts, fabric, stadium); open: platform,
+      dirt, circuit, tube, control and airship families, light and atmosphere, RTX preset
+- [x] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
+- [x] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
+      campaign A-E tabs with medals), in-race menus. Done (PROGRESS 18 Oct); the EDITORS entry
+      lands with steps 5-6, the ladder and rankings in Profile/Online with step 7
 - [ ] 5. Replays: save, browse and watch replays (with free and chase cameras)
 - [ ] 6. Track Editor: place the recreated blocks on the 32 x 8 x 32 grid, validate by driving
       (author time), save/load/share

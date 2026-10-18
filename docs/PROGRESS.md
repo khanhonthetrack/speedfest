@@ -1546,3 +1546,57 @@ them, mesh UVs or world triplanar):
 - Control galleries' supports dark metal. Texture budget so far ~10 MB (JPEG).
 - Next in the look: tube/control/platform/dirt/circuit families for the A-E campaign, the
   airship and palms, then the engine (M9-3).
+
+## 2026-10-18 — Session 13 (M9-3): the engine like TMNF's
+TMNF's SoundEngine (read from its tuning and sound files, numbers only) plays six layers, four
+under load and two coasting, each with an rpm window and a pitch curve, over a six-gear model.
+Ours now works the same way, with our own sounds:
+- **Gears and rpm** (`audio/tm_sounds.gd`): TMNF's gear tops 85/110/160/220/370/400 km/h, its
+  up-shift points (0.95/0.9/0.95/0.95/1.0 of a gear's top) and down-shift points, 11000 rpm max,
+  1200 idle; `gear_for(kmh)`, `rpm(kmh, gear)`. `TmCarAudio` keeps the gear with hysteresis, lets
+  the rpm rise at a set rate, dips the load layers ~70 ms at an up-shift with a clunk, flutters at
+  the limiter and revs freely in the air on throttle.
+- **Layers** (`tools/sfxgen/engine.py`, numpy + scipy, writes `audio/sfx/engine_*.wav`): a
+  four-cylinder racing engine synthesized from its firing pulses (2 a revolution, so 11000 rpm is
+  TMNF's top fundamental), exhaust ring and thump through a short pipe, intake roar under load,
+  valvetrain whine and crackles off load; idle 1200, low 3600, mid 6600, high 9600 under load,
+  coast 3600 and 9000; seamless loops pitched by rpm / base rpm and crossfaded by rpm and
+  throttle (`TmCarAudio.LAYERS`). Band energies checked against TMNF's own engine samples.
+  `tools/sfxgen/preview.py OUT.wav` renders a standing start offline for listening.
+- `shift.wav` (a dull knock and a tick) and `turbo.wav` (a rising rush with a turbine whine) are
+  synthesized too; the old engine_load/coast/turbo recordings are gone. `tests/test_sound`: rpm
+  drops at each shift, gears follow speed, the engine follows speed.
+
+## 2026-10-18 — Session 13 (M9-4): menus like TMNF's
+TMNF's menus (surveyed from its menu pack: names, layout, the look of its skin; nothing copied)
+are dark green glass over a blurred Stadium, white capitals, lime green for what's selected,
+glossy sphere checkboxes and medal discs. Ours now has that structure and look, our own art:
+- **Structure** (`ui/tm_menu.gd`): a bar across the top with our logo, where you are (SOLO /
+  CAMPAIGN) and your nickname and zone; main = SOLO, ONLINE, PROFILE, OPTIONS, QUIT (EDITORS comes
+  with the track and replay editors, M9-5/6); Solo = CAMPAIGN, OPEN A TRACK FILE; the campaign has
+  a tab per series (`TmTracks.series()`: `tracks/campaign.json` is a list or
+  `{"series": [{"name": "White", "tracks": [...]}, ...]}`, TMNF's series colours by name), a card
+  per track (its map from above, number, name, medal, best time) and the selected track's panel
+  (map, the four medal times with medal discs, your best, a lime RACE); Online = a server list
+  (the official server's name, track, players, time left), JOIN, REFRESH, join by address;
+  Profile = nickname with TMNF's $-codes previewed as you type, zone (`data/zones.json`, stored
+  as "Continent|Country"), car colour (the camera moves in on the car), your medal counts;
+  Options as before. Esc goes back one page. The TMNF-install campaign tabs and the "TMNF tracks"
+  page are gone (owner: the campaign is our own); single `.Challenge.Gbx` files still open.
+- **Look**: `ui/tm_glass_box.gd` (TmGlassBox, a StyleBox drawn as vectors: gradient fill, a gloss
+  band from the top, an antialiased border brighter on top, a glow for focus, a stripe; crisp at
+  any resolution) for panels, buttons, tabs, fields; `TmUi.glass(kind)` presets and `TmUi.go()`
+  (the lime race/join button); `tools/texgen/ui.py` draws the icons into `assets/ui/` (medal discs
+  author/gold/silver/bronze/none with our raised SF emblem, sphere checkboxes, star, play, the
+  SPEEDFEST STADIUM chrome logo, the countdown's 3 2 1 GO!). The backdrop: camera depth of field
+  keeps the car sharp and the Stadium soft, a shader grades the edges dark green.
+- **Nicknames** (`ui/tm_nick.gd`, TmNick): $RGB, $o $i $w $n $m $s $t $g $z $< $> $l $h $$ parsed
+  into runs; `to_bbcode()` for RichTextLabels (`TmUi.nick_label`), `strip()` for plain text (the
+  online name tags, ranking and chat strip the codes for now). The server keeps 75 characters
+  (TMNF's limit) instead of 16.
+- **In race**: the countdown shows TMNF-style figures popping in (`TmRaceHud._figure`), the
+  result card uses the glass and the medal discs. The track cards' map is `ui/tm_track_map.gd`
+  (our tracks' line, or a .Gbx's road blocks; start green, checkpoints blue, finish red).
+- `tests/test_menu` rewritten (27 checks: the pages and their order, back, campaign tabs and
+  cards, records and medal counts, profile nickname and zone, online, options, $-codes, the race
+  menu). Screenshots: `tools/run.sh res://ui/menu.tscn -- --page=<page> --frames=90 --shot=...`.
