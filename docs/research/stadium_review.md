@@ -111,9 +111,10 @@ them**. A 1:1 copy of TMNF's look would itself look like 2008.
    lit almost as brightly as open road. Both TMNF and TM2020 bake shadows per map.
 2. **The ambient is too strong next to the sun** (sun energy 1.1). Shadows are grey, not
    shaded, and forms look flat.
-3. **Linear tonemapping with saturation 1.25 and contrast 1.12**: highlights clip, colours go
-   cartoonish, there's no filmic roll-off. (The session 12 note says filmic/AgX looked worse.
-   That was tried at the same exposure and sun; retry it together with points 1-2.)
+3. **Linear tonemapping with saturation 1.25 and contrast 1.12** clips highlights, but it is not
+   the problem to fix first. Session 12 found filmic/AgX worse, and this review's renders agree:
+   AgX at three sun/exposure settings (sun 1.8-2.2, exposure 0.6-0.85) turned the sky grey and
+   the whole frame overcast and dull next to the current grade. Keep the grade; fix depth.
 4. **Reflections come from the sky only** (`REFLECTION_SOURCE_SKY`, no ReflectionProbe anywhere).
    The car's paint and the arch metal never show the stadium, which is why the car looks like
    plastic on a blank backdrop.
