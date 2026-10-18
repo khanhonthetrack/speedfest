@@ -73,7 +73,7 @@ Updated 2026-10-18 (session 13, M9). Details: `docs/PROGRESS.md` (latest entries
   into `stadium`: the owner decides). The look of the blocks the campaign shows most follows TMNF's
   measured materials (`docs/research/m9_look.md`): decks, platform and circuit walls, dirt roads,
   control booths, grandstand trusses and boards, raised grandstands at raised gates; Ultra keeps
-  the fabric roofs lit. Compare with TMNF locally with `map_view --ref=<dir>` (README there).
+  the fabric roofs lit. Compare with TMNF locally: `docs/research/m9_look.md`, "How to compare".
 - **Standalone** (owner, 2026-10-17): our campaign (M9-8, session 13) is TMNF's structure with
   our own 65 tracks, `tracks/A01..E05.json` in five series (`tracks/campaign.json`: White, Green,
   Blue, Red, Black), laid out by `race/tm_track_builder.gd` with TMNF's surfaces
