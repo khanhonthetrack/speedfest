@@ -41,30 +41,41 @@ static func visual(shape: String) -> MeshInstance3D:
 ## is already Godot's (nose +z, left +x).
 static func mesh_from(meshes: Array, flip_x := true) -> MeshInstance3D:
 	var fx := -1.0 if flip_x else 1.0
-	var am := ArrayMesh.new()
+	# one surface per material (a mesh holds at most 256 surfaces; the surround has 400 parts)
+	var tools := {}
 	for m: Dictionary in meshes:
 		var verts: Array = m["verts"]
 		var tris: Array = m["tris"]
 		var uvs: Array = m.get("uvs", [])
-		var st := SurfaceTool.new()
-		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var key := String(m.get("mat", ""))
+		if not tools.has(key):
+			var st0 := SurfaceTool.new()
+			st0.begin(Mesh.PRIMITIVE_TRIANGLES)
+			tools[key] = st0
+		var st: SurfaceTool = tools[key]
 		for t: Array in tris:
+			var ok := true
+			for k in 3:
+				if int(t[k]) >= verts.size():
+					ok = false
+			if not ok:
+				continue
 			for k in ([0, 2, 1] if flip_x else [0, 1, 2]):   # x negated: reverse the winding
 				var i := int(t[k])
-				if i >= verts.size():
-					continue
 				if uvs.size() > 0 and i < (uvs[0] as Array).size():
 					var uv: Array = uvs[0][i]
 					st.set_uv(Vector2(float(uv[0]), 1.0 - float(uv[1])))   # TMNF's v runs up
 				var p: Array = verts[i]
 				st.add_vertex(Vector3(fx * float(p[0]), float(p[1]), float(p[2])))
+	var am := ArrayMesh.new()
+	for key: String in tools:
+		var st: SurfaceTool = tools[key]
 		st.generate_normals()
-		st.generate_tangents()
 		var arrays := st.commit_to_arrays()
 		if (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).is_empty():
 			continue
 		am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		am.surface_set_material(am.get_surface_count() - 1, material(String(m.get("mat", ""))))
+		am.surface_set_material(am.get_surface_count() - 1, material(key))
 	if am.get_surface_count() == 0:
 		return null
 	var mi := MeshInstance3D.new()

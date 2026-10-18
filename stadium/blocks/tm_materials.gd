@@ -63,6 +63,7 @@ const COLORS := {
 	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
+	"facade": [Color(0.70, 0.71, 0.72), 0.7, 0.1],
 	"roof": [Color(0.93, 0.93, 0.95), 0.6, 0.0],
 	"roof_under": [Color(0.80, 0.81, 0.83), 0.7, 0.2],
 	"mast": [Color(0.92, 0.92, 0.94), 0.4, 0.4],
@@ -102,6 +103,13 @@ const TEXTURED := {
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
 	"fabric_under": ["fabric_under", Vector2(8.0, 8.0), false],
+	# the Stadium around the field (env/tm_stadium_build.gd): world-mapped
+	"facade": ["stadium_facade", Vector2(16.0, 16.0), true],
+	"concrete": ["stadium_concrete", Vector2(16.0, 16.0), true],
+	"roof": ["fabric_top", Vector2(16.0, 16.0), true],
+	# inflatable cushion walls (8 m pillows on the 8 m grid), the tube network's pillars and pipes
+	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
+	"pipe": ["pillar_steel", Vector2(8.0, 8.0), true],
 }
 
 ## The surface shader per key: [pattern, second colour, pattern size (m), variation, bump].

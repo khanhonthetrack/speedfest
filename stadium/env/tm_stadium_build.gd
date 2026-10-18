@@ -29,7 +29,7 @@ const LENS_INNER := [Vector2(0.0, -523.0), Vector2(44.7, -524.7), Vector2(86.8, 
 const LENS_MID_Z := -746.1          ## the grandstand's midline (it is symmetric about it)
 ## Its section from the wall inwards: [d (m into the stand), y, material of the segment to the next].
 ## The last point runs on to the midline; the outer half mirrors it (its foot on the outer ground).
-const LENS_SECTION := [[0.0, -24.0, "concrete"], [0.0, 20.1, "concrete"], [2.8, 21.1, "concrete"],
+const LENS_SECTION := [[0.0, -24.0, "facade"], [0.0, 20.1, "concrete"], [2.8, 21.1, "concrete"],
 	[11.1, 21.1, "concrete"], [23.0, 27.6, "stands"], [57.6, 45.9, "concrete"], [1e4, 45.9, "concrete"],
 	[1e4, -24.0, "concrete"]]
 ## The LED boards: d, bottom, top, half length in x. Measured as one face from 25.1 m to the rake's
@@ -55,7 +55,7 @@ const TERRACE_INNER := [Vector2(776.6, 0.0), Vector2(775.1, -35.8), Vector2(771.
 	Vector2(724.4, -253.5), Vector2(707.0, -294.1), Vector2(687.8, -361.3), Vector2(668.0, -391.8),
 	Vector2(642.5, -426.4)]
 ## Its section from the wall outwards [d, y, material of the segment to the next] (closed).
-const TERRACE_SECTION := [[0.0, -15.0, "concrete"], [0.0, 20.9, "concrete"], [3.0, 21.7, "concrete"],
+const TERRACE_SECTION := [[0.0, -15.0, "facade"], [0.0, 20.9, "concrete"], [3.0, 21.7, "concrete"],
 	[46.5, 21.7, "concrete"], [46.5, 34.3, "concrete"], [90.3, 34.3, "stands"], [127.8, 24.3, "concrete"],
 	[139.9, 20.9, "concrete"], [169.5, 20.9, "concrete"], [172.5, 19.8, "concrete"], [172.5, -15.0, "concrete"]]
 const SCREEN := [822.0, 79.0, 47.0, 128.4]   ## the big screen: x, half width in z, bottom, top

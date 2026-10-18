@@ -80,6 +80,13 @@ static func load_from_args() -> TmChallenge:
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	TmStadiumEnv.add(parent)
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
+		if TmRefVisuals.active():
+			# research (--ref): TMNF's own surround, from local files (TmRefVisuals)
+			var ref := TmRefVisuals.visual("Zone/Square32")
+			if ref != null:
+				ref.position = Vector3(0.0, TmStadiumBuild.FIELD_Y, 0.0)
+				parent.add_child(ref)
+				return
 		parent.add_child(TmStadiumBuild.build())
 		return
 	var w := float(builder.challenge.size.x) * 32.0
