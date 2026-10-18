@@ -762,3 +762,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   marks when drifting or braking hard; the physics off asphalt against TMNF's model and replays;
   jumps; then the look, UI, menus and sound side by side with screenshots of TMNF itself (run
   locally under Wine where possible; nothing of it committed).
+
+### Claude
+
+- M10-1 (dark screens, the wall foot's blue kerb and logo bumper), M10-2 (tyre marks and smoke)
+  and M10-3 (grass and dirt: the surface table's columns were misread; measured against TMNF's own
+  campaign ghosts) done and pushed; M10-4 (jumps) under way: TMNF's flight matches ours to 2 cm,
+  the difference is in nose-down landings.
+
+### User (verbatim)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.

@@ -127,14 +127,23 @@ func _fit(g: Dictionary) -> void:
 		car.body.ang_vel = st[2]
 		car.model.steer = float(s0.get("steer", 0.0))     # (TMNF + right = our + left, mirrored)
 		var trace := int(TestHooks.arg("trace_at", -1)) == t0
+		var rear_only := 0           # ticks on the rear wheels alone (a wheelie)
 		for k in horizon / 10:
 			var c: Array = controls[t0 / 10 + k]
 			car.gas = float(c[0])
 			car.brake = float(c[1])
 			car.steer = float(c[2])
 			car.step_tick()
+			var wc := car.body.wheel_contact
+			if wc[2] and wc[3] and not wc[0] and not wc[1]:
+				rear_only += 1
 			if trace:
 				_trace_tick(t0 + 10 * (k + 1))
+		var tm_rear := 0             # ms the ghost's samples show on the rear wheels alone (FL FR RR RL)
+		for k in range(1, hs + 1):
+			var ws: Array = (samples[i + k] as Dictionary).get("wheels", [])
+			if ws.size() == 4 and bool(ws[2]["ground"]) and bool(ws[3]["ground"]) and not bool(ws[0]["ground"]) and not bool(ws[1]["ground"]):
+				tm_rear += period
 		var want := state_of(s1)
 		var d := car.body.xform.origin.distance_to((want[0] as Transform3D).origin)
 		var v_ours := car.body.lin_vel.length() * 3.6
@@ -142,21 +151,27 @@ func _fit(g: Dictionary) -> void:
 		var key := "all4:" + ids[0] if ids.size() == 4 and ids[0] == ids[1] and ids[1] == ids[2] and ids[2] == ids[3] else "mixed"
 		if group.contains("air"):
 			key = "air" if group.count("air") == 4 else "partly air"
+		var then := surfaces_of(s1)
+		if key == "air" and then.count("air") < 4:
+			key = "landing"
+		elif group.count("air") == 0 and then.count("air") == 4:
+			key = "take-off"
 		if not by.has(key):
-			by[key] = [[], []]
+			by[key] = [[], [], []]
 		by[key][0].append(d)
 		by[key][1].append(absf(v_ours - v_tm))
+		by[key][2].append(v_ours - v_tm)
 		if dump:
 			var dp := car.body.xform.origin - (want[0] as Transform3D).origin
 			var dv := car.body.lin_vel - (want[1] as Vector3)
-			print("FIT t %6d  %-22s apart %6.2f m (up %+.2f)  speed TMNF %6.1f ours %6.1f  vy %+.2f  ghost then %s" % [t0, group, d,
-				dp.y, v_tm, v_ours, dv.y, surfaces_of(s1)])
+			print("FIT t %6d  %-22s apart %6.2f m (up %+.2f)  speed TMNF %6.1f ours %6.1f  vy %+.2f  wheelie ms TMNF %3d ours %3d  ghost then %s" % [
+				t0, group, d, dp.y, v_tm, v_ours, dv.y, tm_rear, rear_only * 10, surfaces_of(s1)])
 	# medians and the 75th percentile: a few runs end in a crash where our terrain differs from TMNF's
 	for key: String in by:
 		var d: Array = by[key][0]
 		var sp: Array = by[key][1]
-		print("FIT_SUMMARY %-12s n %4d  apart median %5.2f p75 %5.2f m  |speed diff| median %5.2f p75 %5.2f km/h" % [
-			key, d.size(), _pct(d, 0.5), _pct(d, 0.75), _pct(sp, 0.5), _pct(sp, 0.75)])
+		print("FIT_SUMMARY %-12s n %4d  apart median %5.2f p75 %5.2f m  |speed diff| median %5.2f p75 %5.2f km/h  ours - TMNF median %+6.2f" % [
+			key, d.size(), _pct(d, 0.5), _pct(d, 0.75), _pct(sp, 0.5), _pct(sp, 0.75), _pct(by[key][2], 0.5)])
 
 
 ## --trace_at=<t>: our car tick by tick through the window starting at sample t (mirrored back to
@@ -168,9 +183,11 @@ func _trace_tick(t: int) -> void:
 	var w := []
 	for i in 4:
 		w.append(("%d:%.3f" % [b.wheel_surface[i], b.model.susp_len[i]]) if b.wheel_contact[i] else "  .  ")
-	print("TRACE %6d y %7.3f  v %6.1f hv %6.1f vy %+7.2f  fwd %6.1f side %+6.2f  w %+5.2f,%+5.2f,%+5.2f  body %s  %s" % [t,
-		b.xform.origin.y, v.length() * 3.6, Vector2(v.x, v.z).length() * 3.6, v.y, vl.z * 3.6, vl.x, b.ang_vel.x, b.ang_vel.y,
-		b.ang_vel.z, "hit" if b.body_contact else "-", " ".join(w)])
+	var pitch := rad_to_deg(asin(clampf(b.xform.basis.z.y, -1.0, 1.0)))
+	var wb := b.xform.basis.transposed() * b.ang_vel
+	print("TRACE %6d y %7.3f  v %6.1f hv %6.1f vy %+7.2f  pitch %+6.1f  w_body %+6.2f %+6.2f %+6.2f  side %+6.2f  body %s  %s" % [t,
+		b.xform.origin.y, v.length() * 3.6, Vector2(v.x, v.z).length() * 3.6, v.y, pitch, wb.x, wb.y, wb.z, vl.x,
+		"hit" if b.body_contact else "-", " ".join(w)])
 
 
 static func _pct(xs: Array, q: float) -> float:
