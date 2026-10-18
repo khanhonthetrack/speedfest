@@ -208,8 +208,9 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
 - [x] 2. Tyre marks when drifting or braking hard, like TMNF's (`race/tm_tyre_marks.gd`): rubber
       on the road and decks, grooves in dirt, torn turf on grass, smoke/dust puffs; in races and
       replays (replays record which wheels slide); `tests/test_tyre_marks`
-- [ ] 3. Physics off asphalt (grass, dirt, ...) against TMNF's own runs (the campaign replays'
-      ghosts: `tools/research/tmnf/ghost_dump.py`, `race/ghost_fit.tscn`)
+- [x] 3. Physics off asphalt (grass, dirt, ...) against TMNF's own runs (the campaign replays'
+      ghosts: `tools/research/tmnf/ghost_dump.py`, `race/ghost_fit.tscn`): the surface table's
+      columns were misread (grip = 1, drive = 2, brakes = 3); fixed, tmnf_physics.md §3.10
 - [ ] 4. Jump physics against TMNF (air phases, landings)
 - [ ] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
 

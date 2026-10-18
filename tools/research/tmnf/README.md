@@ -108,3 +108,35 @@ collision stays; `stadium/blocks/tm_ref_visuals.gd`), and `race/map_view.tscn` c
 next to ours (`--car=both --car_ahead=40 --view=car:35:6`). TMNF's v coordinate runs up (flipped
 on load). Seen on the first renders: TMNF's own text reads mirrored under our x negation, so the
 remake's world may be a mirror image of TMNF's (to verify before relying on it).
+
+## TMNF's own runs: ghosts as physics measurements (session 13, M10)
+
+Every campaign `*.Replay.gbx` holds four ghosts (author, gold, silver, bronze; ghost 0 is the
+author's). Each is TMNF's own simulation sampled every 100 ms: position, rotation, velocity and
+angular velocity, speed, rpm, steer/gas/brake, turbo, and per wheel the suspension, the surface
+id, sliding and on-the-ground flags; plus the run's inputs (events every 10 ms). Numbers only.
+
+    python3 -I ghost_dump.py X.Replay.gbx [--ghost=0] [--samples]      # header, events, samples
+    python3 -I ghost_dump.py X.Replay.gbx --json=X.json                # samples + 10 ms controls
+    python3 -I ghost_dump.py X.Replay.gbx --inputs=X.txt               # TMInterface-style script
+    python3 -I accel_curve.py <install>/GameData/Tracks/Campaigns/Nations [--brake|--coast] [--bin=10]
+    python3 -I lateral_grip.py <...>/Nations       # sideways acceleration by surface, slide vs grip
+    python3 -I air_check.py <...>/Nations          # gravity, drag and spin decay in the air
+    python3 -I ghost_compare.py X.Replay.gbx trace.jsonl [--step=500]  # a whole run, ours vs TMNF
+
+and in the remake (`stadium/`):
+
+    tools/run.sh res://race/ghost_fit.tscn --headless -- --tmnf=<install> --map=X.Challenge.Gbx \
+        --ghost=X.json [--horizon=500] [--only=2,6] [--every=1] [--cols=0,2,3,1] [--dump]
+    tools/run.sh res://race/race.tscn --headless -- --tmnf=<install> --track=X --inputs=X.txt --trace=trace.jsonl
+
+`ghost_fit` puts our car in the ghost's state at each sample and drives it 0.5 s with the run's own
+inputs, then prints how far apart it ends and the speed difference, grouped by the surface under
+the wheels (medians: a few runs end in a crash where our terrain differs from TMNF's). Format
+notes: the samples are chunk 0x0303F005 (class 0A02B000 version 9, 61 bytes each); the inputs are
+the skippable chunk 0x03092019 (its event names are lookback ids into the file's global table).
+**The remake's world is TMNF's mirror image** (x negated): a TMNF run's inputs drive our car the
+same way with left and right swapped (`ghost_fit` mirrors the states itself; `ghost_dump --inputs`
+writes TMNF's own sides). Results so far: asphalt agrees to centimetres over 0.5 s; the surface
+table's columns were misread and are fixed (`docs/research/tmnf_physics.md` §3.10); in the air
+TMNF's gravity (25), drag (0.03 v) and angular drag match ours.

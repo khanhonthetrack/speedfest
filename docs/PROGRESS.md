@@ -2050,3 +2050,26 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   oldest, clear; on SF01 the bot lays none pulling away, some by the finish, none after a
   restart. Checked in renders: a hard brake into a turn leaves two curving black streaks.
   Also `race.tscn --trace=<file>`: the car's state every 100 ms as JSON lines (for M10-3).
+- **M10-3 the physics off asphalt** (owner: "Revisit the physics on grass or dirt or anything else
+  than asphalt, it feels a bit different than TMNF"): measured against TMNF's own runs. Every
+  campaign replay holds four ghosts, TMNF's simulation sampled every 100 ms with each wheel's
+  surface and sliding flag, and the run's inputs: `tools/research/tmnf/ghost_dump.py` reads them
+  (record chunk 0x0303F005, inputs 0x03092019), `accel_curve.py` / `lateral_grip.py` /
+  `air_check.py` measure TMNF's accelerations by surface and speed, and `stadium/race/ghost_fit.tscn`
+  puts our car in a ghost's state and drives it 0.5 s with the run's own inputs (README of the
+  toolkit, "TMNF's own runs"). Found on the way: **our world is TMNF's mirror image** (x negated):
+  A01's author run drives our car along TMNF's line only with left and right swapped (0.5 m apart
+  after 2 s). On asphalt the model agrees to centimetres (0.16 m, 0.2 km/h median after 0.5 s).
+  **Grass and dirt were wrong: the surface table's columns were misread.** TMNF accelerates on
+  grass at exactly 0.4x asphalt's curve at every step and brakes at 30 x 0.05, on dirt 0.9x and
+  0.4x: column 2 is the drive, column 3 the brakes; started from ghost states, our car follows
+  TMNF best with column 1 as the grip (grass 1.08 -> 0.24 m apart, 3.4 -> 0.7 km/h; dirt 1.47 ->
+  0.44 m, 12.7 -> 1.9 km/h; the other readings tried are in `docs/research/tmnf_physics.md`
+  §3.10). So on grass the car now keeps 40% of its drive (was 15%) and 15% of its grip (was 5%)
+  and barely brakes (5%, was 40%); dirt drives at 90% (was 25%) with 25% grip (was 40%) and 40%
+  brakes (was 90%). `TmTuning.SURFACES` keeps the file's order, read through `S_TOP`, `S_GRIP`,
+  `S_ACCEL`, `S_BRAKE`. `test_model_lab`: grass 0-100 in 4.35 s, dirt 1.93 s, braking on grass at
+  220 km/h 20.8 m/s^2 (TMNF 20.7), ice drives slowly. Also: a ghost records the car's model
+  origin, not its centre of mass (the recorded positions move like a point 0.29-0.40 m behind
+  the recorded velocities' in turns; StadiumCar.Solid puts the centre of mass 0.4385 above and
+  0.288 ahead of the origin): with that offset the asphalt fit tightens to 0.10 m.

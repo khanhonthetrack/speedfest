@@ -149,9 +149,27 @@ yellow pad adds 35 m/s² (7 × 5).
   wall with the wheels at 200 km/h costs ~80 km/h. This is the "wall kills your run" feel.
 
 ### 3.10 Surfaces (StadiumVehicleMaterials)
-Four factors per surface, averaged over the wheels on the ground: top-speed cap, accel, brake, grip.
+Four factors per surface, averaged over the wheels on the ground. The file stores them in the
+column order below; which force each scales was **measured from TMNF's own runs** (M10-3, session
+13; until then the columns were read as top speed, accel, brake, grip, which made grass and dirt
+wrong): on grass TMNF accelerates at exactly 0.4x asphalt's curve at every step (6.33 / 4.36 /
+2.83 m/s^2 against 16 / 11 / 7) and brakes at 30 x 0.05 (20.7 m/s^2 at 200-240 km/h = 1.5 + the
+coasting drag), on dirt 0.9x and 0.4x (`tools/research/tmnf/accel_curve.py`, `--brake`); and our
+car started from a ghost's state and driven 0.5 s with the run's own inputs
+(`stadium/race/ghost_fit.tscn`) follows TMNF best with column 1 as the side grip:
 
-| Surface | Top speed | Accel | Brake | Grip |
+| reading (columns as top, accel, brake, grip) | grass B12 | grass D05 | dirt D15 | dirt E03 |
+|---|---|---|---|---|
+| 0,1,2,3 (the old one) | 1.08 m, 3.4 km/h | 0.96 m, 5.0 | 1.47 m, 12.7 | 0.93 m, 10.0 |
+| **0,2,3,1 (measured)** | **0.24 m, 0.7** | **0.25 m, 1.7** | **0.44 m, 1.9** | **0.29 m, 1.7** |
+| 0,2,3,0 | 2.74 m, 2.2 | 1.11 m, 8.0 | 3.10 m, 3.5 | 0.69 m, 2.7 |
+| 0,2,3,3 | 1.00 m, 1.4 | 0.92 m, 2.4 | 1.17 m, 2.5 | 0.62 m, 1.6 |
+| 1,2,3,1 | 1.76 m, 24.5 | 0.25 m, 1.7 | | |
+
+(median distance apart and |speed difference| after 0.5 s, all four wheels on that surface;
+asphalt for comparison: 0.16 m, 0.2 km/h.)
+
+| Surface | col 0: top speed | col 1: grip | col 2: accel | col 3: brake |
 |---|---|---|---|---|
 | Asphalt, Concrete, Metal, Wood | 1.0 | 1.0 | 1.0 | 1.0 |
 | Dirt | 0.9 | 0.25 | 0.9 | 0.4 |
@@ -163,6 +181,11 @@ Four factors per surface, averaged over the wheels on the ground: top-speed cap,
 | WetDirtRoad | 0.9 | 1.0 | 1.0 | 1.0 |
 | Snow | 0.2 | 0.1 | 0.6 | 0.1 |
 | Ice | 1.0 | 0 | 0.1 | 0 |
+
+So on grass the car keeps 40% of its drive and 15% of its grip but its brakes barely work; dirt
+drives almost like asphalt with a quarter of the grip and 40% of the brakes. Column 0 only caps
+the top speed (500 km/h on grass, above any grass run in the campaign replays: up to ~260 km/h). In the code: `TmTuning.SURFACES` (the
+file's order) and `S_TOP`, `S_GRIP`, `S_ACCEL`, `S_BRAKE`.
 
 ## 4. Behaviour numbers (from `tmnf_model.py`, flat asphalt)
 
@@ -265,7 +288,8 @@ TMNF; these points don't:
 7. **Air**: no air steering at all (we have some), angular drag 0.4|ω| + 0.2|ω|².
 8. **Turbo**: multiplies the accel curve (×5 yellow for 250 ms, ×20 red for 100 ms, while on the pad
    plus that long).
-9. **Surfaces**: grass ×0.15 accel / ×0.05 grip, dirt ×0.25 / ×0.4 (ours are milder).
+9. **Surfaces**: grass ×0.4 accel / ×0.15 grip / ×0.05 brakes, dirt ×0.9 / ×0.25 / ×0.4 (§3.10,
+   measured in M10-3; this list first read them as grass ×0.15 accel / ×0.05 grip).
 
 Suggested next step: a `TM_FAITHFUL` handling mode in `car.gd` that follows §3 (mass-1 accelerations,
 the curves above, 100 Hz), with `tests/physics/test_tm` targets regenerated from `tmnf_model.py`; then

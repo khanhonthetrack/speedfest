@@ -5,17 +5,20 @@
   until the owner says so). Plan: PLAN.md M10 (steps 1-5, the owner's order); owner's words in
   TRANSCRIPT (session 13, after M9). STADIUM_TESTS PASS at every commit.
 - Done: M10-1 dark circuit screens and the wall foot (blue kerb, logo bumper, blue trim);
-  M10-2 tyre marks (`race/tm_tyre_marks.gd`, in races and replays; `tests/test_tyre_marks`).
-- Now: M10-3, the physics off asphalt against TMNF's own runs. Tools: `ghost_dump.py` (a
+  M10-2 tyre marks (`race/tm_tyre_marks.gd`, in races and replays; `tests/test_tyre_marks`);
+  M10-3 the surfaces off asphalt (below).
+- M10-3, the physics off asphalt against TMNF's own runs. Tools: `ghost_dump.py` (a
   Replay.Gbx's ghosts: samples every 100 ms with each wheel's surface and sliding flag, and the
   run's inputs; `--json=` for the harness, `--inputs=` a TMInterface-style script),
   `race/ghost_fit.tscn` (puts our car in a ghost's state, drives it 0.5 s with the run's own
   inputs, prints how far apart it ends by surface), `accel_curve.py`, `lateral_grip.py`,
   `ghost_compare.py` (a whole run: `race.tscn --inputs=... --trace=...` against the ghost).
   Our world is TMNF's mirror image (x negated): feed a TMNF run's inputs with left and right
-  swapped. Asphalt agrees to centimetres over 0.5 s; grass and dirt don't with the surface
-  table's columns read as (top speed, accel, brake, grip); the runs say (top speed?, accel =
-  column 2, brake = column 3, grip = column 1) fits far better (PROGRESS, M10-3).
+  swapped. Asphalt agrees to centimetres over 0.5 s. **Fixed**: the surface table's columns
+  were misread; TMNF's runs say column 1 is the grip, 2 the drive, 3 the brakes (grass and dirt
+  now follow TMNF to ~0.3 m over 0.5 s; `docs/research/tmnf_physics.md` §3.10, PROGRESS M10-3).
+  A ghost's position is the car's model origin: the centre of mass is 0.4385 above and 0.288
+  ahead of it (`ghost_fit.gd` OFFSET).
 - Then M10-4 jumps (the fit's "air" groups; A01's drop at 8-11 s), M10-5 look/UI/menus/sound
   side by side with TMNF (screenshots of TMNF itself if it runs under Wine locally; never commit
   its data).
