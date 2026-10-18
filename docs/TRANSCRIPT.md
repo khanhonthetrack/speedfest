@@ -741,3 +741,24 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - Continuing M9 in order: M9-2, the look of what the campaign now shows most (platform decks and
   walls, circuit borders, dirt), compared side by side with TMNF's own look in local reference
   renders (`--ref`, outside the repo).
+
+### Claude
+
+- M9-2 finished (decks, walls, circuit borders, dirt roads, control booths, grandstand trusses and
+  boards, raised grandstands, Ultra's roofs) and M9-0's notes written: M9 complete. Asked whether
+  the circuit walls' lane-side screens should be dark like TMNF's.
+
+### User (verbatim)
+
+> 1. Keep them dark.
+> 2. When you drift or brake hard, i want to see scratchmarks like in TMNF
+> 3. Revisit the physics on grass or dirt or anything else than asphalt, it feels a bit different than TMNF.
+> 4. Revisit jump physics whether it's the same as in TMNF.
+> 5. continue with the look, UI, menus, and sound to be identical to TMNF - right now it looks lame. Do screenshots to compare side by side.
+
+### Claude
+
+- Plan (M10, in the owner's order, one at a time, pushed after each): dark circuit screens; tyre
+  marks when drifting or braking hard; the physics off asphalt against TMNF's model and replays;
+  jumps; then the look, UI, menus and sound side by side with screenshots of TMNF itself (run
+  locally under Wine where possible; nothing of it committed).
