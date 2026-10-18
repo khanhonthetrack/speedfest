@@ -9,18 +9,21 @@ extends RefCounted
 const NO_COLLISION := -1
 const UV_TILE := 8.0               ## sweeps hold a whole number of these along their length (m)
 const SMOOTH_DEG := 35.0            ## sweeps: sections bending less than this at a point shade round
-## Screens (the adverts: env/tm_adverts.gd, blocks/tm_surface.gdshader pattern 8): their UVs lay
-## the ads out on each screen. u counts ad slots along it (whole numbers between slots, from
-## 1 + `first`), v runs 0..1 across its height; the shader turns them to read upright from the
-## front whichever way they run (and on mirrored pieces). Boards hold a row of 2:1 slots, as many
-## as fit; billboards one ad over the whole screen. A screen face built without them (caps, edges,
-## rims lower than SCREEN_MIN_H, strips narrower than SCREEN_MIN_W) is an unlit panel.
+## Screens (the adverts: env/tm_adverts.gd, blocks/tm_surface.gdshader pattern 8) show one ad at
+## a time, its size fitted to the screen: at full height and centred on a board longer than it
+## (the ad's background carried out to the board's ends), at full width on a screen taller than
+## it. Their UVs say where it sits: u = SCREEN_SLOT * (1 + first) + the ad's x (0..1 across it),
+## v = the ad's y (0..1 down it); the shader turns them to read upright from the front whichever
+## way they run (and on mirrored pieces). A screen face built without them (caps, edges, rims
+## lower than SCREEN_MIN_H, strips narrower than SCREEN_MIN_W) is an unlit panel.
 const SCREENS := ["screen", "led", "screen_on"]
-const BILLBOARDS := ["screen_on"]
-const SCREEN_OFF := Vector2(0.0, -4.0)
+const BILLBOARDS := ["screen_on"]   ## each changes on its own (the boards all together)
+const SCREEN_OFF := Vector2(0.0, -1000.0)
+const SCREEN_SLOT := 256.0
 const SCREEN_MIN_H := 1.2
-const SCREEN_MIN_W := 2.5          ## and narrower than this (a board's end, a chamfered corner)
-const SCREEN_MIN_ASPECT := 1.4      ## a slot narrower than this (w:h) shows its ad letterboxed
+const SCREEN_MIN_W := 2.5
+const AD_ASPECT := 2.0              ## the ads' width : height (env/tm_adverts.gd PANEL)
+const AD_STRETCH := 1.25            ## an ad stretches this much at most to fill its screen
 
 class Group:
 	var v := PackedVector3Array()
@@ -83,22 +86,18 @@ func quad_uv(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surfac
 	tri(a, c, d, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
 
 
-## How many ads a screen w wide and h high shows side by side: billboards one, boards as many 2:1
-## slots as fit (at least one).
-static func screen_slots(mat: String, w: float, h: float) -> int:
-	if mat in BILLBOARDS:
-		return 1
-	return maxi(1, roundi(w / (2.0 * h)))
-
-
 ## A screen's UV `along` metres (0..w) along it and `down` metres (0..h) from one long edge (see
-## SCREENS); slots narrower than SCREEN_MIN_ASPECT show their ad at full width, centred.
-static func screen_uv(mat: String, along: float, w: float, down: float, h: float, first := 0) -> Vector2:
+## SCREENS); `first` tells screens apart (a billboard's ads, the moment it changes).
+static func screen_uv(along: float, w: float, down: float, h: float, first := 0) -> Vector2:
 	if h < SCREEN_MIN_H or w < SCREEN_MIN_W:
 		return SCREEN_OFF
-	var n := screen_slots(mat, w, h)
-	var ad_h := minf(h, w / n / SCREEN_MIN_ASPECT)
-	return Vector2(1.0 + first + n * along / w, 0.5 + (down - 0.5 * h) / ad_h)
+	var ad_w := w
+	var ad_h := h
+	if w > h * AD_ASPECT * AD_STRETCH:
+		ad_w = h * AD_ASPECT
+	elif w < h * AD_ASPECT / AD_STRETCH:
+		ad_h = w / AD_ASPECT
+	return Vector2(SCREEN_SLOT * (1 + first) + 0.5 + (along - 0.5 * w) / ad_w, 0.5 + (down - 0.5 * h) / ad_h)
 
 
 ## A flat screen: bottom edge a -> b, top edge d -> c, its front (b - a) x (c - a) (turned round to
@@ -113,8 +112,8 @@ func screen_rect(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, su
 		d = t[3]
 	var w := (b - a).length()
 	var h := (d - a).length()
-	quad_uv(a, b, c, d, mat, surface, screen_uv(mat, 0.0, w, h, h, first), screen_uv(mat, w, w, h, h, first),
-		screen_uv(mat, w, w, 0.0, h, first), screen_uv(mat, 0.0, w, 0.0, h, first))
+	quad_uv(a, b, c, d, mat, surface, screen_uv(0.0, w, h, h, first), screen_uv(w, w, h, h, first),
+		screen_uv(w, w, 0.0, h, first), screen_uv(0.0, w, 0.0, h, first))
 
 
 ## World-aligned UVs in metres / 8 (texture tiles every 8 m), projected on the dominant axis.
@@ -150,7 +149,7 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 
 
 ## A board or billboard [lo, hi] (TMNF coords): its two wide vertical faces are the screen (mat,
-## the ads laid out on each: SCREENS; slots from `first`), the rest its frame (frame_mat; bevel:
+## its ad laid out on each: SCREENS), the rest its frame (frame_mat; bevel:
 ## chamfered as box() does).
 func screen_box(lo: Vector3, hi: Vector3, mat: String, surface: int, bevel := 0.0, first := 0,
 		frame_mat := "structure") -> void:
@@ -359,10 +358,10 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 				var wa := maxf(float(us[nf - 1][k]), 1e-6)
 				var wb := maxf(float(us[nf - 1][k + 1]), 1e-6)
 				var w := 0.5 * (wa + wb)
-				ua = screen_uv(mat, w * float(us[f][k]) / wa, w, 0.0, h)
-				ub = screen_uv(mat, w * float(us[f][k + 1]) / wb, w, h, h)
-				uc = screen_uv(mat, w * float(us[f + 1][k + 1]) / wb, w, h, h)
-				ud = screen_uv(mat, w * float(us[f + 1][k]) / wa, w, 0.0, h)
+				ua = screen_uv(w * float(us[f][k]) / wa, w, 0.0, h, k)
+				ub = screen_uv(w * float(us[f][k + 1]) / wb, w, h, h, k)
+				uc = screen_uv(w * float(us[f + 1][k + 1]) / wb, w, h, h, k)
+				ud = screen_uv(w * float(us[f + 1][k]) / wa, w, 0.0, h, k)
 			if ua == Vector2.ZERO and ub == Vector2.ZERO:
 				ua.x = 1e-6       # (all-zero UVs mean "make them up" to tri())
 			tri(a, b, c, mat, surf, na, nb, nc, ua, ub, uc)

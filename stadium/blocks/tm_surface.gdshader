@@ -22,18 +22,19 @@ uniform float bump = 0.02;          // relief strength
 uniform sampler2D noise_fine : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D noise_coarse : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D advert_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D advert_fill : source_color, filter_linear, repeat_disable;
 uniform bool has_advert = false;
-uniform bool billboard = false;     // one ad per screen, changing on its own (else a board)
-// The ads (env/tm_adverts.gd) as on a football stadium's boards: each screen's UVs lay them out
-// (TmGeo.SCREENS: u = slots along it, v = 0..1 across it). A board shows a set of AD_SET ads in
-// turn along it, every board the same set, all changing to the next set together every
-// BOARD_SECS; a billboard shows one ad, which changes every BILLBOARD_SECS (each billboard at its
-// own moment). The new ads roll up into view over ROLL_SECS, slot after slot.
+uniform bool billboard = false;     // changes on its own (else a board: all of them together)
+// The ads (env/tm_adverts.gd): one at a time on each screen, fitted to it by its UVs (TmGeo.SCREENS:
+// u = AD_SLOT * screen + the ad's x, v = the ad's y; beyond 0..1 the board carries the ad's
+// background, advert_fill). Every board shows the same ad, and they all change to the next
+// together every BOARD_SECS; a billboard changes every BILLBOARD_SECS, each at its own moment and
+// on its own ad. A change spreads over the LED cells in CHANGE_SECS.
 const float AD_PANELS = 16.0;       // ads side by side in advert_tex
-const float AD_SET = 3.0;
+const float AD_SLOT = 256.0;        // TmGeo.SCREEN_SLOT
 const float BOARD_SECS = 8.0;
 const float BILLBOARD_SECS = 12.0;
-const float ROLL_SECS = 0.5;
+const float CHANGE_SECS = 0.6;
 
 varying vec3 wpos;
 varying vec3 wnrm;
@@ -76,12 +77,12 @@ float seams(vec2 uv, vec2 size, float width) {
 	return max(s.x, s.y) * fade;
 }
 
-// The ads on a screen at its UV (see the uniforms): the colour, or a negative red where the
-// screen shows no ad (an unlit face, a letterboxed ad's margins). n: the face's normal.
-vec3 advert(vec2 suv, vec3 n) {
-	float s = abs(suv.x);           // (mirrored pieces negate u)
-	float v = suv.y;
-	// which way u and v run as a viewer in front sees them: the slots read left to right, upright
+// The ad on a screen at its UV (see the uniforms): the colour, or a negative red where the screen
+// shows none (an unlit face). n: the face's normal; cell: its LED cell (where a change has got to).
+vec3 advert(vec2 suv, vec3 n, vec2 cell) {
+	float x = abs(suv.x);           // (mirrored pieces negate u)
+	float y = suv.y;
+	// which way u and v run as a viewer in front sees them: the ad reads left to right, upright
 	vec3 right = normalize(cross(-n, vec3(0.0, 1.0, 0.0)));
 	vec3 up = cross(right, -n);
 	vec3 px = dFdx(wpos);
@@ -90,49 +91,41 @@ vec3 advert(vec2 suv, vec3 n) {
 	float ry = dot(py, right);
 	float ux = dot(px, up);
 	float uy = dot(py, up);
-	float sx = dFdx(s);
-	float sy = dFdy(s);
-	float vx = dFdx(v);
-	float vy = dFdy(v);
+	float sx = dFdx(x);
+	float sy = dFdy(x);
+	float vx = dFdx(y);
+	float vy = dFdy(y);
 	float dm = rx * uy - ry * ux;
 	bool upside = (vy * rx - vx * ry) * dm > 0.0;          // v grows upward
 	bool mirrored = (sx * vy - sy * vx) * dm > 0.0;       // u and v read as a mirror image
-	float k = floor(s);
-	float lu = fract(s);
+	float screen = floor(x / AD_SLOT);
+	float lu = x - screen * AD_SLOT;
 	if (mirrored != upside) {
 		lu = 1.0 - lu;
 	}
 	if (upside) {
-		v = 1.0 - v;
+		y = 1.0 - y;
 	}
-	if (v < 0.0 || v > 1.0) {
-		return vec3(-1.0);
-	}
-	// which ads: this period's and the one before (rolling out)
+	// which ad: this period's, or the one before where the change hasn't reached this cell yet
 	float period = billboard ? BILLBOARD_SECS : BOARD_SECS;
-	// (from 1 s on: no change rolls in as the game starts)
-	float t = TIME + 1.0 + (billboard ? fract(seed * 7.31 + k * 0.618) * BILLBOARD_SECS : 0.0);
+	float t = TIME + 1.0 + (billboard ? fract(seed * 7.31 + screen * 0.618) * BILLBOARD_SECS : 0.0);
 	float slot = floor(t / period);
-	float since = t - slot * period - mod(k, 6.0) * 0.08;
-	float roll = smoothstep(0.0, ROLL_SECS, since);
-	float first = floor(seed * AD_PANELS);
-	float now_ad;
-	float was_ad;
-	if (billboard) {
-		now_ad = mod(slot * 5.0 + first + k * 3.0, AD_PANELS);
-		was_ad = mod((slot - 1.0) * 5.0 + first + k * 3.0, AD_PANELS);
-	} else {
-		float pick = mod(k + first, AD_SET);
-		now_ad = mod(slot * AD_SET + pick, AD_PANELS);
-		was_ad = mod((slot - 1.0) * AD_SET + pick, AD_PANELS);
+	float since = t - slot * period;
+	float h = fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453);
+	if (since < h * CHANGE_SECS) {
+		slot -= 1.0;
 	}
-	float rv = v + roll;            // the old ad moves up and out, the new one follows it
-	float ad = rv < 1.0 ? was_ad : now_ad;
-	rv = rv < 1.0 ? rv : rv - 1.0;
-	vec2 at = vec2((ad + clamp(lu, 0.002, 0.998)) / AD_PANELS, rv);
+	float ad = billboard ? mod(slot * 5.0 + floor(seed * AD_PANELS) + screen * 3.0, AD_PANELS) : mod(slot, AD_PANELS);
+	float fy = clamp(y, 0.0, 1.0);
+	vec3 fill = texture(advert_fill, vec2((ad + 0.5) / AD_PANELS, fy)).rgb;
+	if (lu < 0.0 || lu > 1.0 || y < 0.0 || y > 1.0) {
+		return fill;
+	}
+	vec2 at = vec2((ad + clamp(lu, 0.002, 0.998)) / AD_PANELS, fy);
 	vec3 c = textureGrad(advert_tex, at, vec2(sx / AD_PANELS, vx), vec2(sy / AD_PANELS, vy)).rgb;
-	// a dark line between the two while they roll
-	return c * (roll > 0.0 && roll < 1.0 ? smoothstep(0.0, 0.03, abs(v - (1.0 - roll))) : 1.0);
+	// the ad's edges fade into the fill (no seam where its mips meet the next ad's)
+	float edge = min(smoothstep(0.0, 0.03, min(lu, 1.0 - lu)), smoothstep(0.0, 0.015, min(y, 1.0 - y)));
+	return mix(fill, c, edge);
 }
 
 // 1 on stripes of period `period` (fraction `duty` on), antialiased
@@ -222,7 +215,7 @@ void fragment() {
 	} else if (pattern == 8) {     // LED boards and screens: the adverts on a pixel grid
 		float px = 1.0 - mix(seams(uv, vec2(0.12), 0.012), 0.08, aa) * 0.6;
 		if (has_advert) {
-			vec3 ad = UV.y < -2.0 || abs(n.y) > 0.95 ? vec3(-1.0) : advert(UV, n);
+			vec3 ad = UV.y < -500.0 || abs(n.y) > 0.95 ? vec3(-1.0) : advert(UV, n, floor(uv / 0.12));
 			emit = ad.r < 0.0 ? albedo2 * px * 0.35 : ad * px * 1.6;
 		} else {
 			float band = 0.55 + 0.45 * sin(uv.x * 0.25 - TIME * 2.0 + sin(uv.y * 0.6 + TIME) * 0.8);

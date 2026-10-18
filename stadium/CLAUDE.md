@@ -164,7 +164,8 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
   mesh's bounds against the block's footprint first.
 - Faces are authored in TMNF block-local coordinates (x right, y up, z forward); Godot = x negated.
 - Godot re-enables `_physics_process` when a node enters the tree: switch it off after `add_child`.
-- Screens ("screen", "led"; billboards "screen_on") need an ad layout in their UVs (`TmGeo.SCREENS`):
+- Screens ("screen", "led"; billboards "screen_on") show one fitted ad each and need its layout in
+  their UVs (`TmGeo.SCREENS`):
   build them with `screen_box` / `screen_rect` (or a sweep / `extrude_y`, which lay them out
   themselves); a screen face made with plain `quad`/`tri` shows an unlit panel, and
   `tests/test_blocks` fails when a shape's screens show no ad at all.

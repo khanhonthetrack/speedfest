@@ -37,6 +37,7 @@ const LENS_SECTION := [[0.0, -24.0, "facade"], [0.0, 20.1, "concrete"], [2.8, 21
 ## its bottom on the ramp, its rows on the ads' 4 m grid: 32-40 m above the map's base) and the
 ## seats show above it.
 const LED := [14.0, 23.0, 31.0, 593.0]
+const LED_BOARD := 44.0             ## the LED ribbon's boards, at least this long (m)
 const FIN := [[66.0, 45.9], [87.3, 60.8]]  ## the glass screen behind the rake's top (d, y)
 
 ## The roof band (z from -528.8 at the field to -785.0), every 100 m in x: [x, top and underside at
@@ -189,10 +190,8 @@ static func _grandstand(geo: TmGeo, sz: float) -> void:
 		for i in path.size():
 			dmax.append(absf((mid - (path[i] as Vector2).y) / (m[i] as Vector2).y))
 		_sweep(geo, path, m, LENS_SECTION, dmax)
-		# the glass screen behind the rake's top, and (inner half) the LED boards: one board along
-		# the stand, its ads laid out by the metres run along it (TmGeo.SCREENS)
-		var led_h: float = LED[2] - LED[1]
-		var run := 0.0
+		# the glass screen behind the rake's top, and (inner half) the LED boards
+		var led := []
 		for i in path.size() - 1:
 			var p0: Vector2 = path[i]
 			var p1: Vector2 = path[i + 1]
@@ -207,15 +206,38 @@ static func _grandstand(geo: TmGeo, sz: float) -> void:
 			if half == 0 and absf(p0.x) < LED[3] and absf(p1.x) < LED[3]:
 				var e := Vector3(p0.x + m0.x * LED[0], LED[1], p0.y + m0.y * LED[0])
 				var f := Vector3(p1.x + m1.x * LED[0], LED[1], p1.y + m1.y * LED[0])
-				var up := Vector3(0, led_h, 0)
-				var u0 := 1.0 + run / (2.0 * led_h)
-				run += (f - e).length()
-				var u1 := 1.0 + run / (2.0 * led_h)
-				if (f - e).cross(f + up - e).dot(Vector3(-m0.x, 0.0, -m0.y)) >= 0.0:
-					geo.quad_uv(e, f, f + up, e + up, "led", TmGeo.NO_COLLISION, Vector2(u0, 1), Vector2(u1, 1), Vector2(u1, 0), Vector2(u0, 0))
-				else:
-					geo.quad_uv(f, e, e + up, f + up, "led", TmGeo.NO_COLLISION, Vector2(u1, 1), Vector2(u0, 1), Vector2(u0, 0), Vector2(u1, 0))
-				_quad(geo, e, f, f + up, e + up, "structure", Vector3(m0.x, 0.0, m0.y))
+				led.append([e, f, Vector3(-m0.x, 0.0, -m0.y)])
+				_quad(geo, e, f, f + Vector3(0, LED[2] - LED[1], 0), e + Vector3(0, LED[2] - LED[1], 0), "structure", Vector3(m0.x, 0.0, m0.y))
+		_led_boards(geo, led)
+
+
+## The LED ribbon along a stand (its segments [bottom start, bottom end, facing]) as boards of about
+## LED_BOARD metres, each showing the ad centred (TmGeo.SCREENS).
+static func _led_boards(geo: TmGeo, segs: Array) -> void:
+	var h: float = LED[2] - LED[1]
+	var up := Vector3(0, h, 0)
+	var k := 0
+	var board := 0
+	while k < segs.size():
+		var k1 := k
+		var w := 0.0
+		while k1 < segs.size() and (w < LED_BOARD or segs.size() - k1 < 2):
+			w += ((segs[k1][1] as Vector3) - (segs[k1][0] as Vector3)).length()
+			k1 += 1
+		var along := 0.0
+		for j in range(k, k1):
+			var e: Vector3 = segs[j][0]
+			var f: Vector3 = segs[j][1]
+			var a0 := along
+			along += (f - e).length()
+			var ue := [TmGeo.screen_uv(a0, w, h, h, board), TmGeo.screen_uv(a0, w, 0.0, h, board)]
+			var uf := [TmGeo.screen_uv(along, w, h, h, board), TmGeo.screen_uv(along, w, 0.0, h, board)]
+			if (f - e).cross(f + up - e).dot(segs[j][2]) >= 0.0:
+				geo.quad_uv(e, f, f + up, e + up, "led", TmGeo.NO_COLLISION, ue[0], uf[0], uf[1], ue[1])
+			else:
+				geo.quad_uv(f, e, e + up, f + up, "led", TmGeo.NO_COLLISION, uf[0], ue[0], ue[1], uf[1])
+		k = k1
+		board += 1
 
 
 ## The roof's section at x: [z, y] around the band (top from the field edge back, underside back).

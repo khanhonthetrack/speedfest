@@ -316,6 +316,7 @@ static func _surface(key: String, spec: Array) -> ShaderMaterial:
 		var ads: Node = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("Adverts")
 		if ads:
 			m.set_shader_parameter("advert_tex", ads.call("texture"))
+			m.set_shader_parameter("advert_fill", ads.call("fill_texture"))
 			m.set_shader_parameter("has_advert", true)
 			m.set_shader_parameter("billboard", key in TmGeo.BILLBOARDS)
 	return m

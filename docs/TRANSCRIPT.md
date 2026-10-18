@@ -709,3 +709,14 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   its own height (one row, never stacked): long LED boards show a few ads, the same set along the
   board as round a football pitch, and change to the next set together every few seconds; a
   billboard shows one ad, which changes from time to time.
+
+### User (verbatim, session 14, after the rotating adverts)
+
+> To be fair, i dont like banners with multiple (3-5) banners as in your example. Just show 1 (by nicely adjusting sizes) and let them rotate
+
+### Claude
+
+- Every board now shows one ad, scaled to fit its height and centred, the rest of the board filled
+  with the ad's own edge colours so it reads as one wide banner; all boards change together on
+  rotation. Only the stands' LED ribbon (over a kilometre long) is split, into long panels with
+  the same ad on each.

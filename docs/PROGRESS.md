@@ -1825,3 +1825,15 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   Narrow tall screens (the Platform pub wall, the sound system's speakers) show their ad centred.
   `tests/test_blocks`: the layout (slots, letterbox, unlit strips, a screen box's two rows) and
   every one of the 85 shapes with screens shows ads.
+- **One ad per board, fitted, rotating** (owner: "i dont like banners with multiple (3-5) banners as
+  in your example. Just show 1 (by nicely adjusting sizes) and let them rotate"). Every screen now
+  shows a single ad: at full height and centred on a board longer than it, with the ad's own
+  background carried out to the board's ends (`assets/tex/adverts_fill.png`, made by
+  `tools/texgen/adverts.py`: each ad's background per row, its full-width bands kept, so TYMBARG's
+  strip and GRZEŚKO's stripes run on); stretched up to 25% to fill a screen of about its shape;
+  at full width with its background above and below on a tall screen. Its edges fade into the
+  fill. Boards all show the same ad and change to the next together every 8 s (the change spreads
+  over the LED cells in 0.6 s); billboards change every 12 s, each at its own moment and on its own
+  ad. The stands' LED ribbon (over a kilometre a side) is split into boards of about 44 m
+  (`TmStadiumBuild.LED_BOARD`), each with the ad centred. UVs: `TmGeo.screen_uv` (u =
+  `SCREEN_SLOT` x screen + the ad's x, v = the ad's y); the AD_SET sets and the roll are gone.

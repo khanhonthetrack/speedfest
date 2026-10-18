@@ -25,12 +25,12 @@
   harness (`race.tscn --inputs=<TMInterface-style script>`, README "Check the physics against
   TrackMania"); 24 real national flags waving on the masts (Poland in each corner); the adverts
   as 16 Polish brands under parody names (`tools/texgen/brands.py`), ORLAN on the car.
-- After v0.4 (owner: "Change the ads ... like in football stadiums, be a few of them, and changin
-  on rotation. Similar with billboard. Just one but changing from time to time."): every screen
-  lays out its own ads (one row fitted to its height, never stacked); boards show a set of three
-  along them, all boards changing to the next set together every 8 s; billboards (big screens,
-  inflatable advert walls) one ad, changing every 12 s each at its own moment (PROGRESS; how a new
-  screen gets its layout: `TmGeo.SCREENS`). Not yet merged into `stadium`.
+- After v0.4, the adverts (owner: "like in football stadiums ... changin on rotation", then "Just
+  show 1 (by nicely adjusting sizes) and let them rotate"): every screen shows one ad, fitted to
+  its size (centred on a long board with the ad's background carried to its ends; never stacked
+  or side by side); all boards change to the next ad together every 8 s, billboards (big screens,
+  inflatable advert walls) every 12 s each at its own moment (PROGRESS; a new screen gets its
+  layout from `TmGeo.SCREENS`). Not yet merged into `stadium`.
 - Open: run the input harness against TMNF with a player's install and runs (physics times and the
   world's handedness); SDFGI on Ultra needs tuning on a real GPU; M9's own next steps (M9-7
   online, M9-8 the A-E campaign) are unchanged.

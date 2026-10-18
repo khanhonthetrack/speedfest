@@ -81,17 +81,22 @@ func _check_shape(node: Node3D, size: Vector3i, zone := false, extra := 0.0) -> 
 	return ""
 
 
-## The screens' layout (TmGeo.SCREENS): slots per board and billboard, letterboxing, the unlit
-## strips, and a screen box's two faces each holding a row of slots from 1 to 1 + n.
+## The screens' layout (TmGeo.SCREENS): one ad on each, at full height and centred on a long
+## board, filling a screen of about its shape, at full width on a tall one; the unlit strips; a
+## screen box's two faces.
 func _check_screen_layout() -> void:
-	TestHooks.check(TmGeo.screen_slots("screen", 25.9, 6.66) == 2 and TmGeo.screen_slots("screen", 6.0, 2.5) == 1
-		and TmGeo.screen_slots("led", 1000.0, 8.0) == 63 and TmGeo.screen_slots("screen_on", 45.3, 23.3) == 1,
-		"screen_slots", "boards hold 2:1 slots, billboards one")
-	var tall := TmGeo.screen_uv("screen", 0.0, 4.0, 0.0, 4.18)     # a 4 x 4.18 screen: letterboxed
-	var strip := TmGeo.screen_uv("screen", 0.0, 0.4, 0.0, 2.5)      # a board's end
-	var low := TmGeo.screen_uv("screen", 0.0, 30.0, 0.0, 0.5)       # a rim
-	TestHooks.check(tall.y < 0.0 and strip == TmGeo.SCREEN_OFF and low == TmGeo.SCREEN_OFF, "screen_uv_fit",
-		"%s %s %s" % [tall, strip, low])
+	var slot := TmGeo.SCREEN_SLOT
+	var board := [TmGeo.screen_uv(0.0, 32.0, 0.0, 3.0), TmGeo.screen_uv(32.0, 32.0, 3.0, 3.0)]   # 6 m ad on 32 m
+	var bill := [TmGeo.screen_uv(0.0, 45.3, 0.0, 23.3), TmGeo.screen_uv(45.3, 45.3, 23.3, 23.3)]
+	var tall := TmGeo.screen_uv(0.0, 4.0, 0.0, 4.18)     # a 4 x 4.18 screen: the ad 2 m high
+	TestHooks.check(is_equal_approx((board[0] as Vector2).x, slot + 0.5 - 16.0 / 6.0)
+		and is_equal_approx((board[1] as Vector2).x, slot + 0.5 + 16.0 / 6.0)
+		and is_equal_approx((board[1] as Vector2).y, 1.0) and is_equal_approx((bill[0] as Vector2).x, slot)
+		and is_equal_approx((bill[1] as Vector2).x, slot + 1.0) and is_equal_approx(tall.y, 0.5 - 2.09 / 2.0),
+		"screen_uv_fit", "board %s, billboard %s, tall %s" % [board, bill, tall])
+	var strip := TmGeo.screen_uv(0.0, 0.4, 0.0, 2.5)      # a board's end
+	var low := TmGeo.screen_uv(0.0, 30.0, 0.0, 0.5)       # a rim
+	TestHooks.check(strip == TmGeo.SCREEN_OFF and low == TmGeo.SCREEN_OFF, "screen_uv_unlit", "%s %s" % [strip, low])
 	var geo := TmGeo.new()
 	geo.screen_box(Vector3(0, 0, 10), Vector3(26, 6.6, 10.6), "screen", TmGeo.NO_COLLISION, 0.03, 4)
 	var node := geo.build()
@@ -111,9 +116,11 @@ func _check_screen_layout() -> void:
 				v_lo = minf(v_lo, uv.y)
 				v_hi = maxf(v_hi, uv.y)
 	node.free()
-	TestHooks.check(faces == 2 and is_equal_approx(u_lo, 5.0) and is_equal_approx(u_hi, 7.0)
-		and is_equal_approx(v_lo, 0.0) and is_equal_approx(v_hi, 1.0), "screen_box_layout",
-		"%d faces, u %.2f..%.2f, v %.2f..%.2f" % [faces, u_lo, u_hi, v_lo, v_hi])
+	var half := 0.5 * 25.94 / (2.0 * 6.54)      # the face (less the bevels) over its ad's width
+	TestHooks.check(faces == 2 and absf(u_lo - (5.0 * slot + 0.5 - half)) < 1e-3
+		and absf(u_hi - (5.0 * slot + 0.5 + half)) < 1e-3 and is_equal_approx(v_lo, 0.0)
+		and is_equal_approx(v_hi, 1.0), "screen_box_layout",
+		"%d faces, u %.3f..%.3f, v %.2f..%.2f" % [faces, u_lo, u_hi, v_lo, v_hi])
 
 
 ## [screen vertices, vertices showing an ad, vertices with no ad layout] of a built block.
@@ -128,7 +135,7 @@ func _screen_faces(node: Node3D) -> Array:
 			out[0] += 1
 			if uv == TmGeo.SCREEN_OFF:
 				continue
-			if absf(uv.x) >= 1.0 - 1e-4:
+			if absf(uv.x) > 0.5 * TmGeo.SCREEN_SLOT:
 				out[1] += 1
 			else:
 				out[2] += 1

@@ -194,9 +194,9 @@ static func _screen_uvs(tube: Dictionary, rings: Array, mat: String) -> Array:
 			var run := 0.0
 			for e in int(sd[1]):
 				var i := (int(sd[0]) + e) % n
-				row[i] = TmGeo.screen_uv(mat, run, float(sd[2]), down, h, si)
+				row[i] = TmGeo.screen_uv(run, float(sd[2]), down, h, si)
 				run += float(lens[i])
-				row[n + i] = TmGeo.screen_uv(mat, run, float(sd[2]), down, h, si)
+				row[n + i] = TmGeo.screen_uv(run, float(sd[2]), down, h, si)
 	return out
 
 
