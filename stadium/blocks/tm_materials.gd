@@ -137,6 +137,10 @@ const DETAIL := {
 	"platform": ["tread_plate", 1.0, 1.0],
 }
 
+## Fabric (the grandstands' and the stadium's roofs): how much sunlight shows through underneath
+## (shader "translucent"; the glow is on with SDFGI, TmRtx: tm_membrane).
+const TRANSLUCENT := {"fabric": 1.0, "fabric_under": 1.0, "roof": 1.0, "roof_under": 0.6}
+
 ## The surface shader per key: [pattern, second colour, pattern size (m), variation, bump].
 ## Patterns: see blocks/tm_surface.gdshader.
 const SURFACES := {
@@ -234,6 +238,8 @@ static func get_material(key: String) -> Material:
 		m = _dirt_road()
 	else:
 		m = _flat(spec)
+	if m is ShaderMaterial and TRANSLUCENT.has(key):
+		(m as ShaderMaterial).set_shader_parameter("translucent", float(TRANSLUCENT[key]))
 	_cache[key] = m
 	return m
 

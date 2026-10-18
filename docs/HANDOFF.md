@@ -77,8 +77,14 @@
   `--view=gate:StadiumRoadDirt:3:24:2.5 --gz=24` on A02.
   Then the control booths (dark roofs, white sides, smoked windows) and the grandstands' truss
   arches and advert boards. TMNF's "fences" along dirt roads are grass blades (shell layers).
-- Next (M9, in order): the rest of M9-2 (decoration placed for area tracks, light and
-  atmosphere, the RTX preset), then M9-0's remaining research notes.
+  Ultra (SDFGI) no longer leaves the fabric roofs black underneath (a membrane glow,
+  `TmRtx.MEMBRANE`). Compare quality presets with `--set_quality=1|2` on the same view.
+  Raised gates get raised grandstands on fabric pillars (TMNF's A07 way).
+- M9-0's research notes are all written (`docs/research/m9_look.md`, `m9_menus.md`,
+  `m9_sound.md`, with `m9_online.md` and `m9_campaign.md`). **M9 is complete** (steps 0-8).
+- Next: whatever the owner asks after trying it; merge this branch into `stadium` when the owner
+  says so. Polish left (PLAN M9-2): dressing for raised tracks (TMNF: control rows at deck height,
+  inflatable towers, B05/A12), grass tufts along dirt roads, SDFGI tuned on a real GPU.
   Merge this branch into `stadium` when the owner says so.
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review

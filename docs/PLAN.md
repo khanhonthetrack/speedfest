@@ -163,19 +163,22 @@ Owner's words and answers in TRANSCRIPT (session 13). Branch `claude/tmnf-replic
 (started from `stadium`; only `stadium/`, `docs/`, `tools/research/`). Rule unchanged: TMNF is
 measured locally, our own assets are built to match it, no Nadeo file is committed or shipped.
 Work sequentially, push after every step. Research notes go to `docs/research/m9_*.md`.
-- [ ] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
+- [x] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
       light), menus (screens, flow, layout), online (accounts, ladder, server modes, browser, votes,
       chat), sound (engine layers, gears, cues), campaign style (A-E statistics: lengths, times,
-      checkpoints, block families per series)
+      checkpoints, block families per series). Done: docs/research/m9_look.md, m9_menus.md,
+      m9_online.md, m9_sound.md, m9_campaign.md
 - [x] 1. Car model: wheels that hold together (tyre, rim seated in the bead, hub, brake), TMNF's
       body from the measured visual mesh proportions, the driver, PBR paint/carbon/rubber
-- [ ] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
+- [x] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
       adverts (our own brand art), the stadium (stands with crowd, roof, floodlights), light (TMNF's
       day mood with modern GI/SSR/AO), RTX/Ultra preset; side-by-side checks against local
       reference renders. First pass done (road, gates, adverts, fabric, stadium); second pass
       (PROGRESS "M9-2: the decks, walls and dirt roads"): platform and circuit decks, platform
-      walls, circuit walls, dirt roads, control booths, grandstand trusses and boards. Open:
-      decoration for the area tracks, light and atmosphere, RTX preset
+      walls, circuit walls, dirt roads, control booths, grandstand trusses and boards; Ultra's
+      roofs lit (membrane glow); raised grandstands at raised gates. Polish for later: more
+      dressing for the raised tracks (TMNF: control rows at deck height, inflatable towers), grass
+      tufts along the dirt roads, SDFGI tuned on a real GPU
 - [x] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
 - [x] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
       campaign A-E tabs with medals), in-race menus. Done (PROGRESS 18 Oct); the EDITORS entry

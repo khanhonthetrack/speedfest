@@ -24,6 +24,7 @@ uniform sampler2D noise_coarse : filter_linear_mipmap_anisotropic, repeat_enable
 uniform sampler2D advert_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform bool has_advert = false;
 uniform float ad_scale = 1.0;       // the ads' size on this material's screens (big screens: 3)
+uniform float translucent = 0.0;    // fabric: tm_membrane_glow
 const float AD_PANELS = 16.0;       // ads side by side in advert_tex (env/tm_adverts.gd)
 const float AD_W = 8.0;             // one ad's width on a screen (m)
 const float AD_H = 4.0;             // and height
@@ -220,7 +221,8 @@ void fragment() {
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = rough;
 	METALLIC = metal;
-	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy;
+	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy
+		+ tm_membrane_glow(ALBEDO, n, translucent);
 	AO = tm_sky_visibility(wpos, n);
 	AO_LIGHT_AFFECT = 0.0;
 }

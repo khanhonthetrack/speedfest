@@ -23,6 +23,7 @@ uniform vec3 tint : source_color = vec3(1.0);   // times the albedo (one set, li
 // large-scale variation over the tiles (world xz), so a 16 m texture doesn't read as a grid far off
 uniform sampler2D macro_tex : filter_linear_mipmap, repeat_enable;
 uniform float macro = 0.0;
+uniform float translucent = 0.0;       // fabric: tm_membrane_glow
 // detail: red/green its normal's x/y, blue an albedo factor (0.5 = 1); detail_ratio textures per
 // main texture, detail_strength scales it
 uniform sampler2D detail_tex : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -112,7 +113,7 @@ void fragment() {
 	ROUGHNESS = orm.g * roughness;
 	METALLIC = orm.b * metallic;
 	// ORMMaterial3D's emission: (colour + map) * energy ("add")
-	EMISSION = has_emission ? (emission_colour + em) * emission_energy : vec3(0.0);
+	EMISSION = (has_emission ? (emission_colour + em) * emission_energy : vec3(0.0)) + tm_membrane_glow(ALBEDO, n, translucent);
 	AO = orm.r * tm_sky_visibility(wpos, n);
 	AO_LIGHT_AFFECT = 0.0;
 }

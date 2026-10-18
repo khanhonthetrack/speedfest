@@ -2000,3 +2000,23 @@ same camera (`map_view --ref=<local dir>`, research only, nothing of it committe
   web renderer (Compatibility) too. **Boards** (`BOARDS`, measured): two advert screens hung on
   cables from the main truss facing the field (turned 3 deg steeper than TMNF's so the screen
   shader shows adverts on them) and one on the back of the roof's foot.
+- (same day) **Ultra (SDFGI) left the roofs black underneath**: with SDFGI on, a fabric roof's
+  underside gets only the light that bounces off the dark grass (doubling SDFGI's energy or its
+  bounce barely changed it; the baked sky occlusion and more frames neither). Real membrane roofs
+  let 10-15% of the sun through, and TMNF's lightmaps show them light: a membrane glow on
+  surfaces facing down, for the fabric keys (`TmMaterials.TRANSLUCENT`: grandstand roofs, the
+  stadium's roofs), through a global shader parameter `tm_membrane` (env/tm_occlusion.gdshaderinc)
+  that `TmRtx` sets to 0.35 on Ultra and 0 otherwise. High is unchanged (checked side by side).
+- (same day) **Grandstands at raised gates** (`race/tm_track_decor.gd` `_stands`): the platform and
+  circuit tracks start and finish up to 14 levels up, and the decoration put stands only by gates
+  on the ground, so those tracks had none (a probe of all 65: no stands, booths or rows on any
+  area track). TMNF's A07 shows how it dresses a raised track: the raised stand
+  (FabricStraight1x1's air variant) on a stack of fabric pillars, the ground piece and then pieces
+  three levels tall. Raised gates now get that, the stand at the pillar step nearest the road's
+  height, both sides, placed all or nothing (`_try_all`); area tracks now have 6-16 stand blocks
+  (C14: no room).
+- (same day) **M9-0's research notes**: `docs/research/m9_look.md` (TMNF's materials per block
+  family with the measured colours and heights, how its maps are laid out, the Day light, how to
+  compare locally), `m9_sound.md` (the gear model and the engine's six layers), `m9_menus.md`
+  (look, structure, in-race). With `m9_online.md` and `m9_campaign.md` the research step is done;
+  PLAN M9-0 and M9-2 checked (M9-2's polish listed there): **M9 is complete.**
