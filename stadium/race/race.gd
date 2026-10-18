@@ -254,6 +254,7 @@ func _on_finished(time_ms: int) -> void:
 		challenge.silver_ms = int(m.get("silver", -1))
 		challenge.bronze_ms = int(m.get("bronze", -1))
 		hud.challenge = challenge
+		hud.best = best              # redraws the medal table with the new times
 	hud.show_finish(time_ms, best, new_record)
 	var result := {"name": challenge.name, "time_ms": time_ms, "prev_ms": int(best.get("time_ms", -1)), "record": new_record,
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},

@@ -17,17 +17,17 @@ usage limit). Each is checked by reading the code before it is fixed. Status: op
 | 7 | open (confirmed) | low | `race/replay.gd:336` | Turbo sound is lost after seeking backwards in the viewer |
 | 8 | open (confirmed) | low | `race/tm_replay.gd:74` | F_TURBO is recorded on every tick spent on a pad, not once per turbo, so the turbo cue retriggers |
 | 9 | open (confirmed) | low | `race/replay.gd:96` | Viewer's audio isn't connected to its TmRace: no countdown beeps, GO or checkpoint sounds |
-| 10 | open (confirmed) | high | `race/tm_user_tracks.gd:147` | Ground-only multi-cell blocks get wrong cells when turned (footprint falls back to 1x1) |
-| 11 | open (confirmed) | medium | `editor/tm_editor_model.gd:46` | Ground-only blocks can be placed above the ground: invisible, and a ground-only checkpoint makes the track unfinishable |
-| 12 | open (confirmed) | medium | `race/tm_user_tracks.gd:70` | Track names starting with a non-identifier character are saved as '_...sftrack', which the Editors list hides |
+| 10 | fixed: units from the placed variant and its own box | high | `race/tm_user_tracks.gd:147` | Ground-only multi-cell blocks get wrong cells when turned (footprint falls back to 1x1) |
+| 11 | fixed: refused off the ground | medium | `editor/tm_editor_model.gd:46` | Ground-only blocks can be placed above the ground: invisible, and a ground-only checkpoint makes the track unfinishable |
+| 12 | fixed: no leading _ in file names | medium | `race/tm_user_tracks.gd:70` | Track names starting with a non-identifier character are saved as '_...sftrack', which the Editors list hides |
 | 13 | fixed: no-start tracks refused (race message, Editors note) | medium | `race/race.gd:53` | PLAY on an empty or unfinished editor track quits the game, or drops the car under the map |
-| 14 | open | medium | `editor/tm_editor_model.gd:132` | A track whose start is a start/finish line and that has no checkpoint validates in under 2 s |
-| 15 | open | low | `race/tm_user_tracks.gd:156` | cells() uses the air variant's units even at ground level, where the ground variant has different units |
-| 16 | open | low | `editor/tm_editor.gd:423` | Save result ('Saved to ...' / "Couldn't save") is never shown, so a failed save before TEST does nothing visibly |
-| 17 | open | low | `editor/tm_editor.gd:369` | After a successful place() the ghost and message are not refreshed (ghost stays green on the now-occupied cell) |
-| 18 | open | low | `editor/tm_editor.gd:493` | Editor key handler accepts key-repeat echoes: holding Esc arms and confirms 'leave without saving' in one press |
-| 19 | open | low | `race/race.gd:208` | HUD medal table is not refreshed when a test drive validates the track without setting a new record |
-| 20 | open | low | `race/tm_user_tracks.gd:17` | StadiumSculptBridgeSuspendSlope2 (and Mirror) are offered in the palette but can never be placed |
+| 14 | fixed: a lap track starting on its line needs a checkpoint | medium | `editor/tm_editor_model.gd:132` | A track whose start is a start/finish line and that has no checkpoint validates in under 2 s |
+| 15 | fixed: cells use the ground variant at ground level | low | `race/tm_user_tracks.gd:156` | cells() uses the air variant's units even at ground level, where the ground variant has different units |
+| 16 | fixed: the save message shows | low | `editor/tm_editor.gd:423` | Save result ('Saved to ...' / "Couldn't save") is never shown, so a failed save before TEST does nothing visibly |
+| 17 | fixed: ghost and message refresh after placing | low | `editor/tm_editor.gd:369` | After a successful place() the ghost and message are not refreshed (ghost stays green on the now-occupied cell) |
+| 18 | fixed: key repeats only for moves | low | `editor/tm_editor.gd:493` | Editor key handler accepts key-repeat echoes: holding Esc arms and confirms 'leave without saving' in one press |
+| 19 | fixed: the medal table redraws | low | `race/race.gd:208` | HUD medal table is not refreshed when a test drive validates the track without setting a new record |
+| 20 | fixed: 32 levels (MAX_LEVEL 31) | low | `race/tm_user_tracks.gd:17` | StadiumSculptBridgeSuspendSlope2 (and Mirror) are offered in the palette but can never be placed |
 | 21 | fixed: is_testing; load errors show a message, Esc back | high | `race/race.gd:58` | In normal play, a track that fails to load closes the game; even without that, the error screen has no way out |
 | 22 | fixed: selection on press only, DELETE names its target | high | `ui/tm_menu.gd:693` | Editors/Replays (and server list, campaign) selection follows the mouse: DELETE/PLAY/EDIT/WATCH/JOIN act on the last row hovered |
 | 23 | fixed: is_testing from the command line only | medium | `net/tm_master.gd:37` | Master server becomes unreachable for the whole session after the first scene change, and its HTTP calls lose their timeout |

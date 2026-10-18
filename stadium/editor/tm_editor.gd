@@ -369,6 +369,8 @@ func place() -> bool:
 	if model.place(selected, rot, coord):
 		TmUi.play("click")
 		rebuild()
+		_update_ghost()              # the cell is taken now: the ghost turns red, the reason shows
+		_refresh_info()
 		return true
 	message = model.why_not(selected, rot, coord)
 	_refresh_info()
@@ -422,6 +424,7 @@ func save() -> bool:
 		model.dirty = false
 	message = ("Saved to %s" % path.get_file()) if ok else "Couldn't save"
 	_refresh_status()
+	_refresh_info()
 	return ok
 
 
@@ -493,6 +496,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed):
 		return
 	var k := event as InputEventKey
+	if k.echo and k.keycode not in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_Q, KEY_E, KEY_R]:
+		return                       # held keys repeat only the moves (Esc twice must be two presses)
 	var ctrl := k.ctrl_pressed or k.meta_pressed
 	match k.keycode:
 		KEY_R, KEY_E:
