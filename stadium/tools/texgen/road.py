@@ -99,33 +99,46 @@ def curb_face(name='road_curb_face', ppm=256, length=8.0, height=1.25, seed=21):
 
 
 def shoulder(name='road_shoulder', ppm=256, length=8.0, width=2.0, seed=31):
-    """The shoulder between the curb and the road: painted green concrete, a blue line along the
-    curb, paint worn through to the concrete in patches, dust. v = 0 at the curb, towards the road."""
+    """The shoulder between the curb and the road: perforated steel plates (staggered round holes
+    over a dark void) in bolted frames, 2 m panels, a blue line painted along the curb's foot,
+    dust. v = 0 at the curb, towards the road."""
     w = int(length * ppm)
     h = int(width * ppm)
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    v = yy / ppm
-    conc = srgb((150, 149, 145))
-    green = srgb((54, 132, 64))
-    blue = srgb((30, 92, 200))
-    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
+    n1 = fbm(w, h, seed, beta=2.2, lo=1.0)
     n2 = fbm(w, h, seed + 1, beta=0.7, lo=48.0)
-    worn = smoothstep(1.3, 2.2, fbm(w, h, seed + 2, beta=2.2, lo=2.0) + 0.15 * n2) * 0.8
-    line = rect_mask(w, h, -10, 0.06 * ppm, w + 10, 0.24 * ppm, 1.2)
-    col = lerp(green[None, None, :] * (1.0 + 0.07 * n1 + 0.05 * n2)[..., None],
-               blue[None, None, :] * (1.0 + 0.05 * n2)[..., None], line)
-    col = lerp(col, conc[None, None, :] * (1.0 + 0.06 * n2)[..., None], worn)
-    dust = grime(w, h, seed + 3, 0.8, 2.0)
-    col = lerp(col, srgb((120, 116, 104))[None, None, :], dust * 0.45)
-    # the drain slots along the curb's foot, every 0.5 m
-    slot = np.zeros((h, w), np.float32)
-    for k in range(int(length / 0.5)):
-        slot = np.maximum(slot, rect_mask(w, h, (k * 0.5 + 0.1) * ppm, 0.005 * ppm, (k * 0.5 + 0.38) * ppm, 0.045 * ppm, 1.0))
-    col *= (1.0 - 0.75 * slot)[..., None]
-    hgt = 0.4 * n2 - 3.0 * slot - 0.4 * worn
-    nrm = normal_from_height(hgt, 0.5)
-    rough = 0.72 + 0.12 * worn + 0.08 * dust
-    orm = np.stack([1.0 - 0.5 * slot, rough, np.zeros_like(rough)], -1)
+    pitch = 0.032 * ppm
+    row = np.floor(yy / (pitch * 0.866))
+    cx = (xx + (row % 2) * pitch * 0.5) % pitch - pitch * 0.5
+    cy = yy % (pitch * 0.866) - pitch * 0.433
+    hole = 1.0 - smoothstep(0.30 * pitch, 0.36 * pitch, np.sqrt(cx * cx + cy * cy))
+    # frames: a band round each 2 m x 1.7 m panel (the line and a margin at the edges stay solid)
+    panel_l = 2.0 * ppm
+    fu = np.minimum(xx % panel_l, panel_l - xx % panel_l) / ppm
+    fv = np.minimum(np.abs(yy / ppm - 0.27), np.abs(yy / ppm - 1.93))
+    inside = smoothstep(0.045, 0.055, fu) * (yy / ppm > 0.27) * (yy / ppm < 1.93) * smoothstep(0.045, 0.055, fv)
+    hole *= inside
+    frame = 1.0 - inside
+    bolts = np.zeros((h, w), np.float32)
+    for k in range(int(length / 2.0) + 1):
+        for vb in (0.30, 1.0, 1.90):
+            for du in (0.025, -0.025):
+                d = np.sqrt((xx - (k * 2.0 + du) * ppm) ** 2 + (yy - vb * ppm) ** 2)
+                bolts = np.maximum(bolts, 1 - smoothstep(0.009 * ppm, 0.013 * ppm, d))
+    steel = srgb((112, 114, 118))[None, None, :] * (1.0 + 0.06 * n1 + 0.06 * n2)[..., None]
+    col = lerp(steel, srgb((54, 56, 60))[None, None, :] * (1.0 + 0.05 * n2)[..., None], frame * 0.7)
+    col = lerp(col, srgb((10, 10, 12))[None, None, :], hole)
+    col = lerp(col, srgb((150, 152, 156))[None, None, :], bolts)
+    line = rect_mask(w, h, -10, 0.05 * ppm, w + 10, 0.20 * ppm, 1.2)
+    worn = smoothstep(1.2, 2.0, fbm(w, h, seed + 2, beta=1.8, lo=4.0)) * 0.6
+    col = lerp(col, srgb((30, 92, 200))[None, None, :] * (1.0 + 0.05 * n2)[..., None], line * (1.0 - worn))
+    dust = grime(w, h, seed + 3, 0.7, 2.0) * (1 - hole)
+    col = lerp(col, srgb((118, 112, 100))[None, None, :], dust * 0.4)
+    hgt = -3.0 * hole + 0.6 * bolts - 0.4 * frame + 0.2 * n2
+    nrm = normal_from_height(hgt, 0.7)
+    rough = 0.48 + 0.25 * dust + 0.2 * line + 0.1 * frame
+    metal = (0.85 * (1 - line) * (1 - dust)) * (1 - hole)
+    orm = np.stack([1.0 - 0.8 * hole, rough, metal], -1)
     save(name, np.clip(col, 0, 1), nrm, orm, size=(w // 2, h // 2))
 
 

@@ -99,6 +99,9 @@ const TEXTURED := {
 	"curb_cp": ["curb_cp", Vector2(8.0, 1.25), false],
 	"curb_finish": ["curb_finish", Vector2(8.0, 1.25), false],
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
+	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
+	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
+	"fabric_under": ["fabric_under", Vector2(8.0, 8.0), false],
 }
 
 ## The surface shader per key: [pattern, second colour, pattern size (m), variation, bump].
