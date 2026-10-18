@@ -709,3 +709,22 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   its own height (one row, never stacked): long LED boards show a few ads, the same set along the
   board as round a football pitch, and change to the next set together every few seconds; a
   billboard shows one ad, which changes from time to time.
+
+## Session 13, continued — 2026-10-18 (cloud; branch `claude/tmnf-replica-graphics-nb1kcg`)
+
+### User (verbatim)
+
+> Coninue
+
+> Continue (being aware of new commits)
+
+### Claude
+
+- Continued M9 in order: M9-7 online is done on this branch (the master server with accounts,
+  ladder, rankings, records and the server list; TMNF's four modes with votes and spectators; the
+  game's Online page, profile sync, campaign records; Docker and a named Cloudflare tunnel for the
+  Pi). Session 14's work (the review's fix list, flags, Polish adverts, v0.4) was merged into this
+  branch from `claude/trackmania-stadium-review-lds3no`; the gate passes on the merge.
+- A multi-agent review of session 13's new code ran during this work; its verifiers hit the
+  account's usage limit (the reason for the owner's sequential rule), so its 42 findings are checked
+  and fixed one by one, sequentially, from here on.

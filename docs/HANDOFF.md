@@ -30,7 +30,7 @@
   online, M9-8 the A-E campaign) are unchanged.
 - Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
 
-## Latest (18 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
+## Latest (18 Oct, session 13 continued, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
 - Owner (TRANSCRIPT, session 13): the remake looks cheap (gates, billboards, stadium, "2005");
   wants TMNF's graphics (or better, RTX), TMNF's menus, online, a campaign like TMNF's, a better
   engine sound, a car whose rims sit in the tyres. Answers: our own A-E campaign (65 originals),
@@ -48,8 +48,15 @@
   REPLAY / SAVE REPLAY after the finish; `tests/test_replay`); M9-6 the track editor
   (`editor/editor.tscn`, `editor/tm_editor_model.gd`, `race/tm_user_tracks.gd` .sftrack files,
   Editors page, palette icons from `tools/icons/`; `tests/test_editor`).
-- Next, in order: M9-7 online (master
-  server, accounts, ladder; Profile and Online get rankings), M9-8 the A-E campaign
+- M9-7 online done too (PROGRESS "M9-7"): `stadium/server` (master `/api` + official servers
+  `/ws/<id>` in one process; Docker + named tunnel for the Pi: README there), `net/tm_master.gd`,
+  the Online page, modes/votes/spectating in `race/tm_race_online.gd`. The owner deploys it.
+- Session 14's work (review fixes, flags, Polish adverts, v0.4) is merged into this branch
+  (from `claude/trackmania-stadium-review-lds3no`; gate PASS). This branch is ahead of `stadium`
+  by M9-7: merge it into `stadium` when the owner says so.
+- Now: the session-13 code review's findings (42; 14 confirmed by its verifiers, the rest
+  unverified because the run hit the usage limit): `/tmp` list lost with the container, so the
+  open ones are listed in PROGRESS as they are fixed. Then M9-8 the A-E campaign
   (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
   M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
   tracks that use them.

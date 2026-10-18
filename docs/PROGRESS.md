@@ -1806,3 +1806,55 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   to the review branch (session 13's M9 work + session 14's); CI built it (success). The tag could
   not be pushed from the cloud session (HTTP 403 on refs/tags; branch pushes work): the owner pushes
   it (HANDOFF has the command), then CI makes the GitHub Release with the Windows and Linux zips.
+
+## 2026-10-18 — Session 13 (M9-7): online like TMNF's
+TMNF's online, our own code (`docs/research/m9_online.md` is the design): one Node.js process on
+one port is both the master server and the official game servers.
+- **Master** (`stadium/server/lib/master.js`, HTTP `/api`): accounts (`lib/accounts.js`: login and
+  password with scrypt and a salt, a 60-day token whose SHA-256 alone is stored, nicknames with
+  $-codes up to 75 characters, zones from `stadium/data/zones.json`, logins rate-limited), ladder
+  points (`lib/ladder.js`: Elo over every pair of a ranked round's finishers, K = 32 / (n - 1),
+  start 1000; world, zone and continent ranks), online records per track uid (`lib/records.js`),
+  the server list (official servers in the process; community servers by heartbeat with their
+  host's token). Data: one JSON file written atomically (`lib/store.js`).
+- **Game servers** (`lib/game.js`, `/ws/<id>`; `/ws` the first): TMNF's modes (`lib/modes.js`):
+  TimeAttack; Rounds (start = now + 3 s for everyone, one finish each, the round ends when all
+  are in, 15 s after the first finish or at its limit; 10 6 4 3 2 1 points; the map ends at the
+  points limit or after its rounds); Team (blue and red, balanced on join, each finisher scores
+  racers - place + 1 for the team, the round to the higher team, first to 5); Laps (one race per
+  map). Votes (next map, restart, kick; more than half of the racers in 30 s; one at a time, a
+  minute between a player's calls), spectators, chat; official servers send ranked results to the
+  ladder (TimeAttack each round, Laps each race, Rounds/Team at the map's end) and finishes to the
+  records. Protocol 2 (the game's `Online.VERSION`). Players who join during a round's pre-start
+  countdown race it.
+- **Process and hosting** (`server.js`): `--config=config.json` (`config.example.json`: four
+  official servers) or the old arguments; `Dockerfile` (built from `stadium/`: the server, the
+  track list, the zones; data on `/data`), `docker-compose.yml` (the server and `cloudflared` with
+  a named tunnel's token from `.env`), README "The official servers" (the one-time Cloudflare
+  steps, updating, backing up the accounts).
+- **Game**: `net/tm_master.gd` (autoload `Master`: the token in the settings, never the password;
+  register, log in, log out, refresh, profile push, servers, rankings, records, solo finishes);
+  the Online page (`ui/tm_menu.gd`): your account (log in / register with the Profile's nickname
+  and zone; ladder points, world/zone rank, log out), SERVERS from the master (name, mode, track,
+  players; JOIN, SPECTATE) and RANKINGS (world / your zone), join by address; the Profile's
+  nickname and zone pushed to the account; the campaign's details show the world record and your
+  place; solo finishes go to the online records when logged in.
+- **In the race** (`race/race.gd`, `race/tm_race_online.gd`, `net/tm_online.gd`): synced modes
+  hold the countdown on the server's clock (everyone starts at the round's start, whatever the
+  frame rate), no restarting mid-round (respawn before a checkpoint puts you back at the start,
+  clock running), late joiners wait for the next round; the scoreboard shows points (Rounds/Team)
+  or times, team tags and colours; results show the round's points, team scores, the map's
+  standings and your ladder points won or lost; the next round of a map restarts in place; votes
+  (V: next map, this map again, kick a player; F1/F2 on the running vote, shown at the top);
+  spectating (F3; Left/Right: whom to follow) with a follow camera.
+- Tests: `server/test/master.test.js` (accounts, rate limit, ladder, rankings by zone, records,
+  the server list, the store), `server/test/modes.test.js` (Rounds, Team, Laps, TimeAttack votes,
+  a room with accounts, spectators, votes, ranked results and records, the ladder after a map):
+  18 server tests; `tests/test_online` (27 checks: addresses, register/log in/wrong password,
+  server list, records, rankings, joining as the account, a finish as a record, then a Rounds
+  server: the held start, starting together, no restart mid-round, points, the next round in
+  place, a vote to the next map, spectating). Tests use their own settings file
+  (`--settings=`), so they never touch the player's login or nickname.
+- Open: the owner deploys it on the Pi (README: create the named tunnel, put its token in `.env`,
+  `docker compose up -d --build`, put the hostname in `official.json`). Not built here: LAN
+  discovery (join by address works), a hotseat mode.
