@@ -8,15 +8,15 @@ usage limit). Each is checked by reading the code before it is fixed. Status: op
 | # | status | sev | where | finding |
 |---|---|---|---|---|
 | 0 | fixed: selection on press only, DELETE names its target | high | `ui/tm_menu.gd:579` | Replays page: DELETE and WATCH act on the last row the mouse or focus passed over, not the selected row |
-| 1 | open (confirmed) | medium | `race/replay.gd:373` | Replay HUD treats lap-line splits as checkpoints: wrong counts, no laps shown in lap races |
+| 1 | fixed: replays keep the laps and checkpoints; lap lines count laps, lap_done | medium | `race/replay.gd:373` | Replay HUD treats lap-line splits as checkpoints: wrong counts, no laps shown in lap races |
 | 2 | fixed: TestHooks.is_testing from the command line only | medium | `race/replay.gd:114` | Viewer never shows its error in normal play (blank screen) because TestHooks.is_testing() is true after menu navigation |
-| 3 | open (confirmed) | medium | `race/replay.gd:447` | Replay keyboard shortcuts break once a bar control has focus (focus follows the mouse) |
-| 4 | open (confirmed) | medium | `race/replay.gd:325` | Puppet keeps its finish speed, throttle and spinning wheels while time stands still (2.5 s tail, pause) |
-| 5 | open (confirmed) | medium | `race/race.gd:299` | Watching the run from the finish menu discards it: SAVE REPLAY is impossible afterwards |
-| 6 | open (confirmed) | medium | `race/tm_replay.gd:212` | Saved replays whose file name starts with '_' never appear in the list |
-| 7 | open (confirmed) | low | `race/replay.gd:336` | Turbo sound is lost after seeking backwards in the viewer |
-| 8 | open (confirmed) | low | `race/tm_replay.gd:74` | F_TURBO is recorded on every tick spent on a pad, not once per turbo, so the turbo cue retriggers |
-| 9 | open (confirmed) | low | `race/replay.gd:96` | Viewer's audio isn't connected to its TmRace: no countdown beeps, GO or checkpoint sounds |
+| 3 | fixed: the viewer's keys in _input; the time line seeks on change | medium | `race/replay.gd:447` | Replay keyboard shortcuts break once a bar control has focus (focus follows the mouse) |
+| 4 | fixed: TAIL_MS recorded after the finish; paused: still car, sound held | medium | `race/replay.gd:325` | Puppet keeps its finish speed, throttle and spinning wheels while time stands still (2.5 s tail, pause) |
+| 5 | fixed: Esc from the viewer comes back to the finish menu (SAVE still there) | medium | `race/race.gd:299` | Watching the run from the finish menu discards it: SAVE REPLAY is impossible afterwards |
+| 6 | fixed: only _last hidden; names lose $-codes and a leading _ | medium | `race/tm_replay.gd:212` | Saved replays whose file name starts with '_' never appear in the list |
+| 7 | fixed: the turbo cue on its rising edge (a seek resets it) | low | `race/replay.gd:336` | Turbo sound is lost after seeking backwards in the viewer |
+| 8 | fixed: F_TURBO on the turbo's start only; the race's cue too | low | `race/tm_replay.gd:74` | F_TURBO is recorded on every tick spent on a pad, not once per turbo, so the turbo cue retriggers |
+| 9 | fixed: audio.race set | low | `race/replay.gd:96` | Viewer's audio isn't connected to its TmRace: no countdown beeps, GO or checkpoint sounds |
 | 10 | fixed: units from the placed variant and its own box | high | `race/tm_user_tracks.gd:147` | Ground-only multi-cell blocks get wrong cells when turned (footprint falls back to 1x1) |
 | 11 | fixed: refused off the ground | medium | `editor/tm_editor_model.gd:46` | Ground-only blocks can be placed above the ground: invisible, and a ground-only checkpoint makes the track unfinishable |
 | 12 | fixed: no leading _ in file names | medium | `race/tm_user_tracks.gd:70` | Track names starting with a non-identifier character are saved as '_...sftrack', which the Editors list hides |

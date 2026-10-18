@@ -1858,3 +1858,27 @@ one port is both the master server and the official game servers.
 - Open: the owner deploys it on the Pi (README: create the named tunnel, put its token in `.env`,
   `docker compose up -d --build`, put the hostname in `official.json`). Not built here: LAN
   discovery (join by address works), a hotseat mode.
+
+## 2026-10-18 — Session 13: the M9 code review's findings, fixed one by one
+The review (`docs/research/m9_review_findings.md`, 42 findings; its status column says what was
+done for each) is checked against the code finding by finding, fixed, tested and pushed in batches:
+- **Batch 1** (498d83a): `TestHooks.is_testing()` only from the command line (a res://tests/ scene
+  or --frames/--shot), so Master finds the server in real play and a track or replay that fails to
+  load shows a message with Esc back instead of quitting; tracks without a start refused; menu lists
+  select on press (DELETE names what it deletes, JOIN takes the picked server); lists scroll with
+  focus; races return to the page they came from.
+- **Batch 2** (97d6f23, editor): ground-only blocks turn in their own box and stay on the ground;
+  32 levels; a lap track starting on its line needs a checkpoint; file names never hidden; the
+  ghost and the messages refresh; key repeats only move; the race redraws the medals after
+  validating.
+- **Batch 3** (replays): replays keep the race's laps and checkpoints per lap, so the viewer
+  counts lap lines as laps (lap_done, "Lap 2 / 2") and each lap's checkpoints; the car's roll for
+  2.5 s after the finish is recorded (`TmReplay.TAIL_MS`; the record's autosave is written again
+  with it); a paused or ended replay stands still (no speed, wheels, engine: `TmCarAudio.set_paused`);
+  the viewer's keys are read in `_input`, so a hovered bar button or the time line can't take
+  Space or the arrows, and the time line seeks as it changes (wheel, drag); the viewer's sound
+  follows its race (countdown, GO, checkpoints); a turbo is one event (`F_TURBO` and the turbo cue
+  on its rising edge, not every tick a pad renews it; a seek back cues again); only `_last.replay`
+  is hidden from the list, and file names lose $-codes and a leading `_`; Esc from watching the
+  run comes back to the finish menu as it was (SAVE REPLAY still there, or SAVED).
+  `tests/test_replay`: 29 checks (8 new).

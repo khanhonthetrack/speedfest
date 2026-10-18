@@ -51,6 +51,8 @@ var waiting := false               ## not racing this round (late, or spectating
 var _triggers: Array = []          ## [{index, kind, xform, trig}]: waypoints with a trigger
 var _prev := Vector3.ZERO          ## the car's position at the previous tick
 var _cp_states := {}               ## checkpoint index -> the car as it crossed it {xform, lin, ang}
+var _result := {}                  ## the finish menu's result (TmRaceMenu.show_finish); {} before
+var _tail_ms := 0                  ## recorded so far after the finish (TmReplay.TAIL_MS)
 
 
 func _ready() -> void:
@@ -157,6 +159,8 @@ func _ready() -> void:
 	# the map's collision is in the physics space from the next physics frame
 	await get_tree().physics_frame
 	restart(true)
+	if TestHooks.has_arg("finish_result"):
+		_back_from_replay()
 	ready_to_race = true
 
 
@@ -209,6 +213,12 @@ func _physics_process(_delta: float) -> void:
 				if race.respawn_index == index and before != index:
 					# TMNF respawns you at the checkpoint as you crossed it: speed and heading kept
 					_cp_states[index] = {"xform": car.global_transform, "lin": car.lin_vel, "ang": car.ang_vel}
+	elif race.state == TmRace.State.FINISHED and _tail_ms < TmReplay.TAIL_MS:
+		# the car rolling on past the line, for the replay's last moments
+		_tail_ms += TmRace.TICK_MS
+		replay.record(race.finish_ms + _tail_ms, car)
+		if _tail_ms >= TmReplay.TAIL_MS and new_record:
+			replay.save(TmReplay.autosave_path(challenge))   # the record's replay, its tail too
 	_prev = p
 
 
@@ -259,6 +269,7 @@ func _on_finished(time_ms: int) -> void:
 	var result := {"name": challenge.name, "time_ms": time_ms, "prev_ms": int(best.get("time_ms", -1)), "record": new_record,
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
 		"validated": _validated_ms == time_ms}
+	_result = result
 	audio.cue("record" if new_record else "finish")
 	if not online and Master.logged_in() and not TestHooks.has_arg("records"):
 		Master.submit_record(challenge.uid, time_ms)     # the online records (a server's finishes go through the server)
@@ -351,15 +362,47 @@ func _to_menu() -> void:
 	get_tree().change_scene_to_file("res://ui/menu.tscn")
 
 
-## Watches the last run (race/replay.tscn); Esc there comes back to a new attempt here.
+## Watches the last run (race/replay.tscn); Esc there comes back to this finish (_back_from_replay).
 func watch_replay() -> void:
 	if replay == null or replay.count() == 0 or not replay.save(TmReplay.last_path()):
 		return
 	TestHooks.args["replay"] = TmReplay.last_path()
 	TestHooks.args["replay_back"] = "race"
 	TestHooks.args.erase("replay_at")
+	if not _result.is_empty():
+		var r := _result.duplicate()
+		r["saved"] = menu.replay_saved()
+		TestHooks.args["finish_result"] = JSON.stringify(r)
 	if get_tree().current_scene == self:
 		get_tree().change_scene_to_file("res://race/replay.tscn")
+
+
+## Back from watching the run (watch_replay): the car past the line, the finish menu as it was
+## (SAVE REPLAY still there), the run kept to watch or save again.
+func _back_from_replay() -> void:
+	var parsed: Variant = JSON.parse_string(String(TestHooks.arg("finish_result", "")))
+	TestHooks.args.erase("finish_result")
+	var r := TmReplay.load_file(TmReplay.last_path())
+	if not parsed is Dictionary or r == null or r.finish_ms < 0 or r.uid != challenge.uid:
+		return
+	replay = r
+	_tail_ms = TmReplay.TAIL_MS
+	race.state = TmRace.State.FINISHED
+	race.countdown_ms = 0
+	race.time_ms = r.finish_ms
+	race.finish_ms = r.finish_ms
+	race.splits.assign(r.splits)
+	var xf: Transform3D = r.state(float(r.count() * TmReplay.INTERVAL_MS))["xform"]   # where it last was
+	car.place(Transform3D(xf.basis, xf.origin - xf.basis.y.normalized() * car.body.rest_height()))
+	car.controls_enabled = false
+	car.auto_brake = true
+	_prev = car.global_position
+	cam.snap()
+	cam.freeze()
+	_result = parsed
+	menu.show_finish(_result)
+	if bool(_result.get("saved", false)):
+		menu.mark_saved()
 
 
 ## Keeps the last run among the replays (Solo > Replays). Returns the file, "" if it failed.
@@ -386,8 +429,10 @@ func restart(force := false) -> void:
 	menu.hide_all()
 	race.restart()
 	run = TmGhost.new()
-	replay = TmReplay.start(challenge, track_id, String(TestHooks.arg("map", "")))
+	replay = TmReplay.start(challenge, track_id, String(TestHooks.arg("map", "")), race.laps, race.checkpoint_count)
 	new_record = false
+	_result = {}
+	_tail_ms = 0
 	_cp_states.clear()
 	hud.reset()
 	TmGateScreen.reset_all(get_tree())

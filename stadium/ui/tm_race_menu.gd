@@ -212,6 +212,11 @@ func _menu_text() -> String:
 	return "LEAVE SERVER" if online else ("EDITOR" if editing else "MENU")
 
 
+## Whether SAVE REPLAY was pressed for this finish.
+func replay_saved() -> bool:
+	return _replay_saved
+
+
 ## The replay was saved: its button says so (and saves no second copy).
 func mark_saved() -> void:
 	_replay_saved = true

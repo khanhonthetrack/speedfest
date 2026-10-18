@@ -8,10 +8,10 @@ extends Node3D
 ## Keys: Space play/pause, Left/Right 5 s back/on, Up/Down speed (x1/8 .. x4), C or 1-5 camera,
 ## Home from the start, H hide the controls, Esc back.
 ## Args: --replay=<path> (else the newest kept); --replay_back=menu|race (Esc: the menu's replays page, or
-## a race on the replay's track); --replay_at=<ms> (start there, paused: screenshots), --cam=<name>.
+## the race's finish it was watched from); --replay_at=<ms> (start there, paused: screenshots), --cam=<name>.
 
 const PREROLL_MS := 1500           ## the countdown before the run
-const TAIL_MS := 2500              ## after the finish
+const TAIL_MS := TmReplay.TAIL_MS  ## after the finish
 const SPEEDS := [0.125, 0.25, 0.5, 1.0, 2.0, 4.0]
 const CAMS := ["CHASE", "CLOSE", "COCKPIT", "TRACKSIDE", "FREE"]
 
@@ -85,7 +85,10 @@ func _ready() -> void:
 		if int(wp["kind"]) == TmBlockCatalogue.Waypoint.CHECKPOINT:
 			cps += 1
 	_spots = spots(replay)
-	race = TmRace.new(cps, challenge.nb_laps if challenge.lap_race else 1)
+	if replay.checkpoints < 0:       # recorded before replays kept the race's laps
+		replay.checkpoints = cps
+		replay.laps = challenge.nb_laps if challenge.lap_race else 1
+	race = TmRace.new(replay.checkpoints, replay.laps)
 	best = TmRecords.best(challenge)
 	hud = TmRaceHud.new()
 	hud.race = race
@@ -95,12 +98,13 @@ func _ready() -> void:
 	add_child(hud)
 	audio = TmCarAudio.new()
 	audio.car = car
+	audio.race = race                # the countdown, checkpoint and lap cues, as in the race
 	add_child(audio)
 	_cameras()
 	_controls()
 	t_ms = float(TestHooks.arg("replay_at", -PREROLL_MS))
 	if TestHooks.has_arg("replay_at"):
-		playing = false
+		_set_playing(false)
 	var cam_arg := String(TestHooks.arg("cam", "")).to_upper()
 	set_camera(maxi(0, CAMS.find(cam_arg)) if not cam_arg.is_empty() else 0)
 	_apply(true)
@@ -246,6 +250,7 @@ func _controls() -> void:
 	_slider.drag_ended.connect(func(_c: bool) -> void:
 		_sliding = false
 		seek(_slider.value))
+	_slider.value_changed.connect(seek)   # dragging scrubs; the wheel steps (the clock sets it without the signal)
 	row.add_child(_slider)
 	_time_l = TmUi.label("", 22, TmUi.TEXT, TmUi.HEAD)
 	_time_l.custom_minimum_size.x = 250
@@ -285,8 +290,15 @@ func _controls() -> void:
 func toggle_play() -> void:
 	if not playing and t_ms >= replay.length_ms() + TAIL_MS - 10:
 		seek(-PREROLL_MS)
-	playing = not playing
-	_play_btn.text = "PAUSE" if playing else "PLAY"
+	_set_playing(not playing)
+
+
+## Plays or stops: time stands still, and so do the car's wheels and sound.
+func _set_playing(on: bool) -> void:
+	playing = on
+	if _play_btn:
+		_play_btn.text = "PAUSE" if on else "PLAY"
+	audio.set_paused(not on)
 
 
 func set_speed(i: int) -> void:
@@ -309,8 +321,7 @@ func _physics_process(_delta: float) -> void:
 		t_ms += TmRace.TICK_MS * float(SPEEDS[speed_index])
 		if t_ms >= replay.length_ms() + TAIL_MS:
 			t_ms = replay.length_ms() + TAIL_MS
-			playing = false
-			_play_btn.text = "PLAY"
+			_set_playing(false)
 	_apply(false)
 
 
@@ -319,16 +330,18 @@ func _apply(jump: bool) -> void:
 	var st := replay.state(t_ms)
 	var xf: Transform3D = st["xform"]
 	var m := car.model
+	# paused, or past the last sample (replays recorded without the tail): the car stands still
+	var still := not playing or t_ms > float((replay.count() - 1) * TmReplay.INTERVAL_MS)
 	car.transform = xf
 	car.body.xform = xf
-	car.body.lin_vel = st["vel"]
-	car.body.gas = float(st["gas"]) if t_ms >= 0.0 else 0.0
+	car.body.lin_vel = Vector3.ZERO if still else st["vel"]
+	car.body.gas = float(st["gas"]) if t_ms >= 0.0 and not still else 0.0
 	car.body.brake = float(st["brake"])
 	m.steer = float(st["steer"])
 	m.susp_len = st["susp"]
 	car.body.wheel_contact = st["contact"]
 	m.grounded = st["grounded"]
-	m.any_sliding = st["sliding"]
+	m.any_sliding = st["sliding"] and not still
 	car.body.now_ms = int(t_ms)
 	var index := int(st["index"])
 	if jump:
@@ -340,7 +353,7 @@ func _apply(jump: bool) -> void:
 			if fl & TmReplay.F_WALL:
 				car.wheel_hit_wall.emit()
 			if fl & TmReplay.F_TURBO:
-				m.turbo_until_ms = int(t_ms) + 1000
+				m.turbo_until_ms = int(t_ms) + 100     # a turbo's start (the sound's cue)
 			if fl & TmReplay.F_CUT:
 				car.reset_physics_interpolation()
 				_chase.snap()
@@ -369,7 +382,7 @@ func _clock(jump: bool) -> void:
 	else:
 		race.state = TmRace.State.RACING
 		race.time_ms = int(t_ms)
-	# checkpoints: every split before the finish that the clock has passed
+	# the splits before the finish that the clock has passed: checkpoints and lap lines
 	var cps: Array = replay.splits.slice(0, maxi(0, replay.splits.size() - (1 if fin >= 0 else 0)))
 	var passed := 0
 	for s: Variant in cps:
@@ -378,15 +391,31 @@ func _clock(jump: bool) -> void:
 	if jump or passed < _splits_shown:
 		_splits_shown = passed
 		_finish_shown = fin >= 0 and t_ms >= fin
-	race.splits.clear()
-	race.taken.clear()
+	# the laps done and the checkpoints taken in the lap, after each split
+	var marks: Array[Vector2i] = []
+	var lap := 0
+	var in_lap := 0
 	for k in passed:
-		race.splits.append(int(cps[k]))
-		race.taken[k] = true
+		if replay.is_lap_split(k):
+			lap += 1
+			in_lap = 0
+		else:
+			in_lap += 1
+		marks.append(Vector2i(lap, in_lap))
+	# the cues for the splits just passed (none after a seek)
 	while _splits_shown < passed:
+		var k := _splits_shown
 		_splits_shown += 1
-		race.splits.resize(_splits_shown)
-		race.checkpoint_taken.emit(_splits_shown, int(cps[_splits_shown - 1]))
+		race.splits.assign(cps.slice(0, _splits_shown))   # the HUD compares the split with the record's
+		if replay.is_lap_split(k):
+			race.lap_done.emit(marks[k].x, int(cps[k]))
+		else:
+			race.checkpoint_taken.emit(marks[k].y, int(cps[k]))
+	race.splits.assign(cps.slice(0, passed))
+	race.lap = lap
+	race.taken.clear()
+	for k in in_lap:
+		race.taken[k] = true
 	if fin >= 0 and t_ms >= fin and not _finish_shown:
 		_finish_shown = true
 		hud.show_finish(fin, best, false)
@@ -449,7 +478,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		var mm := event as InputEventMouseMotion
 		_free_look.x -= mm.relative.x * 0.004
 		_free_look.y = clampf(_free_look.y - mm.relative.y * 0.004, -1.5, 1.5)
-		return
+
+
+## The keys, before the bar's controls see them (a hovered button would take Space, the time line
+## the arrows).
+func _input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
 	var key := (event as InputEventKey).keycode
@@ -483,10 +516,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
-## Leaves: to the menu's replays page, or (--back=race) a race on the replay's track.
+## Leaves: to the menu's replays page, or (--replay_back=race) the race's finish it came from.
 func back() -> void:
 	if String(TestHooks.arg("replay_back", "menu")) == "race" and replay != null:
-		get_tree().change_scene_to_file("res://race/race.tscn")
+		get_tree().change_scene_to_file("res://race/race.tscn")   # its finish menu again (race.gd)
 		return
+	TestHooks.args.erase("finish_result")
 	TestHooks.args["page"] = "replays"
 	get_tree().change_scene_to_file("res://ui/menu.tscn")
