@@ -33,6 +33,7 @@ const COLORS := {
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
 	"circuit_floor": [Color8(36, 74, 124), 0.6, 0.2],
 	"truss": [Color8(40, 40, 41), 0.55, 0.3],
+	"screen_dark": [Color(0.015, 0.018, 0.022), 0.2, 0.0],     # the circuit walls' screens: off, as TMNF's
 	"control_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"glass_dark": [Color(0.09, 0.11, 0.13, 0.72), 0.05, 0.3],     # the control booths' smoked windows
 	"logo": [Color(0.12, 0.30, 0.72), 0.6, 0.0],

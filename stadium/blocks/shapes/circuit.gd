@@ -18,8 +18,8 @@ const FLOOR_Y := 0.24
 
 ## Wall section: (d, y) points around the solid, d = offset from the inner face outward, with the
 ## material/surface of the segment starting at each point. Rubber bumper at the foot, light band,
-## blue band, white cladding, blue top lip at 15-16 m, cap, truss and screen on the lane's side above
-## the lane-level ledge (8 m), down to the truss' foot (TMNF's colours: TmMaterials).
+## blue band, white cladding, blue top lip at 15-16 m, cap, truss and the dark screen on the lane's
+## side above the lane-level ledge (8 m), down to the truss' foot (TMNF's colours: TmMaterials).
 const WALL := [
 	[-0.465, 0.10, "rubber_dark", S_RUBBER], [-0.585, 0.31, "rubber_dark", S_RUBBER], [-0.645, 0.54, "rubber_dark", S_RUBBER],
 	[-0.615, 0.81, "rubber_dark", S_RUBBER], [-0.415, 1.28, "metal", S_METAL], [-0.415, 1.79, "metal", S_METAL],
@@ -28,7 +28,7 @@ const WALL := [
 	[-0.135, 7.07, "circuit_panel", S_RUBBER], [-0.135, 14.86, "circuit_trim", S_RUBBER], [-0.065, 15.61, "circuit_trim", S_RUBBER],
 	[0.105, 15.83, "circuit_trim", S_RUBBER], [0.415, 15.96, "circuit_trim", S_RUBBER], [0.775, 16.0, "fabric", S_METAL],
 	[2.665, 16.0, "fabric", S_METAL], [2.835, 15.94, "fabric", S_METAL], [2.885, 15.77, "fabric", S_METAL],
-	[2.885, 15.28, "fabric", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen", S_METAL],
+	[2.885, 15.28, "fabric", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
 	[2.595, 9.63, "truss", S_CONCRETE], [2.595, 9.42, "rubber_dark", S_RUBBER], [3.565, 9.09, "rubber_dark", S_RUBBER],
 	[3.935, 8.81, "rubber_dark", S_RUBBER], [4.145, 8.33, "rubber_dark", S_RUBBER], [4.075, 8.0, "wall_dark", S_METAL],
 	[4.075, 0.24, "structure", S_METAL], [3.595, 0.24, "structure", S_METAL], [3.415, 0.0, "structure", S_METAL],
@@ -49,7 +49,7 @@ const SLOPE_TOP_WALL := [
 	[8.214, 20.107, "circuit_trim", S_RUBBER], [7.944, 19.972, "circuit_panel", S_RUBBER],
 	[6.323, 19.162, "circuit_panel", S_RUBBER], [6.153, 19.020, "circuit_panel", S_RUBBER], [6.103, 18.820, "circuit_panel", S_RUBBER],
 	[6.102, 18.409, "circuit_panel", S_RUBBER], [6.101, 18.334, "circuit_panel", S_RUBBER], [6.145, 18.302, "rubber_dark", S_RUBBER],
-	[6.386, 18.247, "truss", S_CONCRETE], [6.386, 15.850, "screen", S_METAL],
+	[6.386, 18.247, "truss", S_CONCRETE], [6.386, 15.850, "screen_dark", S_METAL],
 	[6.386, 12.818, "truss", S_CONCRETE], [6.386, 12.612, "rubber_dark", S_RUBBER],
 	[6.281, 12.232, "rubber_dark", S_RUBBER], [5.421, 11.802, "rubber_dark", S_RUBBER], [5.386, 11.683, "rubber_dark", S_RUBBER],
 	[5.055, 11.340, "rubber_dark", S_RUBBER], [4.924, 11.128, "rubber_dark", S_RUBBER], [4.843, 10.885, "rubber_dark", S_RUBBER],
@@ -71,7 +71,7 @@ const SLOPE_BOTTOM_WALL := [
 	[23.786, 19.893, "circuit_trim", S_RUBBER], [24.056, 20.028, "circuit_panel", S_RUBBER],
 	[25.677, 20.838, "circuit_panel", S_RUBBER], [25.847, 20.867, "circuit_panel", S_RUBBER], [25.897, 20.717, "circuit_panel", S_RUBBER],
 	[25.898, 20.306, "circuit_panel", S_RUBBER], [25.898, 20.232, "circuit_panel", S_RUBBER], [25.855, 20.157, "rubber_dark", S_RUBBER],
-	[25.614, 19.862, "truss", S_CONCRETE], [25.614, 17.464, "screen", S_METAL],
+	[25.614, 19.862, "truss", S_CONCRETE], [25.614, 17.464, "screen_dark", S_METAL],
 	[25.614, 14.432, "truss", S_CONCRETE], [25.614, 14.226, "rubber_dark", S_RUBBER],
 	[25.719, 13.951, "rubber_dark", S_RUBBER], [26.579, 14.381, "rubber_dark", S_RUBBER],
 	[26.614, 14.297, "rubber_dark", S_RUBBER], [26.945, 14.286, "rubber_dark", S_RUBBER],

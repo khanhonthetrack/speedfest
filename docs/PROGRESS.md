@@ -2020,3 +2020,10 @@ same camera (`map_view --ref=<local dir>`, research only, nothing of it committe
   compare locally), `m9_sound.md` (the gear model and the engine's six layers), `m9_menus.md`
   (look, structure, in-race). With `m9_online.md` and `m9_campaign.md` the research step is done;
   PLAN M9-0 and M9-2 checked (M9-2's polish listed there): **M9 is complete.**
+
+## 2026-10-18 — Session 13 (M10): the owner's five requests after M9
+Owner (TRANSCRIPT): keep the circuit screens dark; tyre marks when drifting or braking hard like
+TMNF's; the physics off asphalt and in jumps against TMNF; the look, UI, menus and sound identical
+to TMNF, compared side by side with screenshots. Worked in that order.
+- **M10-1 dark circuit screens**: the circuit walls' lane-side screens are "screen_dark" (glossy
+  black, off), as TMNF's StadiumCircuitScreen; the adverts stay on the boards and other screens.
