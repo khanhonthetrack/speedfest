@@ -1994,3 +1994,20 @@ done for each) is checked against the code finding by finding, fixed, tested and
   for a Time Attack round); `server/lib/rounds.js`, test. Docs: README "Make a track" (the
   surfaces, laps, the layout rules), `stadium/CLAUDE.md`, PLAN M9-8 checked,
   `docs/research/m9_campaign.md` (our series).
+
+## 2026-10-18 — Release `stadium-v0.4` (owner's Windows PC): `stadium` + M9
+- Owner: "release the most up to date version ... of the stadium", then chose "stadium + M9
+  branch" (TRANSCRIPT "Release"). `stadium` (23b5e2f: v0.4's session-14 work and the rotating
+  adverts) merged with `claude/tmnf-replica-graphics-nb1kcg` (8772c31: M9-7 online, the M9
+  review's 42 fixes, M9-8 the five series A01-E05). The code merged without conflicts; PROGRESS
+  and TRANSCRIPT conflicted only where both sides appended (both kept, `stadium`'s first).
+- STADIUM_TESTS PASS on the merge, on the owner's PC (Godot 4.7.2, `TMNF_DIR` set): model_lab 44,
+  car_body 22, car_shapes 11, gbx 8, blocks 8, ghost 19, replay 29, editor 35, menu 31, sound 13,
+  online 27, race 40, track_areas 11, tracks 148, server npm test. (The script's `--import` step
+  segfaults on exit on Windows; the import itself completes and every suite runs.)
+- `stadium/PLAYING.txt` rewritten (it goes into both zips and is the Release's notes): the 65-track
+  campaign in five series, SOLO / ONLINE (accounts, servers, rankings) / EDITORS / PROFILE,
+  replays, the online keys (T, V, F1/F2, F3), `--race=A01`.
+- Tag `stadium-v0.4` on the merge commit, pushed from the PC; CI "Stadium builds" makes the
+  GitHub Release with the Windows and Linux zips. Session 15's unfinished branch
+  (`ccr-1ce252fc-wl7p3m`) is not included. The official server is down (HANDOFF).

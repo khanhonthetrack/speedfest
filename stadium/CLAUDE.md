@@ -87,7 +87,8 @@ Updated 2026-10-18 (session 13, M9). Details: `docs/PROGRESS.md` (latest entries
   at the start and finish, inflatable billboard walls outside curves, camera booths by
   checkpoints, seats in the stands, a result panel at the finish.
   The bot steers in the road's frame over 100 km/h (no more weave); medals re-set; v0.3 released.
-  Next: whatever the owner asks after playing v0.3. Screenshots with `--bot`: add
+  `stadium-v0.4` (18 Oct) is `stadium` + M9 (online, the A-E campaign, the review's fixes): the M9
+  branch is merged into `stadium`. Next: whatever the owner asks after playing v0.4. Screenshots with `--bot`: add
   `--records=<scratch dir>` (a finish is recorded like the player's).
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.

@@ -1,6 +1,24 @@
 # HANDOFF: start here
 
-## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
+## Latest (18 Oct, owner's Windows PC): `stadium-v0.4` released = `stadium` + M9
+- Owner: "release the most up to date version ... of the stadium", choosing "stadium + M9 branch"
+  (TRANSCRIPT "Release"). `claude/tmnf-replica-graphics-nb1kcg` (M9-7 online, the M9 review's 42
+  fixes, M9-8 the 65-track A-E campaign) is **merged into `stadium`** on top of session 14's v0.4
+  work and the rotating adverts; only docs conflicted. STADIUM_TESTS PASS on the merge (Windows).
+  `stadium/PLAYING.txt` (the zips' how-to-play, also the release notes) rewritten for the new game.
+- **Released `stadium-v0.4`** on that merge (pushed from the PC; cloud sessions can't push tags):
+  https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.4 (CI "Stadium builds"
+  attaches the Windows and Linux zips). Next release: tag `stadium-v0.5` the same way.
+- Both branches are now contained in `stadium`: continue M9 on `stadium` (or keep the M9 branch and
+  merge `stadium` into it first). Session 15's `ccr-1ce252fc-wl7p3m` (community tracks and car
+  packs on admins' servers; unfinished) is **not** in the release: it forked before the Green..Black
+  series, so merge `stadium` into it before it goes back.
+- **The official server is down** (no node / cloudflared running on the PC, the quick-tunnel address
+  in `stadium/server/official.json` doesn't answer), so ONLINE in v0.4 finds no official server.
+  M9-7's server (master `/api` + game servers) is meant for the Pi (Docker + named tunnel:
+  `stadium/server/README.md`); until then `run_official.ps1 -Publish` on the PC brings one up.
+
+## Earlier (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium
   and tag stadium-v0.4"): `stadium` was fast-forwarded to `claude/trackmania-stadium-review-lds3no`
   = `stadium` + session 13's M9 branch (merged in at 9ee8237) + session 14, so `stadium` has M9 too

@@ -748,3 +748,22 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - A multi-agent review of session 13's new code ran during this work; its verifiers hit the
   account's usage limit (the reason for the owner's sequential rule), so its 42 findings are checked
   and fixed one by one, sequentially, from here on.
+
+## Release — 2026-10-18 (owner's Windows PC, branch `stadium`)
+
+### User (verbatim)
+
+> Look at the repo and release the most up to date version
+
+> of the stadium i meant
+
+Asked which "latest" (the `stadium` tip, `stadium` + the M9 branch, or also session 15's
+unfinished `ccr-1ce252fc-wl7p3m`), the owner chose: "stadium + M9 branch".
+
+### Claude
+
+- Merged `claude/tmnf-replica-graphics-nb1kcg` (M9-7 online, the M9 review's 42 fixes, M9-8 the
+  65-track A-E campaign) into `stadium`, which already had v0.4 and the rotating adverts; only the
+  docs conflicted (both sides kept). `PLAYING.txt` (the zips' how-to-play and the release notes)
+  rewritten for the new game. Tagged `stadium-v0.4` on the result; CI makes the GitHub Release.
+  Session 15's branch stays out (unfinished).
