@@ -11,6 +11,9 @@ extends RefCounted
 ## (g). Wheels (FLWheel, WheelFRs, ...) spin and steer, hubs and guards (dFLHub, sFRGuard) steer;
 ## Light* and ProjShad nodes are markers (lamp places, the shadow quad), not drawn.
 ##
+## A skin without a model (only its textures: TMNF paints them on its own Stadium car, which we
+## don't ship) loads too: skin_only, and our car is painted in its main colour (colour).
+##
 ## body: ArrayMesh in the car's frame (surfaces "pack_skin", "pack_details", "pack_glass");
 ## wheels: per wheel FL, FR, RL, RR: {} (the model has none: its wheels are part of the body) or
 ##         {centre: Vector3, spin: ArrayMesh or null, fixed: ArrayMesh or null} (meshes about the
@@ -31,6 +34,8 @@ var sounds := {}                ## TmCarAudio layer name -> AudioStream
 var body: ArrayMesh
 var wheels: Array = [{}, {}, {}, {}]
 var lamps := {}
+var skin_only := false          ## textures but no model: our car in the skin's colour
+var colour := Color(0.85, 0.08, 0.06)
 
 static var _cache := {}         ## path -> TmCarPack
 
@@ -100,11 +105,6 @@ func _load() -> void:
 			key = "engine/" + key
 		if not files.has(key):
 			files[key] = f
-	var mesh_name := ""
-	for k in ["mainbody.solid.gbx", "mainbodyhigh.solid.gbx"]:
-		if files.has(k):
-			mesh_name = files[k]
-			break
 	for t in ["diffuse", "details", "illum"]:
 		for ext: String in TEXTURE_EXT:
 			if files.has(t + "." + ext):
@@ -120,16 +120,45 @@ func _load() -> void:
 				if s:
 					sounds[layer] = s
 					break
-	if mesh_name.is_empty():
-		zip.close()
-		error = "no car model in the pack (MainBody.Solid.Gbx)"
-		return
-	solid = TmSolid.load_bytes(zip.read_file(mesh_name))
+	# the model TMNF drives (MainBody), else its menu version (MainBodyHigh) if that one reads
+	var errors: PackedStringArray = []
+	for k in ["mainbody.solid.gbx", "mainbodyhigh.solid.gbx"]:
+		if not files.has(k):
+			continue
+		var s := TmSolid.load_bytes(zip.read_file(files[k]))
+		if s.ok():
+			solid = s
+			break
+		errors.append("%s: %s" % [String(files[k]).get_file(), s.error])
 	zip.close()
-	if not solid.ok():
-		error = "%s: %s" % [mesh_name.get_file(), solid.error]
-		return
-	_build()
+	if solid != null:
+		_build()
+	elif errors.is_empty() and textures.has("diffuse"):
+		skin_only = true
+		colour = _main_colour(textures["diffuse"])
+	elif errors.is_empty():
+		error = "no car in the pack (MainBody.Solid.Gbx or a Diffuse texture)"
+	else:
+		error = "; ".join(errors)
+
+
+## A skin's main colour: the mean of its texture's colours, brightened like car paint.
+static func _main_colour(tex: Texture2D) -> Color:
+	var img := tex.get_image()
+	if img == null or img.is_empty():
+		return Color(0.85, 0.08, 0.06)
+	img = img.duplicate()
+	if img.is_compressed():
+		img.decompress()
+	img.clear_mipmaps()
+	img.resize(16, 16, Image.INTERPOLATE_BILINEAR)
+	var sum := Vector3.ZERO
+	for y in 16:
+		for x in 16:
+			var c := img.get_pixel(x, y)
+			sum += Vector3(c.r, c.g, c.b)
+	sum /= 256.0
+	return Color(sum.x, sum.y, sum.z)
 
 
 static func _texture(bytes: PackedByteArray, ext: String) -> Texture2D:

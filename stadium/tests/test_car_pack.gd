@@ -68,6 +68,26 @@ func _ready() -> void:
 		"%f %f" % [v._wheels[0].rotation.y, v._wheels[2].rotation.y])
 	var rest: Vector3 = (pack.wheels[0]["centre"] as Vector3) - TmCarVisual.VIS
 	TestHooks.check(v._rest[0].is_equal_approx(rest), "visual_wheel_at_its_centre", str(v._rest[0]))
+	# a skin without its model: our car in its colour (the DDS is red)
+	var skin := ProjectSettings.globalize_path("user://test_skin_only.zip")
+	writer.zip_files(skin, {"Diffuse.dds": "diffuse", "Details.png": "png"})
+	var sp := TmCarPack.load_zip(skin)
+	TestHooks.check(sp.ok() and sp.skin_only and sp.colour.r > 0.7 and sp.colour.g < 0.3, "pack_skin_only",
+		"%s %s %s" % [sp.error, sp.skin_only, sp.colour])
+	var sv := TmCarVisual.new()
+	sv.pack = sp
+	holder.add_child(sv)
+	await get_tree().process_frame
+	TestHooks.check(not sv._from_pack and sv.paint_colour == sp.colour and sv._wheels.size() == 4, "visual_skin_only_paints_ours")
+	DirAccess.remove_absolute(skin)
+	# a model that doesn't read, its menu version does
+	var high := ProjectSettings.globalize_path("user://test_high_only.zip")
+	writer.zip_files(high, {"MainBody.Solid.Gbx": "GBX broken".to_ascii_buffer(), "MainBodyHigh.Solid.Gbx": bin,
+		"Diffuse.dds": "diffuse"})
+	var hp := TmCarPack.load_zip(high)
+	TestHooks.check(hp.ok() and not hp.skin_only and hp.solid.parts.size() == TmTestCar.PARTS.size(), "pack_falls_back_to_high",
+		hp.error)
+	DirAccess.remove_absolute(high)
 	var bad := TmCarPack.load_zip(ProjectSettings.globalize_path("user://no_such_pack.zip"))
 	TestHooks.check(not bad.ok(), "pack_missing_file_fails", bad.error)
 	DirAccess.remove_absolute(zip)

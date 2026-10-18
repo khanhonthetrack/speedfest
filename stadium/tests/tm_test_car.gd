@@ -36,10 +36,17 @@ static func write_pack(path: String) -> void:
 
 
 func zip(path: String, model: PackedByteArray) -> void:
+	zip_files(path, {"MyCar/MainBody.Solid.Gbx": model, "MyCar/Diffuse.dds": _dds(), "MyCar/Details.png": _png(),
+		"MyCar/EngineIdle.wav": _wav(), "MyCar/readme.txt": "a test car".to_utf8_buffer()})
+
+
+## A zip of {name: bytes}; "diffuse" / "png" / "wav" as a value: that test file.
+func zip_files(path: String, files: Dictionary) -> void:
 	var z := ZIPPacker.new()
 	z.open(path)
-	var files := {"MyCar/MainBody.Solid.Gbx": model, "MyCar/Diffuse.dds": _dds(), "MyCar/Details.png": _png(),
-		"MyCar/EngineIdle.wav": _wav(), "MyCar/readme.txt": "a test car".to_utf8_buffer()}
+	for name: String in files:
+		if files[name] is String:
+			files[name] = {"diffuse": _dds(), "png": _png(), "wav": _wav()}[files[name]]
 	for name: String in files:
 		z.start_file(name)
 		z.write_file(files[name])

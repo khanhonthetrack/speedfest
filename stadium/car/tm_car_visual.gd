@@ -81,6 +81,7 @@ var ghost_steer := 0.0
 var paint_colour := Color(0.85, 0.08, 0.06)
 var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online players: theirs)
 var pack: TmCarPack               ## a community car to draw instead of ours (null: ours)
+var _from_pack := true            ## drawn from the pack's model (false: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
 var _rest: Array[Vector3] = []    ## per wheel: the pivot's place at rest (node space)
 var _radius: Array[float] = []    ## per wheel: the tyre's radius (its spin)
@@ -214,12 +215,16 @@ func _mat(key: String) -> Material:
 
 func _ready() -> void:
 	car = get_parent() as TmCar
-	if pack != null and pack.ok():
+	if pack != null and pack.ok() and not pack.skin_only:
 		_pack_parts()
 		if not ghost:
 			add_child(contact_shadow())
 		return
-	pack = null
+	if pack != null and pack.skin_only:
+		paint_colour = pack.colour       # a skin without its model: ours in its colour
+		if ghost:
+			ghost_tint = pack.colour
+	_from_pack = false
 	_shared_meshes()
 	_part(_instance("body"))
 	for i in 4:
@@ -502,7 +507,7 @@ func _process(delta: float) -> void:
 		w.position = _rest[i] + Vector3(0.0, T.SUSP_STATIC - (car.model.susp_len[i] if car else T.SUSP_STATIC), 0.0)
 		w.rotation = Vector3(0.0, steer_vis if i < 2 else 0.0, 0.0)
 		(w.get_child(0) as Node3D).rotation = Vector3(fmod(_spin / _radius[i], TAU), 0.0, 0.0)
-	if pack == null:
+	if not _from_pack:
 		_aim_arms()
 
 

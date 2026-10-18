@@ -2040,3 +2040,7 @@ admins server correctly ... I want full compatibility" (TRANSCRIPT session 15). 
   test_online: an admin uploads a pack, the client is offered it, picks it, downloads it, its car
   is drawn with it, the admin forces it (42 checks). `race.tscn --car_pack=<zip>` drives a pack.
 - Server README: "Admins: community tracks and cars".
+- **Pack robustness:** a pack whose `MainBody.Solid.Gbx` doesn't read falls back to its
+  `MainBodyHigh` (the menu model); a skin without a model (textures only: TMNF paints them on its
+  own Stadium car, which we don't ship) loads as `skin_only` and our car is painted in its main
+  colour; a pack that fails is marked and not re-read on every players update. test_car_pack 26.

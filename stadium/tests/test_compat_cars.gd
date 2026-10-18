@@ -69,9 +69,12 @@ func _check(file: String) -> void:
 		_fail(file, pack.error)
 		return
 	_counts["loaded"] += 1
-	_counts["triangles"] += pack.solid.triangle_count()
-	if pack.solid._text:
-		_counts["text_format"] += 1
+	if pack.skin_only:
+		_counts["skin_only"] = int(_counts.get("skin_only", 0)) + 1
+	else:
+		_counts["triangles"] += pack.solid.triangle_count()
+		if pack.solid._text:
+			_counts["text_format"] += 1
 	# every texture the pack ships decodes (a skin without its own Diffuse paints the player's colour)
 	var zip := ZIPReader.new()
 	var missing: Array = []
@@ -97,5 +100,6 @@ func _check(file: String) -> void:
 	else:
 		_counts["some_wheels"] += 1   # e.g. only the front wheels steer apart, the rear ones are the body's
 	if TestHooks.has_arg("verbose"):
-		print("  %s: %d parts, %d triangles, %d wheels, textures %s" % [file.get_file(), pack.solid.parts.size(),
-			pack.solid.triangle_count(), n, pack.textures.keys()])
+		print("  %s: %d parts, %d triangles, %d wheels, textures %s" % [file.get_file(),
+			pack.solid.parts.size() if pack.solid else 0, pack.solid.triangle_count() if pack.solid else 0, n,
+			pack.textures.keys()])
