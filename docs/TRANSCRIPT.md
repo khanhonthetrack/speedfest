@@ -720,3 +720,12 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   with the ad's own edge colours so it reads as one wide banner; all boards change together on
   rotation. Only the stands' LED ribbon (over a kilometre long) is split, into long panels with
   the same ad on each.
+
+### User (verbatim, session 14, after the one-ad boards)
+
+> Merge
+
+### Claude
+
+- `stadium` fast-forwarded to `claude/trackmania-stadium-review-lds3no` again (the rotating
+  adverts, one fitted ad per board); the `stadium-v0.4` tag is still the owner's to push.

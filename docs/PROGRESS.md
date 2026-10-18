@@ -1837,3 +1837,5 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   ad. The stands' LED ribbon (over a kilometre a side) is split into boards of about 44 m
   (`TmStadiumBuild.LED_BOARD`), each with the ad centred. UVs: `TmGeo.screen_uv` (u =
   `SCREEN_SLOT` x screen + the ad's x, v = the ad's y); the AD_SET sets and the roll are gone.
+- **Merged into `stadium`** (owner: "Merge"): fast-forward to the review branch with the advert
+  changes (STADIUM_TESTS PASS at 5f5df96). `stadium-v0.4` is still to tag (HANDOFF).

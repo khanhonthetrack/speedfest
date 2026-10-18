@@ -30,7 +30,8 @@
   its size (centred on a long board with the ad's background carried to its ends; never stacked
   or side by side); all boards change to the next ad together every 8 s, billboards (big screens,
   inflatable advert walls) every 12 s each at its own moment (PROGRESS; a new screen gets its
-  layout from `TmGeo.SCREENS`). Not yet merged into `stadium`.
+  layout from `TmGeo.SCREENS`). Merged into `stadium` (owner: "Merge"), after the v0.4 commit:
+  a tag pushed on `stadium` now includes it (tag 737f8a1 for v0.4 exactly as it was).
 - Open: run the input harness against TMNF with a player's install and runs (physics times and the
   world's handedness); SDFGI on Ultra needs tuning on a real GPU; M9's own next steps (M9-7
   online, M9-8 the A-E campaign) are unchanged.
