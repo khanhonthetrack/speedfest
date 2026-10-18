@@ -1894,3 +1894,26 @@ done for each) is checked against the code finding by finding, fixed, tested and
   doesn't parse an empty answer. Also: the campaign cards are tall enough for their best time
   (it was cut off at the bottom). `tests/test_menu` 31 checks (4 new), server tests 19.
   With this, all 42 findings are fixed (the doc's status column).
+
+## 2026-10-18 — Session 13 (M9-8): the campaign's research, and the builder lays TMNF's surfaces
+- Research (`docs/research/m9_campaign.md`, our own `tools/research/tmnf/campaign_stats.py` and
+  `track_ascii.py` on a local install): TMNF's A-E series, kinds (Race, Speed, Acrobatic,
+  Obstacle, Endurance), times, checkpoints, laps and surfaces. Its tracks are mostly platform and
+  circuit, not the tarmac road our SF tracks use: that is much of why ours looked cheap.
+- `race/tm_track_areas.gd` (TmTrackAreas) + `race/tm_track_builder.gd`: surfaces in a track
+  spec: `["circuit", w]`, `["platform", w]` / `["platform", w, "walls"]` (lanes w cells wide:
+  the cells within w * 16 m of the line, filled with plates once laid; platform plates take their
+  variant from their neighbours), `["dirt"]` (dirt road on the ground), `["road"]`; the joins
+  (`StadiumPlatformToRoadMain` a level below the road, `StadiumRoadDirtToRoad`); on a lane: s, l,
+  r, gt, cp (the platform gate, on a one-cell lane), turbo (a row of platform turbos), up, down,
+  climb, dive (slopes: 2 levels a straight, 1 over each end; platform straights a level higher
+  than circuit ones). Then TMNF's editor's work: circuit borders in the empty cells round the
+  circuit (straight facing the plate, inner corners, outer corners), slope borders beside circuit
+  slopes, platform walls over a walled lane's open edges; pillars under raised plates (not under
+  walls and borders). Orientation rules measured from the official tracks (which side a border,
+  gate, slope or join faces). The builder's units of ground-only blocks now turn in their own box
+  (the review's finding 10, here too). `race/map_view.gd --view=path:<0-1>`: a driver's view
+  along our track's line. `tests/test_track_areas` (9 checks, in the gate): the lanes lay out,
+  circuits are closed by borders that face them, walled platforms have their walls, slopes climb
+  as TMNF's, a gate on a wide lane is refused, dirt roads lie on the ground, and the bot drives
+  an area track and a dirt track to the finish (the turbo row boosting it).

@@ -6,9 +6,11 @@ extends Node3D
 ## --car=ours|ref|both puts cars on the start (ref: TMNF's own car from --ref=<dir>, local research
 ## files, TmRefVisuals; both: ours on the left, the original on the right); --view=car[:yaw[:dist]]
 ## looks at them (yaw in degrees around the car, 0 = from the front-left, dist in m); --car_ahead=M
-## moves them M metres down the road from the start.
+## moves them M metres down the road from the start. --view=path:<frac>[:back[:up]]: our tracks:
+## a driver's view at that fraction (0-1) of the bot's line, back metres behind it, up above it.
 
 var builder: TmMapBuilder
+var _path: Array = []
 
 
 func _ready() -> void:
@@ -18,6 +20,7 @@ func _ready() -> void:
 		TestHooks.finish()
 		return
 	builder = TmMapBuilder.build(ch)
+	_path = ch.path
 	add_child(builder.root)
 	print("MAP %s: %s" % [ch.name, builder.stats])
 	var miss := builder.missing.keys()
@@ -127,6 +130,17 @@ func _camera() -> void:
 		cam.global_position = s * Vector3(float(v[0]), float(v[1]), float(v[2]))
 		cam.look_at(s * Vector3(float(v[3]), float(v[4]), float(v[5])), s.basis.y)
 		cam.fov = float(TestHooks.arg("fov", 60.0))
+	elif view.begins_with("path:") and not _path.is_empty():
+		var parts := view.split(":")
+		var i := clampi(int(float(parts[1]) * (_path.size() - 1)), 0, _path.size() - 1)
+		var back := float(parts[2]) if parts.size() > 2 else 9.0
+		var up := float(parts[3]) if parts.size() > 3 else 3.5
+		var p: Vector3 = _path[i]["p"]
+		var d: Vector3 = _path[i]["dir"]
+		var ahead: Vector3 = _path[mini(i + 6, _path.size() - 1)]["p"]
+		cam.global_position = p - d * back + Vector3.UP * up
+		cam.look_at(ahead + Vector3.UP * 1.0 if ahead.distance_to(p) > 1.0 else p + d * 40.0)
+		cam.fov = 70.0
 	elif view == "start" and builder.has_start:
 		var s := builder.start
 		cam.global_transform = Transform3D(s.basis, s.origin - s.basis.z * 14.0 + Vector3.UP * 5.0)
