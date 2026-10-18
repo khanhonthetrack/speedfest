@@ -1,5 +1,6 @@
 shader_type spatial;
 #include "res://env/rt.gdshaderinc"
+#include "res://env/tm_occlusion.gdshaderinc"
 // Our car's surfaces, in the parts' own space (they move with the car and the wheels):
 // mode 0 paint (metallic flakes under a clearcoat, a white stripe along the top), 1 carbon fibre
 // (a 2x2 twill weave that catches the light by direction), 2 tyre (tread grooves and sipes, a
@@ -12,13 +13,18 @@ uniform float stripe_half = 0.07;    // the stripe's half width (m); 0 = none
 uniform float flakes = 1.0;          // metallic flakes in the paint (0: plain, the white parts)
 uniform float tyre_radius = 0.364;
 uniform float tyre_half_width = 0.182;
+uniform float ground_y = -0.441;     // the road under the body, in the parts' space (TmCarVisual.VIS)
 
 varying vec3 opos;
 varying vec3 onrm;
+varying vec3 cwpos;
+varying vec3 cwnrm;
 
 void vertex() {
 	opos = VERTEX;
 	onrm = NORMAL;
+	cwpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	cwnrm = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
 }
 
 float hash3(vec3 p) {
@@ -26,6 +32,15 @@ float hash3(vec3 p) {
 }
 
 void fragment() {
+	// darker under bridges, roofs and gates (the map's sky occlusion); the body (paint, carbon) also
+	// darker low down and on surfaces facing the road, which blocks their sky
+	AO = tm_sky_visibility(cwpos, normalize(cwnrm));
+	if (mode < 2) {
+		float h = opos.y - ground_y;
+		float facing = clamp(normalize(onrm).y * 0.5 + 0.5, 0.0, 1.0);
+		AO *= mix(0.45, 1.0, smoothstep(0.1, 0.55, h)) * mix(0.55, 1.0, facing);
+	}
+	AO_LIGHT_AFFECT = 0.0;
 	float dist = length(VERTEX);
 	if (mode == 0) {
 		vec3 col = colour;
@@ -46,8 +61,8 @@ void fragment() {
 		METALLIC = 0.12 + (flake - 0.5) * 0.2 * fade;
 		ROUGHNESS = 0.36 + (flake - 0.5) * 0.15 * fade;
 #if !defined(RT)
-		CLEARCOAT = 0.5;              // (the RTX fork's hit shaders have no clearcoat)
-		CLEARCOAT_ROUGHNESS = 0.12;
+		CLEARCOAT = 0.85;             // (the RTX fork's hit shaders have no clearcoat)
+		CLEARCOAT_ROUGHNESS = 0.06;
 #endif
 	} else if (mode == 1) {
 		vec3 a = abs(onrm);

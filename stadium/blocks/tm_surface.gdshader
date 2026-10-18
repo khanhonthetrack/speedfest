@@ -1,5 +1,6 @@
 shader_type spatial;
 #include "res://env/rt.gdshaderinc"
+#include "res://env/tm_occlusion.gdshaderinc"
 // The remake's surfaces (our own procedural materials in the Stadium's style; TmMaterials sets
 // them up per material key). Patterns are drawn in world space, so they run on across blocks and
 // need no UVs: noise is blended over the three axis planes, lines and tiles use the plane the
@@ -23,7 +24,7 @@ uniform sampler2D noise_coarse : filter_linear_mipmap_anisotropic, repeat_enable
 uniform sampler2D advert_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform bool has_advert = false;
 uniform float ad_scale = 1.0;       // the ads' size on this material's screens (big screens: 3)
-const float AD_PANELS = 8.0;        // ads side by side in advert_tex (env/tm_adverts.gd)
+const float AD_PANELS = 16.0;       // ads side by side in advert_tex (env/tm_adverts.gd)
 const float AD_W = 8.0;             // one ad's width on a screen (m)
 const float AD_H = 4.0;             // and height
 
@@ -220,4 +221,6 @@ void fragment() {
 	ROUGHNESS = rough;
 	METALLIC = metal;
 	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy;
+	AO = tm_sky_visibility(wpos, n);
+	AO_LIGHT_AFFECT = 0.0;
 }

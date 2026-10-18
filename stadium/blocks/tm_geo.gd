@@ -8,6 +8,7 @@ extends RefCounted
 
 const NO_COLLISION := -1
 const UV_TILE := 8.0               ## sweeps hold a whole number of these along their length (m)
+const SMOOTH_DEG := 35.0            ## sweeps: sections bending less than this at a point shade round
 
 class Group:
 	var v := PackedVector3Array()
@@ -70,10 +71,18 @@ static func _tri_uv(p: Vector3, n: Vector3) -> Vector2:
 	return Vector2(p.x, p.y) / 8.0
 
 
-## Axis-aligned box [lo, hi] (TMNF coords), all six faces outward.
-func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top_surface := -2) -> void:
+## Axis-aligned box [lo, hi] (TMNF coords), all six faces outward. bevel > 0: its edges are
+## chamfered that much in the visual mesh only (the collision stays the plain box), so they catch
+## the light; for free-standing parts (pillars, feet, booths), not boxes that tile into a surface.
+func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top_surface := -2, bevel := 0.0) -> void:
 	var tm := mat if top_mat.is_empty() else top_mat
 	var ts := surface if top_surface == -2 else top_surface
+	var r := minf(bevel, 0.45 * minf(hi.x - lo.x, minf(hi.y - lo.y, hi.z - lo.z)))
+	if r > 0.002:
+		if surface != NO_COLLISION or ts != NO_COLLISION:
+			box(lo, hi, "", surface, "", ts)
+		_chamfered_box(lo, hi, r, mat, tm)
+		return
 	var p := [Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
 		Vector3(lo.x, hi.y, lo.z), Vector3(hi.x, hi.y, lo.z), Vector3(hi.x, hi.y, hi.z), Vector3(lo.x, hi.y, hi.z)]
 	quad(p[4], p[7], p[6], p[5], tm, ts)          # top (+y)
@@ -82,6 +91,59 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 	quad(p[2], p[6], p[7], p[3], mat, surface)    # +z
 	quad(p[3], p[7], p[4], p[0], mat, surface)    # -x
 	quad(p[1], p[5], p[6], p[2], mat, surface)    # +x
+
+
+## A box's visual mesh with every edge chamfered by r: six inset faces, twelve 45-degree edge
+## strips and eight corner triangles (flat normals: the strips catch the light).
+func _chamfered_box(lo: Vector3, hi: Vector3, r: float, mat: String, top_mat: String) -> void:
+	var axes := [Vector3.RIGHT, Vector3.UP, Vector3.BACK]
+	var signs := [-1.0, 1.0]
+	# the point of corner s on the face across axis a: the corner pulled in along the other two
+	var at := func(sv: Vector3, a: int) -> Vector3:
+		var c := Vector3(hi.x if sv.x > 0.0 else lo.x, hi.y if sv.y > 0.0 else lo.y, hi.z if sv.z > 0.0 else lo.z)
+		for b in 3:
+			if b != a:
+				c -= (axes[b] as Vector3) * sv[b] * r
+		return c
+	for a in 3:
+		for sa: float in signs:
+			var pts := []
+			for s1: float in signs:
+				for s2: float in signs:
+					var sv := Vector3.ZERO
+					sv[a] = sa
+					sv[(a + 1) % 3] = s1
+					sv[(a + 2) % 3] = s1 * s2
+					pts.append(at.call(sv, a))
+			# (s1, s1 * s2) runs (-1, 1), (-1, -1), (1, -1), (1, 1): round the face
+			_poly(pts, (axes[a] as Vector3) * sa, top_mat if a == 1 and sa > 0.0 else mat)
+	for a in 3:
+		for b in range(a + 1, 3):
+			var c := 3 - a - b
+			for sa: float in signs:
+				for sb: float in signs:
+					var s1 := Vector3.ZERO
+					s1[a] = sa
+					s1[b] = sb
+					s1[c] = -1.0
+					var s2 := s1
+					s2[c] = 1.0
+					_poly([at.call(s1, a), at.call(s1, b), at.call(s2, b), at.call(s2, a)],
+						(axes[a] as Vector3) * sa + (axes[b] as Vector3) * sb, mat)
+	for sx: float in signs:
+		for sy: float in signs:
+			for sz: float in signs:
+				var sv := Vector3(sx, sy, sz)
+				_poly([at.call(sv, 0), at.call(sv, 1), at.call(sv, 2)], sv, mat)
+
+
+## A convex polygon (visual only), turned to face `out`.
+func _poly(pts: Array, out: Vector3, mat: String) -> void:
+	var n := ((pts[1] as Vector3) - (pts[0] as Vector3)).cross((pts[2] as Vector3) - (pts[0] as Vector3))
+	if n.dot(out) < 0.0:
+		pts.reverse()
+	for i in range(1, pts.size() - 1):
+		tri(pts[0], pts[i], pts[i + 1], mat, NO_COLLISION)
 
 
 ## Sweep a 2D profile along frames. profile: Array of [Vector2(lateral, up), mat, surface] points;
@@ -96,7 +158,8 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 ## bottom centre, the same on both sides) and restarting at 0 on each run of one material, so a
 ## material's texture starts at the run's end nearer the section's ends (a curb face's top).
 ## halves: the section is a left half (lateral x < 0) and its mirror; u runs backwards on the
-## right half's segments so text reads the same way from the road on both sides. u_dir: -1 when
+## right half's segments so text reads the same way from the road on both sides; faces that look
+## away from the centre line (read from outside the road) get u and v turned round. u_dir: -1 when
 ## the path was reversed (keeps u running with the path as authored).
 func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [], halves := false, u_dir := 1.0) -> void:
 	var nf := frames.size()
@@ -145,18 +208,25 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 	# each segment's v at its two ends, relative to its material run's lowest dsym
 	var v0s := []
 	var v1s := []
+	var vhi := []                    # each segment's run: its highest v
 	var k0 := 0
 	while k0 < np - 1:
 		var k1 := k0
 		while k1 + 1 < np - 1 and String(profile[k1 + 1][1]) == String(profile[k0][1]):
 			k1 += 1
 		var lo := INF
+		var hi := -INF
 		for k in range(k0, k1 + 2):
 			lo = minf(lo, float(dsym[k]))
+			hi = maxf(hi, float(dsym[k]))
 		for k in range(k0, k1 + 1):
 			v0s.append(float(dsym[k]) - lo)
 			v1s.append(float(dsym[k + 1]) - lo)
+			vhi.append(hi - lo)
 		k0 = k1 + 1
+	var nq := _quad_normals(pts)
+	var soft := _soft_points(pr0)
+	var closed := np > 2 and ((pr0[0][0] as Vector2) - (pr0[np - 1][0] as Vector2)).length() < 1e-4
 	for f in nf - 1:
 		for k in np - 1:
 			var mat: String = profile[k][1]
@@ -165,17 +235,96 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 			var b: Vector3 = pts[f][k + 1]
 			var c: Vector3 = pts[f + 1][k + 1]
 			var d: Vector3 = pts[f + 1][k]
+			var na := _vertex_normal(nq, soft, closed, f, k, f, k)
+			var nb := _vertex_normal(nq, soft, closed, f, k, f, k + 1)
+			var nc := _vertex_normal(nq, soft, closed, f, k, f + 1, k + 1)
+			var nd := _vertex_normal(nq, soft, closed, f, k, f + 1, k)
 			var side := u_dir
-			if halves and ((pr0[k][0] as Vector2).x + (pr0[k + 1][0] as Vector2).x) > 0.0:
+			var mid := ((pr0[k][0] as Vector2).x + (pr0[k + 1][0] as Vector2).x)
+			if halves and mid > 0.0:
 				side = -side
-			var ua := Vector2(side * float(us[f][k]), float(v0s[k]))
-			var ub := Vector2(side * float(us[f][k + 1]), float(v1s[k]))
-			var uc := Vector2(side * float(us[f + 1][k + 1]), float(v1s[k]))
-			var ud := Vector2(side * float(us[f + 1][k]), float(v0s[k]))
+			var va := float(v0s[k])
+			var vb := float(v1s[k])
+			# a face looking away from the centre line (a curb's outer face) is read from outside
+			# the road, and its run's v starts at its foot: turned round (u and v) to read upright
+			if halves and ((pr0[k + 1][0] as Vector2).y - (pr0[k][0] as Vector2).y) * mid > 1e-6:
+				side = -side
+				va = float(vhi[k]) - va
+				vb = float(vhi[k]) - vb
+			var ua := Vector2(side * float(us[f][k]), va)
+			var ub := Vector2(side * float(us[f][k + 1]), vb)
+			var uc := Vector2(side * float(us[f + 1][k + 1]), vb)
+			var ud := Vector2(side * float(us[f + 1][k]), va)
 			if ua == Vector2.ZERO and ub == Vector2.ZERO:
 				ua.x = 1e-6       # (all-zero UVs mean "make them up" to tri())
-			tri(a, b, c, mat, surf, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, ub, uc)
-			tri(a, c, d, mat, surf, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
+			tri(a, b, c, mat, surf, na, nb, nc, ua, ub, uc)
+			tri(a, c, d, mat, surf, na, nc, nd, ua, uc, ud)
+
+
+## Every sweep quad's normal ([frame][segment]; zero for a degenerate quad).
+static func _quad_normals(pts: Array) -> Array:
+	var out := []
+	for f in pts.size() - 1:
+		var row := []
+		for k in (pts[f] as Array).size() - 1:
+			var a: Vector3 = pts[f][k]
+			var n := ((pts[f][k + 1] as Vector3) - a).cross((pts[f + 1][k + 1] as Vector3) - a)
+			if n.length_squared() < 1e-12:
+				n = ((pts[f + 1][k + 1] as Vector3) - a).cross((pts[f + 1][k] as Vector3) - a)
+			row.append(n.normalized() if n.length_squared() > 1e-12 else Vector3.ZERO)
+		out.append(row)
+	return out
+
+
+## Section points where the surface bends gently enough to be shaded round (SMOOTH_DEG between
+## the segments either side): the measured sections' rounded curbs, arches and tubes are
+## polygons; their real corners (a curb's foot, an arch's feet) stay sharp.
+static func _soft_points(profile: Array) -> PackedByteArray:
+	var np := profile.size()
+	var out := PackedByteArray()
+	out.resize(np)
+	var lim := cos(deg_to_rad(SMOOTH_DEG))
+	var closed := np > 2 and ((profile[0][0] as Vector2) - (profile[np - 1][0] as Vector2)).length() < 1e-4
+	for k in np:
+		var prev := k - 1
+		var next := k + 1
+		if closed and k == 0:
+			prev = np - 2
+		if closed and k == np - 1:
+			next = 1
+		if prev < 0 or next >= np:
+			continue
+		var d1 := (profile[k][0] as Vector2) - (profile[prev][0] as Vector2)
+		var d2 := (profile[next][0] as Vector2) - (profile[k][0] as Vector2)
+		if d1.length() < 1e-5 or d2.length() < 1e-5:
+			continue
+		out[k] = 1 if d1.normalized().dot(d2.normalized()) >= lim else 0
+	return out
+
+
+## The normal at corner (fi, ki) of quad (f, k): the quad's own, averaged with the quads across
+## a soft section point and with the previous / next frame's quads (paths are smooth curves).
+static func _vertex_normal(nq: Array, soft: PackedByteArray, closed: bool, f: int, k: int, fi: int, ki: int) -> Vector3:
+	var nseg := (nq[0] as Array).size()
+	var segs := [k]
+	if soft[ki] == 1:
+		var other := k - 1 if ki == k else k + 1
+		if closed:
+			other = posmod(other, nseg)
+		if other >= 0 and other < nseg:
+			segs.append(other)
+	var frames := [f]
+	var of := f - 1 if fi == f else f + 1
+	if of >= 0 and of < nq.size():
+		frames.append(of)
+	var n := Vector3.ZERO
+	var own: Vector3 = nq[f][k]
+	for ff: int in frames:
+		for kk: int in segs:
+			var q: Vector3 = nq[ff][kk]
+			if q.dot(own) > 0.3:          # never across a fold
+				n += q
+	return n.normalized() if n.length_squared() > 1e-12 else own
 
 
 ## Sweeps a closed vertical section along a path. section: Array of [Vector2(d, y), mat, surface]

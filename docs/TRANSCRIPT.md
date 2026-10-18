@@ -643,3 +643,69 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
     with a small database.
   - Hosting: **"Raspberry Pi"**: the Pi that serves SpeedFest runs the master server and the official
     game servers in one docker container behind a fixed (named) Cloudflare tunnel.
+
+## Session 14 — 2026-10-18 (cloud; branch `claude/trackmania-stadium-review-lds3no`, based on `stadium`)
+
+### User (verbatim)
+
+> Look at this: 
+> Reverse engineer Trackmania (2020) or any other trackmania you find on the internet using this tool to have a fully functioning version.
+>
+>  https://github.com/morluto/rea
+>
+> Then, look at the stadium branch of the speedfest game, and see how you could improve textures of the game : especially checkpoints with 2 horns at the top looks weird, car looks weird and the graphics look dated.
+>
+> Provide an independent review how closely our stadium branch is to the proper trackmania game.
+
+### Claude
+
+- Did not reverse engineer Trackmania (2020) into "a fully functioning version": it ships only
+  through Ubisoft Connect / Epic / Steam with an account, and a working copy rebuilt from its
+  decompiled code would be a copy of Nadeo's program (REA's own DISCLAIMER.md excludes
+  circumventing protection and reproducing protected code/assets; the project's "recreate only"
+  rule stands). TMNF's physics was already reverse engineered with REA in session 9. The look the
+  owner is unhappy with is art and rendering, which binary analysis doesn't give.
+- Wrote the independent review: `docs/research/stadium_review.md` (scorecard against TMNF and
+  TM2020, why the gates, car and light look the way they do, a ranked fix list), with renders of
+  `stadium` and of session 13's M9 branch, and a prototype of the top fixes rendered locally.
+
+### User (verbatim, session 14, after the review)
+
+> go with option B and implement the fix list.
+>
+> Then for stadium actually put the flags of actual counteries.
+>
+> Then instead of stupid looking logos, put the logos of famous polish brands. If you are scared aobut copyrights, you can write. E g. ZABKA with RZABKA
+>
+> Every time commit.
+
+### Claude
+
+- Work continues on `claude/trackmania-stadium-review-lds3no` with session 13's M9 branch merged in
+  (it holds the new car, gate textures and texgen the fix list builds on; it had been idle for
+  three hours). Order: the review's fix list (gates option B first), then real country flags on
+  the stadium's masts, then the adverts as Polish brands under parody names in our own lettering
+  (no real logos: names like RZABKA, our own type and colours). A commit after every step.
+
+### User (verbatim, session 14, after the fix list, flags and adverts)
+
+> merge it into stadium and tag stadium-v0.4
+
+### Claude
+
+- `stadium` fast-forwarded to `claude/trackmania-stadium-review-lds3no` (it contains session 13's
+  M9 work and session 14's); its CI build passed. The tag `stadium-v0.4` was refused from the
+  cloud session (HTTP 403 on tag refs), so the owner pushes it (command in HANDOFF); the Stadium
+  builds workflow then makes the GitHub Release with the Windows and Linux zips.
+
+### User (verbatim, session 14, after the merge)
+
+> Change the ads not to be next to each other and one duplicate below another, but like in football stadiums, be a few of them, and changin on rotation. Similar with billboard. Just one but changing from time to time.
+
+### Claude
+
+- The screens showed the whole 16-ad strip tiled in world space: ads side by side along every
+  board, and the strip repeated every 4 m up a tall screen. Now each screen shows ads fitted to
+  its own height (one row, never stacked): long LED boards show a few ads, the same set along the
+  board as round a football pitch, and change to the next set together every few seconds; a
+  billboard shows one ad, which changes from time to time.

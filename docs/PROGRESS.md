@@ -1661,3 +1661,148 @@ TMNF's Stadium editor, our own: the blocks of the recreated library on TMNF's 32
   from the editor validates its file; the editor scene opens it, places a road beside it (the
   straight becomes a T), undoes, refuses a taken cell, saves; the Editors page lists, edits,
   plays.
+
+## 2026-10-18 — Session 14: independent review against Trackmania (branch `claude/trackmania-stadium-review-lds3no`)
+Owner (TRANSCRIPT, session 14): reverse engineer Trackmania (2020) with REA "to have a fully
+functioning version"; how to improve the remake's textures (gates "with 2 horns", the car, the
+dated look); an independent review of how close `stadium` is to the real game.
+- **Not done: a working Trackmania (2020) from its decompiled code** (account-only online game; a
+  copy of Nadeo's program; REA's own disclaimer excludes it; the project's "recreate only" rule).
+  TMNF's physics was already reverse engineered with REA (session 9). No Nadeo file was downloaded
+  or used for this review.
+- **Review: `docs/research/stadium_review.md`.** Scorecard per area against TMNF (and TM2020):
+  physics 9/10, blocks 9/10, but gates 3, car 3, surfaces 3, light 3 on `stadium`; with session
+  13's M9 branch the car reaches about 6 and the gates 5, light is unchanged. Findings:
+  - the "horns" are TMNF's measured sign boards (`road.gd` `GATE_SIGN`) built as solid 0.3-0.45 m
+    prisms with adverts on every face, floating ~1.5 m above the arch (the arch's outer line is at
+    y ~6.6 under their bottom at 8.17), plus (on `stadium`) a banner on posts between them. M9
+    removed the banner but still builds the boards the same way;
+  - light: no GI/AO at the default quality (SDFGI/SSR/SSIL are Ultra only), ambient 0.75 against
+    sun 1.1, linear tonemap with saturation 1.25, sky-only reflections (no ReflectionProbe
+    anywhere), hard 90-degree edges, no decals; the same on M9 (its "light and atmosphere" is
+    still open);
+  - fidelity checks to add: drive TMNF replays' inputs through `TmCar` and measure the drift; check
+    the world's handedness (session 13 saw TMNF's text mirrored under our x negation).
+- **Ranked fix list** in the review (§3-4), ordered by what the prototype renders showed: the
+  gates first (dropping the boards for a crown screen beat rebuilding them as framed screens),
+  then local depth (a contact shadow under the car, a per-map sky-occlusion volume as TM's
+  "Compute Shadows" our way, bevels in `TmGeo`, decals), car AO/paint/livery, the remaining
+  surface families. Tested and *not* a win on their own: AgX (greys the sky, as session 12 found),
+  a stronger sun against a weaker ambient (dims the frame), a reflection probe (subtle), SDFGI as
+  tuned now (tints blue, darkens).
+- Renders (local, Forward+ on llvmpipe, `tests/tmp/review_view` = M9's map_view `car:`/`gate:`
+  views copied into a scratch checkout): `stadium` and M9 gates, car, overview; a scratch
+  prototype of the top fixes (light, probe, framed-screen and no-board gates). The prototype is
+  not committed to any game branch; its diff is `docs/research/stadium_review_prototype.diff`
+  (against M9 @ 77bb43c) for whoever implements §3.
+
+## 2026-10-18 — Session 14: the review's fix list (owner: "go with option B and implement the fix list")
+Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit per step.
+- **Gates, option B** (`blocks/tm_gate_screen.gd`, `blocks/tm_led_screen.gdshader`, `road.gd`
+  `_gate`, `TmGateDress.crown`, `race/race.gd` `_gate_time`): TMNF's two sign boards are gone; each
+  gate has an LED screen in its arch's crown on both faces (the gate's word, START / CHECKPOINT /
+  FINISH in its colour; when you pass, your time and the difference to the record's split, blue
+  ahead / red behind, as TM2020 does; the word again on restart) and a spotlight in its colour on
+  the road under it. Dirt checkpoints get the screen too. One SubViewport per gate, redrawn only
+  when its text changes. Lesson: blocks are built once per shape and `duplicate()`d
+  (`TmBlockLib`), which drops script variables, so the screen keeps only exported settings and
+  builds itself in `_ready` (the first try showed the template's never-drawn, white viewport).
+  `tests/test_tracks`: gate_screens_SF01 (one per road gate), gate_screen_shows_time,
+  gate_screen_word_after_restart.
+- **Contact shadow under the car** (`car/tm_car_visual.gd` `contact_shadow`): a Decal projected
+  straight down from just below the floor (3.0 x 5.6 m, a soft rounded footprint reaching ~0.45 m
+  past the wheels, 80% dark at the core), faded on surfaces that don't face up, so it never shades
+  the car; it fades out with distance and is gone in the air. Not on ghosts. Lesson: the first
+  size (the car's own footprint) hid under the body; a contact shade has to spread past the car
+  to read. Also `race/map_view.gd`: the cars of `--car=` now stand on the road (a ray down from
+  the start transform, which is the spawn point 0.87 m up; the review's "the car floats" in the
+  M9 renders was partly this).
+- **The map's sky occlusion** (TM's "Compute Shadows" done our way; `env/tm_occlusion.gd`,
+  `env/tm_occlusion.gdshaderinc`, `[shader_globals]` in project.godot): when a map loads
+  (`TmStage.add_environment`: race, map view, replays) one ray per 2 m straight down over the field
+  records the highest collision surface (513 x 513 rays, ~0.65 s on llvmpipe's CPU, 2.3 us a ray);
+  the heights are a float texture every surface shader samples (14 taps at 0 / 3 / 8 m around the
+  point pushed 0.75 m off its surface) to darken ambient light and reflections where something is
+  well above: under bridges, roofs, loops and arches (AO, ambient only). Applied in
+  `tm_surface.gdshader`, the car's shader, and a new `blocks/tm_textured.gdshader` that replaces
+  the ORMMaterial3D textured materials (same maps, mesh-UV or world-triplanar mapping with
+  ORMMaterial3D's axis flips, its additive emission and defaults; it also applies the ORM maps'
+  own AO, which ORMMaterial3D left off). `--occlusion=0` turns it off for comparisons.
+  `tests/test_tracks`: occlusion_sees_the_gate_arch (5-12 m of arch over the first crossing).
+- **Smooth shading, bevels, upright lettering** (`blocks/tm_geo.gd`): sweeps had flat normals per
+  segment (the `smooth` flag was never implemented), so every measured round section (curbs,
+  arches, tubes, pillars) shaded as facets; now each vertex averages the quads round it where the
+  section bends less than 35 degrees (and along the path), real corners stay sharp, never across a
+  fold (visual normals only). `box(..., bevel)`: a chamfered visual mesh (inset faces, 45-degree
+  edge strips, corner triangles) over the plain box's collision, opted in for free-standing parts
+  only (gate feet and light rigs, platform pillars, control booths and screens, tube and Fabric
+  screens, inflatable posts), never boxes that tile into a driving surface (seams would show).
+  The M9 bug from the review is fixed: the curbs' outer faces, read from outside the road, showed
+  their lettering turned 180 degrees (u ran for the road side, and the run's v starts at the
+  face's foot); faces that look away from the centre line now get u and v turned round.
+- **Road decals** (`blocks/tm_road_decals.gd`, textures by `stadium/tools/texgen/decals.py`, our
+  own): laid out from the map's built road blocks (`TmMapBuilder.road_blocks`), seeded by each
+  block's place: 2-4 tyre-mark decals along the racing line through every GT curve and corner
+  (outside at the entry, the apex 6 m inside, outside at the exit; tangent to it), a rubber scuff
+  on the inner curb at the apex of half the curves, the burnout behind the start (two tracks at
+  TMNF's 1.77 m), an oil stain on 12% of the straights. Decal nodes projecting down, faded on
+  surfaces that don't face up and beyond 90 m; HD graphics only. Lesson: thin tyre tracks at a
+  quarter opacity vanish at grazing angles; they are drawn near-opaque (70-100%).
+- **Car shading and livery** (`car/tm_car_surface.gdshader`, `car/tm_car_visual.gd` `_livery`,
+  stickers by `stadium/tools/texgen/livery.py`): the body's paint and carbon get ambient occlusion
+  from their height over the road and from facing down (the road blocks their sky), on top of the
+  map's occlusion; the clearcoat is glossier (0.85, roughness 0.06). Livery as decals that move
+  with the car: the race number on a white board on the nose (read from in front), our emblem and
+  SPEEDFEST on both sidepods (each read from its own side). The sponsors' stickers come with the
+  Polish brands (adverts step).
+- **Reflection probe** (`race/tm_stage.gd` `field_probe`): one probe over the whole field (map
+  size + 80 m round, 400 m tall), captured once from 20 m over the ground when the map is in the
+  scene; the car's rims, paint and the gates' metal reflect the Stadium instead of only the sky.
+  **SDFGI stays off on High**: tried at Ultra with energy 0.9 and 1.5 against High (now with the
+  occlusion, contact shadow and probe), it greys and darkens the scene at both (the facades go
+  near black) and adds cost; High without it looks best in this review's renders. SDFGI on
+  Ultra is unchanged; tuning it needs a real GPU (it never settled on llvmpipe in 60 frames).
+- **The remaining surfaces textured** (`stadium/tools/texgen/surfaces.py`, our own): the field's
+  mown grass (8 m stripes, blades, clumps, worn and lush patches), the dirt roads' packed earth
+  (pebbles, cracks, damp hollows, wheel streaks), the platforms' 4 m concrete panels (chamfered
+  joints, bolt plates), the structures' painted steel (2 m plates, seams, bolt rows, wear, rain
+  streaks), light wall panels (also `wall_dark`, tinted). That covers the platform, dirt,
+  circuit, tube and control families' main keys. `tm_textured.gdshader` gained a `tint` and a
+  two-scale **macro variation** (the shared coarse noise at 173 m and 41 m over world xz), on the
+  big surfaces (asphalt 10%, grass 16%, dirt 14%, platform 8%) so the tiles don't read as a grid
+  from afar.
+- **The physics check harness** (`race/tm_input_script.gd`, `race.gd --inputs / --record_inputs`):
+  a run's inputs as TMInterface-style text (press/rel, steer -65536..65536 + = right, analog gas
+  and brake lines); `--inputs=<file>` drives the car from it and prints `INPUTS_RUN splits finish`.
+  With a TMNF run's inputs on a TMNF track (`--tmnf=... --track=A01`) the times can be compared
+  with the game's; a car turning the wrong way at the first corner would show the world is TMNF's
+  mirror image (the review's open handedness question; README "Check the physics against
+  TrackMania"). Not run against TMNF here: it needs the player's install and runs (this session
+  downloaded nothing of Nadeo's). Proved on our own track: `tests/test_tracks`
+  input_script_replays_the_run_SF01 (the bot's run written as a script and driven without the bot:
+  identical splits 12.57 / 15.91 / 28.80 / 41.17 / 48.47 s) and steer_left_turns_left.
+- **Real national flags on the Stadium's 24 flagpoles** (owner: "put the flags of actual
+  countries"; `stadium/tools/texgen/flags.py`, `env/tm_flag.gdshader`, `env/tm_stadium_build.gd`
+  `_flags`): 24 flags drawn from their geometric definitions into one atlas (Poland, Germany,
+  France, Italy, the United Kingdom, the USA, Japan, Sweden, Finland, Norway, Denmark, the
+  Netherlands, Belgium, Austria, Czechia, Ukraine, Hungary, Spain (civil flag), Ireland,
+  Switzerland, Greece, Estonia, Lithuania, Latvia). Poland flies on the pole nearest the field's
+  middle in each corner, twenty others on the rest. Each flag is its own 26 x 17 m subdivided
+  plane waving in the wind (vertex wave growing to the free end, a slight sag, the sun showing
+  through; mirrored from behind like a real flag), one shared material with the atlas cell and
+  wave phase per flag (instance uniforms). The plain-colour flag materials are gone.
+- **Adverts: famous Polish brands under parody names** (owner: "instead of stupid looking logos,
+  put the logos of famous polish brands ... e.g. ZABKA with RZABKA"; `stadium/tools/texgen/brands.py`,
+  `adverts.py`): sixteen panels of our own design (our lettering in six OFL fonts with Polish
+  letters, `stadium/tools/texgen/fonts/` with their licences, generator inputs only; simple marks
+  and each brand's colour feel; no real logo, mascot or slogan copied): RZABKA (Żabka), ORLAN
+  (Orlen), allegrro (Allegro), INPOSZT (InPost), LOTT (LOT), BIEDRONEX (Biedronka), TYMBARG
+  (Tymbark), E. Wedler (E. Wedel), PRINCE POLLO (Prince Polo), CD PROJEKTOR (CD Projekt), 5F (4F),
+  ŁACIATKA (Łaciate), GRZEŚKO (Grześki), PKU BANK (PKO BP), SOLARYS (Solaris), ŚNIEŻNA (Śnieżka),
+  with Polish taglines. The strip is 16 panels now (`env/tm_adverts.gd` COUNT, `tm_surface`
+  AD_PANELS: a 128 m cycle on the boards). The car's title sponsor on the sidepods is ORLAN
+  (`livery_sponsor`), our emblem moved to the engine cover's flanks.
+- **`stadium-v0.4`** (owner: "merge it into stadium and tag stadium-v0.4"): `stadium` fast-forwarded
+  to the review branch (session 13's M9 work + session 14's); CI built it (success). The tag could
+  not be pushed from the cloud session (HTTP 403 on refs/tags; branch pushes work): the owner pushes
+  it (HANDOFF has the command), then CI makes the GitHub Release with the Windows and Linux zips.

@@ -19,6 +19,8 @@ var finishes: Array[Transform3D] = []
 var waypoints: Array = []
 var stats := {"blocks": 0, "built": 0, "empty": 0, "placeholder": 0, "unknown": 0}
 var missing := {}                   ## shape name -> count (no generator yet)
+## Built road blocks for the decals (TmRoadDecals): [{shape, xform (block, Godot)}].
+var road_blocks: Array = []
 
 var _placeholder_mats := {}
 var _zone_cells := {}               ## Vector2i (x, z) -> true: cells with a terrain zone tile
@@ -68,6 +70,8 @@ func _build() -> void:
 			node = _placeholder(id, entry, ground)
 		else:
 			stats["built"] += 1
+			if shape.begins_with("Road/Main/"):
+				road_blocks.append({"shape": shape, "xform": xf})
 		node.name = "%s_%d_%d_%d" % [id, coord.x, coord.y, coord.z]
 		node.transform = xf
 		node.set_meta("block", id)
@@ -75,6 +79,8 @@ func _build() -> void:
 		if String(entry.get("kind", "")) in ["flat", "frontier"]:
 			_zone_cells[Vector2i(coord.x, coord.z)] = true
 	_terrain()
+	if TmMaterials.hd():
+		root.add_child(TmRoadDecals.place(self))
 
 
 ## Records a waypoint block (start, finish, checkpoint, lap line) for the race, whether or not its

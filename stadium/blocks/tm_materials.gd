@@ -74,19 +74,21 @@ const COLORS := {
 	"parking": [Color8(50, 75, 157), 0.9, 0.0],
 	"road_dark": [Color8(86, 84, 87), 0.9, 0.0],
 	"plain": [Color(0.42, 0.47, 0.38), 1.0, 0.0],
-	"flag_0": [Color(0.85, 0.12, 0.12), 0.8, 0.0],
-	"flag_1": [Color(0.10, 0.30, 0.80), 0.8, 0.0],
-	"flag_2": [Color(0.95, 0.80, 0.10), 0.8, 0.0],
-	"flag_3": [Color(0.10, 0.60, 0.25), 0.8, 0.0],
-	"flag_4": [Color(0.95, 0.95, 0.95), 0.8, 0.0],
-	"flag_5": [Color(0.95, 0.45, 0.10), 0.8, 0.0],
 }
 
 ## Textured keys (HD): our own generated maps in assets/tex (stadium/tools/texgen: <name>_albedo,
 ## _normal, _orm): [texture name, metres one texture covers (u along the sweep, v across it),
-## world: planar world mapping (no stretching on curves, for surfaces without a direction)].
+## world: planar world mapping (no stretching on curves, for surfaces without a direction),
+## optional tint (times the albedo), optional macro variation (0..0.3, large surfaces)].
 const TEXTURED := {
-	"asphalt": ["road_concrete", Vector2(16.0, 16.0), true],
+	"asphalt": ["road_concrete", Vector2(16.0, 16.0), true, Color.WHITE, 0.10],
+	# the field, dirt roads, platforms, structures and walls (texgen/surfaces.py)
+	"grass": ["stadium_grass", Vector2(32.0, 32.0), true, Color.WHITE, 0.16],
+	"dirt": ["stadium_dirt", Vector2(8.0, 8.0), true, Color.WHITE, 0.14],
+	"platform": ["platform_panels", Vector2(16.0, 16.0), true, Color.WHITE, 0.08],
+	"structure": ["steel_painted", Vector2(8.0, 8.0), true],
+	"wall": ["wall_panels", Vector2(16.0, 16.0), true],
+	"wall_dark": ["wall_panels", Vector2(16.0, 16.0), true, Color(0.36, 0.38, 0.42)],
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"shoulder": ["road_shoulder", Vector2(8.0, 2.0), false],
@@ -224,29 +226,37 @@ static func _flat(spec: Array) -> StandardMaterial3D:
 	return m
 
 
-## A textured material (HD): albedo, normal and ORM maps from assets/tex.
-static func _textured(spec: Array) -> ORMMaterial3D:
-	var name: String = spec[0]
+## A textured material (HD): albedo, normal and ORM maps from assets/tex (blocks/tm_textured.gdshader:
+## what ORMMaterial3D did, with the map's sky occlusion).
+static func _textured(spec: Array) -> ShaderMaterial:
 	var metres: Vector2 = spec[1]
-	var m := ORMMaterial3D.new()
-	m.albedo_texture = _tex(name, "albedo")
-	m.normal_enabled = true
-	m.normal_texture = _tex(name, "normal")
-	m.orm_texture = _tex(name, "orm")
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var m := textured(String(spec[0]), Vector2(1.0 / metres.x, 1.0 / metres.y), bool(spec[2]), 1.0 / metres.x)
+	if m != null and spec.size() > 3:
+		m.set_shader_parameter("tint", spec[3])
+	if m != null and spec.size() > 4 and float(spec[4]) > 0.0:
+		m.set_shader_parameter("macro_tex", noise_textures()[1])
+		m.set_shader_parameter("macro", float(spec[4]))
+	return m
+
+
+## A tm_textured material for texture set `name`: on the mesh UVs times `uv_scale`, or (world) on
+## three world planes, `world_scale` textures per metre. Null when the set has no albedo map.
+static func textured(name: String, uv_scale := Vector2.ONE, world := false, world_scale := 1.0) -> ShaderMaterial:
+	var albedo := _tex(name, "albedo")
+	if albedo == null:
+		return null
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://blocks/tm_textured.gdshader")
+	m.set_shader_parameter("albedo_tex", albedo)
+	m.set_shader_parameter("normal_tex", _tex(name, "normal"))
+	m.set_shader_parameter("orm_tex", _tex(name, "orm"))
 	var em := _tex(name, "emission")
+	m.set_shader_parameter("has_emission", em != null)
 	if em != null:
-		m.emission_enabled = true
-		m.emission_texture = em
-		m.emission = Color(1.0, 0.97, 0.9)
-		m.emission_energy_multiplier = 6.0
-	if bool(spec[2]):
-		m.uv1_triplanar = true
-		m.uv1_world_triplanar = true
-		m.uv1_triplanar_sharpness = 8.0
-		m.uv1_scale = Vector3(1.0 / metres.x, 1.0 / metres.x, 1.0 / metres.x)
-	else:
-		m.uv1_scale = Vector3(1.0 / metres.x, 1.0 / metres.y, 1.0)
+		m.set_shader_parameter("emission_tex", em)
+	m.set_shader_parameter("uv_scale", uv_scale)
+	m.set_shader_parameter("world", world)
+	m.set_shader_parameter("world_scale", world_scale)
 	return m
 
 

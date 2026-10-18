@@ -94,6 +94,20 @@ validates it (sets its medals from your time; any change clears them). Tracks ar
 `user://tracks/<name>.sftrack` (our own JSON: `race/tm_user_tracks.gd`); Solo > Open a track file
 races any `.sftrack` too.
 
+## Check the physics against TrackMania (and the world's handedness)
+A run's inputs drive our car as text, in the style of TMInterface's input scripts (the community
+tool TMNF players use to write and record inputs; format in `race/tm_input_script.gd`):
+
+    stadium/tools/run.sh res://race/race.tscn --headless --timeout 600 -- \
+        --tmnf=/path/to/TmNationsForever --track=A01 --inputs=/path/to/your_A01_run.txt
+
+prints `INPUTS_RUN splits=[...] finish=...` (ms). Drive the same script in TMNF and compare the
+checkpoint and finish times: equal to the 10 ms tick means our physics is TMNF's on that track. If
+the car leaves the road at the first corner, turning the wrong way, our world is TMNF's mirror image
+(the open handedness question; first check the steer sign: TMInterface's +65536 is full right).
+`--record_inputs=/path/out.txt` writes a run here in the same format (`tests/test_tracks`
+input_script_replays_the_run: the bot's run, replayed from its script, gives the same splits).
+
 ## Share it with friends
 Builds: `stadium/tools/export.sh all` (Godot 4.7.2 export templates installed) writes
 `build/stadium/SpeedFestStadium-windows.zip` (~52 MB) and `-linux.zip` (~42 MB): one portable

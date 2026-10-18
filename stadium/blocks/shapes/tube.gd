@@ -144,10 +144,10 @@ func _sound_system(geo: TmGeo) -> void:
 	geo.box(Vector3(14, 0, 14), Vector3(18, 8, 18), "structure", S_METAL)
 	for x0 in [3.86, 26.07]:
 		for z0 in [7.57, 20.43]:
-			geo.box(Vector3(x0, 0.0, z0), Vector3(x0 + 2.07, 4.18, z0 + 4.0), "screen", S_METAL)
+			geo.box(Vector3(x0, 0.0, z0), Vector3(x0 + 2.07, 4.18, z0 + 4.0), "screen", S_METAL, "", -2, 0.03)
 	for x0 in [4.18, 26.01]:
 		for z0 in [2.0, 12.67, 17.33, 28.0]:
-			geo.box(Vector3(x0, 0.0, z0), Vector3(x0 + 1.81, 4.0, z0 + 2.0), "screen", S_METAL)
+			geo.box(Vector3(x0, 0.0, z0), Vector3(x0 + 1.81, 4.0, z0 + 2.0), "screen", S_METAL, "", -2, 0.03)
 
 
 ## Frame (u, v) of a pipe along d: vertical pipes have a vertex toward +x, horizontal ones a

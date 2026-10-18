@@ -26,6 +26,8 @@ func _ready() -> void:
 	print("TRACK_TIMES ", ", ".join(report))
 	if not ids.is_empty() and not TestHooks.has_arg("write_medals"):
 		await _respawn_check(ids[0])
+		await _input_script_check(ids[0])
+		await _steer_check(ids[0])
 	TestHooks.finish()
 
 
@@ -42,6 +44,12 @@ func _respawn_check(id: String) -> void:
 		await get_tree().physics_frame
 	var crossed: float = scene.car.speed_kmh()
 	var at: Vector3 = scene.car.global_position
+	_gate_screens(id, scene, race, at)
+	var occ := scene.get_node_or_null("Occlusion") as TmOcclusion
+	var over := occ.height_at(at.x, at.z) - at.y if occ else -1.0
+	var beside := occ.height_at(at.x + 40.0, at.z + 40.0) if occ else 0.0
+	TestHooks.check(occ != null and occ.texture != null and over > 5.0 and over < 12.0, "occlusion_sees_the_gate_arch",
+		"%.1f m over the crossing (the arch's top), %.1f beside" % [over, beside])
 	for i in 60:
 		await get_tree().physics_frame
 	scene.respawn()
@@ -49,9 +57,83 @@ func _respawn_check(id: String) -> void:
 	TestHooks.check(not race.taken.is_empty() and crossed > 50.0 and absf(back - crossed) < 3.0
 		and scene.car.global_position.distance_to(at) < 3.0, "respawn_keeps_checkpoint_speed",
 		"crossed %.0f km/h, back at %.0f km/h, %.1f m from the crossing" % [crossed, back, scene.car.global_position.distance_to(at)])
+	scene.restart()
+	var words := TmGateScreen.near(get_tree(), at).map(func(g: TmGateScreen) -> String: return g._main.text)
+	TestHooks.check(not words.is_empty() and words.all(func(w: String) -> bool: return w == "CHECKPOINT"),
+		"gate_screen_word_after_restart", str(words))
 	scene.queue_free()
 	await get_tree().physics_frame
 	TestHooks.args.erase("bot")
+
+
+## A run's inputs written as a script (TmInputScript) and driven again without the bot give the
+## same splits and finish: the harness for comparing a TMNF run's inputs with the game's times.
+func _input_script_check(id: String) -> void:
+	var path := OS.get_user_data_dir().path_join("test_inputs_%s.txt" % id)
+	TestHooks.args["track"] = id
+	TestHooks.args["bot"] = true
+	TestHooks.args["record_inputs"] = path
+	var a := await _race_to_finish()
+	TestHooks.args.erase("bot")
+	TestHooks.args.erase("record_inputs")
+	TestHooks.args["inputs"] = path
+	var b := await _race_to_finish()
+	TestHooks.args.erase("inputs")
+	TestHooks.check(int(a["finish"]) > 0 and a["splits"] == b["splits"] and a["finish"] == b["finish"],
+		"input_script_replays_the_run_" + id, "recorded %s %d, replayed %s %d" % [a["splits"], a["finish"], b["splits"], b["finish"]])
+
+
+## Left steering turns the car to the left (towards its +x, the screen's left from the chase
+## camera), as a left key press does (TmCarInput: left = +1).
+func _steer_check(id: String) -> void:
+	TestHooks.args["track"] = id
+	TestHooks.args["auto_gas"] = "1"
+	TestHooks.args["auto_steer"] = "1"
+	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	while not scene.ready_to_race:
+		await get_tree().physics_frame
+	var race: TmRace = scene.race
+	while not race.racing():
+		await get_tree().physics_frame
+	var start: Basis = scene.car.global_transform.basis
+	while race.time_ms < 1200:
+		await get_tree().physics_frame
+	var fwd: Vector3 = scene.car.global_transform.basis.z
+	TestHooks.check(fwd.dot(start.x) > 0.05, "steer_left_turns_left", "heading towards +x by %.2f" % fwd.dot(start.x))
+	scene.queue_free()
+	await get_tree().physics_frame
+	for k in ["auto_gas", "auto_steer"]:
+		TestHooks.args.erase(k)
+
+
+## Runs race.tscn (with the current args) until the finish or LIMIT_MS: {splits, finish (-1: none)}.
+func _race_to_finish() -> Dictionary:
+	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	while not scene.ready_to_race:
+		await get_tree().physics_frame
+	var race: TmRace = scene.race
+	while race.state != TmRace.State.FINISHED and race.time_ms < LIMIT_MS:
+		await get_tree().physics_frame
+	var out := {"splits": race.splits.duplicate(), "finish": race.finish_ms if race.state == TmRace.State.FINISHED else -1}
+	scene.queue_free()
+	await get_tree().physics_frame
+	return out
+
+
+## Every gate has its crown screen (start, checkpoints, finish), and the one just passed shows the
+## time it was passed at.
+func _gate_screens(id: String, scene: Node, race: TmRace, at: Vector3) -> void:
+	var all := get_tree().get_nodes_in_group(TmGateScreen.GROUP)
+	var gates := 0
+	for wp: Dictionary in scene.builder.waypoints:
+		gates += 1 if String(wp["block"]).begins_with("StadiumRoadMain") else 0
+	TestHooks.check(all.size() == gates, "gate_screens_" + id, "%d screens, %d road gates" % [all.size(), gates])
+	var here := TmGateScreen.near(get_tree(), at)
+	var want := TmRace.time_text(race.splits[0]) if not race.splits.is_empty() else "?"
+	TestHooks.check(here.size() == 1 and here[0]._main.text == want, "gate_screen_shows_time",
+		"%d near, %s (want %s)" % [here.size(), here.map(func(g: TmGateScreen) -> String: return g._main.text), want])
 
 
 func _track(id: String) -> int:

@@ -14,6 +14,9 @@ extends Node3D
 ## the finish menu watches it (race/replay.tscn) or saves it (Solo > Replays lists them).
 ## Testing a track from the editor (--back=editor): a finish validates it (sets its medals,
 ## TmUserTracks.validate_file) and the menu button goes back to the editor.
+## Inputs as text (TmInputScript, TMInterface-style): --inputs=<file> drives the car from a script
+## (a TMNF run's inputs on the same track: compare the printed INPUTS_RUN times with the game's),
+## --record_inputs=<file> writes this run's inputs at the finish.
 
 var challenge: TmChallenge
 var builder: TmMapBuilder
@@ -33,6 +36,8 @@ var menu: TmRaceMenu               ## pause and finish menus
 var audio: TmCarAudio              ## engine, skid, wind and the race's cues
 var online: TmRaceOnline           ## the online side, in a server (Online)
 var bot: TmBot                     ## the driving bot (--bot), else null
+var input_script: TmInputScript     ## --inputs=<file>: a script drives the car, else null
+var _recorded: Array = []           ## --record_inputs: [time_ms, gas, brake, steer] per tick
 var track_id := ""                 ## the campaign track raced ("" for a track file)
 var next_id := ""                  ## the campaign track after it ("" if none)
 
@@ -75,6 +80,8 @@ func _ready() -> void:
 	var laps: int = TestHooks.arg("laps", challenge.nb_laps if challenge.lap_race else 1)
 	race = TmRace.new(cps, laps)
 	race.finished.connect(_on_finished)
+	race.checkpoint_taken.connect(func(_count: int, time_ms: int) -> void: _gate_time(time_ms))
+	race.lap_done.connect(func(_lap: int, time_ms: int) -> void: _gate_time(time_ms))
 	best = TmRecords.best(challenge)
 	best_ghost = TmRecords.ghost(challenge) if TmUi.setting("ghost") else null
 	ghost_car = Node3D.new()
@@ -94,7 +101,12 @@ func _ready() -> void:
 	input = TmCarInput.new()
 	input.car = car
 	add_child(input)
-	if TestHooks.has_arg("bot") and not challenge.path.is_empty():
+	if TestHooks.has_arg("inputs"):
+		input_script = TmInputScript.load_file(String(TestHooks.arg("inputs", "")))
+		if not input_script.error.is_empty():
+			push_warning("inputs: " + input_script.error)
+		input.car = null
+	elif TestHooks.has_arg("bot") and not challenge.path.is_empty():
 		bot = TmBot.new()
 		bot.car = car
 		bot.path = challenge.path
@@ -167,6 +179,14 @@ func _physics_process(_delta: float) -> void:
 	_show_ghost()
 	if race.state == TmRace.State.COUNTDOWN:
 		return
+	if race.racing():
+		if input_script:
+			var v := input_script.at(race.time_ms)
+			car.gas = v[0]
+			car.brake = v[1]
+			car.steer = v[2]
+		if TestHooks.has_arg("record_inputs"):
+			_recorded.append([race.time_ms, car.gas, car.brake, car.steer])
 	car.step_tick()
 	var p := car.global_position
 	if race.racing():
@@ -198,6 +218,13 @@ func _show_ghost() -> void:
 
 
 func _on_finished(time_ms: int) -> void:
+	_gate_time(time_ms)
+	if input_script or TestHooks.has_arg("record_inputs"):
+		print("INPUTS_RUN splits=%s finish=%d" % [str(race.splits), time_ms])
+	if TestHooks.has_arg("record_inputs"):
+		var f := FileAccess.open(String(TestHooks.arg("record_inputs", "")), FileAccess.WRITE)
+		if f:
+			f.store_string(TmInputScript.write(_recorded))
 	car.controls_enabled = false
 	car.auto_brake = true
 	cam.freeze()
@@ -348,6 +375,10 @@ func restart(force := false) -> void:
 	new_record = false
 	_cp_states.clear()
 	hud.reset()
+	TmGateScreen.reset_all(get_tree())
+	_recorded.clear()
+	if input_script:
+		input_script = TmInputScript.load_file(String(TestHooks.arg("inputs", "")))
 	if bot:
 		bot.reset()
 	place_car(builder.start if builder.has_start else Transform3D())
@@ -363,6 +394,18 @@ func restart(force := false) -> void:
 		waiting = true
 	car.visible = not waiting
 	car.controls_enabled = not waiting
+
+
+## The time at the gate just passed on its crown screen, with the difference to the record's
+## split there (blue ahead, red behind), like TM2020's checkpoints.
+func _gate_time(time_ms: int) -> void:
+	var s: Array = best.get("splits", [])
+	var n := race.splits.size()
+	var b := int(s[n - 1]) if n >= 1 and n <= s.size() else -1
+	var delta := TmRaceHud.delta_text(time_ms - b) if b >= 0 else ""
+	var colour := TmRaceHud.AHEAD if time_ms - b <= 0 else TmRaceHud.BEHIND
+	for screen in TmGateScreen.near(get_tree(), car.global_position):
+		screen.show_time(TmRace.time_text(time_ms), delta, colour)
 
 
 ## Back to the last checkpoint (the clock keeps running); before any, or after the finish, a restart.

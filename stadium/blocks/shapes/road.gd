@@ -234,8 +234,6 @@ const HOLE_PILLARS := {
 	"3": [Vector2(16, 4), Vector2(10, 28), Vector2(22, 28)],
 }
 
-## The gate's sign boards (visual), left one (x, y); the right one is mirrored.
-const GATE_SIGN := [[6.96, 8.17], [7.26, 8.17], [10.26, 11.4], [9.81, 11.4]]
 
 static var _diag_cache := {}
 
@@ -864,8 +862,9 @@ func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN -
 ## Checkpoint / finish / multilap / start gate centred at z: TMNF's arch (its measured section)
 ## swept 4.2 m along the road, its front and back faces a moulded rubber band with the gate's word
 ## running along the arch ("gate_<kind>", UVs along the arch), its underside lit in the gate's
-## colour, light rigs on its shoulders aimed at the road, the two sign boards on top.
-## TmGateDress paints the road (start/finish pads, the checkpoint line) once the block is built.
+## colour, light rigs on its shoulders aimed at the road. TMNF's two sign boards on top are left
+## out (the review's gate option B: they read as horns); TmGateDress adds an LED screen in the
+## crown instead (TmGateScreen), and paints the road (start/finish pads, the checkpoint line).
 func _gate(geo: TmGeo, zc: float) -> void:
 	_gates.append(zc)
 	var sec := GATE_ARCH.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), "gate_shell", q[3]])
@@ -874,13 +873,7 @@ func _gate(geo: TmGeo, zc: float) -> void:
 	_gate_faces(geo, zc)
 	_gate_strips(geo, zc)
 	for x0 in [2.9, 27.7]:
-		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL)
-	for mirror in [false, true]:
-		var sign := []
-		for q in GATE_SIGN:
-			sign.append([Vector2(32.0 - q[0] if mirror else q[0], q[1]), "screen", TmGeo.NO_COLLISION])
-		geo.wall_sweep(sign, [Vector3(0, 0, zc - 2.25), Vector3(0, 0, zc + 2.25)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
-			true, "screen", TmGeo.NO_COLLISION)
+		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL, "", -2, 0.06)
 	_gate_lights(geo, zc)
 
 
@@ -998,7 +991,7 @@ func _gate_lights(geo: TmGeo, zc: float) -> void:
 			var z := zc + face * 2.1
 			var rig := TmGeo.new()
 			# housing 2 x 1 x 0.45 m, its face towards the road and down
-			rig.box(Vector3(-1.0, -0.5, 0.0), Vector3(1.0, 0.5, 0.45), "gate_shell", TmGeo.NO_COLLISION)
+			rig.box(Vector3(-1.0, -0.5, 0.0), Vector3(1.0, 0.5, 0.45), "gate_shell", TmGeo.NO_COLLISION, "", -2, 0.05)
 			var f := [Vector3(-0.92, -0.42, -0.01), Vector3(0.92, -0.42, -0.01), Vector3(0.92, 0.42, -0.01), Vector3(-0.92, 0.42, -0.01)]
 			var uv := [Vector2(0, 1), Vector2(2, 1), Vector2(2, 0), Vector2(0, 0)]
 			rig.tri(f[0], f[2], f[1], "gate_lamps", TmGeo.NO_COLLISION, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uv[0], uv[2], uv[1])

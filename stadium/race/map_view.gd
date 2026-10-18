@@ -24,6 +24,7 @@ func _ready() -> void:
 	miss.sort_custom(func(a, b): return builder.missing[a] > builder.missing[b])
 	print("MISSING (shape: count): ", ", ".join(miss.slice(0, 40).map(func(k): return "%s:%d" % [k, builder.missing[k]])))
 	TmStage.add_environment(self, builder)
+	await get_tree().physics_frame   # the blocks' collision is in the physics space (cars on the road)
 	_cars()
 	_camera()
 
@@ -39,6 +40,11 @@ func _cars() -> void:
 	# the start is on the road; TMNF's visual has its origin there, ours sits VIS above it (the
 	# TmCar frame's origin is the centre of mass)
 	_car_at = Transform3D(s.basis, s.origin + s.basis.z * float(TestHooks.arg("car_ahead", 0.0)))
+	# the start transform is the spawn point, above the road: stand the cars on the road below it
+	var q := PhysicsRayQueryParameters3D.create(_car_at.origin + s.basis.y * 1.5, _car_at.origin - s.basis.y * 2.5, TmCar.WORLD_MASK)
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	if not hit.is_empty():
+		_car_at.origin = hit["position"]
 	var side := s.basis.x
 	if which in ["ours", "both"]:
 		var ours := TmCarVisual.new()
