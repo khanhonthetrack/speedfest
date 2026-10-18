@@ -1806,3 +1806,22 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   to the review branch (session 13's M9 work + session 14's); CI built it (success). The tag could
   not be pushed from the cloud session (HTTP 403 on refs/tags; branch pushes work): the owner pushes
   it (HANDOFF has the command), then CI makes the GitHub Release with the Windows and Linux zips.
+- **Adverts on rotation, as in a football stadium** (owner: "Change the ads not to be next to each
+  other and one duplicate below another, but like in football stadiums, be a few of them, and
+  changin on rotation. Similar with billboard. Just one but changing from time to time."). The
+  screens showed the 16-ad strip tiled in world space (ads side by side all along, the strip
+  repeated every 4 m up a tall screen: two rows on the stands' LED ring, a 4 x 3 grid on the big
+  screens). Now every screen's UVs lay out its own ads (`TmGeo.SCREENS`, `screen_uv`,
+  `screen_rect`, `screen_box`; sweeps, revolves, extrusions and the lofted video cube
+  (`SculptShapes._screen_uvs`) give each screen face its own): one row of 2:1 slots fitted to the
+  screen's height, never stacked; billboards (`screen_on`: the stadium's two big screens and the
+  inflatable advert walls) one ad over the whole screen. `tm_surface.gdshader` `advert()` turns
+  the UVs to read upright from the front (screen-space derivatives, so mirrored and turned pieces
+  read right), and picks the ads: a board shows a set of 3 in turn along it, every board the same
+  set, all changing to the next set together every 8 s (16 ads, so every ad comes round);
+  a billboard shows one ad and changes every 12 s, each at its own moment and on its own ad (seeded
+  by its block's position). The new ads roll up into view over 0.5 s, slot after slot. A
+  board's ends, chamfers, caps and rims show an unlit panel; screen boxes' frames are steel.
+  Narrow tall screens (the Platform pub wall, the sound system's speakers) show their ad centred.
+  `tests/test_blocks`: the layout (slots, letterbox, unlit strips, a screen box's two rows) and
+  every one of the 85 shapes with screens shows ads.

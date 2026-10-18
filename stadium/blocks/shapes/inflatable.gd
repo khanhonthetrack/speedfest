@@ -54,8 +54,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_straight_wall(geo, PILLAR[0], 0.0, 32.0, 64.0)
 			var b: Array = ADVERT_BOARD
 			geo.box(Vector3(b[0], b[2], b[4]), Vector3(b[1], b[3], b[5]), "structure", S_METAL)
-			geo.quad(Vector3(b[1], b[2], b[4] - 0.01), Vector3(b[0], b[2], b[4] - 0.01), Vector3(b[0], b[3], b[4] - 0.01),
-				Vector3(b[1], b[3], b[4] - 0.01), "screen", TmGeo.NO_COLLISION)
+			geo.screen_rect(Vector3(b[1], b[2], b[4] - 0.01), Vector3(b[0], b[2], b[4] - 0.01), Vector3(b[0], b[3], b[4] - 0.01),
+				Vector3(b[1], b[3], b[4] - 0.01), "screen_on", TmGeo.NO_COLLISION)
 			for x: float in ADVERT_POSTS:
 				geo.box(Vector3(x - 0.26, 2.0, 7.543), Vector3(x + 0.26, 30.0, 8.058), "structure", S_METAL, "", -2, 0.03)
 		"CornerPillar":

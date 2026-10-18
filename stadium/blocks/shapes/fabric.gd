@@ -140,7 +140,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Fabric/FabricPillarGround":
 			_extrude(geo, PILLAR_STANDS)
 			var s: Array = PILLAR_SCREEN
-			geo.box(Vector3(s[0], s[2], s[4]), Vector3(s[1], s[3], s[5]), "screen", S_METAL, "", -2, 0.03)
+			geo.screen_box(Vector3(s[0], s[2], s[4]), Vector3(s[1], s[3], s[5]), "screen", S_METAL, 0.03)
 		"Fabric/FabricPillarAir":
 			geo.box(Vector3(PILLAR_WALL[0], 0, 0), Vector3(PILLAR_WALL[1], 24, 32), "fabric", S_ROAD)
 			_open_post(geo, Vector3(PILLAR_POST[0], 0, PILLAR_POST[2]), Vector3(PILLAR_POST[1], 24, PILLAR_POST[3]))
@@ -271,8 +271,9 @@ func _cross3(geo: TmGeo, lift: float) -> void:
 		sec.append([Vector2(p.x, p.y + lift - CANOPY_T), "structure", S_ROAD])
 	geo.wall_sweep(sec, [Vector3(0, 0, CANOPY_Z[0]), Vector3(0, 0, CANOPY_Z[1])], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
 		true, "structure", S_ROAD)
-	for b: Array in CROSS3_BOARDS:
-		geo.box(Vector3(b[0], 0.17 + lift, b[2]), Vector3(b[1], 2.67 + lift, b[3]), "screen", S_METAL, "", -2, 0.03)
+	for i in CROSS3_BOARDS.size():
+		var b: Array = CROSS3_BOARDS[i]
+		geo.screen_box(Vector3(b[0], 0.17 + lift, b[2]), Vector3(b[1], 2.67 + lift, b[3]), "screen", S_METAL, 0.03, i)
 
 
 ## A section table moved along x.

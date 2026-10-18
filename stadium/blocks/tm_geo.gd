@@ -9,6 +9,18 @@ extends RefCounted
 const NO_COLLISION := -1
 const UV_TILE := 8.0               ## sweeps hold a whole number of these along their length (m)
 const SMOOTH_DEG := 35.0            ## sweeps: sections bending less than this at a point shade round
+## Screens (the adverts: env/tm_adverts.gd, blocks/tm_surface.gdshader pattern 8): their UVs lay
+## the ads out on each screen. u counts ad slots along it (whole numbers between slots, from
+## 1 + `first`), v runs 0..1 across its height; the shader turns them to read upright from the
+## front whichever way they run (and on mirrored pieces). Boards hold a row of 2:1 slots, as many
+## as fit; billboards one ad over the whole screen. A screen face built without them (caps, edges,
+## rims lower than SCREEN_MIN_H, strips narrower than SCREEN_MIN_W) is an unlit panel.
+const SCREENS := ["screen", "led", "screen_on"]
+const BILLBOARDS := ["screen_on"]
+const SCREEN_OFF := Vector2(0.0, -4.0)
+const SCREEN_MIN_H := 1.2
+const SCREEN_MIN_W := 2.5          ## and narrower than this (a board's end, a chamfered corner)
+const SCREEN_MIN_ASPECT := 1.4      ## a slot narrower than this (w:h) shows its ad letterboxed
 
 class Group:
 	var v := PackedVector3Array()
@@ -47,7 +59,10 @@ func tri(a: Vector3, b: Vector3, c: Vector3, mat: String, surface: int, na := Ve
 			var vn: Vector3 = [na, nb, nc][k]
 			grp.v.append(g(p))
 			grp.n.append(g(n if vn == Vector3.ZERO else vn))
-			grp.uv.append(_tri_uv(p, n) if auto_uv else [ua, ub, uc][k])
+			if auto_uv:
+				grp.uv.append(SCREEN_OFF if mat in SCREENS else _tri_uv(p, n))
+			else:
+				grp.uv.append([ua, ub, uc][k])
 	if surface != NO_COLLISION:
 		_col.append(g(a))
 		_col.append(g(b))
@@ -59,6 +74,47 @@ func tri(a: Vector3, b: Vector3, c: Vector3, mat: String, surface: int, na := Ve
 func quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int) -> void:
 	tri(a, b, c, mat, surface)
 	tri(a, c, d, mat, surface)
+
+
+## The same with UVs at its corners.
+func quad_uv(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int, ua: Vector2,
+		ub: Vector2, uc: Vector2, ud: Vector2) -> void:
+	tri(a, b, c, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, ub, uc)
+	tri(a, c, d, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
+
+
+## How many ads a screen w wide and h high shows side by side: billboards one, boards as many 2:1
+## slots as fit (at least one).
+static func screen_slots(mat: String, w: float, h: float) -> int:
+	if mat in BILLBOARDS:
+		return 1
+	return maxi(1, roundi(w / (2.0 * h)))
+
+
+## A screen's UV `along` metres (0..w) along it and `down` metres (0..h) from one long edge (see
+## SCREENS); slots narrower than SCREEN_MIN_ASPECT show their ad at full width, centred.
+static func screen_uv(mat: String, along: float, w: float, down: float, h: float, first := 0) -> Vector2:
+	if h < SCREEN_MIN_H or w < SCREEN_MIN_W:
+		return SCREEN_OFF
+	var n := screen_slots(mat, w, h)
+	var ad_h := minf(h, w / n / SCREEN_MIN_ASPECT)
+	return Vector2(1.0 + first + n * along / w, 0.5 + (down - 0.5 * h) / ad_h)
+
+
+## A flat screen: bottom edge a -> b, top edge d -> c, its front (b - a) x (c - a) (turned round to
+## face `out` when given).
+func screen_rect(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int, first := 0,
+		out := Vector3.ZERO) -> void:
+	if out != Vector3.ZERO and (b - a).cross(c - a).dot(out) < 0.0:
+		var t := [b, a, d, c]
+		a = t[0]
+		b = t[1]
+		c = t[2]
+		d = t[3]
+	var w := (b - a).length()
+	var h := (d - a).length()
+	quad_uv(a, b, c, d, mat, surface, screen_uv(mat, 0.0, w, h, h, first), screen_uv(mat, w, w, h, h, first),
+		screen_uv(mat, w, w, 0.0, h, first), screen_uv(mat, 0.0, w, 0.0, h, first))
 
 
 ## World-aligned UVs in metres / 8 (texture tiles every 8 m), projected on the dominant axis.
@@ -93,9 +149,49 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 	quad(p[1], p[5], p[6], p[2], mat, surface)    # +x
 
 
+## A board or billboard [lo, hi] (TMNF coords): its two wide vertical faces are the screen (mat,
+## the ads laid out on each: SCREENS; slots from `first`), the rest its frame (frame_mat; bevel:
+## chamfered as box() does).
+func screen_box(lo: Vector3, hi: Vector3, mat: String, surface: int, bevel := 0.0, first := 0,
+		frame_mat := "structure") -> void:
+	var r := minf(bevel, 0.45 * minf(hi.x - lo.x, minf(hi.y - lo.y, hi.z - lo.z)))
+	if r <= 0.002:
+		r = 0.0
+	var ax := 2 if hi.x - lo.x >= hi.z - lo.z else 0    # the screens face along this axis
+	if surface != NO_COLLISION:
+		box(lo, hi, "", surface)
+	if r > 0.0:
+		_chamfered_box(lo, hi, r, frame_mat, frame_mat, ax)
+	else:
+		var p := [Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
+			Vector3(lo.x, hi.y, lo.z), Vector3(hi.x, hi.y, lo.z), Vector3(hi.x, hi.y, hi.z), Vector3(lo.x, hi.y, hi.z)]
+		quad(p[4], p[7], p[6], p[5], frame_mat, NO_COLLISION)
+		quad(p[0], p[1], p[2], p[3], frame_mat, NO_COLLISION)
+		if ax == 0:
+			quad(p[0], p[4], p[5], p[1], frame_mat, NO_COLLISION)
+			quad(p[2], p[6], p[7], p[3], frame_mat, NO_COLLISION)
+		else:
+			quad(p[3], p[7], p[4], p[0], frame_mat, NO_COLLISION)
+			quad(p[1], p[5], p[6], p[2], frame_mat, NO_COLLISION)
+	var y0 := lo.y + r
+	var y1 := hi.y - r
+	if ax == 2:
+		for z: float in [lo.z, hi.z]:
+			var a := Vector3(lo.x + r, y0, z)
+			var b := Vector3(hi.x - r, y0, z)
+			screen_rect(a, b, Vector3(b.x, y1, z), Vector3(a.x, y1, z), mat, NO_COLLISION, first,
+				Vector3(0, 0, -1 if z == lo.z else 1))
+	else:
+		for x: float in [lo.x, hi.x]:
+			var a := Vector3(x, y0, lo.z + r)
+			var b := Vector3(x, y0, hi.z - r)
+			screen_rect(a, b, Vector3(x, y1, b.z), Vector3(x, y1, a.z), mat, NO_COLLISION, first,
+				Vector3(-1 if x == lo.x else 1, 0, 0))
+
+
 ## A box's visual mesh with every edge chamfered by r: six inset faces, twelve 45-degree edge
 ## strips and eight corner triangles (flat normals: the strips catch the light).
-func _chamfered_box(lo: Vector3, hi: Vector3, r: float, mat: String, top_mat: String) -> void:
+func _chamfered_box(lo: Vector3, hi: Vector3, r: float, mat: String, top_mat: String, skip_axis := -1) -> void:
 	var axes := [Vector3.RIGHT, Vector3.UP, Vector3.BACK]
 	var signs := [-1.0, 1.0]
 	# the point of corner s on the face across axis a: the corner pulled in along the other two
@@ -106,6 +202,8 @@ func _chamfered_box(lo: Vector3, hi: Vector3, r: float, mat: String, top_mat: St
 				c -= (axes[b] as Vector3) * sv[b] * r
 		return c
 	for a in 3:
+		if a == skip_axis:
+			continue
 		for sa: float in signs:
 			var pts := []
 			for s1: float in signs:
@@ -255,6 +353,16 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 			var ub := Vector2(side * float(us[f][k + 1]), vb)
 			var uc := Vector2(side * float(us[f + 1][k + 1]), vb)
 			var ud := Vector2(side * float(us[f + 1][k]), va)
+			if mat in SCREENS:
+				# a screen per segment: as long as the path, as high as the segment
+				var h := ((pr0[k + 1][0] as Vector2) - (pr0[k][0] as Vector2)).length()
+				var wa := maxf(float(us[nf - 1][k]), 1e-6)
+				var wb := maxf(float(us[nf - 1][k + 1]), 1e-6)
+				var w := 0.5 * (wa + wb)
+				ua = screen_uv(mat, w * float(us[f][k]) / wa, w, 0.0, h)
+				ub = screen_uv(mat, w * float(us[f][k + 1]) / wb, w, h, h)
+				uc = screen_uv(mat, w * float(us[f + 1][k + 1]) / wb, w, h, h)
+				ud = screen_uv(mat, w * float(us[f + 1][k]) / wa, w, 0.0, h)
 			if ua == Vector2.ZERO and ub == Vector2.ZERO:
 				ua.x = 1e-6       # (all-zero UVs mean "make them up" to tri())
 			tri(a, b, c, mat, surf, na, nb, nc, ua, ub, uc)
@@ -426,7 +534,11 @@ func extrude_y(loop: Array, y0: float, y1: float, caps := false, cap_mat := "", 
 		var b := Vector3(q.x, y0, q.y)
 		var c := Vector3(q.x, y1, q.y)
 		var d := Vector3(p.x, y1, p.y)
-		if ccw:
+		if String(loop[i][1]) in SCREENS and ccw:
+			screen_rect(b, a, d, c, loop[i][1], loop[i][2], i)
+		elif String(loop[i][1]) in SCREENS:
+			screen_rect(a, b, c, d, loop[i][1], loop[i][2], i)
+		elif ccw:
 			quad(a, d, c, b, loop[i][1], loop[i][2])
 		else:
 			quad(a, b, c, d, loop[i][1], loop[i][2])

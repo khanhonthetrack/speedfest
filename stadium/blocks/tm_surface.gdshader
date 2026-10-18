@@ -7,7 +7,7 @@ shader_type spatial;
 // face is closest to. Relief is bump-mapped from a height (screen-space derivatives), fading out
 // with distance against shimmer.
 // pattern: 0 plain, 1 concrete, 2 grass, 3 dirt, 4 perforated grid, 5 brushed metal, 6 turbo
-// stripes, 7 seat rows, 8 screen/LED (the adverts scrolling, else animated bands), 9 fabric,
+// stripes, 7 seat rows, 8 screen/LED (the adverts, else animated bands), 9 fabric,
 // 10 louvres, 11 wall panels, 12 paving, 13 lamp grid (floodlights), 14 striped vinyl (inflatables).
 
 uniform int pattern = 0;
@@ -23,17 +23,26 @@ uniform sampler2D noise_fine : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D noise_coarse : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D advert_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform bool has_advert = false;
-uniform float ad_scale = 1.0;       // the ads' size on this material's screens (big screens: 3)
-const float AD_PANELS = 16.0;       // ads side by side in advert_tex (env/tm_adverts.gd)
-const float AD_W = 8.0;             // one ad's width on a screen (m)
-const float AD_H = 4.0;             // and height
+uniform bool billboard = false;     // one ad per screen, changing on its own (else a board)
+// The ads (env/tm_adverts.gd) as on a football stadium's boards: each screen's UVs lay them out
+// (TmGeo.SCREENS: u = slots along it, v = 0..1 across it). A board shows a set of AD_SET ads in
+// turn along it, every board the same set, all changing to the next set together every
+// BOARD_SECS; a billboard shows one ad, which changes every BILLBOARD_SECS (each billboard at its
+// own moment). The new ads roll up into view over ROLL_SECS, slot after slot.
+const float AD_PANELS = 16.0;       // ads side by side in advert_tex
+const float AD_SET = 3.0;
+const float BOARD_SECS = 8.0;
+const float BILLBOARD_SECS = 12.0;
+const float ROLL_SECS = 0.5;
 
 varying vec3 wpos;
 varying vec3 wnrm;
+varying flat float seed;            // per block (its origin): which ads its screens start on
 
 void vertex() {
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wnrm = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+	seed = fract(sin(dot(MODEL_MATRIX[3].xyz / vec3(32.0, 8.0, 32.0), vec3(12.9898, 78.233, 37.719))) * 43758.5453);
 }
 
 vec3 tri_w(vec3 n) {
@@ -65,6 +74,65 @@ float seams(vec2 uv, vec2 size, float width) {
 	vec2 s = 1.0 - smoothstep(vec2(width) - fw, vec2(width) + fw, d);
 	float fade = 1.0 - smoothstep(0.015, 0.06, max(fw.x, fw.y) / min(size.x, size.y));
 	return max(s.x, s.y) * fade;
+}
+
+// The ads on a screen at its UV (see the uniforms): the colour, or a negative red where the
+// screen shows no ad (an unlit face, a letterboxed ad's margins). n: the face's normal.
+vec3 advert(vec2 suv, vec3 n) {
+	float s = abs(suv.x);           // (mirrored pieces negate u)
+	float v = suv.y;
+	// which way u and v run as a viewer in front sees them: the slots read left to right, upright
+	vec3 right = normalize(cross(-n, vec3(0.0, 1.0, 0.0)));
+	vec3 up = cross(right, -n);
+	vec3 px = dFdx(wpos);
+	vec3 py = dFdy(wpos);
+	float rx = dot(px, right);
+	float ry = dot(py, right);
+	float ux = dot(px, up);
+	float uy = dot(py, up);
+	float sx = dFdx(s);
+	float sy = dFdy(s);
+	float vx = dFdx(v);
+	float vy = dFdy(v);
+	float dm = rx * uy - ry * ux;
+	bool upside = (vy * rx - vx * ry) * dm > 0.0;          // v grows upward
+	bool mirrored = (sx * vy - sy * vx) * dm > 0.0;       // u and v read as a mirror image
+	float k = floor(s);
+	float lu = fract(s);
+	if (mirrored != upside) {
+		lu = 1.0 - lu;
+	}
+	if (upside) {
+		v = 1.0 - v;
+	}
+	if (v < 0.0 || v > 1.0) {
+		return vec3(-1.0);
+	}
+	// which ads: this period's and the one before (rolling out)
+	float period = billboard ? BILLBOARD_SECS : BOARD_SECS;
+	// (from 1 s on: no change rolls in as the game starts)
+	float t = TIME + 1.0 + (billboard ? fract(seed * 7.31 + k * 0.618) * BILLBOARD_SECS : 0.0);
+	float slot = floor(t / period);
+	float since = t - slot * period - mod(k, 6.0) * 0.08;
+	float roll = smoothstep(0.0, ROLL_SECS, since);
+	float first = floor(seed * AD_PANELS);
+	float now_ad;
+	float was_ad;
+	if (billboard) {
+		now_ad = mod(slot * 5.0 + first + k * 3.0, AD_PANELS);
+		was_ad = mod((slot - 1.0) * 5.0 + first + k * 3.0, AD_PANELS);
+	} else {
+		float pick = mod(k + first, AD_SET);
+		now_ad = mod(slot * AD_SET + pick, AD_PANELS);
+		was_ad = mod((slot - 1.0) * AD_SET + pick, AD_PANELS);
+	}
+	float rv = v + roll;            // the old ad moves up and out, the new one follows it
+	float ad = rv < 1.0 ? was_ad : now_ad;
+	rv = rv < 1.0 ? rv : rv - 1.0;
+	vec2 at = vec2((ad + clamp(lu, 0.002, 0.998)) / AD_PANELS, rv);
+	vec3 c = textureGrad(advert_tex, at, vec2(sx / AD_PANELS, vx), vec2(sy / AD_PANELS, vy)).rgb;
+	// a dark line between the two while they roll
+	return c * (roll > 0.0 && roll < 1.0 ? smoothstep(0.0, 0.03, abs(v - (1.0 - roll))) : 1.0);
 }
 
 // 1 on stripes of period `period` (fraction `duty` on), antialiased
@@ -151,14 +219,11 @@ void fragment() {
 		col = mix(col, vec3(0.62, 0.63, 0.65), max(aisle, walk));
 		col *= 1.0 + (fine - 0.5) * variation;
 		h += (row * 0.5 - max(aisle, walk) * 0.3) * rake;
-	} else if (pattern == 8) {     // LED boards and screens: the adverts scrolling on a pixel grid
+	} else if (pattern == 8) {     // LED boards and screens: the adverts on a pixel grid
 		float px = 1.0 - mix(seams(uv, vec2(0.12), 0.012), 0.08, aa) * 0.6;
-		if (has_advert && abs(n.y) < 0.7) {
-			// read from the front: "right" as a viewer facing the screen sees it, v down
-			vec3 right = normalize(cross(-n, vec3(0.0, 1.0, 0.0)));
-			vec2 ad = vec2(dot(wpos, right) / (AD_W * AD_PANELS * ad_scale) + TIME * 0.012 / ad_scale,
-				-wpos.y / (AD_H * ad_scale));
-			emit = texture(advert_tex, ad).rgb * px * 1.6;
+		if (has_advert) {
+			vec3 ad = UV.y < -2.0 || abs(n.y) > 0.95 ? vec3(-1.0) : advert(UV, n);
+			emit = ad.r < 0.0 ? albedo2 * px * 0.35 : ad * px * 1.6;
 		} else {
 			float band = 0.55 + 0.45 * sin(uv.x * 0.25 - TIME * 2.0 + sin(uv.y * 0.6 + TIME) * 0.8);
 			emit = mix(albedo2, albedo, band) * px;

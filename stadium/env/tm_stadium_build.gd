@@ -189,7 +189,10 @@ static func _grandstand(geo: TmGeo, sz: float) -> void:
 		for i in path.size():
 			dmax.append(absf((mid - (path[i] as Vector2).y) / (m[i] as Vector2).y))
 		_sweep(geo, path, m, LENS_SECTION, dmax)
-		# the glass screen behind the rake's top, and (inner half) the LED boards
+		# the glass screen behind the rake's top, and (inner half) the LED boards: one board along
+		# the stand, its ads laid out by the metres run along it (TmGeo.SCREENS)
+		var led_h: float = LED[2] - LED[1]
+		var run := 0.0
 		for i in path.size() - 1:
 			var p0: Vector2 = path[i]
 			var p1: Vector2 = path[i + 1]
@@ -204,8 +207,15 @@ static func _grandstand(geo: TmGeo, sz: float) -> void:
 			if half == 0 and absf(p0.x) < LED[3] and absf(p1.x) < LED[3]:
 				var e := Vector3(p0.x + m0.x * LED[0], LED[1], p0.y + m0.y * LED[0])
 				var f := Vector3(p1.x + m1.x * LED[0], LED[1], p1.y + m1.y * LED[0])
-				_quad(geo, e, f, f + Vector3(0, LED[2] - LED[1], 0), e + Vector3(0, LED[2] - LED[1], 0), "led", Vector3(-m0.x, 0.0, -m0.y))
-				_quad(geo, e, f, f + Vector3(0, LED[2] - LED[1], 0), e + Vector3(0, LED[2] - LED[1], 0), "structure", Vector3(m0.x, 0.0, m0.y))
+				var up := Vector3(0, led_h, 0)
+				var u0 := 1.0 + run / (2.0 * led_h)
+				run += (f - e).length()
+				var u1 := 1.0 + run / (2.0 * led_h)
+				if (f - e).cross(f + up - e).dot(Vector3(-m0.x, 0.0, -m0.y)) >= 0.0:
+					geo.quad_uv(e, f, f + up, e + up, "led", TmGeo.NO_COLLISION, Vector2(u0, 1), Vector2(u1, 1), Vector2(u1, 0), Vector2(u0, 0))
+				else:
+					geo.quad_uv(f, e, e + up, f + up, "led", TmGeo.NO_COLLISION, Vector2(u1, 1), Vector2(u0, 1), Vector2(u0, 0), Vector2(u1, 0))
+				_quad(geo, e, f, f + up, e + up, "structure", Vector3(m0.x, 0.0, m0.y))
 
 
 ## The roof's section at x: [z, y] around the band (top from the field edge back, underside back).
@@ -335,7 +345,8 @@ static func _screen(geo: TmGeo, sx: float) -> void:
 	var hi: float = SCREEN[3]
 	_box(geo, Vector3(x + sx * 2.0, (lo + hi) * 0.5, 0.0), Vector3(2.0, (hi - lo) * 0.5 + 1.5, w + 1.5), "structure")
 	var f := x - sx * 0.05   # the picture, just in front of the box's face
-	_quad(geo, Vector3(f, lo, -w), Vector3(f, lo, w), Vector3(f, hi, w), Vector3(f, hi, -w), "screen_on", Vector3(-sx, 0.0, 0.0))
+	geo.screen_rect(Vector3(f, lo, -w), Vector3(f, lo, w), Vector3(f, hi, w), Vector3(f, hi, -w), "screen_on",
+		TmGeo.NO_COLLISION, 0 if sx > 0.0 else 1, Vector3(-sx, 0.0, 0.0))
 	for z: float in [-w * 0.6, w * 0.6]:
 		geo.pipe(Vector3(x + sx * 2.0, 34.3, z), Vector3(x + sx * 2.0, SCREEN[2], z), 1.5, 8, "structure", TmGeo.NO_COLLISION)
 

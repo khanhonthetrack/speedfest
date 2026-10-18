@@ -104,15 +104,24 @@ func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0)
 		var c := (_mean(lo) + _mean(hi)) * 0.5
 		for i in n:
 			var j := (i + 1) % n
-			quads.append([lo[i], hi[i], hi[j], lo[j], c])
+			quads.append([lo[i], hi[i], hi[j], lo[j], c, k, i])
 	# outward by majority: the face normal against the way out from the rings' centre
 	var votes := 0
 	for q: Array in quads:
 		var nrm := ((q[1] as Vector3) - (q[0] as Vector3)).cross((q[2] as Vector3) - (q[0] as Vector3))
 		var mid := ((q[0] as Vector3) + (q[2] as Vector3)) * 0.5
 		votes += 1 if nrm.dot(mid - (q[4] as Vector3)) >= 0.0 else -1
+	var uvs := _screen_uvs(tube, rings, mat) if mat in TmGeo.SCREENS else []
 	for q: Array in quads:
-		if votes >= 0:
+		if not uvs.is_empty():
+			var k: int = q[5]
+			var i: int = q[6]
+			var u: Array = [uvs[k][i], uvs[k + 1][i], uvs[k + 1][n + i], uvs[k][n + i]]
+			if votes >= 0:
+				geo.quad_uv(q[0], q[1], q[2], q[3], mat, surface, u[0], u[1], u[2], u[3])
+			else:
+				geo.quad_uv(q[3], q[2], q[1], q[0], mat, surface, u[3], u[2], u[1], u[0])
+		elif votes >= 0:
 			geo.quad(q[0], q[1], q[2], q[3], mat, surface)
 		else:
 			geo.quad(q[3], q[2], q[1], q[0], mat, surface)
@@ -137,6 +146,58 @@ func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0)
 			else:
 				geo.quad(q, b, a, p, mat, surface)
 		geo.flat_polygon(_plan(last), ty, mat, surface)
+
+
+## A lofted screen's UVs (TmGeo.SCREENS): its sides are the runs of the rings' edges
+## that keep their direction (within 20 degrees: a video cube's faces, its chamfered corners on
+## their own), each one screen as high as the loft.
+static func _screen_uvs(tube: Dictionary, rings: Array, mat: String) -> Array:
+	var along_z := String(tube.get("axis", "y")) == "z"
+	var mid: Array = rings[rings.size() / 2]
+	var n := mid.size()
+	var flat := func(p: Vector3) -> Vector2: return Vector2(p.x, p.y) if along_z else Vector2(p.x, p.z)
+	var dirs := []
+	var lens := []
+	for i in n:
+		var d: Vector2 = flat.call(mid[(i + 1) % n]) - flat.call(mid[i])
+		lens.append(d.length())
+		dirs.append(d.normalized() if d.length() > 1e-6 else Vector2.RIGHT)
+	# start at the sharpest corner, so no side is split where the ring starts
+	var start := 0
+	var worst := 2.0
+	for i in n:
+		var c := (dirs[i] as Vector2).dot(dirs[(i + n - 1) % n])
+		if c < worst:
+			worst = c
+			start = i
+	var sides := []                  # [first edge, edge count, length]
+	var cos_lim := cos(deg_to_rad(20.0))
+	for e in n:
+		var i := (start + e) % n
+		if sides.is_empty() or (dirs[i] as Vector2).dot(dirs[int(sides[-1][0])]) < cos_lim:
+			sides.append([i, 0, 0.0])
+		sides[-1][1] = int(sides[-1][1]) + 1
+		sides[-1][2] = float(sides[-1][2]) + float(lens[i])
+	var a0 := float((tube["rings"] as Array)[0][0])
+	var a1 := float((tube["rings"] as Array)[-1][0])
+	var h := absf(a1 - a0)
+	# each edge's two ends on its side's screen (a point between two sides has a UV on each, so
+	# [ring][point] holds the UV where edge `point` starts, [ring][point + n] where it ends)
+	var out := []
+	for k in rings.size():
+		var down := maxf(a0, a1) - float((tube["rings"] as Array)[k][0])
+		var row := []
+		row.resize(2 * n)
+		out.append(row)
+		for si in sides.size():
+			var sd: Array = sides[si]
+			var run := 0.0
+			for e in int(sd[1]):
+				var i := (int(sd[0]) + e) % n
+				row[i] = TmGeo.screen_uv(mat, run, float(sd[2]), down, h, si)
+				run += float(lens[i])
+				row[n + i] = TmGeo.screen_uv(mat, run, float(sd[2]), down, h, si)
+	return out
 
 
 ## A ring drawn in to a point (a tube's tapering end), each triangle facing away from the ring.

@@ -317,5 +317,5 @@ static func _surface(key: String, spec: Array) -> ShaderMaterial:
 		if ads:
 			m.set_shader_parameter("advert_tex", ads.call("texture"))
 			m.set_shader_parameter("has_advert", true)
-			m.set_shader_parameter("ad_scale", 3.0 if key == "screen_on" else 1.0)
+			m.set_shader_parameter("billboard", key in TmGeo.BILLBOARDS)
 	return m

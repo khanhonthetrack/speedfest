@@ -164,6 +164,10 @@ Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `
   mesh's bounds against the block's footprint first.
 - Faces are authored in TMNF block-local coordinates (x right, y up, z forward); Godot = x negated.
 - Godot re-enables `_physics_process` when a node enters the tree: switch it off after `add_child`.
+- Screens ("screen", "led"; billboards "screen_on") need an ad layout in their UVs (`TmGeo.SCREENS`):
+  build them with `screen_box` / `screen_rect` (or a sweep / `extrude_y`, which lay them out
+  themselves); a screen face made with plain `quad`/`tri` shows an unlit panel, and
+  `tests/test_blocks` fails when a shape's screens show no ad at all.
 - Race waypoints come from the catalogue's waypoint type and `race/tm_triggers.gd` (measured gate
   slabs), not from the block geometry.
 - The measured material table maps Stadium grass to surface 0; the remake uses grass = 2 (open
