@@ -2,13 +2,15 @@ class_name TmCarPack
 extends RefCounted
 ## A car pack: a TMNF car model or skin as players share them (.zip, e.g. from ManiaPark; a server
 ## checks and repacks the ones its admins upload: stadium/server/lib/content.js). Holds the model
-## (MainBody.Solid.Gbx, read by TmSolid), its textures (Diffuse, Details, Illum: DDS, TGA, PNG,
-## JPG or BMP) and engine sounds (EngineIdle/Low/Mid/Fast/Rev/Rev2 .wav or .ogg). Loaded once per
-## file and shared by every car that drives it (TmCarVisual.pack).
+## (MainBodyHigh.Solid.Gbx, the detailed car; MainBody.Solid.Gbx is TMNF's low-detail one, used
+## when there is no other; read by TmSolid), its textures (Diffuse, Details, Illum, Pilot: DDS,
+## TGA, PNG, JPG or BMP) and engine sounds (EngineIdle/Low/Mid/Fast/Rev/Rev2 .wav or .ogg). Loaded
+## once per file and shared by every car that drives it (TmCarVisual.pack).
 ##
 ## TMNF binds textures by part name: a part's material letter (sBody, dFLWheel, gBody; WheelFLd;
-## or the whole word: Skin, Details, Glass) picks Diffuse (s), Details (d, p) or Details as glass
-## (g). Wheels (FLWheel, WheelFRs, ...) spin and steer, hubs and guards (dFLHub, sFRGuard) steer;
+## or the whole word: Skin, Details, Glass) picks Diffuse (s), Details (d), Pilot (p: the driver;
+## Details when the pack has no Pilot texture) or Details as glass (g). Wheels (FLWheel, WheelFRs,
+## ...) spin and steer, hubs and guards (dFLHub, sFRGuard) steer;
 ## Light* and ProjShad nodes are markers (lamp places, the shadow quad), not drawn.
 ##
 ## A skin without a model (only its textures: TMNF paints them on its own Stadium car, which we
@@ -24,7 +26,7 @@ const TEXTURE_EXT := ["dds", "tga", "png", "jpg", "jpeg", "bmp"]
 ## The engine's layers (TmCarAudio.LAYERS) from TMNF's engine sounds.
 const ENGINE_SOUNDS := {"engine_idle": "engineidle", "engine_low": "enginelow", "engine_mid": "enginemid",
 	"engine_high": "enginefast", "engine_coast_low": "enginerev", "engine_coast_high": "enginerev2"}
-const SURFACES := {"s": "pack_skin", "d": "pack_details", "p": "pack_details", "g": "pack_glass"}
+const SURFACES := {"s": "pack_skin", "d": "pack_details", "p": "pack_pilot", "g": "pack_glass"}
 
 var error := ""
 var path := ""
@@ -105,7 +107,7 @@ func _load() -> void:
 			key = "engine/" + key
 		if not files.has(key):
 			files[key] = f
-	for t in ["diffuse", "details", "illum"]:
+	for t in ["diffuse", "details", "illum", "pilot"]:
 		for ext: String in TEXTURE_EXT:
 			if files.has(t + "." + ext):
 				var tex := _texture(zip.read_file(files[t + "." + ext]), ext)
@@ -120,9 +122,9 @@ func _load() -> void:
 				if s:
 					sounds[layer] = s
 					break
-	# the model TMNF drives (MainBody), else its menu version (MainBodyHigh) if that one reads
+	# the detailed model (MainBodyHigh), else the low-detail one TMNF draws far away (MainBody)
 	var errors: PackedStringArray = []
-	for k in ["mainbody.solid.gbx", "mainbodyhigh.solid.gbx"]:
+	for k in ["mainbodyhigh.solid.gbx", "mainbody.solid.gbx"]:
 		if not files.has(k):
 			continue
 		var s := TmSolid.load_bytes(zip.read_file(files[k]))
@@ -314,6 +316,8 @@ static func _slots(centres: Array) -> Array:
 
 
 ## One ArrayMesh with a surface per material from [part, transform] lists (null if empty).
+## Exporters often leave normals out (zero vectors, sometimes whole parts: TMNF copes, Godot's
+## lighting doesn't): those vertices get the area-weighted normal of their faces.
 static func _mesh(surfaces: Dictionary) -> ArrayMesh:
 	if surfaces.is_empty():
 		return null
@@ -323,10 +327,6 @@ static func _mesh(surfaces: Dictionary) -> ArrayMesh:
 		var normals := PackedVector3Array()
 		var uvs := PackedVector2Array()
 		var idx := PackedInt32Array()
-		var all_normals := true
-		for e: Array in surfaces[surf]:
-			if (e[0]["normals"] as PackedVector3Array).is_empty():
-				all_normals = false
 		for e: Array in surfaces[surf]:
 			var p: Dictionary = e[0]
 			var xf: Transform3D = e[1]
@@ -337,32 +337,54 @@ static func _mesh(surfaces: Dictionary) -> ArrayMesh:
 			var nb := xf.basis.inverse().transposed()
 			for i in pv.size():
 				verts.append(xf * pv[i])
-				if all_normals:
-					normals.append((nb * pn[i]).normalized())
+				var authored := not pn.is_empty() and pn[i].length_squared() > 0.25
+				normals.append((nb * pn[i]).normalized() if authored else Vector3.ZERO)
 				uvs.append(pu[i] if not pu.is_empty() else Vector2.ZERO)
 			for k: int in p["indices"]:
 				idx.append(base + k)
+		_repair_normals(verts, normals, idx)
 		var arrays := []
 		arrays.resize(Mesh.ARRAY_MAX)
 		arrays[Mesh.ARRAY_VERTEX] = verts
+		arrays[Mesh.ARRAY_NORMAL] = normals
 		arrays[Mesh.ARRAY_TEX_UV] = uvs
 		arrays[Mesh.ARRAY_INDEX] = idx
-		if all_normals:
-			arrays[Mesh.ARRAY_NORMAL] = normals
-			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		else:
-			var st := SurfaceTool.new()
-			st.create_from_arrays(arrays)
-			st.generate_normals()
-			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, st.commit_to_arrays())
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		mesh.surface_set_name(mesh.get_surface_count() - 1, surf)
 	return mesh
+
+
+## Fills the zero normals with their faces' (Godot's winding: front faces clockwise, so a face's
+## outward normal is (c - a) x (b - a)), weighted by area.
+static func _repair_normals(verts: PackedVector3Array, normals: PackedVector3Array, idx: PackedInt32Array) -> void:
+	var missing := false
+	for n in normals:
+		if n == Vector3.ZERO:
+			missing = true
+			break
+	if not missing:
+		return
+	var acc := PackedVector3Array()
+	acc.resize(verts.size())
+	for t in range(0, idx.size() - 2, 3):
+		var a := idx[t]
+		var b := idx[t + 1]
+		var c := idx[t + 2]
+		var f := (verts[c] - verts[a]).cross(verts[b] - verts[a])
+		acc[a] += f
+		acc[b] += f
+		acc[c] += f
+	for i in normals.size():
+		if normals[i] == Vector3.ZERO:
+			normals[i] = acc[i].normalized() if acc[i].length_squared() > 1e-20 else Vector3.UP
 
 
 ## A material for one of the pack's surfaces (a ghost's is see-through).
 func material(surface: String, ghost := false, tint := Color.WHITE) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
-	var tex: Texture2D = textures.get("details" if surface != "pack_skin" else "diffuse")
+	var tex: Texture2D = textures.get({"pack_skin": "diffuse", "pack_pilot": "pilot"}.get(surface, "details"))
+	if tex == null and surface == "pack_pilot":
+		tex = textures.get("details")
 	m.albedo_texture = tex
 	m.albedo_color = tint if tex == null else Color.WHITE
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
@@ -379,7 +401,10 @@ func material(surface: String, ghost := false, tint := Color.WHITE) -> StandardM
 		_:
 			m.roughness = 0.55
 			if textures.has("illum"):
+				# lamps lit where Illum is bright (multiplied: Godot's default adds the colour, which
+				# lit every detail part white)
 				m.emission_enabled = true
+				m.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
 				m.emission_texture = textures["illum"]
 				m.emission = Color.WHITE
 				m.emission_energy_multiplier = 0.8

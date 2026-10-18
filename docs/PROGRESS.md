@@ -2044,3 +2044,27 @@ admins server correctly ... I want full compatibility" (TRANSCRIPT session 15). 
   `MainBodyHigh` (the menu model); a skin without a model (textures only: TMNF paints them on its
   own Stadium car, which we don't ship) loads as `skin_only` and our car is painted in its main
   colour; a pack that fails is marked and not re-read on every players update. test_car_pack 26.
+
+## 2026-10-18 — Session 15: car liveries checked against ManiaPark's screenshots
+Owner: "Can you check if the car liveries look alrigght? ... the hypercar has weird livery, or
+peugeot looks green at the top and b White at the bottom" (TRANSCRIPT). Each pack rendered next to
+its ManiaPark screenshot (17 packs, every visual chunk version and both file formats); four causes
+found and fixed:
+- **The model:** `MainBody.Solid.Gbx` is TMNF's low-detail car (e.g. the Porsche 963's is a
+  2,019-vertex shell with no wheels); `MainBodyHigh.Solid.Gbx` is the car (~90k vertices, wheels,
+  hubs, glass, driver). Packs now load MainBodyHigh first (128 of 144 packs with both have more
+  detail in it). 151 of 160 packs now have four separate wheels.
+- **Emission:** Illum.dds was applied with Godot's default emission operator, which *adds* the
+  colour to the texture: every Details part (tyres, bumpers, the rally car's lower body) glowed
+  white. Now multiplied: only Illum's bright areas (lamps) glow.
+- **V direction:** binary GBX files store texture v upwards (as GBX.NET's OBJ export shows), the
+  old text files downwards. Binary models are flipped now; the Viper, CoastCar, Integra,
+  Lamborghini, Ford Puma, Sonic and Toontown kart looked scrambled ("zebra", camouflage) and
+  now match their screenshots; text-format cars (NASCAR, Smart, Noddy) were already right.
+- **Normals:** 59 of 160 packs leave some normals out (zero vectors; whole parts like the driver
+  or glass): rebuilt from their faces.
+- Also: `p` parts take the pack's Pilot.dds when it has one.
+- Not ours to fix: ManiaPark serves the same file ("GTP - #6 P963.zip") for the "#6 Penske IMSA"
+  skin and the base "2024 Porsche 963" model, so the white/orange Penske livery in that skin's
+  screenshots isn't in its download; we draw the white/red factory livery the file holds.
+- test_car_pack 29 (v by format, normals rebuilt, lamps multiplied); test_compat_cars: 160/160.

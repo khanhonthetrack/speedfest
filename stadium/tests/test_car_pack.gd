@@ -23,6 +23,20 @@ func _ready() -> void:
 		var fl: Dictionary = s.parts.filter(func(p: Dictionary) -> bool: return p["name"] == "dFLWheel")[0]
 		var c := (fl["xform"] as Transform3D).origin
 		TestHooks.check(c.is_equal_approx(Vector3(-0.8, 0.36, 1.4)), "solid_mirrored_%s" % pair[0], str(c))
+	# the same model written binary and as text: binary files keep v upwards, text files downwards
+	var sb := TmSolid.load_bytes(bin)
+	var st := TmSolid.load_bytes(txt)
+	if sb.ok() and st.ok():
+		var ub: PackedVector2Array = sb.parts[0]["uvs"]
+		var ut: PackedVector2Array = st.parts[0]["uvs"]
+		TestHooks.check(ub.size() == 8 and ut.size() == 8 and is_equal_approx(ub[0].y, 1.0 - ut[0].y)
+			and is_equal_approx(ub[0].x, ut[0].x), "solid_uv_v_by_format", "%s %s" % [ub, ut])
+	# normals the exporter left out: their faces' (outward)
+	var tri_v := PackedVector3Array([Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 0, 1)])
+	var tri_n := PackedVector3Array([Vector3.ZERO, Vector3.ZERO, Vector3.UP])
+	TmCarPack._repair_normals(tri_v, tri_n, PackedInt32Array([0, 1, 2]))
+	TestHooks.check(tri_n[0].is_equal_approx(Vector3.UP) and tri_n[1].is_equal_approx(Vector3.UP), "pack_missing_normals_rebuilt",
+		str(tri_n))
 	var zip := ProjectSettings.globalize_path("user://test_car_pack.zip")
 	writer.zip(zip, bin)
 	var pack := TmCarPack.load_zip(zip)
@@ -46,6 +60,10 @@ func _ready() -> void:
 			and signf((w["centre"] as Vector3).z) == signf(want.z) and w["spin"] != null
 	TestHooks.check(ok, "pack_wheels_by_place", str(pack.wheels.map(func(w: Dictionary) -> Variant: return w.get("centre"))))
 	TestHooks.check(pack.lamps.has(TmTestCar.LAMP[0]), "pack_lamps", str(pack.lamps.keys()))
+	pack.textures["illum"] = pack.textures["details"]
+	var lit := pack.material("pack_details")
+	TestHooks.check(lit.emission_enabled and lit.emission_operator == BaseMaterial3D.EMISSION_OP_MULTIPLY, "pack_lamps_lit_by_illum")
+	pack.textures.erase("illum")
 	TestHooks.check(TmCarPack.material_of("WheelFLd") == "d" and TmCarPack.material_of("Skin") == "s"
 		and TmCarPack.material_of("gBody") == "g" and TmCarPack.material_of("sBody001") == "s"
 		and TmCarPack.material_of("ProjShad") == "" and TmCarPack.material_of("LightFL1") == "",

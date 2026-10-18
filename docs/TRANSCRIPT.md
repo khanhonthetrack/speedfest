@@ -781,3 +781,10 @@ Owner, later in session 15 (verbatim; the cloud worker had restarted several tim
 > Xontinue
 
 (Both: carry on with the work in progress.)
+
+Owner, later in session 15 (verbatim):
+> Can you check if the car liveries look alrigght? From what i see some of them dont look ideal. For example the hypercar has weird livery, or peugeot looks green at the top and b
+> White at the bottom...intentionla?
+
+Owner, later in session 15 (verbatim):
+> A comment: the rally car tm2020 has something wrong with the rear wheel (at least from the screenshots)

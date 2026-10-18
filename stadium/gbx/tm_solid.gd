@@ -9,7 +9,8 @@ extends RefCounted
 ##
 ## Coordinates are TMNF's car frame mirrored into Godot's (x negated, as for the blocks: TmGeo), so
 ## the car's visual frame (TmCarVisual: y up, z forward, ground at y 0) and its textures read the
-## right way round; mirrored, TMNF's winding is Godot's (clockwise front faces).
+## right way round; mirrored, TMNF's winding is Godot's (clockwise front faces). UVs are Godot's
+## (v down): binary files store v upwards and are flipped, text files already store it downwards.
 ##
 ## parts: [{name, xform (Transform3D: the part's place in the car), verts (PackedVector3Array),
 ##          normals (PackedVector3Array, may be empty), uvs (PackedVector2Array, may be empty),
@@ -228,9 +229,14 @@ func _add_part(name: String, xf: Transform3D, v: Dictionary) -> void:
 		return
 	for i in n:
 		verts[i].x = -verts[i].x
-	var uvs: PackedVector2Array = v.get("uv0", PackedVector2Array())
+	var uvs: PackedVector2Array = (v.get("uv0", PackedVector2Array()) as PackedVector2Array).duplicate()
 	if uvs.size() != n:
 		uvs = PackedVector2Array()
+	if not _text:
+		# binary files keep v upwards (0 at the texture's bottom, as GBX.NET's OBJ export shows);
+		# the old text files downwards, as Godot. Checked against 160 ManiaPark packs' screenshots.
+		for i in uvs.size():
+			uvs[i].y = 1.0 - uvs[i].y
 	var normals: PackedVector3Array = (v.get("normals", PackedVector3Array()) as PackedVector3Array).duplicate()
 	if normals.size() != n:
 		normals = PackedVector3Array()
