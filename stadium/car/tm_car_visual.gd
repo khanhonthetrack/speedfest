@@ -225,6 +225,54 @@ func _ready() -> void:
 		pivot.add_child(_instance("hub" + axle + side, true))
 		_wheels.append(pivot)
 	_suspension()
+	if not ghost:
+		add_child(contact_shadow())
+
+
+## The soft shade on the road under the car (TMNF and TM2020 bake it into the map; ours moves
+## with the car): a decal projected straight down from just below the floor, so it reaches the
+## road through the suspension's travel and nothing of the car itself; faded on surfaces that
+## don't face up, and gone when the car is in the air (nothing within its reach).
+func contact_shadow() -> Decal:
+	var d := Decal.new()
+	d.name = "ContactShadow"
+	d.texture_albedo = _shadow_tex()
+	d.modulate = Color(0.0, 0.0, 0.0, CONTACT_SHADOW)
+	d.albedo_mix = 1.0
+	d.normal_fade = 0.6
+	d.upper_fade = 0.15
+	d.lower_fade = 0.4
+	d.size = Vector3(3.0, 0.42, 5.6)     # reaching ~0.45 m past the wheels and the wings
+	# visual coords: ground at y 0, the floor at 0.13; the box from 0.29 below the ground up to 0.13
+	d.position = Vector3(0.0, -0.08, 0.17) - VIS
+	d.distance_fade_enabled = true
+	d.distance_fade_begin = 80.0
+	d.distance_fade_length = 20.0
+	return d
+
+
+const CONTACT_SHADOW := 0.8          ## the shade's darkness at its core
+static var _shadow: ImageTexture
+
+
+## A soft rounded rectangle, the car's footprint (wheels included), dark at the core.
+static func _shadow_tex() -> ImageTexture:
+	if _shadow == null:
+		var w := 64
+		var h := 128
+		var img := Image.create(w, h, true, Image.FORMAT_RGBA8)
+		for y in h:
+			for x in w:
+				# distance outside a core rectangle, in fractions of the half size
+				var u := absf((x + 0.5) / w * 2.0 - 1.0)
+				var v := absf((y + 0.5) / h * 2.0 - 1.0)
+				var du := maxf(0.0, u - 0.5) / 0.5
+				var dv := maxf(0.0, v - 0.62) / 0.38
+				var t := clampf(1.0 - sqrt(du * du + dv * dv), 0.0, 1.0)
+				img.set_pixel(x, y, Color(1, 1, 1, t * t * (3.0 - 2.0 * t)))
+		img.generate_mipmaps()
+		_shadow = ImageTexture.create_from_image(img)
+	return _shadow
 
 
 func _part(mi: MeshInstance3D) -> void:

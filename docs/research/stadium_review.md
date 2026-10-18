@@ -161,7 +161,9 @@ Two directions, rendered from the driver's approach (`--gate_signs=screen|none`)
 
 ### 3.2 Local depth: what TM's baked shadows give and we don't have
 1. **A contact shadow and AO under the car** (a soft projected blob, or SpeedFest's look plan step
-   4 on `main`), so it sits on the road at any sun angle; both M9 car renders float. (S)
+   4 on `main`), so it sits on the road at any sun angle. (S) (Correction, session 14 later: in
+   the M9 car renders the car also floated because `map_view` stood it on the spawn point, 0.87 m
+   above the road; fixed with the contact shadow.)
 2. **A baked occlusion volume per map, TM's "Compute Shadows" done our way**: the map is a block
    grid built at load, so cast sky-visibility rays against the collision once
    (`PhysicsDirectSpaceState3D`, a 3D texture at about 2 m over the 1024 m field and its height

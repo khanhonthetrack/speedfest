@@ -1709,3 +1709,11 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   builds itself in `_ready` (the first try showed the template's never-drawn, white viewport).
   `tests/test_tracks`: gate_screens_SF01 (one per road gate), gate_screen_shows_time,
   gate_screen_word_after_restart.
+- **Contact shadow under the car** (`car/tm_car_visual.gd` `contact_shadow`): a Decal projected
+  straight down from just below the floor (3.0 x 5.6 m, a soft rounded footprint reaching ~0.45 m
+  past the wheels, 80% dark at the core), faded on surfaces that don't face up, so it never shades
+  the car; it fades out with distance and is gone in the air. Not on ghosts. Lesson: the first
+  size (the car's own footprint) hid under the body; a contact shade has to spread past the car
+  to read. Also `race/map_view.gd`: the cars of `--car=` now stand on the road (a ray down from
+  the start transform, which is the spawn point 0.87 m up; the review's "the car floats" in the
+  M9 renders was partly this).
