@@ -4,7 +4,8 @@ extends Node3D
 ## focus, our car on the field with the camera slowly circling it; a bar across the top with our
 ## logo, where you are and your nickname; the pages in glass:
 ## - main: Solo, Online, Profile, Options, Quit (Editors come with the track and replay editors);
-## - solo: Campaign, Open a track file (any .Challenge.Gbx);
+## - solo: Campaign, Replays, Open a track file (any .Challenge.Gbx);
+## - replays: the replays kept (saved ones and your best run on each track), Watch, Delete;
 ## - campaign: the series' tabs (TmTracks.series), a card per track (its map, best time, medal),
 ##   the selected track's details (medal times, your best) and Race;
 ## - online: the server list (the official server, published in the repo) and joining by address;
@@ -12,14 +13,15 @@ extends Node3D
 ## - options.
 ## Race starts race/race.tscn with the track in TestHooks' args.
 ## Args: --race=SF01 (straight into that track; exported builds can't be given a scene),
-## --page=main|solo|campaign|online|profile|options, --track=SF01 (selected), --menu_dry (tests:
+## --page=main|solo|campaign|replays|online|profile|options, --track=SF01 (selected), --menu_dry (tests:
 ## Race only records the choice).
 
 signal raced(track: String, map: String)
+signal watched(replay: String)
 
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
-const PAGES := {"main": "", "solo": "main", "campaign": "solo", "online": "main", "profile": "main", "options": "main"}
-const TITLES := {"main": [], "solo": ["SOLO"], "campaign": ["SOLO", "CAMPAIGN"], "online": ["ONLINE"],
+const PAGES := {"main": "", "solo": "main", "campaign": "solo", "replays": "solo", "online": "main", "profile": "main", "options": "main"}
+const TITLES := {"main": [], "solo": ["SOLO"], "campaign": ["SOLO", "CAMPAIGN"], "replays": ["SOLO", "REPLAYS"], "online": ["ONLINE"],
 	"profile": ["PROFILE"], "options": ["OPTIONS"]}
 const MEDALS := ["author", "gold", "silver", "bronze"]
 ## The backdrop's grade: dark green at the edges and behind the menu column (TMNF's menus sit
@@ -209,6 +211,8 @@ func show_page(name: String) -> void:
 			_page_solo()
 		"campaign":
 			_page_campaign()
+		"replays":
+			_page_replays()
 		"options":
 			_page_options()
 		"online":
@@ -263,11 +267,12 @@ func _page_solo() -> void:
 	var col := _column(root, 200)
 	var camp := _big("CAMPAIGN", func() -> void: show_page("campaign"))
 	col.add_child(camp)
+	col.add_child(_big("REPLAYS", func() -> void: show_page("replays")))
 	col.add_child(_big("OPEN A TRACK FILE", _open_file))
 	col.add_child(_back_button(440))
 	# your progress, under the entries
 	var panel := PanelContainer.new()
-	panel.position = Vector2(60, 520)
+	panel.position = Vector2(60, 600)
 	panel.custom_minimum_size = Vector2(440, 0)
 	root.add_child(panel)
 	panel.add_child(_medal_summary())
@@ -494,6 +499,120 @@ func select(track: String, race_on_repeat := true) -> void:
 	go.custom_minimum_size.y = 64
 	go.add_theme_font_override("font", TmUi.font(TmUi.HEAD, 4))
 	_detail.add_child(go)
+
+
+var replay_rows := {}               ## path -> the row's button (replays page)
+var replay_selected := ""
+const REPLAY_COLUMNS := [["TRACK", 330], ["TIME", 150], ["PLAYER", 330], ["DATE", 230]]
+
+
+## The replays kept on this machine (TmReplay.list: saved ones and the autosaves of your best runs),
+## newest first; a row selects, a second press (or WATCH) watches; DELETE asks twice.
+func _page_replays() -> void:
+	var root := _root()
+	replay_rows.clear()
+	var panel := PanelContainer.new()
+	panel.position = Vector2(60, 130)
+	root.add_child(panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	panel.add_child(col)
+	var head := HBoxContainer.new()
+	for c: Array in REPLAY_COLUMNS:
+		var l := TmUi.label(String(c[0]), 16, TmUi.DIM, TmUi.BOLD, 2)
+		l.custom_minimum_size.x = int(c[1])
+		head.add_child(l)
+	col.add_child(head)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(1080, 470)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	col.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 6)
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(rows)
+	var all := TmReplay.list()
+	if all.is_empty():
+		rows.add_child(TmUi.label("No replays yet. Finish a race and press SAVE REPLAY; your best run on each track is kept by itself.", 22, TmUi.DIM, TmUi.BOLD))
+	var group := ButtonGroup.new()
+	for e: Dictionary in all:
+		var r: TmReplay = e["replay"]
+		var path := String(e["path"])
+		var row := Button.new()
+		row.toggle_mode = true
+		row.button_group = group
+		row.custom_minimum_size = Vector2(1060, 52)
+		row.add_theme_stylebox_override("pressed", TmUi.glass("hover"))
+		row.add_theme_stylebox_override("hover_pressed", TmUi.glass("hover"))
+		var cells := HBoxContainer.new()
+		cells.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		cells.offset_left = 18
+		cells.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(cells)
+		var texts := [r.track_name + ("   BEST" if e["autosave"] else ""), TmRace.time_text(r.finish_ms), "", r.date.left(16)]
+		for i in REPLAY_COLUMNS.size():
+			var cell: Control
+			if i == 2:
+				cell = TmUi.nick_label(r.player, 22)
+				cell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			else:
+				var l := TmUi.label(String(texts[i]), 22, TmUi.ACCENT if i == 1 else TmUi.TEXT, TmUi.BOLD)
+				l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				l.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				l.clip_text = true
+				cell = l
+			cell.custom_minimum_size.x = int(REPLAY_COLUMNS[i][1])
+			cells.add_child(cell)
+		row.pressed.connect(func() -> void:
+			TmUi.play("click")
+			if replay_selected == path:
+				watch(path)
+			replay_selected = path)
+		row.focus_entered.connect(func() -> void: replay_selected = path)
+		row.mouse_entered.connect(row.grab_focus)
+		rows.add_child(row)
+		replay_rows[path] = row
+	if not all.is_empty() and not replay_rows.has(replay_selected):
+		replay_selected = String(all[0]["path"])
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 10)
+	col.add_child(buttons)
+	var go := TmUi.go(TmUi.button("WATCH", func() -> void:
+		if not replay_selected.is_empty():
+			watch(replay_selected), 220))
+	go.icon = TmUi.icon("play", 26)
+	go.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	go.disabled = all.is_empty()
+	buttons.add_child(go)
+	var del := TmUi.button("DELETE", Callable(), 220)
+	del.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	del.disabled = all.is_empty()
+	del.pressed.connect(func() -> void:
+		if del.text == "DELETE":
+			del.text = "PRESS AGAIN"
+			return
+		DirAccess.remove_absolute(replay_selected)
+		replay_selected = ""
+		show_page("replays"))
+	buttons.add_child(del)
+	buttons.add_child(_back_button())
+	if replay_rows.has(replay_selected):
+		var sel: Button = replay_rows[replay_selected]
+		sel.button_pressed = true
+		sel.grab_focus.call_deferred()
+	else:
+		go.grab_focus.call_deferred()
+
+
+## Watches a replay (race/replay.tscn; Esc there comes back to this page).
+func watch(path: String) -> void:
+	TestHooks.args["replay"] = path
+	TestHooks.args["back"] = "menu"
+	TestHooks.args.erase("replay_at")
+	watched.emit(path)
+	if TestHooks.arg("menu_dry", false):
+		return
+	get_tree().change_scene_to_file("res://race/replay.tscn")
 
 
 func _page_options() -> void:

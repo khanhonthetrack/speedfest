@@ -22,7 +22,7 @@ func _ready() -> void:
 	_press(menu, "SOLO")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(menu.page == "solo" and names == ["CAMPAIGN", "OPEN A TRACK FILE", "BACK"], "menu_solo_page", str(names))
+	TestHooks.check(menu.page == "solo" and names == ["CAMPAIGN", "REPLAYS", "OPEN A TRACK FILE", "BACK"], "menu_solo_page", str(names))
 	await _ours(menu)
 	menu.back()
 	await get_tree().process_frame
@@ -140,7 +140,7 @@ func _race_menu() -> void:
 	rm.show_finish()
 	await get_tree().process_frame
 	var names := _buttons(rm).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(names == ["RETRY", "NEXT TRACK", "MENU"], "race_menu_finish", str(names))
+	TestHooks.check(names == ["RETRY", "REPLAY", "SAVE REPLAY", "NEXT TRACK", "MENU"], "race_menu_finish", str(names))
 	(_buttons(rm)[0] as Button).pressed.emit()
 	TestHooks.check(restarts[0] == 1 and not rm.finished, "race_menu_retry")
 	# the result panel: the time, the medal it earns, the record, the medal times and what's left
@@ -150,7 +150,7 @@ func _race_menu() -> void:
 	var texts := _labels(rm)
 	names = _buttons(rm).map(func(b: Button) -> String: return b.text)
 	TestHooks.check(texts.has("0:55.00") and texts.has("GOLD MEDAL") and texts.has("NEW RECORD") and texts.has("-1.23")
-		and texts.has("+0.56") and texts.has("0:54.44") and names == ["RETRY", "NEXT TRACK", "MENU"], "race_menu_result",
+		and texts.has("+0.56") and texts.has("0:54.44") and names == ["RETRY", "REPLAY", "SAVE REPLAY", "NEXT TRACK", "MENU"], "race_menu_result",
 		"%s %s" % [texts, names])
 	rm.toggle_pause()
 	rm.toggle_pause()

@@ -178,7 +178,8 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
 - [x] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
       campaign A-E tabs with medals), in-race menus. Done (PROGRESS 18 Oct); the EDITORS entry
       lands with steps 5-6, the ladder and rankings in Profile/Online with step 7
-- [ ] 5. Replays: save, browse and watch replays (with free and chase cameras)
+- [x] 5. Replays: save, browse and watch replays (with free and chase cameras). Done (PROGRESS
+      18 Oct): recorded runs, autosaved bests, Solo > Replays, the viewer with five cameras
 - [ ] 6. Track Editor: place the recreated blocks on the 32 x 8 x 32 grid, validate by driving
       (author time), save/load/share
 - [ ] 7. Online: master server (accounts with password and zone, $-code nicknames, ladder points,

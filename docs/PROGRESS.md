@@ -1600,3 +1600,30 @@ glossy sphere checkboxes and medal discs. Ours now has that structure and look, 
 - `tests/test_menu` rewritten (27 checks: the pages and their order, back, campaign tabs and
   cards, records and medal counts, profile nickname and zone, online, options, $-codes, the race
   menu). Screenshots: `tools/run.sh res://ui/menu.tscn -- --page=<page> --frames=90 --shot=...`.
+
+## 2026-10-18 — Session 13 (M9-5): replays
+TMNF records every run: after the finish you can watch it or save it, your best run on each track
+is kept, and a replay list and viewer with several cameras show them. Ours now does the same:
+- **Recording** (`race/tm_replay.gd`, TmReplay): every run in the race scene, a sample every
+  20 ms of race time: pose, velocity, steering, gas, brake, the four suspension lengths, the wheels
+  touching, grounded/sliding, and events (wall hits, turbos, respawn cuts) gathered between
+  samples; plus the track (our id or a `.Gbx` path, its uid and name), the player's nickname and
+  colour, the date, the finish and the checkpoint times. Files in `user://replays` (zstd, ~130 KB
+  for a 48 s run); `autosave/<track key>.replay` is your best run on each track (written with a
+  new record); `to_ghost()` turns one into a TmGhost.
+- **Finish menu**: REPLAY watches the run (kept as `_last.replay`, Esc comes back to a new
+  attempt), SAVE REPLAY keeps it ("<track> <time> <date>.replay"; the button turns to SAVED).
+- **Viewer** (`race/replay.tscn`, TmReplayView): the track built as for a race; the run played on
+  a puppet TmCar (never simulated: its state is set from the replay each tick, so TmCamera,
+  TmCarAudio, TmCarVisual and the HUD work unchanged, wall hits and turbos replayed as events),
+  the 3 2 1 GO! before it, the HUD's checkpoint times and finish; cameras CHASE, CLOSE, COCKPIT
+  (at the driver's eyes), TRACKSIDE (TV spots every 120 m beside the run, zoomed to keep the car's
+  size), FREE (WASD, Q/E, right mouse); a glass bar: play/pause, speed x1/8..x4, the time line
+  (drag to seek), camera; keys Space, Left/Right 5 s, Up/Down, C or 1-5, Home, H, Esc.
+  `--replay=<file> --replay_at=<ms> --cam=<name>` for screenshots.
+- **Menu**: Solo > REPLAYS lists them (track, time, nickname with its codes, date, BEST for the
+  autosaves), newest first; WATCH, DELETE (press twice).
+- `tests/test_replay` (in the gate, 19 checks): the bot races SF01, the replay matches the run's
+  ghost to 1 cm, has the inputs, is autosaved and saved, loads back identical, lists; the viewer
+  follows it, seeks past the checkpoints, reaches the finish, plays at x4, pauses, has five
+  cameras; the menu lists and hands over a replay.

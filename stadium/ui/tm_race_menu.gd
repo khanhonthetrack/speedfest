@@ -1,13 +1,15 @@
 class_name TmRaceMenu
 extends CanvasLayer
 ## The race's own menus: Escape pauses (Resume, Restart, Menu) and after the finish a result panel
-## (the time, its medal, the difference to the record, the medal times) offers Retry, the next
-## campaign track and the menu. The race connects the signals.
+## (the time, its medal, the difference to the record, the medal times) offers Retry, watching or
+## saving the run's replay, the next campaign track and the menu. The race connects the signals.
 
 signal resumed
 signal restarted
 signal next_track
 signal to_menu
+signal watch_replay
+signal save_replay
 
 var has_next := false
 var online := false                ## in a server: "menu" leaves it
@@ -16,6 +18,7 @@ var _box: VBoxContainer
 var paused := false
 var finished := false
 var _result := {}
+var _replay_saved := false
 
 
 const MEDALS := [["author", "AUTHOR"], ["gold", "GOLD"], ["silver", "SILVER"], ["bronze", "BRONZE"]]
@@ -57,7 +60,7 @@ func _fill(title: String, items: Array, card: Control = null) -> void:
 	_box.add_child(row)
 	var first: Button = null
 	for it: Array in items:
-		var b := TmUi.button(String(it[0]), it[1], 200 if card else 360)
+		var b := TmUi.button(String(it[0]), it[1], 180 if card else 360)
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		row.add_child(b)
 		if first == null:
@@ -107,11 +110,17 @@ func show_finish(result := {}) -> void:
 	finished = true
 	if not result.is_empty():
 		_result = result
+		_replay_saved = false
 	var items := [["RETRY", func() -> void: _emit(restarted)]]
+	if not online:
+		items.append(["REPLAY", func() -> void: _emit(watch_replay)])
+		items.append(["SAVE REPLAY", func() -> void: save_replay.emit()])
 	if has_next:
 		items.append(["NEXT TRACK", func() -> void: _emit(next_track)])
 	items.append(["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)])
 	_fill("", items, _result_card(_result) if not _result.is_empty() else null)
+	if _replay_saved:
+		mark_saved()
 
 
 ## The result card: the track, the time, the medal it earns, the difference to the record before
@@ -192,6 +201,15 @@ static func _medal(kind: String, size: int) -> Control:
 	r.custom_minimum_size = Vector2(size, size)
 	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return r
+
+
+## The replay was saved: its button says so (and saves no second copy).
+func mark_saved() -> void:
+	_replay_saved = true
+	for b in _box.find_children("*", "Button", true, false):
+		if (b as Button).text == "SAVE REPLAY":
+			(b as Button).text = "SAVED"
+			(b as Button).disabled = true
 
 
 func hide_all() -> void:
