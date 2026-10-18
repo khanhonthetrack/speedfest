@@ -14,6 +14,9 @@
   in the network settings, then a **new session**. That session should: list the tools
   (search_assets, get_asset, download_asset, get_balance), search with licence CC0, show author /
   licence / format / credit cost before any download, and follow report §5 for converting files.
+- Then the connector was attached and the catalogue explored (report §7): worth a trial only for
+  buildings, street lights and traffic furniture. A first batch of 7 asset ids is waiting for the
+  owner's go-ahead. Before shipping any of it: find out what the plans' `commercial_use` flag covers.
 - This branch only adds docs; the other lanes' state below is unchanged.
 
 ## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`

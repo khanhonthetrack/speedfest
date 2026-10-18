@@ -554,3 +554,19 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   to the owner's Blender. Steps given: add it as a custom connector named "blendswap" at
   claude.ai/customize/connectors (with the `?key=` URL if the form has no header field), allow
   `blendswap.com` in the environment's network settings, then start a new session.
+
+### User (verbatim, session 16, after connecting the BlendSwap connector)
+
+> now explore, in the context of TM + NFSU2, lights, buildings, houses, street racing
+
+### Claude
+
+- Browsed the catalogue through the BlendSwap MCP connector (search and metadata only, free; no
+  downloads, the 7 free daily downloads untouched). Findings in `docs/research/blendswap.md` §7.
+  Worth a trial only for buildings, street lights and traffic furniture: the CC0 "OpenGL High
+  Rise Pack" (low-poly towers with baked night windows) for the skyline, one author's UK street
+  lights, traffic lights and cones, and suburb houses. Neon is mostly techniques, street racing
+  is thin, and the cars are real brands. Several "CC0" uploads are plainly not the uploader's to
+  license (a RenderDoc capture of Big Ben, textures.com textures, brand posters). The plans mark
+  Friend as non-commercial and Artist as commercial; find out what that covers before shipping.
+  Proposed a first batch of 7 (one day's free downloads) for the owner to approve.

@@ -888,3 +888,8 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
 - Not done: no API call or download (`blendswap.com` is blocked by this environment's network
   policy). Facts come from search results quoting BlendSwap's pages; check the quota, GAL text and
   API parameters on the site before building `tools/assets/fetch_blendswap.py`.
+- Later in session 16: the owner connected the BlendSwap MCP connector, then asked to explore lights,
+  buildings, houses and street racing for TM + NFSU2. Browsed (free search/metadata, 0 downloads);
+  report §7 has the shortlists per theme, the red flags, and a 7-asset first batch (14594, 21776,
+  25810, 25808, 25811, 20145, 12041) waiting for the owner's go-ahead. Open: what the plans'
+  `commercial_use` flag (Friend false, Artist true) covers; Blender + download host in the container.
