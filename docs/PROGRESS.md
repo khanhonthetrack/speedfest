@@ -893,3 +893,9 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   report §7 has the shortlists per theme, the red flags, and a 7-asset first batch (14594, 21776,
   25810, 25808, 25811, 20145, 12041) waiting for the owner's go-ahead. Open: what the plans'
   `commercial_use` flag (Friend false, Artist true) covers; Blender + download host in the container.
+- "do it and test": BlendSwap's API refuses the free downloads (insufficient_credits) while
+  `get_balance` reports 7 free left, 0 used, so no asset could be fetched (nothing paid). Pipeline
+  built and checked on our own test .blend: `tools/assets/blendswap_convert.py` (bpy 5.2.2 in
+  `/opt/bpyenv`), `game/tests/visual/asset_trial.tscn` (runtime GLTF, Forward+ and Compatibility;
+  Blender and Godot agree on the triangle count, emission and packed textures survive).
+  check_scripts: SCRIPT_ERRORS=0. Report §8 has the commands to finish the trial.

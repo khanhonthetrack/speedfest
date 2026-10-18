@@ -17,7 +17,11 @@
 - Then the connector was attached and the catalogue explored (report §7): worth a trial only for
   buildings, street lights and traffic furniture. A first batch of 7 asset ids is waiting for the
   owner's go-ahead. Before shipping any of it: find out what the plans' `commercial_use` flag covers.
-- This branch only adds docs; the other lanes' state below is unchanged.
+- "do it and test": the downloads were refused by BlendSwap (insufficient_credits, though the
+  balance shows 7 free left). The pipeline is built and tested (report §8:
+  `tools/assets/blendswap_convert.py`, `tests/visual/asset_trial.tscn`). Rerun §8's commands once
+  the files can be fetched.
+- This branch adds docs, the converter and the trial scene; the other lanes' state below is unchanged.
 
 ## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`
 

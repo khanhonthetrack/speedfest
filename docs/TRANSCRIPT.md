@@ -570,3 +570,16 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   license (a RenderDoc capture of Big Ben, textures.com textures, brand posters). The plans mark
   Friend as non-commercial and Artist as commercial; find out what that covers before shipping.
   Proposed a first batch of 7 (one day's free downloads) for the owner to approve.
+
+### User (verbatim, session 16, after the shortlist)
+
+> do it and test
+
+### Claude
+
+- BlendSwap refused every download ("insufficient_credits ... costs 10") although `get_balance`
+  shows 7 free downloads left today and 0 used: the free allowance isn't applied on their side.
+  Stopped there without paying. Built and tested the pipeline instead, on a test file of our own
+  (report §8): `tools/assets/blendswap_convert.py` (Blender 5.2 module: report + `.glb`) and
+  `tests/visual/asset_trial.tscn` (loads the `.glb` files at runtime beside a night street, on
+  both renderers). The trial runs as soon as the 7 files can be downloaded.

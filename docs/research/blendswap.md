@@ -90,13 +90,13 @@ The owner has a BlendSwap API key.
 1. The owner allows `blendswap.com` in the environment's network settings, adds the key as an
    environment secret named `BLENDSWAP_KEY`, and installs Blender (`bpy`) in the container
    (M5 used `/opt/bpyenv`).
-2. `tools/assets/fetch_blendswap.py` (new): search with `license=cc0` for about 5 candidates
-   (a neon sign, the low-poly street-lamp pack, a rooftop pack, a building, a tree). Save the
-   asset page, author, licence and date. Download into a fresh untrusted folder, opened only by
-   our `bpy` script, which never runs scripts embedded in the `.blend`.
-3. `tools/blender/convert_asset.py`: apply transforms, scale to metres, decimate to a triangle
-   budget, bake materials to albedo/normal/ORM, export `.glb` into `game/assets/props/` (desktop
-   HD under `assets/hd/`).
+2. Pick candidates with `search_assets` (`license=cc0`) and fetch them with `download_asset`
+   (the MCP connector; done in §7 and §8). Record the asset page, author, licence and date.
+   Download into a fresh untrusted folder, opened only by our `bpy` script, which never runs
+   scripts embedded in the `.blend`.
+3. `tools/assets/blendswap_convert.py` (built in §8): report, convert, export `.glb`. Still to
+   add once real files show what they need: decimating to a triangle budget, and baking
+   procedural or Blender Internal materials to albedo/normal/ORM textures.
 4. Render next to our procedural versions on Forward+ and Compatibility (`tools/run_scene.sh`),
    and record triangle and texture costs. Keep an asset only if it clearly beats what we have.
    Each kept asset gets a row in `docs/ASSETS.md`.
@@ -240,3 +240,38 @@ answer on the commercial-use flag (§7.1).
   https://wiki.creativecommons.org/4.0/Technical_protection_measures
 - Kenney Racing Kit (CC0): https://opengameart.org/content/racing-kit; City Kit Roads:
   https://gamedev.net/news/5156-city-kit-roads/
+
+## 8. Trial run (18 Oct): pipeline ready, downloads refused
+
+The owner said "do it and test" for the §7.9 batch.
+
+**Downloads: refused by BlendSwap.** `download_asset` answered *"insufficient_credits: You have
+0 credits; this download costs 10"* for 14594 and for 20145 (also with an explicit file id).
+`get_balance` on the same key says `api_free_downloads_remaining_today: 7`,
+`api_downloads_total: 0`. So the free daily allowance isn't applied, on BlendSwap's side. Not
+retried further, and nothing paid. Even with a download URL, the container still couldn't reach
+`blendswap.com` (network policy), unless the files are served from another host.
+
+**What is ready, and tested on a file of our own** (a Blender-made test tower with an array
+modifier, a packed texture, emissive windows and a text neon sign; not a BlendSwap asset):
+- `tools/assets/blendswap_convert.py` (Blender 5.2.2 as a Python module in `/opt/bpyenv`; run
+  with `-I`). Takes a `.zip` or `.blend`. Embedded scripts never run. Zips are size-capped.
+  Writes `report.json` (saved-with version, objects, triangles after modifiers, size in metres,
+  materials, images: packed, missing or unused, drivers, embedded text blocks) and a `.glb`
+  (curves and text made meshes, modifiers applied).
+- `game/tests/visual/asset_trial.tscn`: loads every `.glb` in `--dir` at runtime (GLTFDocument;
+  nothing is imported into the project). It lines them up on both sides of a wet night street
+  under the city environment and prints an `ASSET` line per file. Checked on Forward+ and
+  Compatibility: emission and packed textures come through, and Blender and Godot agree on the
+  triangle count (5,740). One fix along the way: the converter was counting a text object's
+  generated mesh twice.
+
+**To finish the trial**, once the files can be downloaded (BlendSwap fixes the allowance, credits
+are bought, or the owner downloads the 7 zips from the website):
+
+    /opt/bpyenv/bin/python -I tools/assets/blendswap_convert.py <asset.zip> <out>/<id>/
+    tools/run_scene.sh res://tests/visual/asset_trial.tscn -- --dir=<out>/<id> --frames=24 --shot=<png>
+    tools/run_scene.sh res://tests/visual/asset_trial.tscn --compat -- --dir=<out>/<id> --frames=24 --shot=<png>
+
+Then decide per asset (keep only what clearly beats ours), and only then copy kept `.glb` files
+into `game/assets/` with an ASSETS.md row.
