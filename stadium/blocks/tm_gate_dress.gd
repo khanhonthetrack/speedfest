@@ -70,14 +70,9 @@ static func _painted(tex: String, flat: Material) -> Material:
 	if not TmMaterials.hd():
 		return flat
 	if not _paint.has(tex):
-		var m := ORMMaterial3D.new()
-		m.albedo_texture = TmMaterials._tex(tex, "albedo")
-		if m.albedo_texture == null:
+		var m := TmMaterials.textured(tex)
+		if m == null:
 			return flat
-		m.normal_enabled = true
-		m.normal_texture = TmMaterials._tex(tex, "normal")
-		m.orm_texture = TmMaterials._tex(tex, "orm")
-		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		_paint[tex] = m
 	return _paint[tex]
 

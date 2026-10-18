@@ -82,6 +82,7 @@ static func load_from_args() -> TmChallenge:
 ## with it by TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	TmStadiumEnv.add(parent)
+	TmOcclusion.add(parent, builder)
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
 		if TmRefVisuals.active():
 			# research (--ref): TMNF's own surround, from local files (TmRefVisuals)

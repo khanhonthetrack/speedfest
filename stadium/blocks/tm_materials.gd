@@ -224,29 +224,31 @@ static func _flat(spec: Array) -> StandardMaterial3D:
 	return m
 
 
-## A textured material (HD): albedo, normal and ORM maps from assets/tex.
-static func _textured(spec: Array) -> ORMMaterial3D:
-	var name: String = spec[0]
+## A textured material (HD): albedo, normal and ORM maps from assets/tex (blocks/tm_textured.gdshader:
+## what ORMMaterial3D did, with the map's sky occlusion).
+static func _textured(spec: Array) -> ShaderMaterial:
 	var metres: Vector2 = spec[1]
-	var m := ORMMaterial3D.new()
-	m.albedo_texture = _tex(name, "albedo")
-	m.normal_enabled = true
-	m.normal_texture = _tex(name, "normal")
-	m.orm_texture = _tex(name, "orm")
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return textured(String(spec[0]), Vector2(1.0 / metres.x, 1.0 / metres.y), bool(spec[2]), 1.0 / metres.x)
+
+
+## A tm_textured material for texture set `name`: on the mesh UVs times `uv_scale`, or (world) on
+## three world planes, `world_scale` textures per metre. Null when the set has no albedo map.
+static func textured(name: String, uv_scale := Vector2.ONE, world := false, world_scale := 1.0) -> ShaderMaterial:
+	var albedo := _tex(name, "albedo")
+	if albedo == null:
+		return null
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://blocks/tm_textured.gdshader")
+	m.set_shader_parameter("albedo_tex", albedo)
+	m.set_shader_parameter("normal_tex", _tex(name, "normal"))
+	m.set_shader_parameter("orm_tex", _tex(name, "orm"))
 	var em := _tex(name, "emission")
+	m.set_shader_parameter("has_emission", em != null)
 	if em != null:
-		m.emission_enabled = true
-		m.emission_texture = em
-		m.emission = Color(1.0, 0.97, 0.9)
-		m.emission_energy_multiplier = 6.0
-	if bool(spec[2]):
-		m.uv1_triplanar = true
-		m.uv1_world_triplanar = true
-		m.uv1_triplanar_sharpness = 8.0
-		m.uv1_scale = Vector3(1.0 / metres.x, 1.0 / metres.x, 1.0 / metres.x)
-	else:
-		m.uv1_scale = Vector3(1.0 / metres.x, 1.0 / metres.y, 1.0)
+		m.set_shader_parameter("emission_tex", em)
+	m.set_shader_parameter("uv_scale", uv_scale)
+	m.set_shader_parameter("world", world)
+	m.set_shader_parameter("world_scale", world_scale)
 	return m
 
 

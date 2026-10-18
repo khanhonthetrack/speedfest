@@ -55,3 +55,18 @@ anti_aliasing/quality/screen_space_aa=2
 lights_and_shadows/directional_shadow/size=8192
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 textures/default_filters/anisotropic_filtering_level=4
+
+[shader_globals]
+
+tm_occl_tex={
+"type": "sampler2D",
+"value": ""
+}
+tm_occl_rect={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+tm_occl_on={
+"type": "float",
+"value": 0.0
+}

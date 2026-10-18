@@ -1,5 +1,6 @@
 shader_type spatial;
 #include "res://env/rt.gdshaderinc"
+#include "res://env/tm_occlusion.gdshaderinc"
 // The remake's surfaces (our own procedural materials in the Stadium's style; TmMaterials sets
 // them up per material key). Patterns are drawn in world space, so they run on across blocks and
 // need no UVs: noise is blended over the three axis planes, lines and tiles use the plane the
@@ -220,4 +221,6 @@ void fragment() {
 	ROUGHNESS = rough;
 	METALLIC = metal;
 	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy;
+	AO = tm_sky_visibility(wpos, n);
+	AO_LIGHT_AFFECT = 0.0;
 }

@@ -1,5 +1,6 @@
 shader_type spatial;
 #include "res://env/rt.gdshaderinc"
+#include "res://env/tm_occlusion.gdshaderinc"
 // Our car's surfaces, in the parts' own space (they move with the car and the wheels):
 // mode 0 paint (metallic flakes under a clearcoat, a white stripe along the top), 1 carbon fibre
 // (a 2x2 twill weave that catches the light by direction), 2 tyre (tread grooves and sipes, a
@@ -15,10 +16,14 @@ uniform float tyre_half_width = 0.182;
 
 varying vec3 opos;
 varying vec3 onrm;
+varying vec3 cwpos;
+varying vec3 cwnrm;
 
 void vertex() {
 	opos = VERTEX;
 	onrm = NORMAL;
+	cwpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	cwnrm = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
 }
 
 float hash3(vec3 p) {
@@ -26,6 +31,9 @@ float hash3(vec3 p) {
 }
 
 void fragment() {
+	// darker under bridges, roofs and gates (the map's sky occlusion)
+	AO = tm_sky_visibility(cwpos, normalize(cwnrm));
+	AO_LIGHT_AFFECT = 0.0;
 	float dist = length(VERTEX);
 	if (mode == 0) {
 		vec3 col = colour;

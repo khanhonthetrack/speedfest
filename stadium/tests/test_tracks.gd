@@ -43,6 +43,11 @@ func _respawn_check(id: String) -> void:
 	var crossed: float = scene.car.speed_kmh()
 	var at: Vector3 = scene.car.global_position
 	_gate_screens(id, scene, race, at)
+	var occ := scene.get_node_or_null("Occlusion") as TmOcclusion
+	var over := occ.height_at(at.x, at.z) - at.y if occ else -1.0
+	var beside := occ.height_at(at.x + 40.0, at.z + 40.0) if occ else 0.0
+	TestHooks.check(occ != null and occ.texture != null and over > 5.0 and over < 12.0, "occlusion_sees_the_gate_arch",
+		"%.1f m over the crossing (the arch's top), %.1f beside" % [over, beside])
 	for i in 60:
 		await get_tree().physics_frame
 	scene.respawn()

@@ -1717,3 +1717,15 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   to read. Also `race/map_view.gd`: the cars of `--car=` now stand on the road (a ray down from
   the start transform, which is the spawn point 0.87 m up; the review's "the car floats" in the
   M9 renders was partly this).
+- **The map's sky occlusion** (TM's "Compute Shadows" done our way; `env/tm_occlusion.gd`,
+  `env/tm_occlusion.gdshaderinc`, `[shader_globals]` in project.godot): when a map loads
+  (`TmStage.add_environment`: race, map view, replays) one ray per 2 m straight down over the field
+  records the highest collision surface (513 x 513 rays, ~0.65 s on llvmpipe's CPU, 2.3 us a ray);
+  the heights are a float texture every surface shader samples (14 taps at 0 / 3 / 8 m around the
+  point pushed 0.75 m off its surface) to darken ambient light and reflections where something is
+  well above: under bridges, roofs, loops and arches (AO, ambient only). Applied in
+  `tm_surface.gdshader`, the car's shader, and a new `blocks/tm_textured.gdshader` that replaces
+  the ORMMaterial3D textured materials (same maps, mesh-UV or world-triplanar mapping with
+  ORMMaterial3D's axis flips, its additive emission and defaults; it also applies the ORM maps'
+  own AO, which ORMMaterial3D left off). `--occlusion=0` turns it off for comparisons.
+  `tests/test_tracks`: occlusion_sees_the_gate_arch (5-12 m of arch over the first crossing).
