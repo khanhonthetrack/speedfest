@@ -14,6 +14,7 @@ extends RefCounted
 const R := 1.422                ## pipe radius (12 sides, a vertex on the frame's u axis)
 const R_HUB := 1.55             ## junction collar radius
 const HUB := 1.9                ## collar length from the junction centre
+const R_CLIP := 1.47            ## Tube/Road/Clip's end cap
 const SIDES := 12
 const CENTRE := Vector3(16.0, 4.0, 16.0)
 const S_PIPE := 16              # StadiumPillar (TmTuning.Surface.ASPHALT: pipes are drivable)
@@ -49,8 +50,13 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		if not _pillar(geo, form, ground):
 			return null
 	elif parts[1].begins_with("Road"):
+		if form == "Clip":
+			# where a pipe road meets another block: a 2 m end cap on the pipe at the +z edge (measured:
+			# a 9-sided sleeve, radius 1.47, closed 0.25 m in; ours is the pipe's 12 sides)
+			_pipe(geo, CENTRE, Vector3(0, 0, 1), R_CLIP, 14.0, 16.0, [], "metal", S_METAL, true, true)
+			return geo.build()
 		if not ARMS.has(form):
-			return null   # Tube/Road/ClipGround: not placed by any block
+			return null
 		var vertical: Array = []
 		if parts[1] in ["RoadUp", "RoadCross"]:
 			vertical.append(Vector3.UP)

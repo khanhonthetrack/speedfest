@@ -35,6 +35,7 @@ const COLORS := {
 	"water": [Color(0.06, 0.22, 0.32, 0.86), 0.04, 0.0],
 	"glass": [Color(0.70, 0.85, 0.95, 0.35), 0.05, 0.0],
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
+	"turbo_roulette": [Color(0.92, 0.22, 0.62), 0.5, 0.0],    # the roulette pad (our own colour: magenta)
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
 	"fabric": [Color(0.93, 0.93, 0.94), 0.8, 0.0],
 	"fabric_under": [Color(0.80, 0.82, 0.86), 0.85, 0.0],     # the Fabric roofs' underside, in their shade
@@ -131,6 +132,7 @@ const SURFACES := {
 	"pipe": [5, Color(0.3, 0.3, 0.3), 3.0, 0.05, 0.0],
 	"mast": [5, Color(0.3, 0.3, 0.3), 6.0, 0.04, 0.0],
 	"turbo": [6, Color(0.08, 0.08, 0.09), 1.2, 0.05, 0.0],
+	"turbo_roulette": [6, Color(0.08, 0.06, 0.09), 1.2, 0.05, 0.0],
 	"stands": [7, Color(0.24, 0.40, 0.74), 20.0, 0.06, 0.02],
 	"screen": [8, Color(0.03, 0.06, 0.16), 1.0, 0.0, 0.0],
 	"led": [8, Color(0.02, 0.05, 0.14), 1.0, 0.0, 0.0],

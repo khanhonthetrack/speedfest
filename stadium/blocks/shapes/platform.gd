@@ -119,6 +119,8 @@ const RING_SECTION := [
 	[18.235, 12.664, "logo", S_METAL], [18.621, 12.961, "logo", S_METAL], [18.731, 13.258, "logo", S_METAL],
 	[18.621, 13.555, "logo", S_METAL], [18.235, 13.852, "rubber_white", S_METAL],
 ]
+const RING_V_CENTRE := Vector3(16.0, 16.0, 16.09)    ## the vertical ring's centre (its axis: z)
+const RING_H_CENTRE := Vector3(16.0, 3.902, 15.67)    ## the flat ring's (measured; its axis: y)
 const RING_ARC := 38.0          ## each arc spans +-38 degrees about an axis direction
 ## The billboard bands leaning out of the ring's front face over each diagonal (17-73 degrees).
 const RING_PANEL := [[13.35, 16.39, "screen", S_METAL], [14.52, 14.365, "screen", S_METAL],
@@ -135,7 +137,7 @@ func handles(shape: String) -> bool:
 		or (shape.begins_with("Platform/Turbo/") and CHECKPOINT_SHEAR.has(shape.trim_prefix("Platform/Turbo/"))) \
 		or (shape.begins_with("Platform/Slope/") and SLOPES.has(shape.trim_prefix("Platform/Slope/"))) \
 		or (shape.begins_with("Platform/Checkpoint/") and CHECKPOINT_SHEAR.has(shape.trim_prefix("Platform/Checkpoint/"))) \
-		or shape == "Platform/Checkpoint/RingVAir" or shape.begins_with("Platform/ToRoad/") \
+		or shape in ["Platform/Checkpoint/RingVAir", "Platform/Checkpoint/RingHAir"] or shape.begins_with("Platform/ToRoad/") \
 		or (shape.begins_with("Platform/GTCurve/") and CURVE_WALL_SEGMENTS.has(shape.substr(17, 1))) \
 		or shape in ["Platform/Loop/StartAir", "Platform/Loop/StartGround", "Platform/Loop/EndAir"]
 
@@ -172,6 +174,17 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Checkpoint":
 			if parts[2] == "RingVAir":
 				_ring_v(geo)
+			elif parts[2] == "RingHAir":
+				# the vertical ring laid flat in one level (measured: RING_H_CENTRE, its axis up)
+				# (its front, where the panels lean out, faces up); struts tie it to the block's four sides
+				_ring_v(geo, false)
+				geo.transform_tm(Transform3D(Basis(Vector3(1, 0, 0), Vector3(0, 0, 1), Vector3(0, -1, 0)),
+					Vector3.ZERO).translated(RING_H_CENTRE) * Transform3D(Basis.IDENTITY, -RING_V_CENTRE))
+				for k in 4:
+					var strut := TmGeo.new()
+					strut.box(Vector3(0.0, 2.32, 14.41), Vector3(2.17, 5.49, 17.59), "structure", S_METAL, "", -2, 0.05)
+					strut.turn_y(k, Vector2(16, 16))
+					geo.merge(strut)
 			else:
 				_deck(geo, _closed([]))       # a lip on every side, the body inset all round
 				_checkpoint_arch(geo)
@@ -352,7 +365,7 @@ func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, ca
 ## The vertical checkpoint ring (no deck: cars pass through it, usually in the air): four arcs, the
 ## brackets holding it to the cells above and below, a light either side of each diagonal gap, and
 ## billboard bands on the front face.
-func _ring_v(geo: TmGeo) -> void:
+func _ring_v(geo: TmGeo, supports := true) -> void:
 	for k in 4:
 		var c := 90.0 * k
 		_revolve_z(geo, RING_SECTION, c - RING_ARC, c + RING_ARC, 16)
@@ -360,6 +373,8 @@ func _ring_v(geo: TmGeo) -> void:
 		for a in [c + 40.0, c + 50.0]:
 			_revolve_z(geo, [[13.6, 12.6, "lamp", TmGeo.NO_COLLISION], [15.0, 12.6, "lamp", TmGeo.NO_COLLISION],
 				[15.0, 13.6, "lamp", TmGeo.NO_COLLISION], [13.6, 13.6, "lamp", TmGeo.NO_COLLISION]], a - 1.0, a + 1.0, 1)
+	if not supports:
+		return
 	for y in [0.0, 29.83]:
 		geo.box(Vector3(14.7, y, 14.41), Vector3(17.3, y + 2.17, 17.59), "structure", S_METAL, "", -2, 0.05)
 		geo.box(Vector3(15.5, y + 0.16, 12.96), Vector3(16.5, y + 2.0, 19.04), "structure", S_METAL, "", -2, 0.04)

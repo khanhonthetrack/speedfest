@@ -108,7 +108,10 @@ func _check(file: String, build: bool) -> void:
 		if ok:
 			_counts["built"] += 1
 		else:
-			_fail(file, ch.name, "built with %d placeholders, %d unknown" % [b.stats["placeholder"], b.stats["unknown"]])
+			for k: String in b.missing:
+				_missing["built: " + k] = int(_missing.get("built: " + k, 0)) + 1
+			_fail(file, ch.name, "built with %d placeholders, %d unknown: %s" % [b.stats["placeholder"],
+				b.stats["unknown"], ", ".join(PackedStringArray(b.missing.keys()))])
 		if report["raceable"]:
 			if b.has_start and (not b.finishes.is_empty() or ch.lap_race or _has_multilap(b)):
 				_counts["raceable"] += 1

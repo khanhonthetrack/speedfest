@@ -16,6 +16,7 @@ const S_METAL := 4
 const S_RUBBER := 9
 const S_TURBO := 7
 const S_FREEWHEEL := 29
+const S_ROULETTE := 30
 const TOP := 1.345              ## the road surface
 const CROWN := 0.19             ## dead ends and the base sink this much toward their noses
 
@@ -264,11 +265,11 @@ func handles(shape: String) -> bool:
 		return true
 	if rest.begins_with("Stretch/") and _form(rest.trim_prefix("Stretch/")) in ["", "Slope", "Tilt"]:
 		return true
-	if rest in ["Bump/Air", "Bump/Ground"]:
+	if rest in ["Bump/Air", "Bump/Ground", "Bump/SlopeAir", "Bump/TiltAir", "Bump/TiltGround"]:
 		return true
 	return ARMS.has(_form(rest)) or rest.begins_with("Slope/StraightAir") or rest.begins_with("Slope/StraightGround") \
 		or rest.begins_with("GTCurve/") \
-		or (rest.begins_with("Turbo/") and _form(rest.get_slice("/", 1)) in ["", "Up", "Down", "Left", "Right"]) \
+		or ((rest.begins_with("Turbo/") or rest.begins_with("TurboRoulette/")) and _form(rest.get_slice("/", 1)) in ["", "Up", "Down", "Left", "Right"]) \
 		or rest.begins_with("FreeWheeling/") or rest.begins_with("Checkpoint/") or rest.begins_with("MultiLap/") \
 		or rest.begins_with("Finish/") or rest.begins_with("Start/")
 
@@ -317,7 +318,14 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif rest.begins_with("Stretch/"):
 		_stretch(geo, _form(rest.trim_prefix("Stretch/")), ground)
 	elif rest.begins_with("Bump/"):
-		_bump(geo, ground)
+		# on a slope: the flat bump sheared like the slope (0.25, one level down at its foot); tilted:
+		# sheared like the tilted straight from level 0 (measured: the same profile on both)
+		_bump(geo, ground and not rest.contains("Tilt"))
+		if rest.begins_with("Bump/Slope"):
+			geo.shear_y(0.0, 0.25, -8.0)
+		elif rest.begins_with("Bump/Tilt"):
+			var t: Array = TILT_PLANES["Road/Tilt/Straight"]
+			geo.shear_y(float(t[1]), float(t[2]), float(t[3]) - 8.0)
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
@@ -329,9 +337,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		if k < 2 or k > 5:
 			return null
 		_curve(geo, k, ground)
-	elif rest.begins_with("Turbo/") or rest.begins_with("FreeWheeling/"):
-		_road_mat = "turbo"
-		_road_surf = S_TURBO if rest.begins_with("Turbo/") else S_FREEWHEEL
+	elif rest.begins_with("Turbo/") or rest.begins_with("TurboRoulette/") or rest.begins_with("FreeWheeling/"):
+		# the roulette gate is the turbo gate with its own pad (measured: the same 1820 faces)
+		_road_mat = "turbo_roulette" if rest.begins_with("TurboRoulette/") else "turbo"
+		_road_surf = S_TURBO if rest.begins_with("Turbo/") else (S_ROULETTE if rest.begins_with("TurboRoulette/") else S_FREEWHEEL)
 		# Up/Down/Left/Right: the flat pad sheared like the checkpoint of that slope or tilt
 		# (measured: the pad's plane), the air section on the ground too
 		var dir := _form(rest.get_slice("/", 1))

@@ -659,6 +659,20 @@ func turn_y(quarters: int, c: Vector2) -> void:
 		_col[k] = rot.call(_col[k], true)
 
 
+## Moves everything added so far by a rigid transform in TMNF coordinates (a rotation, no mirror,
+## and an offset), e.g. a vertical piece laid flat.
+func transform_tm(xf: Transform3D) -> void:
+	var gx := Transform3D(Basis(Vector3(-1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1)), Vector3.ZERO)
+	var m := gx * xf * gx         # stored points are Godot's (x negated)
+	for key in _vis:
+		var grp: Group = _vis[key]
+		for k in grp.v.size():
+			grp.v[k] = m * grp.v[k]
+			grp.n[k] = (m.basis * grp.n[k]).normalized()
+	for k in _col.size():
+		_col[k] = m * _col[k]
+
+
 ## The lowest point (y, TMNF and Godot alike) of everything added so far; 0 when empty.
 func min_y() -> float:
 	var lo := INF

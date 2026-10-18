@@ -48,6 +48,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Zone/Water/Base":
 			_flat(geo, 2.0, "fabric", S_SLIDING)
 			_flat(geo, WATER, "water", TmGeo.NO_COLLISION)
+		"Zone/Water/Clip":
+			# where water meets another block: the +z half of the water block (measured)
+			_flat(geo, 2.0, "fabric", S_SLIDING, 16.0)
+			_flat(geo, WATER, "water", TmGeo.NO_COLLISION, 16.0)
 		_:
 			var key := shape
 			if not heights().has(key):
@@ -63,8 +67,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	return geo.build()
 
 
-func _flat(geo: TmGeo, y: float, mat: String, surface: int) -> void:
-	geo.quad(Vector3(0, y, 0), Vector3(0, y, 32), Vector3(32, y, 32), Vector3(32, y, 0), mat, surface)
+func _flat(geo: TmGeo, y: float, mat: String, surface: int, z0 := 0.0) -> void:
+	geo.quad(Vector3(0, y, z0), Vector3(0, y, 32), Vector3(32, y, 32), Vector3(32, y, z0), mat, surface)
 
 
 ## A 32 x 32 m surface through the control grid (Catmull-Rom both ways), RES quads per side;

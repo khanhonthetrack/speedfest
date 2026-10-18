@@ -73,5 +73,13 @@ for fname, v in sorted(bi.items()):
         fb = FALLBACK.get((v['id'], vn))
         if fb and out[v['id']][vn]['mobils'] == [['']]:
             out[v['id']][vn]['mobils'] = [[fb]]
+# the editor's pylon (ConstructionBlockInfoPylon: no units or mobils of its own; the blocks dump can't
+# read its class chunk): one unit, 15 variants built by stadium/blocks/shapes/pylon.gd
+out['PylonStadium'] = {'kind': 'pylon', 'waypoint': 3, 'pillar': False,
+    'spawn': [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 16.0, 8.0, 16.0],
+    'spawn_ground': [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 16.0, 8.0, 16.0],
+    'ground': {'units': [[0, 0, 0, ['', '', '', '']]], 'mobils': [['Pylon/V%dGround' % k] for k in range(15)]},
+    'air': {'units': [[0, 0, 0, ['', '', '', '']]], 'mobils': [['Pylon/V%dAir' % k] for k in range(15)]},
+    'campaign_uses': 0}
 json.dump(out, open(sys.argv[4], 'w'), indent=None, separators=(',', ':'), sort_keys=True)
 print(len(out), 'blocks;', sum(1 for v in out.values() if v['campaign_uses']), 'used by the campaign')

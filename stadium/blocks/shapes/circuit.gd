@@ -7,10 +7,13 @@ extends RefCounted
 ## 32k - 8.985) or outer corner (32(k - 1) + 8.985); the ledge behind the wall (top 8 m) fills the
 ## rest of the footprint. Slopes rise 16 m per block (0.5); start/end ease in over a block.
 
+const PlatformShapes := preload("res://blocks/shapes/platform.gd")
+
 const S_ASPHALT := 16   # TmTuning.Surface ids
 const S_METAL := 4
 const S_RUBBER := 9
 const S_CONCRETE := 0
+const S_TURBO := 7
 const FACE := 23.015            ## the wall's inner face, from the cell's road side (z)
 const LEDGE_D := 4.075          ## the stands' foot behind the face (d), where the ledge starts
 const LEDGE_Y := 8.0
@@ -102,9 +105,73 @@ const SLOPE_END := [[0, 8.0], [2.01, 8.99], [4, 9.92], [6, 10.78], [8, 11.56], [
 	[16, 14.05], [18, 14.53], [20, 14.95], [22, 15.31], [24, 15.59], [26, 15.81], [28.02, 15.93], [30.08, 15.97], [32, 16.0]]
 
 
+## Kicker ramps on the circuit plate (Circuit/Ramp/...): the top rises towards -z, heights (z, y)
+## sampled on the measured pieces; flat (y 8) after the last point. Small1x05: half a block.
+const KICKERS := {
+	"Small1x05": [[0, 8.5], [16, 8.0]],
+	"Small1x1": [[0, 8.5], [32, 8.0]],
+	"Big": [[0, 10.0], [2.61, 9.915], [4, 9.874], [6, 9.745], [8, 9.616], [10, 9.429], [12, 9.242], [14, 9.061],
+		[16, 8.879], [18, 8.704], [20, 8.528], [22, 8.391], [24, 8.254], [26, 8.158], [28, 8.062], [30, 8.031],
+		[31.34, 8.01], [32, 8.0]],
+}
+## The kicker's top in bands (measured): a 0.12 m metal rim, rubber beside (to 0.70 m) and along
+## the lip (to 2.61 m) and the far edge (0.56 m), asphalt in the middle.
+const KICK_RIM := 0.12
+const KICK_SIDE := 0.70
+const KICK_LIP := 2.61
+const KICK_TAIL := 0.56
+
+## The circuit loop's start (Circuit/Loop/Start, five levels): measured on the original, (z, y) at
+## the road's centre line: the asphalt run-in rising off the circuit (8 m at the +z edge), a rubber
+## lip, then the loop's grid (the platform loop's section, PlatformShapes.WALL_PLAN) on up to
+## vertical at 40 m, where the platform loop's end carries on; the slab's underside below it.
+const LOOP_RIDE := [[32.000, 8.000], [30.997, 8.018], [29.995, 8.070], [28.995, 8.155], [27.999, 8.275], [27.006, 8.429],
+	[26.020, 8.616], [25.039, 8.837], [24.066, 9.092], [23.101, 9.379], [22.146, 9.700], [21.202, 10.052], [20.269, 10.437],
+	[19.348, 10.854], [18.442, 11.301], [17.549, 11.780], [16.672, 12.288], [15.812, 12.827], [14.969, 13.394],
+	[14.144, 13.990], [13.338, 14.614], [12.553, 15.265], [11.788, 15.942], [11.044, 16.645], [10.323, 17.374],
+	[9.626, 18.126], [8.952, 18.902], [8.303, 19.700], [7.680, 20.520], [7.082, 21.361]]
+const LOOP_GRID := [[6.892, 21.648], [6.511, 22.223], [5.968, 23.103], [5.452, 24.001], [4.965, 24.916], [4.506, 25.847],
+	[4.077, 26.794], [3.678, 27.755], [3.310, 28.729], [2.972, 29.714], [2.665, 30.711], [2.389, 31.718], [2.146, 32.734],
+	[1.934, 33.757], [1.754, 34.788], [1.607, 35.823], [1.492, 36.864], [1.410, 37.907], [1.361, 38.953], [1.345, 40.000]]
+const LOOP_UNDER := [[32.000, 0.000], [28.861, 0.130], [25.743, 0.520], [22.669, 1.166], [19.658, 2.065], [16.733, 3.210],
+	[13.912, 4.594], [11.215, 6.206], [8.661, 8.036], [6.268, 10.071], [4.051, 12.298], [2.026, 14.700], [0.208, 17.262]]
+## The front wall under the lip, from the underside's top to under the grid's first point.
+const LOOP_FRONT := [[0.208, 17.262], [6.785, 21.570]]
+const LOOP_RIDE_DEPTH := 1.345    ## the riding surface's depth in WALL_PLAN's terms
+
+## The plate's variants (measured): pillars standing on it (Circuit/Road/BasePillarN: their
+## centres, TMNF x, z), lathed from PILLAR_PROFILE (radius, height, material) about each: a 1.37 m
+## column from the plate to 15 m with a rubber ring at its foot, an advert band and a rounded
+## rubber cap to 16 m; bump-ups (a round mound h(r) = 8 + 2 (1 - (r/16)^2)^2 about the block's
+## centre, or the seam of two blocks); a hole through the plate (a rounded rectangle).
+const PILLARS := {
+	"Pillar1": [[16.0, 16.0]],
+	"Pillar2": [[16.0, 10.667], [16.0, 21.333]],
+	"Pillar3": [[16.0, 5.333], [16.0, 16.0], [16.0, 26.667]],
+	"Pillar5": [[5.333, 5.333], [5.333, 26.667], [16.0, 16.0], [26.667, 5.333], [26.667, 26.667]],
+	"Pillar6": [[10.667, 5.333], [10.667, 16.0], [10.667, 26.667], [21.333, 5.333], [21.333, 16.0], [21.333, 26.667]],
+	"Pillar7": [[5.333, 10.667], [5.333, 21.333], [16.0, 5.333], [16.0, 16.0], [16.0, 26.667], [26.667, 10.667], [26.667, 21.333]],
+}
+const PILLAR_PROFILE := [[1.374, 8.0, "rubber"], [1.49, 8.063, "rubber"], [1.474, 8.674, "pipe"], [1.374, 8.73, "pipe"],
+	[1.374, 9.186, "logo"], [1.514, 9.186, "logo"], [1.514, 10.417, "pipe"], [1.374, 10.417, "pipe"],
+	[1.374, 15.0, "rubber"], [1.491, 15.071, "rubber"], [1.587, 15.171, "rubber"], [1.639, 15.329, "rubber"],
+	[1.65, 15.517, "rubber"], [1.622, 15.705, "rubber"], [1.561, 15.859, "rubber"], [1.474, 15.947, "rubber"],
+	[1.422, 16.0, "structure"], [0.0, 16.0, "structure"]]
+const BUMP_H := 2.0
+const BUMP_R := 16.0
+const HOLE := Rect2(11.25, 4.25, 9.5, 23.5)     ## x, z, width, depth
+
+## Turbo pads on the circuit plate (Air, Ground) and on its slope (UpAir: the slope straight, which
+## climbs along +z; Down, Left, Right: the same piece turned; measured: one solid placed four ways).
+const TURBO_TURNS := {"Up": 0, "Left": 1, "Down": 2, "Right": 3}
+
+
 func handles(shape: String) -> bool:
-	return shape.begins_with("Circuit/Road/Base") or shape.begins_with("Circuit/Border/") \
-		or shape.begins_with("Circuit/Slope/")
+	return (shape.begins_with("Circuit/Road/Base") and _plate_form(shape) in ["", "BumpUp", "BumpUp2", "Hole"]) \
+		or (shape.begins_with("Circuit/Road/Base") and PILLARS.has(_plate_form(shape))) or shape.begins_with("Circuit/Border/") \
+		or shape.begins_with("Circuit/Slope/") or shape.begins_with("Circuit/Turbo/") \
+		or (shape.begins_with("Circuit/Ramp/") and KICKERS.has(shape.get_slice("/", 2).trim_suffix("Ground"))) \
+		or shape in ["Circuit/Loop/StartAir", "Circuit/Loop/StartGround"]
 
 
 var _cells: Array = []        ## the shape's footprint cells (bottom layer, Vector2i x, z units)
@@ -119,10 +186,32 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var ground := shape.contains("Ground")
 	var dy := 1.0 if ground else 0.0
 	var parts := shape.split("/")
-	if shape.begins_with("Circuit/Road/Base"):
-		if not (shape.ends_with("BaseAir") or shape.ends_with("BaseGround")):
-			return null   # bump/hole/pillar variants: not yet
-		geo.box(Vector3(0, dy, 0), Vector3(32, 8, 32), "wall_dark", S_METAL, "platform", S_ASPHALT)
+	if shape.begins_with("Circuit/Loop/"):
+		_loop_start(geo, dy)
+	elif shape.begins_with("Circuit/Ramp/"):
+		_kicker(geo, KICKERS[parts[2].trim_suffix("Ground")], dy)
+	elif shape.begins_with("Circuit/Turbo/"):
+		var form := parts[2].trim_suffix("Air").trim_suffix("Ground")
+		if form.is_empty():
+			geo.box(Vector3(0, dy, 0), Vector3(32, 8, 32), "wall_dark", S_METAL, "turbo", S_TURBO)
+		elif TURBO_TURNS.has(form):
+			_ramp(geo, SLOPE_STRAIGHT, dy, "turbo", S_TURBO)
+			geo.turn_y(int(TURBO_TURNS[form]), Vector2(16.0, 16.0))
+		else:
+			return null
+	elif shape.begins_with("Circuit/Road/Base"):
+		var form := _plate_form(shape)
+		match form:
+			"BumpUp":
+				_bump_plate(geo, dy, Vector2(16, 16), 32.0)
+			"BumpUp2":
+				_bump_plate(geo, dy, Vector2(16, 32), 64.0)
+			"Hole":
+				_hole_plate(geo, dy)
+			_:
+				geo.box(Vector3(0, dy, 0), Vector3(32, 8, 32), "wall_dark", S_METAL, "platform", S_ASPHALT)
+				for c: Array in PILLARS.get(form, []):
+					_lathe_y(geo, PILLAR_PROFILE, Vector2(float(c[0]), float(c[1])), 16)
 	elif shape.begins_with("Circuit/Border/"):
 		if not _border(geo, parts[2], parts[3], dy):
 			return null
@@ -427,19 +516,270 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float)
 
 
 ## The circuit ramp: road surface y(z) on x 0..32, solid down to the block floor.
-func _ramp(geo: TmGeo, prof: Array, dy: float) -> void:
-	var y0 := dy
+## A circuit slope (measured): the road on the profile, the slab's underside 8 m below it (on the
+## floor at dy where it would go lower), its sides and ends, and under the block's centre the
+## support column (16 sides, radius 1.64 m) up to the underside.
+func _ramp(geo: TmGeo, prof: Array, dy: float, top := "platform", top_surf := S_ASPHALT) -> void:
+	var under := func(h: float) -> float: return maxf(h - LEDGE_Y, dy)
 	for i in prof.size() - 1:
 		var z0 := float(prof[i][0])
 		var z1 := float(prof[i + 1][0])
 		var h0 := float(prof[i][1])
 		var h1 := float(prof[i + 1][1])
-		# road (up), sides (x = 0 facing -x, x = 32 facing +x), floor (down)
-		geo.quad(Vector3(32, h0, z0), Vector3(0, h0, z0), Vector3(0, h1, z1), Vector3(32, h1, z1), "platform", S_ASPHALT)
-		geo.quad(Vector3(0, y0, z0), Vector3(0, y0, z1), Vector3(0, h1, z1), Vector3(0, h0, z0), "wall_dark", S_METAL)
-		geo.quad(Vector3(32, y0, z0), Vector3(32, h0, z0), Vector3(32, h1, z1), Vector3(32, y0, z1), "wall_dark", S_METAL)
+		var u0: float = under.call(h0)
+		var u1: float = under.call(h1)
+		# road (up), underside (down), sides (x = 0 facing -x, x = 32 facing +x)
+		geo.quad(Vector3(32, h0, z0), Vector3(0, h0, z0), Vector3(0, h1, z1), Vector3(32, h1, z1), top, top_surf)
+		geo.quad(Vector3(0, u0, z0), Vector3(32, u0, z0), Vector3(32, u1, z1), Vector3(0, u1, z1), "fabric_under", S_METAL)
+		geo.quad(Vector3(0, u0, z0), Vector3(0, u1, z1), Vector3(0, h1, z1), Vector3(0, h0, z0), "wall_dark", S_METAL)
+		geo.quad(Vector3(32, u0, z0), Vector3(32, h0, z0), Vector3(32, h1, z1), Vector3(32, u1, z1), "wall_dark", S_METAL)
 	var hn := float(prof[prof.size() - 1][1])
 	var h0 := float(prof[0][1])
-	geo.quad(Vector3(0, y0, 0), Vector3(32, y0, 0), Vector3(32, y0, 32), Vector3(0, y0, 32), "structure", S_METAL)
-	geo.quad(Vector3(0, y0, 0), Vector3(0, h0, 0), Vector3(32, h0, 0), Vector3(32, y0, 0), "wall_dark", S_METAL)
-	geo.quad(Vector3(32, y0, 32), Vector3(32, hn, 32), Vector3(0, hn, 32), Vector3(0, y0, 32), "wall_dark", S_METAL)
+	var ua: float = under.call(h0)
+	var un: float = under.call(hn)
+	geo.quad(Vector3(0, ua, 0), Vector3(0, h0, 0), Vector3(32, h0, 0), Vector3(32, ua, 0), "wall_dark", S_METAL)
+	geo.quad(Vector3(32, un, 32), Vector3(32, hn, 32), Vector3(0, hn, 32), Vector3(0, un, 32), "wall_dark", S_METAL)
+	var mid: float = under.call(_profile_at(prof, 16.0))
+	if mid > dy + 0.5:
+		var r := 1.64
+		for k in 16:
+			var a0 := TAU * k / 16.0
+			var a1 := TAU * (k + 1) / 16.0
+			var p0 := Vector3(16.0 + r * cos(a0), dy, 16.0 + r * sin(a0))
+			var p1 := Vector3(16.0 + r * cos(a1), dy, 16.0 + r * sin(a1))
+			# up into the slab a little, so the column meets its sloping underside
+			geo.quad(p0, p0 + Vector3(0, mid + 1.0 - dy, 0), p1 + Vector3(0, mid + 1.0 - dy, 0), p1, "structure", S_METAL)
+
+
+## The circuit loop's start: see LOOP_RIDE. Ground: the underside rests on the ground (1 m).
+func _loop_start(geo: TmGeo, dy: float) -> void:
+	var xs := [0.0, 1.0, 31.0, 32.0]
+	var mats := ["wall", "platform", "wall"]
+	# the run-in (up, towards -z) and the rubber lip onto the grid
+	var ride := LOOP_RIDE.duplicate()
+	ride.append(LOOP_GRID[0])
+	for i in ride.size() - 1:
+		var a: Array = ride[i]
+		var b: Array = ride[i + 1]
+		for j in 3:
+			var mat: String = "rubber" if i == ride.size() - 2 else mats[j]
+			var surf := S_RUBBER if i == ride.size() - 2 else S_ASPHALT
+			geo.quad(Vector3(xs[j + 1], a[1], a[0]), Vector3(xs[j], a[1], a[0]), Vector3(xs[j], b[1], b[0]),
+				Vector3(xs[j + 1], b[1], b[0]), mat, surf)
+	# the loop: the platform loop's section swept along the measured line, faces away from its middle
+	var plan: Array = PlatformShapes.WALL_PLAN
+	var n := plan.size()
+	var at := func(i: int, q: Array) -> Vector3:
+		var p := Vector2(float(LOOP_GRID[i][0]), float(LOOP_GRID[i][1]))
+		var prev := Vector2(float(LOOP_GRID[maxi(i - 1, 0)][0]), float(LOOP_GRID[maxi(i - 1, 0)][1]))
+		var next := Vector2(float(LOOP_GRID[mini(i + 1, LOOP_GRID.size() - 1)][0]), float(LOOP_GRID[mini(i + 1, LOOP_GRID.size() - 1)][1]))
+		var t := (next - prev).normalized()
+		var inward := Vector2(t.y, -t.x)       # (z, y): towards the loop's inside (up off the road)
+		var o := p + inward * (float(q[1]) - LOOP_RIDE_DEPTH)
+		return Vector3(float(q[0]), o.y, o.x)
+	for i in LOOP_GRID.size() - 1:
+		var mid: Vector3 = (at.call(i, [16.0, 0.67]) + at.call(i + 1, [16.0, 0.67])) * 0.5
+		for k in n:
+			var q0: Array = plan[k]
+			var q1: Array = plan[(k + 1) % n]
+			var a: Vector3 = at.call(i, q0)
+			var b: Vector3 = at.call(i, q1)
+			var c: Vector3 = at.call(i + 1, q1)
+			var d: Vector3 = at.call(i + 1, q0)
+			if (b - a).cross(c - a).dot((a + b + c + d) * 0.25 - mid) < 0.0:
+				geo.quad(a, d, c, b, q0[2], q0[3])
+			else:
+				geo.quad(a, b, c, d, q0[2], q0[3])
+	# the slab's end at the top (40 m), where the platform loop's end continues
+	var top_y := float(LOOP_GRID[LOOP_GRID.size() - 1][1])
+	var top_z := float(LOOP_GRID[LOOP_GRID.size() - 1][0])
+	geo.quad(Vector3(32, top_y, 0), Vector3(0, top_y, 0), Vector3(0, top_y, top_z), Vector3(32, top_y, top_z), "metal", S_METAL)
+	# underside (down), front wall under the lip, the back end, the sides, the column
+	var under := func(z: float) -> float: return maxf(_chain_y(LOOP_UNDER, z), dy)
+	for i in LOOP_UNDER.size() - 1:
+		var z0 := float(LOOP_UNDER[i][0])
+		var z1 := float(LOOP_UNDER[i + 1][0])
+		var u0: float = under.call(z0)
+		var u1: float = under.call(z1)
+		if u0 <= dy + 0.01 and u1 <= dy + 0.01 and dy > 0.5:
+			continue          # on the ground
+		geo.quad(Vector3(0, u0, z0), Vector3(0, u1, z1), Vector3(32, u1, z1), Vector3(32, u0, z0), "fabric_under", S_RUBBER)
+	var f0: Array = LOOP_FRONT[0]
+	var f1: Array = LOOP_FRONT[1]
+	geo.quad(Vector3(32, f0[1], f0[0]), Vector3(32, f1[1], f1[0]), Vector3(0, f1[1], f1[0]), Vector3(0, f0[1], f0[0]), "wall_dark", S_METAL)
+	geo.quad(Vector3(32, dy, 32), Vector3(32, 8.0, 32), Vector3(0, 8.0, 32), Vector3(0, dy, 32), "wall_dark", S_METAL)
+	var zs: Array[float] = []
+	for chain: Array in [LOOP_RIDE, LOOP_UNDER, LOOP_FRONT]:
+		for q: Array in chain:
+			zs.append(float(q[0]))
+	zs.sort()
+	var top := func(z: float) -> float:
+		if z >= float(LOOP_RIDE[LOOP_RIDE.size() - 1][0]):
+			return _chain_y(LOOP_RIDE, z)
+		if z >= float(f1[0]):
+			return lerpf(float(f1[1]), float(LOOP_RIDE[LOOP_RIDE.size() - 1][1]),
+				(z - float(f1[0])) / (float(LOOP_RIDE[LOOP_RIDE.size() - 1][0]) - float(f1[0])))
+		return _chain_y(LOOP_FRONT, z)
+	for i in zs.size() - 1:
+		var z0 := zs[i]
+		var z1 := zs[i + 1]
+		if z1 - z0 < 1e-3:
+			continue
+		var b0: float = under.call(z0)
+		var b1: float = under.call(z1)
+		var t0: float = top.call(z0)
+		var t1: float = top.call(z1)
+		geo.quad(Vector3(0, b0, z0), Vector3(0, b1, z1), Vector3(0, t1, z1), Vector3(0, t0, z0), "wall_dark", S_METAL)
+		geo.quad(Vector3(32, b0, z0), Vector3(32, t0, z0), Vector3(32, t1, z1), Vector3(32, b1, z1), "wall_dark", S_METAL)
+	var mid_u: float = under.call(16.0)
+	for k in 16:
+		var a0 := TAU * k / 16.0
+		var a1 := TAU * (k + 1) / 16.0
+		var p0 := Vector3(16.0 + 1.64 * cos(a0), dy, 16.0 + 1.64 * sin(a0))
+		var p1 := Vector3(16.0 + 1.64 * cos(a1), dy, 16.0 + 1.64 * sin(a1))
+		geo.quad(p0, p0 + Vector3(0, mid_u + 1.0 - dy, 0), p1 + Vector3(0, mid_u + 1.0 - dy, 0), p1, "structure", S_METAL)
+
+
+## y at z along a chain of (z, y) points ordered by decreasing z (clamped at its ends).
+static func _chain_y(chain: Array, z: float) -> float:
+	var first: Array = chain[0]
+	var last: Array = chain[chain.size() - 1]
+	if (z - float(first[0])) * (float(last[0]) - float(first[0])) <= 0.0:
+		return float(first[1])
+	for i in chain.size() - 1:
+		var a: Array = chain[i]
+		var b: Array = chain[i + 1]
+		var lo := minf(float(a[0]), float(b[0]))
+		var hi := maxf(float(a[0]), float(b[0]))
+		if z >= lo and z <= hi:
+			return lerpf(float(a[1]), float(b[1]), (z - float(a[0])) / (float(b[0]) - float(a[0])))
+	return float(last[1])
+
+
+## A kicker ramp: the circuit plate's sides, ends and underside up to the profile, the top in
+## bands of metal, rubber and asphalt (see KICK_*), flat at 8 m after the profile's end.
+func _kicker(geo: TmGeo, prof: Array, dy: float) -> void:
+	var e := float(prof[prof.size() - 1][0])          # the kicker's end (16 or 32)
+	var tail := minf(e, 32.0 - KICK_RIM)              # where its far rubber band ends
+	var zs := [0.0, KICK_RIM, KICK_LIP, tail - KICK_TAIL, tail, minf(tail + KICK_RIM, 32.0), 32.0]
+	for p: Array in prof:
+		zs.append(float(p[0]))
+	zs.sort()
+	var zu: Array[float] = []
+	for z: float in zs:
+		if zu.is_empty() or z > zu[zu.size() - 1] + 1e-4:
+			zu.append(z)
+	var xs := [0.0, KICK_RIM, KICK_SIDE, 32.0 - KICK_SIDE, 32.0 - KICK_RIM, 32.0]
+	for i in zu.size() - 1:
+		var z0 := zu[i]
+		var z1 := zu[i + 1]
+		var h0 := _profile_at(prof, z0) if z0 <= e else 8.0
+		var h1 := _profile_at(prof, z1) if z1 <= e else 8.0
+		var zm := (z0 + z1) * 0.5
+		for j in xs.size() - 1:
+			var x0: float = xs[j]
+			var x1: float = xs[j + 1]
+			var xm := (x0 + x1) * 0.5
+			var mat := "platform"
+			var surf := S_ASPHALT
+			if zm > tail + KICK_RIM:
+				pass                                      # the plain plate after a half-block kicker
+			elif xm < KICK_RIM or xm > 32.0 - KICK_RIM or zm < KICK_RIM or zm > tail:
+				mat = "structure"
+				surf = S_METAL
+			elif xm < KICK_SIDE or xm > 32.0 - KICK_SIDE or zm < KICK_LIP or zm > tail - KICK_TAIL:
+				mat = "rubber"
+				surf = S_RUBBER
+			geo.quad(Vector3(x1, h0, z0), Vector3(x0, h0, z0), Vector3(x0, h1, z1), Vector3(x1, h1, z1), mat, surf)
+		geo.quad(Vector3(0, dy, z0), Vector3(0, dy, z1), Vector3(0, h1, z1), Vector3(0, h0, z0), "wall_dark", S_METAL)
+		geo.quad(Vector3(32, dy, z0), Vector3(32, h0, z0), Vector3(32, h1, z1), Vector3(32, dy, z1), "wall_dark", S_METAL)
+	var hs := float(prof[0][1])
+	geo.quad(Vector3(0, dy, 0), Vector3(0, hs, 0), Vector3(32, hs, 0), Vector3(32, dy, 0), "wall_dark", S_METAL)
+	geo.quad(Vector3(32, dy, 32), Vector3(32, 8.0, 32), Vector3(0, 8.0, 32), Vector3(0, dy, 32), "wall_dark", S_METAL)
+	if dy < 0.5:
+		geo.quad(Vector3(0, 0, 0), Vector3(32, 0, 0), Vector3(32, 0, 32), Vector3(0, 0, 32), "fabric_under", S_RUBBER)
+
+
+## The plate variant's form: "" (plain), "BumpUp", "BumpUp2", "Hole", "Pillar1" ...
+static func _plate_form(shape: String) -> String:
+	return shape.trim_prefix("Circuit/Road/Base").trim_suffix("Air").trim_suffix("Ground")
+
+
+## A profile [[radius, y, material], ...] turned about the vertical axis through c (TMNF x, z).
+func _lathe_y(geo: TmGeo, prof: Array, c: Vector2, sides: int) -> void:
+	for k in sides:
+		var a0 := TAU * k / sides
+		var a1 := TAU * (k + 1) / sides
+		var d0 := Vector2(cos(a0), sin(a0))
+		var d1 := Vector2(cos(a1), sin(a1))
+		for i in prof.size() - 1:
+			var p: Array = prof[i]
+			var q: Array = prof[i + 1]
+			var r0 := float(p[0])
+			var r1 := float(q[0])
+			var a := Vector3(c.x + d0.x * r0, float(p[1]), c.y + d0.y * r0)
+			var b := Vector3(c.x + d1.x * r0, float(p[1]), c.y + d1.y * r0)
+			var cc := Vector3(c.x + d1.x * r1, float(q[1]), c.y + d1.y * r1)
+			var d := Vector3(c.x + d0.x * r1, float(q[1]), c.y + d0.y * r1)
+			geo.quad(a, d, cc, b, String(p[2]), S_METAL if p[2] != "rubber" else S_RUBBER)
+
+
+## The plate with a round mound on top (BUMP_H high, BUMP_R wide) centred at c; `depth` m long.
+func _bump_plate(geo: TmGeo, dy: float, c: Vector2, depth: float) -> void:
+	var h := func(x: float, z: float) -> float:
+		var r := Vector2(x, z).distance_to(c) / BUMP_R
+		return 8.0 + (BUMP_H * (1.0 - r * r) * (1.0 - r * r) if r < 1.0 else 0.0)
+	var n := int(depth)
+	for i in 32:
+		for j in n:
+			var x0 := float(i)
+			var z0 := float(j)
+			geo.quad(Vector3(x0 + 1, h.call(x0 + 1, z0), z0), Vector3(x0, h.call(x0, z0), z0),
+				Vector3(x0, h.call(x0, z0 + 1), z0 + 1), Vector3(x0 + 1, h.call(x0 + 1, z0 + 1), z0 + 1), "platform", S_ASPHALT)
+	for z in [0.0, depth]:
+		var face := Vector3(0, 0, -1) if z == 0.0 else Vector3(0, 0, 1)
+		var a := Vector3(0, dy, z)
+		var b := Vector3(32, dy, z)
+		if face.z < 0.0:
+			geo.quad(a, Vector3(0, 8, z), Vector3(32, 8, z), b, "wall_dark", S_METAL)
+		else:
+			geo.quad(b, Vector3(32, 8, z), Vector3(0, 8, z), a, "wall_dark", S_METAL)
+	geo.quad(Vector3(0, dy, 0), Vector3(0, dy, depth), Vector3(0, 8, depth), Vector3(0, 8, 0), "wall_dark", S_METAL)
+	geo.quad(Vector3(32, dy, 0), Vector3(32, 8, 0), Vector3(32, 8, depth), Vector3(32, dy, depth), "wall_dark", S_METAL)
+	if dy < 0.5:
+		geo.quad(Vector3(0, 0, 0), Vector3(32, 0, 0), Vector3(32, 0, depth), Vector3(0, 0, depth), "fabric_under", S_RUBBER)
+
+
+## The plate with HOLE cut through it: the top and underside round it, the hole's walls.
+func _hole_plate(geo: TmGeo, dy: float) -> void:
+	var x0 := HOLE.position.x
+	var x1 := HOLE.end.x
+	var z0 := HOLE.position.y
+	var z1 := HOLE.end.y
+	var rects := [Rect2(0, 0, 32, z0), Rect2(0, z1, 32, 32 - z1), Rect2(0, z0, x0, z1 - z0), Rect2(x1, z0, 32 - x1, z1 - z0)]
+	for r: Rect2 in rects:
+		var a := r.position
+		var b := r.end
+		geo.quad(Vector3(b.x, 8, a.y), Vector3(a.x, 8, a.y), Vector3(a.x, 8, b.y), Vector3(b.x, 8, b.y), "platform", S_ASPHALT)
+		if dy < 0.5:
+			geo.quad(Vector3(a.x, 0, a.y), Vector3(b.x, 0, a.y), Vector3(b.x, 0, b.y), Vector3(a.x, 0, b.y), "fabric_under", S_RUBBER)
+	# the hole's walls, facing into it
+	geo.quad(Vector3(x0, dy, z0), Vector3(x0, dy, z1), Vector3(x0, 8, z1), Vector3(x0, 8, z0), "structure", S_METAL)
+	geo.quad(Vector3(x1, dy, z0), Vector3(x1, 8, z0), Vector3(x1, 8, z1), Vector3(x1, dy, z1), "structure", S_METAL)
+	geo.quad(Vector3(x0, dy, z0), Vector3(x0, 8, z0), Vector3(x1, 8, z0), Vector3(x1, dy, z0), "structure", S_METAL)
+	geo.quad(Vector3(x0, dy, z1), Vector3(x1, dy, z1), Vector3(x1, 8, z1), Vector3(x0, 8, z1), "structure", S_METAL)
+	# the block's outer sides
+	geo.quad(Vector3(0, dy, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, dy, 0), "wall_dark", S_METAL)
+	geo.quad(Vector3(32, dy, 32), Vector3(32, 8, 32), Vector3(0, 8, 32), Vector3(0, dy, 32), "wall_dark", S_METAL)
+	geo.quad(Vector3(0, dy, 0), Vector3(0, dy, 32), Vector3(0, 8, 32), Vector3(0, 8, 0), "wall_dark", S_METAL)
+	geo.quad(Vector3(32, dy, 0), Vector3(32, 8, 0), Vector3(32, 8, 32), Vector3(32, dy, 32), "wall_dark", S_METAL)
+
+
+## The profile's height at z (linear between its points).
+static func _profile_at(prof: Array, z: float) -> float:
+	for i in prof.size() - 1:
+		var z0 := float(prof[i][0])
+		var z1 := float(prof[i + 1][0])
+		if z <= z1 or i == prof.size() - 2:
+			return lerpf(float(prof[i][1]), float(prof[i + 1][1]), clampf((z - z0) / maxf(z1 - z0, 1e-6), 0.0, 1.0))
+	return float(prof[0][1])

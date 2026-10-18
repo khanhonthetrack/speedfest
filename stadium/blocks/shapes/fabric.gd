@@ -117,12 +117,18 @@ const PILLAR_ARC_STEPS := 17
 const BASE_IN_AIR := [48.73, 61.04, 0.0, 1.46]
 
 
+## The screen tower on FabricPillarAirScreen (measured): its frame x0, x1, y0 (over the feet), y1,
+## z0, z1; the feet's x spans and z span; the screens' outer faces (x) and their y, z spans.
+const SCREEN_TOWER := [17.2, 26.84, 2.37, 24.0, 0.57, 63.4, 17.03, 19.01, 25.03, 27.01, 14.81, 49.24]
+const SCREEN_TOWER_SCREEN := [16.91, 27.14, 6.21, 21.13, 15.81, 48.08]
+
+
 func handles(shape: String) -> bool:
 	return shape in ["Fabric/FabricStraight1x1", "Fabric/FabricStraight1x1Air", "Fabric/FabricPillarGround",
 		"Fabric/FabricPillarAir", "Fabric/FabricCross1x1", "Fabric/FabricCornerIn", "Fabric/FabricCornerInAir",
 		"Fabric/FabricCornerOut", "Fabric/FabricCornerOutAir", "Fabric/FabricPillarCornerInAir",
 		"Fabric/FabricPillarCornerInGround", "Fabric/FabricPillarCornerOutGround", "Fabric/FabricPillarCornerOutAir",
-		"Fabric/FabricCross3x3", "Fabric/FabricCross3x3Screen"]
+		"Fabric/FabricCross3x3", "Fabric/FabricCross3x3Screen", "Fabric/FabricPillarAirScreen"]
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
@@ -144,6 +150,25 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Fabric/FabricPillarAir":
 			geo.box(Vector3(PILLAR_WALL[0], 0, 0), Vector3(PILLAR_WALL[1], 24, 32), "fabric", S_ROAD)
 			_open_post(geo, Vector3(PILLAR_POST[0], 0, PILLAR_POST[2]), Vector3(PILLAR_POST[1], 24, PILLAR_POST[3]))
+		"Fabric/FabricPillarAirScreen":
+			# the pillar, and astride it a screen tower two blocks long (measured): a frame over two
+			# feet, a big screen on each side
+			geo.box(Vector3(PILLAR_WALL[0], 0, 0), Vector3(PILLAR_WALL[1], 24, 32), "fabric", S_ROAD)
+			var t: Array = SCREEN_TOWER
+			# a hollow frame: its four walls (panels) and a rim along the top
+			var lo := Vector3(t[0], t[2], t[4])
+			var hi := Vector3(t[1], t[3], t[5])
+			for wall: Array in [[lo, Vector3(lo.x + 0.3, hi.y, hi.z)], [Vector3(hi.x - 0.3, lo.y, lo.z), hi],
+					[lo, Vector3(hi.x, hi.y, lo.z + 0.3)], [Vector3(lo.x, lo.y, hi.z - 0.3), hi]]:
+				geo.box(wall[0], wall[1], "structure", S_METAL)
+			for rim: Array in [[Vector3(lo.x, 20.94, lo.z), Vector3(hi.x, hi.y, lo.z + 1.0)],
+					[Vector3(lo.x, 20.94, hi.z - 1.0), Vector3(hi.x, hi.y, hi.z)]]:
+				geo.box(rim[0], rim[1], "structure", S_METAL)
+			for foot: Array in [[t[6], t[7]], [t[8], t[9]]]:
+				geo.box(Vector3(foot[0], 0, t[10]), Vector3(foot[1], t[2], t[11]), "structure", S_METAL)
+			var sc: Array = SCREEN_TOWER_SCREEN
+			geo.screen_box(Vector3(sc[0], sc[2], sc[4]), Vector3(t[0], sc[3], sc[5]), "screen", S_METAL, 0.03, 0)
+			geo.screen_box(Vector3(t[1], sc[2], sc[4]), Vector3(sc[1], sc[3], sc[5]), "screen", S_METAL, 0.03, 1)
 		"Fabric/FabricCross1x1":
 			geo.box(Vector3(0, CROSS_ROOF[0], 0), Vector3(32, CROSS_ROOF[1], 32), "structure", S_ROAD, "fabric", S_ROAD)
 		"Fabric/FabricCornerIn", "Fabric/FabricCornerOut", "Fabric/FabricCornerInAir", "Fabric/FabricCornerOutAir":
