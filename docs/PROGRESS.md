@@ -1755,3 +1755,10 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   with the car: the race number on a white board on the nose (read from in front), our emblem and
   SPEEDFEST on both sidepods (each read from its own side). The sponsors' stickers come with the
   Polish brands (adverts step).
+- **Reflection probe** (`race/tm_stage.gd` `field_probe`): one probe over the whole field (map
+  size + 80 m round, 400 m tall), captured once from 20 m over the ground when the map is in the
+  scene; the car's rims, paint and the gates' metal reflect the Stadium instead of only the sky.
+  **SDFGI stays off on High**: tried at Ultra with energy 0.9 and 1.5 against High (now with the
+  occlusion, contact shadow and probe), it greys and darkens the scene at both (the facades go
+  near black) and adds cost; High without it looks best in this review's renders. SDFGI on
+  Ultra is unchanged; tuning it needs a real GPU (it never settled on llvmpipe in 60 frames).

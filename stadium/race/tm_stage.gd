@@ -77,12 +77,33 @@ static func load_from_args() -> TmChallenge:
 	return TmChallenge.load_file(path)
 
 
+## One reflection probe over the whole field, captured once from 20 m up when the map is in the
+## scene: the car's paint, the gates' metal and glass reflect the Stadium around them instead of
+## only the sky (Environment reflections are the sky's alone). Ambient is left to the sky and
+## the map's occlusion (TmOcclusion).
+static func field_probe(builder: TmMapBuilder) -> ReflectionProbe:
+	var w := float(builder.challenge.size.x) * 32.0
+	var d := float(builder.challenge.size.z) * 32.0
+	var probe := ReflectionProbe.new()
+	probe.name = "FieldProbe"
+	probe.size = Vector3(w + 160.0, 400.0, d + 160.0)
+	probe.position = Vector3(-w * 0.5, 9.0 + 20.0, d * 0.5)    # TMNF x negated; 20 m over the ground
+	probe.origin_offset = Vector3.ZERO
+	probe.box_projection = false
+	probe.max_distance = 2000.0
+	probe.update_mode = ReflectionProbe.UPDATE_ONCE
+	probe.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
+	probe.intensity = 1.0
+	return probe
+
+
 ## Sun and sky (TmStadiumEnv) and, around a 32 x 32 map, the Stadium (TmStadiumBuild); around maps
 ## of other sizes plain grass from the map's edge to the horizon (the map's own ground is built
 ## with it by TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	TmStadiumEnv.add(parent)
 	TmOcclusion.add(parent, builder)
+	parent.add_child(field_probe(builder))
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
 		if TmRefVisuals.active():
 			# research (--ref): TMNF's own surround, from local files (TmRefVisuals)
