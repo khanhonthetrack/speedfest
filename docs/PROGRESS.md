@@ -1695,3 +1695,17 @@ dated look); an independent review of how close `stadium` is to the real game.
   prototype of the top fixes (light, probe, framed-screen and no-board gates). The prototype is
   not committed to any game branch; its diff is `docs/research/stadium_review_prototype.diff`
   (against M9 @ 77bb43c) for whoever implements §3.
+
+## 2026-10-18 — Session 14: the review's fix list (owner: "go with option B and implement the fix list")
+Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit per step.
+- **Gates, option B** (`blocks/tm_gate_screen.gd`, `blocks/tm_led_screen.gdshader`, `road.gd`
+  `_gate`, `TmGateDress.crown`, `race/race.gd` `_gate_time`): TMNF's two sign boards are gone; each
+  gate has an LED screen in its arch's crown on both faces (the gate's word, START / CHECKPOINT /
+  FINISH in its colour; when you pass, your time and the difference to the record's split, blue
+  ahead / red behind, as TM2020 does; the word again on restart) and a spotlight in its colour on
+  the road under it. Dirt checkpoints get the screen too. One SubViewport per gate, redrawn only
+  when its text changes. Lesson: blocks are built once per shape and `duplicate()`d
+  (`TmBlockLib`), which drops script variables, so the screen keeps only exported settings and
+  builds itself in `_ready` (the first try showed the template's never-drawn, white viewport).
+  `tests/test_tracks`: gate_screens_SF01 (one per road gate), gate_screen_shows_time,
+  gate_screen_word_after_restart.

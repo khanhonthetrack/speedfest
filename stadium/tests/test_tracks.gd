@@ -42,6 +42,7 @@ func _respawn_check(id: String) -> void:
 		await get_tree().physics_frame
 	var crossed: float = scene.car.speed_kmh()
 	var at: Vector3 = scene.car.global_position
+	_gate_screens(id, scene, race, at)
 	for i in 60:
 		await get_tree().physics_frame
 	scene.respawn()
@@ -49,9 +50,27 @@ func _respawn_check(id: String) -> void:
 	TestHooks.check(not race.taken.is_empty() and crossed > 50.0 and absf(back - crossed) < 3.0
 		and scene.car.global_position.distance_to(at) < 3.0, "respawn_keeps_checkpoint_speed",
 		"crossed %.0f km/h, back at %.0f km/h, %.1f m from the crossing" % [crossed, back, scene.car.global_position.distance_to(at)])
+	scene.restart()
+	var words := TmGateScreen.near(get_tree(), at).map(func(g: TmGateScreen) -> String: return g._main.text)
+	TestHooks.check(not words.is_empty() and words.all(func(w: String) -> bool: return w == "CHECKPOINT"),
+		"gate_screen_word_after_restart", str(words))
 	scene.queue_free()
 	await get_tree().physics_frame
 	TestHooks.args.erase("bot")
+
+
+## Every gate has its crown screen (start, checkpoints, finish), and the one just passed shows the
+## time it was passed at.
+func _gate_screens(id: String, scene: Node, race: TmRace, at: Vector3) -> void:
+	var all := get_tree().get_nodes_in_group(TmGateScreen.GROUP)
+	var gates := 0
+	for wp: Dictionary in scene.builder.waypoints:
+		gates += 1 if String(wp["block"]).begins_with("StadiumRoadMain") else 0
+	TestHooks.check(all.size() == gates, "gate_screens_" + id, "%d screens, %d road gates" % [all.size(), gates])
+	var here := TmGateScreen.near(get_tree(), at)
+	var want := TmRace.time_text(race.splits[0]) if not race.splits.is_empty() else "?"
+	TestHooks.check(here.size() == 1 and here[0]._main.text == want, "gate_screen_shows_time",
+		"%d near, %s (want %s)" % [here.size(), here.map(func(g: TmGateScreen) -> String: return g._main.text), want])
 
 
 func _track(id: String) -> int:

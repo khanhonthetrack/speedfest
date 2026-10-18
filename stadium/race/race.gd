@@ -70,6 +70,8 @@ func _ready() -> void:
 	var laps: int = TestHooks.arg("laps", challenge.nb_laps if challenge.lap_race else 1)
 	race = TmRace.new(cps, laps)
 	race.finished.connect(_on_finished)
+	race.checkpoint_taken.connect(func(_count: int, time_ms: int) -> void: _gate_time(time_ms))
+	race.lap_done.connect(func(_lap: int, time_ms: int) -> void: _gate_time(time_ms))
 	best = TmRecords.best(challenge)
 	best_ghost = TmRecords.ghost(challenge) if TmUi.setting("ghost") else null
 	ghost_car = Node3D.new()
@@ -186,6 +188,7 @@ func _show_ghost() -> void:
 
 
 func _on_finished(time_ms: int) -> void:
+	_gate_time(time_ms)
 	car.controls_enabled = false
 	car.auto_brake = true
 	cam.freeze()
@@ -326,9 +329,22 @@ func restart() -> void:
 	new_record = false
 	_cp_states.clear()
 	hud.reset()
+	TmGateScreen.reset_all(get_tree())
 	if bot:
 		bot.reset()
 	place_car(builder.start if builder.has_start else Transform3D())
+
+
+## The time at the gate just passed on its crown screen, with the difference to the record's
+## split there (blue ahead, red behind), like TM2020's checkpoints.
+func _gate_time(time_ms: int) -> void:
+	var s: Array = best.get("splits", [])
+	var n := race.splits.size()
+	var b := int(s[n - 1]) if n >= 1 and n <= s.size() else -1
+	var delta := TmRaceHud.delta_text(time_ms - b) if b >= 0 else ""
+	var colour := TmRaceHud.AHEAD if time_ms - b <= 0 else TmRaceHud.BEHIND
+	for screen in TmGateScreen.near(get_tree(), car.global_position):
+		screen.show_time(TmRace.time_text(time_ms), delta, colour)
 
 
 ## Back to the last checkpoint (the clock keeps running); before any, or after the finish, a restart.

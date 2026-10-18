@@ -4,7 +4,8 @@ extends RefCounted
 ## underside lit in the gate's colour, and the gate block's curbs, are in blocks/shapes/road.gd
 ## _gate): the start and the finish paint a pad across the road (the kind's colour, a chequered
 ## band on the line, the word either side; our own textures, stadium/tools/texgen/gates.py), a
-## checkpoint a band of its colour across the road. Visual only. Built in TMNF block-local
+## checkpoint a band of its colour across the road; every gate gets an LED screen in its crown
+## and a spotlight in its colour (`crown`, TmGateScreen). Visual only. Built in TMNF block-local
 ## coordinates like the block, then sheared with it (sloped and banked checkpoints).
 
 const KINDS := {
@@ -41,12 +42,27 @@ static func dress(root: Node3D, kind: String, zc: float, top: float, shear := Ve
 	holder.transform = Transform3D(Basis(Vector3(1, -shear.x, 0), Vector3(0, 1, 0), Vector3(0, shear.y, 1)),
 		Vector3(0, shear.z, 0))
 	root.add_child(holder)
+	crown(holder, kind, zc)
 	if kind == "start":
 		holder.add_child(_road_band(zc, PAD_DEPTH, top, _painted("pad_start", line())))
 	elif kind in ["finish", "lap"]:
 		holder.add_child(_road_band(zc, PAD_DEPTH, top, _painted("pad_finish", checker())))
 	else:
 		holder.add_child(_road_band(zc, 1.0, top, _painted("line_cp", line())))
+
+
+## The gate's crown screen and spotlight (TmGateScreen) under `root` (already sheared like the
+## block, or pass `shear` for a holder of its own: dirt checkpoints, which have no road paint).
+static func crown(root: Node3D, kind: String, zc: float, shear := Vector3.ZERO, own_holder := false) -> void:
+	var holder := root
+	if own_holder:
+		holder = Node3D.new()
+		holder.name = "GateCrown"
+		holder.transform = Transform3D(Basis(Vector3(1, -shear.x, 0), Vector3(0, 1, 0), Vector3(0, shear.y, 1)),
+			Vector3(0, shear.z, 0))
+		root.add_child(holder)
+	var spec: Array = KINDS.get(kind, KINDS["cp"])
+	TmGateScreen.add(holder, "finish" if kind == "lap" else kind, zc, spec[0])
 
 
 ## A painted marking (textured with HD graphics; `flat` otherwise).

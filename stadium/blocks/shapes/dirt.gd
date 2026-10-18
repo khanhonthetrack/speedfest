@@ -52,7 +52,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_surface(geo, shapes()[shape])
 	else:
 		return null
-	return geo.build()
+	var node := geo.build()
+	if CHECKPOINTS.has(shape):
+		TmGateDress.crown(node, "cp", 16.0, Vector3(0.0, 0.0, float(CHECKPOINTS[shape][1])), true)
+	return node
 
 
 ## The surface through a shape's control grid, QUAD m quads, grass or dirt by the grid cell.
