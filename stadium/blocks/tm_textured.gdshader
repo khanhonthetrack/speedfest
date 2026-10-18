@@ -18,6 +18,10 @@ uniform float world_scale = 0.0625;     // 1 / metres per texture
 uniform float sharpness = 8.0;
 uniform float metallic = 0.0;          // times the ORM map's blue, as ORMMaterial3D (default 0)
 uniform float roughness = 1.0;         // times its green
+uniform vec3 tint : source_color = vec3(1.0);   // times the albedo (one set, light and dark walls)
+// large-scale variation over the tiles (world xz), so a 16 m texture doesn't read as a grid far off
+uniform sampler2D macro_tex : filter_linear_mipmap, repeat_enable;
+uniform float macro = 0.0;
 
 varying vec3 wpos;
 varying vec3 wnrm;
@@ -68,7 +72,11 @@ void fragment() {
 			em = texture(emission_tex, uv).rgb;
 		}
 	}
-	ALBEDO = alb;
+	if (macro > 0.0) {
+		float m = texture(macro_tex, wpos.xz / 173.0).r * 0.65 + texture(macro_tex, wpos.xz / 41.0).r * 0.35;
+		alb *= 1.0 + macro * (m * 2.0 - 1.0);
+	}
+	ALBEDO = alb * tint;
 	ROUGHNESS = orm.g * roughness;
 	METALLIC = orm.b * metallic;
 	// ORMMaterial3D's emission: (colour + map) * energy ("add")

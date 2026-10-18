@@ -1762,3 +1762,12 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   occlusion, contact shadow and probe), it greys and darkens the scene at both (the facades go
   near black) and adds cost; High without it looks best in this review's renders. SDFGI on
   Ultra is unchanged; tuning it needs a real GPU (it never settled on llvmpipe in 60 frames).
+- **The remaining surfaces textured** (`stadium/tools/texgen/surfaces.py`, our own): the field's
+  mown grass (8 m stripes, blades, clumps, worn and lush patches), the dirt roads' packed earth
+  (pebbles, cracks, damp hollows, wheel streaks), the platforms' 4 m concrete panels (chamfered
+  joints, bolt plates), the structures' painted steel (2 m plates, seams, bolt rows, wear, rain
+  streaks), light wall panels (also `wall_dark`, tinted). That covers the platform, dirt,
+  circuit, tube and control families' main keys. `tm_textured.gdshader` gained a `tint` and a
+  two-scale **macro variation** (the shared coarse noise at 173 m and 41 m over world xz), on the
+  big surfaces (asphalt 10%, grass 16%, dirt 14%, platform 8%) so the tiles don't read as a grid
+  from afar.

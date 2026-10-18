@@ -1,0 +1,131 @@
+"""The Stadium's remaining surfaces, our own art in its style (world-mapped, tileable): the field's
+mown grass, the dirt roads' packed earth, the platforms' concrete panels, the structures' painted
+steel and the light wall panels (tinted dark by TmMaterials for wall_dark). Colours from the
+Stadium's measured ones (TmMaterials). Sizes in metres are what one texture covers.
+usage: python3 stadium/tools/texgen/surfaces.py"""
+import numpy as np
+from texlib import *
+
+
+def grass(name='stadium_grass', ppm=32, size_m=32.0, seed=201, base=(62, 92, 45)):
+    """Mown stadium grass: stripes 8 m wide in two shades (the mower's passes, along z), blades and
+    clover at the small scale, a few worn and lush patches."""
+    w = h = int(size_m * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    xm = xx / ppm
+    stripe = 0.5 + 0.5 * np.cos(2.0 * np.pi * xm / 16.0)
+    stripe = smoothstep(0.25, 0.75, stripe)
+    blades = fbm(w, h, seed, beta=0.4, lo=200.0)
+    clumps = fbm(w, h, seed + 1, beta=1.6, lo=24.0, hi=200.0)
+    patches = fbm(w, h, seed + 2, beta=2.6, lo=1.0, hi=10.0)
+    tone = 1.0 + 0.10 * stripe - 0.05 + 0.06 * blades + 0.05 * clumps + 0.05 * patches
+    col = srgb(base)[None, None, :] * tone[..., None]
+    # the light stripes a touch yellower (blades bent away), worn patches browner
+    col[..., 0] *= 1.0 + 0.05 * stripe + 0.04 * smoothstep(0.8, 1.8, -patches)
+    col[..., 2] *= 1.0 - 0.06 * stripe
+    nrm = normal_from_height(0.8 * blades + 0.4 * clumps, 0.25)
+    orm = np.stack([1.0 - 0.15 * smoothstep(-0.5, 1.5, -clumps), 0.93 + 0.04 * blades, np.zeros_like(blades)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
+
+
+def dirt(name='stadium_dirt', ppm=64, size_m=8.0, seed=211, base=(96, 82, 61)):
+    """Packed earth: fine grain, pebbles, dry cracks, darker damp hollows, wheel streaks along z."""
+    w = h = int(size_m * ppm)
+    grain = fbm(w, h, seed, beta=0.6, lo=64.0)
+    lumps = fbm(w, h, seed + 1, beta=2.0, lo=4.0, hi=64.0)
+    damp = smoothstep(0.4, 1.6, fbm(w, h, seed + 2, beta=2.8, lo=1.0, hi=8.0))
+    pebbles = speckles(w, h, seed + 3, 0.0012, 1.0, 3.5)
+    crk = blur(cracks(w, h, seed + 4, 8, 60, jitter=0.4), 0.7) * 0.5
+    streak = blur(fbm(w, 1, seed + 5, beta=1.2, lo=4.0).repeat(h, 0), 1.0)
+    tone = (1.0 + 0.10 * grain + 0.08 * lumps - 0.18 * damp + 0.05 * streak) * (1.0 - 0.3 * crk)
+    col = srgb(base)[None, None, :] * tone[..., None]
+    col = col * (1 - pebbles[..., None] * 0.5) + srgb((150, 140, 125))[None, None, :] * pebbles[..., None] * 0.5
+    height = 0.6 * grain + 0.8 * lumps + 2.0 * pebbles - 2.0 * crk
+    nrm = normal_from_height(height, 0.45)
+    orm = np.stack([1.0 - 0.3 * crk - 0.1 * damp, 0.92 - 0.25 * damp + 0.03 * grain, np.zeros_like(grain)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
+
+
+def platform(name='platform_panels', ppm=64, size_m=16.0, seed=221, base=(168, 167, 164)):
+    """The platforms' deck: precast concrete panels 4 m square with chamfered joints, a bolt plate
+    at every corner, rubber and dust along the panels' edges."""
+    w = h = int(size_m * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    px = ppm
+    fine = fbm(w, h, seed, beta=0.6, lo=64.0)
+    mid = fbm(w, h, seed + 1, beta=2.0, lo=4.0, hi=96.0)
+    macro = fbm(w, h, seed + 2, beta=2.8, lo=1.0, hi=8.0)
+    pits = speckles(w, h, seed + 3, 0.0007, 0.8, 2.0)
+    du = np.minimum(xx % (4 * px), 4 * px - xx % (4 * px)) / px
+    dv = np.minimum(yy % (4 * px), 4 * px - yy % (4 * px)) / px
+    d = np.minimum(du, dv)
+    joint = 1.0 - smoothstep(0.0, 0.035, d)
+    bevel = (1.0 - smoothstep(0.035, 0.07, d)) * (1.0 - joint)
+    corner = 1.0 - smoothstep(0.10, 0.13, np.hypot(du, dv))
+    edge_dust = 1.0 - smoothstep(0.05, 0.4, d)
+    tone = 1.0 + 0.02 * macro + 0.02 * mid + 0.04 * fine - 0.2 * pits
+    tone *= 1.0 - 0.5 * joint - 0.12 * bevel - 0.06 * edge_dust
+    col = srgb(base)[None, None, :] * tone[..., None]
+    col = col * (1 - corner[..., None] * 0.6) + srgb((120, 122, 126))[None, None, :] * corner[..., None] * 0.6
+    height = 0.5 * fine + 0.2 * mid - 2.0 * pits - 5.0 * joint - 2.0 * bevel + 0.8 * corner
+    nrm = normal_from_height(height, 0.4)
+    orm = np.stack([1.0 - 0.4 * joint - 0.15 * edge_dust, 0.82 + 0.05 * fine - 0.25 * corner, 0.6 * corner], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm, size=(1024, 1024))
+
+
+def steel(name='steel_painted', ppm=64, size_m=8.0, seed=231, base=(78, 81, 88)):
+    """The structures' painted steel: plates 2 m wide with welded seams, rows of bolts along them,
+    paint wear and rain streaks running down (v is down the world's y on side faces)."""
+    w = h = int(size_m * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    px = ppm
+    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
+    n2 = fbm(w, h, seed + 1, beta=0.8, lo=32.0)
+    du = np.minimum(xx % (2 * px), 2 * px - xx % (2 * px)) / px
+    dv = np.minimum(yy % (2 * px), 2 * px - yy % (2 * px)) / px
+    seam = 1.0 - smoothstep(0.0, 0.02, np.minimum(du, dv))
+    bolts = np.zeros((h, w), np.float32)
+    for k in range(0, int(size_m / 0.25)):
+        cy = (k * 0.25 + 0.125) * px
+        for cx in np.arange(0.06, size_m, 2.0) * px:
+            r = np.hypot(xx - cx, yy - cy)
+            bolts = np.maximum(bolts, 1.0 - smoothstep(0.012 * px, 0.02 * px, r))
+    streak = smoothstep(0.4, 1.6, blur(fbm(w, h, seed + 2, beta=1.4, lo=6.0), 0.5) * 0.7 + 0.4 * n1)
+    wear = smoothstep(1.2, 2.2, fbm(w, h, seed + 3, beta=1.2, lo=8.0) + 1.5 * seam)
+    tone = (1.0 + 0.04 * n1 + 0.03 * n2) * (1 - 0.35 * seam) * (1 - 0.12 * streak) * (1 + 0.25 * bolts)
+    col = srgb(base)[None, None, :] * tone[..., None]
+    col = col * (1 - wear[..., None] * 0.5) + srgb((120, 118, 112))[None, None, :] * wear[..., None] * 0.5
+    nrm = normal_from_height(1.5 * bolts - 1.2 * seam + 0.15 * n2, 0.5)
+    orm = np.stack([1.0 - 0.3 * seam, 0.55 + 0.1 * n2 + 0.12 * streak - 0.2 * wear, 0.3 + 0.5 * wear], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
+def wall_panels(name='wall_panels', ppm=48, size_m=16.0, seed=241, base=(226, 228, 232)):
+    """Light cladding panels 4 x 2 m on the walls and decks' sides, with dark joints, a few
+    replaced (slightly whiter) panels and dirt washing down from the joints."""
+    w = h = int(size_m * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    px = ppm
+    n1 = fbm(w, h, seed, beta=2.2, lo=1.0)
+    fine = fbm(w, h, seed + 1, beta=0.8, lo=48.0)
+    du = np.minimum(xx % (4 * px), 4 * px - xx % (4 * px)) / px
+    dv = np.minimum(yy % (2 * px), 2 * px - yy % (2 * px)) / px
+    joint = 1.0 - smoothstep(0.0, 0.025, np.minimum(du, dv))
+    r = rng(seed + 2)
+    cells = r.uniform(-1, 1, (int(size_m / 2), int(size_m / 4)))
+    cell = cells[(yy // (2 * px)).astype(int) % cells.shape[0], (xx // (4 * px)).astype(int) % cells.shape[1]]
+    wash = blur(np.clip(joint * (r.uniform(0, 1, (h, w)) > 0.6), 0, 1), 3.0)
+    wash = np.clip(blur(np.roll(wash, int(0.3 * px), 0) + wash, 6.0) * 3.0, 0, 1)
+    tone = (1.0 + 0.025 * n1 + 0.02 * fine + 0.03 * cell) * (1 - 0.45 * joint) * (1 - 0.1 * wash)
+    col = srgb(base)[None, None, :] * tone[..., None]
+    nrm = normal_from_height(-2.0 * joint + 0.1 * fine, 0.45)
+    orm = np.stack([1.0 - 0.35 * joint, 0.7 + 0.05 * fine + 0.1 * wash, np.zeros_like(fine)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
+if __name__ == '__main__':
+    grass()
+    dirt()
+    platform()
+    steel()
+    wall_panels()
