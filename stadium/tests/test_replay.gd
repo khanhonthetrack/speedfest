@@ -18,7 +18,7 @@ func _ready() -> void:
 	TestHooks.args.erase("map")
 	TmRecords.clear()
 	TmReplay.clear()
-	var id: String = TmTracks.ids()[0]
+	var id: String = "SF01" if TmTracks.has("SF01") else TmTracks.ids()[0]   # a road track with a turbo
 	TestHooks.args["track"] = id
 	TestHooks.args["bot"] = true
 	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()

@@ -1,0 +1,8 @@
+{
+	"name": "A12-Speed",
+	"author": "SpeedFest",
+	"start": [3, 6, 8, 3],
+	"medals": {"author": 12910, "gold": 13700, "silver": 16000, "bronze": 20000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 5], ["turbo"], ["s", 5], ["turbo"], ["s", 4], ["gt", 3, "l"], ["s", 4], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 2], ["finish"]]
+}

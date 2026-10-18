@@ -138,7 +138,12 @@ func _camera() -> void:
 		var p: Vector3 = _path[i]["p"]
 		var d: Vector3 = _path[i]["dir"]
 		var ahead: Vector3 = _path[mini(i + 6, _path.size() - 1)]["p"]
-		cam.global_position = p - d * back + Vector3.UP * up
+		# on the line itself, back metres before the point (slopes: the line's height there)
+		var j := i
+		while j > 0 and (_path[j]["p"] as Vector3).distance_to(p) < back:
+			j -= 1
+		var behind: Vector3 = _path[j]["p"] if j < i else p - d * back
+		cam.global_position = behind + Vector3.UP * up
 		cam.look_at(ahead + Vector3.UP * 1.0 if ahead.distance_to(p) > 1.0 else p + d * 40.0)
 		cam.fov = 70.0
 	elif view == "start" and builder.has_start:

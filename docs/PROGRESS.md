@@ -1917,3 +1917,24 @@ done for each) is checked against the code finding by finding, fixed, tested and
   circuits are closed by borders that face them, walled platforms have their walls, slopes climb
   as TMNF's, a gate on a wide lane is refused, dirt roads lie on the ground, and the bot drives
   an area track and a dirt track to the finish (the turbo row boosting it).
+
+## 2026-10-18 — Session 13 (M9-8): the White series (A01-A15)
+- Our own 15 White tracks in TMNF's structure (`tracks/A01..A15.json`; kinds as TMNF's slots:
+  Race, Acrobatic A04/A10, Obstacle A06, Endurance A08 (3 laps), Speed A12/A15), mixing circuit
+  (A01, A08, A13, A15), walled platform corridors (A06, A07, A13), wide platforms with turbo rows
+  (A04, A12), dirt (A02, A05, A11, A14) and road with hills, jumps and a loop (A03, A09, A10).
+  Medals from the bot (author = its best of five grips; gold +6%, silver +20%, bronze +50%):
+  authors 6.4 s (A04) to 48.5 s (A08, 3 laps); most 15-23 s (TMNF's White: 6-29 s, A08 1:04).
+- `tracks/campaign.json` lists series (`{"series": [...]}`): White, then the old SpeedFest tracks
+  until the other series exist (the menu shows a tab per series). The server reads the series too
+  (`server/lib/rounds.js ownTracks`, test).
+- Builder: lap races (`"laps": n`, the start is the start/finish line, `["close"]` ends the lap
+  on it; the bot's line repeats per lap); lane cells now come from the line by piece (straight:
+  the cells beside it; turns: every cell within w*16-4 m of the line between the turn's faces, so
+  no wall stands where the car goes); a hole a border can't close (a one-cell gate inside a wide
+  lane) is an error that says what to do. Dirt roads cut the stadium grass under them (they were
+  hidden under it: `blocks/tm_map_builder.gd`, also for TMNF's maps).
+- `tests/test_tracks`: every campaign track lays out and builds; the bot drives each series' first
+  track (it drives at about real time; `--series=White`, `--tracks=all` or a list drive more);
+  a time limit from the line's length for long tracks. Road-gate checks (crown screens, respawn,
+  replay turbo) run on SF01. `tests/test_track_areas`: a lap race (11 checks).

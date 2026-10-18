@@ -7,7 +7,8 @@ extends RefCounted
 ## plus the line a car should follow through it (`path`, for the driving bot, TmBot).
 ##
 ## A track spec (tracks/*.json): {"id", "name", "author", "start": [x, y, z, heading], "pieces":
-## [...], "medals": {"author", "gold", "silver", "bronze"} (ms)}. Pieces:
+## [...], "medals": {"author", "gold", "silver", "bronze"} (ms), "laps": n (a lap race: the start
+## is TMNF's start/finish line and the pieces end with ["close"], back onto it)}. Pieces:
 ##   ["start"], ["finish"], ["cp"] (a checkpoint), ["turbo"], ["s", n] (n straight road blocks),
 ##   ["l"] / ["r"] (a road corner), ["gt", 2..5, "l" | "r"] (a GT curve of that size),
 ##   ["up"] / ["down"] (a slope one level up / down), ["up2"] / ["down2"] (two levels),
@@ -61,8 +62,11 @@ var width := 1                   ## an area lane's width in cells (platform, cir
 var lane_walls := false          ## a platform lane with walls along its open edges
 var deck := ROAD_Y               ## the surface's top above its level's base (m)
 var areas: TmTrackAreas
+var laps := 1                    ## a lap race's laps (the line repeats once per lap)
+var _start := {}                 ## a lap race's start/finish line: {cell (the car enters it), heading}
+var _closed := false
 
-const DIRT_DECK := -0.6          ## the dirt road's top: sunk into the grass (blocks/shapes/dirt.gd)
+const DIRT_DECK := 0.4           ## the dirt road's top: 0.6 m into the grass (9 m; blocks/shapes/dirt.gd)
 
 
 ## Lays out a track spec.
@@ -71,6 +75,7 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 	var s: Array = spec.get("start", [16, GROUND_LEVEL, 2, 0])
 	b.cell = Vector3i(int(s[0]), int(s[1]), int(s[2]))
 	b.heading = posmod(int(s[3]), 4)
+	b.laps = maxi(1, int(spec.get("laps", 1)))
 	b.areas = TmTrackAreas.new(b)
 	for p: Array in spec.get("pieces", []):
 		b._pieces += 1
@@ -81,10 +86,17 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 		b.areas.finish()
 	if b.errors.is_empty():
 		b.ease_loops()
+	if b.errors.is_empty() and b.laps > 1 and not b._closed:
+		b.errors.append("a lap race ends with [\"close\"], back onto its start/finish line")
 	if b.errors.is_empty():
 		b.add_pillars()
 		if bool(spec.get("decorate", true)):
 			TmTrackDecor.decorate(b, String(spec.get("id", "")))
+	if b.errors.is_empty() and b.laps > 1:
+		# the line once per lap: the bot drives on round
+		var lap := b.path.duplicate(true)
+		for _i in b.laps - 1:
+			b.path.append_array(lap.duplicate(true))
 	return b
 
 
@@ -151,7 +163,8 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	var b := build(spec)
 	var ch := TmChallenge.new()
 	# keyed by the layout too: records of an older layout of the same track don't carry over
-	var layout := "%08x" % (hash(JSON.stringify([spec.get("start", []), spec.get("pieces", [])])) & 0xffffffff)
+	var layout := "%08x" % (hash(JSON.stringify([spec.get("start", []), spec.get("pieces", [])] + ([spec["laps"]] if spec.has("laps") else [])))
+		& 0xffffffff)
 	ch.uid = "SF-%s-%s" % [String(spec.get("id", "track")), layout]
 	ch.name = String(spec.get("name", "Track"))
 	ch.author = String(spec.get("author", "SpeedFest"))
@@ -162,6 +175,8 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	ch.gold_ms = int(m.get("gold", -1))
 	ch.silver_ms = int(m.get("silver", -1))
 	ch.bronze_ms = int(m.get("bronze", -1))
+	ch.lap_race = b.laps > 1
+	ch.nb_laps = b.laps
 	ch.blocks = b.blocks
 	ch.path = b.path
 	if not b.errors.is_empty():
@@ -395,8 +410,20 @@ func piece(p: Array) -> void:
 		_dirt(p)
 		return
 	match kind:
+		"close":
+			# the lap ends where it began: into the start/finish line, through it
+			if laps < 2 or _start.is_empty() or cell != _start["cell"] or heading != int(_start["heading"]):
+				errors.append("[\"close\"] (piece %d) at %s heading %d: the lap's start/finish line takes the car at %s heading %s"
+					% [_pieces, cell, heading, _start.get("cell"), _start.get("heading")])
+				return
+			var a := entry_face()
+			_segment(a, heading, a + vec(heading) * 32.0, heading)
+			_closed = true
 		"start":
-			var res := place("StadiumRoadMainStartLine", -1, 0)
+			var line := "StadiumRoadMainStartFinishLine" if laps > 1 else "StadiumRoadMainStartLine"
+			if laps > 1:
+				_start = {"cell": cell, "heading": heading}
+			var res := place(line, -1, 0)
 			if not res.is_empty():
 				cell = res["exit_cell"]
 				heading = res["exit_heading"]

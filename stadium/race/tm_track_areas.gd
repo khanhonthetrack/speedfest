@@ -35,35 +35,62 @@ func _init(builder: TmTrackBuilder) -> void:
 	b = builder
 
 
-## The lane's cells along the line from a to b (TMNF metres, at the lane's level): every cell whose
-## centre lies within w * 16 m of it (a little less, so a straight lane is exactly w wide).
+## The lane's cells along a straight piece from a to b (TMNF metres, at the lane's level): the cells
+## beside it, their centres within the piece and less than w * 16 m to either side.
 func brush(from: Vector3, to: Vector3, level: int) -> void:
+	var d := Vector2(to.x - from.x, to.z - from.z)
+	var length := d.length()
+	if length < 0.01:
+		return
+	d /= length
 	var half := b.width * 16.0 - 1.0
-	var n := maxi(1, ceili(from.distance_to(to) / 2.0))
-	for i in n + 1:
-		_dab(from.lerp(to, float(i) / n), level, half)
+	_cells_near((from + to) * 0.5, length * 0.5 + half, level, func(c: Vector2) -> bool:
+		var r := c - Vector2(from.x, from.z)
+		var along := r.dot(d)
+		return along > 0.0 and along < length and absf(r.cross(d)) < half)
 
 
-func brush_arc(points: Array, level: int) -> void:
-	var half := b.width * 16.0 - 1.0
+## The lane's cells round a turn (the line's points, entering along d_in, leaving along d_out):
+## every cell that comes within w * 16 - REACH m of the line, between the turn's entry and exit
+## faces (so a turn takes every cell the car's side of the lane passes over, and no wall stands
+## in its way).
+const REACH := 4.0
+
+
+func brush_arc(points: Array, d_in: Vector3, d_out: Vector3, level: int) -> void:
+	var half := b.width * 16.0 - REACH
+	var a: Vector3 = points[0]
+	var z: Vector3 = points[points.size() - 1]
+	var line: Array[Vector2] = []
 	for i in range(1, points.size()):
 		var p: Vector3 = points[i - 1]
 		var q: Vector3 = points[i]
 		var n := maxi(1, ceili(p.distance_to(q) / 2.0))
 		for k in n + 1:
-			_dab(p.lerp(q, float(k) / n), level, half)
+			var v := p.lerp(q, float(k) / n)
+			line.append(Vector2(v.x, v.z))
+	_cells_near((a + z) * 0.5, a.distance_to(z) + half, level, func(c: Vector2) -> bool:
+		if (c - Vector2(a.x, a.z)).dot(Vector2(d_in.x, d_in.z)) <= 0.0 or (c - Vector2(z.x, z.z)).dot(Vector2(d_out.x, d_out.z)) >= 0.0:
+			return false
+		for v in line:
+			var dx := maxf(absf(v.x - c.x) - 16.0, 0.0)
+			var dz := maxf(absf(v.y - c.y) - 16.0, 0.0)
+			if Vector2(dx, dz).length() < half:
+				return true
+		return false)
 
 
-func _dab(p: Vector3, level: int, half: float) -> void:
-	var r := ceili(half / 32.0) + 1
-	var cx := floori(p.x / 32.0)
-	var cz := floori(p.z / 32.0)
-	for x in range(cx - r, cx + r + 1):
-		for z in range(cz - r, cz + r + 1):
+## Marks the free cells within r m of centre (TMNF metres) that take(cell centre) accepts.
+func _cells_near(centre: Vector3, r: float, level: int, take: Callable) -> void:
+	var k := ceili(r / 32.0) + 1
+	var cx := floori(centre.x / 32.0)
+	var cz := floori(centre.z / 32.0)
+	for x in range(cx - k, cx + k + 1):
+		for z in range(cz - k, cz + k + 1):
 			var c := Vector3i(x, level, z)
 			if cells.has(c) or x < 0 or z < 0 or x >= TmTrackBuilder.MAP or z >= TmTrackBuilder.MAP:
 				continue
-			if Vector2((x + 0.5) * 32.0 - p.x, (z + 0.5) * 32.0 - p.z).length() <= half:
+			if take.call(Vector2((x + 0.5) * 32.0, (z + 0.5) * 32.0)):
 				cells[c] = b.surface
 				if b.lane_walls:
 					walled[c] = true
@@ -142,7 +169,7 @@ func _turn(left: bool, m: int) -> void:
 	var pts: Array = [a]
 	for i in range(from, b.path.size()):
 		pts.append(TmTrackBuilder.to_godot(b.path[i]["p"]))
-	brush_arc(pts, b.cell.y)
+	brush_arc(pts, TmTrackBuilder.vec(h), TmTrackBuilder.vec(h2), b.cell.y)
 
 
 ## A gate: the platform checkpoint, across a one-cell lane (TMNF's gates are one cell wide).
@@ -218,6 +245,9 @@ func finish() -> void:
 		else:
 			var v := _plate_variant(c)
 			b.put("StadiumPlatformRoad", c, int(v["dir"]), int(v["flags"]), true)
+	_holes()
+	if not b.errors.is_empty():
+		return
 	_borders()
 	_slope_borders()
 	_walls()
@@ -225,6 +255,20 @@ func finish() -> void:
 
 func _is_area(c: Vector3i, kind: String) -> bool:
 	return String(cells.get(c, "")) == kind or String(lane.get(c, "")) == kind
+
+
+## A free cell between plates on opposite sides can take no border or wall: a hole in the lane
+## (e.g. beside a gate in a wide lane: narrow the lane over the gate and a cell either side).
+func _holes() -> void:
+	for c: Vector3i in cells.keys():
+		for s in 2:
+			var x: Vector3i = c + TmTrackBuilder.SIDE[s]
+			if b.occupied(x) or cells.has(x) or lane.has(x):
+				continue
+			var kind := String(cells[c])
+			if _is_area(x + TmTrackBuilder.SIDE[s], kind) and not _is_slope(x + TmTrackBuilder.SIDE[s]):
+				b.errors.append("a hole in the %s at %s, between lanes or beside a gate in a wide lane: narrow the lane over the gate and a cell either side" % [kind, x])
+				return
 
 
 ## A platform plate's variant: open towards the platform around it (plates, gates, turbos, slopes).

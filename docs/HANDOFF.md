@@ -58,9 +58,13 @@
   fixed, in four batches (PROGRESS "the M9 code review's findings"): testing mode only from the
   command line, list selection, the editor's ground-only blocks, replays (laps, the roll after the
   finish, keys, sound, back to the finish menu), menus, the music toast, guest names.
-- Now: M9-8 the A-E campaign (65 original tracks, White/Green/Blue/Red/Black;
-  `tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series, the
-  cards fit 3 rows of 5). M9-2's remaining families come with those tracks.
+- M9-8 the A-E campaign, in progress (research: `docs/research/m9_campaign.md`): the builder lays
+  TMNF's surfaces (`race/tm_track_areas.gd`: circuit, platform, dirt, joins, borders, walls; lap
+  races), White A01-A15 done with medals (PROGRESS). Next: Green (B01-B15 drafted, medals being
+  written), Blue (C01-C15 drafted, lay out), Red, Black; then drop the SpeedFest tab from
+  `tracks/campaign.json`. How to make a track: write `tracks/<ID>.json`, lay it out (untracked
+  helpers in `tests/tmp/`, or `tools/run.sh res://tests/test_tracks.tscn --headless --
+  --tracks=<ID> --grip=50`), then `--write_medals`; add it to its series in campaign.json.
   M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
   tracks that use them.
 - Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with

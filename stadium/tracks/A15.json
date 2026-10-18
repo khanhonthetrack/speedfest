@@ -1,0 +1,8 @@
+{
+	"name": "A15-Speed",
+	"author": "SpeedFest",
+	"start": [28, 4, 2, 0],
+	"medals": {"author": 18830, "gold": 20000, "silver": 23000, "bronze": 29000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["circuit", 3], ["s", 8], ["gt", 3, "l"], ["s", 5], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["s", 5], ["gt", 3, "l"], ["s", 6], ["road"], ["s", 2], ["finish"]]
+}

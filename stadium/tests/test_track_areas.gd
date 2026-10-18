@@ -3,8 +3,9 @@ extends Node
 ## circuit lane, a wide circuit, a walled wide platform with a turbo row, a one-cell platform gate,
 ## slopes, dirt road. Each lays out; every circuit plate is closed by its neighbours or a border
 ## facing it; walled platform edges have their walls; plates join their neighbours; slopes climb
-## 2 levels a block plus the ends; a gate on a wide lane is refused; and the bot drives both
-## tracks to the finish through every checkpoint, the turbo row boosting it.
+## 2 levels a block plus the ends; a gate on a wide lane is refused; a lap race closes onto its
+## start/finish line; and the bot drives the three tracks to the finish through every checkpoint
+## (and lap), the turbo row boosting it.
 
 const SIDE := TmTrackBuilder.SIDE
 const AREAS := {"name": "Areas", "start": [4, 4, 1, 0], "pieces": [["start"], ["s", 1],
@@ -15,6 +16,8 @@ const AREAS := {"name": "Areas", "start": [4, 4, 1, 0], "pieces": [["start"], ["
 	["road"], ["s", 2], ["finish"]]}
 const DIRT := {"name": "Dirt", "start": [16, 1, 2, 0], "pieces": [["start"], ["s", 1], ["dirt"], ["s", 2], ["cp"],
 	["s", 1], ["gt", 2, "r"], ["s", 2], ["r"], ["s", 1], ["road"], ["s", 2], ["finish"]]}
+const LAPS := {"name": "Laps", "start": [10, 1, 10, 0], "laps": 2, "pieces": [["start"], ["s", 2], ["cp"], ["gt", 3, "r"],
+	["s", 2], ["gt", 3, "r"], ["s", 8], ["gt", 3, "r"], ["s", 2], ["gt", 3, "r"], ["s", 4], ["close"]]}
 
 
 func _ready() -> void:
@@ -34,8 +37,17 @@ func _ready() -> void:
 	TestHooks.check(d.errors.is_empty() and dirt.size() >= 8 and joins.size() == 2
 		and dirt.all(func(x: Dictionary) -> bool: return bool(x["ground"])), "areas_dirt_road",
 		"%s, %d dirt blocks, %d joins" % [d.errors, dirt.size(), joins.size()])
+	var lap := TmTrackBuilder.build(LAPS)
+	var open := LAPS.duplicate(true)
+	(open["pieces"] as Array).pop_back()
+	var unclosed := TmTrackBuilder.build(open)
+	var ch := TmTrackBuilder.challenge(LAPS)
+	TestHooks.check(lap.errors.is_empty() and ch.lap_race and ch.nb_laps == 2 and not unclosed.errors.is_empty()
+		and lap.blocks.filter(func(x: Dictionary) -> bool: return String(x["name"]) == "StadiumRoadMainStartFinishLine").size() == 1,
+		"areas_lap_race", "%s / %s" % [lap.errors, unclosed.errors])
 	await _drive("TEST_AREAS", AREAS, true)
 	await _drive("TEST_DIRT", DIRT, false)
+	await _drive("TEST_LAPS", LAPS, false)
 	TmRecords.clear()
 	TestHooks.finish()
 
@@ -121,7 +133,7 @@ func _drive(id: String, spec: Dictionary, turbo: bool) -> void:
 	while race.state != TmRace.State.FINISHED and race.time_ms < 90000 and scene.bot.failed.is_empty():
 		await get_tree().physics_frame
 		boosted = boosted or scene.car.model.turbo_until_ms > scene.car.now_ms
-	TestHooks.check(race.state == TmRace.State.FINISHED and race.splits.size() == race.checkpoint_count + 1
+	TestHooks.check(race.state == TmRace.State.FINISHED and race.splits.size() == race.laps * (race.checkpoint_count + 1)
 		and (boosted or not turbo), "areas_bot_finishes_%s" % id.to_lower(), "%s, %d ms, %d splits, turbo %s" % [scene.bot.failed,
 		race.finish_ms, race.splits.size(), boosted])
 	TmTracks._specs.erase(id)
