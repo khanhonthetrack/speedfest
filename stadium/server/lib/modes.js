@@ -152,13 +152,15 @@ class RoundsMode {
       map_over: this.state === 'results' ? this.mapOver : undefined };
   }
 
-  join(id, name, login) {
+  /** A player joins (now: they race this round if it hasn't started yet). */
+  join(id, name, login, now = Infinity) {
     let team = 0;
     if (this.team) {
       const blue = [...this.players.values()].filter((p) => p.team === 0).length;
       team = blue > this.players.size - blue ? 1 : 0;
     }
     this.players.set(id, { name, login, team });
+    if (this.state === 'race' && now <= this.start) this.racers.add(id);
   }
 
   leave(id) {

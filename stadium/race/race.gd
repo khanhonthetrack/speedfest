@@ -38,6 +38,11 @@ var next_id := ""                  ## the campaign track after it ("" if none)
 
 const GHOST_LINGER_MS := 1000      ## the ghost stays this long at its finish, then goes
 
+## Online rounds that start everyone together (Rounds, Team, Laps): the race holds its countdown
+## until the server's start; a player who joins after the start (or a spectator) waits.
+var sync_start := -1.0             ## the round's start (server ms); -1: start as soon as ready
+var waiting := false               ## not racing this round (late, or spectating)
+
 var _triggers: Array = []          ## [{index, kind, xform, trig}]: waypoints with a trigger
 var _prev := Vector3.ZERO          ## the car's position at the previous tick
 var _cp_states := {}               ## checkpoint index -> the car as it crossed it {xform, lin, ang}
@@ -130,7 +135,7 @@ func _ready() -> void:
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
 	# the map's collision is in the physics space from the next physics frame
 	await get_tree().physics_frame
-	restart()
+	restart(true)
 	ready_to_race = true
 
 
@@ -149,8 +154,15 @@ func _message(text: String) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not ready_to_race:
+	if not ready_to_race or waiting:
 		return
+	if sync_start > 0.0 and race.state == TmRace.State.COUNTDOWN:
+		# the countdown follows the server's clock: everyone starts at the round's start
+		var left := sync_start - Online.now_ms()
+		if left > TmRace.TICK_MS:
+			race.countdown_ms = clampi(int(left), TmRace.TICK_MS, TmRace.COUNTDOWN_MS)
+			return
+		race.countdown_ms = TmRace.TICK_MS     # this tick starts the race
 	race.tick()
 	_show_ghost()
 	if race.state == TmRace.State.COUNTDOWN:
@@ -211,6 +223,8 @@ func _on_finished(time_ms: int) -> void:
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
 		"validated": _validated_ms == time_ms}
 	audio.cue("record" if new_record else "finish")
+	if not online and Master.logged_in() and not TestHooks.has_arg("records"):
+		Master.submit_record(challenge.uid, time_ms)     # the online records (a server's finishes go through the server)
 	if online:
 		online.on_finish(time_ms)
 	if new_record:
@@ -317,8 +331,16 @@ func save_replay() -> String:
 	return to
 
 
-## Back to the start: the countdown again, the clock at zero.
-func restart() -> void:
+## A synced online round (Rounds, Team, Laps): no restarting until the server's next round.
+func synced_round() -> bool:
+	return online != null and Online.synced()
+
+
+## Back to the start: the countdown again, the clock at zero (in a synced online round only when
+## the server starts the next round: force).
+func restart(force := false) -> void:
+	if not force and synced_round():
+		return
 	menu.hide_all()
 	race.restart()
 	run = TmGhost.new()
@@ -329,10 +351,27 @@ func restart() -> void:
 	if bot:
 		bot.reset()
 	place_car(builder.start if builder.has_start else Transform3D())
+	sync_start = -1.0
+	waiting = false
+	if synced_round() and String(Online.round.get("state", "")) == "race":
+		var start := float(Online.round.get("start", 0))
+		if Online.now_ms() > start + 300.0:
+			waiting = true                 # this round started without us
+		else:
+			sync_start = start
+	if online != null and Online.is_spectator():
+		waiting = true
+	car.visible = not waiting
+	car.controls_enabled = not waiting
 
 
 ## Back to the last checkpoint (the clock keeps running); before any, or after the finish, a restart.
 func respawn() -> void:
+	if waiting:
+		return
+	if race.state == TmRace.State.RACING and race.respawn_index < 0 and synced_round():
+		place_car(builder.start if builder.has_start else Transform3D())   # the clock runs on
+		return
 	if race.state != TmRace.State.RACING or race.respawn_index < 0:
 		restart()
 		return

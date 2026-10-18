@@ -1,0 +1,9 @@
+{
+	"port": 8090,
+	"servers": [
+		{"id": "ta", "name": "SpeedFest Time Attack", "mode": "TimeAttack", "max_players": 32},
+		{"id": "rounds", "name": "SpeedFest Rounds", "mode": "Rounds", "max_players": 24},
+		{"id": "team", "name": "SpeedFest Team", "mode": "Team", "max_players": 24},
+		{"id": "laps", "name": "SpeedFest Laps", "mode": "Laps", "max_players": 24}
+	]
+}

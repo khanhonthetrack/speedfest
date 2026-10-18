@@ -3,7 +3,7 @@ extends Node
 ## page (a tab per series, a card per track with its record, the selected track's details, Race
 ## handing the track to the race scene), going back, the profile (nickname with $-codes, zone),
 ## online and options; TmNick's $-codes; the race's pause and finish menus. Records go to a test
-## folder; the settings the test changes are put back.
+## folder, settings to a test file.
 
 const NL := char(10)
 
@@ -11,8 +11,10 @@ const NL := char(10)
 func _ready() -> void:
 	TestHooks.args["records"] = "user://test_records"
 	TestHooks.args["menu_dry"] = "true"
+	TestHooks.args["settings"] = "user://test_settings.cfg"     # never the player's own settings
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_settings.cfg"))
+	TestHooks.args["master"] = "http://127.0.0.1:9"    # no master: the online page offers logging in
 	TmRecords.clear()
-	var kept := {"name": TmUi.setting("name"), "zone": TmUi.setting("zone")}
 	_nick()
 	var menu: TmMenu = (load("res://ui/menu.tscn") as PackedScene).instantiate()
 	add_child(menu)
@@ -34,14 +36,13 @@ func _ready() -> void:
 	menu.show_page("online")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(names.has("JOIN") and names.has("CONNECT") and names.has("BACK"), "menu_online_page", str(names))
+	TestHooks.check(names.has("LOG IN") and names.has("REGISTER") and names.has("SERVERS") and names.has("RANKINGS") and names.has("CONNECT")
+		and names.has("BACK"), "menu_online_page", str(names))
 	menu.show_page("options")
 	await get_tree().process_frame
 	TestHooks.check(_all(menu, []).filter(func(c: Node) -> bool: return c is CheckButton).size() >= 6, "menu_options_page")
 	await _race_menu()
 	TmRecords.clear()
-	for k: String in kept:
-		TmUi.set_setting(k, kept[k])
 	TestHooks.finish()
 
 

@@ -178,7 +178,7 @@ class Game {
     const me = { id: this.nextId++, name: account ? account.nickname : (cleanText(msg.name, 75) || 'Player'), colour, ws,
       state: null, stateAt: 0, chatAt: 0, voteAt: 0, login: account ? account.login : '', spectator: !!msg.spectator };
     this.players.set(me.id, me);
-    if (!me.spectator) this.mode.join(me.id, me.name, me.login);
+    if (!me.spectator) this.mode.join(me.id, me.name, me.login, this.now());
     this._send(ws, { t: 'welcome', id: me.id, name: this.name, mode: this.mode.name, now: this.now(), round: this.mode.info(),
       players: this.playerList(), login: me.login, vote: this._voteInfo() });
     this.broadcast({ t: 'players', players: this.playerList() });
@@ -228,7 +228,7 @@ class Game {
         me.spectator = on;
         me.state = null;
         if (on) this.mode.leave(me.id);
-        else this.mode.join(me.id, me.name, me.login);
+        else this.mode.join(me.id, me.name, me.login, now);
         this.broadcast({ t: 'players', players: this.playerList() });
         break;
       }

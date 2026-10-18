@@ -1,0 +1,22 @@
+# The official SpeedFest Stadium servers on the owner's Raspberry Pi: the server (master + four
+# official game servers on one port) and cloudflared running a named tunnel (its token in .env:
+# TUNNEL_TOKEN=...; the tunnel's public hostname points at http://speedfest:8090). README.md here.
+services:
+  speedfest:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - speedfest-data:/data
+  cloudflared:
+    image: cloudflare/cloudflared:2024.12.2
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - speedfest
+volumes:
+  speedfest-data:
+    name: speedfest-data

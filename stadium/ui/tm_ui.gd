@@ -16,7 +16,7 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 
 const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true,
-	"name": "Player", "zone": "", "server": "", "colour": 0, "music": true, "music_volume": 0.7, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2}
+	"name": "Player", "zone": "", "server": "", "token": "", "colour": 0, "music": true, "music_volume": 0.7, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2}
 ## Car colours to pick from (online, the others see yours).
 const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.95, 0.70, 0.05), Color(0.10, 0.65, 0.30),
 	Color(0.92, 0.92, 0.94), Color(0.10, 0.10, 0.12), Color(0.95, 0.40, 0.05), Color(0.55, 0.20, 0.85)]
@@ -284,10 +284,19 @@ static func play(name: String) -> void:
 
 # --- settings ---
 
+static var _cfg_path := ""
+
+
+## The settings file: user://settings.cfg, or --settings=<file> (tests keep the player's own apart).
+static func settings_path() -> String:
+	return String(TestHooks.arg("settings", SETTINGS_PATH))
+
+
 static func _settings() -> ConfigFile:
-	if _cfg == null:
+	if _cfg == null or _cfg_path != settings_path():
+		_cfg_path = settings_path()
 		_cfg = ConfigFile.new()
-		_cfg.load(SETTINGS_PATH)
+		_cfg.load(_cfg_path)
 	return _cfg
 
 
@@ -301,7 +310,7 @@ static func setting(key: String) -> Variant:
 
 static func set_setting(key: String, value: Variant) -> void:
 	_settings().set_value("game", key, value)
-	_settings().save(SETTINGS_PATH)
+	_settings().save(settings_path())
 	if key == "hd":
 		TmMaterials.clear_cache()
 	if key in ["music", "music_volume"]:
