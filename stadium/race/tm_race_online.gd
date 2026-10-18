@@ -271,6 +271,19 @@ func _on_round() -> void:
 		var trk := String(r["track"])
 		if trk == String(scene.track_id) and Online.synced():
 			scene.restart(true)             # the next round of this map: everyone starts again together
+		elif r.get("file") is Dictionary:
+			# a track the server's admins uploaded: downloaded once, then raced from the file
+			_results_text.text = "DOWNLOADING THE NEXT TRACK\n%s" % TmNick.strip(String((r["file"] as Dictionary).get("name", "")))
+			_results.visible = true
+			var id := _round_id
+			var path: String = await Online.round_track_file()
+			if id != _round_id:
+				return                      # a newer round came while it downloaded
+			if path.is_empty():
+				_results_text.text = "COULDN'T DOWNLOAD THE NEXT TRACK\n\nPress Escape for the menu"
+				return
+			_results.visible = false
+			scene.load_map(path, trk)
 		else:
 			scene.load_track(trk)
 

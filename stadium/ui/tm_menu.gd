@@ -1235,8 +1235,20 @@ func _connect(address: String, spectator := false) -> void:
 	Online.join(address, who if not who.is_empty() else "Player", TmUi.car_colour(), Master.token(), spectator)
 
 
-## In the server: race its round's track.
+## In the server: race its round's track (a track its admins uploaded is downloaded first).
 func _joined() -> void:
+	var f: Variant = Online.round.get("file", null)
+	if f is Dictionary:
+		if is_instance_valid(_online_status):
+			_online_status.text = "Downloading %s ..." % TmNick.strip(String((f as Dictionary).get("name", "the track")))
+		var path: String = await Online.round_track_file()
+		if path.is_empty():
+			if is_instance_valid(_online_status):
+				_online_status.text = "Couldn't download the server's track"
+			Online.leave()
+			return
+		race("", path, String(Online.round.get("track", "")))
+		return
 	race(String(Online.round.get("track", tracks[0] if not tracks.is_empty() else "")))
 
 
@@ -1262,10 +1274,14 @@ func _open_file() -> void:
 	fd.popup_centered_ratio(0.7)
 
 
-## Starts a race: a campaign track, or a track file (map).
-func race(track: String, map := "") -> void:
+## Starts a race: a campaign track, or a track file (map; online_track: the server's id for it, a
+## track its admins uploaded).
+func race(track: String, map := "", online_track := "") -> void:
 	TestHooks.args.erase("map")
 	TestHooks.args.erase("track")
+	TestHooks.args.erase("online_track")
+	if not online_track.is_empty():
+		TestHooks.args["online_track"] = online_track
 	TestHooks.args.erase("back")      # a race from the menu, not a test drive from the editor
 	TestHooks.args["return_page"] = page if page != "main" else "solo"   # the race's MENU comes back here
 	if not map.is_empty():

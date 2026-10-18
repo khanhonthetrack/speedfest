@@ -16,7 +16,8 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 
 const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true,
-	"name": "Player", "zone": "", "server": "", "token": "", "colour": 0, "music": true, "music_volume": 0.7, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2}
+	"name": "Player", "zone": "", "server": "", "token": "", "colour": 0, "music": true, "music_volume": 0.7, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2,
+	"car_pack": ""}    # car_pack: the SHA-256 of the car pack last picked on a server (Online)
 ## Car colours to pick from (online, the others see yours).
 const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.95, 0.70, 0.05), Color(0.10, 0.65, 0.30),
 	Color(0.92, 0.92, 0.94), Color(0.10, 0.10, 0.12), Color(0.95, 0.40, 0.05), Color(0.55, 0.20, 0.85)]

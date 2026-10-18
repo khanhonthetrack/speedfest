@@ -3,7 +3,9 @@ extends Node
 ## (stadium/server/lib/game.js, like a TMNF dedicated server in one of its modes: TimeAttack,
 ## Rounds, Team, Laps): the round (track, state, start, end; synced modes start everyone at
 ## once), the players (best times, points, teams, spectators), the other cars' positions, chat,
-## votes, ladder points won or lost. The menu's Online page connects; the
+## votes, ladder points won or lost; the community content its admins put on it (tracks from
+## TrackMania Exchange, TMNF car skins and models from ManiaPark: lib/content.js), downloaded from
+## the server once and kept by their SHA-256 in user://content. The menu's Online page connects; the
 ## race scene in online mode reads it and reports its car and finishes. The official server's
 ## current address is published in the repo (stadium/server/official.json), so the game finds it.
 
@@ -15,9 +17,13 @@ signal results_received(ranking: Array)
 signal chat_received(from: String, text: String)
 signal vote_changed(passed: bool)
 signal ladder_received(delta: float)
+signal cars_changed
+signal download_progress(done: int, total: int)
 
 const VERSION := 2
 const OFFICIAL_LIST := "https://raw.githubusercontent.com/khanhonthetrack/speedfest/stadium/stadium/server/official.json"
+const CONTENT_DIR := "user://content"
+const DOWNLOAD_TIMEOUT := 120.0
 
 var ws: WebSocketPeer
 var address := ""
@@ -25,7 +31,9 @@ var my_id := -1
 var server_name := ""
 var round := {}                    ## {mode, id, track, state ("race" | "results"), start, end, synced, number, ...} (server ms)
 var mode := "TimeAttack"
-var players: Array = []            ## [{id, name, colour, best, points, team, spectator, login}]
+var players: Array = []            ## [{id, name, colour, best, points, team, spectator, login, car}]
+var cars: Array = []               ## the server's car packs [{id, name, sha256, size, url, mesh, skin, sounds}]
+var forced_car := ""               ## a car pack everyone drives on this server ("" none)
 var vote := {}                     ## the running vote {kind, target, target_name, by, yes, no, needed, ends}; {} none
 var last_round: Array = []         ## the last round's places [{id, name, time, points}] (Rounds, Team, Laps)
 var team_points: Array = []        ## [blue, red] (Team)
@@ -69,6 +77,95 @@ static func status_url(text: String) -> String:
 	return ("https://" + u.substr(6)) if u.begins_with("wss://") else ("http://" + u.substr(5))
 
 
+## The server's HTTP address (scheme, host, port) for its files: https://a.b, http://x:8090.
+static func http_base(text: String) -> String:
+	var u := ws_url(text)
+	u = ("https://" + u.substr(6)) if u.begins_with("wss://") else ("http://" + u.substr(5))
+	var slash := u.find("/", u.find("://") + 3)
+	return u.substr(0, slash) if slash >= 0 else u
+
+
+## Where a server file (its SHA-256 and extension) is kept once downloaded.
+static func cached_path(sha256: String, ext: String) -> String:
+	return CONTENT_DIR.path_join(sha256 + ext)
+
+
+## Whether a file with this SHA-256 is already here (and unchanged).
+static func has_cached(sha256: String, ext: String) -> bool:
+	var path := cached_path(sha256, ext)
+	return FileAccess.file_exists(path) and _sha256_of(path) == sha256
+
+
+static func _sha256_of(path: String) -> String:
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return ""
+	var ctx := HashingContext.new()
+	ctx.start(HashingContext.HASH_SHA256)
+	while f.get_position() < f.get_length():
+		ctx.update(f.get_buffer(1 << 20))
+	return ctx.finish().hex_encode()
+
+
+## A file of the server (a round's track, a car pack: {sha256, size, url}): the local copy's path,
+## downloaded first if it isn't here yet (checked against its SHA-256); "" if that fails.
+func fetch(file: Dictionary, ext: String) -> String:
+	var sha := String(file.get("sha256", ""))
+	var url := String(file.get("url", ""))
+	if sha.length() != 64 or not url.begins_with("/content/"):
+		return ""
+	if has_cached(sha, ext):
+		return cached_path(sha, ext)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CONTENT_DIR))
+	var tmp := cached_path(sha, ext) + ".part"
+	var req := HTTPRequest.new()
+	req.download_file = ProjectSettings.globalize_path(tmp)
+	req.timeout = 0.0 if TestHooks.is_testing() else DOWNLOAD_TIMEOUT
+	req.body_size_limit = maxi(int(file.get("size", 0)) * 2, 1 << 20)
+	add_child(req)
+	var total := int(file.get("size", 0))
+	var watch := func() -> void: download_progress.emit(req.get_downloaded_bytes(), total)
+	var timer := Timer.new()
+	timer.wait_time = 0.25
+	timer.timeout.connect(watch)
+	req.add_child(timer)
+	timer.autostart = true
+	var err := req.request(http_base(address) + url)
+	if err != OK:
+		req.queue_free()
+		return ""
+	var res: Array = await req.request_completed
+	req.queue_free()
+	if int(res[0]) != HTTPRequest.RESULT_SUCCESS or int(res[1]) != 200 or _sha256_of(tmp) != sha:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		return ""
+	DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(cached_path(sha, ext)))
+	download_progress.emit(total, total)
+	return cached_path(sha, ext)
+
+
+## The round's track as a local file when an admin uploaded it ("" for the game's own tracks):
+## downloaded if needed. Its uid is the round's track id.
+func round_track_file() -> String:
+	var f: Variant = round.get("file", null)
+	if not f is Dictionary:
+		return ""
+	return await fetch(f, ".Challenge.Gbx")
+
+
+## A car pack of this server by id ({} if none).
+func car(id: String) -> Dictionary:
+	for c: Dictionary in cars:
+		if String(c.get("id", "")) == id:
+			return c
+	return {}
+
+
+## Our car on this server: one of its car packs ("" our own car).
+func pick_car(id: String) -> void:
+	_send({"t": "car", "id": id})
+
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
@@ -97,6 +194,8 @@ func leave() -> void:
 	_was_open = false
 	round = {}
 	players = []
+	cars = []
+	forced_car = ""
 	states = {}
 
 
@@ -199,6 +298,13 @@ func _handle(m: Dictionary) -> void:
 			mode = String(m.get("mode", round.get("mode", "TimeAttack")))
 			players = m["players"]
 			vote = m["vote"] if m.get("vote") is Dictionary else {}
+			cars = m["cars"] if m.get("cars") is Array else []
+			forced_car = String(m.get("forced_car", ""))
+			# the car pack we drove last time on any server, if this one has it too
+			var want := String(TmUi.setting("car_pack"))
+			for c: Dictionary in cars:
+				if String(c.get("sha256", "")) == want:
+					pick_car(String(c["id"]))
 			connected.emit()
 			round_changed.emit()
 			players_changed.emit()
@@ -211,6 +317,10 @@ func _handle(m: Dictionary) -> void:
 		"players":
 			players = m["players"]
 			players_changed.emit()
+		"cars":
+			cars = m["cars"] if m.get("cars") is Array else []
+			forced_car = String(m.get("forced_car", ""))
+			cars_changed.emit()
 		"states":
 			var s: Dictionary = m["s"]
 			for k in s:

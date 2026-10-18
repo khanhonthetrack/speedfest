@@ -304,6 +304,8 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Where the raced track sits in its campaign (track_id, next_id): ours (TmTracks) or TMNF's.
 func _campaign_place() -> void:
 	if TestHooks.has_arg("map"):
+		# a server's uploaded track: the round's id for it (the server's rounds compare it)
+		track_id = String(TestHooks.arg("online_track", "")) if Online.is_online() else ""
 		return
 	track_id = String(TestHooks.arg("track", ""))
 	if track_id.is_empty() or TmTracks.has(track_id):
@@ -325,6 +327,17 @@ var pending_track := ""
 func load_track(track: String) -> void:
 	TestHooks.args["track"] = track
 	TestHooks.args.erase("map")
+	TestHooks.args.erase("online_track")
+	pending_track = track
+	if get_tree().current_scene == self:
+		get_tree().reload_current_scene()
+
+
+## Races a track file a server's admins uploaded (downloaded to `path`), the round's `track` id.
+func load_map(path: String, track: String) -> void:
+	TestHooks.args.erase("track")
+	TestHooks.args["map"] = path
+	TestHooks.args["online_track"] = track
 	pending_track = track
 	if get_tree().current_scene == self:
 		get_tree().reload_current_scene()

@@ -2,7 +2,9 @@ extends Node
 ## Online (needs Node.js; skipped without it): the stadium server started with short rounds on
 ## the game's own tracks, the Online client joins, races the round's track in online mode, sees a
 ## second player's car from the positions the server relays, reports a finish that the server
-## ranks, and follows the server to the next round's track.
+## ranks, and follows the server to the next round's track. A server's admin uploads a community
+## track (a .Challenge.Gbx) and plays it: the client downloads it, races it from the file and its
+## finish is ranked.
 
 const PORT := 18091
 
@@ -58,7 +60,76 @@ func _ready() -> void:
 	OS.kill(_pid)
 	TestHooks.args.erase("master")
 	await _rounds(node, script)
+	await _community(node, script)
 	TestHooks.finish()
+
+
+## An admin (the admin password) uploads a track file to a server and jumps to it: the round names
+## its file, the client downloads it (cached by SHA-256), races it from the file under the round's
+## id, and a finish on it is ranked.
+func _community(node: String, script: String) -> void:
+	var port := PORT + 2
+	var pid := OS.create_process(node, [script, "--port=%d" % port, "--name=Community", "--tracks=SF01", "--admin-password=let-me-in"])
+	await _wait(func() -> bool: return _up_at(port), 8000)
+	var file := ProjectSettings.globalize_path("user://test_upload.Challenge.Gbx")
+	var lib := ProjectSettings.globalize_path("res://server/lib/gbx.js").replace("\\", "/")
+	var js := "const fs=require('fs');const g=require('%s');const b=(name,z,flags)=>({name,dir:0,coord:[10,1,z],flags});" % lib \
+		+ "fs.writeFileSync('%s',g.writeChallenge({uid:'CommunityTest00000000000000',name:'$o$f80Community',author:'tester'," % file.replace("\\", "/") \
+		+ "compress:true,blocks:[b('StadiumRoadMainStartLine',10,0x1000),b('StadiumRoadMain',11,0x1003),b('StadiumRoadMain',12,0x1003)," \
+		+ "b('StadiumRoadMainFinishLine',13,0x1000)]}))"
+	var out := []
+	OS.execute(node, ["-e", js], out, true)
+	var raw := FileAccess.get_file_as_bytes(file)
+	TestHooks.check(raw.size() > 100, "community_track_written", str(out))
+	var base := "http://127.0.0.1:%d" % port
+	var up: Dictionary = await _http(base + "/api/admin/tracks?servers=main", HTTPClient.METHOD_POST, raw, "application/octet-stream")
+	TestHooks.check(int(up["code"]) == 200 and String(up["body"].get("track", {}).get("uid", "")) == "CommunityTest00000000000000",
+		"community_admin_upload", str(up))
+	var bad: Dictionary = await _http(base + "/api/admin/tracks", HTTPClient.METHOD_POST, raw, "application/octet-stream", "Admin wrong")
+	TestHooks.check(int(bad["code"]) == 401, "community_admin_password_checked", str(bad))
+	var jump: Dictionary = await _http(base + "/api/admin/servers/main", HTTPClient.METHOD_POST,
+		JSON.stringify({"jump": "CommunityTest00000000000000"}).to_utf8_buffer(), "application/json")
+	TestHooks.check(int(jump["code"]) == 200, "community_admin_jump", str(jump))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Online.cached_path(String(up["body"].get("track", {}).get("sha256", "x")), ".Challenge.Gbx")))
+	Online.join("127.0.0.1:%d" % port, "Racer", Color(0.9, 0.1, 0.1))
+	var ok := await _wait(func() -> bool: return Online.is_online(), 8000)
+	var f: Variant = Online.round.get("file", null)
+	TestHooks.check(ok and f is Dictionary and String(Online.round["track"]) == "CommunityTest00000000000000", "community_round_names_its_file",
+		str(Online.round))
+	if not (ok and f is Dictionary):
+		OS.kill(pid)
+		return
+	var path: String = await Online.round_track_file()
+	TestHooks.check(not path.is_empty() and Online.has_cached(String(f["sha256"]), ".Challenge.Gbx"), "community_track_downloaded", path)
+	TestHooks.args.erase("track")
+	TestHooks.args["map"] = path
+	TestHooks.args["online_track"] = String(Online.round["track"])
+	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	await _wait(func() -> bool: return scene.ready_to_race, 20000)
+	TestHooks.check(scene.challenge.ok() and scene.builder.has_start and scene.online != null
+		and String(scene.track_id) == "CommunityTest00000000000000", "community_track_raced_online",
+		"%s %s %s" % [scene.challenge.error, scene.track_id, scene.builder.stats])
+	scene.online.on_finish(31234)
+	var ranked := await _wait(func() -> bool:
+		return Online.players.any(func(p: Dictionary) -> bool: return int(p["id"]) == Online.my_id and int(p["best"]) == 31234), 5000)
+	TestHooks.check(ranked, "community_finish_ranked")
+	scene.queue_free()
+	TestHooks.args.erase("map")
+	TestHooks.args.erase("online_track")
+	Online.leave()
+	OS.kill(pid)
+
+
+## An HTTP call with a body (the admin password by default): {code, body (Dictionary)}.
+func _http(url: String, method: int, body: PackedByteArray, type: String, auth := "Admin let-me-in") -> Dictionary:
+	var req := HTTPRequest.new()
+	add_child(req)
+	req.request_raw(url, PackedStringArray(["content-type: " + type, "authorization: " + auth]), method, body)
+	var res: Array = await req.request_completed
+	req.queue_free()
+	var parsed: Variant = JSON.parse_string((res[3] as PackedByteArray).get_string_from_utf8())
+	return {"code": int(res[1]), "body": parsed if parsed is Dictionary else {}}
 
 
 ## A Rounds server: the race holds its countdown until the server's start (everyone starts
