@@ -190,9 +190,11 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       Done (PROGRESS 18 Oct, docs/research/m9_online.md); the owner deploys it on the Pi
       (stadium/server/README.md). Then: the review's 42 findings (session 13), all fixed
       (docs/research/m9_review_findings.md; PROGRESS "the M9 code review's findings")
-- [ ] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
+- [x] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
       difficulty curve and block style; the TMNF-install campaign tabs removed (single
-      `.Challenge.Gbx` files still open)
+      `.Challenge.Gbx` files still open). Done (PROGRESS 18 Oct, docs/research/m9_campaign.md):
+      the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
+      every track driven by the bot, medals from its best run
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

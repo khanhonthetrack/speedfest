@@ -1,0 +1,8 @@
+{
+	"name": "D03-Acrobatic",
+	"author": "SpeedFest",
+	"start": [16, 1, 1, 0],
+	"medals": {"author": 17600, "gold": 18700, "silver": 22000, "bronze": 27000},
+	"bot_grip": 30,
+	"pieces": [["start"], ["s", 1], ["turbo"], ["s", 2], ["loop", "l"], ["s", 3], ["loop", "l"], ["s", 2], ["jump", 3, "high"], ["s", 5], ["finish"]]
+}

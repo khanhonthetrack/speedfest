@@ -132,3 +132,75 @@ area surfaces count high.)
 - Checkpoints: A 1-2, B 1-5, C 2-6, D 3-9, E 5-25.
 - Surfaces: every series mixes circuit, platform, road and dirt as TMNF's does (road alone is
   what made our SF tracks look cheap next to TMNF's).
+
+## Our campaign (M9-8): the 65 tracks
+Medals from the bot (author = its best of five grips, one for D15 and E05; gold +6%). Surfaces in
+the order they come; features in brackets.
+
+| track | kind | surfaces | gates | laps | author | gold |
+|---|---|---|---|---|---|---|
+| A01 | Race | road, circuit | 2 | 1 | 0:20.89 | 0:22.20 |
+| A02 | Race | road, dirt | 1 | 1 | 0:15.28 | 0:16.20 |
+| A03 | Race | road (jump) | 1 | 1 | 0:16.67 | 0:17.70 |
+| A04 | Acrobatic | road, platform (turbo) | 0 | 1 | 0:06.43 | 0:06.90 |
+| A05 | Race | road, dirt | 2 | 1 | 0:14.24 | 0:15.10 |
+| A06 | Obstacle | road, platform | 2 | 1 | 0:18.54 | 0:19.70 |
+| A07 | Race | road, platform | 1 | 1 | 0:19.14 | 0:20.30 |
+| A08 | Endurance | road, circuit | 1 | 3 | 0:48.46 | 0:51.40 |
+| A09 | Race | road (loop, turbo) | 2 | 1 | 0:23.04 | 0:24.50 |
+| A10 | Acrobatic | road (jump) | 0 | 1 | 0:10.42 | 0:11.10 |
+| A11 | Race | road, dirt | 1 | 1 | 0:18.61 | 0:19.80 |
+| A12 | Speed | road, platform (turbo) | 1 | 1 | 0:12.91 | 0:13.70 |
+| A13 | Race | road, circuit, platform | 1 | 1 | 0:20.27 | 0:21.50 |
+| A14 | Race | road, dirt | 1 | 1 | 0:18.89 | 0:20.10 |
+| A15 | Speed | road, circuit | 1 | 1 | 0:18.83 | 0:20.00 |
+| B01 | Race | road, circuit | 2 | 1 | 0:20.15 | 0:21.40 |
+| B02 | Race | road, dirt (jump) | 2 | 1 | 0:20.85 | 0:22.20 |
+| B03 | Race | road, platform (jump) | 3 | 1 | 0:21.30 | 0:22.60 |
+| B04 | Acrobatic | road (jump, loop, turbo) | 0 | 1 | 0:13.32 | 0:14.20 |
+| B05 | Race | road, circuit | 2 | 1 | 0:16.47 | 0:17.50 |
+| B06 | Obstacle | road, platform | 1 | 1 | 0:19.89 | 0:21.10 |
+| B07 | Race | road | 4 | 1 | 0:21.59 | 0:22.90 |
+| B08 | Endurance | road, dirt | 1 | 5 | 1:26.94 | 1:32.20 |
+| B09 | Acrobatic | road, platform (jump, turbo) | 0 | 1 | 0:11.65 | 0:12.40 |
+| B10 | Speed | road, circuit, platform (turbo) | 4 | 1 | 0:23.81 | 0:25.30 |
+| B11 | Race | road, dirt | 5 | 1 | 0:23.32 | 0:24.80 |
+| B12 | Race | road, circuit, platform (loop, turbo) | 3 | 1 | 0:30.59 | 0:32.50 |
+| B13 | Obstacle | road, platform | 3 | 1 | 0:22.56 | 0:24.00 |
+| B14 | Speed | road, platform (turbo) | 3 | 1 | 0:17.88 | 0:19.00 |
+| B15 | Race | road, circuit, platform | 6 | 1 | 0:26.33 | 0:28.00 |
+| C01 | Race | road (jump, loop, turbo) | 2 | 1 | 0:25.82 | 0:27.40 |
+| C02 | Race | road, circuit, platform (turbo) | 4 | 1 | 0:27.58 | 0:29.30 |
+| C03 | Acrobatic | road (jump, loop, turbo) | 0 | 1 | 0:16.65 | 0:17.70 |
+| C04 | Race | road, platform, circuit (turbo) | 4 | 1 | 0:29.11 | 0:30.90 |
+| C05 | Endurance | road, circuit, platform (turbo) | 5 | 2 | 0:55.72 | 0:59.10 |
+| C06 | Speed | road, platform, circuit (turbo) | 4 | 1 | 0:26.66 | 0:28.30 |
+| C07 | Race | road, dirt | 3 | 1 | 0:29.26 | 0:31.10 |
+| C08 | Obstacle | road, platform | 2 | 1 | 0:23.19 | 0:24.60 |
+| C09 | Race | road (jump, loop) | 3 | 1 | 0:33.48 | 0:35.50 |
+| C10 | Acrobatic | road, platform (jump, turbo) | 0 | 1 | 0:11.58 | 0:12.30 |
+| C11 | Race | road, circuit | 3 | 1 | 0:28.96 | 0:30.70 |
+| C12 | Obstacle | road, platform | 3 | 1 | 0:30.25 | 0:32.10 |
+| C13 | Race | road, circuit, platform (loop, turbo) | 5 | 1 | 0:28.84 | 0:30.60 |
+| C14 | Endurance | road, platform (turbo) | 1 | 3 | 0:48.45 | 0:51.40 |
+| C15 | Speed | road, circuit, platform (turbo) | 6 | 1 | 0:29.84 | 0:31.70 |
+| D01 | Endurance | road, dirt | 3 | 5 | 1:39.44 | 1:45.50 |
+| D02 | Race | road, circuit | 4 | 1 | 0:30.23 | 0:32.10 |
+| D03 | Acrobatic | road (jump, loop, turbo) | 0 | 1 | 0:17.60 | 0:18.70 |
+| D04 | Race | road, platform, circuit (turbo) | 4 | 1 | 0:29.73 | 0:31.60 |
+| D05 | Race | road, circuit, platform (loop, turbo) | 8 | 1 | 0:42.40 | 0:45.00 |
+| D06 | Obstacle | road, platform | 1 | 3 | 0:49.86 | 0:52.90 |
+| D07 | Race | road, dirt, circuit | 5 | 1 | 0:30.09 | 0:31.90 |
+| D08 | Speed | road, platform, circuit (turbo) | 9 | 1 | 0:28.40 | 0:30.20 |
+| D09 | Obstacle | road, platform | 8 | 1 | 0:30.60 | 0:32.50 |
+| D10 | Race | road (jump, loop, turbo) | 7 | 1 | 0:32.83 | 0:34.80 |
+| D11 | Acrobatic | road (jump, loop, turbo) | 1 | 1 | 0:13.03 | 0:13.90 |
+| D12 | Speed | road, circuit, platform (turbo) | 7 | 1 | 0:28.53 | 0:30.30 |
+| D13 | Race | road, dirt, circuit | 7 | 1 | 0:33.18 | 0:35.20 |
+| D14 | Endurance | road, circuit, platform (turbo) | 5 | 3 | 1:21.18 | 1:26.10 |
+| D15 | Endurance | road, dirt | 6 | 10 | 4:51.13 | 5:08.60 |
+| E01 | Obstacle | road, platform | 6 | 1 | 0:38.11 | 0:40.40 |
+| E02 | Endurance | road (turbo) | 15 | 1 | 1:02.67 | 1:06.50 |
+| E03 | Endurance | road, circuit, platform, dirt (loop, turbo) | 6 | 3 | 1:52.83 | 1:59.60 |
+| E04 | Obstacle | road, platform | 10 | 1 | 0:52.07 | 0:55.20 |
+| E05 | Endurance | road, circuit, platform (turbo) | 3 | 20 | 6:34.65 | 6:58.40 |

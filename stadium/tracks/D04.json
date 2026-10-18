@@ -1,0 +1,8 @@
+{
+	"name": "D04-Race",
+	"author": "SpeedFest",
+	"start": [28, 9, 2, 0],
+	"medals": {"author": 29730, "gold": 31600, "silver": 36000, "bronze": 45000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["s", 2], ["cp"], ["s", 2], ["gt", 2, "l"], ["s", 2], ["down"], ["s", 2], ["gt", 2, "r"], ["s", 2], ["platform", 3, "walls"], ["turbo"], ["s", 4], ["gt", 3, "l"], ["s", 3], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 1], ["s", 3], ["gt", 3, "l"], ["s", 2], ["down"], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 3], ["road"], ["s", 2], ["cp"], ["s", 2], ["finish"]]
+}

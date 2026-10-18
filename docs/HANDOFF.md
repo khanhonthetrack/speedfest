@@ -58,19 +58,20 @@
   fixed, in four batches (PROGRESS "the M9 code review's findings"): testing mode only from the
   command line, list selection, the editor's ground-only blocks, replays (laps, the roll after the
   finish, keys, sound, back to the finish menu), menus, the music toast, guest names.
-- M9-8 the A-E campaign, in progress (research: `docs/research/m9_campaign.md`): the builder lays
-  TMNF's surfaces (`race/tm_track_areas.gd`: circuit, platform, dirt, joins, borders, walls; lap
-  races), White A01-A15 done with medals (PROGRESS). Next: Green (B01-B15 drafted, medals being
-  written), Blue (C01-C15 drafted, lay out), Red, Black; then drop the SpeedFest tab from
-  `tracks/campaign.json`. How to make a track: write `tracks/<ID>.json`, lay it out (untracked
-  helpers in `tests/tmp/`, or `tools/run.sh res://tests/test_tracks.tscn --headless --
-  --tracks=<ID> --grip=50`), then `--write_medals`; add it to its series in campaign.json.
-  M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
-  tracks that use them.
-- Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with
-  `--ref=<OUT>`; `race/map_view.tscn` views `car:`, `gate:<block>`, `rel:`, `near:` (see its header).
-- Local reference data in a fresh container: `pip install pycryptodome py7zr numpy`, then
-  `tools/research/tmnf/setup_measurements.sh <dir outside the repo>` (stadium/CLAUDE.md).
+- M9-8 the A-E campaign is done: 65 tracks of our own in TMNF's five series (research and the
+  list with times: `docs/research/m9_campaign.md`; PROGRESS "the White series" onward). The
+  builder lays TMNF's surfaces (`race/tm_track_areas.gd`: circuit lanes with their borders,
+  walled or open platforms, dirt roads, the joins; lap races with `["close"]`); README "Make a
+  track" has the layout rules the bot taught us (loops need a turbo run-up; nothing tight or a
+  gate right after a fast crest). The gate drives each series' first track; `tests/test_tracks
+  --series=<name>` drives a whole series (the bot drives at about real time: White ~6 min, Red
+  ~25 min with D15's 10 laps; D15 and E05 are off the online rotation, `"online": false`).
+  Untracked planning helpers (recreate if needed): `tests/tmp/ascii.tscn` (a track's top view),
+  `layout_all.tscn` (lay out many), `bot_probe.tscn` (where the bot is, every second).
+- Next (M9, in order): M9-2 the look of what the campaign now shows most (platform walls and
+  decks, circuit walls, dirt and its hills, tube pillars, decoration placed for area tracks, light
+  and atmosphere, the RTX preset), then M9-0's remaining research notes. Merge this branch into
+  `stadium` when the owner says so.
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,

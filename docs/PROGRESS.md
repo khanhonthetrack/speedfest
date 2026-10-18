@@ -1948,3 +1948,16 @@ done for each) is checked against the code finding by finding, fixed, tested and
   gate within ~4 blocks after a fast crest (an area slope's top launches the car 150-200 m over
   it); no tight turn just after a crest. Builder: area slopes mark their crest (where the car
   slows) at the top both ways (going down it was marked at the bottom).
+- **Red D01-D15 and Black E01-E05**: the campaign is complete, 65 tracks in TMNF's five series
+  (`tracks/campaign.json`; the SpeedFest tab is gone, SF01-SF11 stay raceable by id). Red: authors
+  13.0 s (D11) to 42.4 s (D05), laps D01 1:39 (5), D06 50 s (3), D14 1:21 (3), D15 4:51 (10);
+  3-9 checkpoints. Black: E01 38.1 s (6 gates), E02 1:02.7 (one long lap through three rings
+  climbing inward, 15 gates), E03 1:52.8 (3 laps of everything: road, circuit, walled platform,
+  loop, dirt), E04 52.1 s (a walled platform spiral down, 10 gates), E05 6:34.7 (20 laps).
+  The layouts were planned with an untracked turtle (the builder's cell moves in Python, for lap
+  closures: with four right turns of the same size, opposite legs move the same number of cells)
+  and checked by the builder and the bot.
+- Online: a track spec with `"online": false` stays off the servers' rotation (D15, E05: too long
+  for a Time Attack round); `server/lib/rounds.js`, test. Docs: README "Make a track" (the
+  surfaces, laps, the layout rules), `stadium/CLAUDE.md`, PLAN M9-8 checked,
+  `docs/research/m9_campaign.md` (our series).

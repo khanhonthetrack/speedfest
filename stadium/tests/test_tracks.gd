@@ -12,7 +12,7 @@ const LIMIT_MS := 240000
 
 
 func _ready() -> void:
-	TestHooks.args["records"] = "user://test_records"   # never the player's own records
+	TestHooks.args["records"] = "user://test_records_tracks"   # never the player's own records (nor another test's)
 	TestHooks.args.erase("map")
 	TmRecords.clear()
 	var ids := TmTracks.ids()

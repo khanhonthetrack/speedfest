@@ -1,0 +1,8 @@
+{
+	"name": "D07-Race",
+	"author": "SpeedFest",
+	"start": [28, 1, 2, 0],
+	"medals": {"author": 30090, "gold": 31900, "silver": 37000, "bronze": 46000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["dirt"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["cp"], ["s", 2], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 1], ["road"], ["climb", 2], ["s", 1], ["circuit", 1], ["s", 1], ["gt", 3, "l"], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 3], ["down"], ["s", 2], ["road"], ["s", 1], ["cp"], ["s", 2], ["finish"]]
+}

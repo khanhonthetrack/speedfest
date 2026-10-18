@@ -1,0 +1,9 @@
+{
+	"name": "D01-Endurance",
+	"author": "SpeedFest",
+	"start": [6, 1, 4, 0],
+	"laps": 5,
+	"medals": {"author": 99440, "gold": 105500, "silver": 120000, "bronze": 150000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 3], ["gt", 3, "r"], ["s", 1], ["dirt"], ["s", 2], ["cp"], ["s", 2], ["road"], ["s", 1], ["gt", 3, "r"], ["s", 2], ["cp"], ["s", 3], ["gt", 3, "r"], ["s", 9], ["gt", 3, "r"], ["close"]]
+}

@@ -1,0 +1,8 @@
+{
+	"name": "D09-Obstacle",
+	"author": "SpeedFest",
+	"start": [3, 8, 4, 0],
+	"medals": {"author": 30600, "gold": 32500, "silver": 37000, "bronze": 46000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["cp"], ["s", 2], ["gt", 2, "r"], ["s", 1], ["cp"], ["gt", 2, "r"], ["s", 1], ["down"], ["s", 1], ["cp"], ["gt", 2, "l"], ["s", 1], ["cp"], ["gt", 2, "l"], ["s", 1], ["up"], ["s", 1], ["cp"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["cp"], ["gt", 2, "r"], ["s", 2], ["down"], ["cp"], ["s", 1], ["gt", 2, "l"], ["road"], ["s", 1], ["cp"], ["s", 2], ["finish"]]
+}
