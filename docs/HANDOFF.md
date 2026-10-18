@@ -68,10 +68,16 @@
   ~25 min with D15's 10 laps; D15 and E05 are off the online rotation, `"online": false`).
   Untracked planning helpers (recreate if needed): `tests/tmp/ascii.tscn` (a track's top view),
   `layout_all.tscn` (lay out many), `bot_probe.tscn` (where the bot is, every second).
-- Next (M9, in order): M9-2 the look of what the campaign now shows most (platform walls and
-  decks, circuit walls, dirt and its hills, tube pillars, decoration placed for area tracks, light
-  and atmosphere, the RTX preset), then M9-0's remaining research notes. Merge this branch into
-  `stadium` when the owner says so.
+- M9-2 second pass done (PROGRESS "M9-2: the decks, walls and dirt roads"): decks (steel plate per
+  block + a tread detail map), dark platform walls, circuit walls in TMNF's layout (white, blue
+  band with our name, black rubber, truss), dirt roads (packed track blending into loose berms).
+  Compare with TMNF locally: `map_view --ref=<dir>` (tools/research/tmnf ref_visuals; normal maps
+  now read right). Views that worked: `--view=gate:StadiumCircuitBorderStraight:2:30:3 --gz=22`
+  (a circuit wall from outside; `:-25:12` from the lane), `--view=path:0.4` on A01/A06,
+  `--view=gate:StadiumRoadDirt:3:24:2.5 --gz=24` on A02.
+- Next (M9, in order): the rest of M9-2 (dirt fences and signs, tube pillars, decoration placed
+  for area tracks, light and atmosphere, the RTX preset), then M9-0's remaining research notes.
+  Merge this branch into `stadium` when the owner says so.
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,

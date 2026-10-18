@@ -97,7 +97,7 @@ static func material(name: String) -> Material:
 			m.alpha_scissor_threshold = 0.5
 	else:
 		m.albedo_color = Color(1, 0, 1)
-	var n := _tex(String(roles.get("N", "")))
+	var n := _tex(String(roles.get("N", "")), true)
 	if n != null:
 		m.normal_enabled = true
 		m.normal_texture = n
@@ -108,7 +108,9 @@ static func material(name: String) -> Material:
 	return m
 
 
-static func _tex(name: String) -> Texture2D:
+## normal: the file is a normal map in TMNF's layout (x in alpha, red empty, y in green): moved
+## into red, so Godot reads the normals as authored (else they all lean along -x).
+static func _tex(name: String, normal := false) -> Texture2D:
 	if name.is_empty():
 		return null
 	if _tex_cache.has(name):
@@ -122,6 +124,12 @@ static func _tex(name: String) -> Texture2D:
 	var img := Image.load_from_file(path)
 	var t: Texture2D = null
 	if img != null and not img.is_empty():
+		if normal and img.detect_alpha() != Image.ALPHA_NONE:
+			img.convert(Image.FORMAT_RGBA8)
+			for y in img.get_height():
+				for x in img.get_width():
+					var c := img.get_pixel(x, y)
+					img.set_pixel(x, y, Color(c.a, c.g, c.b, 1.0))
 		img.generate_mipmaps()
 		t = ImageTexture.create_from_image(img)
 	_tex_cache[name] = t

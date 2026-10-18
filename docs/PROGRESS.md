@@ -1961,3 +1961,30 @@ done for each) is checked against the code finding by finding, fixed, tested and
   for a Time Attack round); `server/lib/rounds.js`, test. Docs: README "Make a track" (the
   surfaces, laps, the layout rules), `stadium/CLAUDE.md`, PLAN M9-8 checked,
   `docs/research/m9_campaign.md` (our series).
+
+## 2026-10-18 — Session 13 (M9-2): the decks, walls and dirt roads in TMNF's look
+What the campaign shows most, compared side by side with TMNF's own meshes and textures at the
+same camera (`map_view --ref=<local dir>`, research only, nothing of it committed):
+- **The reference renders were wrong until now**: TMNF keeps a normal map's x in the alpha
+  channel (red is empty), so every reference surface leaned along -x and its brightness was off
+  (the decks looked 40% brighter than ours). `blocks/tm_ref_visuals.gd` moves alpha into red;
+  with that, TMNF's deck and ours render alike (127 vs 115 in the same light).
+- **Decks** (platform and circuit, key "platform"): our own `platform_plate` (one texture per
+  32 m block, world-mapped so its edge is the block's seam; light steel with smears and skid
+  marks along x, no more 4 m tile grid) and a **detail map**, `tread_plate` (diamond tread, 1 m),
+  through a new detail layer in `blocks/tm_textured.gdshader` (`TmMaterials.DETAIL`).
+- **Platform walls** (`Platform/Wall/*`, the builder's wall borders): dark charcoal concrete panels
+  (`platform_wall`, joints every 8 m and halfway up), as TMNF's, instead of light cladding.
+- **Circuit walls**, mapped from where TMNF puts each material on the section: outside, a black
+  rubber foot, a light band, a blue band with our name (`circuit_band`), plain white cladding
+  (`circuit_panel`), a blue top lip (`circuit_trim`); lane side, the dark blue floor strip
+  (`circuit_floor`), a black bumper, the screen, dark steel truss (`steel_truss`). The red rubber
+  and the gridded white panels are gone.
+- **Dirt roads**: a packed track lighter than the berms, combed by tyres along the road
+  (`dirt_road`, UV-mapped along the piece), blending into the loose dirt (darker now, TMNF's
+  tone) on the berms and slopes: `blocks/tm_dirt.gdshader`, key "dirt_road" (`blocks/shapes/dirt.gd`).
+- Textures: `stadium/tools/texgen/decks.py` (new) and `surfaces.py` (dirt road; the old
+  `platform_panels` removed).
+- Next in M9-2: fences and signs along the dirt roads, tube pillars, decoration for the area
+  tracks, light and atmosphere, the RTX preset. Open question for the owner: TMNF's circuit
+  screens are dark; ours show the adverts.

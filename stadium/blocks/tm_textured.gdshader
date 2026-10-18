@@ -3,7 +3,8 @@ shader_type spatial;
 // The textured surfaces (TmMaterials.TEXTURED, the gate paint): our own albedo / normal / ORM maps
 // from assets/tex (and an emission map where there is one), on the mesh's UVs scaled to metres, or
 // projected in world space on three planes (surfaces without a direction: concrete, facades), with
-// the map's sky occlusion as ambient occlusion. What ORMMaterial3D did, plus the occlusion.
+// the map's sky occlusion as ambient occlusion. What ORMMaterial3D did, plus the occlusion, and an
+// optional detail map (TmMaterials.DETAIL: the decks' fine tread) tiled finely over the same mapping.
 
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -22,6 +23,12 @@ uniform vec3 tint : source_color = vec3(1.0);   // times the albedo (one set, li
 // large-scale variation over the tiles (world xz), so a 16 m texture doesn't read as a grid far off
 uniform sampler2D macro_tex : filter_linear_mipmap, repeat_enable;
 uniform float macro = 0.0;
+// detail: red/green its normal's x/y, blue an albedo factor (0.5 = 1); detail_ratio textures per
+// main texture, detail_strength scales it
+uniform sampler2D detail_tex : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform bool has_detail = false;
+uniform float detail_ratio = 64.0;
+uniform float detail_strength = 1.0;
 
 varying vec3 wpos;
 varying vec3 wnrm;
@@ -33,6 +40,14 @@ void vertex() {
 
 vec3 unpack_normal(vec4 t) {
 	return vec3(t.xy * 2.0 - 1.0, 0.0) + vec3(0.0, 0.0, sqrt(max(0.0, 1.0 - dot(t.xy * 2.0 - 1.0, t.xy * 2.0 - 1.0))));
+}
+
+// a tangent-space normal with the detail map's at uv whiteout-blended in; alb_k: its albedo factor
+vec3 with_detail(vec3 tn, vec2 uv, inout float alb_k) {
+	vec4 d = texture(detail_tex, uv * detail_ratio);
+	vec2 dxy = (d.xy * 2.0 - 1.0) * detail_strength;
+	alb_k = mix(1.0, d.z * 2.0, detail_strength);
+	return normalize(vec3(tn.xy + dxy, tn.z));
 }
 
 void fragment() {
@@ -52,9 +67,21 @@ void fragment() {
 		orm = texture(orm_tex, ux).rgb * w.x + texture(orm_tex, uy).rgb * w.y + texture(orm_tex, uz).rgb * w.z;
 		// tangent-space normals per plane, whiteout-blended into the surface normal (world space)
 		// (the planes' uv axes against world (z, y), (x, z), (x, y): flipped as the mapping above)
-		vec3 tx = unpack_normal(texture(normal_tex, ux)) * vec3(-1.0, -1.0, 1.0);
-		vec3 ty = unpack_normal(texture(normal_tex, uy)) * vec3(1.0, -1.0, 1.0);
-		vec3 tz = unpack_normal(texture(normal_tex, uz)) * vec3(1.0, -1.0, 1.0);
+		vec3 nx = unpack_normal(texture(normal_tex, ux));
+		vec3 ny = unpack_normal(texture(normal_tex, uy));
+		vec3 nz = unpack_normal(texture(normal_tex, uz));
+		if (has_detail) {
+			float kx = 1.0;
+			float ky = 1.0;
+			float kz = 1.0;
+			nx = with_detail(nx, ux, kx);
+			ny = with_detail(ny, uy, ky);
+			nz = with_detail(nz, uz, kz);
+			alb *= kx * w.x + ky * w.y + kz * w.z;
+		}
+		vec3 tx = nx * vec3(-1.0, -1.0, 1.0);
+		vec3 ty = ny * vec3(1.0, -1.0, 1.0);
+		vec3 tz = nz * vec3(1.0, -1.0, 1.0);
 		tx = vec3(tx.xy + n.zy, abs(tx.z) * n.x);
 		ty = vec3(ty.xy + n.xz, abs(ty.z) * n.y);
 		tz = vec3(tz.xy + n.xy, abs(tz.z) * n.z);
@@ -68,6 +95,11 @@ void fragment() {
 		alb = texture(albedo_tex, uv).rgb;
 		orm = texture(orm_tex, uv).rgb;
 		NORMAL_MAP = texture(normal_tex, uv).rgb;
+		if (has_detail) {
+			float k = 1.0;
+			NORMAL_MAP = with_detail(unpack_normal(vec4(NORMAL_MAP, 1.0)), uv, k) * 0.5 + 0.5;
+			alb *= k;
+		}
 		if (has_emission) {
 			em = texture(emission_tex, uv).rgb;
 		}
