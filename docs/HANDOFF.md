@@ -1,8 +1,11 @@
 # HANDOFF: start here
 
-## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts
-- Branch **`claude/trackmania-stadium-review-lds3no`** = `stadium` + session 13's M9 branch (merged
-  in at 9ee8237; it had been idle) + session 14. Merge this one into `stadium` (it contains M9).
+## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
+- **Released as `stadium-v0.4`** (owner: "merge it into stadium and tag stadium-v0.4"): `stadium`
+  was fast-forwarded to `claude/trackmania-stadium-review-lds3no` = `stadium` + session 13's M9
+  branch (merged in at 9ee8237) + session 14, so `stadium` now has M9 too. Release:
+  https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.4 (built by CI from the tag).
+  Continue on `stadium` (M9's own branch is fully contained in it).
   STADIUM_TESTS PASS at every commit (test_tracks 52 checks now).
 - Review: `docs/research/stadium_review.md` (scorecard, causes, ranked list; its §3 was re-ranked
   by prototype renders: gates first, then local depth; AgX, a global light re-balance and SDFGI

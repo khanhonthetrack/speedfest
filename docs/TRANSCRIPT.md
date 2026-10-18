@@ -686,3 +686,13 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   three hours). Order: the review's fix list (gates option B first), then real country flags on
   the stadium's masts, then the adverts as Polish brands under parody names in our own lettering
   (no real logos: names like RZABKA, our own type and colours). A commit after every step.
+
+### User (verbatim, session 14, after the fix list, flags and adverts)
+
+> merge it into stadium and tag stadium-v0.4
+
+### Claude
+
+- `stadium` fast-forwarded to `claude/trackmania-stadium-review-lds3no` (it contains session 13's
+  M9 work and session 14's), tagged `stadium-v0.4`; the Stadium builds workflow makes the GitHub
+  Release with the Windows and Linux zips.

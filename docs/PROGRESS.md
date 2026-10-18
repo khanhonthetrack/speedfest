@@ -1802,3 +1802,6 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   with Polish taglines. The strip is 16 panels now (`env/tm_adverts.gd` COUNT, `tm_surface`
   AD_PANELS: a 128 m cycle on the boards). The car's title sponsor on the sidepods is ORLAN
   (`livery_sponsor`), our emblem moved to the engine cover's flanks.
+- **Released `stadium-v0.4`** (owner: "merge it into stadium and tag stadium-v0.4"): `stadium`
+  fast-forwarded to the review branch (session 13's M9 work + session 14's), tag `stadium-v0.4`,
+  CI ("Stadium builds") makes the GitHub Release with the Windows and Linux zips.
