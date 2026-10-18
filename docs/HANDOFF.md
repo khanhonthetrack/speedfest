@@ -55,8 +55,8 @@
   (from `claude/trackmania-stadium-review-lds3no`; gate PASS). This branch is ahead of `stadium`
   by M9-7: merge it into `stadium` when the owner says so.
 - Now: the session-13 code review's findings (42; 14 confirmed by its verifiers, the rest
-  unverified because the run hit the usage limit): `/tmp` list lost with the container, so the
-  open ones are listed in PROGRESS as they are fixed. Then M9-8 the A-E campaign
+  unverified because the run hit the usage limit): `docs/research/m9_review_findings.md`, each
+  checked and fixed in turn (its status column). Then M9-8 the A-E campaign
   (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
   M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
   tracks that use them.
