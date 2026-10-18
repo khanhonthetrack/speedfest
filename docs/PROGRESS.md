@@ -1748,3 +1748,10 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   TMNF's 1.77 m), an oil stain on 12% of the straights. Decal nodes projecting down, faded on
   surfaces that don't face up and beyond 90 m; HD graphics only. Lesson: thin tyre tracks at a
   quarter opacity vanish at grazing angles; they are drawn near-opaque (70-100%).
+- **Car shading and livery** (`car/tm_car_surface.gdshader`, `car/tm_car_visual.gd` `_livery`,
+  stickers by `stadium/tools/texgen/livery.py`): the body's paint and carbon get ambient occlusion
+  from their height over the road and from facing down (the road blocks their sky), on top of the
+  map's occlusion; the clearcoat is glossier (0.85, roughness 0.06). Livery as decals that move
+  with the car: the race number on a white board on the nose (read from in front), our emblem and
+  SPEEDFEST on both sidepods (each read from its own side). The sponsors' stickers come with the
+  Polish brands (adverts step).

@@ -227,6 +227,8 @@ func _ready() -> void:
 	_suspension()
 	if not ghost:
 		add_child(contact_shadow())
+		if TmMaterials.hd():
+			_livery()
 
 
 ## The soft shade on the road under the car (TMNF and TM2020 bake it into the map; ours moves
@@ -249,6 +251,42 @@ func contact_shadow() -> Decal:
 	d.distance_fade_begin = 80.0
 	d.distance_fade_length = 20.0
 	return d
+
+
+## Livery stickers (stadium/tools/texgen/livery.py): [texture, centre (visual coords), size
+## (u across, projection depth, v along), basis: u, projection (decal -y), v].
+const STICKERS := [
+	# the race number on the nose, read from in front (the chase camera can't see the nose past
+	# the airbox; other players and replays do)
+	["livery_number", Vector3(0.0, 0.66, 1.12), Vector3(0.30, 0.34, 0.38), Vector3(1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, 1)],
+	# the sidepods, each read from its own side
+	["livery_emblem", Vector3(0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
+	["livery_emblem", Vector3(-0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+]
+
+
+## The livery: decals that move with the car (the stickers' places are on the tub's nose and the
+## sidepods' flat sides; faded on surfaces that don't face them).
+func _livery() -> void:
+	for st: Array in STICKERS:
+		var tex := TmMaterials._tex(String(st[0]), "albedo")
+		if tex == null:
+			continue
+		var d := Decal.new()
+		d.name = "Sticker"
+		d.texture_albedo = tex
+		d.size = st[2]
+		var u: Vector3 = st[3]
+		var down: Vector3 = st[4]
+		var v: Vector3 = st[5]
+		d.transform = Transform3D(Basis(u, -down, v), (st[1] as Vector3) - VIS)
+		d.normal_fade = 0.55
+		d.upper_fade = 0.05
+		d.lower_fade = 0.05
+		d.distance_fade_enabled = true
+		d.distance_fade_begin = 60.0
+		d.distance_fade_length = 15.0
+		add_child(d)
 
 
 const CONTACT_SHADOW := 0.8          ## the shade's darkness at its core
