@@ -147,21 +147,26 @@ depth. Turning GI on is not enough by itself; the balance in 3.1.1 comes first.
    on `main`) so it sits on the road at any sun angle. (S)
 
 ### 3.2 The gates
-Pick one of two directions with the owner (show both as renders):
-- **A. Faithful TMNF, built properly (recommended, as M9's goal is 1:1):** keep `GATE_SIGN`'s
-  outline but build each board as a *screen*: a 6 cm panel in a 12 cm dark bezel, a ribbed metal
-  back, two brackets down to the arch's shoulder; the face shows the gate's content, not ads:
-  START / CHECKPOINT n / FINISH, and after the car passes, the split time (a small SubViewport
-  or digit shader per gate). Tilt it so it faces an approaching car. Keep the boards' backs and
-  edges dark so the silhouette reads as two screens, not two horns.
-- **B. Modern (TM2020-like):** drop the boards; curve one LED screen into the crown of the arch
-  (flush with its surface) showing the same content, with the coloured light strip on the
-  underside. Cleaner silhouette, less faithful.
+Two directions were prototyped on a scratch copy of M9 (`stadium_review_prototype.diff`,
+`--gate_signs=screen|none`) and rendered from the driver's approach:
+- **B. No boards, a screen in the crown (recommended):** drop the `GATE_SIGN` boards. The arch
+  then reads as one clean silhouette (the render with `--gate_signs=none` is the most "finished"
+  gate of all the variants). Put the gate's content in a curved LED screen flush with the crown:
+  START / CHECKPOINT n / FINISH, and your split time after you pass (a small SubViewport or a
+  digit shader per gate). Closer to TM2020, less faithful to TMNF.
+- **A. TMNF's boards, built as screens (if 1:1 matters more):** keep `GATE_SIGN`'s outline as a
+  thin panel (12 cm dark bezel, inset screen on the road side, ribbed back) on two struts down to
+  the arch, showing the gate's content instead of adverts. Prototyped: the boards read as screens
+  instead of slabs, but the tilted silhouette is still there. It helps, but it doesn't remove the
+  "horns".
 - Either way: bevel the arch section (4-6 cm chamfers on `GATE_ARCH`'s corners, smoothed
   normals), give the shell a trim-sheet material (painted metal, panel seams, bolts, a little
-  grime at the feet), make the coloured light a *strip* and a light (one OmniLight/SpotLight per
-  gate pointing at the road, colour of the kind), not a glowing band, and keep the road paint
-  (M9's pads and lines) as the second cue for start/finish.
+  grime at the feet), light the road under the gate with a lamp in the kind's colour instead of
+  only a glowing band, and keep the road paint (M9's pads and lines) as the second cue for
+  start/finish.
+- Small M9 bug seen on the way: the curb's *outer* face, seen from outside the road, shows its
+  lettering mirrored ("STADIUM" reads "MUIDATS", the SF emblem after the word). The u reversal
+  that makes the text read from the road seems to apply to the outer faces too.
 
 ### 3.3 The car (on top of M9-1)
 1. Shade it like a real car: the reflection probe (3.1.4) matters more than any polygon.
@@ -201,7 +206,7 @@ Pick one of two directions with the owner (show both as renders):
 
 ## 4. Order of work suggested
 1. 3.1.1-3.1.2 and 3.1.4 (light, an afternoon), then re-render the gate, car and overview.
-2. Gate direction A or B (owner's choice), with the bevel and trim sheet.
+2. Gate direction B (or A if the owner prefers TMNF's boards), with the bevel and trim sheet.
 3. 3.1.3 occlusion volume.
 4. Car shading and livery, then decals and the remaining surface families (M9-2's list).
 5. Replay-based physics check and the handedness check.

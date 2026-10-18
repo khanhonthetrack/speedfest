@@ -7,8 +7,9 @@
   reflection probe, gate boards as framed screens / no boards) is
   `docs/research/stadium_review_prototype.diff`, against M9 @ 77bb43c.
 - Session 13's M9 branch (`claude/tmnf-replica-graphics-nb1kcg`) owns the look work: apply the
-  review's §3 there (or after it is merged into `stadium`), not in parallel. Owner's call: gate
-  direction A (TMNF's boards built as screens) or B (no boards, a screen in the crown).
+  review's §3 there (or after it is merged into `stadium`), not in parallel. Owner's call on the
+  gates: the review recommends B (no boards, a screen in the crown; cleanest in the prototype
+  renders) over A (TMNF's boards rebuilt as framed screens; still reads as horns).
 - Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
