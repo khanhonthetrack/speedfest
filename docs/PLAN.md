@@ -201,6 +201,18 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
       every track driven by the bot, medals from its best run
 
+### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☐
+Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
+- [x] 1. Keep the circuit walls' screens dark (TMNF's StadiumCircuitScreen); the wall foot's blue
+      kerb, logo bumper and blue trim (owner's side-by-side remark)
+- [x] 2. Tyre marks when drifting or braking hard, like TMNF's (`race/tm_tyre_marks.gd`): rubber
+      on the road and decks, grooves in dirt, torn turf on grass, smoke/dust puffs; in races and
+      replays (replays record which wheels slide); `tests/test_tyre_marks`
+- [ ] 3. Physics off asphalt (grass, dirt, ...) against TMNF's own runs (the campaign replays'
+      ghosts: `tools/research/tmnf/ghost_dump.py`, `race/ghost_fit.tscn`)
+- [ ] 4. Jump physics against TMNF (air phases, landings)
+- [ ] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
+
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
 instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.

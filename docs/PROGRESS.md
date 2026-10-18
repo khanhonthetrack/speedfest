@@ -2033,3 +2033,20 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   under the light cap at the top. Ours now: `circuit_kerb` (blue painted plate, fine grooves, a
   joint plate every 16 m, world-mapped), `circuit_bumper` (black rubber, grey edge lines,
   SPEEDFEST every 16 m) and the blue trim on the lane side's top edge; checked side by side.
+- **M10-2 tyre marks** (owner: "When you drift or brake hard, i want to see scratchmarks like in
+  TMNF"): `race/tm_tyre_marks.gd` (TmTyreMarks). While a wheel slides on the ground (a drift, or
+  the wheels locked by hard braking: `TmCarModel.sliding`) and moves over it faster than 3 m/s, it
+  lays a mark one tyre wide (0.3 m) behind it, a segment every 0.4 m joined end to end, of its
+  surface's kind: black rubber on the road, decks and concrete, grooves in dirt and dirt roads,
+  torn turf on grass and snow, none on ice or water. Each kind is one MultiMesh of quads with a
+  ring of 3000 (rubber) / 1500 segments (the oldest quarter fades out as it is reused;
+  `race/tm_tyre_marks.gdshader`, textures from `stadium/tools/texgen/marks.py`). Light grey smoke
+  puffs off sliding wheels on the road, dust on dirt, bits of grass on grass. The marks stay for
+  the run and clear on a restart. Replays lay them too: a sample now records which wheels slide
+  (`TmReplay.F_SLIDE0`, bits 9-12; older replays fall back to "the wheels on the ground slid"),
+  the viewer finds the surface under each wheel (`TmBody.surface_under`) and clears them on a
+  seek. `tests/test_tyre_marks` (in the gate, 12 checks): kinds by surface, none while gripping
+  or in the air, laid while sliding, segments join, none across a respawn, the ring reuses the
+  oldest, clear; on SF01 the bot lays none pulling away, some by the finish, none after a
+  restart. Checked in renders: a hard brake into a turn leaves two curving black streaks.
+  Also `race.tscn --trace=<file>`: the car's state every 100 ms as JSON lines (for M10-3).

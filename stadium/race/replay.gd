@@ -22,6 +22,7 @@ var car: TmCar
 var race: TmRace                   ## the HUD's clock and checkpoints, driven by the replay
 var hud: TmRaceHud
 var audio: TmCarAudio
+var marks: TmTyreMarks           ## the tyre marks the run laid, laid again as it plays
 var t_ms := -float(PREROLL_MS)     ## replay time (race clock; negative: the countdown)
 var playing := true
 var speed_index := 3
@@ -80,6 +81,9 @@ func _ready() -> void:
 	var look := TmCarVisual.new()
 	look.paint_colour = replay.colour
 	car.add_child(look)
+	marks = TmTyreMarks.new()        # after this node in the tree: it reads the puppet each tick
+	marks.car = car
+	add_child(marks)
 	var cps := 0
 	for wp: Dictionary in builder.waypoints:
 		if int(wp["kind"]) == TmBlockCatalogue.Waypoint.CHECKPOINT:
@@ -342,6 +346,18 @@ func _apply(jump: bool) -> void:
 	car.body.wheel_contact = st["contact"]
 	m.grounded = st["grounded"]
 	m.any_sliding = st["sliding"] and not still
+	# the sliding wheels' contact points and surfaces, for the tyre marks
+	var up := xf.basis.y.normalized()
+	for k in 4:
+		var on := bool(st["slide"][k]) and bool(st["contact"][k]) and not still
+		m.sliding[k] = on
+		if on:
+			var hit := xf * (car.body.wheel_center_local(k) - Vector3(0.0, car.body.wheel_radius, 0.0))
+			car.body.wheel_hit_pos[k] = hit
+			car.body.wheel_hit_n[k] = up
+			car.body.wheel_surface[k] = car.body.surface_under(get_world_3d().direct_space_state, hit, up)
+	if jump:
+		marks.clear()
 	car.body.now_ms = int(t_ms)
 	var index := int(st["index"])
 	if jump:

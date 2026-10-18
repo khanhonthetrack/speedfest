@@ -289,6 +289,12 @@ func _ray_normal(p: Vector3, u: Vector3) -> Vector3:
 	return n if n.dot(u) >= 0.0 else -n
 
 
+## The surface id under a point on the ground with normal n (a replay's wheels: their tyre marks).
+func surface_under(space: PhysicsDirectSpaceState3D, p: Vector3, n: Vector3) -> int:
+	_space = space
+	return int(_surface_at(p, n)[0])
+
+
 ## Surface id and turbo pad direction of what lies under a contact point.
 func _surface_at(p: Vector3, n: Vector3) -> Array:
 	if surface_fn.is_valid():

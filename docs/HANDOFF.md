@@ -1,5 +1,25 @@
 # HANDOFF: start here
 
+## Latest (18 Oct, session 13 continued, cloud): M10, the owner's five requests after M9
+- Branch `claude/tmnf-replica-graphics-nb1kcg` (M9 is complete there; not merged into `stadium`
+  until the owner says so). Plan: PLAN.md M10 (steps 1-5, the owner's order); owner's words in
+  TRANSCRIPT (session 13, after M9). STADIUM_TESTS PASS at every commit.
+- Done: M10-1 dark circuit screens and the wall foot (blue kerb, logo bumper, blue trim);
+  M10-2 tyre marks (`race/tm_tyre_marks.gd`, in races and replays; `tests/test_tyre_marks`).
+- Now: M10-3, the physics off asphalt against TMNF's own runs. Tools: `ghost_dump.py` (a
+  Replay.Gbx's ghosts: samples every 100 ms with each wheel's surface and sliding flag, and the
+  run's inputs; `--json=` for the harness, `--inputs=` a TMInterface-style script),
+  `race/ghost_fit.tscn` (puts our car in a ghost's state, drives it 0.5 s with the run's own
+  inputs, prints how far apart it ends by surface), `accel_curve.py`, `lateral_grip.py`,
+  `ghost_compare.py` (a whole run: `race.tscn --inputs=... --trace=...` against the ghost).
+  Our world is TMNF's mirror image (x negated): feed a TMNF run's inputs with left and right
+  swapped. Asphalt agrees to centimetres over 0.5 s; grass and dirt don't with the surface
+  table's columns read as (top speed, accel, brake, grip); the runs say (top speed?, accel =
+  column 2, brake = column 3, grip = column 1) fits far better (PROGRESS, M10-3).
+- Then M10-4 jumps (the fit's "air" groups; A01's drop at 8-11 s), M10-5 look/UI/menus/sound
+  side by side with TMNF (screenshots of TMNF itself if it runs under Wine locally; never commit
+  its data).
+
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium
   and tag stadium-v0.4"): `stadium` was fast-forwarded to `claude/trackmania-stadium-review-lds3no`

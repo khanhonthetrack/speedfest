@@ -34,6 +34,8 @@ var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarV
 var new_record := false            ## the last finish set a new record
 var menu: TmRaceMenu               ## pause and finish menus
 var audio: TmCarAudio              ## engine, skid, wind and the race's cues
+var marks: TmTyreMarks             ## the tyre marks a sliding wheel lays, and its smoke
+var _trace: FileAccess             ## --trace: the car's state every 100 ms
 var online: TmRaceOnline           ## the online side, in a server (Online)
 var bot: TmBot                     ## the driving bot (--bot), else null
 var input_script: TmInputScript     ## --inputs=<file>: a script drives the car, else null
@@ -109,6 +111,9 @@ func _ready() -> void:
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
 	car.add_child(look)
+	marks = TmTyreMarks.new()          # after the race in the tree: it reads each tick's stepped car
+	marks.car = car
+	add_child(marks)
 	input = TmCarInput.new()
 	input.car = car
 	add_child(input)
@@ -202,6 +207,8 @@ func _physics_process(_delta: float) -> void:
 			_recorded.append([race.time_ms, car.gas, car.brake, car.steer])
 	car.step_tick()
 	var p := car.global_position
+	if TestHooks.has_arg("trace") and race.racing() and race.time_ms % 100 == 0:
+		_trace_state()
 	if race.racing():
 		run.record(race.time_ms, car.global_transform, car.model.steer, car.local_velocity().z)
 		replay.record(race.time_ms, car)
@@ -220,6 +227,26 @@ func _physics_process(_delta: float) -> void:
 		if _tail_ms >= TmReplay.TAIL_MS and new_record:
 			replay.save(TmReplay.autosave_path(challenge))   # the record's replay, its tail too
 	_prev = p
+
+
+## --trace=<file>: the car every 100 ms of the race (TMNF's ghost sample period) as JSON lines,
+## {t, pos, quat, vel, angvel, wheels: [[contact, surface, sliding] x4]}, to set beside a TMNF
+## ghost's samples (tools/research/tmnf/ghost_dump.py, ghost_compare.py). Written as it goes.
+func _trace_state() -> void:
+	if _trace == null:
+		_trace = FileAccess.open(String(TestHooks.arg("trace", "")), FileAccess.WRITE)
+		if _trace == null:
+			return
+	var xf := car.global_transform
+	var q := xf.basis.orthonormalized().get_rotation_quaternion()
+	var wheels := []
+	for i in 4:
+		wheels.append([car.body.wheel_contact[i], car.body.wheel_surface[i], car.model.sliding[i]])
+	_trace.store_line(JSON.stringify({"t": race.time_ms, "pos": [xf.origin.x, xf.origin.y, xf.origin.z],
+		"quat": [q.x, q.y, q.z, q.w], "vel": [car.lin_vel.x, car.lin_vel.y, car.lin_vel.z],
+		"angvel": [car.ang_vel.x, car.ang_vel.y, car.ang_vel.z], "wheels": wheels,
+		"gas": car.gas, "brake": car.brake, "steer": car.steer}))
+	_trace.flush()
 
 
 ## The best run's ghost at the race clock: at its start through the countdown, gone a moment
@@ -428,6 +455,7 @@ func restart(force := false) -> void:
 		return
 	menu.hide_all()
 	race.restart()
+	marks.clear()
 	run = TmGhost.new()
 	replay = TmReplay.start(challenge, track_id, String(TestHooks.arg("map", "")), race.laps, race.checkpoint_count)
 	new_record = false
