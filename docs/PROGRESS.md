@@ -1771,3 +1771,13 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   two-scale **macro variation** (the shared coarse noise at 173 m and 41 m over world xz), on the
   big surfaces (asphalt 10%, grass 16%, dirt 14%, platform 8%) so the tiles don't read as a grid
   from afar.
+- **The physics check harness** (`race/tm_input_script.gd`, `race.gd --inputs / --record_inputs`):
+  a run's inputs as TMInterface-style text (press/rel, steer -65536..65536 + = right, analog gas
+  and brake lines); `--inputs=<file>` drives the car from it and prints `INPUTS_RUN splits finish`.
+  With a TMNF run's inputs on a TMNF track (`--tmnf=... --track=A01`) the times can be compared
+  with the game's; a car turning the wrong way at the first corner would show the world is TMNF's
+  mirror image (the review's open handedness question; README "Check the physics against
+  TrackMania"). Not run against TMNF here: it needs the player's install and runs (this session
+  downloaded nothing of Nadeo's). Proved on our own track: `tests/test_tracks`
+  input_script_replays_the_run_SF01 (the bot's run written as a script and driven without the bot:
+  identical splits 12.57 / 15.91 / 28.80 / 41.17 / 48.47 s) and steer_left_turns_left.

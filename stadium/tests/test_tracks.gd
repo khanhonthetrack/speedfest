@@ -26,6 +26,8 @@ func _ready() -> void:
 	print("TRACK_TIMES ", ", ".join(report))
 	if not ids.is_empty() and not TestHooks.has_arg("write_medals"):
 		await _respawn_check(ids[0])
+		await _input_script_check(ids[0])
+		await _steer_check(ids[0])
 	TestHooks.finish()
 
 
@@ -62,6 +64,62 @@ func _respawn_check(id: String) -> void:
 	scene.queue_free()
 	await get_tree().physics_frame
 	TestHooks.args.erase("bot")
+
+
+## A run's inputs written as a script (TmInputScript) and driven again without the bot give the
+## same splits and finish: the harness for comparing a TMNF run's inputs with the game's times.
+func _input_script_check(id: String) -> void:
+	var path := OS.get_user_data_dir().path_join("test_inputs_%s.txt" % id)
+	TestHooks.args["track"] = id
+	TestHooks.args["bot"] = true
+	TestHooks.args["record_inputs"] = path
+	var a := await _race_to_finish()
+	TestHooks.args.erase("bot")
+	TestHooks.args.erase("record_inputs")
+	TestHooks.args["inputs"] = path
+	var b := await _race_to_finish()
+	TestHooks.args.erase("inputs")
+	TestHooks.check(int(a["finish"]) > 0 and a["splits"] == b["splits"] and a["finish"] == b["finish"],
+		"input_script_replays_the_run_" + id, "recorded %s %d, replayed %s %d" % [a["splits"], a["finish"], b["splits"], b["finish"]])
+
+
+## Left steering turns the car to the left (towards its +x, the screen's left from the chase
+## camera), as a left key press does (TmCarInput: left = +1).
+func _steer_check(id: String) -> void:
+	TestHooks.args["track"] = id
+	TestHooks.args["auto_gas"] = "1"
+	TestHooks.args["auto_steer"] = "1"
+	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	while not scene.ready_to_race:
+		await get_tree().physics_frame
+	var race: TmRace = scene.race
+	while not race.racing():
+		await get_tree().physics_frame
+	var start: Basis = scene.car.global_transform.basis
+	while race.time_ms < 1200:
+		await get_tree().physics_frame
+	var fwd: Vector3 = scene.car.global_transform.basis.z
+	TestHooks.check(fwd.dot(start.x) > 0.05, "steer_left_turns_left", "heading towards +x by %.2f" % fwd.dot(start.x))
+	scene.queue_free()
+	await get_tree().physics_frame
+	for k in ["auto_gas", "auto_steer"]:
+		TestHooks.args.erase(k)
+
+
+## Runs race.tscn (with the current args) until the finish or LIMIT_MS: {splits, finish (-1: none)}.
+func _race_to_finish() -> Dictionary:
+	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	while not scene.ready_to_race:
+		await get_tree().physics_frame
+	var race: TmRace = scene.race
+	while race.state != TmRace.State.FINISHED and race.time_ms < LIMIT_MS:
+		await get_tree().physics_frame
+	var out := {"splits": race.splits.duplicate(), "finish": race.finish_ms if race.state == TmRace.State.FINISHED else -1}
+	scene.queue_free()
+	await get_tree().physics_frame
+	return out
 
 
 ## Every gate has its crown screen (start, checkpoints, finish), and the one just passed shows the

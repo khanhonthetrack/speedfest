@@ -209,6 +209,9 @@ Two directions, rendered from the driver's approach (`--gate_signs=screen|none`)
 2. **Handedness**: session 13 saw TMNF's own text read mirrored under our x negation ("START
    reads TRATS"): the remake's world may be TMNF's mirror image. Check before relying on .Gbx
    tracks (a left turn in TMNF must be a left turn here).
+   (Session 14 later: the harness for both is in, `race.tscn --inputs=<TMInterface-style script>`,
+   proved on our own track; running it against TMNF needs the player's install: README "Check the
+   physics against TrackMania".)
 3. **Look tests**: fixed-camera renders of the gate, car and an overview, compared to the
    previous run (`tests/tmp/review_view` used for this review: map_view's `car:`/`gate:` views).
 
