@@ -1972,3 +1972,33 @@ done for each) is checked against the code finding by finding, fixed, tested and
   track (it drives at about real time; `--series=White`, `--tracks=all` or a list drive more);
   a time limit from the line's length for long tracks. Road-gate checks (crown screens, respawn,
   replay turbo) run on SF01. `tests/test_track_areas`: a lap race (11 checks).
+
+## 2026-10-18 — Session 15: community tracks (TMX) and cars (ManiaPark) on admins' servers
+Owner: "make sure that all the community tracks and car models can be uploaded and put on a
+admins server correctly ... I want full compatibility" (TRANSCRIPT session 15). Branch
+`ccr-1ce252fc-wl7p3m` = `stadium` + the M9 branch (merged: M9-7's online client is needed).
+- **Server (done, f90045b):** `server/lib/content.js` (tracks checked as the game reads them:
+  `lib/gbx.js` + `lib/lzo.js`, our JS port of `gbx/tm_challenge.gd`; Stadium only; catalogue
+  blocks; a start and a finish. Car packs: a `CPlugSolid` mesh or a Diffuse texture, repacked
+  with only meshes/textures/sounds by `lib/zip.js`; files by SHA-256 in `DATA_DIR/content`, served
+  at `/content/`), `lib/admin.js` (`/api/admin`: admins = config `admins` logins or
+  `ADMIN_PASSWORD`; uploads, TMX/ManiaPark imports, rotations, jump/next, car lists, a forced car;
+  settings kept in the store), `/admin` page, `lib/game.js` (round `file`, welcome `cars`, player
+  `car`, `{t:'car'}`), `lib/modes.js` (`setTracks`, `jump`). `test/content.test.js`;
+  `TMX_DIR=<folder> npm test` also checks a TMX sample.
+- **Compatibility test (done, aacba1a):** `tools/compat/fetch_tmx.py <dir outside the repo>`
+  (sets: awards, downloads, newest, oldest, each type and tag; `--quick`, `--united`),
+  `tests/test_compat_tracks --dir=<dir> [--build]` (reads, `TmTrackCheck` blocks, start/finish).
+  On 1113 tracks: 1113 read; 16 modded (13 TMUnlimiter 2, whose blocks live in Unlimiter's own
+  chunks; one with Minecraft custom blocks; one with Rally blocks; `PylonStadium` is TMNF's and
+  will be built); 777 of the 1097 Stadium tracks use the 35 shapes we didn't build yet (circuit
+  ramps 43%, circuit loop start 42%, circuit turbos 38%, roulette turbos 9% ...).
+- **Reader fixes:** old class ids (TMO/TMS-era `0x24003000` files) mapped (GBX.NET's
+  public-domain wrap table, 5 entries); the block list's bit 20 is a waypoint property only from
+  list version 2 (a 2009 track failed); TMUnlimiter 2 tracks recognised (`TmChallenge.unlimiter`).
+- **Roulette turbo (surface 30)**, read from TmForever.exe (`CSceneVehicleCar::GetRouletteValue01`
+  0x7BC820 and its callers 0x7BCF90, 0x7C737B): the yellow pad's strength and 250 ms times
+  1 + v, v = 0 / 0.5 / 1 below 4/7, 6/7, 1 of a 1000 ms cycle of the run's clock, rolled once as
+  the car meets the pad. `core/tm_car_model.gd`, `tm_tuning.gd`; test_model_lab 51.
+- Next: the 35 shapes (+ PylonStadium), the client side (download and race server tracks; car
+  models from `MainBody.Solid.Gbx` + DDS + WAV), TMUnlimiter 2 block layouts.

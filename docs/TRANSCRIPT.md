@@ -748,3 +748,29 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - A multi-agent review of session 13's new code ran during this work; its verifiers hit the
   account's usage limit (the reason for the owner's sequential rule), so its 42 findings are checked
   and fixed one by one, sequentially, from here on.
+
+## Session 15 — 2026-10-18 (cloud; branch `ccr-1ce252fc-wl7p3m` = `stadium` + M9)
+
+### User (verbatim)
+
+> For the stadium branch: make sure that all the community tracks and car models can be uploaded and put on a admins server correctly.
+>
+> For tracks, you can test trackmania exchange
+> For cars you can use maniapark.com
+>
+> I want full compatibility
+
+### Claude
+
+- Work branch `ccr-1ce252fc-wl7p3m`: `stadium` with the M9 branch merged in (M9-7's online client,
+  accounts and server code are there; `stadium` alone has an older client).
+- Tracks: a sample of 1100+ TrackMania Nations Forever Exchange tracks (downloaded outside the
+  repo by `stadium/tools/compat/fetch_tmx.py`) is read by the game and the server; every reading
+  failure found was fixed. Blocks community tracks use that TMNF's campaign doesn't (circuit
+  turbos and ramps, roulette turbos, the circuit loop start, bumps on slopes, the editor's
+  pylon...) are being recreated so every Stadium track builds.
+- Cars: ManiaPark's TMNF car models and skins are zips with the car's own mesh
+  (`MainBody.Solid.Gbx`), DDS textures and WAV engine sounds; the game will read them and show
+  each player's chosen car.
+- Servers: admins upload tracks and cars (files, or TMX / ManiaPark links) on an `/admin` page or
+  the `/api/admin` API, and choose each server's rotation and cars; players download them.
