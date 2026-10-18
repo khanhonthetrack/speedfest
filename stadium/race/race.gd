@@ -64,11 +64,20 @@ func _ready() -> void:
 			TestHooks.fail("race_map", challenge.error)
 			TestHooks.finish()
 		else:
-			_message(challenge.error)
+			_message(challenge.error + "\n\nPress Escape for the menu")
 		return
 	builder = TmMapBuilder.build(challenge)
 	add_child(builder.root)
 	TmStage.add_environment(self, builder)
+	if not builder.has_start:
+		var why := "%s has no start block" % challenge.name
+		push_error("race: %s" % why)
+		if TestHooks.is_testing():
+			TestHooks.fail("race_map", why)
+			TestHooks.finish()
+		else:
+			_message(why + "\n\nPress Escape for the menu")
+		return
 	var cps := 0
 	for i in builder.waypoints.size():
 		var wp: Dictionary = builder.waypoints[i]
@@ -267,6 +276,10 @@ func _on_finished(time_ms: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
+	if race == null:             # the track didn't load: only the way back
+		if (event as InputEventKey).keycode == KEY_ESCAPE:
+			_to_menu()
+		return
 	match (event as InputEventKey).keycode:
 		KEY_ENTER, KEY_KP_ENTER:
 			respawn()
@@ -330,7 +343,8 @@ func _to_menu() -> void:
 		get_tree().change_scene_to_file("res://ui/menu.tscn")
 		return
 	var map := String(TestHooks.arg("map", ""))
-	TestHooks.args["page"] = "campaign" if not track_id.is_empty() else ("editors" if map.ends_with(TmUserTracks.EXT) else "main")
+	TestHooks.args["page"] = String(TestHooks.arg("return_page", "")) if TestHooks.has_arg("return_page") \
+		else ("campaign" if not track_id.is_empty() else ("editors" if map.ends_with(TmUserTracks.EXT) else "main"))
 	if not track_id.is_empty():
 		TestHooks.args["track"] = track_id
 	get_tree().change_scene_to_file("res://ui/menu.tscn")

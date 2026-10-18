@@ -123,6 +123,22 @@ func _menu(path: String) -> void:
 	menu.show_page("replays")
 	await get_tree().process_frame
 	TestHooks.check(menu.replay_rows.size() == 2 and menu.replay_rows.has(path), "replay_menu_lists", str(menu.replay_rows.keys()))
+	# selection follows presses only: hovering (focus) another row leaves DELETE on the picked one
+	var paths: Array = menu.replay_rows.keys()
+	var other := String(paths[0]) if String(paths[0]) != path else String(paths[1])
+	(menu.replay_rows[path] as Button).pressed.emit()
+	if menu.replay_selected != path:
+		(menu.replay_rows[path] as Button).pressed.emit()   # it was preselected: a press watched it; pick again
+	menu.replay_selected = path
+	(menu.replay_rows[other] as Button).grab_focus()
+	(menu.replay_rows[other] as Button).focus_entered.emit()
+	var del: Button = menu._del_btn
+	del.pressed.emit()
+	TestHooks.check(menu.replay_selected == path and del.text.begins_with("DELETE ") and del.text.ends_with("?")
+		and FileAccess.file_exists(path), "replay_menu_delete_asks", "%s %s" % [menu.replay_selected, del.text])
+	del.pressed.emit()
+	await get_tree().process_frame
+	TestHooks.check(not FileAccess.file_exists(path) and FileAccess.file_exists(other), "replay_menu_deletes_the_picked_one")
 	var got := []
 	menu.watched.connect(func(p: String) -> void: got.append(p))
 	menu.watch(path)

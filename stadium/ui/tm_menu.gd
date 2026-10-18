@@ -541,6 +541,7 @@ func _page_replays() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(1080, 470)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true      # keyboard and pad focus scroll the list
 	col.add_child(scroll)
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 6)
@@ -582,8 +583,8 @@ func _page_replays() -> void:
 			TmUi.play("click")
 			if replay_selected == path:
 				watch(path)
-			replay_selected = path)
-		row.focus_entered.connect(func() -> void: replay_selected = path)
+			replay_selected = path
+			_disarm())
 		row.mouse_entered.connect(row.grab_focus)
 		rows.add_child(row)
 		replay_rows[path] = row
@@ -602,9 +603,9 @@ func _page_replays() -> void:
 	var del := TmUi.button("DELETE", Callable(), 220)
 	del.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	del.disabled = all.is_empty()
+	_del_btn = del
 	del.pressed.connect(func() -> void:
-		if del.text == "DELETE":
-			del.text = "PRESS AGAIN"
+		if _arm(del, replay_selected, (TmReplay.load_file(replay_selected, true).track_name if TmReplay.load_file(replay_selected, true) else "")):
 			return
 		DirAccess.remove_absolute(replay_selected)
 		replay_selected = ""
@@ -651,6 +652,7 @@ func _page_editors() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(1080, 400)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true      # keyboard and pad focus scroll the list
 	col.add_child(scroll)
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 6)
@@ -689,8 +691,8 @@ func _page_editors() -> void:
 			TmUi.play("click")
 			if track_selected == p:
 				edit(p)
-			track_selected = p)
-		row.focus_entered.connect(func() -> void: track_selected = p)
+			track_selected = p
+			_disarm())
 		row.mouse_entered.connect(row.grab_focus)
 		rows.add_child(row)
 		track_rows[p] = row
@@ -702,13 +704,19 @@ func _page_editors() -> void:
 	var ed := TmUi.button("EDIT", func() -> void:
 		if not track_selected.is_empty():
 			edit(track_selected), 200)
+	var note := TmUi.label("", 20, TmUi.DIM, TmUi.BOLD)
 	var play := TmUi.button("PLAY", func() -> void:
-		if not track_selected.is_empty():
-			race("", track_selected), 200)
+		if track_selected.is_empty():
+			return
+		var lack := TmEditorModel.new(TmUserTracks.load_file(track_selected)).missing()
+		if not lack.is_empty():
+			note.text = lack + " in the editor first"
+			return
+		race("", track_selected), 200)
 	var del := TmUi.button("DELETE", Callable(), 200)
+	_del_btn = del
 	del.pressed.connect(func() -> void:
-		if del.text == "DELETE":
-			del.text = "PRESS AGAIN"
+		if _arm(del, track_selected, String(TmUserTracks.load_file(track_selected).get("name", ""))):
 			return
 		DirAccess.remove_absolute(track_selected)
 		track_selected = ""
@@ -718,12 +726,34 @@ func _page_editors() -> void:
 		b.disabled = all.is_empty()
 		buttons.add_child(b)
 	buttons.add_child(_back_button())
+	col.add_child(note)
 	if track_rows.has(track_selected):
 		var sel: Button = track_rows[track_selected]
 		sel.button_pressed = true
 		sel.grab_focus.call_deferred()
 	else:
 		fresh.grab_focus.call_deferred()
+
+
+var _del_btn: Button                ## the page's DELETE (re-armed when the selection changes)
+
+
+## DELETE asks first, naming what it deletes: true while it is only asking (the first press, or
+## the selection changed since).
+func _arm(del: Button, path: String, what: String) -> bool:
+	if path.is_empty():
+		return true
+	if String(del.get_meta("armed", "")) == path:
+		return false
+	del.set_meta("armed", path)
+	del.text = "DELETE %s?" % (what if not what.is_empty() else path.get_file()).left(18).to_upper()
+	return true
+
+
+func _disarm() -> void:
+	if is_instance_valid(_del_btn):
+		_del_btn.remove_meta("armed")
+		_del_btn.text = "DELETE"
 
 
 ## Opens the track editor on a track file ("" a new track).
@@ -906,6 +936,7 @@ var _online_status: Label
 var _online_tab := 0                ## 0 servers, 1 rankings (--online_tab=1: screenshots)
 var _rank_zone := false             ## rankings: false the world, true your zone
 var server_rows: Array = []         ## the listed servers' rows (tests)
+var server_selected := ""           ## the picked server's address (a row's first press; JOIN, SPECTATE)
 const SERVER_COLUMNS := [["SERVER", 300], ["MODE", 150], ["TRACK", 220], ["PLAYERS", 110]]
 const RANK_COLUMNS := [["#", 70], ["PLAYER", 330], ["ZONE", 260], ["LADDER", 120]]
 
@@ -1060,6 +1091,15 @@ func _servers_tab(body: VBoxContainer) -> void:
 	if not is_instance_valid(wait):
 		return
 	wait.text = "" if not list.is_empty() else "No servers are online right now (join one by its address below)"
+	var scroll := ScrollContainer.new()     # many servers scroll instead of pushing the page down
+	scroll.custom_minimum_size = Vector2(950, mini(list.size(), 5) * 58)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	body.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 6)
+	scroll.add_child(rows)
+	var group := ButtonGroup.new()
 	for s: Dictionary in list:
 		var row := Button.new()
 		row.custom_minimum_size = Vector2(940, 52)
@@ -1080,24 +1120,29 @@ func _servers_tab(body: VBoxContainer) -> void:
 			l.clip_text = true
 			cells.add_child(l)
 		var address := String(s.get("address", ""))
-		row.pressed.connect(func() -> void: _connect(address))
+		row.toggle_mode = true
+		row.button_group = group
+		row.add_theme_stylebox_override("pressed", TmUi.glass("hover"))
+		row.add_theme_stylebox_override("hover_pressed", TmUi.glass("hover"))
+		row.button_pressed = address == server_selected
+		row.pressed.connect(func() -> void:
+			if server_selected == address:
+				_connect(address)            # a second press joins
+			server_selected = address)
 		row.mouse_entered.connect(row.grab_focus)
-		body.add_child(row)
+		rows.add_child(row)
 		server_rows.append(row)
 	if not server_rows.is_empty():
-		var focused := func() -> String:
-			for i in server_rows.size():
-				if (server_rows[i] as Button).has_focus():
-					return String(list[i].get("address", ""))
-			return String(list[0].get("address", ""))
+		if not list.any(func(x: Dictionary) -> bool: return String(x.get("address", "")) == server_selected):
+			server_selected = String(list[0].get("address", ""))
+			(server_rows[0] as Button).button_pressed = true
 		var buttons := HBoxContainer.new()
 		buttons.add_theme_constant_override("separation", 10)
 		body.add_child(buttons)
-		var join := TmUi.go(TmUi.button("JOIN", func() -> void: _connect(focused.call()), 220))
-		var watch_btn := TmUi.button("SPECTATE", func() -> void: _connect(focused.call(), true), 220)
+		var join := TmUi.go(TmUi.button("JOIN", func() -> void: _connect(server_selected), 220))
+		var watch_btn := TmUi.button("SPECTATE", func() -> void: _connect(server_selected, true), 220)
 		for b: Button in [join, watch_btn]:
 			b.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			b.focus_mode = Control.FOCUS_NONE     # the rows keep the focus: the one picked
 			buttons.add_child(b)
 
 
@@ -1128,6 +1173,7 @@ func _rankings_tab(body: VBoxContainer) -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(940, 300)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true      # keyboard and pad focus scroll the list
 	body.add_child(scroll)
 	var rows := VBoxContainer.new()
 	scroll.add_child(rows)
@@ -1197,6 +1243,7 @@ func race(track: String, map := "") -> void:
 	TestHooks.args.erase("map")
 	TestHooks.args.erase("track")
 	TestHooks.args.erase("back")      # a race from the menu, not a test drive from the editor
+	TestHooks.args["return_page"] = page if page != "main" else "solo"   # the race's MENU comes back here
 	if not map.is_empty():
 		TestHooks.args["map"] = map
 	else:

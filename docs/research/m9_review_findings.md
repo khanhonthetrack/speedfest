@@ -7,9 +7,9 @@ usage limit). Each is checked by reading the code before it is fixed. Status: op
 
 | # | status | sev | where | finding |
 |---|---|---|---|---|
-| 0 | open (confirmed) | high | `ui/tm_menu.gd:579` | Replays page: DELETE and WATCH act on the last row the mouse or focus passed over, not the selected row |
+| 0 | fixed: selection on press only, DELETE names its target | high | `ui/tm_menu.gd:579` | Replays page: DELETE and WATCH act on the last row the mouse or focus passed over, not the selected row |
 | 1 | open (confirmed) | medium | `race/replay.gd:373` | Replay HUD treats lap-line splits as checkpoints: wrong counts, no laps shown in lap races |
-| 2 | open (confirmed) | medium | `race/replay.gd:114` | Viewer never shows its error in normal play (blank screen) because TestHooks.is_testing() is true after menu navigation |
+| 2 | fixed: TestHooks.is_testing from the command line only | medium | `race/replay.gd:114` | Viewer never shows its error in normal play (blank screen) because TestHooks.is_testing() is true after menu navigation |
 | 3 | open (confirmed) | medium | `race/replay.gd:447` | Replay keyboard shortcuts break once a bar control has focus (focus follows the mouse) |
 | 4 | open (confirmed) | medium | `race/replay.gd:325` | Puppet keeps its finish speed, throttle and spinning wheels while time stands still (2.5 s tail, pause) |
 | 5 | open (confirmed) | medium | `race/race.gd:299` | Watching the run from the finish menu discards it: SAVE REPLAY is impossible afterwards |
@@ -20,7 +20,7 @@ usage limit). Each is checked by reading the code before it is fixed. Status: op
 | 10 | open (confirmed) | high | `race/tm_user_tracks.gd:147` | Ground-only multi-cell blocks get wrong cells when turned (footprint falls back to 1x1) |
 | 11 | open (confirmed) | medium | `editor/tm_editor_model.gd:46` | Ground-only blocks can be placed above the ground: invisible, and a ground-only checkpoint makes the track unfinishable |
 | 12 | open (confirmed) | medium | `race/tm_user_tracks.gd:70` | Track names starting with a non-identifier character are saved as '_...sftrack', which the Editors list hides |
-| 13 | open (confirmed) | medium | `race/race.gd:53` | PLAY on an empty or unfinished editor track quits the game, or drops the car under the map |
+| 13 | fixed: no-start tracks refused (race message, Editors note) | medium | `race/race.gd:53` | PLAY on an empty or unfinished editor track quits the game, or drops the car under the map |
 | 14 | open | medium | `editor/tm_editor_model.gd:132` | A track whose start is a start/finish line and that has no checkpoint validates in under 2 s |
 | 15 | open | low | `race/tm_user_tracks.gd:156` | cells() uses the air variant's units even at ground level, where the ground variant has different units |
 | 16 | open | low | `editor/tm_editor.gd:423` | Save result ('Saved to ...' / "Couldn't save") is never shown, so a failed save before TEST does nothing visibly |
@@ -28,26 +28,26 @@ usage limit). Each is checked by reading the code before it is fixed. Status: op
 | 18 | open | low | `editor/tm_editor.gd:493` | Editor key handler accepts key-repeat echoes: holding Esc arms and confirms 'leave without saving' in one press |
 | 19 | open | low | `race/race.gd:208` | HUD medal table is not refreshed when a test drive validates the track without setting a new record |
 | 20 | open | low | `race/tm_user_tracks.gd:17` | StadiumSculptBridgeSuspendSlope2 (and Mirror) are offered in the palette but can never be placed |
-| 21 | open | high | `race/race.gd:58` | In normal play, a track that fails to load closes the game; even without that, the error screen has no way out |
-| 22 | open | high | `ui/tm_menu.gd:693` | Editors/Replays (and server list, campaign) selection follows the mouse: DELETE/PLAY/EDIT/WATCH/JOIN act on the last row hovered |
-| 23 | open | medium | `net/tm_master.gd:37` | Master server becomes unreachable for the whole session after the first scene change, and its HTTP calls lose their timeout |
-| 24 | open | low | `race/replay.gd:114` | Replay viewer never shows its error message in real play (black screen) |
-| 25 | open | low | `race/race.gd:301` | Races of a track file return to the wrong menu page (Gbx -> main, any .sftrack -> Editors) |
+| 21 | fixed: is_testing; load errors show a message, Esc back | high | `race/race.gd:58` | In normal play, a track that fails to load closes the game; even without that, the error screen has no way out |
+| 22 | fixed: selection on press only, DELETE names its target | high | `ui/tm_menu.gd:693` | Editors/Replays (and server list, campaign) selection follows the mouse: DELETE/PLAY/EDIT/WATCH/JOIN act on the last row hovered |
+| 23 | fixed: is_testing from the command line only | medium | `net/tm_master.gd:37` | Master server becomes unreachable for the whole session after the first scene change, and its HTTP calls lose their timeout |
+| 24 | fixed: TestHooks.is_testing from the command line only | low | `race/replay.gd:114` | Replay viewer never shows its error message in real play (black screen) |
+| 25 | fixed: the menu stores the page raced from (return_page) | low | `race/race.gd:301` | Races of a track file return to the wrong menu page (Gbx -> main, any .sftrack -> Editors) |
 | 26 | open | low | `tools/texgen/ui.py:29` | UI icon mipmaps are generated but never sampled, so medals and the logo alias when scaled down |
 | 27 | open | low | `server/lib/game.js:178` | Guest names made only of $-codes are accepted and show as blank names |
-| 28 | open | high | `ui/tm_menu.gd:692` | Replays/Editors lists: focus or hover changes the selection, so DELETE/EDIT/PLAY/WATCH act on a different row than the highlighted one (wrong file deleted) |
-| 29 | open | high | `net/tm_master.gd:37` | Master never finds the server and requests lose their timeout once the menu has written any TestHooks arg (normal play) |
-| 30 | open | medium | `race/race.gd:53` | A track or replay that fails to load quits the whole game (or shows nothing) when opened from the menu, because is_testing() is always true by then |
+| 28 | fixed: selection on press only, DELETE names its target | high | `ui/tm_menu.gd:692` | Replays/Editors lists: focus or hover changes the selection, so DELETE/EDIT/PLAY/WATCH act on a different row than the highlighted one (wrong file deleted) |
+| 29 | fixed: is_testing from the command line only | high | `net/tm_master.gd:37` | Master never finds the server and requests lose their timeout once the menu has written any TestHooks arg (normal play) |
+| 30 | fixed: is_testing; load errors show a message, Esc back | medium | `race/race.gd:53` | A track or replay that fails to load quits the whole game (or shows nothing) when opened from the menu, because is_testing() is always true by then |
 | 31 | open | medium | `ui/tm_menu.gd:809` | 'CLEAR ALL RECORDS' stays armed across page visits: a single press later wipes every record |
-| 32 | open | medium | `ui/tm_menu.gd:1088` | JOIN always joins the first listed server, never the one the player chose |
-| 33 | open | low | `ui/tm_menu.gd:540` | Replays and editors scroll lists don't follow keyboard/pad focus |
-| 34 | open | low | `ui/tm_menu.gd:988` | Ladder points shown as floats ('1000.0 LADDER POINTS', '1000.0' in rankings) |
+| 32 | fixed: rows select on press, JOIN/SPECTATE the picked one | medium | `ui/tm_menu.gd:1088` | JOIN always joins the first listed server, never the one the player chose |
+| 33 | fixed: follow_focus on the lists | low | `ui/tm_menu.gd:540` | Replays and editors scroll lists don't follow keyboard/pad focus |
+| 34 | fixed earlier (integers) | low | `ui/tm_menu.gd:988` | Ladder points shown as floats ('1000.0 LADDER POINTS', '1000.0' in rankings) |
 | 35 | open | low | `ui/tm_race_menu.gd:82` | Race menu panel keeps the size of the previous content (old children still counted) when refilled |
-| 36 | open | low | `tests/test_menu.gd:16` | Tests write to (and depend on) the player's real user://settings.cfg |
+| 36 | fixed earlier (--settings test file) | low | `tests/test_menu.gd:16` | Tests write to (and depend on) the player's real user://settings.cfg |
 | 37 | open | low | `ui/tm_menu.gd:874` | Profile page: choosing a zone or a car colour rebuilds the page and throws focus back to the nickname field |
 | 38 | open | low | `ui/tm_menu.gd:679` | Editors page 'CHANGED' column shows UTC instead of local time |
 | 39 | open | low | `ui/tm_menu.gd:997` | Online page: LOG OUT drags the player back to Online after the await; a rejected token leaves the logged-in panel showing |
-| 40 | open | low | `ui/tm_menu.gd:1084` | Server list has no scroll: many servers push JOIN BY ADDRESS/CONNECT off the screen |
+| 40 | fixed: the server list scrolls | low | `ui/tm_menu.gd:1084` | Server list has no scroll: many servers push JOIN BY ADDRESS/CONNECT off the screen |
 | 41 | open | low | `audio/tm_music.gd:132` | 'NOW PLAYING' toast appears even when music is switched off |
 
 ## Details

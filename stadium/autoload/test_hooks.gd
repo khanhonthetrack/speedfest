@@ -16,6 +16,9 @@ var quit_frame: int = -1
 var shots: Array = []   # [[frame, path], ...]
 var failures: int = 0
 var oks: int = 0
+## A test scene (res://tests/...) or an automated run (--frames, --shot, --shots), decided from the
+## command line at start: the menus also keep state in args, so args alone don't mean a test.
+var testing := false
 
 
 func _ready() -> void:
@@ -30,6 +33,10 @@ func _ready() -> void:
 			args[s] = "true"
 		else:
 			args[s.substr(0, eq)] = s.substr(eq + 1)
+	for a in OS.get_cmdline_args():
+		if String(a).begins_with("res://tests/"):
+			testing = true
+	testing = testing or args.has("frames") or args.has("shot") or args.has("shots")
 	if args.has("frames"):
 		quit_frame = int(args["frames"])
 	if args.has("shot"):
@@ -60,7 +67,7 @@ func arg(key: String, default: Variant = "") -> Variant:
 
 
 func is_testing() -> bool:
-	return not args.is_empty()
+	return testing
 
 
 func _process(_delta: float) -> void:
