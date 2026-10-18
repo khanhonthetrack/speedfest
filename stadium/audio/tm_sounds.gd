@@ -1,19 +1,20 @@
 class_name TmSounds
 extends RefCounted
-## The remake's sounds: open-licensed recordings in audio/sfx (an engine loop under load and one
-## coasting, tyre squeal, wind, Kenney's interface and impact sounds; audio/sfx/CREDITS.md), and,
-## for any file missing, our synthesized stand-ins below (engine harmonics, filtered noise, tone
-## cues). Each stream is loaded or made once and cached.
+## The remake's sounds: our own synthesized engine (six loops, one per layer, and the gear
+## change's clunk: stadium/tools/sfxgen/engine.py), open-licensed recordings in audio/sfx (tyre
+## squeal, wind, Kenney's interface and impact sounds; audio/sfx/CREDITS.md), and, for any of those
+## missing, our synthesized stand-ins below (filtered noise, tone cues). Each stream is loaded or
+## made once and cached. Also TMNF's engine model: its six gears and rev range (rpm()).
 
 const RATE := 22050
-const ENGINE_F0 := 110.25            ## Hz; 200 samples a period, so the loop wraps seamlessly
-const ENGINE_RPM := 7500.0           ## the rpm the recorded load loop was taken at (about 7500: its 999 Hz peak)
-const COAST_RPM := 3600.0            ## the coast loop's
-const FILES := {"engine_load": "engine_load.wav", "engine_coast": "engine_coast.wav", "skid": "skid.wav",
+const FILES := {"engine_idle": "engine_idle.wav", "engine_low": "engine_low.wav", "engine_mid": "engine_mid.wav",
+	"engine_high": "engine_high.wav", "engine_coast_low": "engine_coast_low.wav", "engine_coast_high": "engine_coast_high.wav",
+	"shift": "shift.wav", "skid": "skid.wav",
 	"wind": "wind.ogg", "beep": "beep.ogg", "go": "beep.ogg", "checkpoint": "checkpoint.ogg", "finish": "finish.ogg",
-	"record": "record.ogg", "respawn": "respawn.ogg", "hit": "hit.ogg", "turbo": "turbo.ogg", "click": "ui_click.ogg",
+	"record": "record.ogg", "respawn": "respawn.ogg", "hit": "hit.ogg", "turbo": "turbo.wav", "click": "ui_click.ogg",
 	"move": "ui_move.ogg"}
-const LOOPS := ["engine_load", "engine_coast", "skid", "wind"]
+const ENGINE_LAYERS := ["engine_idle", "engine_low", "engine_mid", "engine_high", "engine_coast_low", "engine_coast_high"]
+const LOOPS := ["engine_idle", "engine_low", "engine_mid", "engine_high", "engine_coast_low", "engine_coast_high", "skid", "wind"]
 
 static var _cache := {}
 
@@ -74,8 +75,8 @@ static func _recorded(name: String) -> AudioStream:
 	return s
 
 
-const NAMES := ["engine_load", "engine_coast", "skid", "wind", "beep", "go", "checkpoint", "finish", "record",
-	"respawn", "hit", "turbo", "click", "move"]
+const NAMES := ["engine_idle", "engine_low", "engine_mid", "engine_high", "engine_coast_low", "engine_coast_high",
+	"shift", "skid", "wind", "beep", "go", "checkpoint", "finish", "record", "respawn", "hit", "turbo", "click", "move"]
 
 
 static func get_stream(name: String) -> AudioStream:
@@ -85,8 +86,6 @@ static func get_stream(name: String) -> AudioStream:
 			_cache[name] = s
 			return s
 		match name:
-			"engine_load": s = _make_engine_load()
-			"engine_coast": s = _make_engine_coast()
 			"skid": s = _make_skid()
 			"wind": s = _make_wind()
 			"beep": s = _make_beep()
@@ -102,35 +101,6 @@ static func get_stream(name: String) -> AudioStream:
 			_: push_error("TmSounds: no sound %s" % name)
 		_cache[name] = s
 	return _cache[name]
-
-
-## The engine under load: harmonics of ENGINE_F0 falling off, the odd ones stronger (a buzzy
-## four-cylinder-like note), a firing pulse and a little noise.
-static func _make_engine_load() -> AudioStreamWAV:
-	return _engine([1.0, 0.55, 0.75, 0.3, 0.45, 0.18, 0.25, 0.1, 0.12], 0.10, 0.9)
-
-
-## Off the throttle: the low harmonics only, softer.
-static func _make_engine_coast() -> AudioStreamWAV:
-	return _engine([1.0, 0.35, 0.3, 0.08, 0.06], 0.04, 0.6)
-
-
-static func _engine(harmonics: Array, noise: float, gain: float) -> AudioStreamWAV:
-	var n := 200 * 110   # one second, a whole number of periods
-	var nz := _lowpass(_noise(n, 7), 0.25)
-	var out := PackedFloat32Array()
-	out.resize(n)
-	var total := 0.0
-	for h: float in harmonics:
-		total += h
-	for i in n:
-		var t := float(i) / RATE
-		var v := 0.0
-		for k in harmonics.size():
-			v += float(harmonics[k]) * sin(TAU * ENGINE_F0 * (k + 1) * t + k * 0.7)
-		var pulse := 0.6 + 0.4 * pow(absf(sin(PI * ENGINE_F0 * 2.0 * t)), 8.0)
-		out[i] = (v / total * pulse + nz[i] * noise) * gain
-	return _wav(out, true)
 
 
 static func _make_skid() -> AudioStreamWAV:
@@ -230,20 +200,29 @@ static func _make_move() -> AudioStreamWAV:
 	return _tones([[1200.0, 0.0, 0.03, 0.18]], 0.04)
 
 
-## The engine's rpm at a speed: virtual gears (km/h bands) each sweeping the rev range, so the
-## note climbs and drops at every shift like TMNF's.
-const GEARS := [0.0, 55.0, 105.0, 160.0, 220.0, 290.0, 1e9]
-const RPM_IDLE := 2400.0
-const RPM_SHIFT_DOWN := 5200.0
-const RPM_MAX := 9800.0
+## TMNF's engine model (its car tuning, read locally: the rev limit and the gear buffers): six
+## gears, each reaching the rev limit at its top speed (km/h); a gear is engaged at SHIFT_UP of
+## the gear below's top speed and dropped under SHIFT_DOWN of it. The sound follows it (the drive
+## doesn't: TMNF's acceleration is a function of speed).
+const GEAR_TOP := [85.0, 110.0, 160.0, 220.0, 370.0, 400.0]
+const SHIFT_UP := [0.0, 0.95, 0.9, 0.95, 0.95, 1.0]
+const SHIFT_DOWN := [0.0, 0.0, 0.5, 0.57, 0.55, 0.6]
+const RPM_IDLE := 1200.0
+const RPM_MAX := 11000.0
+const REVERSE_TOP := 85.0
 
 
-static func rpm(kmh: float) -> float:
+## The gear at a speed while accelerating (1..6; the shift-up points).
+static func gear_for(kmh: float) -> int:
 	var v := absf(kmh)
-	for g in GEARS.size() - 1:
-		if v < float(GEARS[g + 1]):
-			var lo := float(GEARS[g])
-			var hi := float(GEARS[g + 1])
-			var t := (v - lo) / (hi - lo) if hi < 1e8 else minf((v - lo) / 120.0, 1.0)
-			return lerpf(RPM_IDLE if g == 0 else RPM_SHIFT_DOWN, RPM_MAX, t)
-	return RPM_MAX
+	var g := 1
+	while g < GEAR_TOP.size() and v > float(SHIFT_UP[g]) * float(GEAR_TOP[g - 1]):
+		g += 1
+	return g
+
+
+## The engine's rpm at a speed in a gear (the gear for the speed if none is given).
+static func rpm(kmh: float, gear := 0) -> float:
+	var v := absf(kmh)
+	var g := gear if gear > 0 else gear_for(v)
+	return clampf(v / float(GEAR_TOP[g - 1]) * RPM_MAX, RPM_IDLE, RPM_MAX)
