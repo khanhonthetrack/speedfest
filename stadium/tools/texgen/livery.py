@@ -53,6 +53,22 @@ def side_emblem(name='livery_emblem', w=1024, h=256):
     save(name, _rgba(np.clip(mark + word, 0, 1), (248, 248, 246)))
 
 
+def side_sponsor(name='livery_sponsor', w=1024, h=256):
+    """The title sponsor on the sidepods, in white to read on any paint: ORLAN (brands.py) with
+    its three-feather wing."""
+    from PIL import Image, ImageDraw
+    import brands
+    img = Image.new('L', (w, h), 0)
+    d = ImageDraw.Draw(img)
+    for k in range(3):
+        x = 40 + k * 46
+        d.polygon([(x, 200), (x + 38, 200), (x + 112, 40 + k * 24), (x + 74, 40 + k * 24)], fill=255)
+    d.text((300, h // 2 - 6), 'ORLAN', font=brands.fit(d, 'ORLAN', brands.ARCHIVO, w - 330, 190), fill=255, anchor='lm')
+    mask = np.asarray(img, np.float32) / 255.0
+    save(name, _rgba(mask, (250, 250, 248)))
+
+
 if __name__ == '__main__':
     number()
     side_emblem()
+    side_sponsor()

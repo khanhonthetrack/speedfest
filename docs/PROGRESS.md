@@ -1791,3 +1791,14 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   plane waving in the wind (vertex wave growing to the free end, a slight sag, the sun showing
   through; mirrored from behind like a real flag), one shared material with the atlas cell and
   wave phase per flag (instance uniforms). The plain-colour flag materials are gone.
+- **Adverts: famous Polish brands under parody names** (owner: "instead of stupid looking logos,
+  put the logos of famous polish brands ... e.g. ZABKA with RZABKA"; `stadium/tools/texgen/brands.py`,
+  `adverts.py`): sixteen panels of our own design (our lettering in six OFL fonts with Polish
+  letters, `stadium/tools/texgen/fonts/` with their licences, generator inputs only; simple marks
+  and each brand's colour feel; no real logo, mascot or slogan copied): RZABKA (Żabka), ORLAN
+  (Orlen), allegrro (Allegro), INPOSZT (InPost), LOTT (LOT), BIEDRONEX (Biedronka), TYMBARG
+  (Tymbark), E. Wedler (E. Wedel), PRINCE POLLO (Prince Polo), CD PROJEKTOR (CD Projekt), 5F (4F),
+  ŁACIATKA (Łaciate), GRZEŚKO (Grześki), PKU BANK (PKO BP), SOLARYS (Solaris), ŚNIEŻNA (Śnieżka),
+  with Polish taglines. The strip is 16 panels now (`env/tm_adverts.gd` COUNT, `tm_surface`
+  AD_PANELS: a 128 m cycle on the boards). The car's title sponsor on the sidepods is ORLAN
+  (`livery_sponsor`), our emblem moved to the engine cover's flanks.

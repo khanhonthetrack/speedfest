@@ -259,9 +259,12 @@ const STICKERS := [
 	# the race number on the nose, read from in front (the chase camera can't see the nose past
 	# the airbox; other players and replays do)
 	["livery_number", Vector3(0.0, 0.66, 1.12), Vector3(0.30, 0.34, 0.38), Vector3(1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, 1)],
-	# the sidepods, each read from its own side
-	["livery_emblem", Vector3(0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
-	["livery_emblem", Vector3(-0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+	# the title sponsor on the sidepods (ORLAN, brands.py), each read from its own side
+	["livery_sponsor", Vector3(0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
+	["livery_sponsor", Vector3(-0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+	# our emblem on the engine cover's flanks, behind the driver
+	["livery_emblem", Vector3(0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
+	["livery_emblem", Vector3(-0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
 ]
 
 
