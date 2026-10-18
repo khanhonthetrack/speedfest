@@ -9,6 +9,11 @@
 - Open for the owner: keep CC0-only? Imported props next to procedural geometry in the mix? Where
   the mix lives (branch off `stadium`, off `main`, or a new project)? For the trial (report §5):
   allow `blendswap.com` in the network settings, key as env secret `BLENDSWAP_KEY`.
+- Owner then asked to connect BlendSwap's MCP server ("blendswap"). That isn't possible from inside a
+  session: it needs a custom connector at claude.ai/customize/connectors plus `blendswap.com` allowed
+  in the network settings, then a **new session**. That session should: list the tools
+  (search_assets, get_asset, download_asset, get_balance), search with licence CC0, show author /
+  licence / format / credit cost before any download, and follow report §5 for converting files.
 - This branch only adds docs; the other lanes' state below is unchanged.
 
 ## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`

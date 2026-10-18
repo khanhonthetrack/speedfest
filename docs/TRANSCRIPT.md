@@ -532,3 +532,25 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - The cloud environment blocks `blendswap.com`, so the API wasn't tried. If the owner wants the
   one-hour trial (report §5): allow the host in the environment's network settings and store
   the key as the environment secret `BLENDSWAP_KEY` (not in chat).
+
+### User (verbatim, session 16; BlendSwap's own "connect" snippet, key elided by the owner)
+
+> Connect to the BlendSwap remote MCP server and name it "blendswap".
+>
+> Transport: Streamable HTTP
+> Server URL: https://blendswap.com/api/mcp
+> Authentication: Authorization: Bearer bsk_live_...
+>
+> If you cannot set a custom authorization header, use this URL instead:
+> https://blendswap.com/api/mcp?key=bsk_live_...
+>
+> After connecting, list the available tools and confirm that search_assets, get_asset, download_asset, and get_balance are available. Use search_assets to find Blender assets. Before downloading, show me the asset author, license, file format, and any credit cost. If you can also control Blender, open or append the downloaded .blend in my current scene after the download.
+
+### Claude
+
+- Couldn't connect from the cloud session. BlendSwap isn't in the connector directory and isn't
+  connected to the account, and a session only loads connectors when it starts. The container
+  also blocks `blendswap.com`, so `download_asset` files couldn't be fetched, and it has no access
+  to the owner's Blender. Steps given: add it as a custom connector named "blendswap" at
+  claude.ai/customize/connectors (with the `?key=` URL if the form has no header field), allow
+  `blendswap.com` in the environment's network settings, then start a new session.
