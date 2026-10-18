@@ -877,3 +877,14 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   cycles all 34 tracks.
 - Note for session 9: `tmnf-physics` still lacks bd65cbc (puddles; its defs have 0 puddle markers vs
   3 on `m7-maps`). Merging `main` into `tmnf-physics` now brings it in.
+
+## 2026-10-18 — Session 16 (cloud, `claude/loving-fermi-79nbzc`): BlendSwap investigation
+
+- Owner asked whether BlendSwap is useful for `stadium` and for the planned mix (Stadium + NFSU2
+  vibe). Report: `docs/research/blendswap.md`. Verdict: not for `stadium` (recreate only); for the
+  mix, at most a few CC0 props through a fetch + Blender convert script, with Poly Haven first for
+  nature and props. BlendSwap now has a REST API and an MCP server (bearer key, metered downloads),
+  but licences are uploader-declared (CC0/BY/BY-SA/GAL, older NC) and not verified.
+- Not done: no API call or download (`blendswap.com` is blocked by this environment's network
+  policy). Facts come from search results quoting BlendSwap's pages; check the quota, GAL text and
+  API parameters on the site before building `tools/assets/fetch_blendswap.py`.

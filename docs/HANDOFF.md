@@ -1,5 +1,16 @@
 # HANDOFF: start here
 
+## Latest (18 Oct, session 16, cloud): BlendSwap investigated (docs only, branch `claude/loving-fermi-79nbzc`)
+
+- Owner asked whether BlendSwap helps `stadium` and the planned **mix** (Stadium + NFSU2 vibe:
+  buildings, neon, nature, city). Answer in `docs/research/blendswap.md`: **not for `stadium`**
+  (recreate only); **for the mix, at most a few CC0 props**, with Poly Haven first for nature and
+  props. Nothing downloaded: `blendswap.com` is blocked by the environment's network policy.
+- Open for the owner: keep CC0-only? Imported props next to procedural geometry in the mix? Where
+  the mix lives (branch off `stadium`, off `main`, or a new project)? For the trial (report §5):
+  allow `blendswap.com` in the network settings, key as env secret `BLENDSWAP_KEY`.
+- This branch only adds docs; the other lanes' state below is unchanged.
+
 ## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`
 
 - Owner asked for the RTX exe for friends. **`rtx-build`** = `m7-rtx` + `main`, plus

@@ -508,3 +508,27 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   game exported with 4.7.2, smoke-tested on Windows. Download: artifact SpeedFest-windows-rtx of run
   38965547516. The NVIDIA DLLs aren't in it (licence; a public download was blocked):
   `add_nvidia_dlss.bat` in the folder adds them.
+
+## Session 16 — 2026-10-18 (cloud; branch `claude/loving-fermi-79nbzc`, from `main`)
+
+### User (verbatim)
+
+> investigate whether using blendswap could be useful for our project: in particular
+>
+> * the stadium branch
+> * the mix which will be stadium + NFS Underground 2 vibe, so buildings, neon lights, also some nature, city etc.
+>
+>
+> I have API key if needed
+
+### Claude
+
+- Investigation only, nothing downloaded: `docs/research/blendswap.md`. **Stadium: no** (its
+  "recreate only" rule and TMNF-style procedural generators leave nothing for BlendSwap to supply).
+  **The mix: a little**: a few CC0 props (neon signs, street lamps) through a scripted
+  fetch/convert pipeline, never the base. Poly Haven (CC0) is the better source for nature and
+  props, and Kenney/Quaternius for a stylised look. Licences are declared by uploaders and not
+  checked; only CC0 fits the project's rules and the Switch target.
+- The cloud environment blocks `blendswap.com`, so the API wasn't tried. If the owner wants the
+  one-hour trial (report §5): allow the host in the environment's network settings and store
+  the key as the environment secret `BLENDSWAP_KEY` (not in chat).
