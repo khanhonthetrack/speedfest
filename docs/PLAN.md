@@ -174,8 +174,8 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       day mood with modern GI/SSR/AO), RTX/Ultra preset; side-by-side checks against local
       reference renders. First pass done (road, gates, adverts, fabric, stadium); second pass
       (PROGRESS "M9-2: the decks, walls and dirt roads"): platform and circuit decks, platform
-      walls, circuit walls, dirt roads. Open: dirt fences and signs, tube pillars, control and
-      airship families, decoration for the area tracks, light and atmosphere, RTX preset
+      walls, circuit walls, dirt roads, control booths, grandstand trusses and boards. Open:
+      decoration for the area tracks, light and atmosphere, RTX preset
 - [x] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
 - [x] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
       campaign A-E tabs with medals), in-race menus. Done (PROGRESS 18 Oct); the EDITORS entry

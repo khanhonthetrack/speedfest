@@ -1988,3 +1988,15 @@ same camera (`map_view --ref=<local dir>`, research only, nothing of it committe
 - Next in M9-2: fences and signs along the dirt roads, tube pillars, decoration for the area
   tracks, light and atmosphere, the RTX preset. Open question for the owner: TMNF's circuit
   screens are dark; ours show the adverts.
+- (same day, next step) **Control booths** (`blocks/shapes/control.gd`): TMNF's materials there
+  are a dark steel roof (its dark truss texture), white sides and smoked windows; ours had blue
+  seats on the roof and pale blue glass. Now "truss" on top, "control_panel" white sides,
+  "glass_dark" windows and light-rig tops. **Grandstand trusses** (`blocks/shapes/fabric.gd`,
+  TRUSS): the arches TMNF hangs under the roof (measured: light ones 1.45 m deep at z 0.3,
+  12.5, 19.5, 31.7; the main one at z 16, 5 m deep at the foot to 4.4 m at the top) as real
+  geometry following the underside (white chords, dark lattice, visual only); the underside's
+  ribs now every 16 m to meet them. `map_view --view=gate:...:look_y` looks up (under a roof:
+  `gate:StadiumFabricStraight1x1:0:20:3:14:30 --gz=30` on A03). Both new shaders render on the
+  web renderer (Compatibility) too. **Boards** (`BOARDS`, measured): two advert screens hung on
+  cables from the main truss facing the field (turned 3 deg steeper than TMNF's so the screen
+  shader shows adverts on them) and one on the back of the roof's foot.

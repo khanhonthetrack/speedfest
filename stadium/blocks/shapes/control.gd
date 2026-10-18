@@ -19,29 +19,29 @@ const S_PIPE := 16
 ## Left halves of the cross-sections (x, y), from the bottom centre round the left wall to the
 ## roof centre; each point's material is the segment's from it.
 const CAMERA_HALF := [
-	[16.0, 0.0, "structure", S_CONCRETE], [3.11, 0.0, "wall", S_METAL], [3.11, 7.21, "wall", S_METAL],
-	[3.15, 7.40, "wall", S_METAL], [3.33, 7.73, "wall", S_METAL], [3.71, 7.96, "wall", S_METAL],
-	[4.0, 8.0, "stands", S_CONCRETE],
+	[16.0, 0.0, "structure", S_CONCRETE], [3.11, 0.0, "control_panel", S_METAL], [3.11, 7.21, "control_panel", S_METAL],
+	[3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL], [3.71, 7.96, "control_panel", S_METAL],
+	[4.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_HALF := [
-	[16.0, 0.0, "structure", S_CONCRETE], [4.0, 0.0, "wall", S_METAL], [4.0, 1.0, "glass", S_ICE],
-	[3.36, 2.54, "glass", S_ICE], [1.42, 7.17, "wall", S_METAL], [2.07, 7.38, "wall", S_METAL],
-	[4.0, 8.0, "stands", S_CONCRETE],
+	[16.0, 0.0, "structure", S_CONCRETE], [4.0, 0.0, "control_panel", S_METAL], [4.0, 1.0, "glass_dark", S_ICE],
+	[3.36, 2.54, "glass_dark", S_ICE], [1.42, 7.17, "control_panel", S_METAL], [2.07, 7.38, "control_panel", S_METAL],
+	[4.0, 8.0, "truss", S_CONCRETE],
 ]
 ## Ground variants: a plinth over the whole cell (1 -> 2 m), the walls rising from it (the glass
 ## leaning inward), a low rail at the plinth's edge.
 const CAMERA_GROUND_HALF := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "structure", S_CONCRETE], [0.0, 1.5, "structure", S_CONCRETE],
-	[0.49, 1.76, "structure", S_CONCRETE], [0.94, 2.0, "structure", S_ROAD], [3.11, 2.0, "wall", S_METAL],
-	[3.11, 7.21, "wall", S_METAL], [3.15, 7.40, "wall", S_METAL], [3.33, 7.73, "wall", S_METAL],
-	[3.71, 7.96, "wall", S_METAL], [4.0, 8.0, "stands", S_CONCRETE],
+	[0.49, 1.76, "structure", S_CONCRETE], [0.94, 2.0, "structure", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
+	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_GROUND_HALF := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "structure", S_CONCRETE], [0.0, 1.5, "structure", S_CONCRETE],
-	[0.49, 1.76, "structure", S_CONCRETE], [0.94, 2.0, "structure", S_ROAD], [3.11, 2.0, "wall", S_METAL],
-	[3.11, 3.36, "wall", S_METAL], [3.22, 3.58, "wall", S_METAL], [3.71, 3.7, "glass", S_ICE],
-	[3.11, 7.21, "wall", S_METAL], [3.15, 7.40, "wall", S_METAL], [3.33, 7.73, "wall", S_METAL],
-	[3.71, 7.96, "wall", S_METAL], [4.0, 8.0, "stands", S_CONCRETE],
+	[0.49, 1.76, "structure", S_CONCRETE], [0.94, 2.0, "structure", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[3.11, 3.36, "control_panel", S_METAL], [3.22, 3.58, "control_panel", S_METAL], [3.71, 3.7, "glass_dark", S_ICE],
+	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
+	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "truss", S_CONCRETE],
 ]
 ## The ledge along the walls (x0, x1, y0, y1); on the ground, the plinth's rail.
 const CAMERA_LEDGE := [2.0, 3.11, 0.99, 1.99]
@@ -67,22 +67,22 @@ const LIGHT := [[28.243, 7.0, "structure", S_METAL], [24.0, 7.0, "structure", S_
 	[28.0, 1.0, "structure", S_METAL], [28.0, 0.0, "structure", S_METAL], [24.0, 0.0, "structure", S_METAL],
 	[8.0, 0.0, "structure", S_METAL], [4.0, 0.0, "structure", S_METAL], [4.0, 1.0, "structure", S_METAL],
 	[8.0, 1.0, "structure", S_METAL], [8.0, 7.0, "lamp", S_METAL], [3.757, 7.0, "structure", S_METAL],
-	[3.879, 7.5, "structure", S_METAL], [4.0, 8.0, "glass", S_METAL], [8.0, 8.0, "glass", S_METAL],
-	[24.0, 8.0, "glass", S_METAL], [28.0, 8.0, "structure", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
+	[3.879, 7.5, "structure", S_METAL], [4.0, 8.0, "glass_dark", S_METAL], [8.0, 8.0, "glass_dark", S_METAL],
+	[24.0, 8.0, "glass_dark", S_METAL], [28.0, 8.0, "structure", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
 const LIGHT_HALF := [[16.0, 0.0, "structure", S_METAL], [24.0, 0.0, "structure", S_METAL], [28.0, 0.0, "structure", S_METAL],
 	[28.0, 1.0, "structure", S_METAL], [24.0, 1.0, "structure", S_METAL], [24.0, 7.0, "lamp", S_METAL],
-	[28.243, 7.0, "structure", S_METAL], [28.121, 7.5, "structure", S_METAL], [28.0, 8.0, "glass", S_METAL],
-	[24.0, 8.0, "glass", S_METAL], [16.0, 8.0, "structure", S_METAL]]
+	[28.243, 7.0, "structure", S_METAL], [28.121, 7.5, "structure", S_METAL], [28.0, 8.0, "glass_dark", S_METAL],
+	[24.0, 8.0, "glass_dark", S_METAL], [16.0, 8.0, "structure", S_METAL]]
 ## The camera pub (Control/CameraPub): a block with rounded top edges along z, a screen on each
 ## side (x0, x1 of the left one, y0, y1, z0, z1); on the ground it stands on a low plinth (measured).
 const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
 	[28.851, 7.396, "structure", S_METAL], [28.669, 7.729, "structure", S_METAL], [28.285, 7.965, "structure", S_METAL],
-	[28.0, 8.0, "glass", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
+	[28.0, 8.0, "glass_dark", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
 	[3.331, 7.729, "structure", S_METAL], [3.149, 7.396, "structure", S_METAL], [3.111, 7.207, "structure", S_METAL]]
 const PUB_GROUND := [[0.0, 1.0, "structure", S_METAL], [32.0, 1.0, "structure", S_METAL], [32.0, 1.5, "structure", S_METAL],
 	[31.06, 2.0, "structure", S_METAL], [28.887, 2.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
 	[28.851, 7.396, "structure", S_METAL], [28.669, 7.729, "structure", S_METAL], [28.285, 7.965, "structure", S_METAL],
-	[28.0, 8.0, "glass", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
+	[28.0, 8.0, "glass_dark", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
 	[3.331, 7.729, "structure", S_METAL], [3.149, 7.396, "structure", S_METAL], [3.111, 7.207, "structure", S_METAL],
 	[3.113, 2.0, "structure", S_METAL], [0.942, 2.0, "structure", S_METAL], [0.0, 1.5, "structure", S_METAL]]
 const PUB_SCREEN := [2.67, 3.113, 2.47, 6.81, 11.36, 20.64]
@@ -162,7 +162,7 @@ func _section() -> Array:
 	var out := []
 	for q in _half:
 		out.append([Vector2(float(q[0]) - 16.0, maxf(float(q[1]), _floor)), String(q[2]), int(q[3])])
-	out.append([Vector2(0.0, ROOF), "stands", S_CONCRETE])
+	out.append([Vector2(0.0, ROOF), "truss", S_CONCRETE])
 	for i in range(_half.size() - 1, 0, -1):
 		var q: Array = _half[i]
 		var prev: Array = _half[i - 1]
@@ -195,7 +195,7 @@ func _ledge_section(mirror: bool) -> Array:
 
 func _along(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 	var lat := Vector3(1, 0, 0)
-	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "wall", S_METAL)
+	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "control_panel", S_METAL)
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), [a, b], [lat, lat], true, "structure", S_METAL)
 
@@ -209,7 +209,7 @@ func _corner(geo: TmGeo) -> void:
 		var d := Vector3(cos(ang), 0.0, sin(ang))
 		path.append(Vector3(0, 0, 32) + d * 16.0)
 		lat.append(d)
-	geo.wall_sweep(_section(), path, lat, true, "wall", S_METAL)
+	geo.wall_sweep(_section(), path, lat, true, "control_panel", S_METAL)
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), path, lat, true, "structure", S_METAL)
 
@@ -253,7 +253,7 @@ func _junction(geo: TmGeo, arms: Array) -> void:
 		var o: Vector3 = SIDES[i]
 		var t := Vector3(o.z, 0.0, -o.x)
 		if closed[i]:
-			geo.wall_sweep(wall, [c + o * 16.0 - t * 16.0, c + o * 16.0 + t * 16.0], [-o, -o], true, "wall", S_METAL)
+			geo.wall_sweep(wall, [c + o * 16.0 - t * 16.0, c + o * 16.0 + t * 16.0], [-o, -o], true, "control_panel", S_METAL)
 		var j := SIDES.find(t)
 		if not closed[i] and not closed[j]:
 			var corner := c + o * 16.0 + t * 16.0
@@ -263,7 +263,7 @@ func _junction(geo: TmGeo, arms: Array) -> void:
 				var ang := PI * 0.5 * s / 6.0
 				lat.append((-t * cos(ang) - o * sin(ang)).normalized())
 				path.append(corner)
-			geo.wall_sweep(wall, path, lat, true, "wall", S_METAL)
+			geo.wall_sweep(wall, path, lat, true, "control_panel", S_METAL)
 			var disc := PackedVector2Array()
 			for k in 24:
 				disc.append(Vector2(corner.x, corner.z) + Vector2.from_angle(TAU * k / 24.0) * WALL_ZONE)
@@ -272,8 +272,8 @@ func _junction(geo: TmGeo, arms: Array) -> void:
 				plan = cut[0]
 	var loop := []
 	for p in plan:
-		loop.append([p, "wall", S_METAL])
-	geo.extrude_y(loop, _floor, ROOF, true, "stands", S_CONCRETE)
+		loop.append([p, "control_panel", S_METAL])
+	geo.extrude_y(loop, _floor, ROOF, true, "truss", S_CONCRETE)
 
 
 ## RoadPub: a pipe along each arm (radius 1.422 at 4 m, like the tubes) over a central 8 m support

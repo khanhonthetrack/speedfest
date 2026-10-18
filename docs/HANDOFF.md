@@ -75,8 +75,10 @@
   now read right). Views that worked: `--view=gate:StadiumCircuitBorderStraight:2:30:3 --gz=22`
   (a circuit wall from outside; `:-25:12` from the lane), `--view=path:0.4` on A01/A06,
   `--view=gate:StadiumRoadDirt:3:24:2.5 --gz=24` on A02.
-- Next (M9, in order): the rest of M9-2 (dirt fences and signs, tube pillars, decoration placed
-  for area tracks, light and atmosphere, the RTX preset), then M9-0's remaining research notes.
+  Then the control booths (dark roofs, white sides, smoked windows) and the grandstands' truss
+  arches and advert boards. TMNF's "fences" along dirt roads are grass blades (shell layers).
+- Next (M9, in order): the rest of M9-2 (decoration placed for area tracks, light and
+  atmosphere, the RTX preset), then M9-0's remaining research notes.
   Merge this branch into `stadium` when the owner says so.
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review

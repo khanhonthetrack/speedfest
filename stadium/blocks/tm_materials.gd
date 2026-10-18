@@ -33,6 +33,8 @@ const COLORS := {
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
 	"circuit_floor": [Color8(36, 74, 124), 0.6, 0.2],
 	"truss": [Color8(40, 40, 41), 0.55, 0.3],
+	"control_panel": [Color8(222, 223, 221), 0.55, 0.0],
+	"glass_dark": [Color(0.09, 0.11, 0.13, 0.72), 0.05, 0.3],     # the control booths' smoked windows
 	"logo": [Color(0.12, 0.30, 0.72), 0.6, 0.0],
 	"screen": [Color(0.12, 0.22, 0.48), 0.3, 0.0, 0.7],     # lit displays, as in TMNF
 	"stands": [Color(0.17, 0.29, 0.58), 0.8, 0.0],                  # seats (pattern 7: sectors, rows)
@@ -103,6 +105,7 @@ const TEXTURED := {
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],
+	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"shoulder": ["road_shoulder", Vector2(8.0, 2.0), false],
@@ -118,7 +121,7 @@ const TEXTURED := {
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
-	"fabric_under": ["fabric_under", Vector2(8.0, 8.0), false],
+	"fabric_under": ["fabric_under", Vector2(16.0, 8.0), false],     # its ribs on the truss arches
 	# the Stadium around the field (env/tm_stadium_build.gd): world-mapped
 	"facade": ["stadium_facade", Vector2(16.0, 16.0), true],
 	"concrete": ["stadium_concrete", Vector2(16.0, 16.0), true],
