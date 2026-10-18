@@ -285,7 +285,7 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 	for d: Vector3 in dirs:
 		geo.pipe(c, c + d * 16.0, 1.422, 12, "pipe", S_PIPE)
 	var top := 1.81 if _floor > 0.0 else 0.0
-	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "stands", S_CONCRETE)
+	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "wall_dark", S_CONCRETE)
 	var straight := arms.size() == 2 and arms.has(0) and arms.has(2)
 	var runs := []          # [direction, t0, t1]: screens along the arms (t from the centre)
 	if straight:

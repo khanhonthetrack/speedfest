@@ -17,6 +17,11 @@ const COLORS := {
 	"platform": [Color8(166, 165, 162), 0.8, 0.0],
 	"rubber": [Color(0.78, 0.12, 0.10), 0.7, 0.0],
 	"rubber_white": [Color(0.92, 0.92, 0.92), 0.7, 0.0],
+	"curb_face": [Color(0.14, 0.14, 0.15), 0.75, 0.0],
+	"curb_outer": [Color(0.14, 0.14, 0.15), 0.75, 0.0],
+	"shoulder": [Color(0.24, 0.52, 0.27), 0.75, 0.0],
+	"curb_top": [Color(0.80, 0.80, 0.79), 0.8, 0.0],
+	"road_lip": [Color(0.80, 0.80, 0.79), 0.8, 0.0],
 	"metal": [Color(0.62, 0.64, 0.68), 0.45, 0.7],
 	"grid": [Color(0.42, 0.44, 0.48), 0.5, 0.6],
 	"wall": [Color(0.88, 0.89, 0.91), 0.75, 0.0],
@@ -39,17 +44,26 @@ const COLORS := {
 	"sculpt": [Color(0.84, 0.86, 0.90), 0.55, 0.1],
 	# gates (blocks/tm_gate_dress.gd): the painted arch, its lit inner face per kind, the banner
 	"gate": [Color(0.86, 0.87, 0.90), 0.35, 0.55],
-	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 0.3],
-	"gate_glow_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 0.3],
-	"gate_glow_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 0.3],
-	"gate_glow_lap": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 0.3],
+	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.6],
+	"gate_glow_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.6],
+	"gate_glow_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.6],
+	"gate_glow_lap": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.6],
 	"gate_lamp_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.2],
 	"gate_lamp_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.2],
 	"gate_lamp_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.2],
 	"gate_lamp_lap": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.2],
 	"banner": [Color(0.03, 0.04, 0.07), 0.4, 0.2],
+	"gate_shell": [Color(0.13, 0.135, 0.15), 0.7, 0.1],
+	"gate_start": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"gate_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"gate_finish": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"curb_start": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"curb_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"curb_finish": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
+	"facade": [Color(0.70, 0.71, 0.72), 0.7, 0.1],
 	"roof": [Color(0.93, 0.93, 0.95), 0.6, 0.0],
 	"roof_under": [Color(0.80, 0.81, 0.83), 0.7, 0.2],
 	"mast": [Color(0.92, 0.92, 0.94), 0.4, 0.4],
@@ -66,6 +80,36 @@ const COLORS := {
 	"flag_3": [Color(0.10, 0.60, 0.25), 0.8, 0.0],
 	"flag_4": [Color(0.95, 0.95, 0.95), 0.8, 0.0],
 	"flag_5": [Color(0.95, 0.45, 0.10), 0.8, 0.0],
+}
+
+## Textured keys (HD): our own generated maps in assets/tex (stadium/tools/texgen: <name>_albedo,
+## _normal, _orm): [texture name, metres one texture covers (u along the sweep, v across it),
+## world: planar world mapping (no stretching on curves, for surfaces without a direction)].
+const TEXTURED := {
+	"asphalt": ["road_concrete", Vector2(16.0, 16.0), true],
+	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
+	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],
+	"shoulder": ["road_shoulder", Vector2(8.0, 2.0), false],
+	"curb_top": ["road_curb_top", Vector2(8.0, 1.5), false],
+	"road_lip": ["road_curb_top", Vector2(8.0, 1.5), false],
+	# gates (road.gd _gate): the arch's faces, the gate block's curb faces, the light rigs
+	"gate_start": ["gate_start", Vector2(8.0, 1.25), false],
+	"gate_cp": ["gate_cp", Vector2(8.0, 1.25), false],
+	"gate_finish": ["gate_finish", Vector2(8.0, 1.25), false],
+	"curb_start": ["curb_start", Vector2(8.0, 1.25), false],
+	"curb_cp": ["curb_cp", Vector2(8.0, 1.25), false],
+	"curb_finish": ["curb_finish", Vector2(8.0, 1.25), false],
+	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
+	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
+	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
+	"fabric_under": ["fabric_under", Vector2(8.0, 8.0), false],
+	# the Stadium around the field (env/tm_stadium_build.gd): world-mapped
+	"facade": ["stadium_facade", Vector2(16.0, 16.0), true],
+	"concrete": ["stadium_concrete", Vector2(16.0, 16.0), true],
+	"roof": ["fabric_top", Vector2(16.0, 16.0), true],
+	# inflatable cushion walls (8 m pillows on the 8 m grid), the tube network's pillars and pipes
+	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
+	"pipe": ["pillar_steel", Vector2(8.0, 8.0), true],
 }
 
 ## The surface shader per key: [pattern, second colour, pattern size (m), variation, bump].
@@ -153,7 +197,9 @@ static func get_material(key: String) -> Material:
 		return _cache[key]
 	var spec: Array = COLORS.get(key, [Color(1, 0, 1), 0.5, 0.0])
 	var m: Material
-	if hd() and SURFACES.has(key):
+	if hd() and TEXTURED.has(key):
+		m = _textured(TEXTURED[key])
+	elif hd() and SURFACES.has(key):
 		m = _surface(key, spec)
 	elif hd() and key == "water":
 		m = _water(spec)
@@ -176,6 +222,40 @@ static func _flat(spec: Array) -> StandardMaterial3D:
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return m
+
+
+## A textured material (HD): albedo, normal and ORM maps from assets/tex.
+static func _textured(spec: Array) -> ORMMaterial3D:
+	var name: String = spec[0]
+	var metres: Vector2 = spec[1]
+	var m := ORMMaterial3D.new()
+	m.albedo_texture = _tex(name, "albedo")
+	m.normal_enabled = true
+	m.normal_texture = _tex(name, "normal")
+	m.orm_texture = _tex(name, "orm")
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var em := _tex(name, "emission")
+	if em != null:
+		m.emission_enabled = true
+		m.emission_texture = em
+		m.emission = Color(1.0, 0.97, 0.9)
+		m.emission_energy_multiplier = 6.0
+	if bool(spec[2]):
+		m.uv1_triplanar = true
+		m.uv1_world_triplanar = true
+		m.uv1_triplanar_sharpness = 8.0
+		m.uv1_scale = Vector3(1.0 / metres.x, 1.0 / metres.x, 1.0 / metres.x)
+	else:
+		m.uv1_scale = Vector3(1.0 / metres.x, 1.0 / metres.y, 1.0)
+	return m
+
+
+static func _tex(name: String, map: String) -> Texture2D:
+	for ext in [".jpg", ".png"]:
+		var path := "res://assets/tex/%s_%s%s" % [name, map, ext]
+		if ResourceLoader.exists(path):
+			return load(path)
+	return null
 
 
 ## Water (HD): glossy, deep teal, ripples from a noise normal map projected in world space.

@@ -7,6 +7,7 @@ extends RefCounted
 ## carry a TMNF surface id each (TmTuning.Surface), stored as the body's "surfaces" meta (per face).
 
 const NO_COLLISION := -1
+const UV_TILE := 8.0               ## sweeps hold a whole number of these along their length (m)
 
 class Group:
 	var v := PackedVector3Array()
@@ -89,20 +90,92 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 ## profile's direction of travel when looking along +frame z... i.e. author profiles so that
 ## (p[k+1] - p[k]) turned by -90 deg (lateral, up) -> (up, -lateral) is the outward normal.
 ## profiles: optional per-frame profiles (same point count and materials) instead of one profile.
-func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = []) -> void:
-	for f in frames.size() - 1:
-		var f0: Transform3D = frames[f]
-		var f1: Transform3D = frames[f + 1]
-		var pr0: Array = profile if profiles.is_empty() else profiles[f]
-		var pr1: Array = profile if profiles.is_empty() else profiles[f + 1]
-		for k in profile.size() - 1:
+## UVs (for textured materials): u = metres travelled along the path by that point of the section
+## (stretched so the sweep holds a whole number of UV_TILE tiles: no seam where blocks meet);
+## v = metres along the section, measured from its nearer end (a closed road section: from the
+## bottom centre, the same on both sides) and restarting at 0 on each run of one material, so a
+## material's texture starts at the run's end nearer the section's ends (a curb face's top).
+## halves: the section is a left half (lateral x < 0) and its mirror; u runs backwards on the
+## right half's segments so text reads the same way from the road on both sides. u_dir: -1 when
+## the path was reversed (keeps u running with the path as authored).
+func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [], halves := false, u_dir := 1.0) -> void:
+	var nf := frames.size()
+	var np := profile.size()
+	var pts := []                    # [frame][point] -> Vector3
+	for f in nf:
+		var fr: Transform3D = frames[f]
+		var pr: Array = profile if profiles.is_empty() else profiles[f]
+		var row := []
+		for k in np:
+			var q: Vector2 = pr[k][0]
+			row.append(fr.origin + fr.basis.x * q.x + fr.basis.y * q.y)
+		pts.append(row)
+	var us := []                     # [frame][point] -> u
+	for f in nf:
+		us.append([])
+	for k in np:
+		var acc := 0.0
+		(us[0] as Array).append(0.0)
+		for f in range(1, nf):
+			acc += ((pts[f][k] as Vector3) - (pts[f - 1][k] as Vector3)).length()
+			(us[f] as Array).append(acc)
+		if acc > 1e-4:
+			var fit := maxf(1.0, roundf(acc / UV_TILE)) * UV_TILE / acc
+			for f in nf:
+				us[f][k] = float(us[f][k]) * fit
+	var arc := [0.0]
+	var pr0: Array = profile if profiles.is_empty() else profiles[0]
+	for k in range(1, np):
+		arc.append(float(arc[k - 1]) + ((pr0[k][0] as Vector2) - (pr0[k - 1][0] as Vector2)).length())
+	var total: float = arc[np - 1]
+	# measured both ways round from the section's bottom centre (halves: the lowest point on the
+	# centre line, wherever the loop starts), else from the nearer end
+	var origin := 0.0
+	if halves:
+		var lo_y := INF
+		for k in np - 1:
+			var q: Vector2 = pr0[k][0]
+			if absf(q.x) < 1e-3 and q.y < lo_y:
+				lo_y = q.y
+				origin = float(arc[k])
+	var dsym := []
+	for k in np:
+		var fwd := fposmod(float(arc[k]) - origin, total) if total > 0.0 else 0.0
+		dsym.append(minf(fwd, total - fwd))
+	# each segment's v at its two ends, relative to its material run's lowest dsym
+	var v0s := []
+	var v1s := []
+	var k0 := 0
+	while k0 < np - 1:
+		var k1 := k0
+		while k1 + 1 < np - 1 and String(profile[k1 + 1][1]) == String(profile[k0][1]):
+			k1 += 1
+		var lo := INF
+		for k in range(k0, k1 + 2):
+			lo = minf(lo, float(dsym[k]))
+		for k in range(k0, k1 + 1):
+			v0s.append(float(dsym[k]) - lo)
+			v1s.append(float(dsym[k + 1]) - lo)
+		k0 = k1 + 1
+	for f in nf - 1:
+		for k in np - 1:
 			var mat: String = profile[k][1]
 			var surf: int = profile[k][2]
-			var a := f0.origin + f0.basis.x * (pr0[k][0] as Vector2).x + f0.basis.y * (pr0[k][0] as Vector2).y
-			var b := f0.origin + f0.basis.x * (pr0[k + 1][0] as Vector2).x + f0.basis.y * (pr0[k + 1][0] as Vector2).y
-			var c := f1.origin + f1.basis.x * (pr1[k + 1][0] as Vector2).x + f1.basis.y * (pr1[k + 1][0] as Vector2).y
-			var d := f1.origin + f1.basis.x * (pr1[k][0] as Vector2).x + f1.basis.y * (pr1[k][0] as Vector2).y
-			quad(a, b, c, d, mat, surf)
+			var a: Vector3 = pts[f][k]
+			var b: Vector3 = pts[f][k + 1]
+			var c: Vector3 = pts[f + 1][k + 1]
+			var d: Vector3 = pts[f + 1][k]
+			var side := u_dir
+			if halves and ((pr0[k][0] as Vector2).x + (pr0[k + 1][0] as Vector2).x) > 0.0:
+				side = -side
+			var ua := Vector2(side * float(us[f][k]), float(v0s[k]))
+			var ub := Vector2(side * float(us[f][k + 1]), float(v1s[k]))
+			var uc := Vector2(side * float(us[f + 1][k + 1]), float(v1s[k]))
+			var ud := Vector2(side * float(us[f + 1][k]), float(v0s[k]))
+			if ua == Vector2.ZERO and ub == Vector2.ZERO:
+				ua.x = 1e-6       # (all-zero UVs mean "make them up" to tri())
+			tri(a, b, c, mat, surf, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, ub, uc)
+			tri(a, c, d, mat, surf, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
 
 
 ## Sweeps a closed vertical section along a path. section: Array of [Vector2(d, y), mat, surface]
@@ -113,7 +186,7 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [])
 ## p_at: optional func(p: Vector2, i: int) -> Vector2, the section's points (d, y) at path point i
 ## (applied after y_at; e.g. curbs moved sideways).
 func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_mat := "wall_dark", cap_surface := 4,
-		y_at := Callable(), p_at := Callable()) -> void:
+		y_at := Callable(), p_at := Callable(), halves := true) -> void:
 	var loop := section.duplicate()
 	if TmGeo.loop_area(loop) < 0.0:
 		loop = TmGeo.reversed_loop(loop)
@@ -144,7 +217,7 @@ func wall_sweep(section: Array, path: Array, outward: Array, caps := true, cap_m
 		loops.append(closed_i)
 	var closed := loop.duplicate()
 	closed.append(loop[0])
-	sweep(closed, frames, false, loops if y_at.is_valid() or p_at.is_valid() else [])
+	sweep(closed, frames, false, loops if y_at.is_valid() or p_at.is_valid() else [], halves, -1.0 if reversed else 1.0)
 	if caps:
 		_section_cap((loops[0] as Array).slice(0, loop.size()), frames[0], -1.0, cap_mat, cap_surface)
 		_section_cap((loops[loops.size() - 1] as Array).slice(0, loop.size()), frames[frames.size() - 1], 1.0, cap_mat, cap_surface)
@@ -409,7 +482,8 @@ func add_mirror_x(a: float) -> void:
 				var n := grp.n[k + i]
 				grp.v.append(Vector3(-2.0 * a - v.x, v.y, v.z))
 				grp.n.append(Vector3(-n.x, n.y, n.z))
-				grp.uv.append(grp.uv[k + i])
+				var uv := grp.uv[k + i]
+				grp.uv.append(Vector2(-uv.x, uv.y))   # a mirrored texture reads backwards
 	var faces := _surf.size()
 	for f in faces:
 		for i in [0, 2, 1]:

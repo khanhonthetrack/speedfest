@@ -5,11 +5,27 @@ extends Node
 ## ranks, and follows the server to the next round's track.
 
 const PORT := 18091
+
+
+## Addresses: a bare host is its first server (/ws), the server list's /ws/<id> stays.
+class TmOnlineUrls:
+	const CASES := [["x:8090", "ws://x:8090/ws", "http://x:8090/status"], ["https://a.b", "wss://a.b/ws", "https://a.b/status"],
+		["https://a.b/ws/rounds", "wss://a.b/ws/rounds", "https://a.b/ws/rounds/status"], ["http://1.2.3.4:8090/ws/", "ws://1.2.3.4:8090/ws", "http://1.2.3.4:8090/status"]]
+
+	static func ok() -> bool:
+		for c: Array in CASES:
+			if Online.ws_url(c[0]) != c[1] or Online.status_url(c[0]) != c[2]:
+				return false
+		return true
+
+	static func report() -> String:
+		return str(CASES.map(func(c: Array) -> String: return "%s -> %s %s" % [c[0], Online.ws_url(c[0]), Online.status_url(c[0])]))
 var _pid := -1
 
 
 func _ready() -> void:
 	TestHooks.args["records"] = "user://test_records"
+	TestHooks.check(TmOnlineUrls.ok(), "online_addresses", TmOnlineUrls.report())
 	var node := _node()
 	var script := ProjectSettings.globalize_path("res://server/server.js")
 	if node.is_empty() or not FileAccess.file_exists(script) or not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("res://server/node_modules/ws")):

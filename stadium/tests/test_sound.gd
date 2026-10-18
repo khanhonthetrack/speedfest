@@ -40,13 +40,16 @@ func _streams() -> void:
 			loops_ok = loops_ok and (w as AudioStreamOggVorbis).loop
 	TestHooks.check(loops_ok, "sound_loops_loop")
 	var recorded := TmSounds.FILES.keys().all(func(k: String) -> bool: return ResourceLoader.exists("res://audio/sfx/" + String(TmSounds.FILES[k])))
-	TestHooks.check(recorded and TmSounds.get_stream("engine_load").resource_path.ends_with("engine_load.wav"), "sound_recordings_used")
+	TestHooks.check(recorded and TmSounds.get_stream("engine_mid").resource_path.ends_with("engine_mid.wav"), "sound_recordings_used")
 
 
 func _rpm() -> void:
 	TestHooks.check(is_equal_approx(TmSounds.rpm(0.0), TmSounds.RPM_IDLE), "rpm_idle")
 	TestHooks.check(TmSounds.rpm(20.0) < TmSounds.rpm(40.0) and TmSounds.rpm(120.0) < TmSounds.rpm(150.0), "rpm_climbs_in_gear")
-	TestHooks.check(TmSounds.rpm(54.0) > TmSounds.rpm(56.0) and TmSounds.rpm(219.0) > TmSounds.rpm(221.0), "rpm_drops_at_shifts")
+	# TMNF's shift points: 0.95 x 85, 0.9 x 110, 0.95 x 160, 0.95 x 220, 1.0 x 370 km/h
+	TestHooks.check(TmSounds.rpm(80.0) > TmSounds.rpm(82.0) and TmSounds.rpm(208.0) > TmSounds.rpm(210.0), "rpm_drops_at_shifts")
+	TestHooks.check(TmSounds.gear_for(30.0) == 1 and TmSounds.gear_for(180.0) == 4 and TmSounds.gear_for(500.0) == 6
+		and is_equal_approx(TmSounds.rpm(500.0), TmSounds.RPM_MAX), "rpm_gears")
 	TestHooks.check(TmSounds.rpm(900.0) <= TmSounds.RPM_MAX and TmSounds.rpm(-80.0) == TmSounds.rpm(80.0), "rpm_bounds")
 
 
@@ -61,12 +64,17 @@ func _engine() -> void:
 	for i in 40:
 		await get_tree().process_frame
 	TestHooks.check(audio.engine_mix > 0.9, "engine_follows_throttle", "%.2f" % audio.engine_mix)
+	# off the throttle (the test car floats: with gas the engine would rev freely as in the air)
+	car.gas = 0.0
+	car.lin_vel = car.global_transform.basis.z * 50.0
+	for i in 30:
+		await get_tree().process_frame
 	car.lin_vel = car.global_transform.basis.z * 50.0
 	await get_tree().process_frame
-	var want := TmSounds.rpm(car.speed_kmh()) / TmSounds.ENGINE_RPM
-	TestHooks.check(absf(audio.engine_pitch - want) < 1e-3 and car.speed_kmh() > 170.0, "engine_pitch_follows_speed",
-		"%.3f vs %.3f at %.0f km/h" % [audio.engine_pitch, want, car.speed_kmh()])
-	car.gas = 0.0
+	var want := TmSounds.rpm(car.speed_kmh())
+	TestHooks.check(absf(audio.engine_rpm - want) < want * 0.03 and audio.engine_gear == TmSounds.gear_for(car.speed_kmh())
+		and car.speed_kmh() > 170.0, "engine_rpm_follows_speed",
+		"%.0f vs %.0f rpm, gear %d at %.0f km/h" % [audio.engine_rpm, want, audio.engine_gear, car.speed_kmh()])
 	for i in 40:
 		await get_tree().process_frame
 	TestHooks.check(audio.engine_mix < 0.1, "engine_coasts_off_throttle", "%.2f" % audio.engine_mix)

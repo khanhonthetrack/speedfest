@@ -1,5 +1,7 @@
 """Decrypt pack entries (block infos, solids) into raw/, the fast emulator first, the backtracking
-search if that fails. usage: decrypt_all.py SP PATTERN [MAXSIZE]"""
+search if that fails. usage: decrypt_all.py SP PATTERN [MAXSIZE]
+PAK=Game (environment) reads another pack than Stadium (its listing SP/pak_<PAK>.txt, made with
+nadeopak.py list), e.g. the menus in Game.pak."""
 import sys, os, re, subprocess
 SP = sys.argv[1]; maxsize = int(sys.argv[3]) if len(sys.argv) > 3 else 10**9
 if sys.argv[2].startswith('@'):   # a list file of names (path tails, '/' or '\\')
@@ -11,9 +13,10 @@ else:
 sys.argv = ['x', SP + '/classmap.json']
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import nadeopak
-d, key, hdr, folders, files = nadeopak.open_pak(SP + '/tmnf/app/Packs', 'Stadium')
+PAK = os.environ.get('PAK', 'Stadium')
+d, key, hdr, folders, files = nadeopak.open_pak(SP + '/tmnf/app/Packs', PAK)
 hashes = {}
-for line in open(SP + '/pak_Stadium.txt'):
+for line in open(SP + '/pak_%s.txt' % PAK):
     parts = line.split()
     if len(parts) >= 6 and not line.startswith('#'):
         hashes[parts[4]] = parts[5]
@@ -25,10 +28,10 @@ for f in files:
     if not (pat.search(nice) or pat.search(f['path'])) or f['usize'] > maxsize: continue
     out = 'raw/' + nice.replace('\\', '__')
     if os.path.exists(out): ok += 1; continue
-    r = subprocess.run([sys.executable, '-I', T + 'pak_generic.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', 'Stadium', f['name'], out], capture_output=True, text=True)
+    r = subprocess.run([sys.executable, '-I', T + 'pak_generic.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', PAK, f['name'], out], capture_output=True, text=True)
     if not os.path.exists(out):
         try:
-            r = subprocess.run([sys.executable, '-I', T + 'pak_search.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', 'Stadium', f['name'], out], capture_output=True, text=True, timeout=60)
+            r = subprocess.run([sys.executable, '-I', T + 'pak_search.py', SP + '/classmap.json', SP + '/tmnf/app/Packs', PAK, f['name'], out], capture_output=True, text=True, timeout=60)
         except subprocess.TimeoutExpired:
             pass
     if os.path.exists(out): ok += 1

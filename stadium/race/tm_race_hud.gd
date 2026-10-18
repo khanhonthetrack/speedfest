@@ -20,6 +20,8 @@ var _info: Label
 var _times: GridContainer           ## medal and record times, two aligned columns
 var _count: Label
 var _centre: Label
+var _fig: TextureRect               ## the countdown's figure (3, 2, 1, GO!: assets/ui/count_*)
+var _fig_name := ""
 var _delta: Label
 var _flash_left := 0.0
 const FINISH_FLASH := 1.5           ## seconds: then the race menu shows the result panel
@@ -43,6 +45,21 @@ func _ready() -> void:
 	_count = _label(30, Control.PRESET_TOP_RIGHT, HORIZONTAL_ALIGNMENT_RIGHT, Vector2(-40, 22))
 	_centre = _label(60, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, -120), TmUi.HEAD)
 	_delta = _label(40, Control.PRESET_CENTER, HORIZONTAL_ALIGNMENT_CENTER, Vector2(0, 40), TmUi.HEAD)
+	_fig = TextureRect.new()
+	_fig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_fig.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_fig.anchor_left = 0.5
+	_fig.anchor_right = 0.5
+	_fig.anchor_top = 0.5
+	_fig.anchor_bottom = 0.5
+	_fig.offset_left = -208
+	_fig.offset_right = 208
+	_fig.offset_top = -254
+	_fig.offset_bottom = -46
+	_fig.pivot_offset = Vector2(208, 104)
+	_fig.modulate.a = 0.0
+	_fig.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_fig)
 	_update_info()
 	if race:
 		race.checkpoint_taken.connect(_on_checkpoint)
@@ -97,6 +114,23 @@ func reset() -> void:
 	_flash_left = 0.0
 	_centre.text = ""
 	_delta.text = ""
+	_figure("")
+
+
+## Shows a countdown figure ("3", "2", "1", "go"; "" hides it), popping in as TMNF's do.
+func _figure(fig: String) -> void:
+	if fig == _fig_name:
+		return
+	_fig_name = fig
+	if fig.is_empty():
+		var out := _fig.create_tween()
+		out.tween_property(_fig, "modulate:a", 0.0, 0.25)
+		return
+	_fig.texture = TmUi.icon("count_" + fig)
+	_fig.modulate.a = 1.0
+	_fig.scale = Vector2(1.6, 1.6)
+	var tw := _fig.create_tween()
+	tw.tween_property(_fig, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _flash(text: String, colour: Color, secs: float, delta_ms := 0, has_delta := false) -> void:
@@ -149,8 +183,8 @@ func _process(delta: float) -> void:
 		lines.append("Lap %d / %d" % [mini(race.lap + 1, race.laps), race.laps])
 	_count.text = "\n".join(lines)
 	if race.state == TmRace.State.COUNTDOWN:
-		_centre.add_theme_color_override("font_color", Color.WHITE)
-		_centre.text = str(ceili(race.countdown_ms / 500.0))
+		_centre.text = ""
+		_figure(str(ceili(race.countdown_ms / 500.0)))
 		_flash_left = 0.0
 	elif _flash_left > 0.0:
 		_flash_left -= delta
@@ -158,7 +192,8 @@ func _process(delta: float) -> void:
 			_centre.text = ""
 			_delta.text = ""
 	elif race.state == TmRace.State.RACING and race.time_ms < 800:
-		_centre.add_theme_color_override("font_color", Color.WHITE)
-		_centre.text = "Go!"
+		_centre.text = ""
+		_figure("go")
 	elif race.state == TmRace.State.RACING:
 		_centre.text = ""
+		_figure("")

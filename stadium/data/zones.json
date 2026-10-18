@@ -1,0 +1,9 @@
+{
+	"Africa": ["Algeria", "Egypt", "Ghana", "Kenya", "Morocco", "Nigeria", "Senegal", "South Africa", "Tunisia"],
+	"Asia": ["China", "Hong Kong", "India", "Indonesia", "Israel", "Japan", "Malaysia", "Pakistan", "Philippines", "Saudi Arabia", "Singapore", "South Korea", "Taiwan", "Thailand", "Turkey", "United Arab Emirates", "Vietnam"],
+	"Europe": ["Austria", "Belgium", "Bulgaria", "Croatia", "Czechia", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom"],
+	"Middle America": ["Costa Rica", "Cuba", "Dominican Republic", "Guatemala", "Jamaica", "Mexico", "Panama"],
+	"North America": ["Canada", "United States"],
+	"Oceania": ["Australia", "Fiji", "New Zealand"],
+	"South America": ["Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Paraguay", "Peru", "Uruguay", "Venezuela"]
+}

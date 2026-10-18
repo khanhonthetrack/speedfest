@@ -36,24 +36,26 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `net/`, `server/` | online play: the client (`Online` autoload) and the Node.js time-attack server |
 | `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
 | `audio/` | recorded open-licensed sounds (`audio/sfx`), music (`audio/music`, `tm_music.gd`), the race's engine and cues (`tm_car_audio.gd`) |
-| `ui/` | menus: main, campaign, options (`tm_menu.gd`, the main scene), the race's pause and finish menus, theme and settings |
+| `ui/` | menus in TMNF's structure (`tm_menu.gd`, the main scene: Solo, Online, Profile, Options), the race's pause and finish menus, the glass theme (`tm_glass_box.gd`, `tm_ui.gd`), $-code nicknames (`tm_nick.gd`) |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
 ## Play it
 1. Install Godot 4.7.2, clone this repo, check out branch `stadium`, open `stadium/project.godot`
-   and press Play (F5): the menu. Play lists our campaign (SF01 .. SF10, your best time and medal on
-   each track); Race starts the selected one. Straight into a race: run `race/race.tscn` with
-   `-- --track=SF03`.
-2. TrackMania tracks: "Open a track file" races any `.Challenge.Gbx`
-   (or `race/race.tscn -- --map="C:/path/X.Challenge.Gbx"`). With TrackMania Nations Forever
-   installed (free, Ubisoft/Nadeo or Steam) its campaign shows up in Play as five more tabs
-   (`--track=B05`); it's found in its usual install folder, elsewhere run with
-   `-- --tmnf="D:/Games/TmNationsForever"` or set `TMNF_DIR`.
+   and press Play (F5): the menu. Solo > Campaign lists our campaign (a tab per series, your best
+   time and medal on each track); Race starts the selected one. Straight into a race: run
+   `race/race.tscn` with `-- --track=SF03`. Profile sets your nickname (TMNF's $-codes: `$f00`
+   red, `$o` bold, `$i` italic ...), zone and car colour.
+2. TrackMania tracks: Solo > "Open a track file" races any `.Challenge.Gbx`
+   (or `race/race.tscn -- --map="C:/path/X.Challenge.Gbx"`).
 3. Keys: arrows / WASD (or a pad) to drive, Enter respawns at the last checkpoint,
    Backspace / Delete restarts, Escape pauses (resume, restart, menu); after the finish: retry,
-   next track or menu.
-4. Your best time per track and its ghost are saved (Godot's user folder, `records/`; another
+   replay (watch the run), save replay, next track or menu.
+4. Replays: every run is recorded; your best run on each track is kept by itself, Save replay keeps
+   any other (Godot's user folder, `replays/`). Solo > Replays lists them; watching one
+   (`race/replay.tscn -- --replay=<file>`): Space pause, Left / Right 5 s, Up / Down speed, C or 1-5
+   the camera (chase, close, cockpit, trackside, free: WASD, Q / E, right mouse), H hides the bar.
+5. Your best time per track and its ghost are saved (Godot's user folder, `records/`; another
    folder with `-- --records=<dir>`). From the next attempt the record's ghost races with you,
    and every checkpoint shows the difference to the record (blue ahead, red behind). Options:
    fullscreen, graphics quality, HD textures, shadows, sound, music, the ghost, clear all records.
@@ -77,6 +79,20 @@ id to `tracks/campaign.json` to put it in the campaign (the menu and the server'
 builder dresses it by itself (`race/tm_track_decor.gd`; `"decorate": false` turns that off) and
 puts road to stop on after the finish line. Look at
 it with `race/map_view.tscn -- --track=<ID> --shot=/abs/out.png`.
+
+## The track editor
+Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;
+`-- --edit=<file.sftrack>` opens one). TMNF's Stadium blocks sit in a palette by family (roads,
+platform, dirt, circuit, tubes, decoration, waypoints; icons rendered by
+`tools/run.sh res://tools/icons/block_icons.tscn` into `assets/ui/blocks/`). Left click places the
+block on the cursor's cell (the ghost is green where it fits), right drag turns the view, the wheel
+zooms, Shift + wheel or Page Up / Down changes the level, R / Q turn the block, X erases, I picks
+the block under the cursor, Ctrl+Z / Ctrl+Y undo / redo, Ctrl+S saves, F5 (TEST) drives it. Roads
+join their neighbours by themselves (dead ends, corners, T's, crossings) and raised road gets
+pillars. A track needs a start and a finish (or a start/finish line); finishing it in a test drive
+validates it (sets its medals from your time; any change clears them). Tracks are saved as
+`user://tracks/<name>.sftrack` (our own JSON: `race/tm_user_tracks.gd`); Solo > Open a track file
+races any `.sftrack` too.
 
 ## Share it with friends
 Builds: `stadium/tools/export.sh all` (Godot 4.7.2 export templates installed) writes

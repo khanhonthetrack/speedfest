@@ -1,21 +1,25 @@
 class_name TmRaceMenu
 extends CanvasLayer
 ## The race's own menus: Escape pauses (Resume, Restart, Menu) and after the finish a result panel
-## (the time, its medal, the difference to the record, the medal times) offers Retry, the next
-## campaign track and the menu. The race connects the signals.
+## (the time, its medal, the difference to the record, the medal times) offers Retry, watching or
+## saving the run's replay, the next campaign track and the menu. The race connects the signals.
 
 signal resumed
 signal restarted
 signal next_track
 signal to_menu
+signal watch_replay
+signal save_replay
 
 var has_next := false
 var online := false                ## in a server: "menu" leaves it
+var editing := false               ## testing a track from the editor: "menu" goes back to it
 var _panel: PanelContainer
 var _box: VBoxContainer
 var paused := false
 var finished := false
 var _result := {}
+var _replay_saved := false
 
 
 const MEDALS := [["author", "AUTHOR"], ["gold", "GOLD"], ["silver", "SILVER"], ["bronze", "BRONZE"]]
@@ -57,15 +61,16 @@ func _fill(title: String, items: Array, card: Control = null) -> void:
 	_box.add_child(row)
 	var first: Button = null
 	for it: Array in items:
-		var b := TmUi.button(String(it[0]), it[1], 200 if card else 360)
+		var b := TmUi.button(String(it[0]), it[1], 180 if card else 360)
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		row.add_child(b)
 		if first == null:
 			first = b
 	# the result card on a darker, roomier panel than the pause menu's glass
 	if card:
-		var s := (TmUi.theme().get_stylebox("panel", "PanelContainer") as StyleBoxFlat).duplicate() as StyleBoxFlat
-		s.bg_color = Color(TmUi.PANEL, 0.94)
+		var s := TmUi.glass("panel")
+		s.top = Color(0.06, 0.11, 0.08, 0.94)
+		s.bottom = Color(0.01, 0.03, 0.02, 0.96)
 		s.content_margin_left = 34
 		s.content_margin_right = 34
 		s.content_margin_top = 18
@@ -87,7 +92,7 @@ func toggle_pause() -> void:
 		return
 	paused = true
 	get_tree().paused = not online   # a server's round runs on: online, the menu only overlays
-	_fill("PAUSED", [["RESUME", resume], ["RESTART", func() -> void: _emit(restarted)], ["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)]])
+	_fill("PAUSED", [["RESUME", resume], ["RESTART", func() -> void: _emit(restarted)], [_menu_text(), func() -> void: _emit(to_menu)]])
 
 
 func resume() -> void:
@@ -106,11 +111,17 @@ func show_finish(result := {}) -> void:
 	finished = true
 	if not result.is_empty():
 		_result = result
+		_replay_saved = false
 	var items := [["RETRY", func() -> void: _emit(restarted)]]
+	if not online:
+		items.append(["REPLAY", func() -> void: _emit(watch_replay)])
+		items.append(["SAVE REPLAY", func() -> void: save_replay.emit()])
 	if has_next:
 		items.append(["NEXT TRACK", func() -> void: _emit(next_track)])
-	items.append(["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)])
+	items.append([_menu_text(), func() -> void: _emit(to_menu)])
 	_fill("", items, _result_card(_result) if not _result.is_empty() else null)
+	if _replay_saved:
+		mark_saved()
 
 
 ## The result card: the track, the time, the medal it earns, the difference to the record before
@@ -141,7 +152,7 @@ static func _result_card(r: Dictionary) -> Control:
 	if won.is_empty():
 		line.add_child(TmUi.label("NO MEDAL", 30, TmUi.DIM, TmUi.HEAD, 2))
 	else:
-		line.add_child(_disc(colour, 26))
+		line.add_child(_medal(won, 44))
 		line.add_child(TmUi.label("%s MEDAL" % won.to_upper(), 30, colour, TmUi.HEAD, 2))
 	var prev := int(r.get("prev_ms", -1))
 	if bool(r.get("record", false)):
@@ -150,6 +161,10 @@ static func _result_card(r: Dictionary) -> Control:
 		var d := ms - prev
 		line.add_child(TmUi.label(TmRaceHud.delta_text(d), 30, TmRaceHud.AHEAD if d <= 0 else TmRaceHud.BEHIND, TmUi.HEAD))
 	card.add_child(line)
+	if bool(r.get("validated", false)):
+		var v := TmUi.label("TRACK VALIDATED  ·  ITS MEDALS SET FROM THIS RUN", 22, TmUi.ACCENT, TmUi.HEAD, 2)
+		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(v)
 	# the medal times
 	var grid := GridContainer.new()
 	grid.columns = 4
@@ -161,7 +176,10 @@ static func _result_card(r: Dictionary) -> Control:
 			continue
 		var beaten := ms <= t
 		var c: Color = TmRaceHud.MEDAL_COLOURS[m[0]]
-		grid.add_child(_disc(c if beaten else c.darkened(0.6), 16))
+		var icon := _medal(m[0], 26)
+		if not beaten:
+			icon.modulate = Color(0.45, 0.45, 0.45, 0.8)
+		grid.add_child(icon)
 		grid.add_child(TmUi.label(m[1], 22, c if beaten else TmUi.DIM, TmUi.BOLD, 1))
 		var tl := TmUi.label(TmRace.time_text(t), 22, TmUi.TEXT if beaten else TmUi.DIM, TmUi.BOLD)
 		tl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -179,18 +197,28 @@ static func _result_card(r: Dictionary) -> Control:
 	return card
 
 
-## A round medal disc of a colour.
-static func _disc(colour: Color, size: int) -> Control:
-	var p := Panel.new()
-	var s := StyleBoxFlat.new()
-	s.bg_color = colour
-	s.set_corner_radius_all(size)
-	s.border_color = Color(1, 1, 1, 0.35)
-	s.set_border_width_all(2)
-	p.add_theme_stylebox_override("panel", s)
-	p.custom_minimum_size = Vector2(size, size)
-	p.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	return p
+## A medal's disc (assets/ui/medal_<kind>).
+static func _medal(kind: String, size: int) -> Control:
+	var r := TextureRect.new()
+	r.texture = TmUi.icon("medal_" + kind)
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	r.custom_minimum_size = Vector2(size, size)
+	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return r
+
+
+func _menu_text() -> String:
+	return "LEAVE SERVER" if online else ("EDITOR" if editing else "MENU")
+
+
+## The replay was saved: its button says so (and saves no second copy).
+func mark_saved() -> void:
+	_replay_saved = true
+	for b in _box.find_children("*", "Button", true, false):
+		if (b as Button).text == "SAVE REPLAY":
+			(b as Button).text = "SAVED"
+			(b as Button).disabled = true
 
 
 func hide_all() -> void:

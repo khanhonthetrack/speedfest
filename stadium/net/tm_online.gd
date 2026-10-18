@@ -12,7 +12,7 @@ signal players_changed
 signal results_received(ranking: Array)
 signal chat_received(from: String, text: String)
 
-const VERSION := 1
+const VERSION := 2
 const OFFICIAL_LIST := "https://raw.githubusercontent.com/khanhonthetrack/speedfest/stadium/stadium/server/official.json"
 
 var ws: WebSocketPeer
@@ -30,7 +30,8 @@ var _colour := Color(0.85, 0.08, 0.06)
 var _was_open := false
 
 
-## ws(s)://host[:port]/ws from what the player typed: https://x, http://x, x:8090, x.
+## ws(s)://host[:port]/ws[/<server>] from what the player typed or the server list gave:
+## https://x, http://x/ws/rounds, x:8090, x (a bare host: its first server, /ws).
 static func ws_url(text: String) -> String:
 	var t := text.strip_edges()
 	if t.begins_with("https://"):
@@ -40,14 +41,18 @@ static func ws_url(text: String) -> String:
 	elif not (t.begins_with("ws://") or t.begins_with("wss://")):
 		t = "ws://" + t
 	t = t.trim_suffix("/")
-	if not t.ends_with("/ws"):
+	var slash := t.find("/", t.find("://") + 3)
+	var path := t.substr(slash) if slash >= 0 else ""
+	if not (path == "/ws" or path.begins_with("/ws/")):
 		t += "/ws"
 	return t
 
 
-## http(s)://host[:port]/status for a server's address (the server list's status line).
+## A server's status as JSON over http(s) (the server list's line): /ws/<id>/status, or /status
+## for a bare host's first server.
 static func status_url(text: String) -> String:
-	var u := ws_url(text).trim_suffix("/ws")
+	var u := ws_url(text)
+	u = u.trim_suffix("/ws") + "/status" if u.ends_with("/ws") else u + "/status"
 	return ("https://" + u.substr(6)) if u.begins_with("wss://") else ("http://" + u.substr(5))
 
 

@@ -12,6 +12,34 @@
   renders) over A (TMNF's boards rebuilt as framed screens; still reads as horns).
 - Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
 
+## Latest (18 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
+- Owner (TRANSCRIPT, session 13): the remake looks cheap (gates, billboards, stadium, "2005");
+  wants TMNF's graphics (or better, RTX), TMNF's menus, online, a campaign like TMNF's, a better
+  engine sound, a car whose rims sit in the tyres. Answers: our own A-E campaign (65 originals),
+  Track Editor + replays, accounts + ladder, the Pi hosts the master/official servers.
+- Work branch `claude/tmnf-replica-graphics-nb1kcg` (from `stadium` @ 9a6ae41). Plan: PLAN.md M9
+  (steps 0-8, in order). Merge it into `stadium` when a step is done and checked.
+- Done (pushed): M9-1 the new car (`car/tm_car_visual.gd`, `car/tm_mesher.gd`); M9-2 first pass:
+  textured road, gates, adverts, fabric roofs, stadium facades (PROGRESS 18 Oct; textures from
+  `stadium/tools/texgen/*.py` into `stadium/assets/tex/`, regenerate with `python3 <script>.py`;
+  needs numpy, pillow, fonttools, brotli); M9-3 the engine (TMNF's six layers and gear model,
+  synthesized by `stadium/tools/sfxgen/engine.py`); M9-4 the menus (TMNF's structure and look:
+  `ui/tm_menu.gd`, `ui/tm_glass_box.gd`, `ui/tm_nick.gd` $-codes, `ui/tm_track_map.gd`, icons by
+  `tools/texgen/ui.py` in `assets/ui/`, the countdown figures in the race HUD); M9-5 replays
+  (`race/tm_replay.gd` recording and files, `race/replay.tscn` the viewer, Solo > Replays,
+  REPLAY / SAVE REPLAY after the finish; `tests/test_replay`); M9-6 the track editor
+  (`editor/editor.tscn`, `editor/tm_editor_model.gd`, `race/tm_user_tracks.gd` .sftrack files,
+  Editors page, palette icons from `tools/icons/`; `tests/test_editor`).
+- Next, in order: M9-7 online (master
+  server, accounts, ladder; Profile and Online get rankings), M9-8 the A-E campaign
+  (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
+  M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
+  tracks that use them.
+- Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with
+  `--ref=<OUT>`; `race/map_view.tscn` views `car:`, `gate:<block>`, `rel:`, `near:` (see its header).
+- Local reference data in a fresh container: `pip install pycryptodome py7zr numpy`, then
+  `tools/research/tmnf/setup_measurements.sh <dir outside the repo>` (stadium/CLAUDE.md).
+
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,
   11 tracks); the link to send to friends. Next release: tag `stadium-v0.3` the same way.

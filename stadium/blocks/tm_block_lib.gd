@@ -29,6 +29,16 @@ func register(family: Object) -> void:
 	_families.append(family)
 
 
+## Whether a family recreates this shape (without building it).
+func handles(shape: String) -> bool:
+	if shape.is_empty():
+		return false
+	for fam in _families:
+		if fam.handles(shape):
+			return true
+	return false
+
+
 func make(shape: String, entry: Dictionary, ground: bool) -> Node3D:
 	if shape.is_empty():
 		return null
@@ -40,6 +50,14 @@ func make(shape: String, entry: Dictionary, ground: bool) -> Node3D:
 		if fam.handles(shape):
 			made = fam.make(shape, entry, ground)
 			break
+	if made != null and TmRefVisuals.active():
+		var ref := TmRefVisuals.visual(shape)    # research: the original's look, our collision
+		if ref != null:
+			for c in made.get_children():
+				if c is MeshInstance3D:
+					made.remove_child(c)
+					c.free()
+			made.add_child(ref)
 	_cache[shape] = made
 	return null if made == null else made.duplicate()
 
