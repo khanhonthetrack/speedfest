@@ -1740,3 +1740,11 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   The M9 bug from the review is fixed: the curbs' outer faces, read from outside the road, showed
   their lettering turned 180 degrees (u ran for the road side, and the run's v starts at the
   face's foot); faces that look away from the centre line now get u and v turned round.
+- **Road decals** (`blocks/tm_road_decals.gd`, textures by `stadium/tools/texgen/decals.py`, our
+  own): laid out from the map's built road blocks (`TmMapBuilder.road_blocks`), seeded by each
+  block's place: 2-4 tyre-mark decals along the racing line through every GT curve and corner
+  (outside at the entry, the apex 6 m inside, outside at the exit; tangent to it), a rubber scuff
+  on the inner curb at the apex of half the curves, the burnout behind the start (two tracks at
+  TMNF's 1.77 m), an oil stain on 12% of the straights. Decal nodes projecting down, faded on
+  surfaces that don't face up and beyond 90 m; HD graphics only. Lesson: thin tyre tracks at a
+  quarter opacity vanish at grazing angles; they are drawn near-opaque (70-100%).
