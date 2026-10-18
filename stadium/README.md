@@ -80,6 +80,20 @@ builder dresses it by itself (`race/tm_track_decor.gd`; `"decorate": false` turn
 puts road to stop on after the finish line. Look at
 it with `race/map_view.tscn -- --track=<ID> --shot=/abs/out.png`.
 
+## The track editor
+Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;
+`-- --edit=<file.sftrack>` opens one). TMNF's Stadium blocks sit in a palette by family (roads,
+platform, dirt, circuit, tubes, decoration, waypoints; icons rendered by
+`tools/run.sh res://tools/icons/block_icons.tscn` into `assets/ui/blocks/`). Left click places the
+block on the cursor's cell (the ghost is green where it fits), right drag turns the view, the wheel
+zooms, Shift + wheel or Page Up / Down changes the level, R / Q turn the block, X erases, I picks
+the block under the cursor, Ctrl+Z / Ctrl+Y undo / redo, Ctrl+S saves, F5 (TEST) drives it. Roads
+join their neighbours by themselves (dead ends, corners, T's, crossings) and raised road gets
+pillars. A track needs a start and a finish (or a start/finish line); finishing it in a test drive
+validates it (sets its medals from your time; any change clears them). Tracks are saved as
+`user://tracks/<name>.sftrack` (our own JSON: `race/tm_user_tracks.gd`); Solo > Open a track file
+races any `.sftrack` too.
+
 ## Share it with friends
 Builds: `stadium/tools/export.sh all` (Godot 4.7.2 export templates installed) writes
 `build/stadium/SpeedFestStadium-windows.zip` (~52 MB) and `-linux.zip` (~42 MB): one portable

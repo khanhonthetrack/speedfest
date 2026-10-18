@@ -5,13 +5,15 @@ extends Node3D
 ## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart,
 ## Escape = pause (TmRaceMenu: resume, restart, menu); after the finish: retry, next track, menu.
 ## Args: --track=SF01 (our own tracks, TmTracks; the first by default), --map=/path/X.Challenge.Gbx
-## (any TMNF track file), or --track=A01 with a TMNF install (--tmnf=/path/to/TMNF, else its usual
+## (any TMNF track file) or --map=/path/X.sftrack (made in our editor), or --track=A01 with a TMNF install (--tmnf=/path/to/TMNF, else its usual
 ## place); --laps=N overrides the map's lap count; --bot: TmBot drives (our tracks); TmCarInput's
 ## --auto_* and TestHooks' --shot/--frames for tests. The menu (ui/menu.tscn, the main scene) starts it.
 ## Best times and ghosts: every run is recorded (TmGhost); a finish that beats the track's record
 ## is saved (TmRecords) and its ghost races against you from the next attempt on.
 ## Replays: every run is recorded as a TmReplay too; a new record keeps it as the track's autosave,
 ## the finish menu watches it (race/replay.tscn) or saves it (Solo > Replays lists them).
+## Testing a track from the editor (--back=editor): a finish validates it (sets its medals,
+## TmUserTracks.validate_file) and the menu button goes back to the editor.
 
 var challenge: TmChallenge
 var builder: TmMapBuilder
@@ -105,6 +107,7 @@ func _ready() -> void:
 	hud.best = best
 	add_child(hud)
 	menu = TmRaceMenu.new()
+	menu.editing = editing()
 	add_child(menu)
 	_campaign_place()
 	menu.has_next = not next_id.is_empty()
@@ -194,9 +197,19 @@ func _on_finished(time_ms: int) -> void:
 	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
 	if new_record:
 		replay.save(TmReplay.autosave_path(challenge))
+	if editing() and TmUserTracks.validate_file(String(TestHooks.arg("map", "")), time_ms):
+		# the track's medals now come from this finish
+		_validated_ms = time_ms
+		var m: Dictionary = TmUserTracks.load_file(String(TestHooks.arg("map", ""))).get("medals", {})
+		challenge.author_ms = int(m.get("author", -1))
+		challenge.gold_ms = int(m.get("gold", -1))
+		challenge.silver_ms = int(m.get("silver", -1))
+		challenge.bronze_ms = int(m.get("bronze", -1))
+		hud.challenge = challenge
 	hud.show_finish(time_ms, best, new_record)
 	var result := {"name": challenge.name, "time_ms": time_ms, "prev_ms": int(best.get("time_ms", -1)), "record": new_record,
-		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms}}
+		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
+		"validated": _validated_ms == time_ms}
 	audio.cue("record" if new_record else "finish")
 	if online:
 		online.on_finish(time_ms)
@@ -256,13 +269,27 @@ func _next_track() -> void:
 	get_tree().reload_current_scene()
 
 
+## Testing a track from the editor (--back=editor with an .sftrack map).
+func editing() -> bool:
+	return String(TestHooks.arg("back", "")) == "editor" and String(TestHooks.arg("map", "")).ends_with(TmUserTracks.EXT)
+
+
+var _validated_ms := -1             ## a test drive's finish that validated the track (editing)
+
+
 func _to_menu() -> void:
+	if editing():
+		TestHooks.args["edit"] = String(TestHooks.arg("map", ""))
+		if get_tree().current_scene == self:
+			get_tree().change_scene_to_file("res://editor/editor.tscn")
+		return
 	if Online.is_online() or online:
 		Online.leave()
 		TestHooks.args["page"] = "online"
 		get_tree().change_scene_to_file("res://ui/menu.tscn")
 		return
-	TestHooks.args["page"] = "campaign" if not track_id.is_empty() else "main"
+	var map := String(TestHooks.arg("map", ""))
+	TestHooks.args["page"] = "campaign" if not track_id.is_empty() else ("editors" if map.ends_with(TmUserTracks.EXT) else "main")
 	if not track_id.is_empty():
 		TestHooks.args["track"] = track_id
 	get_tree().change_scene_to_file("res://ui/menu.tscn")
@@ -273,7 +300,7 @@ func watch_replay() -> void:
 	if replay == null or replay.count() == 0 or not replay.save(TmReplay.last_path()):
 		return
 	TestHooks.args["replay"] = TmReplay.last_path()
-	TestHooks.args["back"] = "race"
+	TestHooks.args["replay_back"] = "race"
 	TestHooks.args.erase("replay_at")
 	if get_tree().current_scene == self:
 		get_tree().change_scene_to_file("res://race/replay.tscn")

@@ -15,8 +15,10 @@
   `ui/tm_menu.gd`, `ui/tm_glass_box.gd`, `ui/tm_nick.gd` $-codes, `ui/tm_track_map.gd`, icons by
   `tools/texgen/ui.py` in `assets/ui/`, the countdown figures in the race HUD); M9-5 replays
   (`race/tm_replay.gd` recording and files, `race/replay.tscn` the viewer, Solo > Replays,
-  REPLAY / SAVE REPLAY after the finish; `tests/test_replay`).
-- Next, in order: M9-6 the track editor (then the EDITORS entry on the main page), M9-7 online (master
+  REPLAY / SAVE REPLAY after the finish; `tests/test_replay`); M9-6 the track editor
+  (`editor/editor.tscn`, `editor/tm_editor_model.gd`, `race/tm_user_tracks.gd` .sftrack files,
+  Editors page, palette icons from `tools/icons/`; `tests/test_editor`).
+- Next, in order: M9-7 online (master
   server, accounts, ladder; Profile and Online get rankings), M9-8 the A-E campaign
   (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
   M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's

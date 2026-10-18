@@ -18,7 +18,7 @@ func _ready() -> void:
 	add_child(menu)
 	await get_tree().process_frame
 	var names := _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(names == ["SOLO", "ONLINE", "PROFILE", "OPTIONS", "QUIT"], "menu_main_page", str(names))
+	TestHooks.check(names == ["SOLO", "ONLINE", "EDITORS", "PROFILE", "OPTIONS", "QUIT"], "menu_main_page", str(names))
 	_press(menu, "SOLO")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text)

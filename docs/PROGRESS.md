@@ -1627,3 +1627,37 @@ is kept, and a replay list and viewer with several cameras show them. Ours now d
   ghost to 1 cm, has the inputs, is autosaved and saved, loads back identical, lists; the viewer
   follows it, seeks past the checkpoints, reaches the finish, plays at x4, pauses, has five
   cameras; the menu lists and hands over a replay.
+
+## 2026-10-18 — Session 13 (M9-6): the track editor
+TMNF's Stadium editor, our own: the blocks of the recreated library on TMNF's 32 x 8 x 32 m grid.
+- **Editor** (`editor/editor.tscn`, TmEditor; rules in `editor/tm_editor_model.gd`, testable
+  headless): the Stadium around a 32 x 32 field, a grid at the cursor's level (fading away from
+  it), the cursor's cell, a ghost of the chosen block on it (green: fits; red: why not, e.g. "the
+  space is taken", "outside the stadium", "a track has one start"); a palette by family (ROADS,
+  PLATFORM, DIRT, CIRCUIT, TUBES, DECORATION, WAYPOINTS: every catalogue block whose shape is
+  recreated, no terrain zones or auto clips, TMNF's most used first) with icons rendered from our
+  geometry (`tools/icons/block_icons.tscn` + `shrink.py`, 258 icons in `assets/ui/blocks/`,
+  1.2 MB); place, turn (R/Q), level (Page Up/Down, Shift + wheel), erase (X, Del; picks the block
+  under the mouse by a ray), pick (I), undo / redo (200 steps), save, TEST (F5), orbit / pan /
+  zoom camera. Only what changed is rebuilt (block keys: shape, place, variant).
+- **Roads join by themselves** (`TmUserTracks.road_variant`): a road block (TMNF's "road" kind:
+  main road, platform road, tube and control rows) opens each side where the next cell shows its
+  clip facing back, and takes the dead end, straight, corner, T or cross shape turned to fit
+  (`road.gd`'s open sides per shape). Raised one-cell road gets pillars (a tube under the road and
+  tube pillars down to the ground, every other block, where free).
+- **Files** (`race/tm_user_tracks.gd`): `user://tracks/<name>.sftrack`, our own JSON (id, name,
+  author, laps, medals, the layout they belong to, blocks as [id, dir, x, y, z]); a track loads
+  as a TmChallenge anywhere (`TmStage.load_from_args` takes `--map=<file>.sftrack`; Open a track
+  file too); uid "U-<id>-<layout>" so records belong to a layout.
+- **Validation**: TEST saves and drives the track (`race.tscn --map=<file> --back=editor`);
+  finishing it sets the medals from the time (TMNF's rule: gold +6%, silver +20%, bronze +50%),
+  the result card says TRACK VALIDATED, the menu button reads EDITOR and goes back. Any change to
+  the blocks or laps clears the validation.
+- **Menu**: EDITORS on the main page: your tracks (name, author time or "not validated", blocks,
+  date), NEW TRACK, EDIT, PLAY, DELETE.
+- `tests/test_editor` (in the gate, 31 checks): road joining (every shape, clips of non-road
+  blocks), the rules, undo/redo, the file and its names, the challenge (ground variants,
+  pillars, laps, uid), validation and its loss on edit; a straight test track driven at full gas
+  from the editor validates its file; the editor scene opens it, places a road beside it (the
+  straight becomes a T), undoes, refuses a taken cell, saves; the Editors page lists, edits,
+  plays.

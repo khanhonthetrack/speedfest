@@ -29,6 +29,16 @@ func register(family: Object) -> void:
 	_families.append(family)
 
 
+## Whether a family recreates this shape (without building it).
+func handles(shape: String) -> bool:
+	if shape.is_empty():
+		return false
+	for fam in _families:
+		if fam.handles(shape):
+			return true
+	return false
+
+
 func make(shape: String, entry: Dictionary, ground: bool) -> Node3D:
 	if shape.is_empty():
 		return null

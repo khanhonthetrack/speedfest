@@ -3,8 +3,10 @@ extends Node3D
 ## The remake's menus (the project's main scene), laid out like TMNF's: the Stadium behind, out of
 ## focus, our car on the field with the camera slowly circling it; a bar across the top with our
 ## logo, where you are and your nickname; the pages in glass:
-## - main: Solo, Online, Profile, Options, Quit (Editors come with the track and replay editors);
-## - solo: Campaign, Replays, Open a track file (any .Challenge.Gbx);
+## - main: Solo, Online, Editors, Profile, Options, Quit;
+## - solo: Campaign, Replays, Open a track file (any .Challenge.Gbx or .sftrack);
+## - editors: the tracks you made (TmUserTracks) with New track, Edit (editor/editor.tscn), Play,
+##   Delete;
 ## - replays: the replays kept (saved ones and your best run on each track), Watch, Delete;
 ## - campaign: the series' tabs (TmTracks.series), a card per track (its map, best time, medal),
 ##   the selected track's details (medal times, your best) and Race;
@@ -13,15 +15,18 @@ extends Node3D
 ## - options.
 ## Race starts race/race.tscn with the track in TestHooks' args.
 ## Args: --race=SF01 (straight into that track; exported builds can't be given a scene),
-## --page=main|solo|campaign|replays|online|profile|options, --track=SF01 (selected), --menu_dry (tests:
+## --page=main|solo|campaign|replays|editors|online|profile|options, --track=SF01 (selected), --menu_dry (tests:
 ## Race only records the choice).
 
 signal raced(track: String, map: String)
 signal watched(replay: String)
+signal edited(track_file: String)
 
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
-const PAGES := {"main": "", "solo": "main", "campaign": "solo", "replays": "solo", "online": "main", "profile": "main", "options": "main"}
-const TITLES := {"main": [], "solo": ["SOLO"], "campaign": ["SOLO", "CAMPAIGN"], "replays": ["SOLO", "REPLAYS"], "online": ["ONLINE"],
+const PAGES := {"main": "", "solo": "main", "campaign": "solo", "replays": "solo", "editors": "main", "online": "main", "profile": "main",
+	"options": "main"}
+const TITLES := {"main": [], "solo": ["SOLO"], "campaign": ["SOLO", "CAMPAIGN"], "replays": ["SOLO", "REPLAYS"], "editors": ["EDITORS"],
+	"online": ["ONLINE"],
 	"profile": ["PROFILE"], "options": ["OPTIONS"]}
 const MEDALS := ["author", "gold", "silver", "bronze"]
 ## The backdrop's grade: dark green at the edges and behind the menu column (TMNF's menus sit
@@ -213,6 +218,8 @@ func show_page(name: String) -> void:
 			_page_campaign()
 		"replays":
 			_page_replays()
+		"editors":
+			_page_editors()
 		"options":
 			_page_options()
 		"online":
@@ -256,6 +263,7 @@ func _page_main() -> void:
 	var solo := _big("SOLO", func() -> void: show_page("solo"))
 	col.add_child(solo)
 	col.add_child(_big("ONLINE", func() -> void: show_page("online")))
+	col.add_child(_big("EDITORS", func() -> void: show_page("editors")))
 	col.add_child(_big("PROFILE", func() -> void: show_page("profile")))
 	col.add_child(_big("OPTIONS", func() -> void: show_page("options")))
 	col.add_child(_big("QUIT", func() -> void: get_tree().quit()))
@@ -604,10 +612,128 @@ func _page_replays() -> void:
 		go.grab_focus.call_deferred()
 
 
+var track_rows := {}                ## path -> the row's button (editors page)
+var track_selected := ""
+const TRACK_COLUMNS := [["TRACK", 360], ["MEDALS", 300], ["BLOCKS", 130], ["CHANGED", 230]]
+
+
+## The tracks you made (TmUserTracks.list, newest first): NEW TRACK opens the editor on a blank
+## one; a row selects, a second press (or EDIT) edits it, PLAY races it, DELETE asks twice.
+func _page_editors() -> void:
+	var root := _root()
+	track_rows.clear()
+	var panel := PanelContainer.new()
+	panel.position = Vector2(60, 130)
+	root.add_child(panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	panel.add_child(col)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 16)
+	col.add_child(top)
+	var fresh := TmUi.go(TmUi.button("NEW TRACK", func() -> void: edit(""), 260))
+	fresh.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	top.add_child(fresh)
+	top.add_child(TmUi.label("TRACK EDITOR: TMNF's Stadium blocks on its grid. Test a track to the finish to validate it.", 20, TmUi.DIM, TmUi.BOLD))
+	var head := HBoxContainer.new()
+	for c: Array in TRACK_COLUMNS:
+		var l := TmUi.label(String(c[0]), 16, TmUi.DIM, TmUi.BOLD, 2)
+		l.custom_minimum_size.x = int(c[1])
+		head.add_child(l)
+	col.add_child(head)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(1080, 400)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	col.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 6)
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(rows)
+	var all := TmUserTracks.list()
+	if all.is_empty():
+		rows.add_child(TmUi.label("No tracks yet: NEW TRACK opens the editor.", 22, TmUi.DIM, TmUi.BOLD))
+	var group := ButtonGroup.new()
+	for e: Dictionary in all:
+		var t: Dictionary = e["track"]
+		var p := String(e["path"])
+		var row := Button.new()
+		row.toggle_mode = true
+		row.button_group = group
+		row.custom_minimum_size = Vector2(1060, 52)
+		row.add_theme_stylebox_override("pressed", TmUi.glass("hover"))
+		row.add_theme_stylebox_override("hover_pressed", TmUi.glass("hover"))
+		var cells := HBoxContainer.new()
+		cells.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		cells.offset_left = 18
+		cells.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(cells)
+		var m: Dictionary = t.get("medals", {})
+		var medal_text := ("AUTHOR %s" % TmRace.time_text(int(m["author"]))) if TmUserTracks.is_validated(t) else "not validated"
+		var texts := [String(t.get("name", "")), medal_text, str((t.get("blocks", []) as Array).size()),
+			Time.get_datetime_string_from_unix_time(int(e["time"]), true).left(16)]
+		for i in TRACK_COLUMNS.size():
+			var l := TmUi.label(String(texts[i]), 22, TmUi.ACCENT if i == 1 and TmUserTracks.is_validated(t) else (TmUi.DIM if i == 1 else TmUi.TEXT), TmUi.BOLD)
+			l.custom_minimum_size.x = int(TRACK_COLUMNS[i][1])
+			l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			l.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			l.clip_text = true
+			cells.add_child(l)
+		row.pressed.connect(func() -> void:
+			TmUi.play("click")
+			if track_selected == p:
+				edit(p)
+			track_selected = p)
+		row.focus_entered.connect(func() -> void: track_selected = p)
+		row.mouse_entered.connect(row.grab_focus)
+		rows.add_child(row)
+		track_rows[p] = row
+	if not all.is_empty() and not track_rows.has(track_selected):
+		track_selected = String(all[0]["path"])
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 10)
+	col.add_child(buttons)
+	var ed := TmUi.button("EDIT", func() -> void:
+		if not track_selected.is_empty():
+			edit(track_selected), 200)
+	var play := TmUi.button("PLAY", func() -> void:
+		if not track_selected.is_empty():
+			race("", track_selected), 200)
+	var del := TmUi.button("DELETE", Callable(), 200)
+	del.pressed.connect(func() -> void:
+		if del.text == "DELETE":
+			del.text = "PRESS AGAIN"
+			return
+		DirAccess.remove_absolute(track_selected)
+		track_selected = ""
+		show_page("editors"))
+	for b: Button in [ed, play, del]:
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.disabled = all.is_empty()
+		buttons.add_child(b)
+	buttons.add_child(_back_button())
+	if track_rows.has(track_selected):
+		var sel: Button = track_rows[track_selected]
+		sel.button_pressed = true
+		sel.grab_focus.call_deferred()
+	else:
+		fresh.grab_focus.call_deferred()
+
+
+## Opens the track editor on a track file ("" a new track).
+func edit(track_file: String) -> void:
+	TestHooks.args.erase("edit")
+	if not track_file.is_empty():
+		TestHooks.args["edit"] = track_file
+	edited.emit(track_file)
+	if TestHooks.arg("menu_dry", false):
+		return
+	get_tree().change_scene_to_file("res://editor/editor.tscn")
+
+
 ## Watches a replay (race/replay.tscn; Esc there comes back to this page).
 func watch(path: String) -> void:
 	TestHooks.args["replay"] = path
-	TestHooks.args["back"] = "menu"
+	TestHooks.args["replay_back"] = "menu"
 	TestHooks.args.erase("replay_at")
 	watched.emit(path)
 	if TestHooks.arg("menu_dry", false):
@@ -902,7 +1028,7 @@ func _open_file() -> void:
 	var fd := FileDialog.new()
 	fd.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	fd.access = FileDialog.ACCESS_FILESYSTEM
-	fd.filters = PackedStringArray(["*.Gbx ; TrackMania tracks"])
+	fd.filters = PackedStringArray(["*.Gbx, *.sftrack ; Tracks (TrackMania, SpeedFest)"])
 	fd.use_native_dialog = true
 	fd.file_selected.connect(func(path: String) -> void: race("", path))
 	_layer.add_child(fd)
@@ -913,6 +1039,7 @@ func _open_file() -> void:
 func race(track: String, map := "") -> void:
 	TestHooks.args.erase("map")
 	TestHooks.args.erase("track")
+	TestHooks.args.erase("back")      # a race from the menu, not a test drive from the editor
 	if not map.is_empty():
 		TestHooks.args["map"] = map
 	else:

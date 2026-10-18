@@ -13,6 +13,7 @@ signal save_replay
 
 var has_next := false
 var online := false                ## in a server: "menu" leaves it
+var editing := false               ## testing a track from the editor: "menu" goes back to it
 var _panel: PanelContainer
 var _box: VBoxContainer
 var paused := false
@@ -91,7 +92,7 @@ func toggle_pause() -> void:
 		return
 	paused = true
 	get_tree().paused = not online   # a server's round runs on: online, the menu only overlays
-	_fill("PAUSED", [["RESUME", resume], ["RESTART", func() -> void: _emit(restarted)], ["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)]])
+	_fill("PAUSED", [["RESUME", resume], ["RESTART", func() -> void: _emit(restarted)], [_menu_text(), func() -> void: _emit(to_menu)]])
 
 
 func resume() -> void:
@@ -117,7 +118,7 @@ func show_finish(result := {}) -> void:
 		items.append(["SAVE REPLAY", func() -> void: save_replay.emit()])
 	if has_next:
 		items.append(["NEXT TRACK", func() -> void: _emit(next_track)])
-	items.append(["LEAVE SERVER" if online else "MENU", func() -> void: _emit(to_menu)])
+	items.append([_menu_text(), func() -> void: _emit(to_menu)])
 	_fill("", items, _result_card(_result) if not _result.is_empty() else null)
 	if _replay_saved:
 		mark_saved()
@@ -160,6 +161,10 @@ static func _result_card(r: Dictionary) -> Control:
 		var d := ms - prev
 		line.add_child(TmUi.label(TmRaceHud.delta_text(d), 30, TmRaceHud.AHEAD if d <= 0 else TmRaceHud.BEHIND, TmUi.HEAD))
 	card.add_child(line)
+	if bool(r.get("validated", false)):
+		var v := TmUi.label("TRACK VALIDATED  ·  ITS MEDALS SET FROM THIS RUN", 22, TmUi.ACCENT, TmUi.HEAD, 2)
+		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(v)
 	# the medal times
 	var grid := GridContainer.new()
 	grid.columns = 4
@@ -201,6 +206,10 @@ static func _medal(kind: String, size: int) -> Control:
 	r.custom_minimum_size = Vector2(size, size)
 	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return r
+
+
+func _menu_text() -> String:
+	return "LEAVE SERVER" if online else ("EDITOR" if editing else "MENU")
 
 
 ## The replay was saved: its button says so (and saves no second copy).

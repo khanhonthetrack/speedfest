@@ -126,6 +126,6 @@ func _menu(path: String) -> void:
 	var got := []
 	menu.watched.connect(func(p: String) -> void: got.append(p))
 	menu.watch(path)
-	TestHooks.check(got == [path] and String(TestHooks.arg("replay", "")) == path and String(TestHooks.arg("back", "")) == "menu", "replay_menu_watch")
+	TestHooks.check(got == [path] and String(TestHooks.arg("replay", "")) == path and String(TestHooks.arg("replay_back", "")) == "menu", "replay_menu_watch")
 	menu.queue_free()
 	TestHooks.args.erase("menu_dry")

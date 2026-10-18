@@ -7,7 +7,7 @@ extends Node3D
 ## the run, every ~120 m), FREE (fly).
 ## Keys: Space play/pause, Left/Right 5 s back/on, Up/Down speed (x1/8 .. x4), C or 1-5 camera,
 ## Home from the start, H hide the controls, Esc back.
-## Args: --replay=<path> (else the newest kept); --back=menu|race (Esc: the menu's replays page, or
+## Args: --replay=<path> (else the newest kept); --replay_back=menu|race (Esc: the menu's replays page, or
 ## a race on the replay's track); --replay_at=<ms> (start there, paused: screenshots), --cam=<name>.
 
 const PREROLL_MS := 1500           ## the countdown before the run
@@ -485,7 +485,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Leaves: to the menu's replays page, or (--back=race) a race on the replay's track.
 func back() -> void:
-	if String(TestHooks.arg("back", "menu")) == "race" and replay != null:
+	if String(TestHooks.arg("replay_back", "menu")) == "race" and replay != null:
 		get_tree().change_scene_to_file("res://race/race.tscn")
 		return
 	TestHooks.args["page"] = "replays"
