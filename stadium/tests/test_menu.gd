@@ -2,8 +2,10 @@ extends Node
 ## Menus: the main page (TMNF's order: Solo, Online, Profile, Options, Quit), Solo, the campaign
 ## page (a tab per series, a card per track with its record, the selected track's details, Race
 ## handing the track to the race scene), going back, the profile (nickname with $-codes, zone),
-## online and options; TmNick's $-codes; the race's pause and finish menus. Records go to a test
-## folder; the settings the test changes are put back.
+## online and options; TmNick's $-codes; the race's pause and finish menus. Also: picks on the
+## profile keep the focus, CLEAR ALL RECORDS asks again on every visit, the race menu's panel takes
+## its new content's size, no NOW PLAYING with the music off. Records go to a test folder,
+## settings to a test file.
 
 const NL := char(10)
 
@@ -11,8 +13,10 @@ const NL := char(10)
 func _ready() -> void:
 	TestHooks.args["records"] = "user://test_records"
 	TestHooks.args["menu_dry"] = "true"
+	TestHooks.args["settings"] = "user://test_settings.cfg"     # never the player's own settings
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_settings.cfg"))
+	TestHooks.args["master"] = "http://127.0.0.1:9"    # no master: the online page offers logging in
 	TmRecords.clear()
-	var kept := {"name": TmUi.setting("name"), "zone": TmUi.setting("zone")}
 	_nick()
 	var menu: TmMenu = (load("res://ui/menu.tscn") as PackedScene).instantiate()
 	add_child(menu)
@@ -34,14 +38,23 @@ func _ready() -> void:
 	menu.show_page("online")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(names.has("JOIN") and names.has("CONNECT") and names.has("BACK"), "menu_online_page", str(names))
+	TestHooks.check(names.has("LOG IN") and names.has("REGISTER") and names.has("SERVERS") and names.has("RANKINGS") and names.has("CONNECT")
+		and names.has("BACK"), "menu_online_page", str(names))
 	menu.show_page("options")
 	await get_tree().process_frame
 	TestHooks.check(_all(menu, []).filter(func(c: Node) -> bool: return c is CheckButton).size() >= 6, "menu_options_page")
+	# CLEAR ALL RECORDS: a first press on an earlier visit doesn't arm it
+	_press(menu, "CLEAR ALL RECORDS")
+	menu.show_page("main")
+	menu.show_page("options")
+	await get_tree().process_frame
+	_press(menu, "CLEAR ALL RECORDS")
+	var texts := _buttons(menu).map(func(b: Button) -> String: return b.text)
+	TestHooks.check(texts.has("PRESS AGAIN TO CLEAR ALL RECORDS") and not texts.has("RECORDS CLEARED"), "menu_clear_records_asks_again",
+		str(texts))
+	_toast()
 	await _race_menu()
 	TmRecords.clear()
-	for k: String in kept:
-		TmUi.set_setting(k, kept[k])
 	TestHooks.finish()
 
 
@@ -123,6 +136,16 @@ func _profile(menu: TmMenu) -> void:
 	await get_tree().process_frame
 	TestHooks.check(uk > 0 and String(TmUi.setting("zone")) == "Europe|United Kingdom" and _labels(menu).has("EUROPE  ·  UNITED KINGDOM"),
 		"menu_profile_zone", String(TmUi.setting("zone")))
+	# a pick rebuilds the page; the focus stays on what was picked (not the nickname)
+	await get_tree().process_frame
+	var on_zone := get_viewport().gui_get_focus_owner() is OptionButton
+	var swatches := _buttons(menu).filter(func(b: Button) -> bool: return b.custom_minimum_size == Vector2(46, 46))
+	(swatches[2] as Button).pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var f := get_viewport().gui_get_focus_owner()
+	TestHooks.check(on_zone and int(TmUi.setting("colour")) == 2 and f is Button and (f as Button).custom_minimum_size == Vector2(46, 46)
+		and f.get_index() == 2, "menu_profile_keeps_focus", "%s, %s" % [on_zone, f])
 	menu.back()
 	await get_tree().process_frame
 
@@ -134,8 +157,13 @@ func _race_menu() -> void:
 	rm.restarted.connect(func() -> void: restarts[0] += 1)
 	rm.toggle_pause()
 	TestHooks.check(get_tree().paused and rm.paused and _buttons(rm).size() == 3, "race_menu_pauses")
+	var first_h: float = rm._panel.size.y
 	rm.toggle_pause()
 	TestHooks.check(not get_tree().paused and not rm.paused, "race_menu_resumes")
+	rm.toggle_pause()                 # the panel again: its own size, not the old content's added
+	var again_h: float = rm._panel.size.y
+	rm.toggle_pause()
+	TestHooks.check(absf(again_h - first_h) < 1.0, "race_menu_panel_size", "%.0f then %.0f px" % [first_h, again_h])
 	rm.has_next = true
 	rm.show_finish()
 	await get_tree().process_frame
@@ -157,6 +185,21 @@ func _race_menu() -> void:
 	await get_tree().process_frame
 	TestHooks.check(_labels(rm).has("GOLD MEDAL"), "race_menu_result_after_pause")
 	rm.queue_free()
+
+
+## The NOW PLAYING toast: shown with the music on, not with it off.
+func _toast() -> void:
+	var holder := Node.new()
+	add_child(holder)
+	Music.toast(holder)
+	var l: Label = _all(holder, []).filter(func(c: Node) -> bool: return c is Label)[0]
+	TmUi.set_setting("music", false)
+	Music.now_playing.emit("Title", "Artist")
+	var off := l.text
+	TmUi.set_setting("music", true)
+	Music.now_playing.emit("Title", "Artist")
+	TestHooks.check(off.is_empty() and l.text.contains("NOW PLAYING"), "menu_toast_follows_music", "%s | %s" % [off, l.text])
+	holder.queue_free()
 
 
 static func _all(n: Node, out: Array) -> Array:

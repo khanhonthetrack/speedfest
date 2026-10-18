@@ -1,0 +1,8 @@
+{
+	"name": "B03-Race",
+	"author": "SpeedFest",
+	"start": [6, 4, 28, 2],
+	"medals": {"author": 21300, "gold": 22600, "silver": 26000, "bronze": 32000},
+	"bot_grip": 40,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["s", 2], ["cp"], ["s", 2], ["gt", 2, "l"], ["s", 2], ["climb", 1], ["s", 1], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 2], ["jump", 2], ["s", 2], ["cp"], ["s", 3], ["finish"]]
+}

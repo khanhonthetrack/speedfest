@@ -14,12 +14,29 @@ for (const [letter, count] of [['A', 15], ['B', 15], ['C', 15], ['D', 15], ['E',
   for (let i = 1; i <= count; i++) TMNF_CAMPAIGN.push(letter + String(i).padStart(2, '0'));
 }
 
-/** The game's campaign: stadium/tracks/campaign.json (the track ids, in order); without it, the
- *  track files' names, sorted. */
+/** The game's campaign for the servers' rotation: stadium/tracks/campaign.json (the track ids in
+ *  order: a list, or {"series": [{"name", "tracks": [..]}, ..]}, the series one after another),
+ *  without the tracks whose spec says "online": false (the long endurance ones); without the
+ *  manifest, the track files' names, sorted. */
 function ownTracks(dir = path.join(__dirname, '..', '..', 'tracks')) {
+  const online = (id) => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(dir, `${id}.json`), 'utf8')).online !== false;
+    } catch {
+      return true;
+    }
+  };
+  return listed(dir).filter(online);
+}
+
+function listed(dir) {
   try {
-    const listed = JSON.parse(fs.readFileSync(path.join(dir, 'campaign.json'), 'utf8'));
-    if (Array.isArray(listed) && listed.length) return listed.map(String);
+    const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'campaign.json'), 'utf8'));
+    if (Array.isArray(manifest) && manifest.length) return manifest.map(String);
+    if (manifest && Array.isArray(manifest.series)) {
+      const ids = manifest.series.flatMap((s) => (s && Array.isArray(s.tracks) ? s.tracks : [])).map(String);
+      if (ids.length) return [...new Set(ids)];
+    }
   } catch { /* no manifest: the files */ }
   try {
     return fs.readdirSync(dir).filter((f) => /^[A-Za-z0-9_-]+\.json$/.test(f) && f !== 'campaign.json')

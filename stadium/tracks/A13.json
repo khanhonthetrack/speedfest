@@ -1,0 +1,8 @@
+{
+	"name": "A13-Race",
+	"author": "SpeedFest",
+	"start": [26, 5, 28, 2],
+	"medals": {"author": 20270, "gold": 21500, "silver": 25000, "bronze": 31000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["circuit", 1], ["s", 5], ["gt", 3, "r"], ["s", 5], ["platform", 3, "walls"], ["s", 3], ["gt", 3, "l"], ["s", 4], ["platform", 1, "walls"], ["s", 1], ["cp"], ["s", 1], ["circuit", 1], ["s", 4], ["gt", 3, "l"], ["s", 2], ["road"], ["s", 2], ["finish"]]
+}

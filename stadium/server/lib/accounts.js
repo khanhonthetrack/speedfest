@@ -158,4 +158,4 @@ class Accounts {
   }
 }
 
-module.exports = { Accounts, loadZones, stripNick, cleanText, LADDER_START };
+module.exports = { Accounts, loadZones, stripNick, cleanText, LADDER_START, NICK_MAX };

@@ -1,7 +1,7 @@
 class_name TmTracks
 extends RefCounted
 ## SpeedFest's own tracks: tracks/*.json (track specs, laid out by TmTrackBuilder from the
-## recreated blocks; ids are the file names, SF01 ..). The campaign (the menu, the server's
+## recreated blocks; ids are the file names, A01 ..). The campaign (the menu, the server's
 ## rotation) is the list in tracks/campaign.json, in its order; any other track file can still be
 ## raced by id (--track=), e.g. one being made or tested. campaign.json is a list of ids (one
 ## series) or {"series": [{"name": "White", "tracks": ["A01", ..]}, ..]} (the menu's tabs).

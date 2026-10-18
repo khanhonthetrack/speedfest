@@ -1,0 +1,8 @@
+{
+	"name": "C01-Race",
+	"author": "SpeedFest",
+	"start": [6, 1, 1, 0],
+	"medals": {"author": 25820, "gold": 27400, "silver": 31000, "bronze": 39000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 2], ["turbo"], ["s", 1], ["climb", 1], ["s", 1], ["gt", 3, "r"], ["s", 2], ["cp"], ["s", 1], ["jump", 2], ["s", 2], ["gt", 3, "l"], ["turbo"], ["s", 2], ["loop", "r"], ["s", 1], ["dive", 1], ["s", 1], ["cp"], ["s", 1], ["gt", 3, "l"], ["s", 3], ["finish"]]
+}

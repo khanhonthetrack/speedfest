@@ -37,7 +37,7 @@
   online, M9-8 the A-E campaign) are unchanged.
 - Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
 
-## Latest (18 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
+## Latest (18 Oct, session 13 continued, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
 - Owner (TRANSCRIPT, session 13): the remake looks cheap (gates, billboards, stadium, "2005");
   wants TMNF's graphics (or better, RTX), TMNF's menus, online, a campaign like TMNF's, a better
   engine sound, a car whose rims sit in the tyres. Answers: our own A-E campaign (65 originals),
@@ -55,15 +55,30 @@
   REPLAY / SAVE REPLAY after the finish; `tests/test_replay`); M9-6 the track editor
   (`editor/editor.tscn`, `editor/tm_editor_model.gd`, `race/tm_user_tracks.gd` .sftrack files,
   Editors page, palette icons from `tools/icons/`; `tests/test_editor`).
-- Next, in order: M9-7 online (master
-  server, accounts, ladder; Profile and Online get rankings), M9-8 the A-E campaign
-  (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
-  M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
-  tracks that use them.
-- Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with
-  `--ref=<OUT>`; `race/map_view.tscn` views `car:`, `gate:<block>`, `rel:`, `near:` (see its header).
-- Local reference data in a fresh container: `pip install pycryptodome py7zr numpy`, then
-  `tools/research/tmnf/setup_measurements.sh <dir outside the repo>` (stadium/CLAUDE.md).
+- M9-7 online done too (PROGRESS "M9-7"): `stadium/server` (master `/api` + official servers
+  `/ws/<id>` in one process; Docker + named tunnel for the Pi: README there), `net/tm_master.gd`,
+  the Online page, modes/votes/spectating in `race/tm_race_online.gd`. The owner deploys it.
+- Session 14's work (review fixes, flags, Polish adverts, v0.4) is merged into this branch
+  (from `claude/trackmania-stadium-review-lds3no`; gate PASS). This branch is ahead of `stadium`
+  by M9-7: merge it into `stadium` when the owner says so.
+- The session-13 code review's 42 findings (`docs/research/m9_review_findings.md`) are all
+  fixed, in four batches (PROGRESS "the M9 code review's findings"): testing mode only from the
+  command line, list selection, the editor's ground-only blocks, replays (laps, the roll after the
+  finish, keys, sound, back to the finish menu), menus, the music toast, guest names.
+- M9-8 the A-E campaign is done: 65 tracks of our own in TMNF's five series (research and the
+  list with times: `docs/research/m9_campaign.md`; PROGRESS "the White series" onward). The
+  builder lays TMNF's surfaces (`race/tm_track_areas.gd`: circuit lanes with their borders,
+  walled or open platforms, dirt roads, the joins; lap races with `["close"]`); README "Make a
+  track" has the layout rules the bot taught us (loops need a turbo run-up; nothing tight or a
+  gate right after a fast crest). The gate drives each series' first track; `tests/test_tracks
+  --series=<name>` drives a whole series (the bot drives at about real time: White ~6 min, Red
+  ~25 min with D15's 10 laps; D15 and E05 are off the online rotation, `"online": false`).
+  Untracked planning helpers (recreate if needed): `tests/tmp/ascii.tscn` (a track's top view),
+  `layout_all.tscn` (lay out many), `bot_probe.tscn` (where the bot is, every second).
+- Next (M9, in order): M9-2 the look of what the campaign now shows most (platform walls and
+  decks, circuit walls, dirt and its hills, tube pillars, decoration placed for area tracks, light
+  and atmosphere, the RTX preset), then M9-0's remaining research notes. Merge this branch into
+  `stadium` when the owner says so.
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,

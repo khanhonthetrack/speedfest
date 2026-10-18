@@ -184,12 +184,17 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       (author time), save/load/share. Done (PROGRESS 18 Oct): editor/editor.tscn, .sftrack files,
       Editors page; sharing tracks online comes with step 7. Later: terrain (dirt hills, water)
       and TMNF's auto clips between block families
-- [ ] 7. Online: master server (accounts with password and zone, $-code nicknames, ladder points,
+- [x] 7. Online: master server (accounts with password and zone, $-code nicknames, ladder points,
       world/zone rankings, records, server list), dedicated servers (Time Attack, Rounds, Team,
-      Laps), server browser, chat, votes, spectators; docker + named Cloudflare tunnel for the Pi
-- [ ] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
+      Laps), server browser, chat, votes, spectators; docker + named Cloudflare tunnel for the Pi.
+      Done (PROGRESS 18 Oct, docs/research/m9_online.md); the owner deploys it on the Pi
+      (stadium/server/README.md). Then: the review's 42 findings (session 13), all fixed
+      (docs/research/m9_review_findings.md; PROGRESS "the M9 code review's findings")
+- [x] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
       difficulty curve and block style; the TMNF-install campaign tabs removed (single
-      `.Challenge.Gbx` files still open)
+      `.Challenge.Gbx` files still open). Done (PROGRESS 18 Oct, docs/research/m9_campaign.md):
+      the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
+      every track driven by the bot, medals from its best run
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

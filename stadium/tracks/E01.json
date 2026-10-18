@@ -1,0 +1,8 @@
+{
+	"name": "E01-Obstacle",
+	"author": "SpeedFest",
+	"start": [3, 10, 3, 0],
+	"medals": {"author": 38110, "gold": 40400, "silver": 46000, "bronze": 58000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["cp"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["down"], ["s", 2], ["gt", 2, "l"], ["s", 1], ["cp"], ["s", 1], ["gt", 2, "l"], ["down"], ["s", 2], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 1], ["up"], ["s", 3], ["gt", 2, "r"], ["s", 1], ["cp"], ["gt", 2, "r"], ["s", 1], ["down"], ["s", 2], ["gt", 2, "l"], ["cp"], ["s", 1], ["gt", 2, "l"], ["s", 2], ["up"], ["s", 3], ["cp"], ["s", 1], ["gt", 2, "r"], ["road"], ["s", 2], ["finish"]]
+}

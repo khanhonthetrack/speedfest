@@ -1,0 +1,8 @@
+{
+	"name": "B15-Race",
+	"author": "SpeedFest",
+	"start": [4, 6, 28, 2],
+	"medals": {"author": 26330, "gold": 28000, "silver": 32000, "bronze": 40000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["circuit", 1], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["down"], ["s", 2], ["cp"], ["s", 1], ["platform", 1, "walls"], ["s", 2], ["gt", 2, "r"], ["s", 2], ["cp"], ["s", 2], ["gt", 2, "l"], ["s", 1], ["road"], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["climb", 1, "cp"], ["s", 2], ["finish"]]
+}

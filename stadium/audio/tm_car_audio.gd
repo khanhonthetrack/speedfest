@@ -33,7 +33,7 @@ var _throttle := 0.0
 var _skid_level := 0.0
 var _digit := -1
 var _was_racing := false
-var _turbo_until := -1
+var _turbo_on := false
 var _hit_ready_ms := 0
 var engine_rpm := TmSounds.RPM_IDLE   ## the engine's rpm now
 var engine_gear := 1                 ## its gear (0: reverse)
@@ -64,6 +64,12 @@ func _ready() -> void:
 		race.lap_done.connect(func(_l: int, _t: int) -> void: cue("checkpoint"))
 	if car:
 		car.wheel_hit_wall.connect(_on_hit)
+
+
+## Holds the engine, skid and wind loops where they are (a paused replay), or lets them go on.
+func set_paused(on: bool) -> void:
+	for p: AudioStreamPlayer in _layers + [_skid, _wind]:
+		p.stream_paused = on
 
 
 ## Plays a one-shot cue (TmSounds name), optionally pitched.
@@ -110,10 +116,11 @@ func _process(delta: float) -> void:
 			_was_racing = true
 			_digit = -1
 			cue("go", -2.0, 1.5)
-	if car.model.turbo_until_ms > _turbo_until:
-		if car.model.turbo_until_ms > car.now_ms:
-			cue("turbo", -3.0)
-		_turbo_until = car.model.turbo_until_ms
+	# a pad renews the turbo every tick the car is on it: one cue when it starts
+	var turbo := car.model.turbo_until_ms > car.now_ms
+	if turbo and not _turbo_on:
+		cue("turbo", -3.0)
+	_turbo_on = turbo
 
 
 ## The gearbox, the rpm and the layers' mix.

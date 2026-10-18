@@ -8,7 +8,10 @@ Owner decisions (2026-10-16):
 - **Assets: recreate only.** Every model, texture and sound here is our own, made in the TMNF style.
   No Nadeo files (meshes, textures, sounds, packs, decompiled code) are ever committed or shipped.
 - **Tracks:** the game is **standalone** (owner, 2026-10-17): its campaign is our own tracks
-  (`tracks/*.json`, built from the recreated blocks; no TMNF needed). TMNF's official campaign and
+  (`tracks/*.json`, built from the recreated blocks; no TMNF needed): 65 in TMNF's five series,
+  White A01-A15, Green B01-B15, Blue C01-C15, Red D01-D15, Black E01-E05 (owner, session 13:
+  "Only our own A-E"; `docs/research/m9_campaign.md`). The first SpeedFest tracks (SF01-SF11)
+  stay raceable by id. TMNF's official campaign and
   any `.Challenge.Gbx` (TMX downloads) still load **at runtime** from files the player owns (their
   TMNF install, their downloads) and are drawn with our blocks. They are never committed.
 - **Engine:** Godot 4.7 Forward+ with high-end settings (an RTX fork may come later).
@@ -32,7 +35,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `gbx/` | `.Challenge.Gbx` reader: header, medals, LZO body, blocks |
 | `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid: catalogue (layout data), placement, map builder, shape families in `blocks/shapes/` |
 | `race/` | race rules (`TmRace`), waypoint triggers (`TmTriggers`), race scene + HUD, map viewer, drive test; our tracks: `TmTracks`, `TmTrackBuilder` (piece lists → blocks), the driving bot `TmBot` |
-| `tracks/` | our own campaign: one JSON track spec per track (`SF01.json` ..), see `race/tm_track_builder.gd` |
+| `tracks/` | our own campaign: one JSON track spec per track (`A01.json` .. `E05.json`; the list and its series in `campaign.json`), see `race/tm_track_builder.gd` |
 | `net/`, `server/` | online play: the client (`Online` autoload) and the Node.js time-attack server |
 | `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
 | `audio/` | recorded open-licensed sounds (`audio/sfx`), music (`audio/music`, `tm_music.gd`), the race's engine and cues (`tm_car_audio.gd`) |
@@ -61,13 +64,19 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
    fullscreen, graphics quality, HD textures, shadows, sound, music, the ghost, clear all records.
 
 ## Make a track
-A track is a list of pieces laid end to end (`tracks/SF01.json`; pieces in
+A track is a list of pieces laid end to end (`tracks/A01.json`; pieces in
 `race/tm_track_builder.gd`): `["start"]`, `["s", 3]`, `["gt", 3, "r"]`, `["cp"]`, `["up"]`,
 `["climb", 2]` / `["dive", 2]` (long hills: 4 levels over 6 blocks), `["jump", 1]`, `["loop", "r"]`,
-`["turbo"]`, `["finish"]`, ... A loop needs a straight block (or a turbo, a checkpoint) before and
-after it and about 300 km/h in (a turbo a block or two before it). Give a jump's landing a few
+`["turbo"]`, `["finish"]`, ... and TMNF's surfaces: `["circuit", 1]`, `["platform", 3, "walls"]`
+(lanes; on them s, l, r, gt, cp on a one-cell lane, turbo, up, down, climb, dive), `["dirt"]`,
+`["road"]` (`race/tm_track_areas.gd` lays the plates, borders and walls). A lap race: `"laps": 3`,
+the pieces ending with `["close"]` back onto the start line. `"online": false` keeps a long one off
+the servers' rotation. A loop needs a straight block (or a turbo, a checkpoint) before and
+after it and about 300 km/h in (a turbo and two straights before it; never straight off a join or
+a landing). Give a jump's landing a few
 straight blocks (at 400 km/h a low ramp flies 200 m), and a hill's crest some road after it (over
-~315 km/h the car takes off there; the bot slows for crests). The field is 32 x 32 blocks: our
+~315 km/h the car takes off there; the bot slows for crests): no gate within ~4 blocks after a
+crest (the car flies over it) and no tight turn just after one. The field is 32 x 32 blocks: our
 tracks use most of it (`tests/tmp/track_dump`, untracked, prints a map; recreate it from PROGRESS).
 Save it as `tracks/<ID>.json`, then
 

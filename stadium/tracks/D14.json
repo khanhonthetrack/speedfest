@@ -1,0 +1,9 @@
+{
+	"name": "D14-Endurance",
+	"author": "SpeedFest",
+	"start": [6, 4, 6, 0],
+	"laps": 3,
+	"medals": {"author": 81180, "gold": 86100, "silver": 98000, "bronze": 122000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["circuit", 1], ["s", 1], ["cp"], ["s", 7], ["gt", 3, "r"], ["s", 1], ["cp"], ["s", 1], ["up"], ["s", 4], ["circuit", 3], ["s", 1], ["gt", 3, "r"], ["s", 9], ["down"], ["s", 1], ["circuit", 1], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["platform", 3, "walls"], ["turbo"], ["s", 3], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["gt", 3, "r"], ["road"], ["close"]]
+}

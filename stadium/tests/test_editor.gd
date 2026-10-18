@@ -88,6 +88,23 @@ func _rules() -> void:
 	TestHooks.check(m.track["blocks"].size() == 3 and not m.block_at(Vector3i(16, 1, 4)).is_empty(), "editor_undo")
 	m.redo()
 	TestHooks.check(m.track["blocks"].size() == 2 and m.block_at(Vector3i(16, 1, 4)).is_empty() and not m.can_redo(), "editor_redo")
+	# ground-only blocks spanning several cells turn inside their own box (as the builder places them)
+	var box_ok := true
+	for d in 4:
+		var cs := TmUserTracks.cells("StadiumRoadDirtGTCurve2", d, Vector3i(10, 1, 10))
+		var lo := Vector2i(999, 999)
+		for c in cs:
+			lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.z))
+		box_ok = box_ok and cs.size() == 5 and lo == Vector2i(10, 10)
+	TestHooks.check(box_ok, "editor_ground_blocks_turn_in_place")
+	TestHooks.check(m.why_not("StadiumRoadDirtGTCurve2", 0, Vector3i(10, 3, 10)) == "this block stands on the ground only"
+		and m.why_not("StadiumSculptBridgeSuspendSlope2", 0, Vector3i(10, 1, 10)).is_empty(), "editor_ground_only_and_tall_blocks",
+		m.why_not("StadiumSculptBridgeSuspendSlope2", 0, Vector3i(10, 1, 10)))
+	var lap := TmEditorModel.new(TmUserTracks.blank("Lap"))
+	lap.place("StadiumRoadMainStartFinishLine", 0, Vector3i(5, 1, 5))
+	var lap_lack := lap.missing()
+	lap.place("StadiumRoadMainCheckpoint", 0, Vector3i(5, 1, 7))
+	TestHooks.check(lap_lack.begins_with("Place a checkpoint") and lap.missing().is_empty(), "editor_lap_needs_a_checkpoint", lap_lack)
 	var t := TmEditorModel.anchor("StadiumRoadMainGTCurve2", 1, Vector3i(5, 1, 5))
 	var cells := TmUserTracks.cells("StadiumRoadMainGTCurve2", 1, t)
 	TestHooks.check(cells.has(Vector3i(5, 1, 5)) and cells.size() == 4, "editor_anchor_on_cursor", "%s %s" % [t, cells])
@@ -114,6 +131,8 @@ func _files() -> String:
 		"editor_names_dont_clash", TmUserTracks.path_for(other))
 	var all := TmUserTracks.list()
 	TestHooks.check(all.size() == 1 and String(all[0]["path"]) == path, "editor_list")
+	var odd := TmUserTracks.blank("#1 Track")
+	TestHooks.check(not TmUserTracks.path_for(odd).get_file().begins_with("_"), "editor_names_listed", TmUserTracks.path_for(odd))
 	return path
 
 

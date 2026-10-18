@@ -68,13 +68,18 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-17 (session 12). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
-- **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF11.json`, laid out by
-  `race/tm_track_builder.gd`, listed by `race/tm_tracks.gd`; `tests/test_tracks` (in the gate)
-  drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then
-  `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
-  (README "Make a track"). `tests/tmp/track_dump` (untracked; recreate: prints an ASCII map) helps.
-  Released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
+Updated 2026-10-18 (session 13, M9). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Standalone** (owner, 2026-10-17): our campaign (M9-8, session 13) is TMNF's structure with
+  our own 65 tracks, `tracks/A01..E05.json` in five series (`tracks/campaign.json`: White, Green,
+  Blue, Red, Black), laid out by `race/tm_track_builder.gd` with TMNF's surfaces
+  (`race/tm_track_areas.gd`: circuit, platform, dirt, joins, borders, walls; lap races), listed by
+  `race/tm_tracks.gd`. `tests/test_tracks` (in the gate) lays out and builds every track and has
+  the bot (`race/tm_bot.gd`) drive each series' first one within gold (`--series=Red`,
+  `--tracks=all` for the rest: the bot drives at about real time). New track: write the JSON,
+  then `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
+  (README "Make a track": the layout rules the bot taught us). The old SF01-SF11 stay raceable
+  by id (the road-gate tests use SF01). Earlier (session 12, the SF tracks):
+  released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
   "loops fixed"). Quality pass done (HANDOFF): gates, driver, decoration (`race/tm_track_decor.gd`),
   adverts (`env/tm_adverts.gd`), finish run-off. The campaign is the list in `tracks/campaign.json`.
   The review's open items are done (PROGRESS, 17 Oct): the tracks span the field (66-82% of its

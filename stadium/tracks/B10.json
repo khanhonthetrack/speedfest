@@ -1,0 +1,8 @@
+{
+	"name": "B10-Speed",
+	"author": "SpeedFest",
+	"start": [2, 6, 4, 3],
+	"medals": {"author": 23810, "gold": 25300, "silver": 29000, "bronze": 36000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["circuit", 3], ["s", 6], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["gt", 3, "l"], ["s", 6], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 3], ["turbo"], ["s", 4], ["gt", 3, "l"], ["s", 2], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 3], ["turbo"], ["s", 1], ["gt", 3, "l"], ["s", 3], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 2], ["finish"]]
+}

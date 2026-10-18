@@ -15,16 +15,19 @@ const DIR := "user://replays"
 const AUTOSAVE := "autosave"
 const EXT := ".replay"
 const LAST := "_last"             ## the last run, kept to watch it from the finish (not listed)
+const TAIL_MS := 2500             ## recorded (and played) after the finish: the car rolling on
 ## flags: bits 0-3 the wheels touching, then:
 const F_GROUNDED := 16
 const F_SLIDING := 32
 const F_WALL := 64                ## hit a wall since the last sample
-const F_TURBO := 128              ## a turbo started since the last sample
+const F_TURBO := 128              ## a turbo started since the last sample (not one a pad keeps going)
 const F_CUT := 256                ## a respawn: don't blend into this sample
 
 var samples := PackedFloat32Array()
 var finish_ms := -1               ## the run's time; -1 if it didn't finish
 var splits: Array = []            ## the clock at each checkpoint and lap line (ms)
+var laps := 0                     ## the race's laps and checkpoints per lap (0 and -1: not
+var checkpoints := -1             ## recorded; the viewer takes them from the track)
 var track := ""                   ## our track's id (TmTracks), or
 var map := ""                     ## a track file's path
 var uid := ""                     ## the track's uid when the run was raced
@@ -35,7 +38,7 @@ var date := ""                    ## local time, "YYYY-MM-DD HH:MM:SS"
 var path := ""                    ## where it was loaded from or saved to
 
 var _events := 0                  ## event flags gathered since the last sample
-var _turbo_seen := -1
+var _turbo_on := false
 
 
 ## Where the replays live (tests pass --replays=user://test_replays).
@@ -43,9 +46,12 @@ static func dir() -> String:
 	return String(TestHooks.arg("replays", DIR))
 
 
-## A new recording of a run on a challenge, by the player (nickname and colour from the settings).
-static func start(ch: TmChallenge, track_id: String, map_path: String) -> TmReplay:
+## A new recording of a run on a challenge, by the player (nickname and colour from the settings),
+## in a race of `lap_count` laps of `cp_count` checkpoints.
+static func start(ch: TmChallenge, track_id: String, map_path: String, lap_count := 1, cp_count := -1) -> TmReplay:
 	var r := TmReplay.new()
+	r.laps = lap_count
+	r.checkpoints = cp_count
 	r.track = track_id
 	r.map = map_path
 	r.uid = ch.uid
@@ -65,16 +71,17 @@ func length_ms() -> int:
 	return finish_ms if finish_ms >= 0 else maxi(0, (count() - 1) * INTERVAL_MS)
 
 
-## Called every tick while racing, at race time t_ms: keeps one sample per INTERVAL_MS and the
-## events (wall hits, turbos) between them.
+## Called every tick while racing (and for TAIL_MS after the finish), at race time t_ms: keeps one
+## sample per INTERVAL_MS and the events (wall hits, turbos) between them.
 func record(t_ms: int, car: TmCar) -> void:
 	if car.body.wall_touch:
 		_events |= F_WALL
 	var m := car.model
-	if m.turbo_until_ms != _turbo_seen:
-		if m.turbo_until_ms > car.now_ms:
-			_events |= F_TURBO
-		_turbo_seen = m.turbo_until_ms
+	# a pad renews the turbo every tick the car is on it: only its start is an event
+	var turbo := m.turbo_until_ms > car.now_ms
+	if turbo and not _turbo_on:
+		_events |= F_TURBO
+	_turbo_on = turbo
 	if t_ms < count() * INTERVAL_MS:
 		return
 	var xf := car.global_transform
@@ -96,6 +103,12 @@ func record(t_ms: int, car: TmCar) -> void:
 ## The car jumped (a respawn): the next sample isn't blended with the one before.
 func cut() -> void:
 	_events |= F_CUT
+
+
+## Whether split k (of splits, the finish apart) is a lap line: each lap is its checkpoints, then
+## the line (TmRace.cross).
+func is_lap_split(k: int) -> bool:
+	return laps > 1 and checkpoints >= 0 and (k + 1) % (checkpoints + 1) == 0
 
 
 ## The flags of sample i.
@@ -147,7 +160,8 @@ func to_ghost() -> TmGhost:
 
 func header() -> Dictionary:
 	return {"track": track, "map": map, "uid": uid, "track_name": track_name, "player": player,
-		"colour": [colour.r, colour.g, colour.b], "date": date, "finish_ms": finish_ms, "splits": splits}
+		"colour": [colour.r, colour.g, colour.b], "date": date, "finish_ms": finish_ms, "splits": splits, "laps": laps,
+		"checkpoints": checkpoints}
 
 
 func _set_header(h: Dictionary) -> void:
@@ -162,6 +176,8 @@ func _set_header(h: Dictionary) -> void:
 	date = String(h.get("date", ""))
 	finish_ms = int(h.get("finish_ms", -1))
 	splits = (h.get("splits", []) as Array).map(func(v: Variant) -> int: return int(v))
+	laps = int(h.get("laps", 0))
+	checkpoints = int(h.get("checkpoints", -1))
 
 
 func save(to: String) -> bool:
@@ -209,7 +225,7 @@ static func list() -> Array:
 		if not DirAccess.dir_exists_absolute(d):
 			continue
 		for f in DirAccess.get_files_at(d):
-			if not f.ends_with(EXT) or f.begins_with("_"):
+			if not f.ends_with(EXT) or f == LAST + EXT:
 				continue
 			var r := load_file(d.path_join(f), true)
 			if r != null:
@@ -220,12 +236,13 @@ static func list() -> Array:
 
 ## A file name for a saved replay: "<track> <time> <date>.replay", file-safe.
 func file_name() -> String:
-	var text := "%s %s %s" % [track_name if not track_name.is_empty() else "track", TmRace.time_text(finish_ms).replace(":", "m").replace(".", "s"),
+	var title := TmNick.strip(track_name).strip_edges()
+	var text := "%s %s %s" % [title if not title.is_empty() else "track", TmRace.time_text(finish_ms).replace(":", "m").replace(".", "s"),
 		date.replace(":", "-")]
 	var out := ""
 	for c in text:
 		out += c if (c.is_valid_identifier() or c.is_valid_int() or c in "- ") else "_"
-	return out.strip_edges() + EXT
+	return out.strip_edges().lstrip("_") + EXT
 
 
 ## Where the last run is kept to watch it straight from the finish.

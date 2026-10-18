@@ -1,0 +1,8 @@
+{
+	"name": "D13-Race",
+	"author": "SpeedFest",
+	"start": [2, 1, 28, 2],
+	"medals": {"author": 33180, "gold": 35200, "silver": 40000, "bronze": 50000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 2], ["dirt"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 2], ["road"], ["s", 1], ["climb", 2, "cp"], ["s", 1], ["gt", 3, "l"], ["s", 1], ["circuit", 1], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 2], ["down"], ["s", 2], ["cp"], ["s", 1], ["road"], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 2], ["cp"], ["s", 1], ["finish"]]
+}

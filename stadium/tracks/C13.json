@@ -1,0 +1,8 @@
+{
+	"name": "C13-Race",
+	"author": "SpeedFest",
+	"start": [16, 1, 0, 0],
+	"medals": {"author": 28840, "gold": 30600, "silver": 35000, "bronze": 44000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["climb", 1], ["s", 1], ["circuit", 1], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 2], ["platform", 1, "walls"], ["s", 2], ["cp"], ["s", 1], ["gt", 2, "l"], ["s", 2], ["road"], ["turbo"], ["s", 2], ["loop", "r"], ["s", 1], ["cp"], ["gt", 3, "l"], ["s", 2], ["dive", 1], ["s", 1], ["cp"], ["s", 3], ["finish"]]
+}

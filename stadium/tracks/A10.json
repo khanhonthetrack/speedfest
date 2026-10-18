@@ -1,0 +1,8 @@
+{
+	"name": "A10-Acrobatic",
+	"author": "SpeedFest",
+	"start": [16, 1, 6, 0],
+	"medals": {"author": 10420, "gold": 11100, "silver": 13000, "bronze": 16000},
+	"bot_grip": 30,
+	"pieces": [["start"], ["s", 2], ["s", 2], ["jump", 3, "high"], ["s", 6], ["finish"]]
+}

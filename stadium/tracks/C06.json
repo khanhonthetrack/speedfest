@@ -1,0 +1,8 @@
+{
+	"name": "C06-Speed",
+	"author": "SpeedFest",
+	"start": [2, 12, 2, 3],
+	"medals": {"author": 26660, "gold": 28300, "silver": 32000, "bronze": 40000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 5], ["turbo"], ["s", 6], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["gt", 3, "l"], ["s", 3], ["dive", 1], ["s", 2], ["turbo"], ["s", 4], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["s", 4], ["gt", 3, "l"], ["s", 3], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["dive", 1], ["s", 2], ["gt", 3, "l"], ["s", 3], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 2], ["finish"]]
+}
