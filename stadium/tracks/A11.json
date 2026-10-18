@@ -1,0 +1,9 @@
+{
+	"name": "A11-Race",
+	"author": "SpeedFest",
+	"start": [24, 1, 26, 2],
+	"medals": {"author": 18610, "gold": 19800, "silver": 23000, "bronze": 28000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 1], ["dirt"], ["s", 2], ["gt", 3, "r"], ["s", 3], ["cp"], ["s", 2], ["gt", 2, "l"], ["s", 2],
+		["gt", 3, "l"], ["s", 2], ["road"], ["s", 2], ["finish"]]
+}

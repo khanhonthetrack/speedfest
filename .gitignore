@@ -23,3 +23,5 @@ game/tests/tmp/
 
 # the online server's data (accounts, records) when run from the repo
 stadium/server/data/
+# the tunnel token for the Pi (stadium/server/docker-compose.yml)
+stadium/server/.env

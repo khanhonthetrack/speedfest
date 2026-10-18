@@ -2,8 +2,9 @@ extends Node
 ## Our own tracks (tracks/*.json; no TMNF install needed): each lays out without errors, builds
 ## from recreated blocks only (no placeholders), has a start, its checkpoints and a finish, and the
 ## driving bot (TmBot) finishes it in the race scene, crossing every checkpoint, within the
-## track's gold time, at the track's bot_grip. --tracks=SF01,SF02 (default: all); --grip=40 tries
-## another cornering grip; --write_medals: the bot drives each track at several grips and the
+## track's gold time, at the track's bot_grip. The bot drives (about real time, so the gate keeps
+## it short) each series' first track by default; --tracks=all every campaign track,
+## --series=White one series, --tracks=A01,A02 those; --grip=40 tries another cornering grip; --write_medals: the bot drives each track at several grips and the
 ## best finish sets its medals (author = the bot's time, gold +6%, silver +20%, bronze +50%,
 ## rounded up to 10 ms / 0.1 s / 1 s) and bot_grip, written back to the track's file.
 
@@ -17,17 +18,36 @@ func _ready() -> void:
 	var ids := TmTracks.ids()
 	TestHooks.check(ids.size() >= 1, "tracks_found", "%d" % ids.size())
 	var only := String(TestHooks.arg("tracks", ""))
-	if not only.is_empty():
+	var drive := {}                  # the tracks the bot drives (every one lays out and builds)
+	if only == "all":
+		for id in ids:
+			drive[id] = true
+	elif not only.is_empty():
 		ids.assign(Array(only.split(",")))
+		for id in ids:
+			drive[id] = true
+	elif TestHooks.has_arg("series"):
+		ids.clear()
+		for s: Dictionary in TmTracks.series():
+			if String(s["name"]).to_lower() == String(TestHooks.arg("series", "")).to_lower():
+				for id: String in s["tracks"]:
+					ids.append(id)
+					drive[id] = true
+	else:
+		for s: Dictionary in TmTracks.series():
+			drive[String(s["tracks"][0])] = true
 	var report := []
 	for id in ids:
-		var ms := await _track(id)
-		report.append("%s %s" % [id, TmRace.time_text(ms) if ms > 0 else "DNF"])
+		var ms := await _track(id, drive.has(id))
+		if drive.has(id):
+			report.append("%s %s" % [id, TmRace.time_text(ms) if ms > 0 else "DNF"])
 	print("TRACK_TIMES ", ", ".join(report))
 	if not ids.is_empty() and not TestHooks.has_arg("write_medals"):
-		await _respawn_check(ids[0])
-		await _input_script_check(ids[0])
-		await _steer_check(ids[0])
+		# on a road track (its gates have the crown screens): SF01 when it's there
+		var road := "SF01" if TmTracks.has("SF01") else ids[0]
+		await _respawn_check(road)
+		await _input_script_check(road)
+		await _steer_check(road)
 	TestHooks.finish()
 
 
@@ -136,7 +156,7 @@ func _gate_screens(id: String, scene: Node, race: TmRace, at: Vector3) -> void:
 		"%d near, %s (want %s)" % [here.size(), here.map(func(g: TmGateScreen) -> String: return g._main.text), want])
 
 
-func _track(id: String) -> int:
+func _track(id: String, drive := true) -> int:
 	var spec := TmTracks.spec(id)
 	var b := TmTrackBuilder.build(spec)
 	TestHooks.check(b.errors.is_empty(), "%s_lays_out" % id, "; ".join(b.errors))
@@ -151,7 +171,7 @@ func _track(id: String) -> int:
 		and mb.checkpoints.size() == b.checkpoints and finishes == 1, "%s_builds" % id,
 		"%s start %s cps %d/%d finishes %d" % [mb.stats, mb.has_start, mb.checkpoints.size(), b.checkpoints, finishes])
 	mb.root.free()
-	if not ch.ok():
+	if not ch.ok() or not drive:
 		return -1
 	# the bot races it: with the track's grip (bot_grip), or, writing medals, its best of several
 	var grips: Array = [float(TestHooks.arg("grip", spec.get("bot_grip", 40.0)))]
@@ -187,7 +207,13 @@ func _drive(id: String, grip: float) -> Dictionary:
 	bot.grip = grip
 	var race: TmRace = scene.race
 	var top := 0.0
-	while race.state != TmRace.State.FINISHED and bot.failed.is_empty() and race.time_ms < LIMIT_MS:
+	# long tracks (endurance, laps) get longer: at least 12 m/s along the whole line
+	var length := 0.0
+	var line: Array = scene.challenge.path
+	for i in range(1, line.size()):
+		length += (line[i]["p"] as Vector3).distance_to(line[i - 1]["p"])
+	var limit := maxi(LIMIT_MS, int(length / 12.0 * 1000.0))
+	while race.state != TmRace.State.FINISHED and bot.failed.is_empty() and race.time_ms < limit:
 		await get_tree().physics_frame
 		top = maxf(top, scene.car.speed_kmh())
 		if TestHooks.has_arg("trace") and race.racing() and race.time_ms % 500 == 0:
@@ -195,7 +221,7 @@ func _drive(id: String, grip: float) -> Dictionary:
 				bot.index, scene.car.global_position.snapped(Vector3.ONE * 0.1), scene.car.speed_kmh(), scene.car.gas,
 				scene.car.brake, scene.car.steer, scene.car.wheel_contact, scene.car.local_velocity().snapped(Vector3.ONE * 0.1)])
 	var ms := race.finish_ms if race.state == TmRace.State.FINISHED else -1
-	var why := bot.failed if not bot.failed.is_empty() else ("over %d s" % (LIMIT_MS / 1000) if ms < 0 else "")
+	var why := bot.failed if not bot.failed.is_empty() else ("over %d s" % (limit / 1000) if ms < 0 else "")
 	var out := {"ms": ms, "taken": race.taken.size(), "top": top, "index": bot.index, "why": why}
 	scene.queue_free()
 	await get_tree().physics_frame

@@ -10,7 +10,8 @@ extends Node3D
 ## - replays: the replays kept (saved ones and your best run on each track), Watch, Delete;
 ## - campaign: the series' tabs (TmTracks.series), a card per track (its map, best time, medal),
 ##   the selected track's details (medal times, your best) and Race;
-## - online: the server list (the official server, published in the repo) and joining by address;
+## - online: your account (log in, register; ladder points and ranks), the servers (from the
+##   master: name, mode, track, players), the world's and your zone's rankings, joining by address;
 ## - profile: your nickname (TMNF's $-codes, previewed), zone, car colour and medals;
 ## - options.
 ## Race starts race/race.tscn with the track in TestHooks' args.
@@ -55,6 +56,9 @@ var _headers := {}
 var _tiles := {}
 var _detail: VBoxContainer
 var _clear_armed := false
+var _profile_focus := ""            ## after a pick rebuilds the profile page: "zone" or a swatch's index
+var _account_asked := false         ## the online page asked the master for the account (this visit)
+var _profile_changed := false
 var _grade: ColorRect
 
 
@@ -73,6 +77,7 @@ func _ready() -> void:
 	_grade.material = sm
 	_layer.add_child(_grade)
 	tracks = TmTracks.ids()
+	_online_tab = int(TestHooks.arg("online_tab", 0))
 	selected = String(TestHooks.arg("track", tracks[0] if not tracks.is_empty() else ""))
 	Music.toast(self, 0.0, true)   # along the bottom, in line with the key hints
 	var all := TmTracks.series()
@@ -208,6 +213,11 @@ func _root() -> Control:
 
 
 func show_page(name: String) -> void:
+	if page == "profile" and name != "profile" and _profile_changed:
+		_profile_changed = false
+		Master.push_profile()      # the account takes the profile's nickname and zone
+	if name != page:
+		_account_asked = false
 	page = name if PAGES.has(name) else "main"
 	_clear()
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25 if page == "profile" else 0.55)
@@ -423,7 +433,7 @@ func _card(t: String) -> Button:
 	var ms := int(TmRecords.best(ch).get("time_ms", -1))
 	var m := TmRace.medal(ms, ch)
 	var card := Button.new()
-	card.custom_minimum_size = Vector2(168, 162)
+	card.custom_minimum_size = Vector2(168, 180)       # the map, number and medal, name, best time
 	card.tooltip_text = ch.name
 	var box := VBoxContainer.new()
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
@@ -446,7 +456,7 @@ func _card(t: String) -> Button:
 	name_l.custom_minimum_size.x = 150
 	name_l.clip_text = true
 	box.add_child(name_l)
-	box.add_child(TmUi.label(TmRace.time_text(ms) if ms >= 0 else "--:--.--", 16, TmUi.TEXT if ms >= 0 else TmUi.DIM, TmUi.HEAD))
+	box.add_child(TmUi.label(TmRace.time_text(ms), 16, TmUi.TEXT if ms >= 0 else TmUi.DIM, TmUi.HEAD))
 	card.pressed.connect(func() -> void: select(t))
 	card.pressed.connect(func() -> void: TmUi.play("click"))
 	card.focus_entered.connect(func() -> void: select(t, false))
@@ -501,6 +511,7 @@ func select(track: String, race_on_repeat := true) -> void:
 	mine.add_child(col)
 	mine.add_child(TmUi.label(TmRace.time_text(ms), 30, Color.WHITE, TmUi.HEAD))
 	_detail.add_child(mine)
+	_online_records(track, ch)
 	var go := TmUi.go(TmUi.button("RACE", func() -> void: race(track), 480))
 	go.icon = TmUi.icon("play", 30)
 	go.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -534,6 +545,7 @@ func _page_replays() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(1080, 470)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true      # keyboard and pad focus scroll the list
 	col.add_child(scroll)
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 6)
@@ -575,8 +587,8 @@ func _page_replays() -> void:
 			TmUi.play("click")
 			if replay_selected == path:
 				watch(path)
-			replay_selected = path)
-		row.focus_entered.connect(func() -> void: replay_selected = path)
+			replay_selected = path
+			_disarm())
 		row.mouse_entered.connect(row.grab_focus)
 		rows.add_child(row)
 		replay_rows[path] = row
@@ -595,9 +607,9 @@ func _page_replays() -> void:
 	var del := TmUi.button("DELETE", Callable(), 220)
 	del.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	del.disabled = all.is_empty()
+	_del_btn = del
 	del.pressed.connect(func() -> void:
-		if del.text == "DELETE":
-			del.text = "PRESS AGAIN"
+		if _arm(del, replay_selected, (TmReplay.load_file(replay_selected, true).track_name if TmReplay.load_file(replay_selected, true) else "")):
 			return
 		DirAccess.remove_absolute(replay_selected)
 		replay_selected = ""
@@ -615,6 +627,11 @@ func _page_replays() -> void:
 var track_rows := {}                ## path -> the row's button (editors page)
 var track_selected := ""
 const TRACK_COLUMNS := [["TRACK", 360], ["MEDALS", 300], ["BLOCKS", 130], ["CHANGED", 230]]
+
+
+## The local time's offset from UTC in seconds (file times are UTC; the lists show local time).
+static func _utc_bias_s() -> int:
+	return int(Time.get_time_zone_from_system().get("bias", 0)) * 60
 
 
 ## The tracks you made (TmUserTracks.list, newest first): NEW TRACK opens the editor on a blank
@@ -644,6 +661,7 @@ func _page_editors() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(1080, 400)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true      # keyboard and pad focus scroll the list
 	col.add_child(scroll)
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 6)
@@ -670,7 +688,7 @@ func _page_editors() -> void:
 		var m: Dictionary = t.get("medals", {})
 		var medal_text := ("AUTHOR %s" % TmRace.time_text(int(m["author"]))) if TmUserTracks.is_validated(t) else "not validated"
 		var texts := [String(t.get("name", "")), medal_text, str((t.get("blocks", []) as Array).size()),
-			Time.get_datetime_string_from_unix_time(int(e["time"]), true).left(16)]
+			Time.get_datetime_string_from_unix_time(int(e["time"]) + _utc_bias_s(), true).left(16)]
 		for i in TRACK_COLUMNS.size():
 			var l := TmUi.label(String(texts[i]), 22, TmUi.ACCENT if i == 1 and TmUserTracks.is_validated(t) else (TmUi.DIM if i == 1 else TmUi.TEXT), TmUi.BOLD)
 			l.custom_minimum_size.x = int(TRACK_COLUMNS[i][1])
@@ -682,8 +700,8 @@ func _page_editors() -> void:
 			TmUi.play("click")
 			if track_selected == p:
 				edit(p)
-			track_selected = p)
-		row.focus_entered.connect(func() -> void: track_selected = p)
+			track_selected = p
+			_disarm())
 		row.mouse_entered.connect(row.grab_focus)
 		rows.add_child(row)
 		track_rows[p] = row
@@ -695,13 +713,19 @@ func _page_editors() -> void:
 	var ed := TmUi.button("EDIT", func() -> void:
 		if not track_selected.is_empty():
 			edit(track_selected), 200)
+	var note := TmUi.label("", 20, TmUi.DIM, TmUi.BOLD)
 	var play := TmUi.button("PLAY", func() -> void:
-		if not track_selected.is_empty():
-			race("", track_selected), 200)
+		if track_selected.is_empty():
+			return
+		var lack := TmEditorModel.new(TmUserTracks.load_file(track_selected)).missing()
+		if not lack.is_empty():
+			note.text = lack + " in the editor first"
+			return
+		race("", track_selected), 200)
 	var del := TmUi.button("DELETE", Callable(), 200)
+	_del_btn = del
 	del.pressed.connect(func() -> void:
-		if del.text == "DELETE":
-			del.text = "PRESS AGAIN"
+		if _arm(del, track_selected, String(TmUserTracks.load_file(track_selected).get("name", ""))):
 			return
 		DirAccess.remove_absolute(track_selected)
 		track_selected = ""
@@ -711,12 +735,34 @@ func _page_editors() -> void:
 		b.disabled = all.is_empty()
 		buttons.add_child(b)
 	buttons.add_child(_back_button())
+	col.add_child(note)
 	if track_rows.has(track_selected):
 		var sel: Button = track_rows[track_selected]
 		sel.button_pressed = true
 		sel.grab_focus.call_deferred()
 	else:
 		fresh.grab_focus.call_deferred()
+
+
+var _del_btn: Button                ## the page's DELETE (re-armed when the selection changes)
+
+
+## DELETE asks first, naming what it deletes: true while it is only asking (the first press, or
+## the selection changed since).
+func _arm(del: Button, path: String, what: String) -> bool:
+	if path.is_empty():
+		return true
+	if String(del.get_meta("armed", "")) == path:
+		return false
+	del.set_meta("armed", path)
+	del.text = "DELETE %s?" % (what if not what.is_empty() else path.get_file()).left(18).to_upper()
+	return true
+
+
+func _disarm() -> void:
+	if is_instance_valid(_del_btn):
+		_del_btn.remove_meta("armed")
+		_del_btn.text = "DELETE"
 
 
 ## Opens the track editor on a track file ("" a new track).
@@ -741,7 +787,28 @@ func watch(path: String) -> void:
 	get_tree().change_scene_to_file("res://race/replay.tscn")
 
 
+## The track's online records under its details (the world record, yours), when the master answers.
+func _online_records(track: String, ch: TmChallenge) -> void:
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 10)
+	_detail.add_child(line)
+	var r: Dictionary = await Master.records(ch.uid, String(TmUi.setting("zone")))
+	if not is_instance_valid(line) or selected != track or r.is_empty():
+		return
+	var top: Array = r.get("top", [])
+	line.add_child(TmUi.label("WORLD RECORD", 16, TmUi.DIM, TmUi.HEAD, 2))
+	if top.is_empty():
+		line.add_child(TmUi.label("none yet", 20, TmUi.DIM, TmUi.BOLD))
+		return
+	line.add_child(TmUi.label(TmRace.time_text(int(top[0]["time"])), 20, TmUi.ACCENT, TmUi.HEAD))
+	line.add_child(TmUi.nick_label(String(top[0].get("nickname", "")), 20))
+	var mine: Variant = r.get("mine")
+	if mine is Dictionary:
+		line.add_child(TmUi.label("   YOU #%d of %d" % [int(mine["rank"]), int(r.get("count", 0))], 18, TmUi.TEXT, TmUi.BOLD, 1))
+
+
 func _page_options() -> void:
+	_clear_armed = false          # a first press on an earlier visit doesn't count
 	var root := _root()
 	var panel := PanelContainer.new()
 	panel.position = Vector2(60, 130)
@@ -812,6 +879,7 @@ func _page_profile() -> void:
 	edit.custom_minimum_size = Vector2(590, 48)
 	edit.text_changed.connect(func(t: String) -> void:
 		TmUi.set_setting("name", t.strip_edges())
+		_profile_changed = true
 		preview.text = TmNick.to_bbcode(t.strip_edges(), TmUi.TEXT))
 	col.add_child(edit)
 	col.add_child(preview)
@@ -819,7 +887,8 @@ func _page_profile() -> void:
 		17, TmUi.DIM, TmUi.BOLD))
 	col.add_child(HSeparator.new())
 	col.add_child(TmUi.label("ZONE", 18, TmUi.DIM, TmUi.HEAD, 2))
-	col.add_child(_zone_picker())
+	var zone := _zone_picker()
+	col.add_child(zone)
 	col.add_child(HSeparator.new())
 	col.add_child(TmUi.label("CAR COLOUR", 18, TmUi.DIM, TmUi.HEAD, 2))
 	var swatches := HBoxContainer.new()
@@ -839,12 +908,20 @@ func _page_profile() -> void:
 		b.pressed.connect(func() -> void:
 			TmUi.set_setting("colour", i)
 			_paint_car()
+			_profile_focus = str(i)
 			show_page("profile"))
 		swatches.add_child(b)
 	col.add_child(HSeparator.new())
 	col.add_child(_medal_summary())
 	col.add_child(_back_button())
-	edit.grab_focus.call_deferred()
+	# after a pick (the page is rebuilt) the focus stays on what was picked
+	var focus: Control = edit
+	if _profile_focus == "zone":
+		focus = zone
+	elif _profile_focus.is_valid_int() and int(_profile_focus) < swatches.get_child_count():
+		focus = swatches.get_child(int(_profile_focus)) as Control
+	_profile_focus = ""
+	focus.grab_focus.call_deferred()
 
 
 ## The zone: World, or a country (data/zones.json, by continent), stored as "Continent|Country".
@@ -869,64 +946,63 @@ func _zone_picker() -> OptionButton:
 	pick.item_selected.connect(func(i: int) -> void:
 		var path: Variant = pick.get_item_metadata(i)
 		TmUi.set_setting("zone", path if path is String else "")
+		_profile_changed = true
+		_profile_focus = "zone"
 		show_page("profile"))
 	return pick
 
 
 var _online_status: Label
-var _server_row: Button
-var _server_cells: Array[Label] = []
-var _official_url := ""
-const SERVER_COLUMNS := [["SERVER", 330], ["TRACK", 330], ["PLAYERS", 130], ["TIME LEFT", 130]]
+var _online_tab := 0                ## 0 servers, 1 rankings (--online_tab=1: screenshots)
+var _rank_zone := false             ## rankings: false the world, true your zone
+var server_rows: Array = []         ## the listed servers' rows (tests)
+var server_selected := ""           ## the picked server's address (a row's first press; JOIN, SPECTATE)
+const SERVER_COLUMNS := [["SERVER", 300], ["MODE", 150], ["TRACK", 220], ["PLAYERS", 110]]
+const RANK_COLUMNS := [["#", 70], ["PLAYER", 330], ["ZONE", 260], ["LADDER", 120]]
 
 
-## The server list (today: the official server, published in the repo) and joining by address.
+## TMNF's online page: your account at the left (log in or register; your ladder points and
+## ranks), at the right the servers (from the master: name, mode, track, players; JOIN) or the
+## rankings (the world's or your zone's), and joining by address.
 func _page_online() -> void:
 	var root := _root()
-	var panel := PanelContainer.new()
-	panel.position = Vector2(60, 130)
-	root.add_child(panel)
+	var left := PanelContainer.new()
+	left.position = Vector2(60, 130)
+	left.custom_minimum_size = Vector2(470, 0)
+	root.add_child(left)
+	var acc := VBoxContainer.new()
+	acc.add_theme_constant_override("separation", 10)
+	left.add_child(acc)
+	_account_panel(acc)
+	var right := PanelContainer.new()
+	right.position = Vector2(560, 130)
+	right.custom_minimum_size = Vector2(980, 0)
+	root.add_child(right)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)
-	panel.add_child(col)
-	col.add_child(TmUi.label("SERVERS", 18, TmUi.DIM, TmUi.HEAD, 2))
-	var head := HBoxContainer.new()
-	for c: Array in SERVER_COLUMNS:
-		var l := TmUi.label(String(c[0]), 16, TmUi.DIM, TmUi.BOLD, 2)
-		l.custom_minimum_size.x = int(c[1])
-		head.add_child(l)
-	col.add_child(head)
-	_server_row = Button.new()
-	_server_row.custom_minimum_size = Vector2(920, 54)
-	_server_row.pressed.connect(func() -> void:
-		if not _official_url.is_empty():
-			_connect(_official_url))
-	_server_row.mouse_entered.connect(_server_row.grab_focus)
-	var cells := HBoxContainer.new()
-	cells.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	cells.offset_left = 18
-	cells.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_server_row.add_child(cells)
-	_server_cells.clear()
-	for c: Array in SERVER_COLUMNS:
-		var l := TmUi.label("", 22, TmUi.TEXT, TmUi.BOLD)
-		l.custom_minimum_size.x = int(c[1])
-		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		l.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		l.clip_text = true
-		cells.add_child(l)
-		_server_cells.append(l)
-	_server_cells[0].text = "Looking for the official server..."
-	col.add_child(_server_row)
-	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 10)
-	col.add_child(buttons)
-	var join := TmUi.go(TmUi.button("JOIN", func() -> void:
-		if not _official_url.is_empty():
-			_connect(_official_url), 220))
-	join.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	buttons.add_child(join)
-	buttons.add_child(TmUi.button("REFRESH", func() -> void: show_page("online"), 220))
+	right.add_child(col)
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 6)
+	col.add_child(tabs)
+	var group := ButtonGroup.new()
+	for i in 2:
+		var b := TmUi.button(["SERVERS", "RANKINGS"][i], Callable(), 180)
+		b.toggle_mode = true
+		b.button_group = group
+		b.button_pressed = i == _online_tab
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.pressed.connect(func() -> void:
+			_online_tab = i
+			show_page("online"))
+		tabs.add_child(b)
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 6)
+	body.custom_minimum_size = Vector2(0, 430)
+	col.add_child(body)
+	if _online_tab == 0:
+		_servers_tab(body)
+	else:
+		_rankings_tab(body)
 	col.add_child(HSeparator.new())
 	col.add_child(TmUi.label("JOIN BY ADDRESS", 18, TmUi.DIM, TmUi.HEAD, 2))
 	var row := HBoxContainer.new()
@@ -940,58 +1016,209 @@ func _page_online() -> void:
 	row.add_child(TmUi.button("CONNECT", func() -> void:
 		TmUi.set_setting("server", addr.text.strip_edges())
 		_connect(addr.text.strip_edges()), 200))
-	_online_status = TmUi.label("You race as your profile's nickname and car colour.", 20, TmUi.DIM, TmUi.BOLD)
+	_online_status = TmUi.label("", 20, TmUi.DIM, TmUi.BOLD)
 	col.add_child(_online_status)
-	col.add_child(_back_button())
-	_server_row.grab_focus.call_deferred()
-	_find_official()
+	var back := _back_button()
+	back.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 64)
+	back.position.x = 60
+	back.position.y -= 24
+	root.add_child(back)
+	(tabs.get_child(_online_tab) as Control).grab_focus.call_deferred()
 
 
-## The official server's address (published in the repo), then its status.
-func _find_official() -> void:
-	var req := HTTPRequest.new()
-	add_child(req)
-	req.timeout = 8.0
-	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
-		req.queue_free()
-		var d: Variant = JSON.parse_string(body.get_string_from_utf8()) if result == HTTPRequest.RESULT_SUCCESS and code == 200 else null
-		if not (d is Dictionary) or String(d.get("url", "")).is_empty():
-			_show_server(["The official server is offline right now (join by address below)", "", "", ""])
-			return
-		_official_url = String(d["url"])
-		_server_status(_official_url))
-	req.request(Online.OFFICIAL_LIST)
-
-
-func _show_server(cells: Array) -> void:
-	if _server_cells.is_empty() or not is_instance_valid(_server_cells[0]):
+func _account_panel(acc: VBoxContainer) -> void:
+	acc.add_theme_constant_override("separation", 10)
+	acc.add_child(TmUi.label("YOUR ACCOUNT", 18, TmUi.DIM, TmUi.HEAD, 2))
+	if Master.logged_in():
+		var a := Master.account
+		acc.add_child(TmUi.nick_label(String(a.get("nickname", TmUi.setting("name"))), 34))
+		var zone := String(a.get("zone", "World"))
+		acc.add_child(TmUi.label("%s   ·   %s" % [String(a.get("login", "")), zone.replace("|", "  ·  ")], 20, TmUi.DIM, TmUi.BOLD))
+		var lad := HBoxContainer.new()
+		lad.add_theme_constant_override("separation", 12)
+		lad.add_child(_icon("star", 40))
+		lad.add_child(TmUi.label("%d LADDER POINTS" % int(a.get("ladder", 0)), 26, TmUi.ACCENT, TmUi.HEAD, 1))
+		acc.add_child(lad)
+		var r := Master.ranks
+		if not r.is_empty():
+			acc.add_child(TmUi.label("World  #%d of %d\nZone  #%d" % [int(r.get("world", 0)), int(r.get("players", 0)), int(r.get("zone", 0))],
+				22, TmUi.TEXT, TmUi.BOLD))
+		acc.add_child(TmUi.label("Your nickname and zone come from Profile.", 18, TmUi.DIM, TmUi.BOLD))
+		acc.add_child(TmUi.button("LOG OUT", func() -> void:
+			await Master.log_out()
+			if page == "online":
+				show_page("online"), 220))
+		if (a.is_empty() or r.is_empty()) and not _account_asked:
+			_account_asked = true
+			_refresh_account()
 		return
-	for i in mini(cells.size(), _server_cells.size()):
-		_server_cells[i].text = String(cells[i])
+	var intro := TmUi.label("Log in to climb the ladder and keep online records. Or just join a server as a guest.", 19, TmUi.DIM, TmUi.BOLD)
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro.custom_minimum_size.x = 420
+	acc.add_child(intro)
+	var login := LineEdit.new()
+	login.placeholder_text = "login"
+	login.max_length = 20
+	login.custom_minimum_size = Vector2(420, 46)
+	acc.add_child(login)
+	var pw := LineEdit.new()
+	pw.placeholder_text = "password (8 characters or more)"
+	pw.secret = true
+	pw.max_length = 200
+	pw.custom_minimum_size = Vector2(420, 46)
+	acc.add_child(pw)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	acc.add_child(row)
+	var note := TmUi.label("New here? REGISTER uses your Profile's nickname and zone.", 18, TmUi.DIM, TmUi.BOLD)
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.custom_minimum_size.x = 420
+	var go := func(register: bool) -> void:
+		note.text = "Registering..." if register else "Logging in..."
+		var why := ""
+		if register:
+			why = await Master.register(login.text.strip_edges(), pw.text)
+		else:
+			why = await Master.log_in(login.text.strip_edges(), pw.text)
+		if why.is_empty():
+			if page == "online":
+				show_page("online")
+		elif is_instance_valid(note):
+			note.text = why
+	row.add_child(TmUi.go(TmUi.button("LOG IN", func() -> void: go.call(false), 200)))
+	row.add_child(TmUi.button("REGISTER", func() -> void: go.call(true), 200))
+	for b: Button in row.get_children():
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pw.text_submitted.connect(func(_t: String) -> void: go.call(false))
+	acc.add_child(note)
 
 
-func _server_status(address: String) -> void:
-	var req := HTTPRequest.new()
-	add_child(req)
-	req.timeout = 8.0
-	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
-		req.queue_free()
-		var d: Variant = JSON.parse_string(body.get_string_from_utf8()) if result == HTTPRequest.RESULT_SUCCESS and code == 200 else null
-		if not (d is Dictionary):
-			_show_server(["The official server isn't answering", "", "", ""])
-			return
-		var r: Dictionary = d.get("round", {})
-		var left := maxi(0, int(float(r.get("end", 0)) - float(d.get("now", 0))))
-		var trk := String(r.get("track", ""))
-		var trk_name := trk
-		if TmTracks.has(trk):
-			trk_name = "%s  %s" % [trk, header(trk).name]
-		_show_server([String(d.get("name", "")), trk_name, "%d / %d" % [int(d.get("players", 0)), int(d.get("maxPlayers", 0))],
-			"%d:%02d" % [left / 60000, (left / 1000) % 60]]))
-	req.request(Online.status_url(address))
+## Asks the master for the account (once per visit to the page); rebuilds the page with it, or
+## with the log-in form when the master no longer knows the token.
+func _refresh_account() -> void:
+	var why := await Master.refresh()
+	if (why.is_empty() or not Master.logged_in()) and page == "online":
+		show_page("online")
 
 
-func _connect(address: String) -> void:
+func _servers_tab(body: VBoxContainer) -> void:
+	server_rows.clear()
+	var head := HBoxContainer.new()
+	for c: Array in SERVER_COLUMNS:
+		var l := TmUi.label(String(c[0]), 16, TmUi.DIM, TmUi.BOLD, 2)
+		l.custom_minimum_size.x = int(c[1])
+		head.add_child(l)
+	body.add_child(head)
+	var wait := TmUi.label("Looking for servers...", 20, TmUi.DIM, TmUi.BOLD)
+	body.add_child(wait)
+	var list: Array = await Master.servers()
+	if not is_instance_valid(wait):
+		return
+	wait.text = "" if not list.is_empty() else "No servers are online right now (join one by its address below)"
+	var scroll := ScrollContainer.new()     # many servers scroll instead of pushing the page down
+	scroll.custom_minimum_size = Vector2(950, mini(list.size(), 5) * 58)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	body.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 6)
+	scroll.add_child(rows)
+	var group := ButtonGroup.new()
+	for s: Dictionary in list:
+		var row := Button.new()
+		row.custom_minimum_size = Vector2(940, 52)
+		var cells := HBoxContainer.new()
+		cells.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		cells.offset_left = 18
+		cells.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(cells)
+		var trk := String(s.get("track", ""))
+		var trk_name := ("%s  %s" % [trk, header(trk).name]) if TmTracks.has(trk) else trk
+		var texts := [String(s.get("name", "")), String(s.get("mode", "")), trk_name,
+			"%d / %d" % [int(s.get("players", 0)), int(s.get("max", 0))]]
+		for i in SERVER_COLUMNS.size():
+			var l := TmUi.label(texts[i], 22, TmUi.ACCENT if i == 1 or (i == 0 and s.get("official", false)) else TmUi.TEXT, TmUi.BOLD)
+			l.custom_minimum_size.x = int(SERVER_COLUMNS[i][1])
+			l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			l.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			l.clip_text = true
+			cells.add_child(l)
+		var address := String(s.get("address", ""))
+		row.toggle_mode = true
+		row.button_group = group
+		row.add_theme_stylebox_override("pressed", TmUi.glass("hover"))
+		row.add_theme_stylebox_override("hover_pressed", TmUi.glass("hover"))
+		row.button_pressed = address == server_selected
+		row.pressed.connect(func() -> void:
+			if server_selected == address:
+				_connect(address)            # a second press joins
+			server_selected = address)
+		row.mouse_entered.connect(row.grab_focus)
+		rows.add_child(row)
+		server_rows.append(row)
+	if not server_rows.is_empty():
+		if not list.any(func(x: Dictionary) -> bool: return String(x.get("address", "")) == server_selected):
+			server_selected = String(list[0].get("address", ""))
+			(server_rows[0] as Button).button_pressed = true
+		var buttons := HBoxContainer.new()
+		buttons.add_theme_constant_override("separation", 10)
+		body.add_child(buttons)
+		var join := TmUi.go(TmUi.button("JOIN", func() -> void: _connect(server_selected), 220))
+		var watch_btn := TmUi.button("SPECTATE", func() -> void: _connect(server_selected, true), 220)
+		for b: Button in [join, watch_btn]:
+			b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+			buttons.add_child(b)
+
+
+func _rankings_tab(body: VBoxContainer) -> void:
+	var mine := String(Master.account.get("zone", TmUi.setting("zone")))
+	var zone := mine if _rank_zone and not mine.is_empty() else "World"
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	body.add_child(row)
+	for z: Array in [["WORLD", false], ["MY ZONE", true]]:
+		var b := TmUi.button(String(z[0]), func() -> void:
+			_rank_zone = bool(z[1])
+			show_page("online"), 160)
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.custom_minimum_size.y = 42
+		if bool(z[1]) == _rank_zone:
+			b.add_theme_stylebox_override("normal", TmUi.glass("hover"))
+		row.add_child(b)
+	row.add_child(TmUi.label("  " + zone.replace("|", "  ·  "), 20, TmUi.DIM, TmUi.BOLD))
+	var head := HBoxContainer.new()
+	for c: Array in RANK_COLUMNS:
+		var l := TmUi.label(String(c[0]), 16, TmUi.DIM, TmUi.BOLD, 2)
+		l.custom_minimum_size.x = int(c[1])
+		head.add_child(l)
+	body.add_child(head)
+	var wait := TmUi.label("Loading...", 20, TmUi.DIM, TmUi.BOLD)
+	body.add_child(wait)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(940, 300)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true      # keyboard and pad focus scroll the list
+	body.add_child(scroll)
+	var rows := VBoxContainer.new()
+	scroll.add_child(rows)
+	var r: Dictionary = await Master.rankings(zone)
+	if not is_instance_valid(wait):
+		return
+	var players: Array = r.get("players", [])
+	wait.text = "" if not players.is_empty() else ("Nobody ranked here yet" if not r.is_empty() else "The master server isn't reachable")
+	for p: Dictionary in players:
+		var line := HBoxContainer.new()
+		var me := String(p.get("login", "")) == String(Master.account.get("login", "-"))
+		var cells: Array[Control] = [TmUi.label("%d" % int(p.get("rank", 0)), 22, TmUi.ACCENT if me else TmUi.DIM, TmUi.HEAD),
+			TmUi.nick_label(String(p.get("nickname", "")), 22), TmUi.label(String(p.get("zone", "")).replace("|", " · "), 20, TmUi.DIM, TmUi.BOLD),
+			TmUi.label("%d" % int(p.get("ladder", 0)), 22, TmUi.ACCENT if me else TmUi.TEXT, TmUi.HEAD)]
+		for i in cells.size():
+			cells[i].custom_minimum_size.x = int(RANK_COLUMNS[i][1])
+			line.add_child(cells[i])
+		rows.add_child(line)
+
+
+func _connect(address: String, spectator := false) -> void:
 	if address.is_empty():
 		return
 	_online_status.text = "Connecting to %s ..." % address
@@ -1005,7 +1232,7 @@ func _connect(address: String) -> void:
 		if is_instance_valid(_online_status):
 			_online_status.text = "Couldn't join: %s" % reason, CONNECT_ONE_SHOT)
 	var who := String(TmUi.setting("name")).strip_edges()
-	Online.join(address, who if not who.is_empty() else "Player", TmUi.car_colour())
+	Online.join(address, who if not who.is_empty() else "Player", TmUi.car_colour(), Master.token(), spectator)
 
 
 ## In the server: race its round's track.
@@ -1040,6 +1267,7 @@ func race(track: String, map := "") -> void:
 	TestHooks.args.erase("map")
 	TestHooks.args.erase("track")
 	TestHooks.args.erase("back")      # a race from the menu, not a test drive from the editor
+	TestHooks.args["return_page"] = page if page != "main" else "solo"   # the race's MENU comes back here
 	if not map.is_empty():
 		TestHooks.args["map"] = map
 	else:

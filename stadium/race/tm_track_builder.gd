@@ -7,7 +7,8 @@ extends RefCounted
 ## plus the line a car should follow through it (`path`, for the driving bot, TmBot).
 ##
 ## A track spec (tracks/*.json): {"id", "name", "author", "start": [x, y, z, heading], "pieces":
-## [...], "medals": {"author", "gold", "silver", "bronze"} (ms)}. Pieces:
+## [...], "medals": {"author", "gold", "silver", "bronze"} (ms), "laps": n (a lap race: the start
+## is TMNF's start/finish line and the pieces end with ["close"], back onto it)}. Pieces:
 ##   ["start"], ["finish"], ["cp"] (a checkpoint), ["turbo"], ["s", n] (n straight road blocks),
 ##   ["l"] / ["r"] (a road corner), ["gt", 2..5, "l" | "r"] (a GT curve of that size),
 ##   ["up"] / ["down"] (a slope one level up / down), ["up2"] / ["down2"] (two levels),
@@ -17,6 +18,12 @@ extends RefCounted
 ##   ["jump", gap] (a low ramp, then gap empty blocks; ["jump", gap, "high"]: the high ramp),
 ##   ["loop", "l" | "r"] (a full loop, coming out 4 blocks to that side), ["block", id] (any block
 ##   with two clips, entered at its first).
+## Surfaces (the pieces after it are laid on it; the join is placed where it changes):
+##   ["road"] (the default: TMNF's Road/Main), ["dirt"] (dirt road on the ground: s, l, r, gt 2-3,
+##   cp; joined to the road by StadiumRoadDirtToRoad), ["platform", w] / ["platform", w, "walls"]
+##   and ["circuit", w] (lanes w cells wide, w odd: s, l, r, gt, cp (on a one-cell lane), turbo,
+##   up, down, climb, dive; joined to the road a level above by StadiumPlatformToRoadMain;
+##   TmTrackAreas lays their plates, borders and walls).
 ## Headings (and clip sides): 0 +z, 1 -x, 2 -z, 3 +x in TMNF's block axes (x right of +z); a left
 ## turn adds one. The map is 32 x 32 blocks; level 1 is the ground.
 
@@ -50,6 +57,16 @@ var heading := 0
 var _occupied := {}
 var _loops: Array = []           ## each loop's line: {piece, start, end (path indices), face, exit, f, lat}
 var _pieces := 0
+var surface := "road"            ## what the turtle lays: road, dirt, platform, circuit
+var width := 1                   ## an area lane's width in cells (platform, circuit)
+var lane_walls := false          ## a platform lane with walls along its open edges
+var deck := ROAD_Y               ## the surface's top above its level's base (m)
+var areas: TmTrackAreas
+var laps := 1                    ## a lap race's laps (the line repeats once per lap)
+var _start := {}                 ## a lap race's start/finish line: {cell (the car enters it), heading}
+var _closed := false
+
+const DIRT_DECK := 0.4           ## the dirt road's top: 0.6 m into the grass (9 m; blocks/shapes/dirt.gd)
 
 
 ## Lays out a track spec.
@@ -58,17 +75,28 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 	var s: Array = spec.get("start", [16, GROUND_LEVEL, 2, 0])
 	b.cell = Vector3i(int(s[0]), int(s[1]), int(s[2]))
 	b.heading = posmod(int(s[3]), 4)
+	b.laps = maxi(1, int(spec.get("laps", 1)))
+	b.areas = TmTrackAreas.new(b)
 	for p: Array in spec.get("pieces", []):
 		b._pieces += 1
 		b.piece(p)
 		if not b.errors.is_empty():
 			break
 	if b.errors.is_empty():
+		b.areas.finish()
+	if b.errors.is_empty():
 		b.ease_loops()
+	if b.errors.is_empty() and b.laps > 1 and not b._closed:
+		b.errors.append("a lap race ends with [\"close\"], back onto its start/finish line")
 	if b.errors.is_empty():
 		b.add_pillars()
 		if bool(spec.get("decorate", true)):
 			TmTrackDecor.decorate(b, String(spec.get("id", "")))
+	if b.errors.is_empty() and b.laps > 1:
+		# the line once per lap: the bot drives on round
+		var lap := b.path.duplicate(true)
+		for _i in b.laps - 1:
+			b.path.append_array(lap.duplicate(true))
 	return b
 
 
@@ -83,6 +111,8 @@ func add_pillars() -> void:
 		var entry := TmBlockCatalogue.info(String(blk["name"]))
 		if c.y <= GROUND_LEVEL or TmBlockCatalogue.footprint(entry, false) != Vector3i.ONE \
 				and String(blk["name"]) not in ["StadiumRoadMainCheckpoint", "StadiumRoadMainStartLine", "StadiumRoadMainFinishLine"]:
+			continue
+		if String(blk["name"]).begins_with("StadiumPlatformWall") or String(blk["name"]).begins_with("StadiumCircuitBorder"):
 			continue
 		n += 1
 		if n % 2 == 0:
@@ -133,7 +163,8 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	var b := build(spec)
 	var ch := TmChallenge.new()
 	# keyed by the layout too: records of an older layout of the same track don't carry over
-	var layout := "%08x" % (hash(JSON.stringify([spec.get("start", []), spec.get("pieces", [])])) & 0xffffffff)
+	var layout := "%08x" % (hash(JSON.stringify([spec.get("start", []), spec.get("pieces", [])] + ([spec["laps"]] if spec.has("laps") else [])))
+		& 0xffffffff)
 	ch.uid = "SF-%s-%s" % [String(spec.get("id", "track")), layout]
 	ch.name = String(spec.get("name", "Track"))
 	ch.author = String(spec.get("author", "SpeedFest"))
@@ -144,6 +175,8 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	ch.gold_ms = int(m.get("gold", -1))
 	ch.silver_ms = int(m.get("silver", -1))
 	ch.bronze_ms = int(m.get("bronze", -1))
+	ch.lap_race = b.laps > 1
+	ch.nb_laps = b.laps
 	ch.blocks = b.blocks
 	ch.path = b.path
 	if not b.errors.is_empty():
@@ -159,12 +192,16 @@ static func _rot(v: Vector2, d: int) -> Vector2:
 	return v
 
 
-## A block's units turned by dir d: [[unit cell relative to the block's coord, [clip per side]]].
+## A block's units turned by dir d: [[unit cell relative to the block's coord, [clip per side]]]
+## (the air variant's, or the ground one's for a block that stands on the ground only, turned in
+## that variant's own box).
 static func _rotated_units(entry: Dictionary, d: int) -> Array:
+	var ground := false
 	var units: Array = TmBlockCatalogue.variant(entry, false).get("units", [])
 	if units.is_empty():
 		units = TmBlockCatalogue.variant(entry, true).get("units", [])
-	var size := TmBlockCatalogue.footprint(entry, false)
+		ground = true
+	var size := TmBlockCatalogue.footprint(entry, ground)
 	var minx := INF
 	var minz := INF
 	for c: Vector2 in [Vector2(0, 0), Vector2(size.x, 0), Vector2(0, size.z), Vector2(size.x, size.z)]:
@@ -243,6 +280,54 @@ func place(id: String, entry_clip: int, exit_clip: int, flags := 0, sides: Array
 	return {}
 
 
+## Puts block id at coord turned d, without clips (area plates, borders, gates): the cells it
+## took, or [] if it leaves the map or meets another block (noted as an error unless quiet).
+func put(id: String, coord: Vector3i, d: int, flags := 0, quiet := false) -> Array[Vector3i]:
+	var out: Array[Vector3i] = []
+	var entry := TmBlockCatalogue.info(id)
+	if entry.is_empty():
+		errors.append("unknown block %s" % id)
+		return out
+	var ground := TmUserTracks.has_ground(id) and coord.y == GROUND_LEVEL
+	if not ground and TmBlockCatalogue.variant(entry, false).get("units", []).is_empty():
+		if not quiet:
+			errors.append("%s at %s stands on the ground only" % [id, coord])
+		return out
+	for u: Array in TmUserTracks.units(id, d, ground):
+		var w: Vector3i = coord + (u[0] as Vector3i)
+		if not inside(w) or _occupied.has(w):
+			if not quiet:
+				errors.append("%s at %s %s (unit %s)" % [id, coord, "runs into %s" % _occupied[w] if _occupied.has(w)
+					else "leaves the map", w])
+			out.clear()
+			return out
+		out.append(w)
+	for w in out:
+		_occupied[w] = id
+	blocks.append({"name": id, "dir": posmod(d, 4), "coord": coord, "flags": flags | (GROUND_FLAG if ground else 0), "ground": ground})
+	if int(entry.get("waypoint", 3)) == TmBlockCatalogue.Waypoint.CHECKPOINT:
+		checkpoints += 1
+	return out
+
+
+## A cell on the map (the 32 x 32 blocks, level 1 up).
+static func inside(c: Vector3i) -> bool:
+	return c.x >= 0 and c.z >= 0 and c.x < MAP and c.z < MAP and c.y >= GROUND_LEVEL and c.y <= TmUserTracks.MAX_LEVEL
+
+
+func occupied(c: Vector3i) -> bool:
+	return _occupied.has(c)
+
+
+## The block id covering a cell ("" if none).
+func occupant(c: Vector3i) -> String:
+	return String(_occupied.get(c, ""))
+
+
+func piece_count() -> int:
+	return _pieces
+
+
 ## Places a block with an entry and an exit, adds the line through it and moves on past it.
 ## r: the turn's radius (m) for the path when it turns.
 func _through(id: String, entry_clip: int, exit_clip: int, r := 0.0, flags := 0, sides: Array = []) -> bool:
@@ -273,14 +358,19 @@ static func to_godot(p: Vector3) -> Vector3:
 	return Vector3(-p.x, p.y, p.z)
 
 
-## Where the car enters the current cell (TMNF metres): the middle of the face it comes through.
+## Where the car enters the current cell (TMNF metres): the middle of the face it comes through,
+## at the surface's height.
 func entry_face() -> Vector3:
-	return centre(cell) - vec(heading) * 16.0
+	return Vector3((cell.x + 0.5) * 32.0, cell.y * 8.0 + deck, (cell.z + 0.5) * 32.0) - vec(heading) * 16.0
 
 
 ## k: the line's signed curvature there (1/m, + to the left), for the bot's road-frame steering.
 func _point(p: Vector3, dir: Vector3, mode := Drive.STEER, r := 0.0, k := 0.0) -> void:
 	path.append({"p": to_godot(p), "dir": to_godot(dir).normalized(), "mode": mode, "r": r, "k": k})
+
+
+func segment(a: Vector3, ha: int, b: Vector3, hb: int, r := 0.0, mode := Drive.STEER) -> void:
+	_segment(a, ha, b, hb, r, mode)
 
 
 ## The line from a (heading ha) to b (heading hb), both TMNF metres: straight on, or a quarter
@@ -310,9 +400,30 @@ func _segment(a: Vector3, ha: int, b: Vector3, hb: int, r := 0.0, mode := Drive.
 
 func piece(p: Array) -> void:
 	var kind := String(p[0])
+	if kind in ["road", "dirt", "platform", "circuit"]:
+		_switch(kind, int(p[1]) if p.size() > 1 else 1, p.size() > 2 and String(p[2]) == "walls")
+		return
+	if surface in TmTrackAreas.KINDS:
+		areas.piece(p)
+		return
+	if surface == "dirt":
+		_dirt(p)
+		return
 	match kind:
+		"close":
+			# the lap ends where it began: into the start/finish line, through it
+			if laps < 2 or _start.is_empty() or cell != _start["cell"] or heading != int(_start["heading"]):
+				errors.append("[\"close\"] (piece %d) at %s heading %d: the lap's start/finish line takes the car at %s heading %s"
+					% [_pieces, cell, heading, _start.get("cell"), _start.get("heading")])
+				return
+			var a := entry_face()
+			_segment(a, heading, a + vec(heading) * 32.0, heading)
+			_closed = true
 		"start":
-			var res := place("StadiumRoadMainStartLine", -1, 0)
+			var line := "StadiumRoadMainStartFinishLine" if laps > 1 else "StadiumRoadMainStartLine"
+			if laps > 1:
+				_start = {"cell": cell, "heading": heading}
+			var res := place(line, -1, 0)
 			if not res.is_empty():
 				cell = res["exit_cell"]
 				heading = res["exit_heading"]
@@ -353,6 +464,81 @@ func piece(p: Array) -> void:
 			_through(String(p[1]), 0, 1)
 		_:
 			errors.append("unknown piece %s" % kind)
+
+
+## Changes the surface, with the join between the two: road down onto a platform or circuit a
+## level below (TMNF's StadiumPlatformToRoadMain, its road end towards the road) and back up,
+## road to dirt and back (StadiumRoadDirtToRoad, on the ground); platform and circuit meet as they
+## are. w: a lane's width (odd).
+func _switch(to: String, w: int, walls: bool) -> void:
+	var from := surface
+	if to in TmTrackAreas.KINDS:
+		if w < 1 or w % 2 == 0:
+			errors.append("a lane is 1, 3 or 5 cells wide, not %d (piece %d)" % [w, _pieces])
+			return
+		width = w
+		lane_walls = walls
+	if to == from:
+		return
+	var a := entry_face()
+	var h := heading
+	if from == "road" and to in TmTrackAreas.KINDS:
+		var res := place("StadiumPlatformToRoadMain", 0, -1)
+		if res.is_empty():
+			return
+		areas.lane[res["coord"]] = to
+		cell = res["exit_cell"] - Vector3i(0, 1, 0)
+		surface = to
+		deck = TmTrackAreas.DECK
+		var z := entry_face()
+		areas.brush(a, z, cell.y)
+		_segment(a, h, z, h)
+	elif from in TmTrackAreas.KINDS and to == "road":
+		cell.y += 1
+		var res := place("StadiumPlatformToRoadMain", -1, 0)
+		if res.is_empty():
+			return
+		areas.lane[res["coord"]] = from
+		cell = res["exit_cell"]
+		surface = to
+		deck = ROAD_Y
+		_segment(a, h, entry_face(), h)
+	elif from in TmTrackAreas.KINDS and to in TmTrackAreas.KINDS:
+		surface = to
+	elif (from == "road" and to == "dirt") or (from == "dirt" and to == "road"):
+		if cell.y != GROUND_LEVEL:
+			errors.append("dirt roads lie on the ground (piece %d)" % _pieces)
+			return
+		var res := place("StadiumRoadDirtToRoad", 1 if to == "dirt" else 0, 0 if to == "dirt" else 1)
+		if res.is_empty():
+			return
+		cell = res["exit_cell"]
+		heading = res["exit_heading"]
+		surface = to
+		deck = DIRT_DECK if to == "dirt" else ROAD_Y
+		_segment(a, h, entry_face(), heading)
+	else:
+		errors.append("no join from %s to %s (piece %d): go through the road" % [from, to, _pieces])
+
+
+## A dirt road piece (TMNF's Road/Dirt: on the ground only).
+func _dirt(p: Array) -> void:
+	var kind := String(p[0])
+	match kind:
+		"s":
+			for _i in (int(p[1]) if p.size() > 1 else 1):
+				if not _through("StadiumRoadDirt", 0, 1, 0.0, 3, [0, 2]):
+					return
+		"l", "r":
+			_through("StadiumRoadDirt", 0, 1, 16.0, 2, [1, 0] if kind == "l" else [0, 1])
+		"gt":
+			var k := clampi(int(p[1]), 2, 3)
+			_through("StadiumRoadDirtGTCurve%d" % k, 0 if String(p[2]) == "l" else 1,
+				1 if String(p[2]) == "l" else 0, 32.0 * k - 16.0)
+		"cp":
+			_through("StadiumRoadDirtCheckpoint", 1, 0)
+		_:
+			errors.append("%s can't be laid on dirt (piece %d)" % [kind, _pieces])
 
 
 ## The finish with road to stop on: TMNF's through start/finish line block (it finishes a

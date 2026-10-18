@@ -118,7 +118,7 @@ static func toast(parent: Node, lift := 92.0, one_line := false) -> void:
 	l.modulate.a = 0.0
 	layer.add_child(l)
 	var show := func(title: String, artist: String) -> void:
-		if not is_instance_valid(l):
+		if not is_instance_valid(l) or not bool(TmUi.setting("music")):
 			return
 		l.text = ("NOW PLAYING     %s  ·  %s" if one_line else "NOW PLAYING\n%s  ·  %s") % [title, artist]
 		var tw := l.create_tween()

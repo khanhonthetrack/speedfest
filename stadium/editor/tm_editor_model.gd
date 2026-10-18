@@ -32,7 +32,7 @@ static func cells_of(b: Array) -> Array[Vector3i]:
 
 ## Where a block goes so that its first unit sits on the cursor's cell.
 static func anchor(id: String, d: int, cursor: Vector3i) -> Vector3i:
-	var units := TmUserTracks.units(id, d)
+	var units := TmUserTracks.units(id, d, TmUserTracks.on_ground(id, cursor.y))
 	if units.is_empty():
 		return cursor
 	return cursor - (units[0][0] as Vector3i)
@@ -46,6 +46,8 @@ static func waypoint(id: String) -> int:
 func why_not(id: String, d: int, coord: Vector3i) -> String:
 	if TmBlockCatalogue.info(id).is_empty():
 		return "unknown block"
+	if coord.y != TmUserTracks.G and not TmUserTracks.has_air(id):
+		return "this block stands on the ground only"
 	for c in TmUserTracks.cells(id, d, coord):
 		if not TmUserTracks.inside(c):
 			return "outside the stadium"
@@ -128,21 +130,31 @@ func starts() -> int:
 
 
 ## What the track lacks to be raced: "" when it has a start (or a start/finish line) and a finish
-## (or a start/finish line).
+## (or a start/finish line), and a lap track starting on its line has a checkpoint (else the race
+## would end where it starts).
 func missing() -> String:
 	var start := false
 	var finish := false
+	var lap_line := false
+	var start_block := false
+	var checkpoints := 0
 	for b: Array in track["blocks"]:
 		match waypoint(String(b[0])):
+			TmBlockCatalogue.Waypoint.CHECKPOINT:
+				checkpoints += 1
 			TmBlockCatalogue.Waypoint.START:
 				start = true
+				start_block = true
 			TmBlockCatalogue.Waypoint.FINISH:
 				finish = true
 			TmBlockCatalogue.Waypoint.START_FINISH:
 				start = true
 				finish = true
+				lap_line = true
 	if not start:
 		return "Place a start"
 	if not finish:
 		return "Place a finish"
+	if lap_line and not start_block and checkpoints == 0:
+		return "Place a checkpoint (a lap needs one)"
 	return ""

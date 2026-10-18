@@ -1,0 +1,9 @@
+# docker builds from stadium/ (server/Dockerfile) need only the server, the track list and zones
+*
+!server/package.json
+!server/package-lock.json
+!server/server.js
+!server/lib/
+!server/config.example.json
+!tracks/
+!data/

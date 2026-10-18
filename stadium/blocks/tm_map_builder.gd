@@ -78,6 +78,12 @@ func _build() -> void:
 		blocks_node.add_child(node)
 		if String(entry.get("kind", "")) in ["flat", "frontier"]:
 			_zone_cells[Vector2i(coord.x, coord.z)] = true
+		elif ground and shape.begins_with("Road/Dirt"):
+			# a dirt road is its own ground (terrain sculpted round a track sunk into the grass): no
+			# stadium grass over any of its cells
+			for u: Array in TmUserTracks.units(id, dir, true):
+				var w: Vector3i = coord + (u[0] as Vector3i)
+				_zone_cells[Vector2i(w.x, w.z)] = true
 	_terrain()
 	if TmMaterials.hd():
 		root.add_child(TmRoadDecals.place(self))

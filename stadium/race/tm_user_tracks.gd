@@ -14,7 +14,7 @@ const VERSION := 1
 const EXT := ".sftrack"
 const DIR := "user://tracks"
 const MAP := 32
-const MAX_LEVEL := 24
+const MAX_LEVEL := 31             ## TMNF's Stadium is 32 levels high
 const G := TmTrackBuilder.GROUND_LEVEL
 const SIDE := TmTrackBuilder.SIDE
 ## A road block's shape group (TmBlockCatalogue.shape_name index) by its open sides, and those
@@ -68,7 +68,7 @@ static func path_for(track: Dictionary) -> String:
 	var base := ""
 	for c in String(track.get("name", "track")):
 		base += c if (c.is_valid_identifier() or c.is_valid_int() or c in "- ") else "_"
-	base = base.strip_edges()
+	base = base.strip_edges().lstrip("_ ")       # names starting "_" are hidden in the lists
 	if base.is_empty():
 		base = "track"
 	var p := dir().path_join(base + EXT)
@@ -144,8 +144,37 @@ static func validate_file(path: String, time_ms: int) -> bool:
 
 ## A block's units turned by dir: [[cell offset (Vector3i, TMNF block coords), clips (per local
 ## side)]], offsets from the rotated footprint's min corner (TmTrackBuilder's convention).
-static func units(id: String, d: int) -> Array:
-	return TmTrackBuilder._rotated_units(TmBlockCatalogue.info(id), d)
+static func units(id: String, d: int, ground := false) -> Array:
+	var entry := TmBlockCatalogue.info(id)
+	# the variant the map builder places (TmBlockCatalogue.block_transform): its units and their
+	# box, the other variant's when it has none (ground-only blocks have no air units)
+	var list: Array = TmBlockCatalogue.variant(entry, ground).get("units", [])
+	if list.is_empty():
+		list = TmBlockCatalogue.variant(entry, not ground).get("units", [])
+	var size := Vector3i.ONE
+	for u: Array in list:
+		size = size.max(Vector3i(int(u[0]) + 1, int(u[1]) + 1, int(u[2]) + 1))
+	var minx := INF
+	var minz := INF
+	for c: Vector2 in [Vector2(0, 0), Vector2(size.x, 0), Vector2(0, size.z), Vector2(size.x, size.z)]:
+		var p := TmTrackBuilder._rot(c, d)
+		minx = minf(minx, p.x)
+		minz = minf(minz, p.y)
+	var out := []
+	for u: Array in list:
+		var c := TmTrackBuilder._rot(Vector2(float(u[0]) + 0.5, float(u[2]) + 0.5), d)
+		out.append([Vector3i(floori(c.x - minx), int(u[1]), floori(c.y - minz)), u[3] if u.size() > 3 else []])
+	return out
+
+
+## Whether a block at a level uses its ground variant (the level's ground, and it has one).
+static func on_ground(id: String, level: int) -> bool:
+	return level == G and has_ground(id)
+
+
+## Whether a block exists off the ground (ground-only blocks: dirt, terrain pieces, inflatables).
+static func has_air(id: String) -> bool:
+	return not TmBlockCatalogue.variant(TmBlockCatalogue.info(id), false).get("units", []).is_empty()
 
 
 static func is_road(id: String) -> bool:
@@ -155,7 +184,7 @@ static func is_road(id: String) -> bool:
 ## The cells a block covers: coord + its units' offsets.
 static func cells(id: String, d: int, coord: Vector3i) -> Array[Vector3i]:
 	var out: Array[Vector3i] = []
-	for u: Array in units(id, d):
+	for u: Array in units(id, d, on_ground(id, coord.y)):
 		out.append(coord + (u[0] as Vector3i))
 	return out
 
@@ -170,7 +199,7 @@ static func has_ground(id: String) -> bool:
 
 ## The clip a block shows on world side `side` of its unit at cell c ("" none).
 static func clip_at(id: String, d: int, coord: Vector3i, c: Vector3i, side: int) -> String:
-	for u: Array in units(id, d):
+	for u: Array in units(id, d, on_ground(id, coord.y)):
 		if coord + (u[0] as Vector3i) == c:
 			var cl: Array = u[1]
 			var local := posmod(side - d, 4)

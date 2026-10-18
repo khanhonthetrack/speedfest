@@ -20,7 +20,7 @@
 
 const { WebSocketServer } = require('ws');
 const { makeMode } = require('./modes');
-const { cleanText } = require('./accounts');
+const { cleanText, stripNick, NICK_MAX } = require('./accounts');
 
 const VERSION = 2;
 const MAX_FRAME = 4096;
@@ -28,6 +28,12 @@ const STATE_HZ = 10;
 const VOTE_MS = 30000;
 const VOTE_COOLDOWN_MS = 60000;
 const UID_RE = /^[A-Za-z0-9_.-]{1,80}$/;
+
+/** A guest's name: its $-codes kept, 'Player' if it shows nothing without them. */
+function guestName(v) {
+  const name = cleanText(v, NICK_MAX);
+  return name && stripNick(name).trim() ? name : 'Player';
+}
 
 function finiteArray(a, n, limit) {
   return Array.isArray(a) && a.length === n && a.every((x) => typeof x === 'number' && Number.isFinite(x) && Math.abs(x) < limit);
@@ -175,10 +181,10 @@ class Game {
     }
     const account = this.master && msg.token ? this.master.accounts.byToken(msg.token) : null;
     const colour = finiteArray(msg.colour, 3, 2) ? msg.colour.map((c) => Math.min(1, Math.max(0, c))) : [0.85, 0.08, 0.06];
-    const me = { id: this.nextId++, name: account ? account.nickname : (cleanText(msg.name, 75) || 'Player'), colour, ws,
+    const me = { id: this.nextId++, name: account ? account.nickname : guestName(msg.name), colour, ws,
       state: null, stateAt: 0, chatAt: 0, voteAt: 0, login: account ? account.login : '', spectator: !!msg.spectator };
     this.players.set(me.id, me);
-    if (!me.spectator) this.mode.join(me.id, me.name, me.login);
+    if (!me.spectator) this.mode.join(me.id, me.name, me.login, this.now());
     this._send(ws, { t: 'welcome', id: me.id, name: this.name, mode: this.mode.name, now: this.now(), round: this.mode.info(),
       players: this.playerList(), login: me.login, vote: this._voteInfo() });
     this.broadcast({ t: 'players', players: this.playerList() });
@@ -228,7 +234,7 @@ class Game {
         me.spectator = on;
         me.state = null;
         if (on) this.mode.leave(me.id);
-        else this.mode.join(me.id, me.name, me.login);
+        else this.mode.join(me.id, me.name, me.login, now);
         this.broadcast({ t: 'players', players: this.playerList() });
         break;
       }

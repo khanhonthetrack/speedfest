@@ -1839,3 +1839,136 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   `SCREEN_SLOT` x screen + the ad's x, v = the ad's y); the AD_SET sets and the roll are gone.
 - **Merged into `stadium`** (owner: "Merge"): fast-forward to the review branch with the advert
   changes (STADIUM_TESTS PASS at 5f5df96). `stadium-v0.4` is still to tag (HANDOFF).
+
+
+## 2026-10-18 — Session 13 (M9-7): online like TMNF's
+TMNF's online, our own code (`docs/research/m9_online.md` is the design): one Node.js process on
+one port is both the master server and the official game servers.
+- **Master** (`stadium/server/lib/master.js`, HTTP `/api`): accounts (`lib/accounts.js`: login and
+  password with scrypt and a salt, a 60-day token whose SHA-256 alone is stored, nicknames with
+  $-codes up to 75 characters, zones from `stadium/data/zones.json`, logins rate-limited), ladder
+  points (`lib/ladder.js`: Elo over every pair of a ranked round's finishers, K = 32 / (n - 1),
+  start 1000; world, zone and continent ranks), online records per track uid (`lib/records.js`),
+  the server list (official servers in the process; community servers by heartbeat with their
+  host's token). Data: one JSON file written atomically (`lib/store.js`).
+- **Game servers** (`lib/game.js`, `/ws/<id>`; `/ws` the first): TMNF's modes (`lib/modes.js`):
+  TimeAttack; Rounds (start = now + 3 s for everyone, one finish each, the round ends when all
+  are in, 15 s after the first finish or at its limit; 10 6 4 3 2 1 points; the map ends at the
+  points limit or after its rounds); Team (blue and red, balanced on join, each finisher scores
+  racers - place + 1 for the team, the round to the higher team, first to 5); Laps (one race per
+  map). Votes (next map, restart, kick; more than half of the racers in 30 s; one at a time, a
+  minute between a player's calls), spectators, chat; official servers send ranked results to the
+  ladder (TimeAttack each round, Laps each race, Rounds/Team at the map's end) and finishes to the
+  records. Protocol 2 (the game's `Online.VERSION`). Players who join during a round's pre-start
+  countdown race it.
+- **Process and hosting** (`server.js`): `--config=config.json` (`config.example.json`: four
+  official servers) or the old arguments; `Dockerfile` (built from `stadium/`: the server, the
+  track list, the zones; data on `/data`), `docker-compose.yml` (the server and `cloudflared` with
+  a named tunnel's token from `.env`), README "The official servers" (the one-time Cloudflare
+  steps, updating, backing up the accounts).
+- **Game**: `net/tm_master.gd` (autoload `Master`: the token in the settings, never the password;
+  register, log in, log out, refresh, profile push, servers, rankings, records, solo finishes);
+  the Online page (`ui/tm_menu.gd`): your account (log in / register with the Profile's nickname
+  and zone; ladder points, world/zone rank, log out), SERVERS from the master (name, mode, track,
+  players; JOIN, SPECTATE) and RANKINGS (world / your zone), join by address; the Profile's
+  nickname and zone pushed to the account; the campaign's details show the world record and your
+  place; solo finishes go to the online records when logged in.
+- **In the race** (`race/race.gd`, `race/tm_race_online.gd`, `net/tm_online.gd`): synced modes
+  hold the countdown on the server's clock (everyone starts at the round's start, whatever the
+  frame rate), no restarting mid-round (respawn before a checkpoint puts you back at the start,
+  clock running), late joiners wait for the next round; the scoreboard shows points (Rounds/Team)
+  or times, team tags and colours; results show the round's points, team scores, the map's
+  standings and your ladder points won or lost; the next round of a map restarts in place; votes
+  (V: next map, this map again, kick a player; F1/F2 on the running vote, shown at the top);
+  spectating (F3; Left/Right: whom to follow) with a follow camera.
+- Tests: `server/test/master.test.js` (accounts, rate limit, ladder, rankings by zone, records,
+  the server list, the store), `server/test/modes.test.js` (Rounds, Team, Laps, TimeAttack votes,
+  a room with accounts, spectators, votes, ranked results and records, the ladder after a map):
+  18 server tests; `tests/test_online` (27 checks: addresses, register/log in/wrong password,
+  server list, records, rankings, joining as the account, a finish as a record, then a Rounds
+  server: the held start, starting together, no restart mid-round, points, the next round in
+  place, a vote to the next map, spectating). Tests use their own settings file
+  (`--settings=`), so they never touch the player's login or nickname.
+- Open: the owner deploys it on the Pi (README: create the named tunnel, put its token in `.env`,
+  `docker compose up -d --build`, put the hostname in `official.json`). Not built here: LAN
+  discovery (join by address works), a hotseat mode.
+
+## 2026-10-18 — Session 13: the M9 code review's findings, fixed one by one
+The review (`docs/research/m9_review_findings.md`, 42 findings; its status column says what was
+done for each) is checked against the code finding by finding, fixed, tested and pushed in batches:
+- **Batch 1** (498d83a): `TestHooks.is_testing()` only from the command line (a res://tests/ scene
+  or --frames/--shot), so Master finds the server in real play and a track or replay that fails to
+  load shows a message with Esc back instead of quitting; tracks without a start refused; menu lists
+  select on press (DELETE names what it deletes, JOIN takes the picked server); lists scroll with
+  focus; races return to the page they came from.
+- **Batch 2** (97d6f23, editor): ground-only blocks turn in their own box and stay on the ground;
+  32 levels; a lap track starting on its line needs a checkpoint; file names never hidden; the
+  ghost and the messages refresh; key repeats only move; the race redraws the medals after
+  validating.
+- **Batch 3** (replays): replays keep the race's laps and checkpoints per lap, so the viewer
+  counts lap lines as laps (lap_done, "Lap 2 / 2") and each lap's checkpoints; the car's roll for
+  2.5 s after the finish is recorded (`TmReplay.TAIL_MS`; the record's autosave is written again
+  with it); a paused or ended replay stands still (no speed, wheels, engine: `TmCarAudio.set_paused`);
+  the viewer's keys are read in `_input`, so a hovered bar button or the time line can't take
+  Space or the arrows, and the time line seeks as it changes (wheel, drag); the viewer's sound
+  follows its race (countdown, GO, checkpoints); a turbo is one event (`F_TURBO` and the turbo cue
+  on its rising edge, not every tick a pad renews it; a seek back cues again); only `_last.replay`
+  is hidden from the list, and file names lose $-codes and a leading `_`; Esc from watching the
+  run comes back to the finish menu as it was (SAVE REPLAY still there, or SAVED).
+  `tests/test_replay`: 29 checks (8 new).
+- **Batch 4** (menus, music, server): canvas textures sample their mipmaps (project setting
+  `default_texture_filter` = Linear Mipmap: the medals and the logo, drawn 2-5x their size, no
+  longer alias); a guest name that shows nothing without its $-codes becomes "Player" on the
+  server (test); CLEAR ALL RECORDS is disarmed on every visit to Options; the race menu removes
+  its old content before it takes its size (the second pause panel no longer doubles), and its
+  deferred focus skips a button a second fill took away; picking a colour or a zone on Profile
+  keeps the focus there; the Editors page's CHANGED column is local time; LOG OUT rebuilds the
+  Online page only if it is still shown, a rejected token shows the log-in form, and the account
+  is asked for once per visit (no refresh loop); no NOW PLAYING toast with the music off; Master
+  doesn't parse an empty answer. Also: the campaign cards are tall enough for their best time
+  (it was cut off at the bottom). `tests/test_menu` 31 checks (4 new), server tests 19.
+  With this, all 42 findings are fixed (the doc's status column).
+
+## 2026-10-18 — Session 13 (M9-8): the campaign's research, and the builder lays TMNF's surfaces
+- Research (`docs/research/m9_campaign.md`, our own `tools/research/tmnf/campaign_stats.py` and
+  `track_ascii.py` on a local install): TMNF's A-E series, kinds (Race, Speed, Acrobatic,
+  Obstacle, Endurance), times, checkpoints, laps and surfaces. Its tracks are mostly platform and
+  circuit, not the tarmac road our SF tracks use: that is much of why ours looked cheap.
+- `race/tm_track_areas.gd` (TmTrackAreas) + `race/tm_track_builder.gd`: surfaces in a track
+  spec: `["circuit", w]`, `["platform", w]` / `["platform", w, "walls"]` (lanes w cells wide:
+  the cells within w * 16 m of the line, filled with plates once laid; platform plates take their
+  variant from their neighbours), `["dirt"]` (dirt road on the ground), `["road"]`; the joins
+  (`StadiumPlatformToRoadMain` a level below the road, `StadiumRoadDirtToRoad`); on a lane: s, l,
+  r, gt, cp (the platform gate, on a one-cell lane), turbo (a row of platform turbos), up, down,
+  climb, dive (slopes: 2 levels a straight, 1 over each end; platform straights a level higher
+  than circuit ones). Then TMNF's editor's work: circuit borders in the empty cells round the
+  circuit (straight facing the plate, inner corners, outer corners), slope borders beside circuit
+  slopes, platform walls over a walled lane's open edges; pillars under raised plates (not under
+  walls and borders). Orientation rules measured from the official tracks (which side a border,
+  gate, slope or join faces). The builder's units of ground-only blocks now turn in their own box
+  (the review's finding 10, here too). `race/map_view.gd --view=path:<0-1>`: a driver's view
+  along our track's line. `tests/test_track_areas` (9 checks, in the gate): the lanes lay out,
+  circuits are closed by borders that face them, walled platforms have their walls, slopes climb
+  as TMNF's, a gate on a wide lane is refused, dirt roads lie on the ground, and the bot drives
+  an area track and a dirt track to the finish (the turbo row boosting it).
+
+## 2026-10-18 — Session 13 (M9-8): the White series (A01-A15)
+- Our own 15 White tracks in TMNF's structure (`tracks/A01..A15.json`; kinds as TMNF's slots:
+  Race, Acrobatic A04/A10, Obstacle A06, Endurance A08 (3 laps), Speed A12/A15), mixing circuit
+  (A01, A08, A13, A15), walled platform corridors (A06, A07, A13), wide platforms with turbo rows
+  (A04, A12), dirt (A02, A05, A11, A14) and road with hills, jumps and a loop (A03, A09, A10).
+  Medals from the bot (author = its best of five grips; gold +6%, silver +20%, bronze +50%):
+  authors 6.4 s (A04) to 48.5 s (A08, 3 laps); most 15-23 s (TMNF's White: 6-29 s, A08 1:04).
+- `tracks/campaign.json` lists series (`{"series": [...]}`): White, then the old SpeedFest tracks
+  until the other series exist (the menu shows a tab per series). The server reads the series too
+  (`server/lib/rounds.js ownTracks`, test).
+- Builder: lap races (`"laps": n`, the start is the start/finish line, `["close"]` ends the lap
+  on it; the bot's line repeats per lap); lane cells now come from the line by piece (straight:
+  the cells beside it; turns: every cell within w*16-4 m of the line between the turn's faces, so
+  no wall stands where the car goes); a hole a border can't close (a one-cell gate inside a wide
+  lane) is an error that says what to do. Dirt roads cut the stadium grass under them (they were
+  hidden under it: `blocks/tm_map_builder.gd`, also for TMNF's maps).
+- `tests/test_tracks`: every campaign track lays out and builds; the bot drives each series' first
+  track (it drives at about real time; `--series=White`, `--tracks=all` or a list drive more);
+  a time limit from the line's length for long tracks. Road-gate checks (crown screens, respawn,
+  replay turbo) run on SF01. `tests/test_track_areas`: a lap race (11 checks).

@@ -1,0 +1,9 @@
+{
+	"name": "A06-Obstacle",
+	"author": "SpeedFest",
+	"start": [26, 6, 3, 0],
+	"medals": {"author": 18540, "gold": 19700, "silver": 23000, "bronze": 28000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["s", 2], ["gt", 2, "l"], ["s", 1], ["cp"], ["s", 1], ["gt", 2, "r"],
+		["s", 2], ["down"], ["s", 2], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 1], ["gt", 2, "l"], ["s", 3], ["road"], ["s", 2], ["finish"]]
+}

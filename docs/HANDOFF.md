@@ -37,7 +37,7 @@
   online, M9-8 the A-E campaign) are unchanged.
 - Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
 
-## Latest (18 Oct, session 13, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
+## Latest (18 Oct, session 13 continued, cloud): M9 "a 1:1 TMNF replica" on `claude/tmnf-replica-graphics-nb1kcg`
 - Owner (TRANSCRIPT, session 13): the remake looks cheap (gates, billboards, stadium, "2005");
   wants TMNF's graphics (or better, RTX), TMNF's menus, online, a campaign like TMNF's, a better
   engine sound, a car whose rims sit in the tyres. Answers: our own A-E campaign (65 originals),
@@ -55,9 +55,23 @@
   REPLAY / SAVE REPLAY after the finish; `tests/test_replay`); M9-6 the track editor
   (`editor/editor.tscn`, `editor/tm_editor_model.gd`, `race/tm_user_tracks.gd` .sftrack files,
   Editors page, palette icons from `tools/icons/`; `tests/test_editor`).
-- Next, in order: M9-7 online (master
-  server, accounts, ladder; Profile and Online get rankings), M9-8 the A-E campaign
-  (`tracks/campaign.json` takes `{"series": [...]}` already, the menu shows a tab per series).
+- M9-7 online done too (PROGRESS "M9-7"): `stadium/server` (master `/api` + official servers
+  `/ws/<id>` in one process; Docker + named tunnel for the Pi: README there), `net/tm_master.gd`,
+  the Online page, modes/votes/spectating in `race/tm_race_online.gd`. The owner deploys it.
+- Session 14's work (review fixes, flags, Polish adverts, v0.4) is merged into this branch
+  (from `claude/trackmania-stadium-review-lds3no`; gate PASS). This branch is ahead of `stadium`
+  by M9-7: merge it into `stadium` when the owner says so.
+- The session-13 code review's 42 findings (`docs/research/m9_review_findings.md`) are all
+  fixed, in four batches (PROGRESS "the M9 code review's findings"): testing mode only from the
+  command line, list selection, the editor's ground-only blocks, replays (laps, the roll after the
+  finish, keys, sound, back to the finish menu), menus, the music toast, guest names.
+- M9-8 the A-E campaign, in progress (research: `docs/research/m9_campaign.md`): the builder lays
+  TMNF's surfaces (`race/tm_track_areas.gd`: circuit, platform, dirt, joins, borders, walls; lap
+  races), White A01-A15 done with medals (PROGRESS). Next: Green (B01-B15 drafted, medals being
+  written), Blue (C01-C15 drafted, lay out), Red, Black; then drop the SpeedFest tab from
+  `tracks/campaign.json`. How to make a track: write `tracks/<ID>.json`, lay it out (untracked
+  helpers in `tests/tmp/`, or `tools/run.sh res://tests/test_tracks.tscn --headless --
+  --tracks=<ID> --grip=50`), then `--write_medals`; add it to its series in campaign.json.
   M9-2's remaining families (platform, dirt, circuit, tube, control, airship) come with M9-8's
   tracks that use them.
 - Reference renders: `python3 -I tools/research/tmnf/ref_visuals.py <W> <OUT>` then any scene with

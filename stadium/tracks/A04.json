@@ -1,0 +1,8 @@
+{
+	"name": "A04-Acrobatic",
+	"author": "SpeedFest",
+	"start": [16, 8, 8, 0],
+	"medals": {"author": 6430, "gold": 6900, "silver": 8000, "bronze": 10000},
+	"bot_grip": 30,
+	"pieces": [["start"], ["s", 1], ["platform", 3, "walls"], ["turbo"], ["s", 1], ["dive", 1], ["s", 1], ["road"], ["finish"]]
+}
