@@ -1,5 +1,22 @@
 # HANDOFF: start here
 
+## Latest (18 Oct, session 15, cloud): community tracks and cars on admins' servers
+- Owner: "make sure that all the community tracks and car models can be uploaded and put on a
+  admins server correctly" (TMX for tracks, maniapark.com for cars), "I want full compatibility"
+  (verbatim in TRANSCRIPT session 15). Work branch
+  `ccr-1ce252fc-wl7p3m` = `stadium` + the M9 merge + this session (PROGRESS "Session 15").
+- Done: server admins (`stadium/server/lib/admin.js`, `/admin` page, `content.js`; README
+  "Admins"), every block the TMX sample uses (all 1098 vanilla tracks of 1113 build and race),
+  clients download a round's uploaded track (SHA-256, cached), TMNF car models and skins read and
+  drawn (`gbx/tm_solid.gd`, `car/tm_car_pack.gd`; all 160 ManiaPark samples), cars picked online
+  (C), downloaded, drawn for every player, forced by admins.
+- Samples (never in the repo): `python3 -I stadium/tools/compat/fetch_tmx.py <dir>` then
+  `tests/test_compat_tracks --dir=<dir> --build`; `fetch_maniapark.py <dir>` then
+  `tests/test_compat_cars --dir=<dir>`.
+- Open: TMUnlimiter 2 tracks (13 of 1113: their blocks are in Unlimiter's chunks 0x3F001000-3,
+  free placement; refused with that reason); offline use of car packs (menu); remote players' pack
+  engine sounds.
+
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium
   and tag stadium-v0.4"): `stadium` was fast-forwarded to `claude/trackmania-stadium-review-lds3no`

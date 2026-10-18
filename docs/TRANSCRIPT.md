@@ -774,3 +774,10 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   each player's chosen car.
 - Servers: admins upload tracks and cars (files, or TMX / ManiaPark links) on an `/admin` page or
   the `/api/admin` API, and choose each server's rotation and cars; players download them.
+
+Owner, later in session 15 (verbatim; the cloud worker had restarted several times):
+> Continue
+
+> Xontinue
+
+(Both: carry on with the work in progress.)

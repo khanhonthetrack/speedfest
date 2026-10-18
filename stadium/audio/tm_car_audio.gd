@@ -67,6 +67,18 @@ func _ready() -> void:
 
 
 ## Holds the engine, skid and wind loops where they are (a paused replay), or lets them go on.
+## A community car's own engine (TmCarPack.sounds: TMNF's EngineIdle .. EngineRev2) in place of our
+## loops, layer by layer (ours where the pack has none); null: ours again.
+func use_pack(pack: TmCarPack) -> void:
+	for i in mini(LAYERS.size(), _layers.size()):
+		var name := String(LAYERS[i][0])
+		var s: AudioStream = pack.sounds.get(name) if pack != null else null
+		var want: AudioStream = s if s != null else TmSounds.get_stream(name)
+		if _layers[i].stream != want:
+			_layers[i].stream = want
+			_layers[i].play()
+
+
 func set_paused(on: bool) -> void:
 	for p: AudioStreamPlayer in _layers + [_skid, _wind]:
 		p.stream_paused = on

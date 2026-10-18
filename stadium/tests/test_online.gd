@@ -114,11 +114,52 @@ func _community(node: String, script: String) -> void:
 	var ranked := await _wait(func() -> bool:
 		return Online.players.any(func(p: Dictionary) -> bool: return int(p["id"]) == Online.my_id and int(p["best"]) == 31234), 5000)
 	TestHooks.check(ranked, "community_finish_ranked")
+	await _community_car(base, scene)
 	scene.queue_free()
 	TestHooks.args.erase("map")
 	TestHooks.args.erase("online_track")
 	Online.leave()
 	OS.kill(pid)
+
+
+## An admin uploads a car pack (a ManiaPark-like zip of our own: TmTestCar) to the server, which
+## offers it to its players: we pick it, it is downloaded (cached by SHA-256) and our car in the race
+## is drawn with its model; when the admin makes it the server's car, everyone drives it.
+func _community_car(base: String, scene: Node) -> void:
+	var zip := ProjectSettings.globalize_path("user://test_online_car.zip")
+	TmTestCar.write_pack(zip)
+	var up: Dictionary = await _http(base + "/api/admin/cars?name=Test%20Car&servers=main", HTTPClient.METHOD_POST,
+		FileAccess.get_file_as_bytes(zip), "application/zip")
+	DirAccess.remove_absolute(zip)
+	var car: Dictionary = up["body"].get("car", {})
+	var id := String(car.get("id", ""))
+	TestHooks.check(int(up["code"]) == 200 and bool(car.get("mesh", false)), "community_car_upload", str(up))
+	var listed := await _wait(func() -> bool: return not Online.car(id).is_empty(), 5000)
+	TestHooks.check(listed, "community_car_offered", str(Online.cars))
+	if not listed:
+		return
+	scene.online.toggle_car_menu()
+	TestHooks.check(scene.online._car_menu.visible, "community_car_menu")
+	scene.online.toggle_car_menu()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Online.cached_path(String(car["sha256"]), ".zip")))
+	Online.pick_car(id)
+	var drawn := await _wait(func() -> bool:
+		for c in scene.car.get_children():
+			if c is TmCarVisual and (c as TmCarVisual).pack != null and not c.is_queued_for_deletion():
+				return true
+		return false, 10000)
+	TestHooks.check(String(Online.me().get("car", "")) == id and Online.has_cached(String(car["sha256"]), ".zip"),
+		"community_car_picked_and_downloaded", str(Online.me()))
+	TestHooks.check(drawn, "community_car_drawn")
+	TestHooks.check(String(TmUi.setting("car_pack")) == String(car["sha256"]), "community_car_remembered")
+	var force: Dictionary = await _http(base + "/api/admin/servers/main", HTTPClient.METHOD_POST,
+		JSON.stringify({"forced_car": id}).to_utf8_buffer(), "application/json")
+	Online.pick_car("")
+	var forced := await _wait(func() -> bool: return Online.forced_car == id, 5000)
+	await get_tree().create_timer(0.3).timeout
+	TestHooks.check(int(force["code"]) == 200 and forced and String(Online.me().get("car", "")) == id, "community_car_forced",
+		"%s %s" % [force, Online.me()])
+	TmUi.set_setting("car_pack", "")
 
 
 ## An HTTP call with a body (the admin password by default): {code, body (Dictionary)}.

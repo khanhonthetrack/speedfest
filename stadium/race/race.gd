@@ -108,6 +108,8 @@ func _ready() -> void:
 	                                  # which turns it back on
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
+	if TestHooks.has_arg("car_pack"):        # a community car pack (.zip) to drive (tests, screenshots)
+		look.pack = TmCarPack.load_zip(String(TestHooks.arg("car_pack", "")))
 	car.add_child(look)
 	input = TmCarInput.new()
 	input.car = car

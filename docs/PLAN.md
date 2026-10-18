@@ -194,6 +194,25 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       difficulty curve and block style; the TMNF-install campaign tabs removed (single
       `.Challenge.Gbx` files still open)
 
+### M10 — Community content on admins' servers (owner, session 15, 2026-10-18) ☐
+"make sure that all the community tracks and car models can be uploaded and put on a admins
+server correctly ... I want full compatibility" (TRANSCRIPT session 15). Branch
+`ccr-1ce252fc-wl7p3m` (`stadium` + M9). Samples from TrackMania Exchange and ManiaPark stay
+outside the repo (`stadium/tools/compat/`).
+- [x] 1. Server: admins (config logins or a password), uploads and TMX / ManiaPark imports, checks
+      as the game reads them, rotations, jump/next, car lists, a forced car (`server/lib/admin.js`,
+      `content.js`, `/admin`; README "Admins")
+- [x] 2. Tracks: the reader fixed on 1113 TMX tracks; every block they use built (all 1098 vanilla
+      tracks build and race; `tests/test_compat_tracks`)
+- [x] 3. Clients download and race a round's uploaded track (SHA-256, cached; test_online)
+- [x] 4. Cars: TMNF car models and skins read and drawn (`gbx/tm_solid.gd`, `car/tm_car_pack.gd`;
+      all 160 sampled ManiaPark packs, `tests/test_compat_cars`, `tests/test_car_pack`); picked
+      online (C), downloaded, drawn for every player, forced by admins (test_online)
+- [ ] 5. TMUnlimiter 2 tracks (~1% of TMX; chunk 0x3F001003 v7): static free-placed game blocks
+      first (offset, rotation, scale), then embedded blocks; scripts and moving blocks need a
+      runtime of their own. Refused with that reason until then
+- [ ] 6. Car packs offline (a Car page: the packs downloaded so far and `user://cars/*.zip`)
+
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
 instead of having a lobby and waiting for players, more maps (10–30 s), different types of cars.

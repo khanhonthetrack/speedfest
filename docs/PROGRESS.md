@@ -2002,3 +2002,41 @@ admins server correctly ... I want full compatibility" (TRANSCRIPT session 15). 
   the car meets the pad. `core/tm_car_model.gd`, `tm_tuning.gd`; test_model_lab 51.
 - Next: the 35 shapes (+ PylonStadium), the client side (download and race server tracks; car
   models from `MainBody.Solid.Gbx` + DDS + WAV), TMUnlimiter 2 block layouts.
+
+## 2026-10-18 — Session 15 (continued): every community block, server tracks and car packs in the client
+- **Blocks (ed101b5):** every shape the TMX sample uses is built: circuit kickers, ramps (slab
+  underside, 16-gon column), loop starts, turbo turns, slopes and the plate variants (bumps
+  98.6-99.3%, hole 99.7%, pillars 1-7 100% in the fidelity test), roulette turbos (99.2-99.7%), ring
+  H, ground camera lights, the Fabric screen pillar, `blocks/shapes/pylon.gd` (PylonStadium), tube
+  and water clips. `test_compat_tracks --build` now lists the builder's missing shapes too.
+  **All 1098 vanilla Stadium tracks of the 1113-track TMX sample build with 0 placeholders and are
+  raceable**; the 15 modded ones are refused with their reason (13 TMUnlimiter 2, 1 Minecraft
+  custom blocks, 1 Rally blocks).
+- **Client track downloads (a8512a0):** a round names its file; `Online.fetch(file, ext)` downloads
+  it once into `user://content/<sha256><ext>` (checked against its SHA-256), the race loads it as a
+  map (`race.gd load_map`). test_online's community part: a server with an admin password, a
+  written track uploaded over HTTP, a wrong password refused, jump, join, download, race, finish.
+- **Car models and skins (48afa5b):** `gbx/tm_solid.gd` reads `MainBody.Solid.Gbx` (CPlugSolid)
+  as players' packs have it: compressed or plain binary, and the old **text** GBX format (29 of 160
+  ManiaPark packs: values as CRLF lines, ids and class ids hex, data arrays raw, skippable marker
+  "1397442896"), TM 1.0 to TMNF chunk versions (GBX.NET's layouts; TM 1.0's tree chunk 0x015 sets
+  its location bit without a location in some files: a location never starts with a chunk id),
+  external refs, Sunrise's CPlugShaderMaterial. **TMNF's car frame is mirrored relative to ours**
+  (both sides' lettering read backwards until x was negated, as for the blocks); mirrored, TMNF's
+  winding is Godot's. `car/tm_car_pack.gd`: a pack's parts by name (s/d/g/p material letters, or
+  Skin/Details/Glass; wheels FL/FR/RL/RR spin and steer, hubs and guards steer; Light* and
+  ProjShad are markers), wheels placed by where they sit (TMNF's "FL" is at its +x in 159 of 164
+  models), DDS quirks of old exporters fixed before Godot's loader (a wrong linear size, mipmap
+  chains that stop at 2 x 2), TGA/PNG/JPG/BMP, engine WAV/OGG layers. `TmCarVisual.pack` draws it
+  (glows at its lamps, brake lights). `tools/compat/fetch_maniapark.py` + `tests/test_compat_cars`:
+  **all 160 sampled ManiaPark packs (80 models, 80 skins) load and texture** (141 with four
+  separate wheels, 4 with some, 15 with the wheels in the body). `tests/test_car_pack` (in the
+  gate, 23 checks) writes its own pack (`tests/tm_test_car.gd`: binary and text models, a DDS with
+  both quirks, a PNG, a WAV).
+- **Cars online:** `race/tm_race_online.gd` downloads every player's pack (ours too) once, draws
+  ours and the others' cars with them (ours with its engine sounds: `TmCarAudio.use_pack`); **C**
+  in a race picks our car among the server's packs (the server's own when an admin forces one);
+  the pick is remembered by file for other servers that have it (`car_pack` setting).
+  test_online: an admin uploads a pack, the client is offered it, picks it, downloads it, its car
+  is drawn with it, the admin forces it (42 checks). `race.tscn --car_pack=<zip>` drives a pack.
+- Server README: "Admins: community tracks and cars".

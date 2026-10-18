@@ -161,9 +161,19 @@ func car(id: String) -> Dictionary:
 	return {}
 
 
-## Our car on this server: one of its car packs ("" our own car).
+## Our car on this server: one of its car packs ("" our own car); remembered (by its file) for the
+## next servers that have it.
 func pick_car(id: String) -> void:
 	_send({"t": "car", "id": id})
+	TmUi.set_setting("car_pack", String(car(id).get("sha256", "")))
+
+
+## A player of this server by id ({} if none).
+func player(id: int) -> Dictionary:
+	for p: Dictionary in players:
+		if int(p.get("id", -1)) == id:
+			return p
+	return {}
 
 
 func _ready() -> void:

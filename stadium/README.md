@@ -121,6 +121,9 @@ executable (no installer needed: unzip and run) with `PLAYING.txt` and the credi
   installed also get its campaign.) Windows SmartScreen warns about the unsigned exe:
   "More info" → "Run anyway".
 - Online: "Join the official server" works while the server runs (`stadium/server/README.md`).
+- Community tracks and cars: a server's admins upload TrackMania Exchange tracks and ManiaPark car
+  models and skins (`stadium/server/README.md` "Admins"); players' games download them when a
+  round or a car needs them, and **C** in an online race picks a car among the server's.
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with
@@ -136,6 +139,11 @@ stadium/tools/run.sh res://race/race.tscn --realtime -- --tmnf=/path/to/TmNation
                                          # a TMNF campaign track (or --map=/path/X.Challenge.Gbx)
 stadium/tools/run.sh res://race/race.tscn --realtime -- --track=SF01 --bot  # watch the bot drive
 stadium/tools/run.sh res://race/map_view.tscn -- --tmnf=/path/to/TMNF --track=A01 --shot=/abs/out.png
+stadium/tools/run.sh res://race/race.tscn --realtime -- --track=SF01 --car_pack=/path/car.zip  # drive a ManiaPark car
+python3 -I stadium/tools/compat/fetch_tmx.py /tmp/tmx         # community samples (outside the repo)
+python3 -I stadium/tools/compat/fetch_maniapark.py /tmp/cars
+stadium/tools/run.sh res://tests/test_compat_tracks.tscn --headless --timeout 7000 -- --dir=/tmp/tmx --build
+stadium/tools/run.sh res://tests/test_compat_cars.tscn --headless --timeout 3000 -- --dir=/tmp/cars
 ```
 Race keys: arrows/WASD (or a pad) drive, Enter respawns at the last checkpoint, Backspace/Delete
 restarts.

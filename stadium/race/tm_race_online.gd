@@ -7,7 +7,9 @@ extends Node
 ## on screen, chat (T to type, Enter to send), votes (V: call one; F1 / F2: yes / no on the running
 ## one), spectating (F3; Left / Right: whom to follow), the results when a round ends (the round's
 ## points, the map's standings, ladder points won or lost) and the server's next round: the same
-## track again (Rounds) or the next one loaded.
+## track again (Rounds) or the next one loaded. Cars: C picks ours among the server's car packs
+## (community models and skins its admins uploaded); every player's pack, ours too, is downloaded
+## once (cached by its SHA-256) and drawn, ours with its engine sounds.
 
 var scene: Node                    ## the race scene (race.gd)
 var _cars := {}                    ## player id -> Node3D (a ghost TmCarVisual and a name tag)
@@ -25,6 +27,8 @@ var _vote_menu: PanelContainer
 var _wait_label: Label
 var _spec_cam: Camera3D
 var _follow := -1                  ## spectating: the player followed
+var _packs := {}                   ## car pack id -> its local file ("" while it downloads, "!" failed)
+var _car_menu: PanelContainer
 const TEAM_COLOURS := [Color(0.25, 0.5, 1.0), Color(1.0, 0.3, 0.25)]
 const TEAM_NAMES := ["BLUE", "RED"]
 
@@ -89,6 +93,12 @@ func _ready() -> void:
 	_vote_menu.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_vote_menu.visible = false
 	root.add_child(_vote_menu)
+	_car_menu = PanelContainer.new()
+	_car_menu.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
+	_car_menu.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_car_menu.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_car_menu.visible = false
+	root.add_child(_car_menu)
 	_spec_cam = Camera3D.new()
 	_spec_cam.far = 4000.0
 	_spec_cam.fov = 72.0
@@ -98,11 +108,14 @@ func _ready() -> void:
 	Online.ladder_received.connect(func(_d: float) -> void: _on_results(Online.ranking))
 	Online.round_changed.connect(_on_round)
 	Online.players_changed.connect(_refresh_board)
+	Online.players_changed.connect(_fetch_cars)
+	Online.cars_changed.connect(_fetch_cars)
 	Online.results_received.connect(_on_results)
 	Online.chat_received.connect(func(_f: String, _t: String) -> void: _refresh_chat())
 	Online.disconnected.connect(_on_lost)
 	_refresh_board()
 	_refresh_chat()
+	_fetch_cars()
 	if String(Online.round.get("state", "")) == "results":
 		_on_results(Online.ranking)
 
@@ -119,6 +132,7 @@ func _car(id: int) -> Node3D:
 	n.name = "Player%d" % id
 	var v := TmCarVisual.new()
 	v.ghost = true
+	v.pack = _pack_of(id)
 	for p: Dictionary in Online.players:
 		if int(p["id"]) == id:
 			var c: Array = p.get("colour", [0.85, 0.08, 0.06])
@@ -213,6 +227,8 @@ func _refresh_board() -> void:
 		var score := ("%d PTS" % int(p.get("points", 0))) if by_points else TmRace.time_text(int(p["best"]))
 		lines.append("%s%d. %s%s   %s" % ["> " if me else "", i, tag, TmNick.strip(String(p["name"])), score])
 		i += 1
+	if not Online.cars.is_empty():
+		lines.append("C  CHOOSE A CAR")
 	_board.text = "\n".join(lines)
 
 
@@ -286,6 +302,95 @@ func _on_round() -> void:
 			scene.load_map(path, trk)
 		else:
 			scene.load_track(trk)
+
+
+# --- cars: the server's car packs ------------------------------------------------------------------
+
+## Downloads the car packs the players drive (ours too) that aren't here yet.
+func _fetch_cars() -> void:
+	for p: Dictionary in Online.players:
+		var id := String(p.get("car", ""))
+		if id.is_empty() or _packs.has(id) or Online.car(id).is_empty():
+			continue
+		_packs[id] = ""
+		_download_car(id, Online.car(id))
+	_apply_cars()
+
+
+func _download_car(id: String, c: Dictionary) -> void:
+	var path: String = await Online.fetch(c, ".zip")
+	if not is_inside_tree():
+		return
+	_packs[id] = path if not path.is_empty() else "!"
+	if path.is_empty():
+		push_warning("couldn't download the car pack %s" % String(c.get("name", id)))
+	_apply_cars()
+
+
+## A player's car pack, if it is here and loads (null: our own car).
+func _pack_of(player_id: int) -> TmCarPack:
+	var id := String(Online.player(player_id).get("car", ""))
+	var path := String(_packs.get(id, ""))
+	if path.is_empty() or path == "!":
+		return null
+	var pack := TmCarPack.load_zip(path)
+	if not pack.ok():
+		push_warning("car pack %s: %s" % [id, pack.error])
+		_packs[id] = "!"             # not read again; that player drives our car
+		return null
+	return pack
+
+
+## Draws every car with its player's pack: ours swapped in place, the others rebuilt.
+func _apply_cars() -> void:
+	if scene == null or scene.car == null:
+		return
+	var mine := _pack_of(Online.my_id)
+	for c in scene.car.get_children():
+		if c is TmCarVisual and (c as TmCarVisual).pack != mine:
+			var look := TmCarVisual.new()
+			look.paint_colour = (c as TmCarVisual).paint_colour
+			look.pack = mine
+			c.queue_free()
+			scene.car.add_child(look)
+			if scene.audio:
+				scene.audio.use_pack(mine)
+			break
+	for id: int in _cars.keys():
+		var n: Node3D = _cars[id]
+		var v := n.get_child(n.get_child_count() - 1) as TmCarVisual
+		if v and v.pack != _pack_of(id):
+			n.queue_free()
+			_cars.erase(id)          # made again with its pack at its next relayed pose
+
+
+## C: our car among the server's car packs (or ours); the server's own car when it imposes one.
+func toggle_car_menu() -> void:
+	if _car_menu.visible:
+		_car_menu.visible = false
+		return
+	for c in _car_menu.get_children():
+		c.queue_free()
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	_car_menu.add_child(col)
+	col.add_child(TmUi.label("CHOOSE A CAR", 26, TmUi.ACCENT, TmUi.HEAD, 2))
+	var forced := Online.car(Online.forced_car)
+	if not forced.is_empty():
+		col.add_child(TmUi.label("EVERYONE DRIVES %s HERE" % String(forced.get("name", "")).to_upper(), 20, TmUi.TEXT, TmUi.BOLD))
+	else:
+		var mine := String(Online.me().get("car", ""))
+		var pick := func(id: String) -> void:
+			Online.pick_car(id)
+			_car_menu.visible = false
+		col.add_child(TmUi.button(("> " if mine.is_empty() else "") + "OUR CAR", func() -> void: pick.call(""), 420))
+		for c: Dictionary in Online.cars:
+			var id := String(c.get("id", ""))
+			col.add_child(TmUi.button(("> " if id == mine else "") + String(c.get("name", id)).to_upper(),
+				func() -> void: pick.call(id), 420))
+	col.add_child(TmUi.button("CLOSE", func() -> void: _car_menu.visible = false, 420))
+	_car_menu.visible = true
+	(col.get_child(col.get_child_count() - 1 if not forced.is_empty() else 1) as Control).grab_focus.call_deferred()
 
 
 func _on_lost(reason: String) -> void:
@@ -404,6 +509,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			scene.car.controls_enabled = false
 		KEY_V:
 			toggle_vote_menu()
+		KEY_C:
+			if not Online.cars.is_empty():
+				toggle_car_menu()
 		KEY_F1:
 			Online.send_vote(true)
 		KEY_F2:
