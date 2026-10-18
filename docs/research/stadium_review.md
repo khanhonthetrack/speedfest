@@ -11,6 +11,8 @@ replaces the car, the gate textures, the menus, the engine sound, and adds repla
 Method: code reading, the committed measurement tables, and our own renders (Godot 4.7.2 Forward+
 under Xvfb on llvmpipe, 1280x720, default settings unless noted: quality High, HD on, no RTX
 fork). No Nadeo file was used or downloaded for this review.
+The renders, side by side with the scorecard: https://claude.ai/artifact/HPV2TcjtfoE2UJRqEvW5Uc
+(private to the owner's account; the PNGs themselves are not committed).
 
 ## 0. The reverse-engineering request
 
@@ -54,7 +56,7 @@ are measured right but built crudely.
 | Gates (start / CP / finish) | **3/10** | 5 | measured arch, but crude sign boards (the "horns") and neon bands; 2.1 |
 | Car model | **3/10** | 6 | soap-bar lofts, star rims, loose parts on `stadium`; M9 rebuilt it; 2.2 |
 | Surfaces / textures | **3/10** | 5 | world-space noise everywhere on `stadium`; M9 has authored road/gate/advert/stadium textures, other families still flat; 2.3 |
-| Light, shadows, reflections, grading | **3/10** | 3 | no GI, no AO bake, sky-only reflections, linear tonemap with a saturation boost; unchanged on M9; 2.4 |
+| Light, shadows, reflections | **3/10** | 3 | no GI or baked shade at the default setting, sky-only reflections: nothing darkens under bridges, gates or the car; unchanged on M9; 2.4 |
 | Menus / HUD | 4/10 | 7 | M9-4 rebuilt them on TMNF's structure |
 | Sound | 5/10 | 7 | M9-3: TMNF's six-layer engine model, our own synthesis |
 | Editor, replays, online ladder | 1/10 | 5 | M9-5/6 done, M9-7 in progress |
