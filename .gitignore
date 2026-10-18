@@ -20,3 +20,6 @@ __pycache__/
 
 # local debug scenes (never committed)
 game/tests/tmp/
+
+# the online server's data (accounts, records) when run from the repo
+stadium/server/data/

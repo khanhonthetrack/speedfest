@@ -1,170 +1,105 @@
 'use strict';
-// SpeedFest Stadium online server: one always-on time-attack room like a TMNF server. Rounds of
-// ROUND_MS on random tracks of the game's own (stadium/tracks; or TMNF's campaign), players'
-// best times ranked live, their cars' positions relayed (10 per second) so everyone sees everyone,
-// results between rounds, chat. WebSocket on /ws (JSON messages, see docs below); GET / gives the
-// status as JSON for the game's server list.
+// SpeedFest Stadium online: the master server (accounts, ladder, rankings, records, the server
+// list: lib/master.js, HTTP /api) and the official game servers (lib/game.js: Time Attack,
+// Rounds, Team, Laps, each a room on WebSocket /ws/<id>), all in one process on one port, so one
+// Cloudflare tunnel serves them all (docker-compose.yml). Data: DATA_DIR/master.json.
 //
-// Client -> server: {t:'hello', name, version, colour}  {t:'state', p:[x,y,z], q:[x,y,z,w], v, s}
-//                   {t:'finish', round, track, time}  {t:'chat', text}
-// Server -> client: {t:'welcome', id, now, round, players}  {t:'round', now, round}
-//                   {t:'players', players}  {t:'states', s:{id:[px,py,pz,qx,qy,qz,qw,v,s]}}
-//                   {t:'results', ranking}  {t:'chat', from, text}  {t:'error', msg}
-//
-// Env: PORT (8090), ROUND_MS (300000), RESULTS_MS (15000), NAME ("SpeedFest Stadium"), MAX_PLAYERS (32),
-// TRACKS (the game's own: SF01,SF02,..; "tmnf" for TMNF's campaign A01..E05, when every player has
-// TMNF installed); or arguments --port= --host= --round-ms= --results-ms= --name= --max-players=
-// --tracks= (the game's tests use them; --host=127.0.0.1 behind a tunnel).
+// HTTP: /api/... (lib/master.js); GET / or /status: the first server's status and the list;
+// GET /ws/<id>/status: a server's status. WebSocket: /ws/<id> (/ws: the first server).
+// Run: node server.js [--config=config.json] [--port=8090] [--host=127.0.0.1] [--data=./data]
+//      [--name= --mode=TimeAttack|Rounds|Team|Laps --round-ms= --results-ms= --max-players= --tracks=]
+// config.json: {"port", "host", "data", "servers": [{"id", "name", "mode", "max_players", "tracks",
+//   "round_ms", "results_ms", "ranked"}]}. Env: CONFIG, PORT, HOST, DATA_DIR, NAME, ROUND_MS, ...
 
 const http = require('http');
-const { WebSocketServer } = require('ws');
-const { Rounds, TRACKS, TMNF_CAMPAIGN } = require('./lib/rounds');
+const fs = require('fs');
+const path = require('path');
+const { Store } = require('./lib/store');
+const { Master } = require('./lib/master');
+const { Game, VERSION } = require('./lib/game');
+const { TRACKS, TMNF_CAMPAIGN } = require('./lib/rounds');
 
-const VERSION = 1;
-const MAX_FRAME = 4096;
-const STATE_HZ = 10;
-
-function cleanText(v, max) {
-  if (typeof v !== 'string') return '';
-  const s = v.replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁩﻿]/g, '')
-    .replace(/\s+/g, ' ').trim();
-  return Array.from(s).slice(0, max).join('').trim();
+function trackList(v) {
+  const list = String(v || '').trim();
+  return list === 'tmnf' ? TMNF_CAMPAIGN : list ? list.split(',').map((t) => t.trim()).filter(Boolean) : TRACKS;
 }
 
-function finiteArray(a, n, limit) {
-  return Array.isArray(a) && a.length === n && a.every((x) => typeof x === 'number' && Number.isFinite(x) && Math.abs(x) < limit);
-}
-
-function createServer(opts = {}) {
-  const name = opts.name || process.env.NAME || 'SpeedFest Stadium';
-  const maxPlayers = Number(opts.maxPlayers || process.env.MAX_PLAYERS || 32);
-  const list = String(opts.tracks || process.env.TRACKS || '').trim();
-  const rounds = new Rounds({
-    roundMs: Number(opts.roundMs || process.env.ROUND_MS || 5 * 60 * 1000),
-    resultsMs: Number(opts.resultsMs || process.env.RESULTS_MS || 15 * 1000),
-    tracks: list === 'tmnf' ? TMNF_CAMPAIGN : list ? list.split(',').map((t) => t.trim()).filter(Boolean) : TRACKS,
-  });
-  const players = new Map();      // id -> {id, name, colour, ws, state, chatAt}
-  let nextId = 1;
-
-  const status = () => ({
-    name, version: VERSION, players: players.size, maxPlayers,
-    round: rounds.info(), now: Date.now(),
-    ranking: rounds.ranking().slice(0, 10).map((r) => ({ name: r.name, time: r.time })),
-  });
-
+/** The app: {master, games, httpServer, listen, close}. config: {data (dir; '' in memory), master
+ *  (default true), servers: [{id, name, mode, maxPlayers, tracks, roundMs, resultsMs, ranked}]}. */
+function createApp(config = {}) {
+  const store = new Store(config.data ? path.join(config.data, 'master.json') : '');
+  const master = config.master === false ? null : new Master(store);
+  const games = new Map();
+  for (const s of (config.servers && config.servers.length ? config.servers : [{ id: 'main' }])) {
+    const id = String(s.id || 'main');
+    const game = new Game({ id, name: s.name || 'SpeedFest Stadium', mode: s.mode || 'TimeAttack', tracks: trackList(s.tracks),
+      maxPlayers: Number(s.maxPlayers || s.max_players || 32), master, ranked: s.ranked !== false, path: `/ws/${id}`,
+      modeOpts: { roundMs: Number(s.roundMs || s.round_ms || 5 * 60 * 1000), resultsMs: Number(s.resultsMs || s.results_ms || 15000) } });
+    games.set(id, game.start());
+    if (master) master.addOfficial(id, game);
+  }
+  const first = games.values().next().value;
+  const json = (res, code, body) => {
+    res.writeHead(code, { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' });
+    res.end(JSON.stringify(body));
+  };
   const httpServer = http.createServer((req, res) => {
-    if (req.method === 'GET' && (req.url === '/' || req.url === '/status')) {
-      res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' });
-      res.end(JSON.stringify(status()));
-      return;
+    if (master && master.handle(req, res)) return;
+    const url = new URL(req.url, 'http://x');
+    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/status')) {
+      return json(res, 200, { ...first.status(), servers: master ? master.servers(req) : [] });
     }
+    const m = url.pathname.match(/^\/ws\/([A-Za-z0-9_-]+)\/status$/);
+    if (req.method === 'GET' && m && games.has(m[1])) return json(res, 200, games.get(m[1]).status());
     res.writeHead(404, { 'content-type': 'text/plain' });
     res.end('not found');
   });
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws', maxPayload: MAX_FRAME });
-
-  const send = (ws, msg) => { if (ws.readyState === 1) ws.send(JSON.stringify(msg)); };
-  const broadcast = (msg) => { const s = JSON.stringify(msg); for (const p of players.values()) if (p.ws.readyState === 1) p.ws.send(s); };
-  const playerList = () => {
-    const best = new Map(rounds.ranking().map((r) => [r.id, r.time]));
-    return [...players.values()].map((p) => ({ id: p.id, name: p.name, colour: p.colour, best: best.has(p.id) ? best.get(p.id) : -1 }));
-  };
-
-  rounds.begin(Date.now());
-
-  const clock = setInterval(() => {
-    const now = Date.now();
-    const changed = rounds.tick(now);
-    if (changed === 'results') {
-      broadcast({ t: 'results', ranking: rounds.ranking().map((r) => ({ id: r.id, name: r.name, time: r.time })) });
-      broadcast({ t: 'round', now, round: rounds.info() });
-    } else if (changed === 'race') {
-      broadcast({ t: 'round', now, round: rounds.info() });
-      broadcast({ t: 'players', players: playerList() });
-    }
-    // relay the cars
-    const s = {};
-    for (const p of players.values()) if (p.state && now - p.stateAt < 2000) s[p.id] = p.state;
-    if (Object.keys(s).length) broadcast({ t: 'states', s });
-  }, 1000 / STATE_HZ);
-
-  wss.on('connection', (ws) => {
-    let me = null;
-    ws.on('message', (data, isBinary) => {
-      if (isBinary || data.length > MAX_FRAME) return;
-      let msg;
-      try { msg = JSON.parse(data.toString()); } catch { return; }
-      if (!msg || typeof msg.t !== 'string') return;
-      if (!me) {
-        if (msg.t !== 'hello') return;
-        if (msg.version !== VERSION) { send(ws, { t: 'error', msg: `version mismatch: server ${VERSION}, game ${msg.version}` }); ws.close(); return; }
-        if (players.size >= maxPlayers) { send(ws, { t: 'error', msg: 'server full' }); ws.close(); return; }
-        const colour = finiteArray(msg.colour, 3, 2) ? msg.colour.map((c) => Math.min(1, Math.max(0, c))) : [0.85, 0.08, 0.06];
-        me = { id: nextId++, name: cleanText(msg.name, 75) || 'Player', colour, ws, state: null, stateAt: 0, chatAt: 0 };
-        players.set(me.id, me);
-        send(ws, { t: 'welcome', id: me.id, name, now: Date.now(), round: rounds.info(), players: playerList() });
-        broadcast({ t: 'players', players: playerList() });
-        broadcast({ t: 'chat', from: '', text: `${me.name} joined` });
-        return;
-      }
-      switch (msg.t) {
-        case 'state':
-          if (finiteArray(msg.p, 3, 1e5) && finiteArray(msg.q, 4, 2)) {
-            const v = typeof msg.v === 'number' && Number.isFinite(msg.v) ? Math.max(-1000, Math.min(1000, msg.v)) : 0;
-            const st = typeof msg.s === 'number' && Number.isFinite(msg.s) ? Math.max(-1, Math.min(1, msg.s)) : 0;
-            me.state = [...msg.p.map((x) => Math.round(x * 100) / 100), ...msg.q.map((x) => Math.round(x * 1000) / 1000),
-              Math.round(v * 10) / 10, Math.round(st * 100) / 100];
-            me.stateAt = Date.now();
-          }
-          break;
-        case 'finish':
-          if (rounds.finish(me.id, me.name, msg.round, msg.track, msg.time)) {
-            broadcast({ t: 'players', players: playerList() });
-          }
-          break;
-        case 'chat': {
-          const now = Date.now();
-          const text = cleanText(msg.text, 120);
-          if (text && now - me.chatAt > 700) {
-            me.chatAt = now;
-            broadcast({ t: 'chat', from: me.name, text });
-          }
-          break;
-        }
-        default:
-          break;
-      }
-    });
-    ws.on('close', () => {
-      if (!me) return;
-      players.delete(me.id);
-      broadcast({ t: 'players', players: playerList() });
-      broadcast({ t: 'chat', from: '', text: `${me.name} left` });
-    });
-    ws.on('error', () => {});
+  httpServer.on('upgrade', (req, socket, head) => {
+    const p = new URL(req.url, 'http://x').pathname;
+    const m = p.match(/^\/ws\/([A-Za-z0-9_-]+)$/);
+    const game = p === '/ws' ? first : (m ? games.get(m[1]) : null);
+    if (!game) { socket.destroy(); return; }
+    game.upgrade(req, socket, head);
   });
-
   return {
-    httpServer, wss, rounds, players,
+    master, games, httpServer, store,
+    get players() { return first.players; },
     listen(port, cb, host) { if (host) httpServer.listen(port, host, cb); else httpServer.listen(port, cb); return this; },
     close(cb) {
-      clearInterval(clock);
-      for (const c of wss.clients) c.terminate();
-      wss.close();
+      for (const g of games.values()) g.close();
+      store.close();
       httpServer.closeAllConnections();
       httpServer.close(cb);
     },
   };
 }
 
+/** One server (the tests' and the old command line's): a mode's room, the master in memory. */
+function createServer(opts = {}) {
+  return createApp({ data: opts.data || '', master: opts.master,
+    servers: [{ id: 'main', name: opts.name || process.env.NAME, mode: opts.mode || process.env.MODE, maxPlayers: opts.maxPlayers || process.env.MAX_PLAYERS,
+      tracks: opts.tracks || process.env.TRACKS, roundMs: opts.roundMs || process.env.ROUND_MS, resultsMs: opts.resultsMs || process.env.RESULTS_MS }] });
+}
+
 if (require.main === module) {
   const args = Object.fromEntries(process.argv.slice(2).filter((a) => a.startsWith('--') && a.includes('='))
     .map((a) => [a.slice(2, a.indexOf('=')), a.slice(a.indexOf('=') + 1)]));
-  const port = Number(args.port || process.env.PORT || 8090);
-  const srv = createServer({ roundMs: args['round-ms'], resultsMs: args['results-ms'], name: args.name, maxPlayers: args['max-players'],
-    tracks: args.tracks });
-  srv.listen(port, () => console.log(`SpeedFest Stadium server on http://${args.host || 'localhost'}:${port} (WebSocket /ws), round ${srv.rounds.track}`), args.host);
+  const file = args.config || process.env.CONFIG;
+  const cfg = file ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
+  const port = Number(args.port || process.env.PORT || cfg.port || 8090);
+  const host = args.host || process.env.HOST || cfg.host;
+  const data = args.data || process.env.DATA_DIR || cfg.data || path.join(__dirname, 'data');
+  const servers = cfg.servers || [{ id: 'main', name: args.name || process.env.NAME, mode: args.mode || process.env.MODE,
+    maxPlayers: args['max-players'] || process.env.MAX_PLAYERS, tracks: args.tracks || process.env.TRACKS,
+    roundMs: args['round-ms'] || process.env.ROUND_MS, resultsMs: args['results-ms'] || process.env.RESULTS_MS }];
+  const app = createApp({ data, servers });
+  app.listen(port, () => {
+    console.log(`SpeedFest Stadium on http://${host || 'localhost'}:${port}: master /api, data ${data}`);
+    for (const g of app.games.values()) console.log(`  ${g.mode.name.padEnd(10)} ${g.name}: /ws/${g.id}, track ${g.mode.info().track}`);
+  }, host);
+  const stop = () => app.close(() => process.exit(0));
+  process.on('SIGINT', stop);
+  process.on('SIGTERM', stop);
 }
 
-module.exports = { createServer, VERSION };
+module.exports = { createApp, createServer, VERSION };

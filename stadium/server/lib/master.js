@@ -48,10 +48,20 @@ class Master {
     return delta;
   }
 
-  servers() {
+  /** The server list; official servers' relative addresses completed with the request's host. */
+  servers(req = null) {
     const now = this.now();
     const out = [];
-    for (const [id, g] of this.official) out.push({ id, official: true, ...g.listing() });
+    let base = '';
+    if (req) {
+      const visitor = String(req.headers['cf-visitor'] || '');
+      const proto = String(req.headers['x-forwarded-proto'] || (visitor.includes('https') ? 'https' : 'http')).split(',')[0];
+      base = `${proto}://${req.headers.host || 'localhost'}`;
+    }
+    for (const [id, g] of this.official) {
+      const l = g.listing();
+      out.push({ id, official: true, ...l, address: l.address.startsWith('/') ? base + l.address : l.address });
+    }
     for (const [id, s] of this.community) {
       if (now - s.seen > HEARTBEAT_MS) { this.community.delete(id); continue; }
       out.push({ id, official: false, name: s.name, address: s.address, mode: s.mode, track: s.track, players: s.players, max: s.max });
@@ -133,7 +143,7 @@ class Master {
           return send(r.error ? 400 : 200, r);
         }
         case 'GET /api/servers':
-          return send(200, { servers: this.servers() });
+          return send(200, { servers: this.servers(req) });
         case 'POST /api/servers': {
           if (!me) return send(401, { error: 'log in to list a server' });
           const body = await readBody();
