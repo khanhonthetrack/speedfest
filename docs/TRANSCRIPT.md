@@ -583,3 +583,20 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   (report §8): `tools/assets/blendswap_convert.py` (Blender 5.2 module: report + `.glb`) and
   `tests/visual/asset_trial.tscn` (loads the `.glb` files at runtime beside a night street, on
   both renderers). The trial runs as soon as the 7 files can be downloaded.
+
+### User (session 16): a screenshot, no text
+
+> (BlendSwap's docs, "Then ask from the Blender session": "Find a CC0 low-poly chair for Blender
+> 4.2. Show me the author and license, download the .blend, and append it to my open scene."
+> Plus the HTTP alternative: `curl -H "Authorization: Bearer $BLENDSWAP_KEY"
+> "https://blendswap.com/api/v1/assets?q=chair&license=cc0&format=blender"` and
+> `curl -X POST ... -d '{"asset_id": 12345}' https://blendswap.com/api/v1/downloads`.)
+
+### Claude
+
+- Read as "use the HTTP API instead". Not possible from this session: there's no
+  `BLENDSWAP_KEY` in the environment, and the proxy still blocks `blendswap.com`. One more
+  connector download (20145) got the same insufficient_credits answer. The HTTP API most likely
+  goes through the same credit check. Needed for the HTTP route: allow `blendswap.com` in the
+  environment's network settings, add the key as the environment secret `BLENDSWAP_KEY`, then
+  start a new session.
