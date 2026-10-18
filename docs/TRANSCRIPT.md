@@ -728,3 +728,16 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - A multi-agent review of session 13's new code ran during this work; its verifiers hit the
   account's usage limit (the reason for the owner's sequential rule), so its 42 findings are checked
   and fixed one by one, sequentially, from here on.
+
+> Stop the tasks  when done with the white tracks
+
+> Continue
+
+### Claude
+
+- The first message arrived after the whole A-E campaign was already done and pushed (White, then
+  Green, Blue, Red and Black, each committed separately with medals and a passing gate), so there
+  was nothing left to stop; the owner's next message was "Continue".
+- Continuing M9 in order: M9-2, the look of what the campaign now shows most (platform decks and
+  walls, circuit borders, dirt), compared side by side with TMNF's own look in local reference
+  renders (`--ref`, outside the repo).
