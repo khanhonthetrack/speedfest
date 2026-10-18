@@ -600,3 +600,17 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   goes through the same credit check. Needed for the HTTP route: allow `blendswap.com` in the
   environment's network settings, add the key as the environment secret `BLENDSWAP_KEY`, then
   start a new session.
+
+### User (session 16): a screenshot, no text
+
+> (The claude.ai connector settings for "blendswap": the server URL with the key in it,
+> **key redacted here**; read-only tools (get asset, get balance, get generation, list Studio
+> tools, quote a generation, search assets) and write tools ("Create Studio generation (paid)",
+> "Download asset file (paid)"), all set to "Needs approval".)
+
+### Claude
+
+- The connector is set up correctly: the calls reach BlendSwap, and the refusal is BlendSwap's
+  server answer (insufficient_credits), not a permission block. Its own tool list labels
+  downloads "(paid)". The screenshot showed the full API key, so the owner should rotate it on
+  BlendSwap and update the connector URL. The key isn't recorded anywhere in the repo.
