@@ -115,6 +115,12 @@ const TURBO_STRENGTH := 5.0          ## [0xf0] yellow pad
 const TURBO_MS := 250                ## [0xf8]
 const TURBO2_STRENGTH := 20.0        ## [0xf4] red pad
 const TURBO2_MS := 100               ## [0xfc]
+## The roulette pad (surface 30): the yellow pad's strength and time [0xf0, 0xf8] times a factor
+## rolled when the car meets the pad, from where the run's clock is in a 1000 ms cycle
+## (CSceneVehicleCar::GetRouletteValue01 (time - run start, 1000): 0 below 4/7, 0.5 below 6/7,
+## else 1; the factor is 1 + that, so x1 for 571 ms, x1.5 for 286 ms, x2 for 143 ms).
+const ROULETTE_PERIOD_MS := 1000
+const ROULETTE_STEPS := [[4.0 / 7.0, 1.0], [6.0 / 7.0, 1.5], [1.0, 2.0]]
 
 # --- body ---
 const MASS := 1.0                    ## [0x130]

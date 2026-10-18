@@ -8,6 +8,10 @@ extends RefCounted
 ##          variant (int), skin (String, may be empty)}]
 
 const CLASS_CHALLENGE := 0x03043000
+## Old class ids (TrackMania Original / Sunrise / Nations ESWC files, which TMNF still loads) ->
+## TMNF's (from GBX.NET's public-domain WrapTMF table; only the classes a track body uses).
+const WRAP := {0x24003000: 0x03043000, 0x2400A000: 0x0301A000, 0x2400C000: 0x0305B000,
+	0x2403A000: 0x03059000, 0x2403C000: 0x0301B000}
 const FACADE := 0xFACADE01
 const PIKS := 0x534B4950
 
@@ -27,6 +31,9 @@ var nb_laps := 0
 var size := Vector3i(32, 32, 32)
 var blocks: Array = []
 var path: Array = []           ## our own tracks only (TmTrackBuilder): the line the driving bot follows
+## A TMUnlimiter 2 track: TMNF's block list is a placeholder (its one block's name says the track
+## needs TMUnlimiter) and the real blocks are in Unlimiter's own chunks.
+var unlimiter := false
 
 
 ## header_only: just the header (name, author, uid, medal times; no blocks): quick, for lists.
@@ -38,6 +45,12 @@ static func load_file(path: String, header_only := false) -> TmChallenge:
 		return c
 	c.parse(f.get_buffer(f.get_length()), header_only)
 	return c
+
+
+## A class or chunk id in TMNF's numbering (old ids mapped).
+static func wrap_id(id: int) -> int:
+	var w: int = WRAP.get(id & 0xFFFFF000, 0)
+	return (w | (id & 0xFFF)) if w != 0 else id
 
 
 func ok() -> bool:
@@ -54,7 +67,7 @@ func parse(raw: PackedByteArray, header_only := false) -> void:
 		error = "GBX version %d not supported" % ver
 		return
 	var fmt := s.bytes(4)
-	var cls := s.u32()
+	var cls := wrap_id(s.u32())
 	if cls != CLASS_CHALLENGE:
 		error = "not a challenge (class %08X)" % cls
 		return
@@ -65,7 +78,7 @@ func parse(raw: PackedByteArray, header_only := false) -> void:
 		for i in n:
 			entries.append([s.u32(), s.u32() & 0x7FFFFFFF])
 		for e in entries:
-			_header_chunk(e[0], s.bytes(e[1]))
+			_header_chunk(wrap_id(e[0]), s.bytes(e[1]))
 	if header_only:
 		if not s.ok():
 			error = s.error
@@ -135,7 +148,7 @@ func _node_ref(b: GbxStream) -> Variant:
 		return null
 	if b.nodes.has(idx):
 		return b.nodes[idx]
-	var node := {"class": b.u32()}
+	var node := {"class": wrap_id(b.u32())}
 	b.nodes[idx] = node
 	_node_body(b, node)
 	return node
@@ -143,7 +156,7 @@ func _node_ref(b: GbxStream) -> Variant:
 
 func _node_body(b: GbxStream, node: Dictionary) -> void:
 	while b.ok():
-		var cid := b.u32()
+		var cid := wrap_id(b.u32())
 		if cid == FACADE:
 			return
 		if b.peek_u32() == PIKS:
@@ -158,6 +171,8 @@ func _node_body(b: GbxStream, node: Dictionary) -> void:
 		if not _chunk(b, cid, node):
 			return
 		if cid == 0x0304301F:
+			if not blocks.is_empty() and String(blocks[0]["name"]).contains("TMUnlimiter"):
+				unlimiter = true
 			return   # the rest of the body (media clips, ...) isn't needed
 
 
@@ -245,7 +260,8 @@ func _blocks(b: GbxStream) -> void:
 				var skin: Variant = _node_ref(b)
 				if skin is Dictionary:
 					blk["skin"] = (skin as Dictionary).get("pack", "")
-			if flags & 0x100000:
+			# bit 20: a waypoint's special property, from version 2 of the list (version 1's bit is unrelated)
+			if ver >= 2 and flags & 0x100000:
 				_node_ref(b)
 		blocks.append(blk)
 

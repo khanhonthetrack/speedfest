@@ -47,6 +47,9 @@ var reverse := false
 var wall_until_ms := -1
 var turbo_strength := 0.0
 var turbo_until_ms := -1
+var run_start_ms := 0                ## when the run began (the roulette pad's cycle counts from it)
+var _roulette_factor := 1.0          ## rolled when a wheel meets a roulette pad
+var _on_roulette := false
 var free_wheeling := false
 var air_yaw := 0.0                            ## yaw rate kept from the last contact
 var air_pitch := 0.0
@@ -78,6 +81,7 @@ func reset() -> void:
 	wall_until_ms = -1
 	turbo_strength = 0.0
 	turbo_until_ms = -1
+	_on_roulette = false
 	free_wheeling = false
 	air_yaw = 0.0
 	air_pitch = 0.0
@@ -100,6 +104,15 @@ func surface_vals(id: int) -> Array:
 	if surface_override.has(id):
 		return surface_override[id]
 	return T.surface_vals(id)
+
+
+## The roulette pad's factor `ms` into the run (TMNF's: x1, x1.5 or x2 by the 1000 ms cycle).
+static func roulette_factor(ms: int) -> float:
+	var v := float(posmod(ms, T.ROULETTE_PERIOD_MS)) / float(T.ROULETTE_PERIOD_MS)
+	for step: Array in T.ROULETTE_STEPS:
+		if v < float(step[0]):
+			return float(step[1])
+	return 2.0
 
 
 func start_turbo(strength: float, ms: int, now_ms: int) -> void:
@@ -128,6 +141,7 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 	var wall := false
 	var front_touch := false
 	free_wheeling = false
+	var roulette := false
 	for i in 4:
 		var wi: WheelInput = wheels[i]
 		if wi.side_contact:
@@ -145,8 +159,15 @@ func tick(dt: float, now_ms: int, gas: float, brake: float, steer_target: float,
 				start_turbo(T.TURBO_STRENGTH * wi.pad_dir.z, T.TURBO_MS, now_ms)
 			T.Surface.TURBO2:
 				start_turbo(T.TURBO2_STRENGTH * wi.pad_dir.z, T.TURBO2_MS, now_ms)
+			T.Surface.TURBO_ROULETTE:
+				# rolled once as the car meets the pad, kept while it stays on it
+				if not _on_roulette and not roulette:
+					_roulette_factor = roulette_factor(now_ms - run_start_ms)
+				roulette = true
+				start_turbo(T.TURBO_STRENGTH * wi.pad_dir.z * _roulette_factor, T.TURBO_MS, now_ms)
 			T.Surface.FREE_WHEELING:
 				free_wheeling = true
+	_on_roulette = roulette
 	grounded = n_ground > 0
 	if grounded:
 		for k in 4:

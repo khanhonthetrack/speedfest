@@ -231,6 +231,20 @@ func _turbo() -> void:
 		(wi as TmCarModel.WheelInput).pad_dir = Vector3(0, 0, 1)
 	red.tick(1.0, 0.0, 0.0)
 	_check("turbo_red_drive", red.model.drive_now, 146.99, 147.01, " m/s^2")
+	# roulette pad: the yellow pad x1 / x1.5 / x2 by the run's 1000 ms cycle (TMNF's thresholds 4/7, 6/7)
+	_check("roulette_x1", TmCarModel.roulette_factor(0), 1.0, 1.0)
+	_check("roulette_x1_late", TmCarModel.roulette_factor(1571), 1.0, 1.0)
+	_check("roulette_x15", TmCarModel.roulette_factor(600), 1.5, 1.5)
+	_check("roulette_x2", TmCarModel.roulette_factor(2900), 2.0, 2.0)
+	for at_ms: int in [100, 700, 900]:
+		var rl := Sim.new(250.0)
+		rl.model.run_start_ms = -at_ms
+		for wi in rl.wheels:
+			(wi as TmCarModel.WheelInput).surface = T.Surface.TURBO_ROULETTE
+			(wi as TmCarModel.WheelInput).pad_dir = Vector3(0, 0, 1)
+		rl.tick(1.0, 0.0, 0.0)
+		var want := 7.0 * 5.0 * TmCarModel.roulette_factor(at_ms) + 7.0
+		_check("roulette_drive_%d" % at_ms, rl.model.drive_now, want - 0.01, want + 0.01, " m/s^2")
 
 
 func _walls_and_air() -> void:

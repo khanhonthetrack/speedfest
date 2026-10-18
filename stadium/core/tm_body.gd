@@ -123,6 +123,7 @@ func reset() -> void:
 	lin_vel = Vector3.ZERO
 	ang_vel = Vector3.ZERO
 	model.reset()
+	model.run_start_ms = now_ms
 	for i in 4:
 		_absorb[i] = 0.0
 		(_wheels[i] as TmCarModel.WheelInput).contact = false
