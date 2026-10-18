@@ -339,7 +339,7 @@ func _slope(geo: TmGeo, h: Array) -> void:
 	var y_at := func(y: float, i: int) -> float:
 		return y if y >= TOP - 0.01 else maxf(y, float(under.call((path[i] as Vector3).z)))
 	geo.wall_sweep(sec, path, lat, true, "metal", S_METAL, y_at)
-	geo.box(Vector3(14.37, 0, 14.37), Vector3(17.64, float(height.call(16.0)) - 0.88, 17.64), "stands", S_METAL)
+	geo.box(Vector3(14.37, 0, 14.37), Vector3(17.64, float(height.call(16.0)) - 0.88, 17.64), "stands", S_METAL, "", -2, 0.06)
 
 
 ## A (z, radius) section revolved about the axis through centre (x, y) along z from angle a0 to a1
@@ -361,8 +361,8 @@ func _ring_v(geo: TmGeo) -> void:
 			_revolve_z(geo, [[13.6, 12.6, "lamp", TmGeo.NO_COLLISION], [15.0, 12.6, "lamp", TmGeo.NO_COLLISION],
 				[15.0, 13.6, "lamp", TmGeo.NO_COLLISION], [13.6, 13.6, "lamp", TmGeo.NO_COLLISION]], a - 1.0, a + 1.0, 1)
 	for y in [0.0, 29.83]:
-		geo.box(Vector3(14.7, y, 14.41), Vector3(17.3, y + 2.17, 17.59), "structure", S_METAL)
-		geo.box(Vector3(15.5, y + 0.16, 12.96), Vector3(16.5, y + 2.0, 19.04), "structure", S_METAL)
+		geo.box(Vector3(14.7, y, 14.41), Vector3(17.3, y + 2.17, 17.59), "structure", S_METAL, "", -2, 0.05)
+		geo.box(Vector3(15.5, y + 0.16, 12.96), Vector3(16.5, y + 2.0, 19.04), "structure", S_METAL, "", -2, 0.04)
 
 
 ## The checkpoint arch over the deck: the ring's section revolved on a circle of radius 23.3 about
@@ -397,7 +397,7 @@ func _checkpoint_arch(geo: TmGeo) -> void:
 	# short legs under the lips, two per side
 	for c: Vector2 in [Vector2(8, 2), Vector2(24, 2), Vector2(8, 30), Vector2(24, 30), Vector2(2, 8), Vector2(2, 24),
 			Vector2(30, 8), Vector2(30, 24)]:
-		geo.box(Vector3(c.x - 0.5, 0, c.y - 0.5), Vector3(c.x + 0.5, 3.42, c.y + 0.5), "stands", S_METAL)
+		geo.box(Vector3(c.x - 0.5, 0, c.y - 0.5), Vector3(c.x + 0.5, 3.42, c.y + 0.5), "stands", S_METAL, "", -2, 0.05)
 
 
 ## Grid wall round a GT curve: on the arc of radius 32 k about the footprint's corner (0, 32 k), the
@@ -445,6 +445,6 @@ func _grid_wall(geo: TmGeo, units: int, pub: bool) -> void:
 		var y := 4.0 + 8.0 * k
 		geo.pipe(Vector3(0.54, y, 0.39), Vector3(31.46, y, 0.39), 0.3, 8, "pipe", S_DECK)
 		for x0 in [0.0, 8.0, 23.0, 31.0]:
-			geo.box(Vector3(x0, y - 0.45, 0.0), Vector3(x0 + 1.0, y + 0.45, 1.0), "structure", S_METAL)
+			geo.box(Vector3(x0, y - 0.45, 0.0), Vector3(x0 + 1.0, y + 0.45, 1.0), "structure", S_METAL, "", -2, 0.03)
 		for x0 in [12.42, 18.9]:
-			geo.box(Vector3(x0, y - 1.0, 0.0), Vector3(x0 + 0.68, y + 1.0, 1.0), "structure", S_METAL)
+			geo.box(Vector3(x0, y - 1.0, 0.0), Vector3(x0 + 0.68, y + 1.0, 1.0), "structure", S_METAL, "", -2, 0.03)

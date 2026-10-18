@@ -1729,3 +1729,14 @@ Branch `claude/trackmania-stadium-review-lds3no` with M9 merged in. One commit p
   ORMMaterial3D's axis flips, its additive emission and defaults; it also applies the ORM maps'
   own AO, which ORMMaterial3D left off). `--occlusion=0` turns it off for comparisons.
   `tests/test_tracks`: occlusion_sees_the_gate_arch (5-12 m of arch over the first crossing).
+- **Smooth shading, bevels, upright lettering** (`blocks/tm_geo.gd`): sweeps had flat normals per
+  segment (the `smooth` flag was never implemented), so every measured round section (curbs,
+  arches, tubes, pillars) shaded as facets; now each vertex averages the quads round it where the
+  section bends less than 35 degrees (and along the path), real corners stay sharp, never across a
+  fold (visual normals only). `box(..., bevel)`: a chamfered visual mesh (inset faces, 45-degree
+  edge strips, corner triangles) over the plain box's collision, opted in for free-standing parts
+  only (gate feet and light rigs, platform pillars, control booths and screens, tube and Fabric
+  screens, inflatable posts), never boxes that tile into a driving surface (seams would show).
+  The M9 bug from the review is fixed: the curbs' outer faces, read from outside the road, showed
+  their lettering turned 180 degrees (u ran for the road side, and the run's v starts at the
+  face's foot); faces that look away from the centre line now get u and v turned round.

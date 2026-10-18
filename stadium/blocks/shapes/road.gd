@@ -873,7 +873,7 @@ func _gate(geo: TmGeo, zc: float) -> void:
 	_gate_faces(geo, zc)
 	_gate_strips(geo, zc)
 	for x0 in [2.9, 27.7]:
-		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL)
+		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL, "", -2, 0.06)
 	_gate_lights(geo, zc)
 
 
@@ -991,7 +991,7 @@ func _gate_lights(geo: TmGeo, zc: float) -> void:
 			var z := zc + face * 2.1
 			var rig := TmGeo.new()
 			# housing 2 x 1 x 0.45 m, its face towards the road and down
-			rig.box(Vector3(-1.0, -0.5, 0.0), Vector3(1.0, 0.5, 0.45), "gate_shell", TmGeo.NO_COLLISION)
+			rig.box(Vector3(-1.0, -0.5, 0.0), Vector3(1.0, 0.5, 0.45), "gate_shell", TmGeo.NO_COLLISION, "", -2, 0.05)
 			var f := [Vector3(-0.92, -0.42, -0.01), Vector3(0.92, -0.42, -0.01), Vector3(0.92, 0.42, -0.01), Vector3(-0.92, 0.42, -0.01)]
 			var uv := [Vector2(0, 1), Vector2(2, 1), Vector2(2, 0), Vector2(0, 0)]
 			rig.tri(f[0], f[2], f[1], "gate_lamps", TmGeo.NO_COLLISION, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uv[0], uv[2], uv[1])

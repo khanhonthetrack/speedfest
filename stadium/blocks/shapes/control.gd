@@ -153,7 +153,7 @@ func _camera_piece(shape: String) -> Node3D:
 			along.call(PUB_GROUND if shape.ends_with("Ground") else PUB)
 			var s: Array = PUB_SCREEN
 			for x0: float in [s[0], 32.0 - s[1]]:
-				geo.box(Vector3(x0, s[2], s[4]), Vector3(x0 + s[1] - s[0], s[3], s[5]), "screen", S_METAL)
+				geo.box(Vector3(x0, s[2], s[4]), Vector3(x0 + s[1] - s[0], s[3], s[5]), "screen", S_METAL, "", -2, 0.03)
 	return geo.build()
 
 
@@ -285,7 +285,7 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 	for d: Vector3 in dirs:
 		geo.pipe(c, c + d * 16.0, 1.422, 12, "pipe", S_PIPE)
 	var top := 1.81 if _floor > 0.0 else 0.0
-	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "wall_dark", S_CONCRETE)
+	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "wall_dark", S_CONCRETE, "", -2, 0.05)
 	var straight := arms.size() == 2 and arms.has(0) and arms.has(2)
 	var runs := []          # [direction, t0, t1]: screens along the arms (t from the centre)
 	if straight:
@@ -304,7 +304,7 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 			var off: Vector3 = side * float(k) * 5.7
 			var lo := Vector3(minf(a.x, b.x) + off.x - absf(side.x) * 0.3, y0, minf(a.z, b.z) + off.z - absf(side.z) * 0.3)
 			var hi := Vector3(maxf(a.x, b.x) + off.x + absf(side.x) * 0.3, y1, maxf(a.z, b.z) + off.z + absf(side.z) * 0.3)
-			geo.box(lo, hi, "screen", S_METAL)
+			geo.box(lo, hi, "screen", S_METAL, "", -2, 0.03)
 		if _floor > 0.0:
 			# the plinth under the screens and the pipe
 			var w := side * 7.07

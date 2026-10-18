@@ -157,7 +157,8 @@ Two directions, rendered from the driver's approach (`--gate_signs=screen|none`)
   start/finish.
 - Small M9 bug seen on the way: the curb's *outer* face, seen from outside the road, shows its
   lettering mirrored ("STADIUM" reads "MUIDATS", the SF emblem after the word). The u reversal
-  that makes the text read from the road seems to apply to the outer faces too.
+  that makes the text read from the road seems to apply to the outer faces too. (Fixed later in
+  session 14: it was turned 180 degrees, u and v; `TmGeo.sweep` turns outward faces round.)
 
 ### 3.2 Local depth: what TM's baked shadows give and we don't have
 1. **A contact shadow and AO under the car** (a soft projected blob, or SpeedFest's look plan step

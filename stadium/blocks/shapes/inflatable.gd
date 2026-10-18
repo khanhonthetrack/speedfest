@@ -57,7 +57,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			geo.quad(Vector3(b[1], b[2], b[4] - 0.01), Vector3(b[0], b[2], b[4] - 0.01), Vector3(b[0], b[3], b[4] - 0.01),
 				Vector3(b[1], b[3], b[4] - 0.01), "screen", TmGeo.NO_COLLISION)
 			for x: float in ADVERT_POSTS:
-				geo.box(Vector3(x - 0.26, 2.0, 7.543), Vector3(x + 0.26, 30.0, 8.058), "structure", S_METAL)
+				geo.box(Vector3(x - 0.26, 2.0, 7.543), Vector3(x + 0.26, 30.0, 8.058), "structure", S_METAL, "", -2, 0.03)
 		"CornerPillar":
 			_arc_wall(geo, 32.0 - PILLAR[0], y0, PILLAR[2])
 		"TShaped":
