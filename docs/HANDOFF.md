@@ -1,11 +1,14 @@
 # HANDOFF: start here
 
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
-- **Released as `stadium-v0.4`** (owner: "merge it into stadium and tag stadium-v0.4"): `stadium`
-  was fast-forwarded to `claude/trackmania-stadium-review-lds3no` = `stadium` + session 13's M9
-  branch (merged in at 9ee8237) + session 14, so `stadium` now has M9 too. Release:
-  https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.4 (built by CI from the tag).
-  Continue on `stadium` (M9's own branch is fully contained in it).
+- **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium
+  and tag stadium-v0.4"): `stadium` was fast-forwarded to `claude/trackmania-stadium-review-lds3no`
+  = `stadium` + session 13's M9 branch (merged in at 9ee8237) + session 14, so `stadium` has M9 too
+  (CI build of e73901a: success, zips in run 39134618740's artifacts). The cloud session may push
+  branches but not tags (HTTP 403 on refs/tags), so push the tag from the PC:
+  `git fetch origin && git tag -a stadium-v0.4 origin/stadium -m "SpeedFest Stadium v0.4" && git push origin stadium-v0.4`
+  (or GitHub > Releases > Draft a new release, tag `stadium-v0.4` on `stadium`); the workflow then
+  makes the Release with the zips. Continue on `stadium` (M9's branch is fully contained in it).
   STADIUM_TESTS PASS at every commit (test_tracks 52 checks now).
 - Review: `docs/research/stadium_review.md` (scorecard, causes, ranked list; its §3 was re-ranked
   by prototype renders: gates first, then local depth; AgX, a global light re-balance and SDFGI

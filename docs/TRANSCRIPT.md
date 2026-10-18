@@ -694,5 +694,6 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### Claude
 
 - `stadium` fast-forwarded to `claude/trackmania-stadium-review-lds3no` (it contains session 13's
-  M9 work and session 14's), tagged `stadium-v0.4`; the Stadium builds workflow makes the GitHub
-  Release with the Windows and Linux zips.
+  M9 work and session 14's); its CI build passed. The tag `stadium-v0.4` was refused from the
+  cloud session (HTTP 403 on tag refs), so the owner pushes it (command in HANDOFF); the Stadium
+  builds workflow then makes the GitHub Release with the Windows and Linux zips.
