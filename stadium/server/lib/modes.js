@@ -3,7 +3,8 @@
 // tests drive them without timers). Every mode has the same face for lib/game.js:
 //   begin(now), tick(now) -> null | 'race' | 'results', info(), join(id, name, login),
 //   leave(id), finish(id, round, track, time) -> bool, standings(), ranked() -> [{login, time}] |
-//   null (a ladder round just ended), skip(now) (next map), restart(now) (this map again).
+//   null (a ladder round just ended), skip(now) (next map), restart(now) (this map again),
+//   setTracks(ids) (an admin's rotation, from the next map), jump(now, id) (an admin's: that map now).
 //
 // - TimeAttack: a map for a time limit, everyone races as often as they like, the best time counts
 //   (lib/rounds.js), then results and the next map.
@@ -71,6 +72,18 @@ class TimeAttack {
   restart(now) {
     const track = this.r.track;
     this.r.begin(now);
+    this.r.track = track;
+    return 'race';
+  }
+
+  /** An admin's new rotation (from the next map on). */
+  setTracks(tracks) { this.r.setTracks(tracks); }
+
+  /** An admin's jump: `track` now, a fresh round on it. */
+  jump(now, track) {
+    this.r.begin(now);
+    this.r.recent.pop();
+    this.r.recent.push(track);
     this.r.track = track;
     return 'race';
   }
@@ -260,6 +273,23 @@ class RoundsMode {
     const track = this.track;
     this.begin(now);
     this.recent.pop();
+    this.track = track;
+    return 'race';
+  }
+
+  /** An admin's new rotation (from the next map on). */
+  setTracks(tracks) {
+    if (!tracks.length) return;
+    this.tracks = tracks.slice();
+    this.recent = this.recent.filter((t) => this.tracks.includes(t));
+    while (this.recent.length > Math.min(12, this.tracks.length - 1)) this.recent.shift();
+  }
+
+  /** An admin's jump: `track` now, a new map on it. */
+  jump(now, track) {
+    this.begin(now);
+    this.recent.pop();
+    this.recent.push(track);
     this.track = track;
     return 'race';
   }

@@ -6,10 +6,14 @@
 //
 // HTTP: /api/... (lib/master.js); GET / or /status: the first server's status and the list;
 // GET /ws/<id>/status: a server's status. WebSocket: /ws/<id> (/ws: the first server).
+// Admins (lib/admin.js): /api/admin/... and the page /admin upload community tracks (TrackMania
+// Exchange) and car packs (ManiaPark) and set each server's rotation and cars; players download
+// the files from /content/ (lib/content.js; files in DATA_DIR/content).
 // Run: node server.js [--config=config.json] [--port=8090] [--host=127.0.0.1] [--data=./data]
 //      [--name= --mode=TimeAttack|Rounds|Team|Laps --round-ms= --results-ms= --max-players= --tracks=]
-// config.json: {"port", "host", "data", "servers": [{"id", "name", "mode", "max_players", "tracks",
-//   "round_ms", "results_ms", "ranked"}]}. Env: CONFIG, PORT, HOST, DATA_DIR, NAME, ROUND_MS, ...
+// config.json: {"port", "host", "data", "admins": [logins], "admin_password", "servers": [{"id", "name",
+//   "mode", "max_players", "tracks", "round_ms", "results_ms", "ranked"}]}. Env: CONFIG, PORT, HOST,
+//   DATA_DIR, NAME, ROUND_MS, ..., ADMINS (logins, comma-separated), ADMIN_PASSWORD.
 
 const http = require('http');
 const fs = require('fs');
@@ -18,32 +22,40 @@ const { Store } = require('./lib/store');
 const { Master } = require('./lib/master');
 const { Game, VERSION } = require('./lib/game');
 const { TRACKS, TMNF_CAMPAIGN } = require('./lib/rounds');
+const { Content } = require('./lib/content');
+const { Admin } = require('./lib/admin');
 
 function trackList(v) {
   const list = String(v || '').trim();
   return list === 'tmnf' ? TMNF_CAMPAIGN : list ? list.split(',').map((t) => t.trim()).filter(Boolean) : TRACKS;
 }
 
-/** The app: {master, games, httpServer, listen, close}. config: {data (dir; '' in memory), master
- *  (default true), servers: [{id, name, mode, maxPlayers, tracks, roundMs, resultsMs, ranked}]}. */
+/** The app: {master, games, content, admin, httpServer, listen, close}. config: {data (dir; '' in
+ *  memory), master (default true), admins (logins), adminPassword, fetch (tests), servers: [{id,
+ *  name, mode, maxPlayers, tracks, roundMs, resultsMs, ranked}]}. */
 function createApp(config = {}) {
   const store = new Store(config.data ? path.join(config.data, 'master.json') : '');
   const master = config.master === false ? null : new Master(store);
+  const content = new Content(store, config.data ? path.join(config.data, 'content') : '', config.fetch ? { fetch: config.fetch } : {});
   const games = new Map();
   for (const s of (config.servers && config.servers.length ? config.servers : [{ id: 'main' }])) {
     const id = String(s.id || 'main');
     const game = new Game({ id, name: s.name || 'SpeedFest Stadium', mode: s.mode || 'TimeAttack', tracks: trackList(s.tracks),
-      maxPlayers: Number(s.maxPlayers || s.max_players || 32), master, ranked: s.ranked !== false, path: `/ws/${id}`,
+      maxPlayers: Number(s.maxPlayers || s.max_players || 32), master, ranked: s.ranked !== false, path: `/ws/${id}`, content,
       modeOpts: { roundMs: Number(s.roundMs || s.round_ms || 5 * 60 * 1000), resultsMs: Number(s.resultsMs || s.results_ms || 15000) } });
     games.set(id, game.start());
     if (master) master.addOfficial(id, game);
   }
   const first = games.values().next().value;
+  const admin = new Admin({ master, content, games, store, admins: config.admins || [], password: config.adminPassword || '',
+    own: TRACKS, campaign: TMNF_CAMPAIGN });
+  admin.restore();
   const json = (res, code, body) => {
     res.writeHead(code, { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' });
     res.end(JSON.stringify(body));
   };
   const httpServer = http.createServer((req, res) => {
+    if (admin.handle(req, res)) return;
     if (master && master.handle(req, res)) return;
     const url = new URL(req.url, 'http://x');
     if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/status')) {
@@ -62,7 +74,7 @@ function createApp(config = {}) {
     game.upgrade(req, socket, head);
   });
   return {
-    master, games, httpServer, store,
+    master, games, httpServer, store, content, admin,
     get players() { return first.players; },
     listen(port, cb, host) { if (host) httpServer.listen(port, host, cb); else httpServer.listen(port, cb); return this; },
     close(cb) {
@@ -76,7 +88,7 @@ function createApp(config = {}) {
 
 /** One server (the tests' and the old command line's): a mode's room, the master in memory. */
 function createServer(opts = {}) {
-  return createApp({ data: opts.data || '', master: opts.master,
+  return createApp({ data: opts.data || '', master: opts.master, admins: opts.admins, adminPassword: opts.adminPassword, fetch: opts.fetch,
     servers: [{ id: 'main', name: opts.name || process.env.NAME, mode: opts.mode || process.env.MODE, maxPlayers: opts.maxPlayers || process.env.MAX_PLAYERS,
       tracks: opts.tracks || process.env.TRACKS, roundMs: opts.roundMs || process.env.ROUND_MS, resultsMs: opts.resultsMs || process.env.RESULTS_MS }] });
 }
@@ -92,9 +104,14 @@ if (require.main === module) {
   const servers = cfg.servers || [{ id: 'main', name: args.name || process.env.NAME, mode: args.mode || process.env.MODE,
     maxPlayers: args['max-players'] || process.env.MAX_PLAYERS, tracks: args.tracks || process.env.TRACKS,
     roundMs: args['round-ms'] || process.env.ROUND_MS, resultsMs: args['results-ms'] || process.env.RESULTS_MS }];
-  const app = createApp({ data, servers });
+  const admins = String(args.admins || process.env.ADMINS || '').split(',').map((a) => a.trim()).filter(Boolean)
+    .concat(Array.isArray(cfg.admins) ? cfg.admins : []);
+  const adminPassword = args['admin-password'] || process.env.ADMIN_PASSWORD || cfg.admin_password || '';
+  const app = createApp({ data, servers, admins, adminPassword });
   app.listen(port, () => {
     console.log(`SpeedFest Stadium on http://${host || 'localhost'}:${port}: master /api, data ${data}`);
+    console.log(app.admin.enabled() ? `  admins: http://${host || 'localhost'}:${port}/admin (${admins.length} admin accounts${adminPassword ? ', admin password set' : ''})`
+      : '  no admins (set ADMIN_PASSWORD or "admins" to upload community tracks and cars)');
     for (const g of app.games.values()) console.log(`  ${g.mode.name.padEnd(10)} ${g.name}: /ws/${g.id}, track ${g.mode.info().track}`);
   }, host);
   const stop = () => app.close(() => process.exit(0));

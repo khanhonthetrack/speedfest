@@ -1,4 +1,5 @@
-# docker builds from stadium/ (server/Dockerfile) need only the server, the track list and zones
+# docker builds from stadium/ (server/Dockerfile) need only the server, the track list, zones and the
+# block catalogue (uploaded tracks are checked against it)
 *
 !server/package.json
 !server/package-lock.json
@@ -7,3 +8,4 @@
 !server/config.example.json
 !tracks/
 !data/
+!blocks/data/block_catalogue.json

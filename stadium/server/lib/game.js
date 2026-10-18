@@ -3,16 +3,24 @@
 // the players and spectators on a WebSocket, their cars relayed 10 times a second, chat, votes,
 // and, on the official servers (in the master's process), the ladder and the online records.
 //
+// Community content (lib/content.js): a map of the rotation may be a track an admin uploaded; the
+// round then carries its file ({uid, name, author, sha256, size, url}: the game downloads it from
+// this server's /content/). Players may drive one of the server's car packs (TMNF skins and
+// models an admin uploaded): the welcome lists them, a player's pick is in the player list.
+//
 // Client -> server:
-//   {t:'hello', name, version, colour, token?, spectator?}     token: the master's (an account)
+//   {t:'hello', name, version, colour, token?, spectator?, car?} token: the master's (an account);
+//                                                              car: a car pack's id ('' ours)
+//   {t:'car', id}                                              another car (one of the server's)
 //   {t:'state', p:[x,y,z], q:[x,y,z,w], v, s}                  the car (racers)
 //   {t:'finish', round, track, time, uid?}                     a finish (uid: the track's, for records)
 //   {t:'chat', text}
 //   {t:'callvote', kind:'next'|'restart'|'kick', target?}      {t:'vote', yes}
 //   {t:'spectate', on}
 // Server -> client:
-//   {t:'welcome', id, name, mode, now, round, players}         {t:'round', now, round}
-//   {t:'players', players:[{id, name, colour, best, points, team, spectator, login}]}
+//   {t:'welcome', id, name, mode, now, round, players, cars, forced_car}   {t:'round', now, round}
+//   {t:'players', players:[{id, name, colour, best, points, team, spectator, login, car}]}
+//   {t:'cars', cars, forced_car}                               the server's car packs changed
 //   {t:'states', s:{id:[px,py,pz,qx,qy,qz,qw,v,s]}}
 //   {t:'results', ranking, last_round, teams, map_over}         {t:'ladder', deltas:[{id, delta}]}
 //   {t:'vote', vote:{kind, target, target_name, by, yes, no, needed, ends} | null, passed?}
@@ -41,7 +49,7 @@ function finiteArray(a, n, limit) {
 
 class Game {
   constructor({ id = 'main', name = 'SpeedFest Stadium', mode = 'TimeAttack', tracks, maxPlayers = 32, master = null,
-    ranked = false, path = '/ws', modeOpts = {}, now = () => Date.now() } = {}) {
+    ranked = false, path = '/ws', modeOpts = {}, now = () => Date.now(), content = null, cars = [], forcedCar = '' } = {}) {
     this.id = id;
     this.name = name;
     this.maxPlayers = maxPlayers;
@@ -50,6 +58,9 @@ class Game {
     this.path = path;
     this.now = now;
     this.mode = makeMode(mode, { ...modeOpts, ...(tracks ? { tracks } : {}) });
+    this.content = content;       // uploaded tracks and car packs (lib/content.js) or null
+    this.cars = cars.slice();     // the car packs players may pick (ids)
+    this.forcedCar = forcedCar;   // a car pack everyone drives ('' none)
     this.players = new Map();     // id -> {id, name, colour, ws, state, stateAt, chatAt, login, spectator, voteAt}
     this.nextId = 1;
     this.vote = null;             // {kind, target, by, yes: Set, no: Set, ends}
@@ -74,19 +85,74 @@ class Game {
     this.wss.handleUpgrade(req, socket, head, (ws) => this.wss.emit('connection', ws, req));
   }
 
+  /** The round as players get it: the mode's, plus the track's file when an admin uploaded it. */
+  info() {
+    const info = this.mode.info();
+    const t = this.content ? this.content.tracks[info.track] : null;
+    if (t) info.file = { uid: t.uid, name: t.name, author: t.author, sha256: t.sha256, size: t.size, url: t.url };
+    return info;
+  }
+
+  /** The car packs players may pick here: [{id, name, sha256, size, url, mesh, skin, sounds}]. */
+  carList() {
+    if (!this.content) return [];
+    return this.cars.map((id) => this.content.cars[id]).filter(Boolean)
+      .map((c) => ({ id: c.id, name: c.name, sha256: c.sha256, size: c.size, url: c.url, mesh: c.mesh, skin: c.skin, sounds: c.sounds }));
+  }
+
+  /** A player's car: the forced one, else theirs if the server has it, else '' (the game's own). */
+  _car(id) {
+    if (this.forcedCar && this.cars.includes(this.forcedCar)) return this.forcedCar;
+    return typeof id === 'string' && this.cars.includes(id) ? id : '';
+  }
+
+  // --- admins (lib/admin.js) ------------------------------------------------------------------
+
+  /** A new rotation: from the next map on (now too if the current map left it). */
+  setTracks(tracks) {
+    this.mode.setTracks(tracks);
+    if (!tracks.includes(this.mode.info().track)) this.jump(tracks[0]);
+  }
+
+  /** `track` now (a new map). */
+  jump(track) {
+    const now = this.now();
+    this.mode.jump(now, track);
+    this.broadcast({ t: 'round', now, round: this.info() });
+    this.broadcast({ t: 'players', players: this.playerList() });
+  }
+
+  /** The next map now (with the results). */
+  next() {
+    const now = this.now();
+    const ev = this.mode.skip(now);
+    if (ev === 'results') this._results();
+    this.broadcast({ t: 'round', now, round: this.info() });
+    this.broadcast({ t: 'players', players: this.playerList() });
+  }
+
+  setCars(cars, forcedCar = '') {
+    this.cars = cars.slice();
+    this.forcedCar = forcedCar && cars.includes(forcedCar) ? forcedCar : '';
+    for (const p of this.players.values()) p.car = this._car(p.car);
+    this.broadcast({ t: 'cars', cars: this.carList(), forced_car: this.forcedCar });
+    this.broadcast({ t: 'players', players: this.playerList() });
+  }
+
   racers() {
     return [...this.players.values()].filter((p) => !p.spectator);
   }
 
   /** For the master's server list (the address is relative: the master completes it). */
   listing() {
-    const info = this.mode.info();
+    const info = this.info();
     return { name: this.name, address: this.path, mode: this.mode.name, track: info.track, players: this.players.size, max: this.maxPlayers };
   }
 
   status() {
     return { name: this.name, version: VERSION, mode: this.mode.name, players: this.players.size, maxPlayers: this.maxPlayers,
-      round: this.mode.info(), now: this.now(), ranking: this.mode.standings().slice(0, 10).map((r) => ({ name: r.name, time: r.time, points: r.points })) };
+      round: this.info(), tracks: this.mode.tracks || (this.mode.r && this.mode.r.tracks) || [], cars: this.carList(),
+      forced_car: this.forcedCar, now: this.now(), ranking: this.mode.standings().slice(0, 10).map((r) => ({ name: r.name, time: r.time, points: r.points })) };
   }
 
   _send(ws, msg) {
@@ -103,7 +169,7 @@ class Game {
     return [...this.players.values()].map((p) => {
       const r = st.get(p.id) || {};
       return { id: p.id, name: p.name, colour: p.colour, best: r.time !== undefined ? r.time : -1, points: r.points || 0,
-        team: this.mode.teamOf ? this.mode.teamOf(p.id) : -1, spectator: p.spectator, login: p.login || '' };
+        team: this.mode.teamOf ? this.mode.teamOf(p.id) : -1, spectator: p.spectator, login: p.login || '', car: p.car || '' };
     });
   }
 
@@ -116,7 +182,7 @@ class Game {
     const ev = this.mode.tick(now);
     if (ev === 'results') this._results();
     if (ev) {
-      this.broadcast({ t: 'round', now, round: this.mode.info() });
+      this.broadcast({ t: 'round', now, round: this.info() });
       this.broadcast({ t: 'players', players: this.playerList() });
     }
     if (this.vote && now >= this.vote.ends) this._closeVote(false);
@@ -182,11 +248,12 @@ class Game {
     const account = this.master && msg.token ? this.master.accounts.byToken(msg.token) : null;
     const colour = finiteArray(msg.colour, 3, 2) ? msg.colour.map((c) => Math.min(1, Math.max(0, c))) : [0.85, 0.08, 0.06];
     const me = { id: this.nextId++, name: account ? account.nickname : guestName(msg.name), colour, ws,
-      state: null, stateAt: 0, chatAt: 0, voteAt: 0, login: account ? account.login : '', spectator: !!msg.spectator };
+      state: null, stateAt: 0, chatAt: 0, voteAt: 0, login: account ? account.login : '', spectator: !!msg.spectator,
+      car: this._car(msg.car) };
     this.players.set(me.id, me);
     if (!me.spectator) this.mode.join(me.id, me.name, me.login, this.now());
-    this._send(ws, { t: 'welcome', id: me.id, name: this.name, mode: this.mode.name, now: this.now(), round: this.mode.info(),
-      players: this.playerList(), login: me.login, vote: this._voteInfo() });
+    this._send(ws, { t: 'welcome', id: me.id, name: this.name, mode: this.mode.name, now: this.now(), round: this.info(),
+      players: this.playerList(), login: me.login, vote: this._voteInfo(), cars: this.carList(), forced_car: this.forcedCar });
     this.broadcast({ t: 'players', players: this.playerList() });
     this._chat(`${me.name} joined${me.spectator ? ' as a spectator' : ''}`);
     return me;
@@ -228,6 +295,14 @@ class Game {
           this._checkVote();
         }
         break;
+      case 'car': {
+        const car = this._car(msg.id);
+        if (car !== me.car) {
+          me.car = car;
+          this.broadcast({ t: 'players', players: this.playerList() });
+        }
+        break;
+      }
       case 'spectate': {
         const on = !!msg.on;
         if (on === me.spectator) break;
@@ -300,7 +375,7 @@ class Game {
     }
     const ev = v.kind === 'next' ? this.mode.skip(now) : this.mode.restart(now);
     if (ev === 'results') this._results();
-    this.broadcast({ t: 'round', now, round: this.mode.info() });
+    this.broadcast({ t: 'round', now, round: this.info() });
     this.broadcast({ t: 'players', players: this.playerList() });
   }
 }

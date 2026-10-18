@@ -42,6 +42,7 @@ class Rounds {
     this.roundMs = roundMs;
     this.resultsMs = resultsMs;
     this.tracks = tracks.slice();
+    this.recentMax = recent;
     this.recentSize = Math.min(recent, this.tracks.length - 1);
     this.random = random;
     this.recent = [];
@@ -59,6 +60,15 @@ class Rounds {
     this.recent.push(t);
     while (this.recent.length > this.recentSize) this.recent.shift();
     return t;
+  }
+
+  /** A new rotation (an admin's): the next maps come from it; the current one plays on. */
+  setTracks(tracks) {
+    if (!tracks.length) return;
+    this.tracks = tracks.slice();
+    this.recentSize = Math.min(this.recentMax, this.tracks.length - 1);
+    this.recent = this.recent.filter((t) => this.tracks.includes(t));
+    while (this.recent.length > this.recentSize) this.recent.shift();
   }
 
   /** Starts the next race round at `now` (ms). */

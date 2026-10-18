@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpeedFest Stadium Admin</title>
+<style>
+  :root { --bg: #0f1a14; --panel: #17261d; --line: #2c4535; --text: #e6efe9; --dim: #94ab9c; --accent: #7fe08a;
+    --bad: #ff8a7a; --btn: #24402e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 22px; margin: 4px 0 14px; letter-spacing: .04em; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+  input, select, button { font: inherit; color: var(--text); background: #0d1611; border: 1px solid var(--line); border-radius: 5px; padding: 6px 9px; }
+  button { background: var(--btn); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+  .row > input[type=text], .row > input[type=password] { flex: 1 1 220px; min-width: 0; }
+  .dim { color: var(--dim); }
+  .msg { min-height: 1.4em; margin: 6px 0; white-space: pre-wrap; }
+  .ok { color: var(--accent); } .bad { color: var(--bad); }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--dim); font-weight: 600; font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  .tag { display: inline-block; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; margin: 1px 2px; font-size: 12px; }
+  .drop { border: 2px dashed var(--line); border-radius: 8px; padding: 14px; text-align: center; color: var(--dim); }
+  .drop.over { border-color: var(--accent); color: var(--text); }
+  label.check { display: inline-flex; gap: 4px; align-items: center; margin-right: 10px; }
+  #app[hidden], #login[hidden] { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>SPEEDFEST STADIUM · SERVER ADMIN</h1>
+
+  <section id="login">
+    <h2>Log in</h2>
+    <p class="dim">An admin account (listed in the server's <code>admins</code>) or the server's admin password.</p>
+    <div class="row"><input id="lg" type="text" placeholder="login" autocomplete="username">
+      <input id="pw" type="password" placeholder="password" autocomplete="current-password">
+      <button id="bLogin">Log in</button></div>
+    <div class="row"><input id="apw" type="password" placeholder="admin password"><button id="bAdminPw">Use admin password</button></div>
+    <div id="loginMsg" class="msg"></div>
+  </section>
+
+  <div id="app" hidden>
+    <section>
+      <div class="row"><span>Logged in as <b id="who"></b></span><button id="bLogout">Log out</button>
+        <span class="dim">Upload to:</span><span id="targets"></span></div>
+    </section>
+
+    <section>
+      <h2>Tracks</h2>
+      <p class="dim">.Challenge.Gbx files (TMNF / TMUF Stadium), or TrackMania Exchange ids and links
+        (e.g. <code>924307</code>, <code>https://tmnf.exchange/trackshow/924307</code>, <code>tmuf:7267999</code>), one per line.</p>
+      <div class="drop" id="dropTracks">Drop track files here or <input type="file" id="fTracks" multiple accept=".gbx,.Gbx"></div>
+      <div class="row"><input id="tmx" type="text" placeholder="TMX ids or links, separated by spaces"><button id="bTmx">Import from TMX</button></div>
+      <div id="trackMsg" class="msg"></div>
+      <div class="scroll"><table><thead><tr><th>Track</th><th>Author</th><th>Author time</th><th>Blocks</th><th>On servers</th><th></th></tr></thead>
+        <tbody id="tracks"></tbody></table></div>
+    </section>
+
+    <section>
+      <h2>Cars</h2>
+      <p class="dim">TMNF skins and car models (.zip, e.g. from ManiaPark), or ManiaPark links
+        (<code>https://maniapark.com/skin/&lt;id&gt;</code>, <code>https://maniapark.com/model/&lt;id&gt;</code>).</p>
+      <div class="drop" id="dropCars">Drop car .zip files here or <input type="file" id="fCars" multiple accept=".zip"></div>
+      <div class="row"><input id="mp" type="text" placeholder="ManiaPark links, separated by spaces"><button id="bMp">Import from ManiaPark</button></div>
+      <div id="carMsg" class="msg"></div>
+      <div class="scroll"><table><thead><tr><th>Car</th><th>Contents</th><th>Size</th><th>On servers</th><th></th></tr></thead>
+        <tbody id="cars"></tbody></table></div>
+    </section>
+
+    <section>
+      <h2>Servers</h2>
+      <div id="servers"></div>
+      <div id="serverMsg" class="msg"></div>
+    </section>
+  </div>
+</main>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+let auth = '';
+let state = null;
+try { auth = sessionStorage.getItem('sf_admin_auth') || ''; } catch { /* no storage */ }
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+function nick(s) { return String(s || '').replace(/\$([0-9a-f]{1,3}|[$lhnmwoistgz]|l\[[^\]]*\]|h\[[^\]]*\])/gi, (m, k) => (k === '$' ? '$' : '')); }
+function time(ms) { if (!(ms > 0)) return '-'; const m = Math.floor(ms / 60000); const s = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0'); return `${m}:${s}`; }
+function size(b) { return b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.ceil(b / 1024)} KB`; }
+function say(el, text, ok) { $(el).textContent = text; $(el).className = 'msg ' + (ok ? 'ok' : 'bad'); }
+
+async function api(method, path, body, raw) {
+  const headers = { authorization: auth };
+  if (body !== undefined && !raw) headers['content-type'] = 'application/json';
+  if (raw) headers['content-type'] = 'application/octet-stream';
+  const r = await fetch(path, { method, headers, body: raw ? body : (body !== undefined ? JSON.stringify(body) : undefined) });
+  let data = {};
+  try { data = await r.json(); } catch { /* empty */ }
+  if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+  return data;
+}
+
+function targets() {
+  return [...document.querySelectorAll('#targets input:checked')].map((i) => i.value).join(',');
+}
+
+async function refresh() {
+  try {
+    state = await api('GET', '/api/admin');
+  } catch (e) {
+    $('app').hidden = true; $('login').hidden = false;
+    if (auth) say('loginMsg', e.message, false);
+    return;
+  }
+  $('login').hidden = true; $('app').hidden = false;
+  $('who').textContent = state.login;
+  const prev = new Set(targets().split(',').filter(Boolean));
+  $('targets').innerHTML = state.servers.map((s) => `<label class="check"><input type="checkbox" value="${esc(s.id)}" ${prev.has(s.id) || !prev.size ? 'checked' : ''}>${esc(s.name)}</label>`).join('');
+  const on = (list, id) => state.servers.filter((s) => s[list].includes(id)).map((s) => `<span class="tag">${esc(s.name)}</span>`).join('');
+  $('tracks').innerHTML = state.tracks.sort((a, b) => b.added - a.added).map((t) => `<tr><td>${esc(nick(t.name))}<div class="dim">${esc(t.uid)}${t.source ? ` · <a href="${esc(t.source.url ? t.source.url.replace('/trackgbx/', '/trackshow/') : '#')}" target="_blank" rel="noopener">${esc(t.source.site)}</a>` : ''}</div></td>
+    <td>${esc(t.author)}</td><td>${time(t.times && t.times.author)}</td><td>${t.blocks}${t.lap_race ? ` · ${t.laps} laps` : ''}</td>
+    <td>${on('tracks', t.uid)}</td><td><button data-del-track="${esc(t.uid)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" class="dim">No uploaded tracks yet.</td></tr>';
+  $('cars').innerHTML = state.cars.sort((a, b) => b.added - a.added).map((c) => `<tr><td>${esc(c.name)}<div class="dim">${esc(c.id)}${c.source ? ` · <a href="${esc(c.source.url)}" target="_blank" rel="noopener">${esc(c.source.site)}</a>` : ''}</div></td>
+    <td>${c.mesh ? '<span class="tag">model</span>' : ''}${c.skin ? '<span class="tag">skin</span>' : ''}${c.sounds ? '<span class="tag">sounds</span>' : ''}</td>
+    <td>${size(c.size)}</td><td>${on('cars', c.id)}</td><td><button data-del-car="${esc(c.id)}">Delete</button></td></tr>`).join('') || '<tr><td colspan="5" class="dim">No uploaded cars yet.</td></tr>';
+  const names = new Map(state.tracks.map((t) => [t.uid, nick(t.name)]));
+  const allTracks = [...state.own.map((id) => ({ id, name: id })), ...state.tracks.map((t) => ({ id: t.uid, name: nick(t.name) }))];
+  $('servers').innerHTML = state.servers.map((s) => `<div style="margin-bottom:16px">
+    <div class="row"><b>${esc(s.name)}</b><span class="dim">${esc(s.mode)} · /ws/${esc(s.id)} · ${s.players} players · now: ${esc(names.get(s.track) || s.track)} (${esc(s.state)})</span>
+      <button data-next="${esc(s.id)}">Next map</button></div>
+    <div class="row"><span class="dim">Rotation:</span>${s.tracks.map((t) => `<span class="tag">${esc(names.get(t) || t)} <a href="#" data-jump="${esc(s.id)}" data-track="${esc(t)}" title="play it now">▶</a> <a href="#" data-remove="${esc(s.id)}" data-track="${esc(t)}" title="take it out">✕</a></span>`).join('')}</div>
+    <div class="row"><select data-add-select="${esc(s.id)}">${allTracks.filter((t) => !s.tracks.includes(t.id)).map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('')}</select>
+      <button data-add="${esc(s.id)}">Add to rotation</button>
+      <button data-only-uploaded="${esc(s.id)}">Only uploaded tracks</button></div>
+    <div class="row"><span class="dim">Cars:</span>${state.cars.map((c) => `<label class="check"><input type="checkbox" data-car="${esc(s.id)}" value="${esc(c.id)}" ${s.cars.includes(c.id) ? 'checked' : ''}>${esc(c.name)}</label>`).join('') || '<span class="dim">none uploaded</span>'}</div>
+    <div class="row"><span class="dim">Everyone drives:</span><select data-forced="${esc(s.id)}"><option value="">their own pick</option>${s.cars.map((id) => state.cars.find((c) => c.id === id)).filter(Boolean).map((c) => `<option value="${esc(c.id)}" ${s.forced_car === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+  </div>`).join('');
+}
+
+async function server(id, body) {
+  try { await api('POST', `/api/admin/servers/${encodeURIComponent(id)}`, body); say('serverMsg', 'Saved.', true); } catch (e) { say('serverMsg', e.message, false); }
+  refresh();
+}
+
+async function uploadFiles(files, kind) {
+  const el = kind === 'tracks' ? 'trackMsg' : 'carMsg';
+  const lines = [];
+  for (const f of files) {
+    say(el, `Uploading ${f.name}...`, true);
+    try {
+      const q = `servers=${encodeURIComponent(targets())}${kind === 'cars' ? `&name=${encodeURIComponent(f.name.replace(/\.zip$/i, ''))}` : ''}`;
+      const r = await api('POST', `/api/admin/${kind}?${q}`, await f.arrayBuffer(), true);
+      lines.push(`✓ ${f.name}: ${kind === 'tracks' ? nick(r.track.name) : r.car.name}`);
+    } catch (e) { lines.push(`✗ ${f.name}: ${e.message}`); }
+  }
+  say(el, lines.join('\n'), !lines.some((l) => l.startsWith('✗')));
+  refresh();
+}
+
+async function importLinks(text, kind) {
+  const el = kind === 'tracks' ? 'trackMsg' : 'carMsg';
+  const lines = [];
+  for (const item of text.split(/\s+/).filter(Boolean)) {
+    say(el, `Importing ${item}...`, true);
+    try {
+      const r = await api('POST', `/api/admin/${kind}?servers=${encodeURIComponent(targets())}`, kind === 'tracks' ? { tmx: item } : { maniapark: item });
+      lines.push(`✓ ${item}: ${kind === 'tracks' ? nick(r.track.name) : r.car.name}`);
+    } catch (e) { lines.push(`✗ ${item}: ${e.message}`); }
+  }
+  say(el, lines.join('\n'), !lines.some((l) => l.startsWith('✗')));
+  refresh();
+}
+
+function dropZone(zone, input, kind) {
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+  zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('over'); uploadFiles([...e.dataTransfer.files], kind); });
+  input.addEventListener('change', () => { uploadFiles([...input.files], kind); input.value = ''; });
+}
+
+$('bLogin').onclick = async () => {
+  try {
+    const r = await fetch('/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ login: $('lg').value, password: $('pw').value }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'log in failed');
+    auth = `Bearer ${d.token}`;
+  } catch (e) { say('loginMsg', e.message, false); return; }
+  try { sessionStorage.setItem('sf_admin_auth', auth); } catch { /* no storage */ }
+  refresh();
+};
+$('bAdminPw').onclick = () => {
+  auth = `Admin ${$('apw').value}`;
+  try { sessionStorage.setItem('sf_admin_auth', auth); } catch { /* no storage */ }
+  refresh();
+};
+$('bLogout').onclick = () => { auth = ''; try { sessionStorage.removeItem('sf_admin_auth'); } catch { /* no storage */ } refresh(); };
+$('bTmx').onclick = () => importLinks($('tmx').value, 'tracks');
+$('bMp').onclick = () => importLinks($('mp').value, 'cars');
+dropZone($('dropTracks'), $('fTracks'), 'tracks');
+dropZone($('dropCars'), $('fCars'), 'cars');
+
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('[data-del-track],[data-del-car],[data-next],[data-jump],[data-remove],[data-add],[data-only-uploaded]');
+  if (!t) return;
+  e.preventDefault();
+  const d = t.dataset;
+  if (d.delTrack) { if (confirm('Delete this track from the server?')) { try { await api('DELETE', `/api/admin/tracks/${encodeURIComponent(d.delTrack)}`); } catch (er) { say('trackMsg', er.message, false); } refresh(); } }
+  else if (d.delCar) { if (confirm('Delete this car from the server?')) { try { await api('DELETE', `/api/admin/cars/${encodeURIComponent(d.delCar)}`); } catch (er) { say('carMsg', er.message, false); } refresh(); } }
+  else if (d.next) server(d.next, { next: true });
+  else if (d.jump) server(d.jump, { jump: d.track });
+  else if (d.remove) server(d.remove, { remove_tracks: [d.track] });
+  else if (d.add) { const v = document.querySelector(`[data-add-select="${CSS.escape(d.add)}"]`).value; if (v) server(d.add, { add_tracks: [v] }); }
+  else if (d.onlyUploaded) { const s = state.servers.find((x) => x.id === d.onlyUploaded); const up = state.tracks.map((x) => x.uid); if (up.length) server(s.id, { tracks: up }); }
+});
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.dataset.car) {
+    const id = t.dataset.car;
+    const cars = [...document.querySelectorAll(`[data-car="${CSS.escape(id)}"]:checked`)].map((i) => i.value);
+    server(id, { cars });
+  } else if (t.dataset.forced !== undefined) {
+    server(t.dataset.forced, { forced_car: t.value });
+  }
+});
+refresh();
+</script>
+</body>
+</html>

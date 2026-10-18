@@ -10,6 +10,8 @@ COPY server/lib ./lib
 COPY server/config.example.json ./config.json
 COPY tracks /app/tracks
 COPY data /app/data
+# the Stadium block catalogue: uploaded community tracks are checked against it (lib/content.js)
+COPY blocks/data/block_catalogue.json /app/blocks/data/block_catalogue.json
 RUN mkdir -p /data && chown node:node /data
 ENV DATA_DIR=/data PORT=8090 CONFIG=/app/server/config.json NODE_ENV=production
 VOLUME /data
