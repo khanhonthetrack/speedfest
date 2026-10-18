@@ -1,0 +1,86 @@
+# Review prototype (session 14), NOT for merging as is: switches for side-by-side renders.
+# Against claude/tmnf-replica-graphics-nb1kcg @ 77bb43c. Renders: --look=new, --gate_signs=screen|none
+# (stadium/tests/tmp/review_view is M9's race/map_view.gd as a scene; not included).
+diff --git a/stadium/blocks/shapes/road.gd b/stadium/blocks/shapes/road.gd
+index 5da3051..f4244be 100644
+--- a/stadium/blocks/shapes/road.gd
++++ b/stadium/blocks/shapes/road.gd
+@@ -875,7 +875,13 @@ func _gate(geo: TmGeo, zc: float) -> void:
+ 	_gate_strips(geo, zc)
+ 	for x0 in [2.9, 27.7]:
+ 		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL)
++	var signs := String(TestHooks.arg("gate_signs", "old"))   # REVIEW PROTOTYPE: old | screen | none
+ 	for mirror in [false, true]:
++		if signs == "none":
++			break
++		if signs == "screen":
++			_sign_screen(geo, zc, mirror)
++			continue
+ 		var sign := []
+ 		for q in GATE_SIGN:
+ 			sign.append([Vector2(32.0 - q[0] if mirror else q[0], q[1]), "screen", TmGeo.NO_COLLISION])
+@@ -884,6 +890,30 @@ func _gate(geo: TmGeo, zc: float) -> void:
+ 	_gate_lights(geo, zc)
+ 
+ 
++## REVIEW PROTOTYPE (session 14): TMNF's sign board (GATE_SIGN's outline) built as a screen: a thin
++## dark bezel panel, a lit screen inset on its road side, and two struts down to the arch.
++func _sign_screen(geo: TmGeo, zc: float, mirror: bool) -> void:
++	var bot := Vector2(7.11, 8.17)
++	var top := Vector2(10.035, 11.4)
++	var d := (top - bot).normalized()
++	var n := Vector2(d.y, -d.x)          # the face towards the road below
++	var fx := func(v: Vector2) -> Vector2: return Vector2(32.0 - v.x, v.y) if mirror else v
++	for part: Array in [[-0.06, 0.06, 0.0, 2.25, "gate_shell"], [0.05, 0.075, 0.16, 2.08, "screen"]]:
++		var o0: float = part[0]
++		var o1: float = part[1]
++		var ins: float = part[2]
++		var hz: float = part[3]
++		var mat: String = part[4]
++		var sec := []
++		for v: Vector2 in [bot + d * ins + n * o0, top - d * ins + n * o0, top - d * ins + n * o1, bot + d * ins + n * o1]:
++			sec.append([fx.call(v), mat, TmGeo.NO_COLLISION])
++		geo.wall_sweep(sec, [Vector3(0, 0, zc - hz), Vector3(0, 0, zc + hz)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
++			true, mat, TmGeo.NO_COLLISION)
++	for dz: float in [-1.5, 1.5]:
++		var x0 := 6.98 if not mirror else 32.0 - 7.24
++		geo.box(Vector3(x0, 6.5, zc + dz - 0.08), Vector3(x0 + 0.26, 8.3, zc + dz + 0.08), "gate_shell", TmGeo.NO_COLLISION)
++
++
+ ## The word a gate block shows: a start/finish line (MultiLap) ends our races, so it says FINISH.
+ func _sign_kind() -> String:
+ 	return "finish" if _gate_kind == "lap" else _gate_kind
+diff --git a/stadium/env/tm_stadium_env.gd b/stadium/env/tm_stadium_env.gd
+index 5445953..c837abd 100644
+--- a/stadium/env/tm_stadium_env.gd
++++ b/stadium/env/tm_stadium_env.gd
+@@ -102,6 +102,29 @@ static func add(parent: Node) -> WorldEnvironment:
+ 	env.glow_intensity = 0.25
+ 	env.glow_bloom = 0.02
+ 	env.glow_hdr_threshold = 1.2
++	if String(TestHooks.arg("look", "old")) == "new":
++		# REVIEW PROTOTYPE (session 14): a stronger sun against a weaker ambient, filmic (AgX)
++		# roll-off instead of linear + saturation, full shadows, and a reflection probe over the
++		# field so paint and metal reflect the stadium instead of only the sky.
++		sun.light_energy = float(TestHooks.arg("sun", 2.6))
++		sun.shadow_opacity = 1.0
++		env.ambient_light_energy = float(TestHooks.arg("amb", 0.42))
++		env.tonemap_mode = Environment.TONE_MAPPER_AGX
++		env.tonemap_exposure = float(TestHooks.arg("exp", 1.0))
++		env.adjustment_saturation = 1.05
++		env.adjustment_contrast = 1.0
++		env.ssao_intensity = 1.6
++		env.ssao_radius = 2.0
++		var probe := ReflectionProbe.new()
++		probe.name = "FieldProbe"
++		probe.size = Vector3(1150.0, 360.0, 1150.0)
++		probe.position = Vector3(-512.0, 12.0, 512.0)
++		probe.origin_offset = Vector3.ZERO
++		probe.box_projection = true
++		probe.update_mode = ReflectionProbe.UPDATE_ONCE
++		probe.max_distance = 1400.0
++		probe.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
++		parent.add_child(probe)
+ 	TmRtx.apply_environment(env, sun)
+ 	var we := WorldEnvironment.new()
+ 	we.name = "Environment"

@@ -1486,3 +1486,33 @@ player's; pass `--records=<scratch dir>` so the player's records stay theirs.
   Drift King 41.81, Highline 50.95, Switchback 55.09, Full Send 36.76, Skyway 35.26, Night Shift
   42.85, Corkscrew 45.61, Rush Hour 56.91, Last Call 47.31, Full Circle 34.94.
 
+
+## 2026-10-18 — Session 14: independent review against Trackmania (branch `claude/trackmania-stadium-review-lds3no`)
+Owner (TRANSCRIPT, session 14): reverse engineer Trackmania (2020) with REA "to have a fully
+functioning version"; how to improve the remake's textures (gates "with 2 horns", the car, the
+dated look); an independent review of how close `stadium` is to the real game.
+- **Not done: a working Trackmania (2020) from its decompiled code** (account-only online game; a
+  copy of Nadeo's program; REA's own disclaimer excludes it; the project's "recreate only" rule).
+  TMNF's physics was already reverse engineered with REA (session 9). No Nadeo file was downloaded
+  or used for this review.
+- **Review: `docs/research/stadium_review.md`.** Scorecard per area against TMNF (and TM2020):
+  physics 9/10, blocks 9/10, but gates 3, car 3, surfaces 3, light 3 on `stadium`; with session
+  13's M9 branch the car reaches about 6 and the gates 5, light is unchanged. Findings:
+  - the "horns" are TMNF's measured sign boards (`road.gd` `GATE_SIGN`) built as solid 0.3-0.45 m
+    prisms with adverts on every face, floating ~1.5 m above the arch (the arch's outer line is at
+    y ~6.6 under their bottom at 8.17), plus (on `stadium`) a banner on posts between them. M9
+    removed the banner but still builds the boards the same way;
+  - light: no GI/AO at the default quality (SDFGI/SSR/SSIL are Ultra only), ambient 0.75 against
+    sun 1.1, linear tonemap with saturation 1.25, sky-only reflections (no ReflectionProbe
+    anywhere), hard 90-degree edges, no decals; the same on M9 (its "light and atmosphere" is
+    still open);
+  - fidelity checks to add: drive TMNF replays' inputs through `TmCar` and measure the drift; check
+    the world's handedness (session 13 saw TMNF's text mirrored under our x negation).
+- **Ranked fix list** in the review (§3-4): light re-balance + AgX + reflection probe, SDFGI on
+  High, a per-map sky-occlusion volume (TM's "Compute Shadows" our way), gate boards as framed
+  screens (or dropped for a TM2020-style crown screen), bevels in `TmGeo`, car shading, decals.
+- Renders (local, Forward+ on llvmpipe, `tests/tmp/review_view` = M9's map_view `car:`/`gate:`
+  views copied into a scratch checkout): `stadium` and M9 gates, car, overview; a scratch
+  prototype of the top fixes (light, probe, framed-screen and no-board gates). The prototype is
+  not committed to any game branch; its diff is `docs/research/stadium_review_prototype.diff`
+  (against M9 @ 77bb43c) for whoever implements §3.

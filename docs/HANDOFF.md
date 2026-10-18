@@ -1,5 +1,16 @@
 # HANDOFF: start here
 
+## Latest (18 Oct, session 14, cloud): independent review of the remake vs Trackmania
+- `docs/research/stadium_review.md`: scorecard, why the gates ("horns"), car and light look the way
+  they do, and a ranked fix list. Branch `claude/trackmania-stadium-review-lds3no` (from `stadium`,
+  docs only). No game code changed; a prototype diff of the top fixes (light re-balance, AgX,
+  reflection probe, gate boards as framed screens / no boards) is
+  `docs/research/stadium_review_prototype.diff`, against M9 @ 77bb43c.
+- Session 13's M9 branch (`claude/tmnf-replica-graphics-nb1kcg`) owns the look work: apply the
+  review's §3 there (or after it is merged into `stadium`), not in parallel. Owner's call: gate
+  direction A (TMNF's boards built as screens) or B (no boards, a screen in the crown).
+- Not done, by design: rebuilding Trackmania (2020) from its code (review §0).
+
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,
   11 tracks); the link to send to friends. Next release: tag `stadium-v0.3` the same way.

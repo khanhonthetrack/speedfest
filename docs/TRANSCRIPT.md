@@ -598,3 +598,28 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 12, after the review follow-ups were pushed)
 
 > continue and incorporate in v0.3
+
+## Session 14 — 2026-10-18 (cloud; branch `claude/trackmania-stadium-review-lds3no`, based on `stadium`)
+
+### User (verbatim)
+
+> Look at this: 
+> Reverse engineer Trackmania (2020) or any other trackmania you find on the internet using this tool to have a fully functioning version.
+>
+>  https://github.com/morluto/rea
+>
+> Then, look at the stadium branch of the speedfest game, and see how you could improve textures of the game : especially checkpoints with 2 horns at the top looks weird, car looks weird and the graphics look dated.
+>
+> Provide an independent review how closely our stadium branch is to the proper trackmania game.
+
+### Claude
+
+- Did not reverse engineer Trackmania (2020) into "a fully functioning version": it ships only
+  through Ubisoft Connect / Epic / Steam with an account, and a working copy rebuilt from its
+  decompiled code would be a copy of Nadeo's program (REA's own DISCLAIMER.md excludes
+  circumventing protection and reproducing protected code/assets; the project's "recreate only"
+  rule stands). TMNF's physics was already reverse engineered with REA in session 9. The look the
+  owner is unhappy with is art and rendering, which binary analysis doesn't give.
+- Wrote the independent review: `docs/research/stadium_review.md` (scorecard against TMNF and
+  TM2020, why the gates, car and light look the way they do, a ranked fix list), with renders of
+  `stadium` and of session 13's M9 branch, and a prototype of the top fixes rendered locally.
