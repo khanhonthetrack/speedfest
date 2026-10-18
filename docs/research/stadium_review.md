@@ -33,7 +33,7 @@ fork). No Nadeo file was used or downloaded for this review.
   **baked lighting**. The editor's "Compute Shadows" step writes a lightmap, typically 2048 x 2048,
   into the map file (community docs: blendermania wiki "UV Maps"; Openplanet's Lightmap Priority
   Manager / Batch Compute Shadows plugins). Soft, bounced, occluded light on every block is most
-  of what makes TM look "finished", and it is the biggest thing the remake is missing (3.1).
+  of what makes TM look "finished", and it is the biggest thing the remake is missing (3.2).
 
 ## 1. Verdict
 
@@ -46,7 +46,7 @@ are measured right but built crudely.
 
 | Area | `stadium` (v0.3) | with M9 WIP | Notes |
 |---|---|---|---|
-| Car handling (physics) | **9/10** | 9 | TMNF force model 6, real tuning `20juin2006`, 100 Hz, sub-steps; 44/44 lab checks against our reconstruction. Not yet checked against real TMNF replays (3.6). Water, a few edge cases open |
+| Car handling (physics) | **9/10** | 9 | TMNF force model 6, real tuning `20juin2006`, 100 Hz, sub-steps; 44/44 lab checks against our reconstruction. Not yet checked against real TMNF replays (3.5). Water, a few edge cases open |
 | Block shapes / grid | **9/10** | 9 | 32 x 8 x 32 grid, 100 % of the campaign's blocks, plain pieces 97-100 % in the fidelity test; some decorations 14-93 % |
 | Race rules, ghosts, medals, respawn | 7/10 | 8 | CP respawn keeps speed like TMNF; result panel; M9 adds TMNF's 3-2-1-GO and replays |
 | Tracks / campaign | 4/10 | 4 | 11 own tracks, bot-authored medals; TMNF has 65 hand-designed A-E tracks. M9-8 plans 65 originals (not started) |
@@ -109,8 +109,10 @@ them**. A 1:1 copy of TMNF's look would itself look like 2008.
    On High the only ambient is a uniform sky term (`ambient_light_energy` 0.75, sky contribution
    0.6) and SSAO, so under bridges, inside loops, under the arch and under the car, everything is
    lit almost as brightly as open road. Both TMNF and TM2020 bake shadows per map.
-2. **The ambient is too strong next to the sun** (sun energy 1.1). Shadows are grey, not
-   shaded, and forms look flat.
+2. **A high, uniform ambient** (0.75 against a sun of 1.1) makes shade grey. But a stronger sun
+   and weaker ambient alone (sun 1.7-2.0, ambient 0.4-0.45, exposure re-set) mostly dimmed the
+   frame in this review's car and gate renders without adding depth: the darkening has to be
+   *local* (point 1), not global.
 3. **Linear tonemapping with saturation 1.25 and contrast 1.12** clips highlights, but it is not
    the problem to fix first. Session 12 found filmic/AgX worse, and this review's renders agree:
    AgX at three sun/exposure settings (sun 1.8-2.2, exposure 0.6-0.85) turned the sky grey and
@@ -122,44 +124,30 @@ them**. A 1:1 copy of TMNF's look would itself look like 2008.
    normals, so no edge catches a highlight. Small bevels are the cheapest "not 2005" cue there is.
 6. **No decals**: no wear, tyre marks, paint lines, stains or seams breaking up big surfaces.
 
-Rendered at Ultra (SDFGI, SSR, SSIL, haze), the `stadium` gate mostly turns bluer: the arch's
-underside and the road pick up sky bounce, but with the same ambient-to-sun ratio nothing gains
-depth. Turning GI on is not enough by itself; the balance in 3.1.1 comes first.
+Rendered at Ultra (SDFGI, SSR, SSIL, haze), the `stadium` gate mostly turns bluer (sky bounce on
+the arch's underside and the road), and the M9 car view turns dark overall, with some welcome
+darkening under the car and reflections in the rims (40 frames: SDFGI may not have settled).
+GI as it is tuned now is not the answer by itself.
 
-## 3. How to improve it (ranked by visible gain per effort)
+## 3. How to improve it (ranked by what the renders showed, then by effort)
 
-### 3.1 Light first (all on `env/`, small, both branches benefit)
-1. **Re-balance**: sun energy 2.5-3, ambient energy about 0.35-0.45, shadow opacity 1.0; AgX
-   tonemapper (Godot 4.4+) at exposure about 1.0-1.3 (tune on screenshots); saturation 1.0-1.05,
-   contrast 1.0; grade with a 3D LUT (`Environment.adjustment_color_correction`) made by our
-   own script from TMNF's Day mood colours. (S)
-2. **SDFGI on High** (half-resolution probes, 4 cascades, min cell 0.4 m), keep SSIL and SSR for
-   Ultra. The remake is Forward+ only, and SDFGI works on geometry built at runtime. (S)
-3. **A baked occlusion volume per map, TM's "Compute Shadows" done our way**: the map is a block
-   grid built at load, so cast sky-visibility rays against the collision once
-   (`PhysicsDirectSpaceState3D`, a 3D texture at about 2 m over the 1024 m field and its height
-   range) and sample it in `tm_surface.gdshader` and the car shader to scale ambient and specular.
-   That gives soft darkening under bridges, in loops, under stands' roofs and gates, and it costs
-   one texture fetch on Low/web/Switch too. (M)
-4. **Reflection probes**: one box-projected probe over the field (update once after the build),
-   plus a few at checkpoints and in tunnels; the car's paint and the arch metal then reflect the
-   stadium. (S)
-5. A soft **contact shadow under the car** (a projected blob decal, or SpeedFest's look plan step 4
-   on `main`) so it sits on the road at any sun angle. (S)
+A scratch copy of M9 tried the cheap ideas first (`stadium_review_prototype.diff`): removing or
+rebuilding the gate boards made the clearest difference; global light changes (sun/ambient
+balance, AgX, a reflection probe) made small or no difference on their own. So the list leads
+with the gates, then with *local* depth.
 
-### 3.2 The gates
-Two directions were prototyped on a scratch copy of M9 (`stadium_review_prototype.diff`,
-`--gate_signs=screen|none`) and rendered from the driver's approach:
+### 3.1 The gates
+Two directions, rendered from the driver's approach (`--gate_signs=screen|none`):
 - **B. No boards, a screen in the crown (recommended):** drop the `GATE_SIGN` boards. The arch
-  then reads as one clean silhouette (the render with `--gate_signs=none` is the most "finished"
+  then reads as one clean silhouette (the `--gate_signs=none` render is the most "finished"
   gate of all the variants). Put the gate's content in a curved LED screen flush with the crown:
   START / CHECKPOINT n / FINISH, and your split time after you pass (a small SubViewport or a
-  digit shader per gate). Closer to TM2020, less faithful to TMNF.
+  digit shader per gate). Closer to TM2020, less faithful to TMNF. (S)
 - **A. TMNF's boards, built as screens (if 1:1 matters more):** keep `GATE_SIGN`'s outline as a
   thin panel (12 cm dark bezel, inset screen on the road side, ribbed back) on two struts down to
   the arch, showing the gate's content instead of adverts. Prototyped: the boards read as screens
   instead of slabs, but the tilted silhouette is still there. It helps, but it doesn't remove the
-  "horns".
+  "horns". (S-M)
 - Either way: bevel the arch section (4-6 cm chamfers on `GATE_ARCH`'s corners, smoothed
   normals), give the shell a trim-sheet material (painted metal, panel seams, bolts, a little
   grime at the feet), light the road under the gate with a lamp in the kind's colour instead of
@@ -169,11 +157,31 @@ Two directions were prototyped on a scratch copy of M9 (`stadium_review_prototyp
   lettering mirrored ("STADIUM" reads "MUIDATS", the SF emblem after the word). The u reversal
   that makes the text read from the road seems to apply to the outer faces too.
 
+### 3.2 Local depth: what TM's baked shadows give and we don't have
+1. **A contact shadow and AO under the car** (a soft projected blob, or SpeedFest's look plan step
+   4 on `main`), so it sits on the road at any sun angle; both M9 car renders float. (S)
+2. **A baked occlusion volume per map, TM's "Compute Shadows" done our way**: the map is a block
+   grid built at load, so cast sky-visibility rays against the collision once
+   (`PhysicsDirectSpaceState3D`, a 3D texture at about 2 m over the 1024 m field and its height
+   range) and sample it in `tm_surface.gdshader` and the car shader to scale ambient and specular.
+   That gives soft darkening under bridges, in loops, under stands' roofs and gates, and it costs
+   one texture fetch on Low/web/Switch too. Once it is in, re-try the sun/ambient balance: it
+   should then read as sun and shade instead of a dimmer frame. (M)
+3. **Bevels**: a chamfer option in `TmGeo.box`, `wall_sweep` and `sweep` (2-5 cm, normals smoothed
+   across it), used by gates, curbs, pillars, stands and booths. Visual meshes only. (M)
+4. **Decals** (`Decal` nodes or a decal pass in the shader): skid marks in curves and before
+   checkpoints, rubber at the start, seams and stains on concrete, scuffs on curbs. (M)
+5. **Reflection probe** over the field (box-projected, captured once after the build): cheap, and
+   in the prototype it darkens the rims and lower body a little, so keep it, but don't expect
+   much from it alone. (S)
+6. **SDFGI on High** only after tuning it (energy, sky contribution, more frames to settle): as
+   it stands it tints the gate blue and darkens the car scene. (S-M)
+7. Keep the current tonemap and grade (2.4.3).
+
 ### 3.3 The car (on top of M9-1)
-1. Shade it like a real car: the reflection probe (3.1.4) matters more than any polygon.
-   Clearcoat over a base with low metallic, a slightly warm specular, black-chrome trim.
-2. Bake AO and curvature into the car's textures (or vertex colours), so seams and inlets go
-   darker and edges catch a highlight.
+1. Bake AO and curvature into the car's textures (or vertex colours), so seams, inlets and the
+   cockpit go darker and edges catch a highlight.
+2. Paint: clearcoat over a base with low metallic, black-chrome trim; with the probe (3.2.5).
 3. A livery as decals: a number board, our sponsors, sidewall lettering (M9 has moulded text),
    a carbon floor with wear.
 4. If code-built lofts keep hitting their limit, write the car in Blender through a committed
@@ -183,18 +191,12 @@ Two directions were prototyped on a scratch copy of M9 (`stadium_review_prototyp
 
 ### 3.4 Surfaces (continues M9-2)
 - Every texture set gets two scales: macro variation over a 32 m block (patches, drying, tyre
-  rubber in the racing line) and tiling detail. Distance blending between them stops the
-  "sandpaper / flat grey" split.
-- Decals (`Decal` nodes or a decal pass in the shader): skid marks in curves and before
-  checkpoints, rubber at the start, seams and stains on concrete, scuffs on curbs.
+  rubber in the racing line) and tiling detail, blended by distance, so neither the "sandpaper"
+  close-up nor the flat grey far away remains.
 - Finish the remaining families (platform, dirt, circuit, tube, control, airship) the same way,
   in the order the campaign uses them.
 
-### 3.5 Geometry
-- A chamfer option in `TmGeo.box`, `wall_sweep` and `sweep` (2-5 cm, normals smoothed across it),
-  used by gates, curbs, pillars, stands and booths. Collision stays as it is (visual only).
-
-### 3.6 Fidelity checks to add (beyond looks)
+### 3.5 Fidelity checks to add (beyond looks)
 1. **Physics against real runs**: read TMNF `Replay.Gbx` ghosts (their input events) from the
    player's own files, drive our `TmCar` with the same inputs on the same map, and report the
    position drift over time. It's the only test that proves "drives like TMNF" end to end (it's
@@ -206,10 +208,10 @@ Two directions were prototyped on a scratch copy of M9 (`stadium_review_prototyp
    previous run (`tests/tmp/review_view` used for this review: map_view's `car:`/`gate:` views).
 
 ## 4. Order of work suggested
-1. 3.1.1-3.1.2 and 3.1.4 (light, an afternoon), then re-render the gate, car and overview.
-2. Gate direction B (or A if the owner prefers TMNF's boards), with the bevel and trim sheet.
-3. 3.1.3 occlusion volume.
-4. Car shading and livery, then decals and the remaining surface families (M9-2's list).
+1. Gates, direction B (or A if the owner prefers TMNF's boards), with the bevel and trim sheet.
+2. Contact shadow under the car, then the occlusion volume; then re-try the light balance.
+3. Bevels and decals; car AO, paint and livery; the reflection probe.
+4. The remaining surface families (M9-2's list), in campaign order.
 5. Replay-based physics check and the handedness check.
 
 All of this fits M9's step 2 ("open: light and atmosphere, RTX preset"): it should be done on the

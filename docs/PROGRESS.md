@@ -1508,9 +1508,13 @@ dated look); an independent review of how close `stadium` is to the real game.
     still open);
   - fidelity checks to add: drive TMNF replays' inputs through `TmCar` and measure the drift; check
     the world's handedness (session 13 saw TMNF's text mirrored under our x negation).
-- **Ranked fix list** in the review (§3-4): light re-balance + AgX + reflection probe, SDFGI on
-  High, a per-map sky-occlusion volume (TM's "Compute Shadows" our way), gate boards as framed
-  screens (or dropped for a TM2020-style crown screen), bevels in `TmGeo`, car shading, decals.
+- **Ranked fix list** in the review (§3-4), ordered by what the prototype renders showed: the
+  gates first (dropping the boards for a crown screen beat rebuilding them as framed screens),
+  then local depth (a contact shadow under the car, a per-map sky-occlusion volume as TM's
+  "Compute Shadows" our way, bevels in `TmGeo`, decals), car AO/paint/livery, the remaining
+  surface families. Tested and *not* a win on their own: AgX (greys the sky, as session 12 found),
+  a stronger sun against a weaker ambient (dims the frame), a reflection probe (subtle), SDFGI as
+  tuned now (tints blue, darkens).
 - Renders (local, Forward+ on llvmpipe, `tests/tmp/review_view` = M9's map_view `car:`/`gate:`
   views copied into a scratch checkout): `stadium` and M9 gates, car, overview; a scratch
   prototype of the top fixes (light, probe, framed-screen and no-board gates). The prototype is

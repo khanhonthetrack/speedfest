@@ -1,6 +1,6 @@
 # Review prototype (session 14), NOT for merging as is: switches for side-by-side renders.
-# Against claude/tmnf-replica-graphics-nb1kcg @ 77bb43c. Renders: --look=new, --gate_signs=screen|none
-# (stadium/tests/tmp/review_view is M9's race/map_view.gd as a scene; not included).
+# Against claude/tmnf-replica-graphics-nb1kcg @ 77bb43c. Switches: --gate_signs=screen|none, --look=new
+# [--sun= --amb= --exp= --tm=agx]. stadium/tests/tmp/review_view (M9's race/map_view.gd as a scene) not included.
 diff --git a/stadium/blocks/shapes/road.gd b/stadium/blocks/shapes/road.gd
 index 5da3051..f4244be 100644
 --- a/stadium/blocks/shapes/road.gd
@@ -51,24 +51,25 @@ index 5da3051..f4244be 100644
  func _sign_kind() -> String:
  	return "finish" if _gate_kind == "lap" else _gate_kind
 diff --git a/stadium/env/tm_stadium_env.gd b/stadium/env/tm_stadium_env.gd
-index 5445953..c837abd 100644
+index 5445953..682b783 100644
 --- a/stadium/env/tm_stadium_env.gd
 +++ b/stadium/env/tm_stadium_env.gd
-@@ -102,6 +102,29 @@ static func add(parent: Node) -> WorldEnvironment:
+@@ -102,6 +102,30 @@ static func add(parent: Node) -> WorldEnvironment:
  	env.glow_intensity = 0.25
  	env.glow_bloom = 0.02
  	env.glow_hdr_threshold = 1.2
 +	if String(TestHooks.arg("look", "old")) == "new":
-+		# REVIEW PROTOTYPE (session 14): a stronger sun against a weaker ambient, filmic (AgX)
-+		# roll-off instead of linear + saturation, full shadows, and a reflection probe over the
-+		# field so paint and metal reflect the stadium instead of only the sky.
++		# REVIEW PROTOTYPE (session 14): a stronger sun against a weaker ambient, full shadows,
++		# and a reflection probe over the field so paint and metal reflect the stadium instead of
++		# only the sky. --tm=agx tries AgX (it greyed the sky in the review's renders).
 +		sun.light_energy = float(TestHooks.arg("sun", 2.6))
 +		sun.shadow_opacity = 1.0
 +		env.ambient_light_energy = float(TestHooks.arg("amb", 0.42))
-+		env.tonemap_mode = Environment.TONE_MAPPER_AGX
 +		env.tonemap_exposure = float(TestHooks.arg("exp", 1.0))
-+		env.adjustment_saturation = 1.05
-+		env.adjustment_contrast = 1.0
++		if String(TestHooks.arg("tm", "linear")) == "agx":
++			env.tonemap_mode = Environment.TONE_MAPPER_AGX
++			env.adjustment_saturation = 1.05
++			env.adjustment_contrast = 1.0
 +		env.ssao_intensity = 1.6
 +		env.ssao_radius = 2.0
 +		var probe := ReflectionProbe.new()
