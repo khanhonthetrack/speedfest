@@ -2452,3 +2452,11 @@ on every real contact the full impulse would land at the contact point and kick 
   and under the body TMNF's dark tray (chamfered, to the level's floor) with two slanted truss
   columns on every closed side, as TMNF's (measured; collision too). The airship's envelope takes
   TMNF's beige (its texture's mean), not the fabric white. Side by side with TMNF's block.
+- (M11-2) **Grandstands and camera booths in TMNF's colours.** TMNF's Fabric stands are not blue
+  seats: their top is the grey concrete band of its stands texture (149, 148, 147), the
+  quarter-pipe front its dark platform floor (43, 44, 43), the backs and ends its dark Stands2
+  (keys `stands_top`, `stands_front`, `stands_dark`; the big stadium's seating rake keeps its
+  seats). Camera lights: dark with grey tops and light undersides (TMNF's Stands2 / Stands / Auvent),
+  dark ends; camera galleries: a dark foot, TMNF's band of windows 1.56-2.79 m above the wall's
+  foot, the roof grey along its edge and dark beyond, the ground plinth light. Side by side with
+  TMNF's blocks.

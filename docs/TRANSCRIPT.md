@@ -935,3 +935,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct)
 
 > yes do the systematic check and fix everything
+
+### User (verbatim, session 13, 19 Oct, after a worker restart during M11)
+
+> Continue

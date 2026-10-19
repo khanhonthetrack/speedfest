@@ -43,6 +43,12 @@ const COLORS := {
 	"road_grid": [Color8(80, 79, 78), 0.5, 0.6],         # the road shoulder's grid (TMNF's RoadGrid)
 	"road_metal": [Color8(42, 40, 37), 0.7, 0.3],        # the road's dark border metal (curb ends, deck sides)
 	"platform_tray": [Color8(34, 34, 34), 0.8, 0.2],     # the dark tray under the decks (TMNF's Stands2)
+	# the grandstands (Fabric) as TMNF's: the stands' grey concrete top, their dark quarter-pipe
+	# front (TMNF's PlatformFloor) and dark backs (Stands2); measured from its textures
+	"stands_top": [Color8(149, 148, 147), 0.8, 0.0],
+	"stands_front": [Color8(43, 44, 43), 0.7, 0.1],
+	"stands_dark": [Color8(35, 36, 37), 0.75, 0.2],
+	"control_under": [Color8(179, 181, 181), 0.7, 0.1],  # the camera lights' undersides (TMNF's Auvent)
 	"pillar": [Color8(182, 183, 179), 0.8, 0.0],         # the road's pillars (TMNF's light concrete)
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
@@ -152,6 +158,9 @@ const TEXTURED := {
 	"border_green": ["border_atlas", Vector2(1.0, 1.0), false],
 	# the road keel's underside (texgen/decks.py road_under; UV-mapped along and across)
 	"road_under": ["road_under", Vector2(8.0, 4.0), false],
+	"stands_top": ["stadium_concrete", Vector2(8.0, 8.0), true, Color(0.83, 0.82, 0.84)],
+	"stands_front": ["platform_plate", Vector2(32.0, 32.0), true, Color(0.27, 0.27, 0.27)],
+	"stands_dark": ["steel_truss", Vector2(8.0, 8.0), true],
 	"road_grid": ["road_grid", Vector2(2.0, 1.965), false],       # (texgen/road.py grid)
 	"pillar": ["stadium_concrete", Vector2(4.0, 4.0), true],
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],

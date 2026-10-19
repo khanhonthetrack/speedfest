@@ -48,11 +48,11 @@ const SHELL := [[59.8, 1.0, "fabric_under", S_ROAD], [59.42, 4.35, "fabric_under
 	[59.82, 4.41, "fabric", S_ROAD], [60.04, 1.85, "fabric_under", S_ROAD]]
 ## The stands: the quarter-pipe from the floor up to the seats, the seats' top, the back down to
 ## the ground (measured).
-const STANDS := [[45.88, 1.0, "platform", S_ROAD], [47.08, 1.2, "platform", S_ROAD], [48.23, 1.56, "platform", S_ROAD],
-	[49.28, 2.15, "platform", S_ROAD], [50.21, 2.93, "platform", S_ROAD], [50.97, 3.9, "platform", S_ROAD],
-	[51.54, 4.99, "platform", S_ROAD], [51.89, 6.18, "platform", S_ROAD], [52.0, 7.42, "structure", S_ROAD],
-	[52.0, 7.9, "structure", S_ROAD], [52.93, 8.26, "stands", S_STANDS], [57.34, 8.26, "structure", S_ROAD],
-	[57.48, 7.42, "stands", S_STANDS], [58.03, 4.21, "stands", S_STANDS], [58.41, 1.0, "structure", S_STANDS]]
+const STANDS := [[45.88, 1.0, "stands_front", S_ROAD], [47.08, 1.2, "stands_front", S_ROAD], [48.23, 1.56, "stands_front", S_ROAD],
+	[49.28, 2.15, "stands_front", S_ROAD], [50.21, 2.93, "stands_front", S_ROAD], [50.97, 3.9, "stands_front", S_ROAD],
+	[51.54, 4.99, "stands_front", S_ROAD], [51.89, 6.18, "stands_front", S_ROAD], [52.0, 7.42, "stands_dark", S_ROAD],
+	[52.0, 7.9, "stands_dark", S_ROAD], [52.93, 8.26, "stands_top", S_STANDS], [57.34, 8.26, "stands_dark", S_ROAD],
+	[57.48, 7.42, "stands_dark", S_STANDS], [58.03, 4.21, "stands_dark", S_STANDS], [58.41, 1.0, "stands_dark", S_STANDS]]
 
 
 ## The low rubber lip along the shell's foot, on the ground (measured).
@@ -77,12 +77,12 @@ const WALL_AIR := [53.76, 54.28]
 ## Under a raised grandstand: on the ground, a one-cell stands block (quarter-pipe front, seats at
 ## 8 m, the roof's fabric foot behind, the big screen on its back: x0, x1, y0, y1, z0, z1); higher
 ## up, the fabric wall carrying the roof down (x0, x1) with a post in the middle (x0, x1, z0, z1).
-const PILLAR_STANDS := [[10.85, 1.0, "platform", S_ROAD], [12.04, 1.2, "platform", S_ROAD], [13.19, 1.56, "platform", S_ROAD],
-	[14.25, 2.15, "platform", S_ROAD], [15.18, 2.93, "platform", S_ROAD], [15.94, 3.9, "platform", S_ROAD],
-	[16.5, 4.99, "platform", S_ROAD], [16.85, 6.18, "platform", S_ROAD], [16.97, 7.16, "structure", S_ROAD],
-	[17.0, 7.7, "structure", S_ROAD], [17.9, 8.0, "stands", S_STANDS], [26.56, 8.0, "structure", S_ROAD],
-	[26.56, 7.16, "fabric", S_ROAD], [26.94, 7.16, "fabric", S_ROAD], [26.94, 1.83, "structure", S_ROAD],
-	[27.76, 1.52, "structure", S_ROAD], [27.76, 1.0, "structure", S_ROAD]]
+const PILLAR_STANDS := [[10.85, 1.0, "stands_front", S_ROAD], [12.04, 1.2, "stands_front", S_ROAD], [13.19, 1.56, "stands_front", S_ROAD],
+	[14.25, 2.15, "stands_front", S_ROAD], [15.18, 2.93, "stands_front", S_ROAD], [15.94, 3.9, "stands_front", S_ROAD],
+	[16.5, 4.99, "stands_front", S_ROAD], [16.85, 6.18, "stands_front", S_ROAD], [16.97, 7.16, "stands_dark", S_ROAD],
+	[17.0, 7.7, "stands_dark", S_ROAD], [17.9, 8.0, "stands_top", S_STANDS], [26.56, 8.0, "stands_dark", S_ROAD],
+	[26.56, 7.16, "fabric", S_ROAD], [26.94, 7.16, "fabric", S_ROAD], [26.94, 1.83, "stands_dark", S_ROAD],
+	[27.76, 1.52, "stands_dark", S_ROAD], [27.76, 1.0, "stands_dark", S_ROAD]]
 const PILLAR_SCREEN := [26.94, 27.44, 1.84, 6.07, 2.11, 30.18]
 const PILLAR_WALL := [25.725, 26.107]
 const PILLAR_POST := [21.43, 22.61, 15.51, 16.51]
@@ -155,8 +155,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_extrude(geo, SHELL_AIR)
 			_trusses(geo, SHELL_AIR)
 			_boards(geo, BOARDS_AIR)
-			geo.box(Vector3(DECK_AIR[0], DECK_AIR[2], 0), Vector3(DECK_AIR[1], DECK_AIR[3], 32), "structure", S_METAL,
-				"stands", S_STANDS)
+			geo.box(Vector3(DECK_AIR[0], DECK_AIR[2], 0), Vector3(DECK_AIR[1], DECK_AIR[3], 32), "stands_dark", S_METAL,
+				"stands_top", S_STANDS)
 			geo.box(Vector3(WALL_AIR[0], 0, 0), Vector3(WALL_AIR[1], DECK_AIR[2], 32), "structure", S_METAL)
 		"Fabric/FabricPillarGround":
 			_extrude(geo, PILLAR_STANDS)
@@ -177,11 +177,11 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 				_revolve(geo, SHELL_IN_AIR, c, a0, flip)
 				var d: Array = DECK_IN_AIR
 				var b: Array = BASE_IN_AIR
-				_revolve(geo, _band(d[0], d[1], d[2], d[3], "stands", S_STANDS), c, a0, flip)
+				_revolve(geo, _band(d[0], d[1], d[2], d[3], "stands_top", S_STANDS), c, a0, flip)
 				_revolve(geo, _band(b[0], b[1], b[2], b[3], "structure", S_METAL), c, a0, flip)
 			elif air:
 				_revolve(geo, SHELL_AIR, c, a0, flip)
-				_revolve(geo, _band(DECK_AIR[0], DECK_AIR[1], DECK_AIR[2], DECK_AIR[3], "stands", S_STANDS), c, a0, flip)
+				_revolve(geo, _band(DECK_AIR[0], DECK_AIR[1], DECK_AIR[2], DECK_AIR[3], "stands_top", S_STANDS), c, a0, flip)
 				_revolve(geo, _band(WALL_AIR[0], WALL_AIR[1], 0.0, DECK_AIR[2], "structure", S_METAL), c, a0, flip)
 			else:
 				_revolve(geo, SHELL, c, a0, flip)

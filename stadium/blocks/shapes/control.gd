@@ -18,10 +18,13 @@ const S_PIPE := 16
 
 ## Left halves of the cross-sections (x, y), from the bottom centre round the left wall to the
 ## roof centre; each point's material is the segment's from it.
+## As TMNF's: the camera gallery's white wall has a dark foot and a band of windows (1.56 to 2.79 m
+## above its foot), the roof is grey along its edge (to 8 m in) and dark beyond (measured).
 const CAMERA_HALF := [
-	[16.0, 0.0, "structure", S_CONCRETE], [3.11, 0.0, "control_panel", S_METAL], [3.11, 7.21, "control_panel", S_METAL],
+	[16.0, 0.0, "stands_dark", S_CONCRETE], [3.11, 0.0, "stands_dark", S_METAL], [3.11, 1.0, "control_panel", S_METAL],
+	[3.11, 2.56, "glass_dark", S_METAL], [3.11, 3.79, "control_panel", S_METAL], [3.11, 7.21, "control_panel", S_METAL],
 	[3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL], [3.71, 7.96, "control_panel", S_METAL],
-	[4.0, 8.0, "truss", S_CONCRETE],
+	[4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_HALF := [
 	[16.0, 0.0, "structure", S_CONCRETE], [4.0, 0.0, "control_panel", S_METAL], [4.0, 1.0, "glass_dark", S_ICE],
@@ -31,10 +34,11 @@ const GLASS_HALF := [
 ## Ground variants: a plinth over the whole cell (1 -> 2 m), the walls rising from it (the glass
 ## leaning inward), a low rail at the plinth's edge.
 const CAMERA_GROUND_HALF := [
-	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "structure", S_CONCRETE], [0.0, 1.5, "structure", S_CONCRETE],
-	[0.49, 1.76, "structure", S_CONCRETE], [0.94, 2.0, "structure", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
+	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "stands_top", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[3.11, 3.56, "glass_dark", S_METAL], [3.11, 4.79, "control_panel", S_METAL],
 	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
-	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "truss", S_CONCRETE],
+	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_GROUND_HALF := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "structure", S_CONCRETE], [0.0, 1.5, "structure", S_CONCRETE],
@@ -62,17 +66,18 @@ var _floor := 0.0
 
 ## The camera light rig (Control/CameraLight): its section (x, y), measured: a block 16 m wide and
 ## 8 m tall with feet, under a 1 m top bar reaching out to the spotlights; the straight piece is
-## this section along z, the base its right half revolved about (16, 16).
-const LIGHT := [[28.243, 7.0, "structure", S_METAL], [24.0, 7.0, "structure", S_METAL], [24.0, 1.0, "structure", S_METAL],
-	[28.0, 1.0, "structure", S_METAL], [28.0, 0.0, "structure", S_METAL], [24.0, 0.0, "structure", S_METAL],
-	[8.0, 0.0, "structure", S_METAL], [4.0, 0.0, "structure", S_METAL], [4.0, 1.0, "structure", S_METAL],
-	[8.0, 1.0, "structure", S_METAL], [8.0, 7.0, "lamp", S_METAL], [3.757, 7.0, "structure", S_METAL],
-	[3.879, 7.5, "structure", S_METAL], [4.0, 8.0, "glass_dark", S_METAL], [8.0, 8.0, "glass_dark", S_METAL],
-	[24.0, 8.0, "glass_dark", S_METAL], [28.0, 8.0, "structure", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
-const LIGHT_HALF := [[16.0, 0.0, "structure", S_METAL], [24.0, 0.0, "structure", S_METAL], [28.0, 0.0, "structure", S_METAL],
-	[28.0, 1.0, "structure", S_METAL], [24.0, 1.0, "structure", S_METAL], [24.0, 7.0, "lamp", S_METAL],
-	[28.243, 7.0, "structure", S_METAL], [28.121, 7.5, "structure", S_METAL], [28.0, 8.0, "glass_dark", S_METAL],
-	[24.0, 8.0, "glass_dark", S_METAL], [16.0, 8.0, "structure", S_METAL]]
+## this section along z, the base its right half revolved about (16, 16). In TMNF's colours: dark
+## (its Stands2) with grey tops (Stands) and light undersides (Auvent).
+const LIGHT := [[28.243, 7.0, "control_under", S_METAL], [24.0, 7.0, "stands_dark", S_METAL], [24.0, 1.0, "stands_top", S_METAL],
+	[28.0, 1.0, "stands_dark", S_METAL], [28.0, 0.0, "control_under", S_METAL], [24.0, 0.0, "control_under", S_METAL],
+	[8.0, 0.0, "control_under", S_METAL], [4.0, 0.0, "stands_dark", S_METAL], [4.0, 1.0, "stands_top", S_METAL],
+	[8.0, 1.0, "stands_dark", S_METAL], [8.0, 7.0, "lamp", S_METAL], [3.757, 7.0, "stands_dark", S_METAL],
+	[3.879, 7.5, "stands_dark", S_METAL], [4.0, 8.0, "stands_top", S_METAL], [8.0, 8.0, "stands_top", S_METAL],
+	[24.0, 8.0, "stands_top", S_METAL], [28.0, 8.0, "stands_dark", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
+const LIGHT_HALF := [[16.0, 0.0, "control_under", S_METAL], [24.0, 0.0, "control_under", S_METAL], [28.0, 0.0, "stands_dark", S_METAL],
+	[28.0, 1.0, "stands_top", S_METAL], [24.0, 1.0, "stands_dark", S_METAL], [24.0, 7.0, "lamp", S_METAL],
+	[28.243, 7.0, "stands_dark", S_METAL], [28.121, 7.5, "stands_dark", S_METAL], [28.0, 8.0, "stands_top", S_METAL],
+	[24.0, 8.0, "stands_top", S_METAL], [16.0, 8.0, "stands_dark", S_METAL]]
 ## The camera pub (Control/CameraPub): a block with rounded top edges along z, a screen on each
 ## side (x0, x1 of the left one, y0, y1, z0, z1); on the ground it stands on a low plinth (measured).
 const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
@@ -136,7 +141,8 @@ func _camera_piece(shape: String) -> Node3D:
 	var geo := TmGeo.new()
 	var along := func(table: Array) -> void:
 		var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
-		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(0, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "structure", S_METAL)
+		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(0, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true,
+			"stands_dark" if table == LIGHT else "structure", S_METAL)
 	match shape:
 		"Control/CameraLight/StraightAir":
 			along.call(LIGHT)
