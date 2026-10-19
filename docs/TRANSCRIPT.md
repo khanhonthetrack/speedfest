@@ -919,3 +919,9 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct)
 
 > But dont just fix A01 but all maps which have that problem
+
+### Claude (asked whether to match TMNF where it has more blue: the ground strip along ground circuits' walls, the steps of the walls across a slope)
+
+### User (verbatim, session 13, 19 Oct)
+
+> Yes, match in every way
