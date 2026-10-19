@@ -209,7 +209,11 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       blocks): for every shape, where TMNF puts each material against where ours does; the list
       of mismatches by area and campaign use (`docs/research/m11_check.md`)
 - [ ] 2. Fix the mismatches it finds, family by family (most visible first). Done: platform walls,
-      turbo pads, the circuit (sides, undersides, end caps, slope bases); next: the road
+      turbo pads, the circuit (sides, undersides, end caps, slope bases), roads (atlas bands, keel,
+      grid, pillars, ground slopes, FreeWheeling pads, start / finish roads, the gate line),
+      platform decks, grandstands' and camera booths' colours, dirt outlines, sculpture pads, the
+      pipe pillars and tubes; next: platform checkpoints / turbo / ToRoad, camera lights, the
+      road turbo gantry, junction undersides, dirt road furniture
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
       bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)

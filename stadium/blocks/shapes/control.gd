@@ -290,7 +290,7 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 	var c := Vector3(16, 4, 16)
 	var dirs := arms.map(func(i: int) -> Vector3: return SIDES[i])
 	for d: Vector3 in dirs:
-		geo.pipe(c, c + d * 16.0, 1.422, 12, "pipe", S_PIPE)
+		geo.pipe(c, c + d * 16.0, 1.422, 12, "pillar", S_PIPE)
 	var top := 1.81 if _floor > 0.0 else 0.0
 	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "wall_dark", S_CONCRETE, "", -2, 0.05)
 	var straight := arms.size() == 2 and arms.has(0) and arms.has(2)

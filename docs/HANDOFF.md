@@ -30,10 +30,12 @@
   walls and turbo pads, the circuit (sides, undersides, end caps, slope bases with their pillar),
   roads (TMNF's atlas bands per section segment, keel plates, grid, ground slopes raised on a
   pillar), the inflatable palm / snow trees / cacti (`blob_slices.py`), the platform decks' rim,
-  tray and truss columns, the airship's colour. Side-by-side renders: `tests/block_view.tscn`
-  (one shape; `--ref=<local ref dir>` shows TMNF's own look). Next by our tracks' use (the list
-  in m11_check.md): the grandstands (Fabric), camera booths, sculptures, dirt roads, castles; then
-  PLAN M11-4..8.
+  tray and truss columns, the airship's colour, the grandstands' and camera booths' colours, the
+  dirt roads' outline, FreeWheeling pads, the start / finish roads and the gate line (TMNF's
+  RoadRace layout, `TmGeo.split_mat`), the pipe pillars and tubes (TMNF's light StadiumPillar).
+  Side-by-side renders: `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's
+  own look). Next by our tracks' use: platform checkpoints / turbo / ToRoad, camera lights, the
+  road turbo gantry, junction undersides, dirt road furniture, castles; then PLAN M11-4..8.
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).

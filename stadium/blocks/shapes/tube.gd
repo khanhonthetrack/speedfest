@@ -20,9 +20,12 @@ const S_PIPE := 16              # StadiumPillar (TmTuning.Surface.ASPHALT: pipes
 const S_METAL := 4
 const S_RUBBER := 9
 
-## Ground pillars' rubber foot (r, y), terrain at 1 m; PillarCap's top ring.
+## Ground pillars' rubber foot (r, y), terrain at 1 m; PillarCap's top ring. Both TMNF's border
+## atlas (TmMaterials "border_*"), once round, from row RING_ROWS.x at the bottom to .y at the top
+## (its blue line low down, the black band with the white line above).
 const FOOT := [[1.986, 1.0], [1.986, 1.142], [1.912, 1.516], [1.628, 1.893], [R, 2.0]]
 const CAP := [[R, 7.0], [1.664, 7.142], [1.728, 7.516], [1.628, 7.893], [R, 8.0]]
+const RING_ROWS := Vector2(301.3, 215.1)
 
 const ARMS := {
 	"Base": [Vector3(0, 0, 1), Vector3(0, 0, -1), Vector3(1, 0, 0), Vector3(-1, 0, 0)],
@@ -80,16 +83,16 @@ func _road(geo: TmGeo, form: String, vertical: Array, ground: bool) -> void:
 			reach = CENTRE.y - (2.0 if ground else 0.0)
 		var stub := form == "Base" and d.y == 0.0
 		if hub:
-			_pipe(geo, CENTRE, d, R_HUB, -INF, HUB, others, "metal", S_METAL, false, true)
-			_pipe(geo, CENTRE, d, R, HUB, reach, [], "pipe", S_PIPE, false, stub)
+			_pipe(geo, CENTRE, d, R_HUB, -INF, HUB, others, "road_metal", S_METAL, false, true)
+			_pipe(geo, CENTRE, d, R, HUB, reach, [], "pillar", S_PIPE, false, stub)
 		elif form == "Deadend":
-			_pipe(geo, CENTRE, d, R, 0.0, reach, [], "pipe", S_PIPE, true, false)
+			_pipe(geo, CENTRE, d, R, 0.0, reach, [], "pillar", S_PIPE, true, false)
 		elif form == "Corner":
-			_pipe(geo, CENTRE, d, R, -INF, reach, others, "pipe", S_PIPE, false, false)
+			_pipe(geo, CENTRE, d, R, -INF, reach, others, "pillar", S_PIPE, false, false)
 		else:
-			_pipe(geo, CENTRE, d, R, 0.0, reach, [], "pipe", S_PIPE, false, false)
+			_pipe(geo, CENTRE, d, R, 0.0, reach, [], "pillar", S_PIPE, false, false)
 	if ground and Vector3.DOWN in vertical:
-		_revolve(geo, FOOT, "rubber_dark", S_RUBBER)
+		_revolve(geo, FOOT, "border_black", S_RUBBER, RING_ROWS)
 
 
 ## Vertical pillars: Pillar (1 block), Pillar4 / Pillar8 (4 / 8 blocks), PillarCap (rubber top ring
@@ -100,19 +103,19 @@ func _pillar(geo: TmGeo, form: String, ground: bool) -> bool:
 	match form:
 		"Pillar", "Pillar4", "Pillar8":
 			var h := 8.0 * (1.0 if form == "Pillar" else float(form.to_int()))
-			_pipe(geo, base, Vector3.UP, R, y0, h, [], "pipe", S_PIPE, false, false)
+			_pipe(geo, base, Vector3.UP, R, y0, h, [], "pillar", S_PIPE, false, false)
 		"PillarCap":
-			_pipe(geo, base, Vector3.UP, R, y0, 7.0, [], "pipe", S_PIPE, false, false)
-			_revolve(geo, CAP, "rubber_dark", S_RUBBER)
-			_disc(geo, _ring(base + Vector3.UP * 8.0, Vector3.UP, R), Vector3.UP, "metal", S_METAL)
+			_pipe(geo, base, Vector3.UP, R, y0, 7.0, [], "pillar", S_PIPE, false, false)
+			_revolve(geo, CAP, "border_black", S_RUBBER, RING_ROWS)
+			_disc(geo, _ring(base + Vector3.UP * 8.0, Vector3.UP, R), Vector3.UP, "road_metal", S_METAL)
 		"PillarBranch":
 			if ground:
 				return false
-			_pipe(geo, base, Vector3.UP, R, 0.0, 8.0, [], "pipe", S_PIPE, true, true)
+			_pipe(geo, base, Vector3.UP, R, 0.0, 8.0, [], "pillar", S_PIPE, true, true)
 		_:
 			return false
 	if ground:
-		_revolve(geo, FOOT, "rubber_dark", S_RUBBER)
+		_revolve(geo, FOOT, "border_black", S_RUBBER, RING_ROWS)
 	return true
 
 
@@ -198,33 +201,44 @@ func _pipe(geo: TmGeo, c: Vector3, d: Vector3, r: float, t_min: float, t_out: fl
 
 
 ## Surface of revolution about the vertical axis through the block centre: profile (r, y) points
-## bottom to top, outward normals.
-func _revolve(geo: TmGeo, prof: Array, mat: String, surf: int) -> void:
+## bottom to top, outward normals; rows (when given): the border atlas' rows at its bottom and top
+## (UVs once round; else the planar default).
+func _revolve(geo: TmGeo, prof: Array, mat: String, surf: int, rows := Vector2(-1, -1)) -> void:
+	var ya := float(prof[0][1])
+	var yb := float(prof[prof.size() - 1][1])
 	for i in prof.size() - 1:
 		var r0 := float(prof[i][0])
 		var y0 := float(prof[i][1])
 		var r1 := float(prof[i + 1][0])
 		var y1 := float(prof[i + 1][1])
 		var n2 := Vector2(y1 - y0, r0 - r1).normalized()   # (radial, up)
+		var v0 := lerpf(rows.x, rows.y, (y0 - ya) / (yb - ya)) / 512.0
+		var v1 := lerpf(rows.x, rows.y, (y1 - ya) / (yb - ya)) / 512.0
 		for k in SIDES:
 			var k1 := (k + 1) % SIDES
 			var dk := Vector3(cos(TAU * k / SIDES), 0.0, sin(TAU * k / SIDES))
 			var dk1 := Vector3(cos(TAU * k1 / SIDES), 0.0, sin(TAU * k1 / SIDES))
 			var c := Vector3(CENTRE.x, 0.0, CENTRE.z)
+			var uv: Array = [Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO]
+			if rows.x >= 0.0:
+				var u0 := float(k) / SIDES
+				var u1 := float(k + 1) / SIDES
+				uv = [Vector2(u0, v0), Vector2(u0, v1), Vector2(u1, v1), Vector2(u1, v0)]
 			_side(geo, c + dk * r0 + Vector3.UP * y0, c + dk * r1 + Vector3.UP * y1,
 				c + dk1 * r1 + Vector3.UP * y1, c + dk1 * r0 + Vector3.UP * y0,
-				dk * n2.x + Vector3.UP * n2.y, dk1 * n2.x + Vector3.UP * n2.y, mat, surf)
+				dk * n2.x + Vector3.UP * n2.y, dk1 * n2.x + Vector3.UP * n2.y, mat, surf, uv)
 
 
-## Quad a, b (ring vertex k) and c, d (vertex k + 1), facing along the vertex normals na / nb.
+## Quad a, b (ring vertex k) and c, d (vertex k + 1), facing along the vertex normals na / nb;
+## uv: the corners' UVs (a, b, c, d), all zero for the planar default.
 func _side(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, d: Vector3, na: Vector3, nb: Vector3,
-		mat: String, surf: int) -> void:
+		mat: String, surf: int, uv: Array = [Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO]) -> void:
 	if (c - a).cross(d - b).dot(na + nb) >= 0.0:
-		geo.tri(a, b, c, mat, surf, na, na, nb)
-		geo.tri(a, c, d, mat, surf, na, nb, nb)
+		geo.tri(a, b, c, mat, surf, na, na, nb, uv[0], uv[1], uv[2])
+		geo.tri(a, c, d, mat, surf, na, nb, nb, uv[0], uv[2], uv[3])
 	else:
-		geo.tri(a, c, b, mat, surf, na, nb, na)
-		geo.tri(a, d, c, mat, surf, na, nb, nb)
+		geo.tri(a, c, b, mat, surf, na, nb, na, uv[0], uv[2], uv[1])
+		geo.tri(a, d, c, mat, surf, na, nb, nb, uv[0], uv[3], uv[2])
 
 
 ## Flat lid over a ring of points, facing n.

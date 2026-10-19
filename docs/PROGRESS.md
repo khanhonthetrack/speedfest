@@ -2479,3 +2479,9 @@ on every real contact the full impulse would land at the contact point and kick 
   top cut there: `TmGeo.split_mat`). Our 8 m pads with the word and the checkpoint's 1 m band
   (`TmGateDress`, textures pad_start / pad_finish / line_cp) are gone; the grass checkpoint has
   no line (TMNF's has none). Side by side with TMNF's blocks.
+- (M11-2) **Pipe pillars and tubes in TMNF's materials** (Tube/V/Pillar*: our tracks' most used
+  block, about 8,100 on our tracks): the pipes are TMNF's light StadiumPillar concrete (key `pillar`,
+  as the road's pillars) instead of our shiny steel, the junction collars and the cap's lid its dark
+  RoadDetails (`road_metal`), the ground foot and the cap's ring its border atlas band, once round
+  (the blue line low down, the black band with the white line above; `tube.gd RING_ROWS`). The
+  RoadPub pipes too. Side by side with TMNF's blocks.
