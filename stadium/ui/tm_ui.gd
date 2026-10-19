@@ -88,9 +88,45 @@ static func icon(name: String, px := 0) -> Texture2D:
 	return _icons[id]
 
 
-## The glass: the plain panel and button, and their states.
+## TMNF's green (focused and selected text, the dialogs' title bars).
+const TM_GREEN := Color(0.10, 0.78, 0.10)
+## TMNF's dark grey for text on its white pill buttons.
+const TM_INK := Color(0.16, 0.16, 0.17)
+
+
+## The glass: the plain panel and button, and their states; the tm_* kinds are TMNF's own dialog
+## pieces (M10-5, drawn after its menus side by side): a dark rounded panel, a green title bar, white
+## pill buttons with dark text, green text and a green ring for the focused one.
 static func glass(kind: String) -> TmGlassBox:
 	match kind:
+		"tm_dialog":
+			var d := TmGlassBox.make({"top": Color(0.24, 0.24, 0.25, 0.62), "bottom": Color(0.06, 0.06, 0.07, 0.82),
+				"gloss": 0.05, "gloss_depth": 0.35, "radius": 10.0, "border": Color(0.42, 0.42, 0.44, 0.85),
+				"border_top": Color(0.78, 0.78, 0.80, 0.9), "border_width": 2.0})
+			d.content_margin_left = 10
+			d.content_margin_right = 10
+			d.content_margin_top = 8
+			d.content_margin_bottom = 14
+			return d
+		"tm_title":
+			return TmGlassBox.make({"top": Color(0.17, 0.62, 0.19, 1.0), "bottom": Color(0.07, 0.44, 0.10, 1.0),
+				"gloss": 0.16, "gloss_depth": 0.5, "radius": 8.0, "border": Color(0.03, 0.25, 0.05, 0.9),
+				"border_top": Color(0.55, 0.9, 0.5, 0.9), "border_width": 1.5})
+		"tm_button":
+			return TmGlassBox.make({"top": Color(0.98, 0.98, 0.98, 1.0), "bottom": Color(0.76, 0.77, 0.78, 1.0),
+				"gloss": 0.3, "gloss_depth": 0.5, "radius": 100.0, "border": Color(0.30, 0.30, 0.31, 0.9),
+				"border_top": Color(1, 1, 1, 1), "border_width": 1.5})
+		"tm_button_hover":
+			return TmGlassBox.make({"top": Color(1, 1, 1, 1.0), "bottom": Color(0.84, 0.86, 0.85, 1.0),
+				"gloss": 0.35, "gloss_depth": 0.5, "radius": 100.0, "border": Color(0.30, 0.30, 0.31, 0.9),
+				"border_top": Color(1, 1, 1, 1), "border_width": 1.5})
+		"tm_button_pressed":
+			return TmGlassBox.make({"top": Color(0.70, 0.72, 0.72, 1.0), "bottom": Color(0.90, 0.91, 0.91, 1.0),
+				"gloss": 0.1, "radius": 100.0, "border": Color(0.25, 0.25, 0.26, 0.9), "border_width": 1.5})
+		"tm_button_focus":
+			return TmGlassBox.make({"top": Color(0, 0, 0, 0), "bottom": Color(0, 0, 0, 0), "gloss": 0.0, "radius": 100.0,
+				"border": TM_GREEN, "border_top": Color(0.45, 1.0, 0.45), "border_width": 2.5,
+				"glow": Color(TM_GREEN, 0.7), "glow_size": 5.0})
 		"panel":
 			var p := TmGlassBox.make({"top": Color(0.08, 0.14, 0.11, 0.80), "bottom": Color(0.02, 0.05, 0.04, 0.88),
 				"gloss": 0.07, "gloss_depth": 0.22, "radius": 14.0, "border": Color(1, 1, 1, 0.10), "border_top": Color(1, 1, 1, 0.26)})
@@ -247,6 +283,44 @@ static func nick_label(nick: String, size := 24, default_colour := TEXT) -> Rich
 		r.add_theme_font_size_override(f, size)
 	r.text = TmNick.to_bbcode(nick, default_colour)
 	return r
+
+
+## A button in TMNF's dialog style: a white pill with dark text, green when focused.
+static func tm_button(text: String, action: Callable, min_width := 220) -> Button:
+	var b := button(text, action, min_width)
+	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.custom_minimum_size.y = 40
+	b.add_theme_stylebox_override("normal", glass("tm_button"))
+	b.add_theme_stylebox_override("hover", glass("tm_button_hover"))
+	b.add_theme_stylebox_override("pressed", glass("tm_button_pressed"))
+	b.add_theme_stylebox_override("hover_pressed", glass("tm_button_pressed"))
+	b.add_theme_stylebox_override("focus", glass("tm_button_focus"))
+	b.add_theme_font_override("font", font(SANS_BOLD))
+	b.add_theme_font_size_override("font_size", 23)
+	b.add_theme_constant_override("outline_size", 0)
+	b.add_theme_color_override("font_color", TM_INK)
+	b.add_theme_color_override("font_pressed_color", TM_INK)
+	b.add_theme_color_override("font_hover_color", TM_GREEN.darkened(0.15))
+	b.add_theme_color_override("font_focus_color", TM_GREEN.darkened(0.15))
+	b.add_theme_color_override("font_hover_pressed_color", TM_GREEN.darkened(0.15))
+	b.add_theme_color_override("font_disabled_color", Color(TM_INK, 0.4))
+	return b
+
+
+## TMNF's dialog title: a green bar across the panel's top with the title in white.
+static func tm_title(text: String) -> PanelContainer:
+	var bar := PanelContainer.new()
+	var st := glass("tm_title")
+	st.content_margin_top = 3
+	st.content_margin_bottom = 4
+	bar.add_theme_stylebox_override("panel", st)
+	var l := label(text, 25, Color.WHITE, SANS_BOLD)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_constant_override("outline_size", 0)
+	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.45))
+	l.add_theme_constant_override("shadow_offset_y", 1)
+	bar.add_child(l)
+	return bar
 
 
 ## Makes a button the lime "go" button (Race, Join).

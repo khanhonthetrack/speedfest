@@ -2112,3 +2112,15 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   middle, small (`TmRace.COUNTDOWN_MS`, `figure_at`; the beeps follow them). The figures redrawn
   upright in the sans with Go! pale inside a blue outline (`tools/texgen/ui.py`). `test_race` checks
   the schedule.
+- **Race menu and finish card in TMNF's dialog style** (`ui/tm_race_menu.gd`, `ui/tm_ui.gd`): a dark
+  glass panel (frosted only under the panel), a green title bar, white pill buttons with dark text
+  (the focused one green-ringed), mixed-case labels as TMNF's ("Race menu", "Restart", "Resume",
+  "Retry", "Replay", "Save replay", "Next track", "Quit"); the result card's time in the
+  seven-segment digits; "Gold medal" / "New record" / "No medal". `race.tscn -- --pause` opens the
+  race menu for screenshots. Tests follow the new labels (`test_menu`, `test_editor`, `test_replay`).
+- **Menu assets drawn** for the coming menus: list icons (solo, online, profile, editors, quit,
+  browse, back, replays, options, car) and a waving checkered flag per series
+  (`tools/texgen/menu_icons.py` -> `assets/ui/icon_*.png`, `flag_*.png`), and the menu's globe:
+  `tools/texgen/globe.py` draws the land map (Natural Earth 1:50m via world-atlas, public domain;
+  cached outside the repo) into `assets/tex/globe_map_albedo.jpg`, `ui/tm_globe.gdshader` lights it
+  as a slowly turning embossed sphere.

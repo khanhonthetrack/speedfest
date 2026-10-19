@@ -167,6 +167,8 @@ func _ready() -> void:
 	if TestHooks.has_arg("finish_result"):
 		_back_from_replay()
 	ready_to_race = true
+	if TestHooks.has_arg("pause"):      # screenshots: the race menu over the start
+		menu.toggle_pause()
 
 
 ## A full-screen message (no map to race), e.g. when TMNF isn't installed.

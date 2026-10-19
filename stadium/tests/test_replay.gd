@@ -111,7 +111,7 @@ func _ready() -> void:
 		if not b.is_queued_for_deletion():
 			texts.append((b as Button).text)
 	TestHooks.check(again.race.state == TmRace.State.FINISHED and again.race.finish_ms == fin and again.replay.count() == rp.count()
-		and texts.has("SAVED") and texts.has("REPLAY") and not TestHooks.has_arg("finish_result"), "replay_back_to_the_finish",
+		and texts.has("Saved") and texts.has("Replay") and not TestHooks.has_arg("finish_result"), "replay_back_to_the_finish",
 		"%s, %d ms, %s" % [again.race.state, again.race.finish_ms, str(texts)])
 	again.queue_free()
 	await get_tree().physics_frame
