@@ -915,3 +915,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct)
 
 > For the next release
+
+### User (verbatim, session 13, 19 Oct)
+
+> But dont just fix A01 but all maps which have that problem
