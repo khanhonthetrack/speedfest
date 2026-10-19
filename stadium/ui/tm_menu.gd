@@ -527,8 +527,9 @@ func _page_solo() -> void:
 		focus.grab_focus.call_deferred()
 
 
-## A track's card as TMNF's: its picture above (our map's outline on dark grass), its name on a
-## light strip below; green with a play mark when focused; your medal in the corner.
+## A track's card as TMNF's: its picture above (assets/ui/thumbs, rendered by tools/icons/thumbs.sh;
+## the map's outline on dark grass without one), its name on a light strip below; all green with a
+## play mark when focused; your medal in the corner.
 func _card(t: String) -> Button:
 	var ch := header(t)
 	var ms := int(TmRecords.best(ch).get("time_ms", -1))
@@ -552,10 +553,19 @@ func _card(t: String) -> Button:
 	pic.size = Vector2(180, 114)
 	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(pic)
-	var map := TmTrackMap.new(ch)
-	map.line_width = 2.5
-	map.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pic.add_child(map)
+	var shot := "res://assets/ui/thumbs/%s.jpg" % t
+	if ResourceLoader.exists(shot):      # a picture of the track, as TMNF's cards
+		var tr := TextureRect.new()
+		tr.texture = load(shot)
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pic.add_child(tr)
+	else:
+		var map := TmTrackMap.new(ch)
+		map.line_width = 2.5
+		map.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pic.add_child(map)
 	var play := _icon("play", 64)
 	play.position = Vector2(63, 30)
 	play.size = Vector2(64, 64)

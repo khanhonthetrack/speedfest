@@ -782,3 +782,10 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim)
 
 > I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+- M10-5 under way (look, UI, menus, sound side by side with TMNF running locally): HUD and
+  countdown, the race menu and finish card, the menus, the loading screen and camera views, the
+  cues, Select Opponent done and pushed; the campaign cards' track pictures rendering.
+
+### User (verbatim, session 13, 19 Oct, again after a usage limit)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.

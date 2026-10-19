@@ -221,7 +221,7 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
   - [x] loading screen (keyboard with the race keys) and the three camera views
   - [x] cues (beeps, crowd at Go and at a medal, swoosh, crash, landing, menu blip/tock, wind)
   - [x] Select Opponent with medal ghosts (the bot's run slowed to each medal's time)
-  - [ ] pictures of our tracks on the campaign cards (renders in progress)
+  - [x] pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh`)
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

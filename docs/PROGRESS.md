@@ -2176,3 +2176,11 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   screenshots, `--opponent=<kind>` picks one. `tests/test_opponent` (in the gate): the bot's run
   finishes near gold, a medal ghost arrives on its time along the same line, the dialog lists the
   medals and None and a pick sets the race's ghost.
+- **Track pictures on the campaign cards**, as TMNF's (`tools/icons/thumbs.sh`): every campaign
+  track built by `race/map_view.tscn` and shot from above and behind its start, cropped to the
+  card's shape, 316 x 200 JPEG in `assets/ui/thumbs/<ID>.jpg` (1.2 MB for 65; imported lossy for a
+  small web build, as is the loading screen's picture); a card without one keeps the map's outline.
+  About 70 s a track under the software renderer: run the generator alone (two renderers at once
+  ran this container out of memory). The race also waits for the loading screen's fade before its
+  countdown (`TmLoading.covering()`). Not copied: TMNF's padlocks (its later tracks open as you
+  finish earlier ones), which would change play; the owner's call.
