@@ -12,9 +12,10 @@
 // The game's Community page (lib/community.js): /api/community/... passes TrackMania Exchange and
 // ManiaPark searches, previews and files to browsers (the web build; those sites send no CORS headers).
 // Run: node server.js [--config=config.json] [--port=8090] [--host=127.0.0.1] [--data=./data]
-//      [--name= --mode=TimeAttack|Rounds|Team|Laps --round-ms= --results-ms= --max-players= --tracks=]
+//      [--name= --mode=TimeAttack|Rounds|Team|Laps --round-ms= --results-ms= --start-ms= --max-players= --tracks=]
+//      (--start-ms: Rounds / Team / Laps, the lead from a round's announcement to its start; default 3000)
 // config.json: {"port", "host", "data", "admins": [logins], "admin_password", "servers": [{"id", "name",
-//   "mode", "max_players", "tracks", "round_ms", "results_ms", "ranked"}]}. Env: CONFIG, PORT, HOST,
+//   "mode", "max_players", "tracks", "round_ms", "results_ms", "start_ms", "ranked"}]}. Env: CONFIG, PORT, HOST,
 //   DATA_DIR, NAME, ROUND_MS, ..., ADMINS (logins, comma-separated), ADMIN_PASSWORD.
 
 const http = require('http');
@@ -35,7 +36,7 @@ function trackList(v) {
 
 /** The app: {master, games, content, admin, httpServer, listen, close}. config: {data (dir; '' in
  *  memory), master (default true), admins (logins), adminPassword, fetch (tests), servers: [{id,
- *  name, mode, maxPlayers, tracks, roundMs, resultsMs, ranked}]}. */
+ *  name, mode, maxPlayers, tracks, roundMs, resultsMs, startMs, ranked}]}. */
 function createApp(config = {}) {
   const store = new Store(config.data ? path.join(config.data, 'master.json') : '');
   const master = config.master === false ? null : new Master(store);
@@ -45,7 +46,8 @@ function createApp(config = {}) {
     const id = String(s.id || 'main');
     const game = new Game({ id, name: s.name || 'SpeedFest Stadium', mode: s.mode || 'TimeAttack', tracks: trackList(s.tracks),
       maxPlayers: Number(s.maxPlayers || s.max_players || 32), master, ranked: s.ranked !== false, path: `/ws/${id}`, content,
-      modeOpts: { roundMs: Number(s.roundMs || s.round_ms || 5 * 60 * 1000), resultsMs: Number(s.resultsMs || s.results_ms || 15000) } });
+      modeOpts: { roundMs: Number(s.roundMs || s.round_ms || 5 * 60 * 1000), resultsMs: Number(s.resultsMs || s.results_ms || 15000),
+        ...(s.startMs || s.start_ms ? { startDelay: Number(s.startMs || s.start_ms) } : {}) } });
     games.set(id, game.start());
     if (master) master.addOfficial(id, game);
   }
@@ -96,7 +98,8 @@ function createApp(config = {}) {
 function createServer(opts = {}) {
   return createApp({ data: opts.data || '', master: opts.master, admins: opts.admins, adminPassword: opts.adminPassword, fetch: opts.fetch,
     servers: [{ id: 'main', name: opts.name || process.env.NAME, mode: opts.mode || process.env.MODE, maxPlayers: opts.maxPlayers || process.env.MAX_PLAYERS,
-      tracks: opts.tracks || process.env.TRACKS, roundMs: opts.roundMs || process.env.ROUND_MS, resultsMs: opts.resultsMs || process.env.RESULTS_MS }] });
+      tracks: opts.tracks || process.env.TRACKS, roundMs: opts.roundMs || process.env.ROUND_MS, resultsMs: opts.resultsMs || process.env.RESULTS_MS,
+      startMs: opts.startMs || process.env.START_MS }] });
 }
 
 if (require.main === module) {
@@ -109,7 +112,8 @@ if (require.main === module) {
   const data = args.data || process.env.DATA_DIR || cfg.data || path.join(__dirname, 'data');
   const servers = cfg.servers || [{ id: 'main', name: args.name || process.env.NAME, mode: args.mode || process.env.MODE,
     maxPlayers: args['max-players'] || process.env.MAX_PLAYERS, tracks: args.tracks || process.env.TRACKS,
-    roundMs: args['round-ms'] || process.env.ROUND_MS, resultsMs: args['results-ms'] || process.env.RESULTS_MS }];
+    roundMs: args['round-ms'] || process.env.ROUND_MS, resultsMs: args['results-ms'] || process.env.RESULTS_MS,
+    startMs: args['start-ms'] || process.env.START_MS }];
   const admins = String(args.admins || process.env.ADMINS || '').split(',').map((a) => a.trim()).filter(Boolean)
     .concat(Array.isArray(cfg.admins) ? cfg.admins : []);
   const adminPassword = args['admin-password'] || process.env.ADMIN_PASSWORD || cfg.admin_password || '';

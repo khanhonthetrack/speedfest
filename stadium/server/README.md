@@ -21,10 +21,11 @@ One Node.js process (Node 20+) that is both TMNF's master server and its officia
     npm test
 
 `config.json` (see `config.example.json`): `{"port", "host", "data", "servers": [{"id", "name",
-"mode", "max_players", "tracks", "round_ms", "results_ms", "ranked"}]}`. Without one:
+"mode", "max_players", "tracks", "round_ms", "results_ms", "start_ms", "ranked"}]}`. Without one:
 `--port=8090 --host=127.0.0.1 --data=./data --name= --mode=TimeAttack|Rounds|Team|Laps
---round-ms= --results-ms= --max-players= --tracks=SF01,SF02` (or env `PORT`, `HOST`, `DATA_DIR`,
-`NAME`, `MODE`, ...). `GET /` gives the first server's status and the server list; `GET
+--round-ms= --results-ms= --start-ms= --max-players= --tracks=SF01,SF02` (or env `PORT`, `HOST`,
+`DATA_DIR`, `NAME`, `MODE`, ...). `start_ms` / `--start-ms`: in Rounds, Team and Laps, the lead
+from a round's announcement to its start (default 3000). `GET /` gives the first server's status and the server list; `GET
 /ws/<id>/status` a server's status.
 
 ## Admins: community tracks and cars

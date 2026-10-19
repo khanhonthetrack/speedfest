@@ -7,6 +7,12 @@ extends Node
 ## finish is ranked.
 
 const PORT := 18091
+## The Time Attack server's round (its --round-ms) and the Rounds server's lead before a round starts
+## (its --start-ms): both longer than a track takes to build, so the client is in the round it joined
+## on any PC (with 6 s rounds and a 3 s lead the checks depended on how long the round's track, picked
+## at random, took to build against the server's clock).
+const TA_ROUND_MS := 30000
+const ROUNDS_LEAD_MS := 30000
 
 
 ## Addresses: a bare host is its first server (/ws), the server list's /ws/<id> stays.
@@ -40,7 +46,7 @@ func _ready() -> void:
 	if DirAccess.dir_exists_absolute(data):
 		for f in DirAccess.get_files_at(data):
 			DirAccess.remove_absolute(data.path_join(f))
-	_pid = OS.create_process(node, [script, "--port=%d" % PORT, "--round-ms=6000", "--results-ms=1500", "--name=Test", "--data=" + data])
+	_pid = OS.create_process(node, [script, "--port=%d" % PORT, "--round-ms=%d" % TA_ROUND_MS, "--results-ms=1500", "--name=Test", "--data=" + data])
 	await _wait(func() -> bool: return _up(), 8000)
 	await _account()
 	Online.join("127.0.0.1:%d" % PORT, "Tester", Color(0.1, 0.35, 0.9), Master.token())
@@ -52,7 +58,7 @@ func _ready() -> void:
 			"online_round_and_players", "%s %s" % [trk, Online.players])
 		TestHooks.check(String(Online.players[0]["name"]) == "$f00Tes$ffter" and String(Online.players[0]["login"]) == "tester",
 			"online_joins_as_the_account", str(Online.players[0]))
-		TestHooks.check(absf(Online.time_left_ms() - 6000) < 1500, "online_clock", "%d" % Online.time_left_ms())
+		TestHooks.check(absf(Online.time_left_ms() - TA_ROUND_MS) < 1500, "online_clock", "%d" % Online.time_left_ms())
 		await _race(trk)
 	Online.leave()
 	await Master.log_out()
@@ -181,7 +187,7 @@ func _http(url: String, method: int, body: PackedByteArray, type: String, auth :
 func _rounds(node: String, script: String) -> void:
 	var port := PORT + 1
 	var pid := OS.create_process(node, [script, "--port=%d" % port, "--mode=Rounds", "--name=Rounds Test", "--tracks=SF01,SF02",
-		"--data=" + _fresh_dir("user://test_master_rounds")])
+		"--start-ms=%d" % ROUNDS_LEAD_MS, "--data=" + _fresh_dir("user://test_master_rounds")])
 	await _wait(func() -> bool: return _up_at(port), 8000)
 	Online.join("127.0.0.1:%d" % port, "Racer", Color(0.9, 0.1, 0.1))
 	var ok := await _wait(func() -> bool: return Online.is_online(), 8000)
@@ -198,7 +204,7 @@ func _rounds(node: String, script: String) -> void:
 	if Online.now_ms() < start - TmRace.COUNTDOWN_MS - 300.0:
 		held = held and scene.race.state == TmRace.State.COUNTDOWN and scene.race.countdown_ms == TmRace.COUNTDOWN_MS
 	TestHooks.check(held, "rounds_start_held", "sync %s start %s now %s countdown %d" % [scene.sync_start, start, Online.now_ms(), scene.race.countdown_ms])
-	await _wait(func() -> bool: return scene.race.racing(), 8000)
+	await _wait(func() -> bool: return scene.race.racing(), maxi(0, int(start - Online.now_ms())) + 8000)
 	var at_start := Online.now_ms() - start
 	TestHooks.check(scene.race.racing() and absf(at_start) < 400.0, "rounds_start_together", "%.0f ms off the server's start" % at_start)
 	await get_tree().physics_frame
@@ -321,7 +327,7 @@ func _race(trk: String) -> void:
 		"online_server_finish_is_a_record", str(recs))
 	# the round ends: results, then the next round's track is loaded
 	var first := int(Online.round.get("id", -1))
-	var next := await _wait(func() -> bool: return int(Online.round.get("id", -1)) > first and String(Online.round.get("state", "")) == "race", 12000)
+	var next := await _wait(func() -> bool: return int(Online.round.get("id", -1)) > first and String(Online.round.get("state", "")) == "race", TA_ROUND_MS + 6000)
 	TestHooks.check(next and Online.ranking.size() >= 1 and int(Online.ranking[0]["time"]) == 42000, "online_results", str(Online.ranking))
 	TestHooks.check(next and scene.pending_track == String(Online.round["track"]), "online_next_track", "%s / %s" % [scene.pending_track, Online.round.get("track")])
 	other.close()
