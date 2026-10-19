@@ -508,3 +508,55 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   game exported with 4.7.2, smoke-tested on Windows. Download: artifact SpeedFest-windows-rtx of run
   38965547516. The NVIDIA DLLs aren't in it (licence; a public download was blocked):
   `add_nvidia_dlss.bat` in the folder adds them.
+
+### User (verbatim, 19 Oct, session 11, cloud)
+
+> 1. Remove the browser version of speedfest.
+> 2. Put all the files for the "main" to some "old" folder.
+> 3. Put the stadium part as the "main".
+> 4. The stadium branch is the foundation of the game.
+> 5. Introduce a garage, with 5 cars. There will be a formula car, but now modify it to look like
+> FIA F4 car. Then, one sportscar, one polonez type, one more offroad, and another sportcars. Add
+> tuning options, with around 10 options of modificiations for each cars, remmeber about lights and
+> other fancy stuff. It should feel like need for speed underground 2. Cars should have different
+> specs each, such as top speed, boost gain etc. You have maniapark for inspiration.
+> 3. Now, instead of stadium as the background, it should be a city, so a lot of buildings, tall
+> buildings.
+> 4. It shiuld be neon lights, lots of them. So, the tracks should have some neon lights (also make
+> use of rtx).
+> 5. Dont use cheap assets, it is high budget. Dont be scared of space or anything. You have all the
+> tm exchange etc for inspiration.
+> 6. Set the environement to be at night.
+
+### Claude
+
+Read as one brief, and done in this order:
+
+- **Browser version deleted**, not archived: the committed 47 MB web export (`server/public`), the
+  web shell, the Web export preset, `tools/export_web.sh`, `tools/publish_web_build.sh`, the three
+  browser test harnesses and `render.yaml`. SpeedFest is a PC (Forward+) title now.
+- **The old game is in `old/`** (`old/game`, `old/server`, `old/tools`, `old/docs`), reference only.
+  **`stadium/` is now `game/`**: TMNF's force model 6 with the `20juin2006` tuning is the
+  foundation everything else is built on.
+- **Five cars**, each with its own dimensions, specs and procedural model: Vireo F4 (an FIA F4
+  single-seater with wings, sidepods, airbox, halo and a driver), Kaze RS (JDM coupe), Vector GT8
+  (grand tourer), Lodowiec 1600 (the Polonez-type classic) and Ridge RX (offroad pre-runner).
+  They differ in top speed (236–334 km/h), acceleration, grip, braking, mass and the nitrous
+  numbers the owner asked for (power, tank, **gain**, and how much it lifts the speed cap).
+- **Sixteen tuning slots per car**, Underground style: engine, turbo, nitrous, tyres, brakes,
+  suspension, gearbox and weight change how it drives; body kit, spoiler, rims, paint + finish,
+  vinyl (16 designs), neon underglow, headlights and window tint change how it looks — and the kit,
+  the wing and the forged wheels change both. Parts are bought once with credits and then free to
+  swap.
+- **The stadium is gone as a backdrop**: a procedural night city takes its place — ~1500 towers with
+  lit windows, 130 neon signs, animated billboards, street lamps, gantries, a tunnel, a flyover and
+  a distant skyline, all generated around whichever circuit is loaded.
+- **Neon everywhere and RTX**: LED rails along both barriers, lit gantries over the road, tunnel
+  strips, boost pads, facade signs, underglow. Quality Ultra turns on SDFGI and SSIL; on a build of
+  NVIDIA's Godot fork `Settings` switches the whole scene to the path tracer instead.
+- **Night, always.** The only directional light is a cold moon; everything else in the frame is an
+  emitter that exists in the world.
+
+Open questions for the owner: whether the economy should stay (credits are earned by racing later)
+or every part should simply be free, and whether to port the TMNF `.Challenge.Gbx` reader's maps
+into the city theme now that the stadium blocks are gone.

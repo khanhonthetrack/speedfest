@@ -877,3 +877,56 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   cycles all 34 tracks.
 - Note for session 9: `tmnf-physics` still lacks bd65cbc (puddles; its defs have 0 puddle markers vs
   3 on `m7-maps`). Merging `main` into `tmnf-physics` now brings it in.
+
+## 2026-10-19 — Session 11 (cloud): the stadium branch becomes the game
+
+Owner brief (verbatim in `docs/TRANSCRIPT.md`): drop the browser version, archive the old game,
+build on the stadium branch, add a garage of five tunable cars, replace the stadium with a neon
+city at night, and spend the budget.
+
+**S1 — restructure** (`35b7753`)
+- Deleted the browser build: `server/public` (47 MB), `game/web/shell.html`, the Web export preset,
+  `tools/export_web.sh`, `tools/publish_web_build.sh`, `tools/live_smoke_test.sh`, the three
+  browser test harnesses and `render.yaml`.
+- `game/`, `server/`, `tools/` and most of `docs/` moved to `old/`; `stadium/` became `game/`.
+- New root `tools/`: `run_scene.sh` (100 Hz fixed), `godot_import.sh`, `check_scripts.sh`,
+  `test_all.sh` (auto-discovers `game/tests/test_*.tscn`).
+- Ported tests still pass: model lab 44, car body 22, car shapes 11, gbx 3.
+
+**S2–S4 — cars, tuning, the look foundation** (`7148a98`)
+- `autoload/settings.gd`: Forward+ only, quality 0–3, the house night Environment (AgX, neon-tuned
+  glow, SSR/SSAO/SSIL, SDFGI, volumetric fog), light budget, and the RTX path-tracing hook kept
+  from the old game (`is_rtx_fork` / `can_path_trace` / `path_tracing_active`).
+- `autoload/garage.gd` + `autoload/game_state.gd`: owned parts, credits, selection, lap records.
+  Neither writes to `user://` while `TestHooks.is_testing()`.
+- `cars/car_defs.gd`: f4, kaze, vector, polonez, ridge — real dimensions, per-car specs on the
+  force model, nitrous numbers, collision ellipsoids, and the bridge to the model builder.
+- `cars/tuning.gd`: 8 performance + 8 look slots with levels, prices and effects; `resolve()` turns
+  a setup into the numbers the physics runs on, `ratings()` into the garage's bars.
+- `cars/tm_car.gd`: `configure(car_id, setup)` + the nitrous meter (drains while held, refills as
+  you drive, lifts the speed cap) through `TmBody.extra_accel`.
+- `cars/visual/`: the procedural pipeline ported from the old game (MeshKit into `core/`), with new
+  profiles for the Polonez-type classic, the GT and the truck, and `formula_body.gd` for the F4
+  (airfoil wings, sidepods, airbox, halo, pushrods, driver). `tests/showroom.tscn` renders them.
+
+**S5–S8 — city, track, race, UI** (`4ecee52`)
+- `city/`: the night-city generator rebuilt around the new track — ~1500 towers with lit windows,
+  133 signs, 86 lamps in ~0.7 s for Neon Downtown, plus billboards, gantries, puddles and skyline.
+  `city/city_env.gd` owns the sky, the moon and the fog.
+- `track/`: `TrackPath` (ported) + `TrackDefs` (Neon Downtown 1912 m with a flyover, a tunnel and a
+  hairpin; Harbour Lights) + `TrackBuilder` (road + collision, curvature-driven curbs, LED barrier
+  rails, tunnels with sodium strips, light gantries with screens, turbo pads on TMNF's pad surface,
+  the start gantry and the chequered line).
+- `race/race.gd`: progress is geometric (the car is projected onto the path), so checkpoints, laps,
+  bests and respawns need no physics bodies. `race/main.gd`: menu → garage → race.
+- `ui/`: theme, HUD (speed, nitrous, splits, lap map), garage screen (five cars on a lit turntable,
+  spec bars, 16 slots with prices, live rebuild), main menu, pause overlay with a quality switch.
+- Tests: `test_tuning` (361 checks) and `test_race` (40 checks, including a real 4 s full-throttle
+  drive down the main straight). Whole suite: **481 checks, 0 failures**.
+
+**Verified by eye** (screenshots through `tools/run_scene.sh`): the lineup and each car in the
+showroom, four points of the Neon Downtown lap, the garage, the main menu, and the race with the
+HUD. The city reads as Underground 2: wet asphalt, vertical neon, lit windows, underglow.
+
+**Next:** sound (there is none yet in the new project), a drive-through AutoDriver for lap-time
+regression, more circuits, and the owner's call on the credit economy.

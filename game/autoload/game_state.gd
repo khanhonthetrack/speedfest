@@ -74,6 +74,8 @@ static func format_delta(ms: int) -> String:
 
 
 func load_records() -> void:
+	if TestHooks.is_testing():
+		return                      # tests keep their lap times to themselves
 	if not FileAccess.file_exists(SAVE_PATH):
 		return
 	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
@@ -86,6 +88,8 @@ func load_records() -> void:
 
 
 func save_records() -> void:
+	if TestHooks.is_testing():
+		return
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f == null:
 		return

@@ -23,14 +23,14 @@ Set by the owner on 2026-10-19 (verbatim in `docs/TRANSCRIPT.md`):
       test_all); `README.md`, `CLAUDE.md` and the docs rewritten for the new layout.
 - [x] The ported tests still pass (model lab 44, car body 22, car shapes 11, gbx 3).
 
-## S2 — Foundation
-- [ ] `Settings` autoload: quality 0–3, RTX-fork detection, one `tune_environment()` that owns the
+## S2 — Foundation (done)
+- [x] `Settings` autoload: quality 0–3, RTX-fork detection, one `tune_environment()` that owns the
       night look (sky, fog, glow, SDFGI, SSR, SSIL, volumetric fog, TAA).
-- [ ] `Garage` autoload: owned cars, per-car tuning, paint and lights; saved to `user://garage.json`.
-- [ ] `Game` autoload: the selected car and track, race results.
-- [ ] `MeshKit` ported into `game/core/` (procedural geometry accumulator, one surface per material).
+- [x] `Garage` autoload: owned cars, per-car tuning, paint and lights; saved to `user://garage.json`.
+- [x] `Game` autoload: the selected car and track, race results.
+- [x] `MeshKit` ported into `game/core/` (procedural geometry accumulator, one surface per material).
 
-## S3 — The five cars
+## S3 — The five cars (done)
 | id | name | type | character |
 |---|---|---|---|
 | `f4` | Vireo F4 | FIA F4 single-seater | highest grip and corner speed, low mass, small boost tank |
@@ -38,34 +38,42 @@ Set by the owner on 2026-10-19 (verbatim in `docs/TRANSCRIPT.md`):
 | `vector` | Vector GT8 | euro/US sportscar | highest top speed, heavy, slower turn-in |
 | `polonez` | Lodowiec 1600 | Polonez-type classic | boxy, soft, loose tail, big boost gain, modest top speed |
 | `ridge` | Ridge RX | offroad truck | dirt/kerb grip, long travel, torque off the line, low top speed |
-- [ ] Specs per car on the TMNF model (`accel_mul`, `grip_mul`, `brake_mul`, `steer_mul`,
+- [x] Specs per car on the TMNF model (`accel_mul`, `grip_mul`, `brake_mul`, `steer_mul`,
       `slide_grip`, `max_speed`) plus mass, boost capacity and boost gain.
-- [ ] Procedural models (no binary art): body, glass, lights, wheels, interior, wings.
+- [x] Procedural models (no binary art): body, glass, lights, wheels, interior, wings.
 
-## S4 — Tuning (NFSU2 style, 16 slots)
+## S4 — Tuning (NFSU2 style, 16 slots) (done)
 Performance: engine, turbo, nitrous, tyres, brakes, suspension, gearbox, weight.
 Visual: body kit, spoiler, rims, paint + finish, vinyl, neon underglow, headlights, window tint.
-- [ ] Catalogue with levels, labels, price and effect per slot.
-- [ ] Effects applied to the car model multipliers and to the procedural model.
+- [x] Catalogue with levels, labels, price and effect per slot.
+- [x] Effects applied to the car model multipliers and to the procedural model.
 
-## S5 — Garage screen
-- [ ] Carousel of the five cars on a lit turntable, spec bars, category/part menus, live preview.
+## S5 — Garage screen (done)
+- [x] Carousel of the five cars on a lit turntable, spec bars, category/part menus, live preview.
 
-## S6 — Night city
-- [ ] Tower generator (emissive window grids, setbacks, rooftop masts and aircraft lights).
-- [ ] Neon: facade tubes, kanji/word signs, animated billboards, street-level glow, light poles.
-- [ ] District layout around the track, distant skyline, night sky, volumetric fog.
+## S6 — Night city (done)
+- [x] Tower generator (emissive window grids, setbacks, rooftop masts and aircraft lights).
+- [x] Neon: facade tubes, kanji/word signs, animated billboards, street-level glow, light poles.
+- [x] District layout around the track, distant skyline, night sky, volumetric fog.
 
-## S7 — Track
-- [ ] Track definition + builder: road ribbon, neon edge strips, tube barriers, light arches,
+## S7 — Track (done)
+- [x] Track definition + builder: road ribbon, neon edge strips, tube barriers, light arches,
       boost pads, checkpoints, start/finish, respawn.
-- [ ] Circuit 1: Neon Downtown. Plus the arena kept as a physics lab.
+- [x] Circuit 1: Neon Downtown. Plus the arena kept as a physics lab.
 
-## S8 — Race and HUD
-- [ ] Countdown, lap and checkpoint timing, best time, respawn, results.
-- [ ] HUD: speed, time, splits, boost meter, lap counter.
-- [ ] Main menu -> garage -> race flow.
+## S8 — Race and HUD (done)
+- [x] Countdown, lap and checkpoint timing, best time, respawn, results.
+- [x] HUD: speed, time, splits, boost meter, lap counter.
+- [x] Main menu -> garage -> race flow.
 
 ## Ownership
 One agent at a time (owner rule). Module boundaries: `core/` (physics, never edited for looks),
 `cars/`, `city/`, `track/`, `ui/`, `race/`.
+
+
+## S9 — next
+- [ ] Sound: engine, tyres, wind, nitrous, the city's hum (the new project has no audio yet).
+- [ ] An AutoDriver that laps every circuit headless, so lap times guard against regressions.
+- [ ] More circuits (the city generator takes any closed loop) and a time-of-night variant.
+- [ ] Owner's call: keep the credit economy (earn by racing) or make every part free.
+- [ ] Owner's call: bring the `.Challenge.Gbx` reader's maps into the city theme.

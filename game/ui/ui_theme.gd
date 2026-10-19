@@ -111,10 +111,19 @@ static func set_bar_color(pb: ProgressBar, accent: Color) -> void:
 	pb.add_theme_stylebox_override("fill", fg)
 
 
-## Full-screen dark gradient backdrop for the menus.
+## Full-screen backdrop for the menus: a dark graphite gradient with an overhead light pool,
+## film grain and a vignette (shaders/menu_backdrop.gdshader).
 static func backdrop() -> ColorRect:
 	var cr := ColorRect.new()
-	cr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	cr.color = Color(0.018, 0.020, 0.030, 1.0)
 	cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sh: Variant = load("res://shaders/menu_backdrop.gdshader")
+	if sh is Shader:
+		var m := ShaderMaterial.new()
+		m.shader = sh
+		m.set_shader_parameter("tint", MAGENTA)
+		m.set_shader_parameter("tint2", CYAN)
+		m.set_shader_parameter("tint_amount", 0.09)
+		cr.material = m
 	return cr

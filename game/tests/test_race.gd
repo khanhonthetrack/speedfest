@@ -57,6 +57,7 @@ func _build() -> void:
 	race.lap_done.connect(func(l: int, _t: int, _b: bool) -> void: laps_done.append(l))
 	_check_start()
 	await _drive_a_lap()
+	_check_drive()
 	_check_boost()
 	_check_respawn()
 	TestHooks.finish()
@@ -96,6 +97,39 @@ func _drive_a_lap() -> void:
 	TestHooks.check(laps_done.size() == 1 and laps_done[0] == 1, "one lap counted", str(laps_done))
 	TestHooks.check(race.lap == 2, "the lap counter moved on", str(race.lap))
 	TestHooks.check(Game.best_lap(race.track_id, race.car.car_id) > 0, "the lap time was recorded")
+
+
+## Actually drive: full throttle down the main straight for 4 s of simulation (stepped by hand at
+## 100 Hz). The car has to gain speed, stay on the road surface and keep its wheels on the ground.
+func _check_drive() -> void:
+	race.car.configure(race.car.car_id, _with_nitrous(race.car.car_id))
+	race._place_at(10.0)
+	race.car.controls_enabled = true
+	# the player's input node would zero the throttle every physics frame
+	for n in get_tree().get_nodes_in_group("car_input"):
+		n.queue_free()
+	var ticks := 400
+	var on_ground := 0
+	var asphalt := 0
+	for i in ticks:
+		race.car.gas = 1.0
+		race.car.brake = 0.0
+		race.car.steer = 0.0
+		race.car.step_tick()
+		if race.car.wheel_contact.has(true):
+			on_ground += 1
+		if race.car.body.wheel_surface[0] == TrackBuilder.SURFACE_ASPHALT \
+				or race.car.body.wheel_surface[0] == TrackBuilder.SURFACE_TURBO:
+			asphalt += 1
+	var kmh := race.car.speed_kmh()
+	TestHooks.check(kmh > 90.0, "full throttle gets the car moving", "%.0f km/h" % kmh)
+	TestHooks.check(on_ground > ticks * 0.9, "the wheels stay on the road",
+		"%d of %d ticks" % [on_ground, ticks])
+	TestHooks.check(asphalt > ticks * 0.8, "and on the track surface",
+		"%d of %d ticks" % [asphalt, ticks])
+	var clear := race.path.edge_clearance(race.car.global_transform.origin)
+	TestHooks.check(clear < 2.0, "it is still between the barriers", "%.1f m" % clear)
+	race.car.gas = 0.0
 
 
 func _check_boost() -> void:

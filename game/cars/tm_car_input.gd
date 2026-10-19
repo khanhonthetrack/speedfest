@@ -14,6 +14,7 @@ var _auto_boost := false
 
 
 func _ready() -> void:
+	add_to_group("car_input")
 	process_physics_priority = -10   # before the car's tick
 	if TestHooks.has_arg("auto_gas") or TestHooks.has_arg("auto_steer") or TestHooks.has_arg("auto_brake"):
 		_auto = true

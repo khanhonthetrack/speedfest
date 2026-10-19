@@ -37,7 +37,8 @@ var _spin := true
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_fill_viewport()
 	car_id = Garage.selected if CarDefs.has(Garage.selected) else CarDefs.IDS[0]
 	add_child(UiTheme.backdrop())
 	_build_stage()
@@ -51,12 +52,18 @@ func _ready() -> void:
 # --- the car on its turntable --------------------------------------------------------------
 
 func _build_stage() -> void:
+	var holder := SubViewportContainer.new()
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.stretch = true
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(holder)
 	_viewport = SubViewport.new()
-	_viewport.size = Vector2i(1280, 720)
+	_viewport.size = Vector2i(1600, 900)
 	_viewport.transparent_bg = false
 	_viewport.msaa_3d = Viewport.MSAA_4X if Settings.quality >= 2 else Viewport.MSAA_2X
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	add_child(_viewport)
+	_viewport.handle_input_locally = false
+	holder.add_child(_viewport)
 	_stage = Node3D.new()
 	_viewport.add_child(_stage)
 
@@ -65,10 +72,14 @@ func _build_stage() -> void:
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.016, 0.018, 0.026)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.22, 0.28, 0.42)
-	env.ambient_light_energy = 0.45
+	env.ambient_light_color = Color(0.20, 0.26, 0.40)
+	env.ambient_light_energy = 0.10
 	env.sdfgi_enabled = false
-	env.volumetric_fog_density = 0.012
+	env.volumetric_fog_density = 0.006
+	env.volumetric_fog_length = 40.0
+	env.tonemap_exposure = 0.78
+	env.glow_intensity = 0.65
+	env.glow_bloom = 0.04
 	Settings.tune_environment(env)
 	we.environment = env
 	_stage.add_child(we)
@@ -84,35 +95,50 @@ func _build_stage() -> void:
 	floor_mi.material_override = fm
 	_stage.add_child(floor_mi)
 
-	# a ring of neon tubes around the platform, the garage's only light besides the key
-	for i in 8:
-		var a := TAU * float(i) / 8.0
+	# a ring of neon tubes behind the platform: the garage's rim light, kept out of the camera's
+	# way (the near half of the ring would otherwise sit across the car)
+	for i in 10:
+		var a := TAU * float(i) / 10.0
+		var p := Vector3(cos(a) * 9.0, 1.6, sin(a) * 9.0)
+		var col := UiTheme.CYAN if i % 2 == 0 else UiTheme.MAGENTA
 		var tube := MeshInstance3D.new()
 		var bm := BoxMesh.new()
-		bm.size = Vector3(0.12, 2.6, 0.12)
+		bm.size = Vector3(0.10, 3.2, 0.10)
 		tube.mesh = bm
-		var col := UiTheme.CYAN if i % 2 == 0 else UiTheme.MAGENTA
 		var m := StandardMaterial3D.new()
-		m.albedo_color = col
+		m.albedo_color = col * 0.3
 		m.emission_enabled = true
 		m.emission = col
-		m.emission_energy_multiplier = 6.0
+		m.emission_energy_multiplier = 2.2
 		tube.material_override = m
-		tube.position = Vector3(cos(a) * 6.5, 1.4, sin(a) * 6.5)
+		tube.position = p
 		_stage.add_child(tube)
 		var ol := OmniLight3D.new()
-		ol.position = tube.position + Vector3(0, 0.4, 0)
+		ol.position = p + Vector3(0, 0.2, 0)
 		ol.light_color = col
-		ol.light_energy = 5.0
-		ol.omni_range = 14.0
-		ol.light_volumetric_fog_energy = 2.0
+		ol.light_energy = 1.6
+		ol.omni_range = 11.0
+		ol.light_specular = 1.0
 		ol.shadow_enabled = false
 		_stage.add_child(ol)
 
+	# two soft practicals over the car, the way a workshop is lit
+	for xz: Vector3 in [Vector3(2.6, 4.2, -1.4), Vector3(-2.2, 4.0, 2.0)]:
+		var sp := SpotLight3D.new()
+		sp.position = xz
+		sp.look_at_from_position(xz, Vector3(0, 0.5, 0), Vector3.UP)
+		sp.light_energy = 6.0
+		sp.light_color = Color(0.92, 0.95, 1.0)
+		sp.spot_range = 12.0
+		sp.spot_angle = 38.0
+		sp.spot_attenuation = 1.4
+		sp.shadow_enabled = Settings.quality >= 2
+		_stage.add_child(sp)
+
 	var key := DirectionalLight3D.new()
 	key.rotation_degrees = Vector3(-42, 143, 0)
-	key.light_energy = 0.7
-	key.light_color = Color(0.78, 0.84, 1.0)
+	key.light_energy = 0.18
+	key.light_color = Color(0.70, 0.80, 1.0)
 	key.shadow_enabled = Settings.quality >= 1
 	_stage.add_child(key)
 
@@ -121,19 +147,10 @@ func _build_stage() -> void:
 
 	var cam := Camera3D.new()
 	cam.fov = 34.0
-	cam.position = Vector3(5.6, 1.75, -6.6)
-	cam.look_at(Vector3(0, 0.62, 0), Vector3.UP)
 	_stage.add_child(cam)
+	cam.look_at_from_position(Vector3(5.6, 1.75, -6.6), Vector3(0, 0.62, 0), Vector3.UP)
 	cam.current = true
 
-	var tex := TextureRect.new()
-	tex.texture = _viewport.get_texture()
-	tex.set_anchors_preset(Control.PRESET_FULL_RECT)
-	tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(tex)
-	move_child(tex, 1)
 
 
 func _rebuild_car() -> void:
@@ -149,10 +166,37 @@ func _rebuild_car() -> void:
 
 # --- panels --------------------------------------------------------------------------------
 
+## A dark vertical scrim so the panels stay readable over the lit car.
+func _scrim(right_side: bool) -> void:
+	var g := Gradient.new()
+	g.set_color(0, Color(0.015, 0.017, 0.026, 0.92))
+	g.set_color(1, Color(0.015, 0.017, 0.026, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.width = 256
+	tex.height = 8
+	tex.fill_from = Vector2(1, 0) if right_side else Vector2(0, 0)
+	tex.fill_to = Vector2(0, 0) if right_side else Vector2(1, 0)
+	var tr := TextureRect.new()
+	tr.texture = tex
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE if right_side else Control.PRESET_LEFT_WIDE)
+	if right_side:
+		tr.offset_left = -640
+	else:
+		tr.offset_right = 640
+	add_child(tr)
+
+
 func _build_left() -> void:
+	_scrim(false)
 	var box := VBoxContainer.new()
-	box.position = Vector2(56, 48)
-	box.custom_minimum_size = Vector2(430, 0)
+	box.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	box.offset_left = 56
+	box.offset_top = 44
+	box.offset_right = 516
+	box.offset_bottom = 760
 	box.add_theme_constant_override("separation", 6)
 	add_child(box)
 
@@ -201,10 +245,13 @@ func _build_left() -> void:
 
 
 func _build_right() -> void:
+	_scrim(true)
 	var box := VBoxContainer.new()
-	box.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	box.position = Vector2(-530, 48)
-	box.custom_minimum_size = Vector2(470, 0)
+	box.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	box.offset_left = -548
+	box.offset_right = -48
+	box.offset_top = 44
+	box.offset_bottom = 820
 	box.add_theme_constant_override("separation", 4)
 	add_child(box)
 
@@ -244,8 +291,11 @@ func _build_right() -> void:
 func _build_footer() -> void:
 	_hint = UiTheme.label("[←→] car    [↑↓] part    [ENTER] fit    [TAB] performance / look    [R] drive    [ESC] back",
 		17, UiTheme.DIM)
-	_hint.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	_hint.position = Vector2(56, -46)
+	_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	_hint.offset_left = 56
+	_hint.offset_top = -52
+	_hint.offset_right = 1200
+	_hint.offset_bottom = -20
 	add_child(_hint)
 
 
@@ -436,3 +486,14 @@ static func _money(v: int) -> String:
 		if c % 3 == 0 and i > 0:
 			out = " " + out
 	return ("-" if v < 0 else "") + out
+
+
+## Controls size themselves against their parent Control; when there is none (a test scene whose
+## root is a plain Node) fall back to the viewport, so the anchored panels land on screen.
+func _fill_viewport() -> void:
+	if get_parent() is Control:
+		return
+	size = get_viewport_rect().size
+	var vp := get_viewport()
+	if vp and not vp.size_changed.is_connected(_fill_viewport):
+		vp.size_changed.connect(_fill_viewport)

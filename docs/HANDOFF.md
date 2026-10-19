@@ -1,5 +1,50 @@
 # HANDOFF: start here
 
+## Latest (2026-10-19, session 11, cloud): the stadium branch IS the game now
+
+The owner's brief (verbatim in `docs/TRANSCRIPT.md`) was: drop the browser version, archive the old
+game, build on the stadium branch, add a garage of five tunable cars, replace the stadium with a
+neon city at night, and make it look expensive. All of it is on
+`claude/speedfest-stadium-overhaul-dvdcal`.
+
+**What the repo looks like now**
+- `game/` is the Godot project (the former `stadium/`): TMNF's force model 6 underneath, a
+  procedural night city on top. `old/` holds the previous browser-first game, reference only.
+- **There is no browser build any more.** `server/public`, the web shell, the Web export preset
+  and the browser tooling were deleted, not archived.
+- Root `tools/`: `godot_import.sh`, `check_scripts.sh`, `test_all.sh`, `run_scene.sh`.
+
+**What works** (all verified by screenshot or test this session)
+- Five cars with their own dimensions, specs and procedural models: Vireo F4 (FIA F4
+  single-seater), Kaze RS, Vector GT8, Lodowiec 1600 (Polonez type), Ridge RX (offroad).
+  Top speeds 236–334 km/h, different nitrous power/tank/gain.
+- Sixteen tuning slots per car (8 performance, 8 look) with prices, credits and a live rebuild.
+- Neon Downtown (1912 m: flyover, tunnel, hairpin, boost pads, light gantries) and Harbour Lights,
+  wrapped in ~1500 generated towers with lit windows, 133 neon signs and 86 street lamps.
+- menu → garage → race, countdown, checkpoints, laps, personal bests, respawn, pause, HUD with a
+  lap map and a nitrous meter.
+- `tools/check_scripts.sh` → SCRIPT_ERRORS=0 (58 scripts); `tools/test_all.sh` → TESTS PASS
+  (481 checks: model lab 44, car body 22, car shapes 11, gbx 3, tuning 361, race 40).
+
+**How to look at it**
+```bash
+tools/run_scene.sh res://race/main.tscn -- --screen=garage --frames=100 --shot=/tmp/g.png
+tools/run_scene.sh res://race/main.tscn -- --screen=race --track=downtown --car=vector --frames=150 --shot=/tmp/r.png
+tools/run_scene.sh res://tests/showroom.tscn -- --car=all --frames=60 --shot=/tmp/cars.png
+tools/run_scene.sh res://tests/track_tour.tscn -- --at=0.38 --frames=70 --shot=/tmp/t.png
+```
+A full-city frame takes minutes on the cloud container's software Vulkan; that is the renderer, not
+the game.
+
+**Next** (also in `docs/PLAN.md` S9)
+1. Sound — the new project has none yet; the old generators are in `old/tools/audio`.
+2. An AutoDriver that laps each circuit headless, so lap times guard against regressions.
+3. More circuits, and the owner's calls on the credit economy and on the `.Challenge.Gbx` maps.
+
+---
+
+# Older entries (the browser-first game, archived under `old/`)
+
 ## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`
 
 - Owner asked for the RTX exe for friends. **`rtx-build`** = `m7-rtx` + `main`, plus

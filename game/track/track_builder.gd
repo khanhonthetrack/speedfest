@@ -42,6 +42,7 @@ func build(id: String, rng_seed: int = 12345) -> Node3D:
 	_materials()
 	_road()
 	_barriers()
+	_tunnels()
 	_arches()
 	_pads()
 	_start_gantry()
@@ -319,6 +320,108 @@ func _barrier_collision(n: int, step: float) -> void:
 	body.add_child(cs)
 	body.set_meta("surface", SURFACE_ASPHALT)
 	root.add_child(body)
+
+
+## Where the path runs through a "tunnel" zone, build the thing it runs through: a concrete tube
+## over the road with a lit ceiling, sodium strips along the walls and a portal at each end.
+func _tunnels() -> void:
+	for z: Dictionary in path.zones:
+		if String(z.get("kind", "")) != "tunnel":
+			continue
+		var d0 := float(z["from"])
+		var d1 := float(z["to"])
+		if d1 <= d0:
+			continue
+		var kit := MeshKit.new()
+		var neon := MeshKit.new()
+		var h := 7.2
+		var n := maxi(4, int((d1 - d0) / 6.0))
+		var step := (d1 - d0) / float(n)
+		for i in range(n + 1):
+			var d := d0 + float(i) * step
+			var t := path.sample_transform(d)
+			var w := path.width_at(d) * 0.5 + 2.6
+			if i < n:
+				var t2 := path.sample_transform(d + step)
+				var w2 := path.width_at(d + step) * 0.5 + 2.6
+				# ceiling
+				kit.color = Color(0.105, 0.10, 0.105)
+				kit.flat_quad("t", t.origin + t.basis.x * w + Vector3(0, h, 0),
+					t.origin - t.basis.x * w + Vector3(0, h, 0),
+					t2.origin - t2.basis.x * w2 + Vector3(0, h, 0),
+					t2.origin + t2.basis.x * w2 + Vector3(0, h, 0), Vector3.DOWN)
+				# walls
+				kit.color = Color(0.135, 0.13, 0.125)
+				for side: float in [-1.0, 1.0]:
+					var a := t.origin + t.basis.x * w * side
+					var b := t2.origin + t2.basis.x * w2 * side
+					kit.flat_quad("t", a, b, b + Vector3(0, h, 0), a + Vector3(0, h, 0),
+						-t.basis.x * side)
+				# sodium strip along both walls and a run of ceiling lights
+				if i % 2 == 0:
+					neon.color = Color(1.0, 0.62, 0.22)
+					for side2: float in [-1.0, 1.0]:
+						var mid := (t.origin + t2.origin) * 0.5 + t.basis.x * ((w + w2) * 0.5 - 0.12) * side2
+						_neon_bar(neon, mid + Vector3(0, 3.4, 0), t2.origin - t.origin,
+							-t.basis.x * side2, 0.22, Vector2(0.0, 0.0))
+				if i % 3 == 0:
+					neon.color = Color(1.0, 0.75, 0.42)
+					_neon_bar(neon, t.origin + Vector3(0, h - 0.12, 0), t.basis.x * 3.2, Vector3.DOWN,
+						0.55, Vector2(0.0, 0.0))
+					if Settings.quality >= 1:
+						var ol := OmniLight3D.new()
+						ol.position = t.origin + Vector3(0, h - 0.6, 0)
+						ol.light_color = Color(1.0, 0.68, 0.30)
+						ol.light_energy = 4.0
+						ol.omni_range = 18.0
+						ol.light_volumetric_fog_energy = 2.5
+						Settings.tune_point_light(ol)
+						root.add_child(ol)
+		# portals
+		kit.color = Color(0.09, 0.09, 0.095)
+		for d: float in [d0, d1]:
+			var t3 := path.sample_transform(d)
+			var w3 := path.width_at(d) * 0.5 + 3.2
+			kit.box("t", t3.origin + Vector3(0, h * 0.5 + 0.6, 0),
+				Vector3(w3 * 2.0 + 1.6, h + 1.6, 1.2), Basis(t3.basis))
+		var mi := MeshInstance3D.new()
+		mi.name = "Tunnel"
+		mi.mesh = kit.commit({"t": SceneryMat.vcolor(0.85, 0.05)})
+		root.add_child(mi)
+		var nmi := MeshInstance3D.new()
+		nmi.name = "TunnelLights"
+		nmi.mesh = neon.commit({"n": _neon_mat})
+		nmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(nmi)
+		# the walls stop the car like the barriers do
+		var body := StaticBody3D.new()
+		body.name = "TunnelCollision"
+		var cs := CollisionShape3D.new()
+		var faces := PackedVector3Array()
+		for i2 in n:
+			var da := d0 + float(i2) * step
+			var db := da + step
+			var ta := path.sample_transform(da)
+			var tb := path.sample_transform(db)
+			var wa := path.width_at(da) * 0.5 + 2.6
+			var wb := path.width_at(db) * 0.5 + 2.6
+			for side3: float in [-1.0, 1.0]:
+				var p0 := ta.origin + ta.basis.x * wa * side3
+				var p1 := tb.origin + tb.basis.x * wb * side3
+				var u0 := p0 + Vector3(0, h, 0)
+				var u1 := p1 + Vector3(0, h, 0)
+				if side3 > 0.0:
+					faces.append(p0); faces.append(p1); faces.append(u1)
+					faces.append(p0); faces.append(u1); faces.append(u0)
+				else:
+					faces.append(p0); faces.append(u1); faces.append(p1)
+					faces.append(p0); faces.append(u0); faces.append(u1)
+		var shape := ConcavePolygonShape3D.new()
+		shape.set_faces(faces)
+		cs.shape = shape
+		body.add_child(cs)
+		body.set_meta("surface", SURFACE_ASPHALT)
+		root.add_child(body)
 
 
 # --- gantries, pads, start -------------------------------------------------------------------

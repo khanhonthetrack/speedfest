@@ -1,4 +1,4 @@
-extends Node
+extends Control
 ## The game's entry point: menu -> garage -> race, and back. Each screen is built in code and
 ## thrown away when it closes, so nothing from a finished race keeps running in the background.
 ##
@@ -8,6 +8,8 @@ var current: Node
 
 
 func _ready() -> void:
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	match String(TestHooks.arg("screen", "menu")):
 		"garage":
 			open_garage()

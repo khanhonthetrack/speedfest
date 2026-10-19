@@ -16,7 +16,8 @@ var _car_label: Label
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_fill_viewport()
 	add_child(UiTheme.backdrop())
 	track_index = maxi(0, TrackDefs.IDS.find(Game.track))
 
@@ -104,3 +105,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			drive_requested.emit(TrackDefs.IDS[track_index])
 		KEY_ESCAPE:
 			quit_requested.emit()
+
+
+## Controls size themselves against their parent Control; when there is none (a test scene whose
+## root is a plain Node) fall back to the viewport, so the anchored panels land on screen.
+func _fill_viewport() -> void:
+	if get_parent() is Control:
+		return
+	size = get_viewport_rect().size
+	var vp := get_viewport()
+	if vp and not vp.size_changed.is_connected(_fill_viewport):
+		vp.size_changed.connect(_fill_viewport)
