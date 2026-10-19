@@ -205,9 +205,9 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
 On `claude/tmnf-replica-graphics-nb1kcg`, for the next release. One step at a time, each committed
 and pushed, gated; TMNF data only locally (never in the repo). The deliberate differences stay
 (our tracks, car, textures, logos, music: no Nadeo content).
-- [ ] 1. A block-by-block material check (`tools/research/tmnf/material_check.py` + a dump of our
+- [x] 1. A block-by-block material check (`tools/research/tmnf/material_check.py` + a dump of our
       blocks): for every shape, where TMNF puts each material against where ours does; the list
-      of mismatches by area and campaign use
+      of mismatches by area and campaign use (`docs/research/m11_check.md`)
 - [ ] 2. Fix the mismatches it finds, family by family (most visible first)
 - [ ] 3. The rough decorations to TMNF's shapes (inflatable castles, palm tree, camera light base,
       bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,

@@ -2379,3 +2379,12 @@ on every real contact the full impulse would land at the contact point and kick 
   - Checked per shape against TMNF (blue on the ground and up on the walls, the deck, the pads):
     within 2.5% on every Circuit border and slope shape, exact on straights, corners and
     diagonals; TMNF's B08 (ground circuits) rendered side by side with TMNF's blocks.
+
+## 2026-10-19 — M11-1: the block-by-block look check against TMNF
+- Owner: "yes do the systematic check and fix everything". New research tool:
+  `stadium/tests/block_dump.tscn` (every shape we build as triangles with material keys and each
+  key's mean albedo) and `tools/research/tmnf/material_check.py` (TMNF's surfaces sampled every
+  0.5 m with their texture colour, matched to ours; colour differences, missing and extra
+  geometry per shape, by our material key, by TMNF material). First run over the 548 shapes we
+  build: colour differs on 23% of TMNF's area, 18% missing; the list, weighted by our tracks'
+  block counts, is `docs/research/m11_check.md`. Fixing it family by family (PLAN M11-2).
