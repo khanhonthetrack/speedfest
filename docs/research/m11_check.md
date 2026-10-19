@@ -41,3 +41,15 @@ Fabric pieces), the arch rings' and bridges' pillars (Sculpt: possibly an offset
 platform pieces' undersides (PlatformAuventAlpha), inflatable castles and trees (our shapes
 don't overlap TMNF's), dirt roads' fabric, grid and logos (Road/Dirt), control booths' interiors.
 Not real: EditorHelpers, light glows (WarpSpotsGlow).
+
+## Fixed so far (M11-2)
+- Platform walls (the orange band on top, foot and ends) and turbo pads (road and platform):
+  our border atlas and turbo texture, UV-mapped as TMNF's (PROGRESS, 19 Oct).
+- Circuit, 63 shapes (`--shape=Circuit`): colour differs 20.1% -> 9.1%, missing 2.8% -> 0.8%,
+  extra 67,478 -> 3,332 m². Our circuit side texture on every upright face (TMNF's StadiumCircuit
+  rows; mean dE 12), the walls' end caps on its left quarter, TMNF's white fabric under raised
+  pieces and its dark stands' floor under the strip; slope bases as TMNF's (an 8 m plate along
+  the road, a pillar under it). Left in the circuit list: the blue strip's shade (ours (24, 81,
+  161) against TMNF's texture mean (51, 95, 155), mean dE 18, chosen from TMNF's renders in M9),
+  the thin rubber strip under the wall's foot (TMNF's light blue-grey, ours dark; under the wall)
+  and the band edges on the wall's road face (a few m² per shape).

@@ -2398,3 +2398,23 @@ on every real contact the full impulse would land at the contact point and kick 
   platform plate split at x = 16 for it). Checked: platform wall 5% of its area off (the logos'
   edges), turbo pads mean dE 14-15, side by side with TMNF's blocks on A04. `block_dump` now reads
   UV-mapped textures at their UVs.
+- (M11-2) **Circuit sides, undersides and slope bases as TMNF's.** Our own circuit side texture
+  (`tools/texgen/circuit_side.py`, `circuit_side`: TMNF's row layout and colours measured from its
+  StadiumCircuit texture: light rails top and bottom, an orange band under the top rail and one
+  over the bottom rail, dark panels; the left quarter, the blocks' ends, a bolted plate with vented
+  strips; drawn here) on every upright circuit face (plates, ramps, ledges' outer faces), UV-mapped
+  as TMNF maps it: 16 m a tile along the face, mirrored every other tile (faces cut where it turns,
+  `TmGeo.remap_uv_sides`), the 8 m height down from the piece's top (on slopes from the road's
+  edge). The walls' end caps take its left quarter in TMNF's two charts, below and above the ledge
+  (`TmGeo.cap_uv` / `cap_split`, `circuit.gd _cap_uv`; key `circuit_cap`). Underneath: TMNF's
+  white fabric (`fabric_auvent`, surface 9 as TMNF's) under raised plates, ramps and the curves'
+  ledges outside the blue strip; its dark stands' floor (`truss`) under the strip and the
+  straights' ledges. **Slope bases** (Start, Straight, End) are TMNF's 8 m thick plate following
+  the road with a round pillar under its middle (12 sides, r 1.64 m, chamfered foot, a 24-sided
+  collar under the plate; collision as TMNF's), not a solid block down to the floor. Faces TMNF
+  doesn't have are gone: plates' and ledges' bottoms on the ground (under the terrain; collision
+  kept), the ledge's side against the wall's back in curves. Check over the 63 Circuit shapes:
+  colour differs on 9.1% of TMNF's area (was 20.1%), missing 0.8% (2.8%), extra 3,332 m² (67,478);
+  the sides' texture mean dE 12; side by side with TMNF's blocks on A01 (slopes, pillar) and
+  alone (`tests/block_view.tscn`, new: one shape in the Day light, `--ref` for TMNF's look).
+  `map_view --view=near:` takes a yaw and height.

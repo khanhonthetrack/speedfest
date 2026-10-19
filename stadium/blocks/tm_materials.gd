@@ -28,6 +28,9 @@ const COLORS := {
 	"wall_dark": [Color(0.32, 0.34, 0.38), 0.8, 0.0],
 	# the platform walls and the circuit walls in TMNF's colours (measured from its renders)
 	"platform_wall": [Color8(50, 51, 53), 0.82, 0.0],
+	"circuit_side": [Color8(48, 44, 40), 0.6, 0.2],       # the circuit's sides: dark panels, orange bands
+	"circuit_cap": [Color8(40, 38, 36), 0.6, 0.2],        # the circuit walls' end caps
+	"fabric_auvent": [Color8(222, 223, 220), 0.7, 0.0],   # the white fabric under raised circuits
 	# the border atlas' bands (texgen/borders.py; one texture, the UVs pick the band): their own
 	# colours when HD is off
 	"border_panel": [Color8(179, 171, 168), 0.75, 0.0],
@@ -111,6 +114,11 @@ const TEXTURED := {
 	"wall_dark": ["wall_panels", Vector2(16.0, 16.0), true, Color(0.36, 0.38, 0.42)],
 	# the platforms' walls; the circuit walls' cladding and band (along the wall), the truss behind
 	"platform_wall": ["platform_wall", Vector2(8.0, 8.0), true],
+	# the circuit's sides (texgen/circuit_side.py; UV-mapped as TMNF's: TmGeo.remap_uv_sides) and
+	# the white fabric under raised circuit pieces (the cladding's texture, laid flat)
+	"circuit_side": ["circuit_side", Vector2(1.0, 1.0), false],
+	"circuit_cap": ["circuit_side", Vector2(1.0, 1.0), false],    # its left part (circuit.gd _cap_uv)
+	"fabric_auvent": ["circuit_panel", Vector2(16.0, 16.0), true],
 	# the turbo pads (texgen/turbo.py; UV-mapped across the pad, as TMNF's: TmGeo.remap_uv)
 	"turbo": ["turbo_pad", Vector2(1.0, 1.0), false],
 	# TMNF's border atlas, as ours (UV-mapped: u along, 16 m a tile; v the band: TmGeo.border_uv)
