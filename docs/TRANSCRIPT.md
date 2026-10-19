@@ -788,3 +788,7 @@ Owner, later in session 15 (verbatim):
 
 Owner, later in session 15 (verbatim):
 > A comment: the rally car tm2020 has something wrong with the rear wheel (at least from the screenshots)
+
+Owner, later in session 15 (verbatim):
+> Daytona 2 USA Car also has something wrong, as Number 41 should be on the side and PHANTOM in front
+> When you finish all the tasks, include in the menu the community tab which lets you set a car to drive, or to download a community maps (from the sources you use) - the player should directly see the previews.

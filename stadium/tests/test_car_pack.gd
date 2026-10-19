@@ -19,18 +19,19 @@ func _ready() -> void:
 		TestHooks.check(s.parts.size() == TmTestCar.PARTS.size(), "solid_parts_%s" % pair[0], "%d parts" % s.parts.size())
 		TestHooks.check(s.triangle_count() == TmTestCar.PARTS.size() * 12, "solid_triangles_%s" % pair[0], "%d" % s.triangle_count())
 		TestHooks.check(s.points.has(TmTestCar.LAMP[0]), "solid_points_%s" % pair[0], str(s.points.keys()))
-		# mirrored into our frame: TMNF's FL wheel (+x) is at -x
+		# TMNF's car frame is ours: its FL wheel (+x) is our front left
 		var fl: Dictionary = s.parts.filter(func(p: Dictionary) -> bool: return p["name"] == "dFLWheel")[0]
 		var c := (fl["xform"] as Transform3D).origin
-		TestHooks.check(c.is_equal_approx(Vector3(-0.8, 0.36, 1.4)), "solid_mirrored_%s" % pair[0], str(c))
-	# the same model written binary and as text: binary files keep v upwards, text files downwards
+		TestHooks.check(c.is_equal_approx(Vector3(0.8, 0.36, 1.4)), "solid_frame_%s" % pair[0], str(c))
+	# both formats keep texture v upwards: flipped to Godot's (the test model's first vertex is
+	# written at (u, v) = (0.1, 0.0))
 	var sb := TmSolid.load_bytes(bin)
 	var st := TmSolid.load_bytes(txt)
 	if sb.ok() and st.ok():
 		var ub: PackedVector2Array = sb.parts[0]["uvs"]
 		var ut: PackedVector2Array = st.parts[0]["uvs"]
-		TestHooks.check(ub.size() == 8 and ut.size() == 8 and is_equal_approx(ub[0].y, 1.0 - ut[0].y)
-			and is_equal_approx(ub[0].x, ut[0].x), "solid_uv_v_by_format", "%s %s" % [ub, ut])
+		TestHooks.check(ub.size() == 8 and ub == ut and ub[0].is_equal_approx(Vector2(0.1, 1.0)), "solid_uv_v_flipped",
+			"%s %s" % [ub, ut])
 	# normals the exporter left out: their faces' (outward)
 	var tri_v := PackedVector3Array([Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 0, 1)])
 	var tri_n := PackedVector3Array([Vector3.ZERO, Vector3.ZERO, Vector3.UP])

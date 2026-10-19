@@ -298,9 +298,8 @@ func _build() -> void:
 			lamps[String(p["name"])] = (p["xform"] as Transform3D).origin
 
 
-## Which of the car's wheels (TmTuning.WHEELS: FL, FR, RL, RR in our frame) each named wheel is,
-## by where it sits (TMNF's "FL" is our front right once mirrored, and a few models name theirs the
-## other way round); by name (mirrored) when that is ambiguous.
+## Which of the car's wheels (TmTuning.WHEELS: FL, FR, RL, RR) each named wheel is, by where it
+## sits (a few models name theirs the other way round); by name when that is ambiguous.
 static func _slots(centres: Array) -> Array:
 	var found := centres.filter(func(c: Variant) -> bool: return c != null)
 	var zmin := INF
@@ -308,7 +307,7 @@ static func _slots(centres: Array) -> Array:
 	for c: Vector3 in found:
 		zmin = minf(zmin, c.z)
 		zmax = maxf(zmax, c.z)
-	var out := [1, 0, 3, 2]
+	var out := [0, 1, 2, 3]
 	var by_place := []
 	for i in 4:
 		if centres[i] == null:

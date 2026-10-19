@@ -75,8 +75,9 @@ Updated 2026-10-18 (session 15). Details: `docs/PROGRESS.md` (latest entries), `
   round's track and every player's car pack (`Online.fetch`, SHA-256, `user://content`); TMNF car
   models (`gbx/tm_solid.gd`: binary and text GBX) and skins (`car/tm_car_pack.gd`: DDS quirks,
   wheels by place) draw through `TmCarVisual.pack` (`tests/test_compat_cars`, `test_car_pack`).
-  TMNF's car frame is mirrored relative to ours (x negated, as the blocks). Open: TMUnlimiter 2
-  tracks (refused with the reason), car packs offline.
+  TMNF's car frame is ours as-is (x left; not mirrored, unlike the blocks); every car file keeps
+  texture v upwards (flip it); the car is MainBodyHigh (MainBody is the low LOD). Open:
+  TMUnlimiter 2 tracks (refused with the reason), the menu's Community tab (owner, 19 Oct).
 - **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF11.json`, laid out by
   `race/tm_track_builder.gd`, listed by `race/tm_tracks.gd`; `tests/test_tracks` (in the gate)
   drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then

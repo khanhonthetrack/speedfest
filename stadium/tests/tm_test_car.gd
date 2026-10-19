@@ -9,7 +9,7 @@ const CLASS_SOLID := 0x09005000
 const CLASS_TREE := 0x0904F000
 const CLASS_VISUAL := 0x0901E000
 const FACADE := 0xFACADE01
-## TMNF's frame (x is the car's right as TMNF draws it; FL at +x): [name, centre, half size].
+## TMNF's car frame, which is ours (x left, FL at +x): [name, centre, half size].
 const PARTS := [
 	["sBody", Vector3(0.0, 0.6, 0.0), Vector3(0.8, 0.3, 2.0)],
 	["dBody", Vector3(0.0, 1.0, -0.3), Vector3(0.5, 0.15, 0.8)],

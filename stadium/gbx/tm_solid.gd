@@ -7,10 +7,11 @@ extends RefCounted
 ## Reads binary files (compressed or not) and the old text ones (format 'T': values as text lines,
 ## ids and class ids in hex, data arrays raw), and every chunk version TM 1.0 to TMNF wrote.
 ##
-## Coordinates are TMNF's car frame mirrored into Godot's (x negated, as for the blocks: TmGeo), so
-## the car's visual frame (TmCarVisual: y up, z forward, ground at y 0) and its textures read the
-## right way round; mirrored, TMNF's winding is Godot's (clockwise front faces). UVs are Godot's
-## (v down): binary files store v upwards and are flipped, text files already store it downwards.
+## Coordinates are TMNF's car frame, which is the car's visual frame (TmCarVisual: x left, y up,
+## z forward, ground at y 0; TMNF's FL wheel is at +x). TMNF winds front faces counter-clockwise
+## about their normal, Godot clockwise: triangles are reversed. Every file (binary or text) keeps
+## texture v upwards (0 at the texture's bottom, as GBX.NET's OBJ export shows); UVs are flipped
+## to Godot's. Checked against ManiaPark's screenshots (lettering, liveries) of 27 packs.
 ##
 ## parts: [{name, xform (Transform3D: the part's place in the car), verts (PackedVector3Array),
 ##          normals (PackedVector3Array, may be empty), uvs (PackedVector2Array, may be empty),
@@ -22,7 +23,6 @@ const FACADE := 0xFACADE01
 const PIKS := 0x534B4950
 const TEXT_SKIP := "1397442896"     ## "PIKS" as a text u32: a skippable chunk in a text file
 const MAX_NODES := 100000
-const MIRROR := Transform3D(Basis(Vector3(-1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1)), Vector3.ZERO)
 
 var error := ""
 var parts: Array = []
@@ -189,9 +189,9 @@ func _walk(t: Dictionary, parent: Transform3D, depth: int) -> void:
 	var name := String(t.get("name", ""))
 	var v: Variant = t.get("visual")
 	if v is Dictionary and (v as Dictionary).has("verts") and (v as Dictionary).has("indices"):
-		_add_part(name, MIRROR * xf * MIRROR, v)
+		_add_part(name, xf, v)
 	elif not name.is_empty():
-		points[name] = MIRROR * xf * MIRROR
+		points[name] = xf
 	for c: Variant in t.get("children", []):
 		if c is Dictionary and not (c as Dictionary).has("ext"):
 			_walk(c, xf, depth + 1)
@@ -208,7 +208,7 @@ func _walk(t: Dictionary, parent: Transform3D, depth: int) -> void:
 
 
 func _add_part(name: String, xf: Transform3D, v: Dictionary) -> void:
-	var verts: PackedVector3Array = (v["verts"] as PackedVector3Array).duplicate()
+	var verts: PackedVector3Array = v["verts"]
 	var src: PackedInt32Array = v["indices"]
 	var n := verts.size()
 	var idx := PackedInt32Array()
@@ -220,28 +220,21 @@ func _add_part(name: String, xf: Transform3D, v: Dictionary) -> void:
 		var c := src[i + 2]
 		if a >= n or b >= n or c >= n:
 			continue
-		idx[k] = a
-		idx[k + 1] = b
-		idx[k + 2] = c
+		idx[k] = a          # counter-clockwise (TMNF) -> clockwise (Godot)
+		idx[k + 1] = c
+		idx[k + 2] = b
 		k += 3
 	idx.resize(k)
 	if k == 0:
 		return
-	for i in n:
-		verts[i].x = -verts[i].x
 	var uvs: PackedVector2Array = (v.get("uv0", PackedVector2Array()) as PackedVector2Array).duplicate()
 	if uvs.size() != n:
 		uvs = PackedVector2Array()
-	if not _text:
-		# binary files keep v upwards (0 at the texture's bottom, as GBX.NET's OBJ export shows);
-		# the old text files downwards, as Godot. Checked against 160 ManiaPark packs' screenshots.
-		for i in uvs.size():
-			uvs[i].y = 1.0 - uvs[i].y
-	var normals: PackedVector3Array = (v.get("normals", PackedVector3Array()) as PackedVector3Array).duplicate()
+	for i in uvs.size():
+		uvs[i].y = 1.0 - uvs[i].y
+	var normals: PackedVector3Array = v.get("normals", PackedVector3Array())
 	if normals.size() != n:
 		normals = PackedVector3Array()
-	for i in normals.size():
-		normals[i].x = -normals[i].x
 	parts.append({"name": name, "xform": xf, "verts": verts, "normals": normals, "uvs": uvs, "indices": idx})
 
 

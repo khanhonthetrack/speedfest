@@ -2078,3 +2078,16 @@ found and fixed:
   part's centre are rigged that way on purpose (Speedy's feet, the Road Runner's legs whirl
   about the hip; AeroPole's are 7 mm markers). test_car_pack 30 (a stray vertex in the test's
   wheels).
+
+## 2026-10-19 — Session 15: the car frame and texture v, corrected (owner: the Daytona car)
+Owner: "Daytona 2 USA Car also has something wrong, as Number 41 should be on the side and PHANTOM
+in front" (TRANSCRIPT). **Correction of two earlier conclusions:** TMNF's car frame is *not*
+mirrored relative to ours, and texture v is stored upwards in *every* car file (text files too).
+Mirroring the car (x negated) and flipping v are both reflections, so the earlier mirror made the
+side lettering read the right way round while sampling the wrong part of the texture (the
+Daytona's hood showed "IMPULSE 41" instead of PHANTOM), and the "text files aren't flipped" rule
+only held because of it. Now: no mirror (TMNF's FL wheel at +x is our front left, as named; the
+triangles are reversed to Godot's winding), v flipped for every file. Checked against ManiaPark's
+screenshots of 23 packs (lettering on the Daytona Phantom and Scorpio, Noddy, the Yamaha rider,
+the DeLorean, the 2CV ...): all match. test_car_pack: the test model's FL wheel at +x, both
+formats' v flipped.
