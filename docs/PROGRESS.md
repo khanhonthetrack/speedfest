@@ -2350,3 +2350,14 @@ on every real contact the full impulse would land at the contact point and kick 
   for the surface, the particle only fading it), so a puff can fade but never draw darker than its
   tint. With the puffs at their intended opacity the road smoke barely showed on the light decks,
   so it is whiter and denser (0.9 grey at 0.55, was 0.78 at 0.3); dust and grass bits unchanged.
+- (same day) Owner: "But dont just fix A01 but all maps which have that problem". The fix is in the
+  circuit border generator, so it holds on every map that has circuit borders: our 26 tracks with
+  circuits (A01, A08, A13, A15, B01, B05, B10, B12, B15, C02, C04, C05, C06, C11, C13, C15, D02,
+  D04, D05, D07, D08, D12, D13, D14, E03, E05: 238 inner corners, all raised), the editor's
+  tracks and TMNF track files. Checked shape by shape against TMNF's own blocks (every Circuit
+  border and slope shape, flat, sloped and turned): the ledge's blue strip and the deck agree
+  within 1%; C11 rendered as well. Two differences remain, both where TMNF has blue and ours
+  doesn't, and only in pieces our tracks don't use: borders standing on the ground (TMNF lays the
+  blue strip on the ground along the wall's outside, 4.7 m; ours is grey there and has none at the
+  outer corners) and the walls across a slope (Slope/Straight Top/Bottom: TMNF's ledge steps are
+  blue, ours grey). Left for the owner to decide.
