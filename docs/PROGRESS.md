@@ -930,3 +930,21 @@ HUD. The city reads as Underground 2: wet asphalt, vertical neon, lit windows, u
 
 **Next:** sound (there is none yet in the new project), a drive-through AutoDriver for lap-time
 regression, more circuits, and the owner's call on the credit economy.
+
+### 2026-10-19, later the same session: the bot, and what it found
+
+- `cars/auto_driver.gd`: a path-following driver for the TMNF car — pure-pursuit steering, a speed
+  profile baked from the path's curvature and run backwards for braking, nitrous on the straights,
+  and a `stuck` signal. `--autodrive=1` puts it in the driver's seat of a normal race.
+- `tests/test_autodrive.gd` laps every circuit with three different cars. First run:
+  `downtown` kaze 51.2 s / f4 42.9 s / ridge 84.6 s, `harbour` kaze 33.8 s / f4 31.4 s — and the
+  truck **failed** on `harbour`, stuck at 93%.
+- The trace showed why: at 180 km/h the Ridge climbed the 1.25 m barrier near the last corner,
+  landed upside down and then fell for ever, because nothing outside the road had collision.
+  Fixed properly: barriers are 1.9 m now (a truck cannot ride over them), the track builds a city
+  floor under the whole district so anything that does get out lands on it, and the race respawns
+  a car that ends up more than 25 m below the road. The truck now laps `harbour` in 41.2 s.
+- `tests/test_flow.gd` walks the actual screens: the menu changes circuit, the garage switches
+  between all five cars and rebuilds each one, fitting a race engine adds power and costs credits,
+  a wing changes the model, and the race starts with the car and the circuit that were chosen,
+  with the HUD and the pause overlay wired.

@@ -54,8 +54,10 @@ func start_race(track_id: String) -> void:
 	race.name = "Race"
 	holder.add_child(race)
 	var hud := Hud.new(race)
+	hud.name = "Hud"
 	holder.add_child(hud)
 	var pause := PauseOverlay.new()
+	pause.name = "PauseOverlay"
 	pause.resume_requested.connect(func() -> void: pause.close())
 	pause.restart_requested.connect(func() -> void:
 		pause.close()

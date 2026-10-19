@@ -23,8 +23,12 @@ neon city at night, and make it look expensive. All of it is on
   wrapped in ~1500 generated towers with lit windows, 133 neon signs and 86 street lamps.
 - menu → garage → race, countdown, checkpoints, laps, personal bests, respawn, pause, HUD with a
   lap map and a nitrous meter.
-- `tools/check_scripts.sh` → SCRIPT_ERRORS=0 (58 scripts); `tools/test_all.sh` → TESTS PASS
-  (481 checks: model lab 44, car body 22, car shapes 11, gbx 3, tuning 361, race 40).
+- A bot (`cars/auto_driver.gd`) laps both circuits with three different cars, so the tracks are
+  proven drivable: Neon Downtown 42.9 s (F4) / 51.2 s (Kaze) / 84.6 s (Ridge), Harbour Lights
+  31.4 / 33.8 / 41.2 s. `--autodrive=1` puts it in a normal race.
+- `tools/check_scripts.sh` → SCRIPT_ERRORS=0 (61 scripts); `tools/test_all.sh` → TESTS PASS
+  (617 checks: model lab 44, car body 22, car shapes 11, gbx 3, settings 72, tuning 363, race 40,
+  autodrive 30, flow 32).
 
 **How to look at it**
 ```bash
@@ -38,8 +42,9 @@ the game.
 
 **Next** (also in `docs/PLAN.md` S9)
 1. Sound — the new project has none yet; the old generators are in `old/tools/audio`.
-2. An AutoDriver that laps each circuit headless, so lap times guard against regressions.
-3. More circuits, and the owner's calls on the credit economy and on the `.Challenge.Gbx` maps.
+2. More circuits (the city generator takes any closed loop) and a ghost car of your best lap.
+3. The owner's calls: keep the credit economy or make parts free, and whether to bring the
+   `.Challenge.Gbx` maps into the city theme.
 
 ---
 

@@ -8,7 +8,7 @@ extends Node3D
 ## when that distance passes it going forward, and a lap when every checkpoint has been passed and
 ## the car crosses the line. Respawning puts the car back on the road at the last checkpoint.
 ##
-## Test args: --track=downtown|harbour --car=<id> --laps=N --nocity=1 --freecam=1
+## Test args: --track=downtown|harbour --car=<id> --laps=N --nocity=1 --autodrive=1
 
 signal checkpoint_passed(index: int, time_ms: int)
 signal lap_done(lap: int, time_ms: int, best: bool)
@@ -39,6 +39,8 @@ var last_lap_ms := 0
 var next_cp := 0
 var cp_times: Array[int] = []
 var countdown_ms := 3200
+
+var bot: AutoDriver           ## set when --autodrive is on: the bot drives instead of the player
 
 var _progress := 0.0          ## distance along the lap of the car's projection on the path
 var _lap_distance := 0.0      ## metres covered this lap (unwrapped; negative when going backwards)
@@ -91,6 +93,16 @@ func _build_car() -> void:
 	add_child(input)
 	car.controls_enabled = false
 	_place_at(0.0)
+	if bool(TestHooks.arg("autodrive", false)):
+		input.queue_free()
+		bot = AutoDriver.new()
+		bot.car = car
+		bot.path = path
+		car.add_child(bot)
+		bot.reset_to(2.0)
+		bot.stuck.connect(func() -> void:
+			respawn()
+			bot.reset_to(_respawn_d))
 
 
 func _build_camera() -> void:
@@ -118,6 +130,8 @@ func _place_at(d: float, keep_speed: float = 0.0) -> void:
 func respawn() -> void:
 	_place_at(_respawn_d, 0.0)
 	_off_road_ms = 0
+	if bot:
+		bot.reset_to(_respawn_d)
 
 
 func restart() -> void:
@@ -195,6 +209,10 @@ func _track_progress(delta: float) -> void:
 		_off_road_ms = 0
 	else:
 		_off_road_ms += int(delta * 1000.0)
+	# safety net: a car that ends up far below the road (through a gap, off a barrier) comes back
+	if car.global_transform.origin.y < path.sample_position(_progress).y - 25.0:
+		respawn()
+		return
 	if not started or finished or step <= 0.0:
 		return
 	var wrapped := _progress < prev

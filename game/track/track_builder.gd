@@ -14,7 +14,7 @@ extends RefCounted
 ##   length        metres per lap
 
 const STEP := 2.5                 ## road sample spacing (m)
-const WALL_H := 1.25
+const WALL_H := 1.9            ## tall enough that a truck cannot climb out of the circuit
 const CURB_W := 1.4
 const SURFACE_ASPHALT := 16
 const SURFACE_TURBO := 26         ## TmTuning.Surface.TURBO2 (the red pad)
@@ -41,6 +41,7 @@ func build(id: String, rng_seed: int = 12345) -> Node3D:
 	root.name = "Track"
 	_materials()
 	_road()
+	_ground_plane()
 	_barriers()
 	_tunnels()
 	_arches()
@@ -165,6 +166,27 @@ func _road() -> void:
 	body.set_meta("surface", SURFACE_ASPHALT)
 	root.add_child(body)
 	_road_underside(n, step)
+
+
+## A floor under the whole district, a little below the road. Anything that gets over a barrier
+## lands on the city instead of falling out of the world; the road itself always wins because it
+## sits above this.
+func _ground_plane() -> void:
+	var low := 0.0
+	var d := 0.0
+	while d < path.length:
+		low = minf(low, path.sample_position(d).y)
+		d += 16.0
+	var body := StaticBody3D.new()
+	body.name = "CityFloor"
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(6000.0, 4.0, 6000.0)
+	cs.shape = box
+	cs.position = Vector3(0.0, low - 0.35 - 2.0, 0.0)
+	body.add_child(cs)
+	body.set_meta("surface", TmTuning.Surface.PAVEMENT)
+	root.add_child(body)
 
 
 ## The road is a deck on the flyover: close it from below so it is not see-through.

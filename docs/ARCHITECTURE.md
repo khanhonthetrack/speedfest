@@ -114,6 +114,15 @@ The car in the scene (`Node3D`, car frame, 100 Hz through `TmBody`).
 - Nitrous: `boost_meter` (0..1), `boost_power`, `boost_tank`, `boost_gain`, `boost_kmh`,
   `boosting`; signals `boost_started`, `boost_ended`, `wheel_hit_wall`.
 
+### `AutoDriver`
+A path-following driver for a `TmCar` (tests, demos, `--autodrive=1` in the race). Set `car` and
+`path`, call `reset_to(d)`, and it fills the controls every physics tick: pure-pursuit steering
+toward a look-ahead point, a speed profile baked from the path's curvature (`grip_margin` of the
+car's cornering force) and run backwards so it brakes in time, nitrous on the straights. Emits
+`stuck` when it stops making progress so the caller can respawn it. `distance` and `laps` track the
+lap; `speed_limit_at(d)` exposes the profile.
+
+
 ### `CarRig`
 Parents a `CarVisual` to a `TmCar` and syncs it each frame (steering, spin, suspension, brake and
 reverse lamps, ground contact, nitrous flames). `rebuild()` after a tuning change.
@@ -158,7 +167,16 @@ a `SubViewport` turntable), `Hud` (speed, nitrous, splits, lap map), `PauseOverl
 A `Control` screen whose parent is a plain `Node` sizes itself to the viewport (`_fill_viewport`).
 
 ## Tests
-`tools/test_all.sh` runs every `game/tests/test_*.tscn`: `test_model_lab` (the TMNF model against
-the reference), `test_car_body`, `test_car_shapes`, `test_gbx`, `test_tuning` (the garage maths),
-`test_race` (circuit shape, grid, checkpoints, laps, nitrous, respawn). Look-dev scenes
-(`showroom`, `track_tour`) are not tests and are skipped by the runner.
+`tools/test_all.sh` runs every `game/tests/test_*.tscn`:
+| test | what it guards |
+|---|---|
+| `test_model_lab` | the TMNF force model against the reference numbers |
+| `test_car_body`, `test_car_shapes` | the body integrator and the per-car shapes |
+| `test_gbx` | the `.Challenge.Gbx` reader |
+| `test_settings` | the night look, the quality gates, the light budget, the RTX path staying off |
+| `test_tuning` | the catalogue, prices, credits, surfaces and styles |
+| `test_race` | circuit shape, the grid slot, checkpoint order, laps, nitrous, respawn, a real drive |
+| `test_autodrive` | every circuit is lapped by the bot with three different cars |
+| `test_flow` | menu -> garage -> race wiring, installing parts, pausing, restarting |
+
+Look-dev scenes (`showroom`, `track_tour`) are not tests and are skipped by the runner.

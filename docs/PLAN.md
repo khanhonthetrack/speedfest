@@ -73,7 +73,7 @@ One agent at a time (owner rule). Module boundaries: `core/` (physics, never edi
 
 ## S9 — next
 - [ ] Sound: engine, tyres, wind, nitrous, the city's hum (the new project has no audio yet).
-- [ ] An AutoDriver that laps every circuit headless, so lap times guard against regressions.
+- [x] An AutoDriver that laps every circuit headless, so lap times guard against regressions.
 - [ ] More circuits (the city generator takes any closed loop) and a time-of-night variant.
 - [ ] Owner's call: keep the credit economy (earn by racing) or make every part free.
 - [ ] Owner's call: bring the `.Challenge.Gbx` reader's maps into the city theme.
