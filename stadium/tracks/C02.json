@@ -1,0 +1,8 @@
+{
+	"name": "C02-Race",
+	"author": "SpeedFest",
+	"start": [28, 10, 3, 0],
+	"medals": {"author": 27580, "gold": 29300, "silver": 34000, "bronze": 42000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["circuit", 1], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "l"], ["s", 3], ["down"], ["s", 2], ["gt", 2, "r"], ["s", 2], ["circuit", 3], ["s", 3], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["gt", 3, "l"], ["s", 3], ["platform", 3, "walls"], ["turbo"], ["s", 3], ["gt", 3, "l"], ["s", 3], ["platform", 1, "walls"], ["s", 1], ["cp"], ["s", 1], ["dive", 1], ["s", 1], ["road"], ["s", 2], ["cp"], ["s", 2], ["finish"]]
+}

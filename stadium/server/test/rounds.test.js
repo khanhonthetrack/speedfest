@@ -24,8 +24,12 @@ test('the campaign: a list of ids, or series one after another', () => {
     assert.deepStrictEqual(ownTracks(dir), ['A01', 'A02', 'B01']);
     fs.writeFileSync(path.join(dir, 'campaign.json'), JSON.stringify(['B01', 'A01']));
     assert.deepStrictEqual(ownTracks(dir), ['B01', 'A01']);
+    fs.writeFileSync(path.join(dir, 'A02.json'), JSON.stringify({ name: 'long', online: false }));
+    assert.deepStrictEqual(ownTracks(dir), ['B01', 'A01']);
+    fs.writeFileSync(path.join(dir, 'campaign.json'), JSON.stringify({ series: [{ name: 'White', tracks: ['A01', 'A02'] }] }));
+    assert.deepStrictEqual(ownTracks(dir), ['A01'], 'a track off the online rotation');
     fs.unlinkSync(path.join(dir, 'campaign.json'));
-    assert.deepStrictEqual(ownTracks(dir), ['A01', 'A02', 'B01', 'X99']);
+    assert.deepStrictEqual(ownTracks(dir), ['A01', 'B01', 'X99']);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

@@ -1,0 +1,8 @@
+{
+	"name": "C08-Obstacle",
+	"author": "SpeedFest",
+	"start": [4, 9, 4, 3],
+	"medals": {"author": 23190, "gold": 24600, "silver": 28000, "bronze": 35000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["s", 2], ["gt", 2, "l"], ["s", 1], ["down"], ["s", 1], ["gt", 2, "r"], ["s", 2], ["cp"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["down"], ["s", 1], ["gt", 2, "l"], ["s", 2], ["cp"], ["s", 2], ["gt", 2, "l"], ["s", 1], ["road"], ["s", 2], ["finish"]]
+}

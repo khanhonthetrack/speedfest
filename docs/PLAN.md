@@ -163,17 +163,22 @@ Owner's words and answers in TRANSCRIPT (session 13). Branch `claude/tmnf-replic
 (started from `stadium`; only `stadium/`, `docs/`, `tools/research/`). Rule unchanged: TMNF is
 measured locally, our own assets are built to match it, no Nadeo file is committed or shipped.
 Work sequentially, push after every step. Research notes go to `docs/research/m9_*.md`.
-- [ ] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
+- [x] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
       light), menus (screens, flow, layout), online (accounts, ladder, server modes, browser, votes,
       chat), sound (engine layers, gears, cues), campaign style (A-E statistics: lengths, times,
-      checkpoints, block families per series)
+      checkpoints, block families per series). Done: docs/research/m9_look.md, m9_menus.md,
+      m9_online.md, m9_sound.md, m9_campaign.md
 - [x] 1. Car model: wheels that hold together (tyre, rim seated in the bead, hub, brake), TMNF's
       body from the measured visual mesh proportions, the driver, PBR paint/carbon/rubber
-- [ ] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
+- [x] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
       adverts (our own brand art), the stadium (stands with crowd, roof, floodlights), light (TMNF's
       day mood with modern GI/SSR/AO), RTX/Ultra preset; side-by-side checks against local
-      reference renders. First pass done (road, gates, adverts, fabric, stadium); open: platform,
-      dirt, circuit, tube, control and airship families, light and atmosphere, RTX preset
+      reference renders. First pass done (road, gates, adverts, fabric, stadium); second pass
+      (PROGRESS "M9-2: the decks, walls and dirt roads"): platform and circuit decks, platform
+      walls, circuit walls, dirt roads, control booths, grandstand trusses and boards; Ultra's
+      roofs lit (membrane glow); raised grandstands at raised gates. Polish for later: more
+      dressing for the raised tracks (TMNF: control rows at deck height, inflatable towers), grass
+      tufts along the dirt roads, SDFGI tuned on a real GPU
 - [x] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
 - [x] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
       campaign A-E tabs with medals), in-race menus. Done (PROGRESS 18 Oct); the EDITORS entry
@@ -190,14 +195,48 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       Done (PROGRESS 18 Oct, docs/research/m9_online.md); the owner deploys it on the Pi
       (stadium/server/README.md). Then: the review's 42 findings (session 13), all fixed
       (docs/research/m9_review_findings.md; PROGRESS "the M9 code review's findings")
-- [ ] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
+- [x] 8. Campaign: 65 original tracks A01-E05 (White, Green, Blue, Red, Black) in TMNF's structure,
       difficulty curve and block style; the TMNF-install campaign tabs removed (single
-      `.Challenge.Gbx` files still open)
+      `.Challenge.Gbx` files still open). Done (PROGRESS 18 Oct, docs/research/m9_campaign.md):
+      the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
+      every track driven by the bot, medals from its best run
 
-### M10 — Community content on admins' servers (owner, session 15, 2026-10-18) ☐
+### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
+Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
+- [x] 1. Keep the circuit walls' screens dark (TMNF's StadiumCircuitScreen); the wall foot's blue
+      kerb, logo bumper and blue trim (owner's side-by-side remark)
+- [x] 2. Tyre marks when drifting or braking hard, like TMNF's (`race/tm_tyre_marks.gd`): rubber
+      on the road and decks, grooves in dirt, torn turf on grass, smoke/dust puffs; in races and
+      replays (replays record which wheels slide); `tests/test_tyre_marks`
+- [x] 3. Physics off asphalt (grass, dirt, ...) against TMNF's own runs (the campaign replays'
+      ghosts: `tools/research/tmnf/ghost_dump.py`, `race/ghost_fit.tscn`): the surface table's
+      columns were misread (grip = 1, drive = 2, brakes = 3); fixed, tmnf_physics.md §3.10
+- [x] 4. Jump physics against TMNF (air phases, landings): flight identical, take-offs agree,
+      landings agree in the median; open: TMNF's wheelie after nose-down landings (§3.7b)
+- [x] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
+      (TMNF under Wine locally, an offline profile; nothing of it in the repo):
+  - [x] race HUD and countdown (seven-segment clock and speed pills, -2.60 s start, 3-2-1-Go)
+  - [x] race menu and finish card (TMNF's dialogs: dark glass, green title bar, white pills)
+  - [x] menus (globe, icon-row column with header card, green-titled panels, campaign grid)
+  - [x] loading screen (keyboard with the race keys) and the three camera views
+  - [x] cues (beeps, crowd at Go and at a medal, swoosh, crash, landing, menu blip/tock, wind)
+  - [x] Select Opponent with medal ghosts (the bot's run slowed to each medal's time)
+  - [x] pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh`)
+  - [x] the race menu's Select Opponents (as TMNF's)
+- [x] 6. (owner, after M10-5) TMNF's top bar: volumes, display, clock, window; up in the menus, sliding
+      down at the top edge in races and replays (`ui/tm_top_bar.gd`)
+- [x] 7. (owner) The parallel session's physics find (1e91708: TMNF's `AddVehicleImpulse` turns the
+      car at 0.55 of a contact's r x j, spin capped at 100 rad/s) put in (`core/tm_body.gd`), and
+      M10 merged into `stadium` for **`stadium-v0.5`**
+  - Owner decisions open: TMNF's padlocks on later campaign tracks (changes play); the engine's
+    layers' pitch curves (reading TMNF's engine sound definition was blocked by the session's
+    safety check); the rest of TMNF's wheelie after nose-down landings (M10-4: halfway there with
+    the 0.55; on flat ground ours now lifts its nose more than TMNF's).
+
+### M11 — Community content on admins' servers (owner, session 15, 2026-10-18; called M10 on its branch) ☑
 "make sure that all the community tracks and car models can be uploaded and put on a admins
 server correctly ... I want full compatibility" (TRANSCRIPT session 15). Branch
-`ccr-1ce252fc-wl7p3m` (`stadium` + M9). Samples from TrackMania Exchange and ManiaPark stay
+`ccr-1ce252fc-wl7p3m` (`stadium` + M9; v0.5 merged in and the result put on `stadium`, 19 Oct). Samples from TrackMania Exchange and ManiaPark stay
 outside the repo (`stadium/tools/compat/`).
 - [x] 1. Server: admins (config logins or a password), uploads and TMX / ManiaPark imports, checks
       as the game reads them, rotations, jump/next, car lists, a forced car (`server/lib/admin.js`,
@@ -208,9 +247,8 @@ outside the repo (`stadium/tools/compat/`).
 - [x] 4. Cars: TMNF car models and skins read and drawn (`gbx/tm_solid.gd`, `car/tm_car_pack.gd`;
       all 160 sampled ManiaPark packs, `tests/test_compat_cars`, `tests/test_car_pack`); picked
       online (C), downloaded, drawn for every player, forced by admins (test_online)
-- [ ] 5. TMUnlimiter 2 tracks (~1% of TMX; chunk 0x3F001003 v7): static free-placed game blocks
-      first (offset, rotation, scale), then embedded blocks; scripts and moving blocks need a
-      runtime of their own. Refused with that reason until then
+- [-] 5. TMUnlimiter 2 tracks (~1% of TMX; chunk 0x3F001003 v7): not done, the owner's call
+      ("Ignore those", 19 Oct); they and editor-hack tracks stay refused with the reason
 - [x] 6. The menu's Community page (owner, 19 Oct: "include in the menu the community tab which lets
       you set a car to drive, or to download a community maps ... the player should directly see
       the previews"): TMX tracks and ManiaPark cars by their previews, downloaded (`user://community`),

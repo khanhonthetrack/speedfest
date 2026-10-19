@@ -57,7 +57,7 @@ const WALL_PLAN := [
 	[31.000, 1.000, "metal", 4], [31.333, 1.000, "metal", 4], [31.333, 0.510, "metal", 4],
 	[31.667, 0.510, "metal", 4], [31.667, 1.000, "metal", 4], [31.797, 1.018, "metal", 4],
 	[31.916, 1.100, "metal", 4], [32.000, 1.215, "metal", 4], [32.000, 1.345, "wall", 16],
-	[31.000, 1.345, "grid", 4], [24.000, 1.345, "platform", 16]
+	[31.000, 1.345, "grid", 4], [24.000, 1.345, "platform_wall", 16]
 ]
 ## The platform checkpoint's arch: the ring section moved out to radius 21.91 .. 23.30 about this
 ## centre (and 0.1 m back along z), its half-angle, and the billboard (z, radius) on its back.
@@ -207,7 +207,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Wall":
 			match parts[2]:
 				"BorderAir":
-					geo.box(Vector3(0, 0, 0), Vector3(32, 8, 1.345), "wall", S_DECK)
+					geo.box(Vector3(0, 0, 0), Vector3(32, 8, 1.345), "platform_wall", S_DECK)
 				"1Air":
 					_grid_wall(geo, 1, false)
 				"2Air":
@@ -454,8 +454,8 @@ func _grid_wall(geo: TmGeo, units: int, pub: bool) -> void:
 	var plan := WALL_PLAN.map(func(q: Array) -> Array:
 		return [Vector2(q[0], q[1]), "screen" if pub and q[2] == "grid" else q[2], q[3]])
 	geo.extrude_y(plan, 0.089, h - 0.089)
-	geo.box(Vector3(0, 0, 0), Vector3(32, 0.089, 1.345), "wall", S_DECK)
-	geo.box(Vector3(0, h - 0.089, 0), Vector3(32, h, 1.345), "wall", S_DECK)
+	geo.box(Vector3(0, 0, 0), Vector3(32, 0.089, 1.345), "platform_wall", S_DECK)
+	geo.box(Vector3(0, h - 0.089, 0), Vector3(32, h, 1.345), "platform_wall", S_DECK)
 	for k in units:
 		var y := 4.0 + 8.0 * k
 		geo.pipe(Vector3(0.54, y, 0.39), Vector3(31.46, y, 0.39), 0.3, 8, "pipe", S_DECK)

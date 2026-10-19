@@ -68,24 +68,41 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-19 (session 15). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
-- **Community content (session 15, PLAN M10, branch `ccr-1ce252fc-wl7p3m`):** server admins
+Updated 2026-10-19 (session 15: v0.5 merged with the community work, on `stadium`; no release since v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Community content (session 15, PLAN M11; in `stadium` since 19 Oct, after v0.5, not released yet):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a
   round's track and every player's car pack (`Online.fetch`, SHA-256, `user://content`); TMNF car
   models (`gbx/tm_solid.gd`: binary and text GBX) and skins (`car/tm_car_pack.gd`: DDS quirks,
   wheels by place) draw through `TmCarVisual.pack` (`tests/test_compat_cars`, `test_car_pack`).
   TMNF's car frame is ours as-is (x left; not mirrored, unlike the blocks); every car file keeps
-  texture v upwards (flip it); the car is MainBodyHigh (MainBody is the low LOD). Open:
-  TMUnlimiter 2 tracks (refused with the reason). The menu's Community page (19 Oct):
-  `net/tm_community.gd` + `ui/tm_menu.gd` `_page_community` (TMX / ManiaPark by their previews,
-  download, drive, play; the web build through `server/lib/community.js`; `tests/test_community`).
-- **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF11.json`, laid out by
-  `race/tm_track_builder.gd`, listed by `race/tm_tracks.gd`; `tests/test_tracks` (in the gate)
-  drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then
-  `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
-  (README "Make a track"). `tests/tmp/track_dump` (untracked; recreate: prints an ASCII map) helps.
-  Released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
+  texture v upwards (flip it); the car is MainBodyHigh (MainBody is the low LOD). TMUnlimiter 2
+  tracks stay refused with the reason (owner: "Ignore those"). The menu's Community page (19 Oct):
+  `net/tm_community.gd` + `ui/tm_menu.gd` `_page_community` in v0.5's TMNF frame (TMX / ManiaPark by
+  their previews, download, drive, play; a downloaded car turns in its own little viewport; the web build through `server/lib/community.js`; `tests/test_community`).
+- **`stadium-v0.5` (19 Oct) is `stadium` + M10** (PLAN.md M10, merged from
+  `claude/tmnf-replica-graphics-nb1kcg`, which now equals `stadium`; continue on `stadium`):
+  dark circuit screens, tyre marks, surfaces and jumps measured against TMNF's own runs, contacts
+  that turn the car at TMNF's 0.55 (its AddVehicleImpulse), and the look/UI/menus/sound side by
+  side with TMNF running locally under Wine (HUD, countdown, dialogs, menus, loading screen,
+  camera views 1-3, cues, Select Opponent with medal ghosts, track pictures on the cards, the top
+  bar). Open: the rest of TMNF's wheelie after nose-down landings (owner's call), the engine's
+  layers' pitch curves (not read).
+- **M9 ("a 1:1 TMNF replica") is complete** (in `stadium` since v0.4). The look of the blocks the campaign shows most follows TMNF's
+  measured materials (`docs/research/m9_look.md`): decks, platform and circuit walls, dirt roads,
+  control booths, grandstand trusses and boards, raised grandstands at raised gates; Ultra keeps
+  the fabric roofs lit. Compare with TMNF locally: `docs/research/m9_look.md`, "How to compare".
+- **Standalone** (owner, 2026-10-17): our campaign (M9-8, session 13) is TMNF's structure with
+  our own 65 tracks, `tracks/A01..E05.json` in five series (`tracks/campaign.json`: White, Green,
+  Blue, Red, Black), laid out by `race/tm_track_builder.gd` with TMNF's surfaces
+  (`race/tm_track_areas.gd`: circuit, platform, dirt, joins, borders, walls; lap races), listed by
+  `race/tm_tracks.gd`. `tests/test_tracks` (in the gate) lays out and builds every track and has
+  the bot (`race/tm_bot.gd`) drive each series' first one within gold (`--series=Red`,
+  `--tracks=all` for the rest: the bot drives at about real time). New track: write the JSON,
+  then `tools/run.sh res://tests/test_tracks.tscn --headless -- --tracks=<ID> --write_medals`
+  (README "Make a track": the layout rules the bot taught us). The old SF01-SF11 stay raceable
+  by id (the road-gate tests use SF01). Earlier (session 12, the SF tracks):
+  released as `stadium-v0.1` (GitHub Release). Loops work (SF11 Full Circle has two; PROGRESS
   "loops fixed"). Quality pass done (HANDOFF): gates, driver, decoration (`race/tm_track_decor.gd`),
   adverts (`env/tm_adverts.gd`), finish run-off. The campaign is the list in `tracks/campaign.json`.
   The review's open items are done (PROGRESS, 17 Oct): the tracks span the field (66-82% of its
@@ -93,7 +110,8 @@ Updated 2026-10-19 (session 15). Details: `docs/PROGRESS.md` (latest entries), `
   at the start and finish, inflatable billboard walls outside curves, camera booths by
   checkpoints, seats in the stands, a result panel at the finish.
   The bot steers in the road's frame over 100 km/h (no more weave); medals re-set; v0.3 released.
-  Next: whatever the owner asks after playing v0.3. Screenshots with `--bot`: add
+  `stadium-v0.4` (18 Oct) is `stadium` + M9 (online, the A-E campaign, the review's fixes): the M9
+  branch is merged into `stadium`; `stadium-v0.5` (19 Oct) adds M10 (above). Next: whatever the owner asks after playing v0.5. Screenshots with `--bot`: add
   `--records=<scratch dir>` (a finish is recorded like the player's).
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.

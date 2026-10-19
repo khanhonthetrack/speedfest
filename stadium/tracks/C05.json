@@ -1,0 +1,9 @@
+{
+	"name": "C05-Endurance",
+	"author": "SpeedFest",
+	"start": [4, 3, 6, 0],
+	"laps": 2,
+	"medals": {"author": 55720, "gold": 59100, "silver": 67000, "bronze": 84000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["circuit", 1], ["s", 2], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 1], ["cp"], ["s", 1], ["up"], ["s", 5], ["gt", 3, "r"], ["s", 2], ["platform", 3, "walls"], ["turbo"], ["s", 3], ["platform", 1, "walls"], ["s", 1], ["cp"], ["s", 1], ["down"], ["s", 2], ["gt", 3, "r"], ["s", 6], ["circuit", 1], ["s", 1], ["cp"], ["s", 2], ["gt", 3, "r"], ["road"], ["s", 2], ["close"]]
+}

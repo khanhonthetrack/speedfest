@@ -1,0 +1,8 @@
+{
+	"name": "C12-Obstacle",
+	"author": "SpeedFest",
+	"start": [28, 4, 28, 2],
+	"medals": {"author": 30250, "gold": 32100, "silver": 37000, "bronze": 46000},
+	"bot_grip": 50,
+	"pieces": [["start"], ["s", 1], ["platform", 1, "walls"], ["s", 1], ["up"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 1], ["up"], ["s", 1], ["gt", 2, "l"], ["s", 2], ["gt", 2, "l"], ["s", 1], ["cp"], ["s", 1], ["down"], ["s", 1], ["gt", 2, "r"], ["s", 2], ["down"], ["s", 1], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 2], ["road"], ["s", 2], ["finish"]]
+}

@@ -1,0 +1,9 @@
+{
+	"name": "C14-Endurance",
+	"author": "SpeedFest",
+	"start": [8, 3, 10, 0],
+	"laps": 3,
+	"medals": {"author": 48450, "gold": 51400, "silver": 59000, "bronze": 73000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["platform", 3, "walls"], ["s", 2], ["turbo"], ["s", 1], ["gt", 3, "r"], ["platform", 1, "walls"], ["s", 1], ["cp"], ["s", 1], ["platform", 3, "walls"], ["gt", 3, "r"], ["s", 8], ["gt", 3, "r"], ["s", 3], ["gt", 3, "r"], ["road"], ["close"]]
+}

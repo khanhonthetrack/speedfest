@@ -1,0 +1,9 @@
+{
+	"name": "E03-Endurance",
+	"author": "SpeedFest",
+	"start": [6, 1, 4, 0],
+	"laps": 3,
+	"medals": {"author": 112830, "gold": 119600, "silver": 136000, "bronze": 170000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 2], ["climb", 2, "cp"], ["s", 1], ["circuit", 1], ["s", 3], ["gt", 3, "r"], ["s", 1], ["cp"], ["s", 1], ["down"], ["s", 1], ["platform", 1, "walls"], ["s", 2], ["gt", 2, "r"], ["s", 1], ["cp"], ["s", 1], ["gt", 2, "l"], ["s", 1], ["road"], ["turbo"], ["s", 2], ["loop", "r"], ["s", 1], ["gt", 3, "r"], ["s", 2], ["down"], ["down"], ["s", 1], ["cp"], ["gt", 3, "r"], ["s", 7], ["dirt"], ["s", 2], ["cp"], ["s", 2], ["road"], ["s", 3], ["gt", 3, "r"], ["close"]]
+}

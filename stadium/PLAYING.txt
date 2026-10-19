@@ -4,25 +4,34 @@ SPEEDFEST STADIUM - how to play
 1. Unzip this folder anywhere and run SpeedFestStadium.exe (Linux: SpeedFestStadium.x86_64).
    Nothing else to install. Windows may warn "Windows protected your PC" because the game
    isn't signed: click "More info" -> "Run anyway".
-2. PLAY races SpeedFest's own campaign: 10 tracks with author, gold, silver and bronze times.
-   Your best times and the ghost of your best run are saved.
-3. ONLINE -> "Join the official server" races everyone else on 5-minute rounds of random tracks
-   (time attack: restart as often as you like, your best time counts); or type a server's
-   address there.
+2. SOLO -> CAMPAIGN races SpeedFest's own campaign: 65 tracks in five series (White, Green,
+   Blue, Red, Black), each with author, gold, silver and bronze times. Your best times and the
+   ghost of your best run are saved. SOLO -> REPLAYS plays back the runs you saved. Before
+   your first run on a track (or Escape -> SELECT OPPONENTS) pick the ghost you race against: a
+   gold, silver or bronze medal run, or your personal best.
+3. ONLINE: log in or register to climb the ladder and keep online records, or play as a guest.
+   Pick a server from the list and JOIN (or SPECTATE), or type its address under JOIN BY
+   ADDRESS. World and zone rankings are there too.
+4. EDITORS -> TRACK EDITOR: build your own track from the Stadium's blocks and drive it to the
+   finish to validate it. PROFILE sets your nickname (TrackMania's $-colour codes work), zone
+   and car colour.
+5. COMMUNITY: TrackMania players' cars (ManiaPark) and tracks (TrackMania Exchange), shown by
+   their pictures. Download a car and pick "Drive this car" to race with it (online too), or
+   download a track and Play it. What you download stays under My Cars and My Tracks.
 
-TrackMania tracks too: OPEN A TRACK FILE races any TrackMania Nations Forever track file
-(.Challenge.Gbx), yours or downloaded. If TrackMania Nations Forever (free) is installed, its
-65-track campaign shows up in PLAY as more tabs. It's found in its usual folder
-(C:\Program Files (x86)\TmNationsForever or Steam's); elsewhere start the game with
--- --tmnf="D:\Games\TmNationsForever", or set the TMNF_DIR environment variable.
+TrackMania tracks too: SOLO -> OPEN A TRACK FILE races any TrackMania Nations Forever track file
+(.Challenge.Gbx), yours or downloaded.
 
-Straight into a track: SpeedFestStadium.exe -- --race=SF03
+Straight into a track: SpeedFestStadium.exe -- --race=A01
 
 Keys: arrows / WASD or a gamepad to drive, Enter respawns at the last checkpoint, Backspace
-restarts, Escape pauses, T chats online.
+restarts, Escape pauses, 1 / 2 / 3 change the camera (close behind, far behind, the cockpit).
+Online: T chats, V opens the votes (F1 yes, F2 no), F3 spectates.
 
 Options: graphics Low / High / Ultra (Ultra for strong graphics cards), HD textures, shadows,
-sound, music and its volume, the ghost of your best run.
+sound and music and their volumes, the ghost of your best run. The bar along the top of the
+screen (in a race: move the mouse to the top edge) has the volumes, the display settings and
+the clock too.
 
 Music and sounds: open-licensed works by their authors; see CREDITS-music.md and
 CREDITS-sounds.md. Fonts: Orbitron and Rajdhani (SIL Open Font License).

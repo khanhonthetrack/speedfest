@@ -1,0 +1,8 @@
+{
+	"name": "D12-Speed",
+	"author": "SpeedFest",
+	"start": [29, 12, 2, 0],
+	"medals": {"author": 28530, "gold": 30300, "silver": 35000, "bronze": 43000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["s", 4], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["dive", 1], ["s", 2], ["gt", 3, "l"], ["s", 3], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["turbo"], ["s", 4], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["gt", 3, "l"], ["s", 2], ["dive", 1], ["s", 1], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["s", 3], ["gt", 3, "l"], ["s", 3], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["road"], ["s", 1], ["cp"], ["s", 2], ["finish"]]
+}

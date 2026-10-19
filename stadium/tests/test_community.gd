@@ -2,7 +2,7 @@ extends Node
 ## The menu's Community page (needs Node.js; skipped without it), against the stadium server's
 ## /api/community pass-through serving local fixtures in place of TrackMania Exchange and
 ## ManiaPark (--community-fixtures): the car and track lists show their previews, a car is
-## downloaded (checked: it loads), driven (the menu's turntable and a race use it), a track is
+## downloaded (checked: it loads; it turns in the detail panel), driven (a race uses it), a track is
 ## downloaded and played, a modded one is kept but can't be raced, MY CARS lists the library.
 
 const PORT := 18095
@@ -56,9 +56,9 @@ func _ready() -> void:
 	var big := await _wait(func() -> bool:
 		var p := menu._comm_detail.find_child("Preview", true, false) as TextureRect
 		return p != null and p.texture != null, 8000)
-	TestHooks.check(big and _has_button(menu._comm_detail, "DOWNLOAD"), "community_car_detail", str(_button_texts(menu._comm_detail)))
+	TestHooks.check(big and _has_button(menu._comm_detail, "Download"), "community_car_detail", str(_button_texts(menu._comm_detail)))
 	menu.comm_download("model_" + CAR_ID)
-	var got := await _wait(func() -> bool: return _has_button(menu._comm_detail, "DRIVE THIS CAR"), 15000)
+	var got := await _wait(func() -> bool: return _has_button(menu._comm_detail, "Drive this car"), 15000)
 	var entry: Dictionary = menu.community.library["cars"].get("model_" + CAR_ID, {})
 	TestHooks.check(got and FileAccess.file_exists(String(entry.get("path", ""))) and TmCarPack.load_zip(String(entry["path"])).ok(),
 		"community_car_downloaded", str(entry))
@@ -67,8 +67,8 @@ func _ready() -> void:
 	await _wait(func() -> bool: return menu.comm_cards.has("model_" + CAR_ID), 8000)
 	TestHooks.check(String(TmUi.setting("community_car")) == String(entry.get("path", "")) and TmCommunity.my_car_pack() != null,
 		"community_car_driven")
-	await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("YOU DRIVE THIS CAR"), 3000)
-	TestHooks.check(_label_text(menu._comm_detail).contains("YOU DRIVE THIS CAR"), "community_car_says_driving")
+	await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("You drive this car"), 3000)
+	TestHooks.check(_label_text(menu._comm_detail).contains("You drive this car"), "community_car_says_driving")
 	# MY CARS: the library
 	menu.comm_filter["cars"] = "mine"
 	menu.show_page("community")
@@ -85,18 +85,18 @@ func _ready() -> void:
 		TestHooks.check(shown, "community_track_preview_shown")
 		menu.comm_select(TRACK_ID)
 		menu.comm_download(TRACK_ID)
-		got = await _wait(func() -> bool: return _has_button(menu._comm_detail, "PLAY"), 15000)
+		got = await _wait(func() -> bool: return _has_button(menu._comm_detail, "Play"), 15000)
 		TestHooks.check(got, "community_track_downloaded_playable", _label_text(menu._comm_detail))
 		var raced := []
 		menu.raced.connect(func(t: String, m: String) -> void: raced.append(m))
 		if got:
-			_press(menu._comm_detail, "PLAY")
+			_press(menu._comm_detail, "Play")
 		var path := String((menu.community.library["tracks"] as Dictionary).get(TRACK_ID, {}).get("path", ""))
 		TestHooks.check(raced.size() == 1 and raced[0] == path and TmChallenge.load_file(path).ok(), "community_track_played", str(raced))
 		menu.comm_select(MODDED_ID)
 		menu.comm_download(MODDED_ID)
-		var refused := await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("CAN'T BE RACED"), 15000)
-		TestHooks.check(refused and not _has_button(menu._comm_detail, "PLAY"), "community_modded_track_not_raced", _label_text(menu._comm_detail))
+		var refused := await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("Can't be raced"), 15000)
+		TestHooks.check(refused and not _has_button(menu._comm_detail, "Play"), "community_modded_track_not_raced", _label_text(menu._comm_detail))
 	menu.queue_free()
 	# a race drives the community car
 	TestHooks.args["track"] = "SF01"
@@ -159,11 +159,9 @@ func _wipe(path: String) -> void:
 	DirAccess.remove_absolute(path)
 
 
+## The car turning in the detail panel (a downloaded car selected).
 func _turntable_pack(menu: TmMenu) -> TmCarPack:
-	for c in menu._car_holder.get_children():
-		if c is TmCarVisual and not c.is_queued_for_deletion():
-			return (c as TmCarVisual).pack
-	return null
+	return menu.comm_car_look.pack if is_instance_valid(menu.comm_car_look) else null
 
 
 func _buttons(n: Node) -> Array:

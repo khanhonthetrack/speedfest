@@ -1,6 +1,6 @@
-"""The Stadium's remaining surfaces, our own art in its style (world-mapped, tileable): the field's
-mown grass, the dirt roads' packed earth, the platforms' concrete panels, the structures' painted
-steel and the light wall panels (tinted dark by TmMaterials for wall_dark). Colours from the
+"""The Stadium's remaining surfaces, our own art in its style (tileable): the field's mown grass,
+the loose dirt of berms and hills, the dirt roads' packed track, the structures' painted steel and
+the light wall panels (tinted dark by TmMaterials for wall_dark). (The decks: decks.py.) Colours from the
 Stadium's measured ones (TmMaterials). Sizes in metres are what one texture covers.
 usage: python3 stadium/tools/texgen/surfaces.py"""
 import numpy as np
@@ -28,8 +28,8 @@ def grass(name='stadium_grass', ppm=32, size_m=32.0, seed=201, base=(62, 92, 45)
     save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
 
 
-def dirt(name='stadium_dirt', ppm=64, size_m=8.0, seed=211, base=(96, 82, 61)):
-    """Packed earth: fine grain, pebbles, dry cracks, darker damp hollows, wheel streaks along z."""
+def dirt(name='stadium_dirt', ppm=64, size_m=8.0, seed=211, base=(84, 74, 58)):
+    """Loose earth (berms, hills): fine grain, pebbles, dry cracks, darker damp hollows."""
     w = h = int(size_m * ppm)
     grain = fbm(w, h, seed, beta=0.6, lo=64.0)
     lumps = fbm(w, h, seed + 1, beta=2.0, lo=4.0, hi=64.0)
@@ -46,31 +46,36 @@ def dirt(name='stadium_dirt', ppm=64, size_m=8.0, seed=211, base=(96, 82, 61)):
     save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
 
 
-def platform(name='platform_panels', ppm=64, size_m=16.0, seed=221, base=(168, 167, 164)):
-    """The platforms' deck: precast concrete panels 4 m square with chamfered joints, a bolt plate
-    at every corner, rubber and dust along the panels' edges."""
+def dirt_road(name='dirt_road', ppm=64, size_m=16.0, seed=215, base=(122, 109, 92)):
+    """The dirt roads' packed track (UV-mapped: x across the road, y along it): smoother and
+    lighter than the loose dirt, combed by tyres into fine streaks along the road with a few
+    darker ruts, damp patches, scattered gravel."""
     w = h = int(size_m * ppm)
-    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    px = ppm
-    fine = fbm(w, h, seed, beta=0.6, lo=64.0)
-    mid = fbm(w, h, seed + 1, beta=2.0, lo=4.0, hi=96.0)
-    macro = fbm(w, h, seed + 2, beta=2.8, lo=1.0, hi=8.0)
-    pits = speckles(w, h, seed + 3, 0.0007, 0.8, 2.0)
-    du = np.minimum(xx % (4 * px), 4 * px - xx % (4 * px)) / px
-    dv = np.minimum(yy % (4 * px), 4 * px - yy % (4 * px)) / px
-    d = np.minimum(du, dv)
-    joint = 1.0 - smoothstep(0.0, 0.035, d)
-    bevel = (1.0 - smoothstep(0.035, 0.07, d)) * (1.0 - joint)
-    corner = 1.0 - smoothstep(0.10, 0.13, np.hypot(du, dv))
-    edge_dust = 1.0 - smoothstep(0.05, 0.4, d)
-    tone = 1.0 + 0.02 * macro + 0.02 * mid + 0.04 * fine - 0.2 * pits
-    tone *= 1.0 - 0.5 * joint - 0.12 * bevel - 0.06 * edge_dust
+    fine = fbm(w, h, seed, beta=0.8, lo=64.0)
+    combed = blur_xy(fbm(w, h, seed + 1, beta=0.6, lo=48.0), 0.7, 90.0)
+    combed /= combed.std() + 1e-6
+    combed *= smoothstep(-0.8, 1.2, fbm(w, h, seed + 6, beta=2.4, lo=2.0, hi=24.0))   # in places
+    ruts = blur_xy(fbm(w, h, seed + 2, beta=2.0, lo=3.0, hi=40.0), 5.0, 160.0)
+    ruts = smoothstep(0.6, 1.8, ruts / (ruts.std() + 1e-6))
+    damp = smoothstep(0.5, 1.8, fbm(w, h, seed + 3, beta=2.8, lo=1.0, hi=8.0))
+    gravel = speckles(w, h, seed + 4, 0.0016, 0.6, 1.8)
+    gravel_dark = speckles(w, h, seed + 5, 0.0010, 0.6, 1.5)
+    tone = (1.0 + 0.05 * fine + 0.035 * combed - 0.09 * ruts - 0.12 * damp) * (1.0 + 0.25 * gravel) * (1.0 - 0.3 * gravel_dark)
     col = srgb(base)[None, None, :] * tone[..., None]
-    col = col * (1 - corner[..., None] * 0.6) + srgb((120, 122, 126))[None, None, :] * corner[..., None] * 0.6
-    height = 0.5 * fine + 0.2 * mid - 2.0 * pits - 5.0 * joint - 2.0 * bevel + 0.8 * corner
-    nrm = normal_from_height(height, 0.4)
-    orm = np.stack([1.0 - 0.4 * joint - 0.15 * edge_dust, 0.82 + 0.05 * fine - 0.25 * corner, 0.6 * corner], -1)
-    save(name, np.clip(col, 0, 1), nrm, orm, size=(1024, 1024))
+    col[..., 2] *= 1.0 - 0.04 * damp
+    height = 0.3 * fine + 0.12 * combed - 0.5 * ruts + 1.2 * gravel + 0.8 * gravel_dark
+    nrm = normal_from_height(height, 0.35)
+    orm = np.stack([1.0 - 0.15 * ruts, 0.9 - 0.15 * damp + 0.03 * fine, np.zeros_like(fine)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
+
+
+def blur_xy(a, sx, sy):
+    """Tileable Gaussian blur with its own sigma (pixels) along x and y (streaks)."""
+    h, w = a.shape
+    fy = np.fft.fftfreq(h)[:, None]
+    fx = np.fft.fftfreq(w)[None, :]
+    g = np.exp(-2.0 * np.pi ** 2 * ((sx * fx) ** 2 + (sy * fy) ** 2))
+    return np.real(np.fft.ifft2(np.fft.fft2(a) * g))
 
 
 def steel(name='steel_painted', ppm=64, size_m=8.0, seed=231, base=(78, 81, 88)):
@@ -126,6 +131,6 @@ def wall_panels(name='wall_panels', ppm=48, size_m=16.0, seed=241, base=(226, 22
 if __name__ == '__main__':
     grass()
     dirt()
-    platform()
+    dirt_road()
     steel()
     wall_panels()

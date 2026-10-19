@@ -21,7 +21,7 @@ const LAPS := {"name": "Laps", "start": [10, 1, 10, 0], "laps": 2, "pieces": [["
 
 
 func _ready() -> void:
-	TestHooks.args["records"] = "user://test_records"
+	TestHooks.args["records"] = "user://test_records_areas"   # its own: tests may run side by side
 	TmRecords.clear()
 	var b := TmTrackBuilder.build(AREAS)
 	TestHooks.check(b.errors.is_empty() and b.checkpoints == 2, "areas_lay_out", "; ".join(b.errors))

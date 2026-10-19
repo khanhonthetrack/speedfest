@@ -69,7 +69,8 @@ func _ready() -> void:
 ## id, and a finish on it is ranked.
 func _community(node: String, script: String) -> void:
 	var port := PORT + 2
-	var pid := OS.create_process(node, [script, "--port=%d" % port, "--name=Community", "--tracks=SF01", "--admin-password=let-me-in"])
+	var pid := OS.create_process(node, [script, "--port=%d" % port, "--name=Community", "--tracks=A01", "--admin-password=let-me-in",
+		"--data=" + _fresh_dir("user://test_master_community")])
 	await _wait(func() -> bool: return _up_at(port), 8000)
 	var file := ProjectSettings.globalize_path("user://test_upload.Challenge.Gbx")
 	var lib := ProjectSettings.globalize_path("res://server/lib/gbx.js").replace("\\", "/")
@@ -179,7 +180,8 @@ func _http(url: String, method: int, body: PackedByteArray, type: String, auth :
 ## parks the car.
 func _rounds(node: String, script: String) -> void:
 	var port := PORT + 1
-	var pid := OS.create_process(node, [script, "--port=%d" % port, "--mode=Rounds", "--name=Rounds Test", "--tracks=SF01,SF02"])
+	var pid := OS.create_process(node, [script, "--port=%d" % port, "--mode=Rounds", "--name=Rounds Test", "--tracks=SF01,SF02",
+		"--data=" + _fresh_dir("user://test_master_rounds")])
 	await _wait(func() -> bool: return _up_at(port), 8000)
 	Online.join("127.0.0.1:%d" % port, "Racer", Color(0.9, 0.1, 0.1))
 	var ok := await _wait(func() -> bool: return Online.is_online(), 8000)
@@ -222,6 +224,25 @@ func _rounds(node: String, script: String) -> void:
 	scene.queue_free()
 	Online.leave()
 	OS.kill(pid)
+
+
+## An empty data directory for a test server (never the server's own data/: on the official
+## server's PC that holds its accounts, and an upload there would stay in its rotation).
+func _fresh_dir(path: String) -> String:
+	var dir := ProjectSettings.globalize_path(path)
+	_wipe(dir)
+	DirAccess.make_dir_recursive_absolute(dir)
+	return dir
+
+
+func _wipe(dir: String) -> void:
+	if not DirAccess.dir_exists_absolute(dir):
+		return
+	for f in DirAccess.get_files_at(dir):
+		DirAccess.remove_absolute(dir.path_join(f))
+	for d in DirAccess.get_directories_at(dir):
+		_wipe(dir.path_join(d))
+	DirAccess.remove_absolute(dir)
 
 
 func _up_at(port: int) -> bool:

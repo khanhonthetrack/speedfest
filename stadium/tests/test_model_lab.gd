@@ -192,14 +192,19 @@ func _coast_and_surfaces() -> void:
 	var capped := Sim.new(1010.0)
 	capped.tick(1.0, 0.0, 0.0)
 	_check("speed_cap_push", (capped.v.z - 1010.0 / 3.6) / DT, -10.01, -9.99, " m/s^2")
-	# grass: accel x0.15 -> 0-100 in 100/3.6/(16*0.15) = 11.57 s; dirt x0.25 -> 6.94 s
-	_check("grass_0_100", _time_to(100.0, T.Surface.GRASS), 11.4, 11.8, " s")
-	_check("dirt_0_100", _time_to(100.0, T.Surface.DIRT), 6.8, 7.1, " s")
-	# ice: no drive at all
+	# grass: accel x0.4 -> 0-100 in 100/3.6/(16*0.4) = 4.34 s; dirt x0.9 -> 1.93 s (TMNF's runs:
+	# 6.33 and 14.2 m/s^2 below 100 km/h, M10-3)
+	_check("grass_0_100", _time_to(100.0, T.Surface.GRASS), 4.25, 4.45, " s")
+	_check("dirt_0_100", _time_to(100.0, T.Surface.DIRT), 1.88, 2.0, " s")
+	# braking on grass barely works: 30 x 0.05 + coasting 1 + 0.3 v (TMNF at 200-240 km/h: 20.7)
+	var gb := Sim.new(220.0, T.Surface.GRASS)
+	gb.tick(0.0, 1.0, 0.0)
+	_check("grass_brake_220", (gb.v.z - 220.0 / 3.6) / DT, -21.0, -20.5, " m/s^2")
+	# ice: accel x0.1, 2 s of throttle -> 1.6 m/s^2 x 2 s = 11.5 km/h
 	var ice := Sim.new(0.0, T.Surface.ICE)
 	while ice.t < 2.0:
 		ice.tick(1.0, 0.0, 0.0)
-	_check("ice_no_drive", ice.kmh(), -0.01, 0.01, " km/h")
+	_check("ice_slow_drive", ice.kmh(), 10.5, 12.5, " km/h")
 	# reverse: brake from a standstill backs up
 	var rev := Sim.new(0.0)
 	while rev.t < 2.0:

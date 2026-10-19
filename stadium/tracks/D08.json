@@ -1,0 +1,8 @@
+{
+	"name": "D08-Speed",
+	"author": "SpeedFest",
+	"start": [2, 14, 8, 0],
+	"medals": {"author": 28400, "gold": 30200, "silver": 35000, "bronze": 43000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["turbo"], ["s", 5], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["gt", 3, "r"], ["s", 3], ["dive", 1], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["s", 4], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["gt", 3, "r"], ["s", 4], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["dive", 1], ["s", 2], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["gt", 3, "r"], ["s", 1], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["platform", 5], ["turbo"], ["s", 1], ["platform", 1], ["s", 1], ["cp"], ["s", 1], ["road"], ["cp"], ["s", 1], ["finish"]]
+}

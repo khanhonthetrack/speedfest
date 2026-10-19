@@ -1,0 +1,8 @@
+{
+	"name": "B07-Race",
+	"author": "SpeedFest",
+	"start": [4, 1, 4, 0],
+	"medals": {"author": 21590, "gold": 22900, "silver": 26000, "bronze": 33000},
+	"bot_grip": 60,
+	"pieces": [["start"], ["s", 2], ["cp"], ["s", 2], ["gt", 4, "r"], ["s", 2], ["climb", 1, "cp"], ["s", 1], ["gt", 3, "l"], ["s", 2], ["cp"], ["s", 2], ["dive", 1], ["s", 2], ["gt", 3, "l"], ["s", 2], ["cp"], ["s", 2], ["finish"]]
+}

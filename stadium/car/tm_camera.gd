@@ -3,6 +3,8 @@ extends Camera3D
 ## Chase camera in the spirit of TMNF's default view: behind and above the car, following its
 ## heading with a short lag, looking a little ahead of the car. Works upside down (loops) by
 ## following the car's up axis while it touches the ground and the world's up in the air.
+## TMNF's three views (keys 1, 2, 3; `view`): this one close behind, one farther back and higher,
+## and the driver's own from the cockpit; the choice is kept from race to race.
 
 @export var target: TmCar
 @export var distance := 6.2
@@ -13,6 +15,20 @@ extends Camera3D
 @export var base_fov := 72.0
 @export var fast_fov := 84.0          ## at FAST_KMH and over: a wider view for the sense of speed
 const FAST_KMH := 350.0
+const VIEWS := [[6.2, 2.0, 0.9], [9.6, 3.4, 1.2]]   ## [distance, height, look_height] of views 0 and 1
+const COCKPIT := Vector3(0.0, 0.44, -0.44)         ## view 2: the driver's eyes, in the car's frame
+static var chosen := 0                             ## the last view picked (races keep it)
+
+var view := 0:
+	set(v):
+		view = clampi(v, 0, 2)
+		chosen = view
+		if view < 2:
+			distance = VIEWS[view][0]
+			height = VIEWS[view][1]
+			look_height = VIEWS[view][2]
+		if target:
+			_place(1.0)
 
 var _dir := Vector3.FORWARD
 var _up := Vector3.UP
@@ -25,9 +41,10 @@ func _ready() -> void:
 	# which TAA then smeared (the car looked blurry while driving)
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	fov = base_fov
-	near = 0.1
+	near = 0.05
 	far = 4000.0
 	process_priority = 100
+	view = chosen
 	if target:
 		_dir = target.global_transform.basis.z
 		_up = target.global_transform.basis.y
@@ -79,6 +96,9 @@ func _process(delta: float) -> void:
 
 
 func _place(_k: float) -> void:
+	if view == 2:      # in the cockpit: the car's own frame, looking ahead (+z)
+		global_transform = target.get_global_transform_interpolated() * Transform3D(Basis(Vector3.UP, PI), COCKPIT)
+		return
 	var p := target.get_global_transform_interpolated().origin
 	var eye := p - _dir * distance + _up * height
 	var look := p + _up * look_height + _dir * 2.0

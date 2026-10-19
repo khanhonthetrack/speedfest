@@ -108,6 +108,8 @@ const BODY_FRICTION_METAL := 0.2     ## [0x174]
 const BODY_KEEP := 0.5               ## [0x17c] impulse keeps this much of the approach speed
 const WHEEL_SIDE_KEEP := 0.5         ## [0x178]
 const WHEEL_GROUND_KEEP := 0.8       ## [0x184]
+const IMPULSE_SPIN := 0.55           ## [0x0ec] AddVehicleImpulse applies this share of a contact impulse's spin (r x j)
+const MAX_SPIN := 100.0              ## [0x14c] rad/s: AddVehicleImpulse caps the angular speed
 const SUBSTEP_DIST := 0.3            ## [0x168] max travel per collision sub-step (m)
 
 # --- turbo ---
@@ -142,7 +144,12 @@ const BODY_ELLIPSOIDS := [
 	[Vector3(-0.0155, -0.0752, 1.46535), Vector3(0.9053, 0.2834, 0.3848), 0.0],
 ]
 
-# --- surfaces: id -> [top speed, accel, brake, grip] (StadiumVehicleMaterials) ---
+# --- surfaces: id -> four factors (StadiumVehicleMaterials), in the file's column order ---
+# What each column scales was measured from TMNF's own runs (M10-3: the campaign replays' ghosts,
+# race/ghost_fit.tscn, tools/research/tmnf/accel_curve.py): on grass TMNF drives at exactly 0.4x
+# asphalt's acceleration at every speed step and brakes at 0.05x, on dirt 0.9x and 0.4x, so
+# column 2 is the drive and column 3 the brakes; started from a ghost's state, our car follows
+# TMNF best with column 1 as the side grip. Column 0 caps the top speed.
 enum Surface { CONCRETE = 0, PAVEMENT = 1, GRASS = 2, ICE = 3, METAL = 4, SAND = 5, DIRT = 6,
 	TURBO = 7, DIRT_ROAD = 8, RUBBER = 9, ROCK = 12, WATER = 13, WOOD = 14, ASPHALT = 16,
 	WET_DIRT_ROAD = 17, WET_PAVEMENT = 19, WET_GRASS = 20, SNOW = 21, TURBO2 = 26,
@@ -154,6 +161,12 @@ const SURFACES := {
 	16: [1.0, 1.0, 1.0, 1.0], 17: [0.9, 1.0, 1.0, 1.0], 19: [1.0, 0.85, 1.0, 0.85],
 	20: [0.1, 0.5, 0.5, 1.0], 21: [0.2, 0.1, 0.6, 0.1],
 }
+
+
+const S_TOP := 0                   ## x max speed
+const S_GRIP := 1                  ## x side friction caps
+const S_ACCEL := 2                 ## x drive (throttle, and reverse)
+const S_BRAKE := 3                 ## x brake caps
 
 
 static func surface_vals(id: int) -> Array:

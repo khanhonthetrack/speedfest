@@ -29,13 +29,17 @@ func _rules() -> void:
 	var r := TmRace.new(3, 1)
 	var started := [false]
 	r.started.connect(func() -> void: started[0] = true)
-	for i in 149:
+	for i in TmRace.COUNTDOWN_MS / TmRace.TICK_MS - 1:
 		r.tick()
-	TestHooks.check(r.state == TmRace.State.COUNTDOWN and not started[0], "countdown_holds", "%d" % r.countdown_ms)
+	TestHooks.check(r.state == TmRace.State.COUNTDOWN and not started[0] and r.clock_ms() == -TmRace.TICK_MS, "countdown_holds",
+		"%d" % r.countdown_ms)
 	r.cross(5, W.CHECKPOINT)
 	TestHooks.check(r.taken.is_empty(), "no_checkpoint_in_countdown")
 	r.tick()
-	TestHooks.check(r.state == TmRace.State.RACING and started[0] and r.time_ms == 0, "countdown_1500ms")
+	TestHooks.check(r.state == TmRace.State.RACING and started[0] and r.time_ms == 0 and TmRace.COUNTDOWN_MS == 2600, "countdown_2600ms")
+	# TMNF's figures: 3, 2, 1, Go! every 0.75 s from -2.0 s, each shown 0.65 s
+	var figs := [-2600, -2000, -1400, -1300, -1250, -550, -500, -50, 0, 250, 800, 950].map(func(t: int) -> String: return TmRace.figure_at(t))
+	TestHooks.check(figs == ["", "3", "3", "", "2", "", "1", "1", "1", "go", "go", ""], "countdown_figures", str(figs))
 	for i in 123:
 		r.tick()
 	TestHooks.check(r.time_ms == 1230, "clock_10ms_ticks", "%d" % r.time_ms)
@@ -67,7 +71,7 @@ func _rules() -> void:
 
 func _laps() -> void:
 	var r := TmRace.new(2, 3)
-	for i in 150:
+	for i in TmRace.COUNTDOWN_MS / TmRace.TICK_MS:
 		r.tick()
 	r.cross(0, W.START_FINISH)
 	TestHooks.check(r.lap == 0, "lap_line_needs_checkpoints")
@@ -138,6 +142,15 @@ func _track(track: String) -> void:
 		"%s %d" % [race.state, race.time_ms])
 	TestHooks.check(not car.wheel_contact.has(false) and car.global_position.distance_to(p0) < 0.3,
 		"%s_rests_on_start" % track, "contacts %s, moved %.2f m" % [car.wheel_contact, car.global_position.distance_to(p0)])
+	# TMNF's views: the second farther back and higher than the first, the third in the cockpit
+	var cam: TmCamera = scene.cam
+	var d1 := cam.global_position.distance_to(car.global_position)
+	cam.view = 1
+	var d2 := cam.global_position.distance_to(car.global_position)
+	cam.view = 2
+	var d3 := cam.global_position.distance_to(car.global_position)
+	TestHooks.check(d2 > d1 + 2.0 and d3 < 1.0 and TmCamera.chosen == 2, "%s_views" % track, "%.1f, %.1f, %.1f m" % [d1, d2, d3])
+	cam.view = 0
 	car.gas = 1.0
 	for i in 100:
 		await get_tree().physics_frame

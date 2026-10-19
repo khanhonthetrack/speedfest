@@ -217,24 +217,35 @@ def logo(name='logo', w=1200, h=300):
     save_rgba(name, rgb, a)
 
 
-def countdown(text, name, w=360, h=260):
-    """The start countdown's figures (3, 2, 1, GO!), as TMNF shows them: big slanted letters in a
-    glossy blue gradient (light at the top, deep below a bright horizon), a white rim, a dark
-    outline and a soft glow."""
-    px = 230 if len(text) == 1 else 150
-    m = text_mask(w, h, text, font('orbitron-latin-900-normal', px), (w / 2, h / 2 + 4), italic=0.2, tracking=4)
+def countdown(text, name, w=360, h=260, pale=False):
+    """The start countdown's figures (3, 2, 1, Go!), as TMNF shows them: upright bold rounded
+    figures in a glossy blue gradient (light at the top, deep below a bright horizon), a white rim,
+    a dark outline and a soft glow; Go! pale (white to ice blue) inside a blue outline."""
+    px = 230 if len(text) == 1 else 170
+    m = text_mask(w, h, text, font('cabin-latin-700-normal', px), (w / 2, h / 2 + 4))
     yy = np.mgrid[0:h, 0:w][0].astype(np.float32)
     ys = np.nonzero(m.max(axis=1) > 0.5)[0]
     y0, y1 = (ys[0], ys[-1]) if len(ys) else (0, h)
     t = np.clip((yy - y0) / max(y1 - y0, 1), 0, 1)
-    top = srgb((190, 230, 255))
-    mid = srgb((40, 120, 235))
-    low = srgb((10, 40, 140))
+    if pale:
+        top, mid, mid2, low = srgb((255, 255, 255)), srgb((215, 238, 255)), srgb((190, 225, 255)), srgb((120, 175, 245))
+    else:
+        top, mid, mid2, low = srgb((190, 230, 255)), srgb((40, 120, 235)), srgb((70, 160, 255)), srgb((10, 40, 140))
     col = np.where((t < 0.5)[..., None], lerp(top[None, None, :], mid[None, None, :], (t / 0.5)[..., None]),
-                   lerp(srgb((70, 160, 255))[None, None, :], low[None, None, :], ((t - 0.5) / 0.5)[..., None]))
+                   lerp(mid2[None, None, :], low[None, None, :], ((t - 0.5) / 0.5)[..., None]))
     rim = np.clip(m - blur(m, 2.0) * 1.0, 0, 1) * 1.5
     col = lerp(col, np.ones_like(col), np.clip(rim, 0, 1) * 0.6)
     outline = np.clip(blur(m, 4.0) * 3.0, 0, 1)
+    if pale:      # Go!: a blue outline rather than a near-black one
+        rgb0 = np.zeros((h, w, 3), np.float32)
+        glow = np.clip(blur(m, 16.0) * 1.8, 0, 1)
+        rgb0 = lerp(rgb0, np.broadcast_to(srgb((30, 110, 230)), rgb0.shape), glow)
+        a = glow * 0.5
+        rgb0 = lerp(rgb0, np.broadcast_to(srgb((20, 80, 200)), rgb0.shape), outline)
+        a = np.maximum(a, outline * 0.95)
+        rgb0 = lerp(rgb0, col, m)
+        save_rgba(name, rgb0, np.maximum(a, m))
+        return
     glow = np.clip(blur(m, 16.0) * 1.8, 0, 1)
     rgb = np.zeros((h, w, 3), np.float32)
     rgb = lerp(rgb, np.broadcast_to(srgb((20, 90, 220)), rgb.shape), glow)
@@ -249,7 +260,7 @@ def countdown(text, name, w=360, h=260):
 if __name__ == '__main__':
     for fig in ('3', '2', '1'):
         countdown(fig, 'count_' + fig)
-    countdown('GO!', 'count_go', w=520)
+    countdown('Go!', 'count_go', w=520, pale=True)
     sphere('check_off', (40, 52, 62))
     sphere('check_on', LIME)
     medal('medal_author', (226, 196, 92), ring=(40, 170, 70))

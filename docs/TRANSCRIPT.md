@@ -749,6 +749,159 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   account's usage limit (the reason for the owner's sequential rule), so its 42 findings are checked
   and fixed one by one, sequentially, from here on.
 
+## Release — 2026-10-18 (owner's Windows PC, branch `stadium`)
+
+### User (verbatim)
+
+> Look at the repo and release the most up to date version
+
+> of the stadium i meant
+
+Asked which "latest" (the `stadium` tip, `stadium` + the M9 branch, or also session 15's
+unfinished `ccr-1ce252fc-wl7p3m`), the owner chose: "stadium + M9 branch".
+
+### Claude
+
+- Merged `claude/tmnf-replica-graphics-nb1kcg` (M9-7 online, the M9 review's 42 fixes, M9-8 the
+  65-track A-E campaign) into `stadium`, which already had v0.4 and the rotating adverts; only the
+  docs conflicted (both sides kept). `PLAYING.txt` (the zips' how-to-play and the release notes)
+  rewritten for the new game. Tagged `stadium-v0.4` on the result; CI makes the GitHub Release.
+  Session 15's branch stays out (unfinished).
+
+### User (verbatim, after the release)
+
+> Yes, start the official server on this PC with run_official.ps1 -Publish so v0.4's ONLINE finds it.
+
+### Claude
+
+- Started it (`run_official.ps1 -Publish`): M9-7's server behind a new Cloudflare quick tunnel, the
+  address committed to `stadium/server/official.json`; checked from outside (status, server list,
+  a WebSocket join). It stops if the PC restarts: run the script again with `-Publish`.
+
+> Stop the tasks  when done with the white tracks
+
+> Continue
+
+### Claude
+
+- The first message arrived after the whole A-E campaign was already done and pushed (White, then
+  Green, Blue, Red and Black, each committed separately with medals and a passing gate), so there
+  was nothing left to stop; the owner's next message was "Continue".
+- Continuing M9 in order: M9-2, the look of what the campaign now shows most (platform decks and
+  walls, circuit borders, dirt), compared side by side with TMNF's own look in local reference
+  renders (`--ref`, outside the repo).
+
+### Claude
+
+- M9-2 finished (decks, walls, circuit borders, dirt roads, control booths, grandstand trusses and
+  boards, raised grandstands, Ultra's roofs) and M9-0's notes written: M9 complete. Asked whether
+  the circuit walls' lane-side screens should be dark like TMNF's.
+
+### User (verbatim)
+
+> 1. Keep them dark.
+> 2. When you drift or brake hard, i want to see scratchmarks like in TMNF
+> 3. Revisit the physics on grass or dirt or anything else than asphalt, it feels a bit different than TMNF.
+> 4. Revisit jump physics whether it's the same as in TMNF.
+> 5. continue with the look, UI, menus, and sound to be identical to TMNF - right now it looks lame. Do screenshots to compare side by side.
+
+### Claude
+
+- Plan (M10, in the owner's order, one at a time, pushed after each): dark circuit screens; tyre
+  marks when drifting or braking hard; the physics off asphalt against TMNF's model and replays;
+  jumps; then the look, UI, menus and sound side by side with screenshots of TMNF itself (run
+  locally under Wine where possible; nothing of it committed).
+
+### User (verbatim, during M10-1, with an image of ours next to TMNF's circuit lane)
+
+> in your picture on the right, there is a blue line/blue kerbs, but on the left you just use a dark tile? it's different
+
+### Claude
+
+- Fixed: the circuit wall's foot now has TMNF's bright blue kerb strip, the black logo bumper and the
+  blue line under the top (PROGRESS, "Circuit wall foot").
+
+### Claude
+
+- M10-1 (dark screens, the wall foot's blue kerb and logo bumper), M10-2 (tyre marks and smoke)
+  and M10-3 (grass and dirt: the surface table's columns were misread; measured against TMNF's own
+  campaign ghosts) done and pushed; M10-4 (jumps) under way: TMNF's flight matches ours to 2 cm,
+  the difference is in nose-down landings.
+
+### User (verbatim)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+- M10-5 under way (look, UI, menus, sound side by side with TMNF running locally): HUD and
+  countdown, the race menu and finish card, the menus, the loading screen and camera views, the
+  cues, Select Opponent done and pushed; the campaign cards' track pictures rendering.
+
+### User (verbatim, session 13, 19 Oct, again after a usage limit)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+- M10-5 done and pushed (side-by-side sheet sent). Open decisions put to the owner: 1. the engine's
+  pitch curves (reading TMNF's engine sound definition), 2. TMNF's padlocks on later campaign
+  tracks, 3. the wheelie after nose-down landings (reading TMNF's contact code).
+
+### User (verbatim, session 13, 19 Oct)
+
+> About 3 - do it
+- Wheelie (3): TMNF's contact code read locally; our port matches it where it is readable; nine
+  variants of the one unreadable choice measured against TMNF's landings, none matched without
+  breaking speeds (tmnf_physics.md §3.7b). Stopped by the owner:
+
+### User (verbatim, session 13, 19 Oct)
+
+> nevermind. did you implemented the pop up menu if you put your mouse to the top just like in tmnf?
+- Answered: not built yet (our menus have a fixed bar with the nickname, zone and clock).
+
+### User (verbatim, session 13, 19 Oct)
+
+> yes build it, in races too
+
+### User (verbatim, session 13, 19 Oct, while the top bar was being finished)
+
+> the bar should be as wide as the window screen
+
+### User (verbatim, session 13, 19 Oct)
+
+> take into account claude/sleepy-albattani-o7ygr1 (1e91708) (small physics bug fix) and merge into stadium to release v0.5
+
+<!-- (another session, in parallel on branch `claude/sleepy-albattani-o7ygr1`, commit 1e91708; brought in for v0.5) -->
+
+### User (verbatim, 2026-10-19, session 11; with a screenshot of the previous session's plan)
+
+> problem: Wheelie after nose-down landings (from the jumps request): TMNF's car pops onto its rear wheels after a nose-down landing and ours doesn't; this still waits on your decision about reading TMNF's code.
+>
+> solution approach:in the screenshot - do it
+
+The screenshot showed the previous session's reasoning: *"Likely culprit found: WheelAbsorbContact
+applies the full contact impulse under a flag we assumed meant 'suspension bottomed,' but if it's
+actually set for every real contact, that would produce TMNF's nose-up kick on nose-down landings.
+I'll check the disassembly to confirm what the flag really represents."* — with its last step
+("Locate ground-contact branch in the disassembly") blocked.
+
+### Claude
+
+- Read as approval to read TMNF's code for this question. Rebuilt the RE pipeline without Ghidra
+  (map + objdump), disassembled `WheelAbsorbContact`, and **disproved the hypothesis**: the flag is
+  set only on `room <= penetration` (the spring could not swallow it), and our port already matches
+  TMNF branch for branch. Found instead that `AddVehicleImpulse` scales the angular part of every
+  contact impulse by 0.55 [0x0ec], which our port does not — our contacts over-rotate. Documented
+  (§3.2a, §3.2b), committed the two new RE scripts, and left the wheelie's real cause open with
+  next candidates in HANDOFF.
+
+### Claude (v0.5, session 13, 19 Oct)
+
+- Brought in 1e91708's research alone (that branch started from old `main`) and put its find in:
+  every contact impulse now turns the car at TMNF's 0.55 of r x j, the spin capped at 100 rad/s.
+  Against TMNF's runs the landings end closer (0.26 m apart, was 0.34) and the car now pivots
+  onto its rear wheels after nose-down landings about two thirds as long as TMNF's (was a third).
+  Two checks followed: the lab's quarter pipe (the car bounces along it more) and exact replays
+  of recorded inputs (the steer now kept at 1/65536).
+- Merged M10 into `stadium` (with v0.4, the rotating adverts and the server address there); the
+  grandstands' new advert boards needed the rotating ads' screen layout. `PLAYING.txt` updated.
+  STADIUM_TESTS PASS on the merge. The tag `stadium-v0.5` makes the Release (see HANDOFF).
+
 ## Session 15 — 2026-10-18 (cloud; branch `ccr-1ce252fc-wl7p3m` = `stadium` + M9)
 
 ### User (verbatim)
@@ -802,3 +955,16 @@ Then, after the screenshots (verbatim):
 > Great
 
 (Open, asked: TMUnlimiter 2 tracks, the static placed blocks first, or keep refusing them.)
+
+Owner, later in session 15 (verbatim):
+> So, modded tracks cannot be raced or just the ones from TMUNLIMITED?
+
+(Answered: only TMUnlimiter tracks (13 of 1113) and editor-hack tracks with other environments' or
+custom blocks (2); a texture mod or custom music is ignored and the track races with our look.)
+
+> Ignore those. Why cant i see the community tab in the 0.5 version?
+
+(Answered: v0.5 was tagged from `stadium`, which didn't have this branch; offered to merge v0.5 into
+the branch, then put it on `stadium` for a v0.6.)
+
+> Yes, do both - dont release yet

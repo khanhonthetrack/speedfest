@@ -6,6 +6,13 @@
 global uniform sampler2D tm_occl_tex : filter_linear, repeat_disable;
 global uniform vec4 tm_occl_rect;   // x0, z0 (Godot world), 1 / width, 1 / depth
 global uniform float tm_occl_on;
+// Sunlight through the fabric roofs (TmRtx: on with SDFGI, which finds little else to light their
+// undersides): a glow on surfaces facing down, times their material's `translucent`.
+global uniform float tm_membrane;
+
+vec3 tm_membrane_glow(vec3 albedo, vec3 n, float translucent) {
+	return albedo * translucent * tm_membrane * smoothstep(-0.3, 0.6, -n.y);
+}
 
 float tm_cover(vec2 xz, float y) {
 	vec2 uv = (xz - tm_occl_rect.xy) * tm_occl_rect.zw;

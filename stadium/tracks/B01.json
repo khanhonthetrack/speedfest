@@ -1,0 +1,8 @@
+{
+	"name": "B01-Race",
+	"author": "SpeedFest",
+	"start": [4, 5, 6, 3],
+	"medals": {"author": 20150, "gold": 21400, "silver": 25000, "bronze": 31000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 2], ["cp"], ["s", 1], ["circuit", 1], ["s", 2], ["gt", 3, "l"], ["s", 3], ["down"], ["s", 2], ["gt", 2, "r"], ["s", 2], ["cp"], ["s", 1], ["gt", 2, "r"], ["s", 3], ["up"], ["s", 1], ["road"], ["s", 2], ["finish"]]
+}

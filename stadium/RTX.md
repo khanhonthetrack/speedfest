@@ -5,7 +5,9 @@
 - **High** (default): SSAO, glow, shadows to 700 m.
 - **Ultra** (RTX-class GPUs): real-time global illumination (SDFGI, 6 cascades), screen-space
   reflections (water, glossy surfaces) and indirect light (SSIL), light volumetric haze lit by the
-  sun, shadows to 900 m in 4 splits. `--set_quality=2` forces it for a run.
+  sun, shadows to 900 m in 4 splits. `--set_quality=2` forces it for a run. With SDFGI the fabric
+  roofs' undersides would only get light bounced off the grass, so Ultra adds the sunlight that
+  shows through the membrane (`TmRtx.MEMBRANE`, `TmMaterials.TRANSLUCENT`).
 
 ## NVIDIA's RTX fork of Godot (branch `nvidia-pt-dlss`)
 The same code detects the fork at runtime (`env/tm_rtx.gd`, from SpeedFest's `m7-rtx` work, see

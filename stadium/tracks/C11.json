@@ -1,0 +1,8 @@
+{
+	"name": "C11-Race",
+	"author": "SpeedFest",
+	"start": [2, 9, 16, 3],
+	"medals": {"author": 28960, "gold": 30700, "silver": 35000, "bronze": 44000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["circuit", 1], ["s", 3], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 2], ["down"], ["s", 2], ["gt", 2, "l"], ["s", 3], ["circuit", 3], ["s", 3], ["gt", 3, "l"], ["s", 4], ["circuit", 1], ["s", 1], ["cp"], ["s", 1], ["circuit", 3], ["gt", 3, "l"], ["s", 3], ["down"], ["s", 2], ["circuit", 1], ["gt", 2, "r"], ["s", 3], ["cp"], ["s", 2], ["road"], ["s", 2], ["finish"]]
+}
