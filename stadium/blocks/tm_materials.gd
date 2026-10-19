@@ -34,10 +34,15 @@ const COLORS := {
 	# the border atlas' bands (texgen/borders.py; one texture, the UVs pick the band): their own
 	# colours when HD is off
 	"border_panel": [Color8(179, 171, 168), 0.75, 0.0],
+	"border_blue": [Color8(62, 133, 254), 0.5, 0.0],
 	"border_ribs": [Color8(36, 35, 31), 0.9, 0.0],
 	"border_black": [Color8(16, 15, 15), 0.85, 0.0],
 	"border_orange": [Color8(190, 99, 8), 0.6, 0.0],
 	"border_green": [Color8(58, 128, 66), 0.65, 0.0],
+	"road_under": [Color8(141, 136, 133), 0.6, 0.3],      # the road keel's underside (TMNF's light plates)
+	"road_grid": [Color8(80, 79, 78), 0.5, 0.6],         # the road shoulder's grid (TMNF's RoadGrid)
+	"road_metal": [Color8(42, 40, 37), 0.7, 0.3],        # the road's dark border metal (curb ends, deck sides)
+	"pillar": [Color8(182, 183, 179), 0.8, 0.0],         # the road's pillars (TMNF's light concrete)
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
@@ -123,10 +128,15 @@ const TEXTURED := {
 	"turbo": ["turbo_pad", Vector2(1.0, 1.0), false],
 	# TMNF's border atlas, as ours (UV-mapped: u along, 16 m a tile; v the band: TmGeo.border_uv)
 	"border_panel": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_blue": ["border_atlas", Vector2(1.0, 1.0), false],
 	"border_ribs": ["border_atlas", Vector2(1.0, 1.0), false],
 	"border_black": ["border_atlas", Vector2(1.0, 1.0), false],
 	"border_orange": ["border_atlas", Vector2(1.0, 1.0), false],
 	"border_green": ["border_atlas", Vector2(1.0, 1.0), false],
+	# the road keel's underside (texgen/decks.py road_under; UV-mapped along and across)
+	"road_under": ["road_under", Vector2(8.0, 4.0), false],
+	"road_grid": ["road_grid", Vector2(2.0, 1.965), false],       # (texgen/road.py grid)
+	"pillar": ["stadium_concrete", Vector2(4.0, 4.0), true],
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],

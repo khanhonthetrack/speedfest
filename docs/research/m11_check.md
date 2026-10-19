@@ -53,3 +53,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   161) against TMNF's texture mean (51, 95, 155), mean dE 18, chosen from TMNF's renders in M9),
   the thin rubber strip under the wall's foot (TMNF's light blue-grey, ours dark; under the wall)
   and the band edges on the wall's road face (a few m² per shape).
+- Roads (`--shape=Road/`, 208 shapes): colour differs 10.5%, missing 10.5% (most of the missing
+  is the dirt roads' fabric, structure, grid and logos, and EditorHelpers, not real). The section's
+  bands are TMNF's atlas rows; the keel's plates, the grid, pillars, noses, ground slopes (raised
+  section and pillar) as TMNF's. Left: the junctions' underside (TMNF's keel bands round the
+  corners; ours a flat plate), the brackets under the shoulders (RoadDetails, every 16 m), the
+  turbo gantry (TurboStands2 / TurboAlpha), FreeWheeling's own red texture, the start / finish
+  roads' RoadRace texture, the dirt roads (next).

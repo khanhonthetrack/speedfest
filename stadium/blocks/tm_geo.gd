@@ -443,10 +443,18 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 				side = -side
 				va = float(vhi[k]) - va
 				vb = float(vhi[k]) - vb
-			var ua := Vector2(side * float(us[f][k]), va)
-			var ub := Vector2(side * float(us[f][k + 1]), vb)
-			var uc := Vector2(side * float(us[f + 1][k + 1]), vb)
-			var ud := Vector2(side * float(us[f + 1][k]), va)
+			var tile := 1.0
+			if (profile[k] as Array).size() > 3:
+				# an atlas segment ([point, key, surface, Vector2(row at its start, at its end)]):
+				# v the atlas' rows (of 512, TmGeo.band_quad), u 16 m a tile along
+				var rows: Vector2 = profile[k][3]
+				va = rows.x / 512.0
+				vb = rows.y / 512.0
+				tile = 1.0 / 16.0
+			var ua := Vector2(side * float(us[f][k]) * tile, va)
+			var ub := Vector2(side * float(us[f][k + 1]) * tile, vb)
+			var uc := Vector2(side * float(us[f + 1][k + 1]) * tile, vb)
+			var ud := Vector2(side * float(us[f + 1][k]) * tile, va)
 			if mat in SCREENS:
 				# a screen per segment: as long as the path, as high as the segment
 				var h := ((pr0[k + 1][0] as Vector2) - (pr0[k][0] as Vector2)).length()
@@ -681,6 +689,38 @@ func pipe(a: Vector3, b: Vector3, r: float, sides: int, mat: String, surface: in
 			tri(p0, p1, q1, mat, surface, n0, n1, n1)
 
 
+## A band of a round pillar about c (TMNF x, z), n sides (a corner on +x): from radius r0 at
+## heights y0(q) to r1 at y1(q) (q: the corner's x, z), facing out, shaded round.
+func ring(c: Vector2, n: int, r0: float, y0: Callable, r1: float, y1: Callable, mat: String, surface: int) -> void:
+	for k in n:
+		var a0 := TAU * k / n
+		var a1 := TAU * (k + 1) / n
+		var d0 := Vector2(cos(a0), sin(a0))
+		var d1 := Vector2(cos(a1), sin(a1))
+		var p0 := c + d0 * r0
+		var p1 := c + d1 * r0
+		var q0 := c + d0 * r1
+		var q1 := c + d1 * r1
+		var a := Vector3(p0.x, y0.call(p0), p0.y)
+		var b := Vector3(p1.x, y0.call(p1), p1.y)
+		var cc := Vector3(q1.x, y1.call(q1), q1.y)
+		var d := Vector3(q0.x, y1.call(q0), q0.y)
+		var n0 := Vector3(d0.x, 0, d0.y)
+		var n1 := Vector3(d1.x, 0, d1.y)
+		# (b - a) runs toward +angle, (d - a) up: their cross points in, so wind a, d, c, b
+		tri(a, d, cc, mat, surface, n0, n0, n1)
+		tri(a, cc, b, mat, surface, n0, n1, n1)
+
+
+## A pillar's flat end about c, n sides of radius r, at heights y(q), facing down.
+func disc(c: Vector2, n: int, r: float, y: Callable, mat: String, surface: int) -> void:
+	var m := Vector3(c.x, y.call(c), c.y)
+	for k in n:
+		var p0 := c + Vector2(cos(TAU * k / n), sin(TAU * k / n)) * r
+		var p1 := c + Vector2(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n)) * r
+		tri(m, Vector3(p0.x, y.call(p0), p0.y), Vector3(p1.x, y.call(p1), p1.y), mat, surface)
+
+
 ## Horizontal polygon (TMNF x, z points) at height y, facing up (or down if down).
 func flat_polygon(poly: PackedVector2Array, y: float, mat: String, surface: int, down := false) -> void:
 	var idx := Geometry2D.triangulate_polygon(poly)
@@ -710,7 +750,10 @@ static func reversed_loop(loop: Array) -> Array:
 	for i in n:
 		var p: Array = loop[n - 1 - i]
 		var seg: Array = loop[(n - 2 - i + n) % n]
-		out.append([p[0], seg[1], seg[2]])
+		if seg.size() > 3:     # atlas rows (see sweep): the segment now runs the other way
+			out.append([p[0], seg[1], seg[2], Vector2((seg[3] as Vector2).y, (seg[3] as Vector2).x)])
+		else:
+			out.append([p[0], seg[1], seg[2]])
 	return out
 
 

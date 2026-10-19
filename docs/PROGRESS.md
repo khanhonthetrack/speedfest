@@ -2418,3 +2418,18 @@ on every real contact the full impulse would land at the contact point and kick 
   the sides' texture mean dE 12; side by side with TMNF's blocks on A01 (slopes, pillar) and
   alone (`tests/block_view.tscn`, new: one shape in the Day light, `--ref` for TMNF's look).
   `map_view --view=near:` takes a yaw and height.
+- (M11-2) **Roads as TMNF's.** TMNF's curbs, road lip and keel plates are bands of the same
+  border atlas we recreated (our `border_atlas`): every segment of the road's section now picks
+  TMNF's band at TMNF's rows (measured from its UVs; `road.gd` HALF_* fifth column, carried by
+  `TmGeo.sweep` as atlas rows): the curb's round top and the ground pieces' outer face the light
+  panel, its flat top the dark ribs, its faces the black band with a white line, our emblem and a
+  blue line at the foot, the road's lip blue, the ground shoulder the green band. The keel's
+  underside is TMNF's light plates (our `road_under`, texgen/decks.py), the shoulder and its
+  underside TMNF's two-panel grid (our `road_grid`, texgen/road.py), road pillars TMNF's light
+  concrete, the curbs' ends and the junction deck's closed sides TMNF's dark border metal; noses
+  have the grid on top. **Ground slopes** (Slope/Straight, Base, Base2, BiSlope, U bottom) keep the
+  raised road's section as TMNF does (open underneath, its keel into the terrain at the low end)
+  with TMNF's round pillar under the raised end (r 1.42 m, flared foot and head; collision too),
+  not curb faces walled down to the grass. Road family check: colour differs 11.9% -> 10.5% of
+  TMNF's area after the atlas step (was 23% overall in the first run), missing 11.2% -> 10.5%;
+  side by side with TMNF's blocks (straights, curbs, undersides, ground slopes).

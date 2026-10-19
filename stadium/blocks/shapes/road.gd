@@ -22,30 +22,39 @@ const CROWN := 0.19             ## dead ends and the base sink this much toward 
 ## Left half of the cross-section, (x, y) with x across the road (centre 16), from the bottom
 ## centre round the left curb to the top centre; each point's material is the segment's from it.
 ## Air: keel underneath. Ground: the curb's outer face runs down to the terrain (1 m).
-## Visual keys (textured with HD graphics, TmMaterials.TEXTURED): curb_outer (the curb's outer
-## face), curb_top (its rounded top), curb_face (its face towards the road), shoulder (the strip at
-## road level), road_lip (the low lip at the road's edge); the surface ids stay TMNF's.
+## As TMNF's: the curbs, the road's lip and the keel's plates are bands of the border atlas
+## (TmMaterials "border_*", texgen/borders.py; the fifth column: the atlas rows at the segment's
+## two ends, measured from TMNF's UVs: TmGeo.sweep), the keel's underside TMNF's light plates
+## ("road_under"); curb_face (the curb's face towards the road, a gate block's own word there) and
+## shoulder (the strip at road level; on the ground the border's green band) see _entry().
 const HALF_AIR := [
-	[16.0, 0.0, "structure", S_METAL], [14.339, 0.0, "structure", S_METAL], [9.758, 0.418, "structure", S_METAL],
-	[5.177, 0.836, "metal", S_METAL], [5.177, 1.243, "grid", S_METAL], [3.212, 1.243, "metal", S_METAL],
-	[2.004, 1.243, "curb_outer", S_RUBBER], [1.712, 1.753, "curb_outer", S_RUBBER],
+	[16.0, 0.0, "border_ribs", S_METAL, Vector2(213.9, 152.1)], [14.339, 0.0, "road_under", S_METAL],
+	[9.758, 0.418, "road_under", S_METAL], [5.177, 0.836, "border_ribs", S_METAL, Vector2(215.0, 188.0)],
+	[5.177, 1.243, "road_grid", S_METAL], [3.212, 1.243, "border_ribs", S_METAL, Vector2(206.8, 152.1)],
+	[2.004, 1.243, "border_black", S_RUBBER, Vector2(299.8, 258.0)],
+	[1.712, 1.753, "border_black", S_RUBBER, Vector2(258.0, 216.1)],
 ]
 const HALF_GROUND := [
-	[16.0, 1.0, "", TmGeo.NO_COLLISION], [1.0, 1.0, "curb_outer", S_METAL], [1.282, 1.851, "curb_outer", S_METAL],
+	[16.0, 1.0, "", TmGeo.NO_COLLISION], [1.0, 1.0, "border_panel", S_METAL, Vector2(150.0, 92.4)],
+	[1.282, 1.851, "border_panel", S_METAL, Vector2(92.4, 34.8)],
 ]
 ## The curb and the road surface, shared by both (air starts at the curb's outer rubber face).
-const HALF_TOP_AIR := [[1.419, 2.263, "curb_outer", S_METAL], [1.492, 2.482, "curb_outer", S_METAL]]
+const HALF_TOP_AIR := [[1.419, 2.263, "border_panel", S_METAL, Vector2(0.0, 17.4)],
+	[1.492, 2.482, "border_panel", S_METAL, Vector2(17.4, 34.8)]]
 const HALF_TOP := [
-	[1.565, 2.701, "curb_top", S_METAL], [1.616, 2.739, "curb_top", S_METAL], [1.668, 2.777, "curb_top", S_METAL],
-	[1.792, 2.777, "curb_top", S_METAL], [1.834, 2.636, "curb_top", S_METAL], [1.875, 2.495, "curb_top", S_METAL],
-	[2.735, 2.495, "curb_top", S_METAL], [2.753, 2.444, "curb_top", S_METAL], [2.770, 2.394, "curb_face", S_RUBBER],
-	[2.857, 2.358, "curb_face", S_RUBBER], [2.943, 2.322, "curb_face", S_RUBBER],
-	[3.022, 2.269, "curb_face", S_RUBBER], [3.101, 2.216, "curb_face", S_RUBBER],
-	[3.166, 2.143, "curb_face", S_RUBBER], [3.231, 2.069, "curb_face", S_RUBBER],
-	[3.272, 1.968, "curb_face", S_RUBBER], [3.312, 1.867, "curb_face", S_RUBBER],
-	[3.312, 1.606, "curb_face", S_RUBBER], [3.280, 1.475, "curb_face", S_RUBBER],
-	[3.248, TOP, "shoulder", S_METAL], [5.177, TOP, "road_lip", S_RUBBER], [5.232, 1.376, "road_lip", S_RUBBER],
-	[5.508, 1.361, "road_lip", S_RUBBER], [5.540, TOP, "asphalt", S_ROAD],
+	[1.565, 2.701, "border_panel", S_METAL, Vector2(34.8, 30.7)], [1.616, 2.739, "border_panel", S_METAL, Vector2(30.7, 26.6)],
+	[1.668, 2.777, "border_panel", S_METAL, Vector2(26.6, 18.9)], [1.792, 2.777, "border_panel", S_METAL, Vector2(18.9, 9.5)],
+	[1.834, 2.636, "border_panel", S_METAL, Vector2(9.5, 0.0)], [1.875, 2.495, "border_ribs", S_METAL, Vector2(152.1, 206.8)],
+	[2.735, 2.495, "border_ribs", S_METAL, Vector2(206.8, 210.4)], [2.753, 2.444, "border_ribs", S_METAL, Vector2(210.4, 214.0)],
+	[2.770, 2.394, "curb_face", S_RUBBER, Vector2(216.1, 222.2)], [2.857, 2.358, "curb_face", S_RUBBER, Vector2(222.2, 228.4)],
+	[2.943, 2.322, "curb_face", S_RUBBER, Vector2(228.4, 234.2)], [3.022, 2.269, "curb_face", S_RUBBER, Vector2(234.2, 240.1)],
+	[3.101, 2.216, "curb_face", S_RUBBER, Vector2(240.1, 246.8)], [3.166, 2.143, "curb_face", S_RUBBER, Vector2(246.8, 253.4)],
+	[3.231, 2.069, "curb_face", S_RUBBER, Vector2(253.4, 259.8)], [3.272, 1.968, "curb_face", S_RUBBER, Vector2(259.8, 266.2)],
+	[3.312, 1.867, "curb_face", S_RUBBER, Vector2(266.2, 283.1)], [3.312, 1.606, "curb_face", S_RUBBER, Vector2(283.1, 291.6)],
+	[3.280, 1.475, "curb_face", S_RUBBER, Vector2(291.6, 300.0)],
+	[3.248, TOP, "shoulder", S_METAL], [5.177, TOP, "border_blue", S_RUBBER, Vector2(367.1, 371.7)],
+	[5.232, 1.376, "border_blue", S_RUBBER, Vector2(371.7, 387.6)], [5.508, 1.361, "border_blue", S_RUBBER, Vector2(387.6, 390.1)],
+	[5.540, TOP, "asphalt", S_ROAD],
 ]
 const ROAD_EDGE := 5.540        ## where the asphalt starts (x)
 const SHOULDER := 5.177         ## the grid shoulder's inner edge (x)
@@ -137,6 +146,8 @@ const SLOPES := {
 	"UBottom": [9.345, 8.873, 8.457, 8.107, 7.825, 7.611, 7.463, 7.376, 7.345, 7.376, 7.463, 7.611, 7.825, 8.107, 8.457, 8.873, 9.345],
 	"UTop": [1.345, 1.817, 2.233, 2.583, 2.864, 3.079, 3.227, 3.314, 3.345, 3.314, 3.227, 3.079, 2.864, 2.583, 2.233, 1.817, 1.345],
 }
+## Ground slopes: where TMNF stands a pillar under the raised end (z along the piece, m; measured)
+const SLOPE_PILLAR := {"Base": 26.0, "Base2": 26.0, "BiSlopeStart": 55.5, "UBottom": 16.0}
 ## Road/Main/Bump: the road dipping 1.86 m in the middle of a two-level block (heights every 2 m).
 const BUMP := [9.345, 9.199, 8.885, 8.53, 8.199, 7.916, 7.692, 7.543, 7.483, 7.543, 7.692, 7.916, 8.199, 8.53, 8.885,
 	9.199, 9.345]
@@ -321,9 +332,17 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif ARMS.has(form):
 		_junction(geo, form, ground)
 	elif rest.begins_with("Slope/") and SLOPES.has(_form(rest.trim_prefix("Slope/"))):
-		_profile_slope(geo, SLOPES[_form(rest.trim_prefix("Slope/"))], ground)
+		var kind := _form(rest.trim_prefix("Slope/"))
+		_profile_slope(geo, SLOPES[kind], ground)
+		if ground and SLOPE_PILLAR.has(kind):
+			var heights: Array = SLOPES[kind]
+			_ground_pillar(geo, float(SLOPE_PILLAR[kind]), func(z: float) -> float:
+				var f := clampf(z / 2.0, 0.0, heights.size() - 1.001)
+				return lerpf(float(heights[floori(f)]), float(heights[floori(f) + 1]), f - floorf(f)) - TOP)
 	elif rest.begins_with("Slope/Straight"):
-		_sweep(geo, [Vector3(16, 0, 0), Vector3(16, 8, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], ground)
+		_sweep(geo, [Vector3(16, 0, 0), Vector3(16, 8, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], false)
+		if ground:
+			_ground_pillar(geo, 26.0, func(z: float) -> float: return z * 0.25)
 	elif rest.begins_with("GTCurve/"):
 		var k := int(rest.trim_prefix("GTCurve/").substr(0, 1))
 		if k < 2 or k > 5:
@@ -368,21 +387,41 @@ func _section(ground: bool) -> Array:
 	var left: Array = (HALF_GROUND if ground else HALF_AIR + HALF_TOP_AIR) + HALF_TOP
 	var out := []
 	for q in left:
-		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(q[2]), int(q[3])])
+		out.append(_entry(q, Vector2(float(q[0]) - 16.0, float(q[1])), ground))
 	# the right half mirrored, walked back from the top centre to the bottom; a segment keeps the
 	# material of its mirrored twin (which starts at the next point of the left half)
 	out.append([Vector2(0.0, TOP), _road_mat, _road_surf])
 	for i in range(left.size() - 1, 0, -1):
 		var q: Array = left[i]
 		var prev: Array = left[i - 1]
-		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(prev[2]), int(prev[3])])
+		out.append(_entry(prev, Vector2(16.0 - float(q[0]), float(q[1])), ground, true))
 	for p in out:
 		if p[1] == "asphalt":
 			p[1] = _road_mat
 			p[2] = _road_surf
-		elif p[1] == "curb_face":
-			p[1] = _curb_mat
 	return out
+
+
+## A table point (HALF_*) as a section entry at p ([p, key, surface] and its atlas rows, reversed
+## for the mirrored half's twin): the curb's face is the border's black band (a gate block's own
+## word instead), the shoulder the grid (on the ground the border's green band).
+func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
+	var key := String(q[2])
+	var rows := q[4] as Vector2 if q.size() > 4 else Vector2(-1, -1)
+	if key == "curb_face":
+		if _curb_mat == "curb_face":
+			key = "border_black"
+		else:
+			key = _curb_mat
+			rows = Vector2(-1, -1)
+	elif key == "shoulder" and ground:
+		key = "border_green"
+		rows = Vector2(392.7, 511.0)
+	elif key == "shoulder":
+		key = "road_grid"
+	if rows.x < 0.0:
+		return [p, key, int(q[3])]
+	return [p, key, int(q[3]), Vector2(rows.y, rows.x) if mirror else rows]
 
 
 ## The left curb alone (the section up to the asphalt's edge), closed underneath; d = x.
@@ -390,16 +429,16 @@ func _curb_section(ground: bool) -> Array:
 	var left: Array = (HALF_GROUND.slice(1) if ground else HALF_AIR.slice(5) + HALF_TOP_AIR) + HALF_TOP
 	var out := []
 	for q in left:
-		out.append([Vector2(float(q[0]), float(q[1])), String(q[2]), int(q[3])])
+		out.append(_entry(q, Vector2(float(q[0]), float(q[1])), ground))
 	var bottom := 1.0 if ground else 1.243
 	out[out.size() - 1][1] = ""                      # the curb's inner end is internal
 	out[out.size() - 1][2] = TmGeo.NO_COLLISION
-	out.append([Vector2(ROAD_EDGE, bottom), "" if ground else "metal", TmGeo.NO_COLLISION if ground else S_METAL])
+	out.append([Vector2(ROAD_EDGE, bottom), "" if ground else "road_grid", TmGeo.NO_COLLISION if ground else S_METAL])
 	return out
 
 
 func _sweep(geo: TmGeo, path: Array, lateral: Array, ground: bool, y_at := Callable(), p_at := Callable()) -> void:
-	geo.wall_sweep(_section(ground), path, lateral, true, "metal", S_METAL, y_at, p_at)
+	geo.wall_sweep(_section(ground), path, lateral, true, "road_metal", S_METAL, y_at, p_at)
 
 
 ## Loop (Loop/RightAir, LeftAir, and their ground variants): half a vertical loop (the block placed
@@ -433,11 +472,11 @@ func _loop_section() -> Array:
 			break         # the curb's inner foot: the grid starts here
 	var out := []
 	for q in half:
-		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(q[2]), int(q[3])])
+		out.append(_entry(q, Vector2(float(q[0]) - 16.0, float(q[1])), false))
 	for i in range(half.size() - 1, -1, -1):
 		var q: Array = half[i]
 		var prev: Array = half[i - 1] if i > 0 else LOOP_UNDER[0]
-		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(prev[2]), int(prev[3])])
+		out.append(_entry(prev, Vector2(16.0 - float(q[0]), float(q[1])), false, true))
 	# the underside: from the right curb's foot in to the centre, then out to the left curb's
 	for q in LOOP_UNDER:
 		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(q[2]), int(q[3])])
@@ -478,7 +517,7 @@ func _jump_ramp(geo: TmGeo, low: bool, ground: bool) -> void:
 		var half := lerpf(RAMP_HALF[0], RAMP_HALF[1], (z - z0) / (z1 - z0))
 		var d := half if absf(p.x) > 9.0 else half - RAMP_EDGE
 		return Vector2(signf(p.x) * d, 0.0 if p.y == 0.0 else (-RAMP_T if z < RAMP_THIN else 0.0))
-	geo.wall_sweep(sec, path, lat, true, "metal", S_METAL, Callable(), p_at)
+	geo.wall_sweep(sec, path, lat, true, "road_metal", S_METAL, Callable(), p_at)
 	# the struts, cut where they meet the ground (ground pieces) or at their foot
 	for mirror in [false, true]:
 		var a: Vector3 = RAMP_STRUT[0]
@@ -567,7 +606,7 @@ func _hole(geo: TmGeo, rest: String, ground: bool) -> void:
 		var sec := _section(flat)
 		for part in [_clip_x(sec, -100.0, HOLE[0] - 16.0), _clip_x(sec, HOLE[1] - 16.0, 100.0)]:
 			geo.wall_sweep(part, [Vector3(16, 0, HOLE[2]), Vector3(16, 0, HOLE[3])], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
-				true, "metal", S_METAL)
+				true, "road_metal", S_METAL)
 	var top := 8.0
 	if variant == "Slope":
 		geo.shear_y(0.0, 0.25, 0.0)
@@ -577,7 +616,7 @@ func _hole(geo: TmGeo, rest: String, ground: bool) -> void:
 		top = 16.0
 	if pillars:
 		for c: Vector2 in HOLE_PILLARS[_hole_form(rest)]:
-			geo.pipe(Vector3(c.x, 0, c.y), Vector3(c.x, top, c.y), PILLAR_R, 24, "structure", S_ROAD)
+			geo.pipe(Vector3(c.x, 0, c.y), Vector3(c.x, top, c.y), PILLAR_R, 24, "pillar", S_ROAD)
 
 
 ## A closed section [[Vector2(d, y), mat, surface], ...] cut to lo <= d <= hi; the new edges along
@@ -595,17 +634,20 @@ static func _clip_x(sec: Array, lo: float, hi: float) -> Array:
 	for i in cut.size():
 		var a := cut[i]
 		var b := cut[(i + 1) % cut.size()]
-		var mat := "metal"
-		var surf := S_METAL
+		var entry := [a, "road_metal", S_METAL]
 		for k in sec.size():
 			var p: Vector2 = sec[k][0]
 			var q: Vector2 = sec[(k + 1) % sec.size()][0]
 			if Geometry2D.get_closest_point_to_segment(a, p, q).distance_to(a) < 0.002 \
 					and Geometry2D.get_closest_point_to_segment(b, p, q).distance_to(b) < 0.002:
-				mat = sec[k][1]
-				surf = sec[k][2]
+				entry = [a, sec[k][1], sec[k][2]]
+				if (sec[k] as Array).size() > 3:
+					# atlas rows at the cut's ends, along the segment
+					var rows: Vector2 = sec[k][3]
+					var l := maxf(p.distance_to(q), 1e-6)
+					entry.append(Vector2(lerpf(rows.x, rows.y, p.distance_to(a) / l), lerpf(rows.x, rows.y, p.distance_to(b) / l)))
 				break
-		out.append([a, mat, surf])
+		out.append(entry)
 	return out
 
 
@@ -753,8 +795,8 @@ func _bump(geo: TmGeo, ground: bool) -> void:
 	for side: float in [1.0, -1.0]:
 		var sec := curb.map(func(q: Array) -> Array:
 			var p: Vector2 = q[0]
-			return [Vector2((p.x - 16.0) * side, p.y), q[1], q[2]])
-		geo.wall_sweep(sec, [Vector3(16, 8, 0), Vector3(16, 8, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "metal", S_METAL)
+			return [Vector2((p.x - 16.0) * side, p.y), q[1], q[2]] + q.slice(3))
+		geo.wall_sweep(sec, [Vector3(16, 8, 0), Vector3(16, 8, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true, "road_metal", S_METAL)
 	var path := []
 	var lat := []
 	for i in BUMP.size():
@@ -782,10 +824,24 @@ func _profile_slope(geo: TmGeo, heights: Array, ground: bool) -> void:
 	for i in heights.size():
 		path.append(Vector3(16, float(heights[i]) - TOP, 2.0 * i))
 		lat.append(Vector3(1, 0, 0))
+	# on the ground TMNF keeps the raised road's section (its keel runs into the terrain at the
+	# low end) where it leaves the ground; a road flat on the ground (U top) keeps the ground's
+	var flat := ground and float(heights.max()) - float(heights.min()) < 2.5 and float(heights[0]) <= TOP
 	var y_at := Callable()
-	if ground:
+	if flat:
 		y_at = func(y: float, i: int) -> float: return 1.0 - (path[i] as Vector3).y if y <= 1.001 else y
-	_sweep(geo, path, lat, ground, y_at)
+	_sweep(geo, path, lat, flat, y_at)
+
+
+## The round pillar TMNF stands under a ground slope's raised end (measured: on the centre line at
+## z, r 1.42 m, a flared foot on the terrain and a flared head under the keel): keel(z) is the
+## keel's bottom (block-local y) along the road.
+func _ground_pillar(geo: TmGeo, z: float, keel: Callable) -> void:
+	var c := Vector2(16.0, z)
+	var head := func(q: Vector2) -> float: return float(keel.call(q.y))
+	geo.ring(c, 12, 2.0, func(_q: Vector2) -> float: return 1.0, 1.42, func(_q: Vector2) -> float: return 2.0, "road_metal", S_METAL)
+	geo.ring(c, 12, 1.42, func(_q: Vector2) -> float: return 2.0, 1.42, func(q: Vector2) -> float: return float(head.call(q)) - 0.8, "pillar", S_ROAD)
+	geo.ring(c, 12, 1.42, func(q: Vector2) -> float: return float(head.call(q)) - 0.8, 2.0, head, "road_metal", S_METAL)
 
 
 ## The road (asphalt and curbs) swept along z through measured surface heights (evenly spaced over
@@ -833,7 +889,7 @@ func to_platform(geo: TmGeo, blocks: int, ground: bool, mirror: bool) -> void:
 		var a := deg_to_rad(TO_PLATFORM_END) * k / steps
 		path.append(mx.call(Vector3(TO_PLATFORM_R * (1.0 - cos(a)), 0, TO_PLATFORM_R * sin(a))))
 		lat.append(ml.call(Vector3(cos(a), 0, -sin(a))))
-	geo.wall_sweep(curb, path, lat, true, "metal", S_METAL)
+	geo.wall_sweep(curb, path, lat, true, "road_metal", S_METAL)
 
 
 ## A curb turned through a quarter circle about a point on the block's edge: its section's lateral
@@ -846,7 +902,7 @@ func _turn_out(geo: TmGeo, curb: Array, c: Vector3, from: Vector3, to: Vector3) 
 		var ang := PI * 0.5 * float(s) / steps
 		lat.append((from * cos(ang) + to * sin(ang)).normalized())
 		path.append(c)
-	geo.wall_sweep(curb, path, lat, true, "metal", S_METAL)
+	geo.wall_sweep(curb, path, lat, true, "road_metal", S_METAL)
 
 
 func _straight(geo: TmGeo, z0: float, z1: float, ground: bool) -> void:
@@ -857,8 +913,8 @@ func _straight(geo: TmGeo, z0: float, z1: float, ground: bool) -> void:
 func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN - 0.04) -> void:
 	var z1 := z0 + dir * 2.3
 	var y0 := 1.0 if ground else 1.05
-	geo.box(Vector3(1.05, y0, minf(z0, z1)), Vector3(30.95, top, maxf(z0, z1)), "structure", S_METAL,
-		"metal", S_METAL)
+	geo.box(Vector3(1.05, y0, minf(z0, z1)), Vector3(30.95, top, maxf(z0, z1)), "road_under", S_METAL,
+		"road_grid", S_METAL)
 
 
 ## Checkpoint / finish / multilap / start gate centred at z: TMNF's arch (its measured section)
@@ -1063,7 +1119,19 @@ func _cross(geo: TmGeo, arms: Array, ground: bool) -> void:
 	var inset := func(i: int) -> float: return SHOULDER if closed[i] else 0.0
 	var lo := Vector3(inset.call(1), 1.0 if ground else 0.0, inset.call(2))
 	var hi := Vector3(32.0 - inset.call(3), TOP, 32.0 - inset.call(0))
-	geo.box(lo, hi, "structure", S_METAL, _road_mat, _road_surf)
+	# the deck: the road on top, TMNF's light keel plates underneath (on the ground the terrain
+	# hides them), its dark border metal on the closed sides under the curbs; the open sides meet
+	# the next road's section (collision only)
+	geo.quad(Vector3(lo.x, TOP, lo.z), Vector3(lo.x, TOP, hi.z), Vector3(hi.x, TOP, hi.z), Vector3(hi.x, TOP, lo.z), _road_mat, _road_surf)
+	geo.quad(Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
+		"" if ground else "road_under", S_METAL)
+	var corners := [Vector3(hi.x, 0, hi.z), Vector3(lo.x, 0, hi.z), Vector3(lo.x, 0, lo.z), Vector3(hi.x, 0, lo.z)]
+	for i in 4:
+		# side i (SIDES: +z, -x, -z, +x) from corner i to corner i + 1, facing out
+		var a: Vector3 = corners[i]
+		var b: Vector3 = corners[(i + 1) % 4]
+		var mat := "road_metal" if closed[i] else ""
+		geo.quad(Vector3(b.x, lo.y, b.z), Vector3(a.x, lo.y, a.z), Vector3(a.x, TOP, a.z), Vector3(b.x, TOP, b.z), mat, S_METAL)
 	var curb := _curb_section(ground)
 	for i in 4:
 		var o: Vector3 = SIDES[i]
@@ -1071,7 +1139,7 @@ func _cross(geo: TmGeo, arms: Array, ground: bool) -> void:
 		var c := Vector3(16, 0, 16)
 		if closed[i]:
 			# d measured inward from the edge: lateral = -o, the path along the edge
-			geo.wall_sweep(curb, [c + o * 16.0 - t * 16.0, c + o * 16.0 + t * 16.0], [-o, -o], true, "metal", S_METAL)
+			geo.wall_sweep(curb, [c + o * 16.0 - t * 16.0, c + o * 16.0 + t * 16.0], [-o, -o], true, "road_metal", S_METAL)
 		# the corner at the end of side i (toward +t) between side i and the next side (outward t)
 		var j := SIDES.find(t)
 		if not closed[i] and not closed[j]:
@@ -1084,4 +1152,4 @@ func _cross(geo: TmGeo, arms: Array, ground: bool) -> void:
 				# the radial direction sweeps from -t (toward the corner's side-i neighbour) to -o
 				lat.append((-t * cos(ang) - o * sin(ang)).normalized())
 				path.append(corner)
-			geo.wall_sweep(curb, path, lat, true, "metal", S_METAL)
+			geo.wall_sweep(curb, path, lat, true, "road_metal", S_METAL)

@@ -1,6 +1,6 @@
 """Road (Road/Main) textures, our own art in the Stadium's style: light weathered concrete, the curb's
-dark rubber face with our emblem, the green shoulder with a blue line, the curb's light top, the
-road's edge lip. Sizes in metres are what one texture covers (TmMaterials uv scales).
+dark rubber face with our emblem, the green shoulder with a blue line, the shoulder's grid, the curb's
+light top, the road's edge lip. Sizes in metres are what one texture covers (TmMaterials uv scales).
 usage: python3 stadium/tools/texgen/road.py"""
 import math
 import numpy as np
@@ -142,6 +142,46 @@ def shoulder(name='road_shoulder', ppm=256, length=8.0, width=2.0, seed=31):
     save(name, np.clip(col, 0, 1), nrm, orm, size=(w // 2, h // 2))
 
 
+def grid(name='road_grid', ppm=256, length=2.0, width=1.965, seed=35):
+    """The shoulder's grid as TMNF lays its own (UV-mapped: u along the road, 2 m a tile; v across
+    the 1.965 m shoulder): two perforated light steel panels side by side across it, big staggered
+    round holes over a dark void, in a dark bolted frame. Drawn here; only the layout follows TMNF."""
+    w = int(length * ppm)
+    h = int(width * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    n1 = fbm(w, h, seed, beta=2.2, lo=1.0)
+    n2 = fbm(w, h, seed + 1, beta=0.7, lo=48.0)
+    pitch = 0.085 * ppm
+    row = np.floor(yy / (pitch * 0.866))
+    cx = (xx + (row % 2) * pitch * 0.5) % pitch - pitch * 0.5
+    cy = yy % (pitch * 0.866) - pitch * 0.433
+    hole = 1.0 - smoothstep(0.31 * pitch, 0.37 * pitch, np.sqrt(cx * cx + cy * cy))
+    # two panels across, each in its frame (0.06 m bars at the tile's ends and round each panel)
+    half = h * 0.5
+    fv = np.minimum(np.minimum(yy, h - yy), np.abs(yy - half)) / ppm
+    fu = np.minimum(xx, w - xx) / ppm
+    inside = smoothstep(0.055, 0.065, fu) * smoothstep(0.045, 0.055, fv)
+    hole *= inside
+    frame = 1.0 - inside
+    bolts = np.zeros((h, w), np.float32)
+    for bu in (0.03, 0.5, 1.0, 1.5, 1.97):
+        for bv in (0.025, 0.5 * width, width - 0.025):
+            d = np.sqrt((xx - bu * ppm) ** 2 + (yy - bv * ppm) ** 2)
+            bolts = np.maximum(bolts, 1 - smoothstep(0.010 * ppm, 0.014 * ppm, d))
+    steel = srgb((146, 146, 144))[None, None, :] * (1.0 + 0.06 * n1 + 0.06 * n2)[..., None]
+    col = lerp(steel, srgb((52, 53, 54))[None, None, :] * (1.0 + 0.05 * n2)[..., None], frame)
+    col = lerp(col, srgb((22, 22, 23))[None, None, :], hole)
+    col = lerp(col, srgb((150, 152, 156))[None, None, :], bolts)
+    dust = grime(w, h, seed + 3, 0.7, 2.0) * (1 - hole)
+    col = lerp(col, srgb((118, 112, 100))[None, None, :], dust * 0.35)
+    hgt = -3.0 * hole + 0.6 * bolts - 0.5 * frame + 0.2 * n2
+    nrm = normal_from_height(hgt, 0.7)
+    rough = 0.45 + 0.25 * dust + 0.15 * frame
+    metal = (0.85 * (1 - dust)) * (1 - hole)
+    orm = np.stack([1.0 - 0.8 * hole, rough, metal], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm, size=(w // 2, h // 2))
+
+
 def curb_top(name='road_curb_top', ppm=256, length=8.0, width=1.5, seed=41):
     """The curb's rounded top and outer lip: light concrete, cast in 2 m sections (joints), a row
     of anchor bolts, weathering. v = 0 at the outer edge."""
@@ -177,4 +217,5 @@ if __name__ == '__main__':
     concrete()
     curb_face()
     shoulder()
+    grid()
     curb_top()

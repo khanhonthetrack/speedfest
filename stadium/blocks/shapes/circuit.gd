@@ -640,11 +640,11 @@ func _ramp(geo: TmGeo, prof: Array, dy: float) -> void:
 	# (r 2.0 m, 0.1 m thick) under the plate
 	var c := Vector2(16, 16)
 	var top := func(q: Vector2) -> float: return _prof_y(prof, q.y) - 8.0
-	_ring(geo, c, 12, 1.49, func(_q: Vector2) -> float: return 0.0, 1.64, func(_q: Vector2) -> float: return 0.1, S_METAL)
-	_ring(geo, c, 12, 1.64, func(_q: Vector2) -> float: return 0.1, 1.64, func(q: Vector2) -> float: return top.call(q) - 0.05, S_CONCRETE)
-	_ring(geo, c, 24, 2.0, func(q: Vector2) -> float: return top.call(q) - 0.1, 2.0, top, S_METAL)
-	_disc(geo, c, 12, 1.49, func(_q: Vector2) -> float: return 0.0)
-	_disc(geo, c, 24, 2.0, func(q: Vector2) -> float: return top.call(q) - 0.1)
+	geo.ring(c, 12, 1.49, func(_q: Vector2) -> float: return 0.0, 1.64, func(_q: Vector2) -> float: return 0.1, "truss", S_METAL)
+	geo.ring(c, 12, 1.64, func(_q: Vector2) -> float: return 0.1, 1.64, func(q: Vector2) -> float: return top.call(q) - 0.05, "truss", S_CONCRETE)
+	geo.ring(c, 24, 2.0, func(q: Vector2) -> float: return top.call(q) - 0.1, 2.0, top, "truss", S_METAL)
+	geo.disc(c, 12, 1.49, func(_q: Vector2) -> float: return 0.0, "truss", S_METAL)
+	geo.disc(c, 24, 2.0, func(q: Vector2) -> float: return top.call(q) - 0.1, "truss", S_METAL)
 
 
 ## The road's height at z on a slope profile.
@@ -655,35 +655,3 @@ static func _prof_y(prof: Array, z: float) -> float:
 			var z1 := float(prof[i + 1][0])
 			return lerpf(float(prof[i][1]), float(prof[i + 1][1]), clampf((z - z0) / (z1 - z0), 0.0, 1.0))
 	return float(prof[0][1])
-
-
-## A band of a round pillar about c (TMNF x, z), n sides (a corner on +x): from radius r0 at
-## heights y0(q) to r1 at y1(q) (q the corner's x, z), facing out, shaded round ("truss").
-static func _ring(geo: TmGeo, c: Vector2, n: int, r0: float, y0: Callable, r1: float, y1: Callable, surface: int) -> void:
-	for k in n:
-		var a0 := TAU * k / n
-		var a1 := TAU * (k + 1) / n
-		var d0 := Vector2(cos(a0), sin(a0))
-		var d1 := Vector2(cos(a1), sin(a1))
-		var p0 := c + d0 * r0
-		var p1 := c + d1 * r0
-		var q0 := c + d0 * r1
-		var q1 := c + d1 * r1
-		var a := Vector3(p0.x, y0.call(p0), p0.y)
-		var b := Vector3(p1.x, y0.call(p1), p1.y)
-		var cc := Vector3(q1.x, y1.call(q1), q1.y)
-		var d := Vector3(q0.x, y1.call(q0), q0.y)
-		var n0 := Vector3(d0.x, 0, d0.y)
-		var n1 := Vector3(d1.x, 0, d1.y)
-		# (b - a) runs toward +angle, (d - a) up: their cross points in, so wind a, d, c, b
-		geo.tri(a, d, cc, "truss", surface, n0, n0, n1)
-		geo.tri(a, cc, b, "truss", surface, n0, n1, n1)
-
-
-## A pillar's flat end about c, n sides of radius r, at heights y(q), facing down.
-static func _disc(geo: TmGeo, c: Vector2, n: int, r: float, y: Callable) -> void:
-	var m := Vector3(c.x, y.call(c), c.y)
-	for k in n:
-		var p0 := c + Vector2(cos(TAU * k / n), sin(TAU * k / n)) * r
-		var p1 := c + Vector2(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n)) * r
-		geo.tri(m, Vector3(p0.x, y.call(p0), p0.y), Vector3(p1.x, y.call(p1), p1.y), "truss", S_METAL)
