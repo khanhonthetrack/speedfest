@@ -2485,3 +2485,10 @@ on every real contact the full impulse would land at the contact point and kick 
   RoadDetails (`road_metal`), the ground foot and the cap's ring its border atlas band, once round
   (the blue line low down, the black band with the white line above; `tube.gd RING_ROWS`). The
   RoadPub pipes too. Side by side with TMNF's blocks.
+- (M11-2) **Platform decks' underside as TMNF's, take two.** The chamfered tray read TMNF's
+  bounding box, not its shape: TMNF hangs a flat dark plate at the body's floor (in to the lip's
+  foot on closed sides, to the edge on open ones), a hub in the middle (a frustum to the level's
+  ground) and beams 1 m deep on the column lines: from each column of a closed side in to the
+  square the lines make, and along each side of that square whose block edge is open (measured
+  on Base, Straight, Corner, Cross, Checkpoint; `platform.gd _underside`, `_beam`). Material check
+  on Platform/Road/BaseAir: TMNF surface we lacked 766 -> 125 m2, colour differs 291 -> 232 m2.

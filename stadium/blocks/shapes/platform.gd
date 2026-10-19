@@ -34,11 +34,17 @@ const LIP := [
 	[2.835, 1.444, "fabric", S_SLIDING], [3.133, 1.207, "road_under", S_METAL], [2.802, 1.207, "road_under", S_METAL],
 	[2.802, BOTTOM, "road_under", S_METAL], [INSET, BOTTOM, "", TmGeo.NO_COLLISION],
 ]
-## Under the deck (measured): TMNF's dark tray from the ground of the level (0 m) to the body's
-## floor, TRAY_IN inside each closed side; on each closed side two truss columns (centred COLUMNS
-## along it, COLUMN_W wide) slanting from the tray's edge up under the rim.
-const TRAY_IN := 2.0
-const TRAY_BOTTOM_IN := 5.0
+## Under the deck (measured): TMNF's dark plate at the body's floor (PLATE_IN in from each closed
+## side, to the edge on open ones), a hub hanging from its centre (in HUB[0] from the block's edges
+## at the floor, HUB[1] at the level's ground), and beams 1 m deep, BEAM_HALF either side of the
+## column lines (COLUMNS, both ways): from each column of a closed side in to the square the
+## lines make (its outer end BEAM_END, (d, y)), and along each side of that square whose block
+## edge is open. On each closed side two truss columns (centred COLUMNS along it, COLUMN_W wide)
+## slant from the beam's end up under the rim.
+const PLATE_IN := 2.802
+const HUB := [10.0, 12.0]
+const BEAM_HALF := 0.73
+const BEAM_END := [Vector2(2.0, 0.0), Vector2(1.61, 0.6), Vector2(2.8, BOTTOM)]
 const COLUMNS := [8.0, 24.0]
 const COLUMN_W := 1.0
 const COLUMN_FOOT := [Vector2(1.9, 0.05), Vector2(2.35, 0.05)]     ## (d, y) its two bottom edges
@@ -244,21 +250,38 @@ func _deck(geo: TmGeo, closed: Array) -> void:
 	_underside(geo, closed)
 
 
-## TMNF's tray under the body and the truss columns on the closed sides.
+## TMNF's plate, hub and beams under the body and the truss columns on the closed sides.
 func _underside(geo: TmGeo, closed: Array) -> void:
-	# the tray: TRAY_IN in at the body's floor, chamfered in to TRAY_BOTTOM_IN at the bottom
-	var top_in := func(i: int) -> float: return TRAY_IN if closed[i] else 0.0
-	var bot_in := func(i: int) -> float: return TRAY_BOTTOM_IN if closed[i] else 0.0
-	var ring := func(f: Callable, y: float) -> Array:
-		return [Vector3(32.0 - f.call(3), y, 32.0 - f.call(0)), Vector3(f.call(1), y, 32.0 - f.call(0)),
-			Vector3(f.call(1), y, f.call(2)), Vector3(32.0 - f.call(3), y, f.call(2))]
-	var up: Array = ring.call(top_in, BOTTOM - 0.01)
-	var dn: Array = ring.call(bot_in, 0.0)
-	geo.quad(dn[0], dn[1], dn[2], dn[3], "platform_tray", S_METAL)
+	var y_plate := BOTTOM - 0.01
+	var e := func(i: int) -> float: return PLATE_IN if closed[i] else 0.0
+	_out_quad(geo, Vector3(e.call(1), y_plate, e.call(2)), Vector3(32.0 - e.call(3), y_plate, e.call(2)),
+		Vector3(32.0 - e.call(3), y_plate, 32.0 - e.call(0)), Vector3(e.call(1), y_plate, 32.0 - e.call(0)), Vector3.DOWN)
+	# the hub: a frustum from the plate down to the ground
+	var a0: float = HUB[0]
+	var a1: float = HUB[1]
+	var up := [Vector3(a0, y_plate, a0), Vector3(32.0 - a0, y_plate, a0), Vector3(32.0 - a0, y_plate, 32.0 - a0), Vector3(a0, y_plate, 32.0 - a0)]
+	var dn := [Vector3(a1, 0.0, a1), Vector3(32.0 - a1, 0.0, a1), Vector3(32.0 - a1, 0.0, 32.0 - a1), Vector3(a1, 0.0, 32.0 - a1)]
+	_out_quad(geo, dn[0], dn[1], dn[2], dn[3], Vector3.DOWN)
+	for k in 4:
+		var k1 := (k + 1) % 4
+		var mid: Vector3 = (dn[k] + dn[k1]) * 0.5 - Vector3(16, 0, 16)
+		_out_quad(geo, dn[k], dn[k1], up[k1], up[k], mid.normalized() + Vector3.DOWN)
 	for i in 4:
-		# side i (SIDES: +z, -x, -z, +x) between corners i and i + 1, facing out (and down)
-		var j := (i + 1) % 4
-		geo.quad(dn[j], dn[i], up[i], up[j], "platform_tray" if closed[i] else "", S_METAL)
+		var o: Vector3 = SIDES[i]
+		var t := Vector3(o.z, 0.0, -o.x)
+		var edge := Vector3(16, 0, 16) + o * 16.0
+		# (d in from side i, y, s along it) -> block coordinates
+		var at := func(d: float, y: float, s: float) -> Vector3: return edge - o * d + Vector3(0, y, 0) + t * (s - 16.0)
+		if closed[i]:
+			for c: float in COLUMNS:
+				var prof := BEAM_END + [Vector2(c + BEAM_HALF, BOTTOM), Vector2(c + BEAM_HALF, 0.0)]
+				_beam(geo, at, prof, c - BEAM_HALF, c + BEAM_HALF)
+		else:
+			var c0: float = COLUMNS[0]
+			var c1: float = COLUMNS[1]
+			var prof := [Vector2(c0 - BEAM_HALF, 0.0), Vector2(c0 - BEAM_HALF, BOTTOM), Vector2(c0 + BEAM_HALF, BOTTOM),
+				Vector2(c0 + BEAM_HALF, 0.0)]
+			_beam(geo, at, prof, c0 - BEAM_HALF, c1 + BEAM_HALF)
 	for i in 4:
 		if not closed[i]:
 			continue
@@ -290,6 +313,41 @@ func _underside(geo: TmGeo, closed: Array) -> void:
 			face.call(0, 2, 6, 4)      # one side
 			face.call(1, 3, 7, 5)      # the other
 			face.call(0, 1, 3, 2)      # foot
+
+
+## A beam under the deck: the profile (d, y) points round its section, swept along s0..s1
+## (`at` maps (d, y, s) to the block); its two ends closed, its top (at the plate) left out.
+func _beam(geo: TmGeo, at: Callable, prof: Array, s0: float, s1: float) -> void:
+	var c := Vector2.ZERO
+	for q: Vector2 in prof:
+		c += q / prof.size()
+	for k in prof.size():
+		var p: Vector2 = prof[k]
+		var q: Vector2 = prof[(k + 1) % prof.size()]
+		if p.y >= BOTTOM - 1e-3 and q.y >= BOTTOM - 1e-3:
+			continue
+		var mid := (p + q) * 0.5 - c
+		var out: Vector3 = at.call(c.x + mid.x, mid.y + 1.0, 16.0) - at.call(c.x, 1.0, 16.0)
+		_out_quad(geo, at.call(p.x, p.y, s0), at.call(q.x, q.y, s0), at.call(q.x, q.y, s1), at.call(p.x, p.y, s1), out)
+	for s: float in [s0, s1]:
+		var ring := prof.map(func(q: Vector2) -> Vector3: return at.call(q.x, q.y, s))
+		var dir: Vector3 = at.call(c.x, c.y, s) - at.call(c.x, c.y, (s0 + s1) * 0.5)
+		for k in range(1, ring.size() - 1):
+			var a: Vector3 = ring[0]
+			var b: Vector3 = ring[k]
+			var d: Vector3 = ring[k + 1]
+			if (b - a).cross(d - a).dot(dir) < 0.0:
+				geo.tri(a, d, b, "platform_tray", S_METAL)
+			else:
+				geo.tri(a, b, d, "platform_tray", S_METAL)
+
+
+## A dark quad under the deck facing `out` (whichever way its corners run).
+func _out_quad(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, d: Vector3, out: Vector3) -> void:
+	if (b - a).cross(c - a).dot(out) < 0.0:
+		geo.quad(a, d, c, b, "platform_tray", S_METAL)
+	else:
+		geo.quad(a, b, c, d, "platform_tray", S_METAL)
 
 
 ## A box whose faces toward closed sides are left out (the lips cover them).
