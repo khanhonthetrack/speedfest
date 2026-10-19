@@ -4,7 +4,7 @@ dark ribbed steel panels in a 2 x 4 grid of light seams, a big yellow arrow poin
 each half (the lower one mirrored), a few red scrapes. Drawn here; only the layout follows TMNF.
 Run: python3 stadium/tools/texgen/turbo.py"""
 import numpy as np
-from texlib import fbm, smoothstep, srgb, lerp, normal_from_height, save, poly_mask, grime
+from texlib import fbm, smoothstep, srgb, lerp, normal_from_height, save, poly_mask, grime, font, text_mask, rect_mask
 
 W, H = 1024, 512
 
@@ -82,6 +82,33 @@ def freewheel_pad(name='freewheel_pad', seed=413):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def turbo_rim(name='turbo_rim', w=1024, h=128, seed=417):
+    """The turbo deck's rim (u along it, 16 m a tile; v across its bevel, top at row 0), laid out
+    as TMNF's: dark moulded rubber, a yellow line near the top, the word TURBO in italic yellow
+    every 4 m, a thin light line and a yellow band along the bottom. Drawn here, in our font."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    fine = fbm(w, h, seed, beta=0.8, lo=40.0)
+    mott = fbm(w, h, seed + 1, beta=2.0, lo=2.0, hi=20.0)
+    col = srgb((32, 31, 30))[None, None, :] * (1.0 + 0.08 * mott + 0.05 * fine)[..., None]
+    yellow = srgb((226, 160, 18))[None, None, :] * (1.0 + 0.05 * fine)[..., None]
+    line = rect_mask(w, h, -10, 0.12 * h, w + 10, 0.17 * h, 0.8)
+    band = rect_mask(w, h, -10, 0.86 * h, w + 10, h + 10, 0.8)
+    thin = rect_mask(w, h, -10, 0.80 * h, w + 10, 0.82 * h, 0.6)
+    fnt = font('orbitron-latin-900-normal', int(0.42 * h))
+    word = np.zeros((h, w), np.float32)
+    for k in range(4):
+        word = np.maximum(word, text_mask(w, h, 'TURBO', fnt, ((k + 0.5) * w / 4, 0.5 * h), 'mm', italic=0.25,
+                                          tracking=int(0.02 * h)))
+    worn = smoothstep(0.6, 1.8, fbm(w, h, seed + 2, beta=1.2, lo=6.0)) * 0.3
+    col = lerp(col, yellow, np.clip(line + band + word, 0, 1) * (1.0 - worn))
+    col = lerp(col, srgb((190, 186, 176))[None, None, :] * np.ones((h, w, 1)), thin)
+    hgt = 0.4 * mott + 0.8 * word + 0.3 * (line + band)
+    nrm = normal_from_height(hgt, 0.4)
+    orm = np.stack([np.ones((h, w), np.float32), 0.7 - 0.15 * word, np.zeros((h, w), np.float32)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 if __name__ == '__main__':
     turbo_pad()
     freewheel_pad()
+    turbo_rim()

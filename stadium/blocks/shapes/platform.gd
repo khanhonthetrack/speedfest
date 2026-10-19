@@ -49,12 +49,38 @@ const COLUMNS := [8.0, 24.0]
 const COLUMN_W := 1.0
 const COLUMN_FOOT := [Vector2(1.9, 0.05), Vector2(2.35, 0.05)]     ## (d, y) its two bottom edges
 const COLUMN_HEAD := [Vector2(0.85, UNDER), Vector2(1.3, UNDER)]   ## and top edges
-## The turbo plate's rounded underside edge (every side).
+## The turbo plate's rounded edge (every side) and the strip of plate behind it to TURBO_PLATE_IN:
+## its edge the border atlas' ribs, the bevel TMNF's TURBO sign (ours: texgen/turbo.py turbo_rim, v
+## across the bevel as rows of 512), the underside TMNF's light plates (the slab beyond is dark).
+const TURBO_PLATE_IN := 3.08
 const PLATE_LIP := [
-	[1.0, TOP, "turbo", S_TURBO], [0.0, TOP, "metal", S_METAL], [0.0, 7.9, "structure", S_METAL],
-	[0.122, 7.9, "rubber", S_SIGNS], [0.249, 7.611, "rubber", S_SIGNS], [0.505, 7.423, "rubber", S_SIGNS],
-	[0.847, UNDER, "structure", S_METAL], [1.0, UNDER, "", TmGeo.NO_COLLISION],
+	[TURBO_PLATE_IN, TOP, "turbo", S_TURBO], [0.0, TOP, "border_ribs", S_METAL, Vector2(161.5, 191.9)],
+	[0.0, 7.9, "border_ribs", S_METAL, Vector2(191.9, 200.0)], [0.122, 7.9, "turbo_rim", S_SIGNS, Vector2(0.0, 163.4)],
+	[0.249, 7.611, "turbo_rim", S_SIGNS, Vector2(163.4, 370.2)], [0.505, 7.423, "turbo_rim", S_SIGNS, Vector2(370.2, 512.0)],
+	[0.847, UNDER, "road_under", S_METAL], [TURBO_PLATE_IN, UNDER, "", TmGeo.NO_COLLISION],
 ]
+## The turbo deck's floor under the plate (measured): its edge (d, y) at the deck's foot, the
+## border atlas' orange band facing out, the light floor from TURBO_FLOOR_IN in at FLOOR_Y.
+const FLOOR_Y := 1.207
+const TURBO_FLOOR_IN := 3.3
+const TURBO_FLOOR := [
+	[TURBO_FLOOR_IN, FLOOR_Y, "road_under", S_DECK], [2.802, FLOOR_Y, "border_orange", S_METAL, Vector2(297.9, 366.8)],
+	[2.802, BOTTOM, "", TmGeo.NO_COLLISION], [TURBO_FLOOR_IN, BOTTOM, "", TmGeo.NO_COLLISION],
+]
+## Its four jet turbines (measured): axes along z at TURBINE_X x TURBINE_Y, intakes at TURBINE_Z
+## facing -z; the outline (z from the intake, radius, key of the segment from it) round to the
+## fan's plane; hung from a cross beam (TURBINE_BEAM: z from the intake, x across, bottom y) on
+## a pylon.
+const TURBINE_X := [5.44, 26.56]
+const TURBINE_Y := 3.39
+const TURBINE_Z := [2.52, 18.52]
+const TURBINE := [
+	[0.0, 1.52, "road_under"], [-0.5, 1.6, "road_under"], [-0.4, 1.86, "road_under"], [0.3, 1.97, "road_under"],
+	[3.0, 1.97, "platform_tray"], [3.4, 1.72, "platform_tray"], [5.2, 1.72, "platform_tray"], [5.5, 2.0, "road_metal"],
+	[9.0, 2.0, "platform_tray"], [9.4, 1.79, "platform_tray"], [10.0, 1.79, "road_metal"], [10.0, 0.0, "road_metal"],
+	[0.0, 0.0, "road_grid"],
+]
+const TURBINE_BEAM := [Vector2(5.5, 9.0), Vector2(3.92, 28.08), 6.1]
 
 const SIDES := [Vector3(0, 0, 1), Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(1, 0, 0)]
 const ARMS := {
@@ -404,18 +430,55 @@ func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array, mid := false) 
 		geo.wall_sweep(sec, [a, b], [la, lb], true, "metal", S_METAL)
 
 
-## Turbo deck: a thin plate (8 -> 7.325 m) with a turbo top and rounded underside edges, over a
-## fan housing.
+## Turbo deck (TMNF's): a thin plate (8 -> 7.325 m) with a turbo top and its TURBO rim, over the
+## deck's floor and underside (TURBO_FLOOR, _underside: its truss columns too), the white fabric
+## box in the middle and the four turbines either side of it (TURBINE).
 func _turbo(geo: TmGeo) -> void:
 	var all := [true, true, true, true]
 	for i in 4:
 		_edge_sweep(geo, PLATE_LIP, i, all, true)
+		_edge_sweep(geo, TURBO_FLOOR, i, all)
 	# the plate in two halves (its texture is mirrored about x = 16)
-	geo.box(Vector3(1.0, UNDER, 1.0), Vector3(16.0, TOP, 31.0), "structure", S_METAL, "turbo", S_TURBO)
-	geo.box(Vector3(16.0, UNDER, 1.0), Vector3(31.0, TOP, 31.0), "structure", S_METAL, "turbo", S_TURBO)
-	geo.box(Vector3(10.64, 1.21, 2.64), Vector3(21.36, UNDER, 29.36), "fabric", S_SLIDING)
+	var p0 := TURBO_PLATE_IN
+	var p1 := 32.0 - TURBO_PLATE_IN
+	geo.box(Vector3(p0, UNDER, p0), Vector3(16.0, TOP, p1), "road_metal", S_METAL, "turbo", S_TURBO)
+	geo.box(Vector3(16.0, UNDER, p0), Vector3(p1, TOP, p1), "road_metal", S_METAL, "turbo", S_TURBO)
+	geo.box(Vector3(10.64, FLOOR_Y, 2.64), Vector3(21.36, UNDER, 29.36), "fabric", S_SLIDING)
+	var f0 := TURBO_FLOOR_IN
+	var f1 := 32.0 - TURBO_FLOOR_IN
+	geo.quad(Vector3(f0, FLOOR_Y, f0), Vector3(f0, FLOOR_Y, f1), Vector3(f1, FLOOR_Y, f1), Vector3(f1, FLOOR_Y, f0), "platform", S_DECK)
+	_underside(geo, all)
+	var beam_z: Vector2 = TURBINE_BEAM[0]
+	var beam_x: Vector2 = TURBINE_BEAM[1]
+	for z0: float in TURBINE_Z:
+		geo.box(Vector3(beam_x.x, float(TURBINE_BEAM[2]), z0 + beam_z.x), Vector3(beam_x.y, UNDER, z0 + beam_z.y),
+			"platform_tray", S_METAL)
+		for x: float in TURBINE_X:
+			_turbine(geo, Vector3(x, TURBINE_Y, z0))
+			geo.box(Vector3(x - 0.4, TURBINE_Y + 1.8, z0 + beam_z.x + 0.5), Vector3(x + 0.4, float(TURBINE_BEAM[2]),
+				z0 + beam_z.y - 0.5), "platform_tray", S_METAL)
 	# the pad's texture as TMNF lays it: 16 m a tile along z, mirrored about the centre line
 	geo.remap_uv("turbo", func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, -0.5 - 1.5 * absf(p.x - 16.0) / 16.0))
+
+
+## One turbine with its intake at c, facing -z: the outline revolved, the fan in the intake (a
+## dark hub and four dark blades on the grey disc).
+func _turbine(geo: TmGeo, c: Vector3) -> void:
+	var sec := TURBINE.map(func(q: Array) -> Array: return [c.z + float(q[0]), float(q[1]), q[2], S_METAL])
+	geo.revolve_z(sec, Vector2(c.x, c.y), 0.0, 360.0, 16, false)
+	var hub := [[c.z - 0.45, 0.0, "road_metal", S_METAL], [c.z - 0.02, 0.45, "road_metal", S_METAL], [c.z - 0.02, 0.0, "road_metal", S_METAL]]
+	geo.revolve_z(hub, Vector2(c.x, c.y), 0.0, 360.0, 12, false)
+	for k in 4:
+		var a := deg_to_rad(45.0 + 90.0 * k)
+		var r := Vector3(cos(a), sin(a), 0.0)
+		var t := Vector3(-sin(a), cos(a), 0.0) * 0.32
+		var p0 := c + r * 0.4 + Vector3(0, 0, -0.03)
+		var p1 := c + r * 1.5 + Vector3(0, 0, -0.03)
+		var q := [p0 - t, p1 - t, p1 + t, p0 + t]
+		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).z > 0.0:
+			geo.quad(q[0], q[3], q[2], q[1], "platform_tray", TmGeo.NO_COLLISION)
+		else:
+			geo.quad(q[0], q[1], q[2], q[3], "platform_tray", TmGeo.NO_COLLISION)
 
 
 ## The grid wall's plan (x across, depth) swept round an arc in the y-z plane about c = (y, z) from

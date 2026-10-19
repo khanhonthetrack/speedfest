@@ -71,6 +71,7 @@ const COLORS := {
 	"glass": [Color(0.70, 0.85, 0.95, 0.35), 0.05, 0.0],
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
 	"freewheel": [Color8(176, 14, 12), 0.5, 0.0],
+	"turbo_rim": [Color8(40, 38, 34), 0.7, 0.0],         # the turbo deck's rim (TMNF's TURBO sign)
 	"race_start": [Color8(37, 135, 60), 0.75, 0.0],      # TMNF's start / finish roads (its texture's paint)
 	"race_finish": [Color8(152, 35, 35), 0.75, 0.0],
 	"gate_line": [Color8(62, 133, 254), 0.5, 0.0],       # the line across the road at a gate
@@ -155,6 +156,7 @@ const TEXTURED := {
 	# the turbo pads (texgen/turbo.py; UV-mapped across the pad, as TMNF's: TmGeo.remap_uv)
 	"turbo": ["turbo_pad", Vector2(1.0, 1.0), false],
 	"freewheel": ["freewheel_pad", Vector2(1.0, 1.0), false],    # (texgen/turbo.py; laid out as the turbo)
+	"turbo_rim": ["turbo_rim", Vector2(1.0, 1.0), false],        # (texgen/turbo.py; platform.gd PLATE_LIP)
 	# the start / finish roads (texgen/gates.py race_road; road.gd _race_road maps them)
 	"race_start": ["race_start", Vector2(1.0, 1.0), false],
 	"race_finish": ["race_finish", Vector2(1.0, 1.0), false],

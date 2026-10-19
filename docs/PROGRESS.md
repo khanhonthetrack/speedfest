@@ -2498,3 +2498,11 @@ on every real contact the full impulse would land at the contact point and kick 
   cross of struts slanting down away from it to 7.86 m out, and from each strut's end a truss up
   to under the rim (`platform.gd _slope_frame`, `_strut`). Material check (2StraightAir, 92 uses):
   colour differs 1211 -> 197 m2, TMNF surface we lacked 406 -> 50 m2; the BiSlopes alike.
+- (M11-2) **The platform turbo deck as TMNF's.** Ours was a plate over a fabric box; TMNF's thin
+  turbo plate rides over an open engine room: the deck's floor (light, the border atlas' orange
+  band round its edge) with the deck's underside and truss columns below it, the white fabric box
+  in the middle and four jet turbines either side of it hung from two cross beams under the plate
+  (measured: axes, intakes, the outline; a grey intake ring, a fan of four dark blades on a grey
+  disc). The rim's bevel is TMNF's TURBO sign (our own texture: `texgen/turbo.py turbo_rim`, the
+  word every 4 m), the plate's underside ring TMNF's light plates. Material check: TMNF surface we
+  lacked 2820 -> 814 m2, colour differs 838 -> 664 m2.
