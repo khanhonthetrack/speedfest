@@ -186,6 +186,14 @@ Tools: Blender 5.2 as a Python module (`/opt/bpyenv/bin/python`), CC0 sources am
 (every asset listed in docs/ASSETS.md). `server/public` (tonight's web build) is not re-exported until
 the upgrade is verified on both renderers.
 
+### M9 — Story mode "Rear View" (owner, session 11, 2026-10-19) ☐
+Design draft in **docs/STORY.md**. Waiting on the owner's answers (STORY §8) and the priority against M8.
+- [x] Story outline: 10 chapters x 3 maps, reverse order, choice maps, 3 endings
+- [ ] Medals per map and per finish gate (author times from recorded runs / AutoDriver)
+- [ ] Forked roads with several finish gates (track builder)
+- [ ] Story runner (chapters, unlocks, choices, endings) and scene player (shots, subtitles, phone messages)
+- [ ] 30 story maps, the X (7th car), boss ghosts
+
 ### Later
 - **Beyond-web graphics and front end:** see docs/RENDERING.md (path tracing investigation, real
   art assets, Forward+ features, optional RTX mode via the NVIDIA fork, NFSU2-style 3D garage menus)

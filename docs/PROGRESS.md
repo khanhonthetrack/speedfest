@@ -877,3 +877,12 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   cycles all 34 tracks.
 - Note for session 9: `tmnf-physics` still lacks bd65cbc (puddles; its defs have 0 puddle markers vs
   3 on `m7-maps`). Merging `main` into `tmnf-physics` now brings it in.
+
+## Session 11 (19 Oct, cloud, branch `ccr-be8add6f-thdbey`): story mode design
+
+- Owner pitched a story-driven, choices-matter mode (TRANSCRIPT session 11). Polished it into
+  `docs/STORY.md` ("Rear View"): 10 chapters played in reverse (Memento), 3 maps each, gold to
+  advance, forked choice maps with several finish gates, 2 hidden values (bosses pushed, wife or
+  affair) and 3 endings (THE COLLECTION / HOME / LAST CALL). Design only; build list in STORY §7
+  (medals first, then forked roads with several finishes, story runner, scene player, 30 maps, the
+  X). Waiting on the owner's answers (STORY §8).

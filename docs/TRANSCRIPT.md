@@ -527,3 +527,30 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   NFSU2-style free-roam city), tone, whether story locks cars and cosmetics (online friends have
   everything today), SpeedFest vs the `stadium/` remake, and where it sits against the Stadium
   remake and the pending TMNF handling decision (medal times depend on the handling).
+
+### User (verbatim)
+
+> No, i have my own idea.
+>
+> Story driven, choices matter game. Like As dusk falls, life is strange etc.
+>
+> 10 chapters. In each of them there will be 3 time-attack maps to beat (say diffifuclty is to  be gold medal or author medal). In some of them you make a decision by choosing to which finish line you arrive in your personal best lap.
+>
+> Each chapter starts before the previous one, memento style. In the first chapter, the main character male sits in a traffic jam with female. They, she leaves crying. Then the time attack starts, the finish you choose depends wherther you go home, open garage and store your car X with collection of a lot of other carss. Other exit is you go back home with your family. Other is you go to the pub to drink and grab a beer and be sad.
+>
+> Then there is plot, i dont have details.
+>
+> Then in the last chapter, you beat a final boss. Then there is a cutscene when you push the final boss who crashes. You go there, see them dead, get the car X and drive away.
+>
+> So in particular, the ending is that the main character could have eliminated a lot of such bosses, or not and has a familyhappy life or just lost everything (as the girl in the car was his wife and not an affair).
+>
+> Polish this and put it into 10 chapters nicely in a tm-style game.
+
+### Claude
+
+- Wrote it up as `docs/STORY.md` ("Rear View", draft): 10 chapters x 3 maps in reverse order, gold to
+  advance, choice maps with forked roads and one finish gate per choice (the run you hold when you
+  press CONTINUE decides). Filled in the plot: four pink-slip bosses (chapters 2/4/6/8, PUSH or
+  CLEAN) and three home-or-Lena choices (3/5/7). Chapters 9-10 have no choice. The finale replays
+  the chapter 1 arrival, and the hidden values pick THE COLLECTION / HOME / LAST CALL. Nothing built; questions
+  in STORY §8 (names, theme, gold vs easy, how to show people, priority).
