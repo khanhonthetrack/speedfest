@@ -2361,3 +2361,21 @@ on every real contact the full impulse would land at the contact point and kick 
   blue strip on the ground along the wall's outside, 4.7 m; ours is grey there and has none at the
   outer corners) and the walls across a slope (Slope/Straight Top/Bottom: TMNF's ledge steps are
   blue, ours grey). Left for the owner to decide.
+- (same day) Owner: "Yes, match in every way". `blocks/shapes/circuit.gd`, measured on TMNF's
+  border blocks (the blue is its StadiumRoadCircuitBorder texture wherever it is used):
+  - Borders standing on the ground now lay the blue strip on the terrain in front of the wall's
+    foot, 0.465 to 5.155 m out from the face (`GROUND_STRIP`), on every shape: straights,
+    corners and GT curves (radially; outer GT curves widen mid-curve by 0.46 / 0.33 / 0.10 m for
+    2 / 3 / 4 cells, `GROUND_OUT_BULGE`), diagonals (along the cell edges), with TMNF's rubber pads
+    where it crosses a cell corner (2-cell outer, 4-cell inner curves, `GROUND_PADS`). It lies
+    1 cm above the grass (`GROUND_LIFT`: no flicker, and a wheel's ray finds the strip, not the
+    grass). Straights had a grey strip there; the other shapes had none.
+  - Slope starts on the ground: TMNF's black rubber strip in front of the wall for the first
+    12 m; ours had the straight's strip laid across the piece instead (a bug).
+  - The walls across a slope (Slope/Straight Top / Bottom): their step is the blue strip, not the
+    wall's top-lip blue.
+  - Every blue strip takes TMNF's surface for that material (9, rubber; the ledge was metal): the
+    same grip and drive, and the chassis slides on it as on rubber, not metal.
+  - Checked per shape against TMNF (blue on the ground and up on the walls, the deck, the pads):
+    within 2.5% on every Circuit border and slope shape, exact on straights, corners and
+    diagonals; TMNF's B08 (ground circuits) rendered side by side with TMNF's blocks.

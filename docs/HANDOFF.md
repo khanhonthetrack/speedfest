@@ -19,7 +19,10 @@
   next release is cut, then tag it the same way, e.g. `stadium-v0.6`): the circuit ledges' blue is
   TMNF's 4.91 m strip along the wall, the deck beyond (owner, A01: "In tmnf the blue parts are not
   as wide"; `blocks/shapes/circuit.gd`); the tyre smoke never draws black (owner: "When braking, i
-  still see the black thingies near wheels"; `race/tm_tyre_smoke.gdshader`), road smoke whiter.
+  still see the black thingies near wheels"; `race/tm_tyre_smoke.gdshader`), road smoke whiter;
+  then (owner: "match in every way") TMNF's blue everywhere on the circuit borders: the strip on
+  the ground along ground borders' walls, the walls across a slope, the slope starts' rubber strip,
+  TMNF's surface on every strip (PROGRESS 19 Oct; checked per shape against TMNF's blocks).
   `stadium-v0.5` stays as merged (f51d56c).
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its

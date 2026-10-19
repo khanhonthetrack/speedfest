@@ -39,7 +39,10 @@ other side. From the material placement on the straight border's section (block 
   4.91 m wide on every border: on corners, GT curves and diagonals it follows the wall that far,
   radially, and the rest of the ledge is the lane's deck, StadiumPlatform; blue / deck m² on the
   ledge top, e.g. Corner In 227.5 / 220.8, GTCurve 3 In 721.0 / 1975.9, 3 Out 512.2 / 2192.4,
-  Diag In 144.2 / 512.0, Corner and Diag Out all blue); black
+  Diag In 144.2 / 512.0, Corner and Diag Out all blue). Borders on the ground also lay that strip
+  on the terrain outside the wall's foot, 0.465-5.155 m from the face (outer GT curves a little
+  wider mid-curve), with rubber pads where it crosses a cell corner; the walls across a slope
+  have it on their step; black
   rubber 8.3-9.4 with small logos; the screen 9.6-12.7 (black: a display surface); dark steel
   truss 12.7-15.1 (35-40 grey); the blue lip on top.
 - The cap is white with blue edges; the inside faces under the ledge are the dark truss.

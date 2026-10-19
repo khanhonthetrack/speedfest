@@ -16,6 +16,16 @@ const S_CONCRETE := 0
 const FACE := 23.015            ## the wall's inner face, from the cell's road side (z)
 const LEDGE_D := 4.075          ## the stands' foot behind the face (d), where the ledge starts
 const BAND := 32.0 - FACE - LEDGE_D   ## the blue strip on the ledge, along the wall (4.91 m)
+const GROUND_STRIP := [0.465, 5.155]  ## ground borders: the blue strip on the terrain, from / to (m out from the face)
+const GROUND_LIFT := 0.01       ## that strip above the grass (no z-fighting; a wheel's ray finds it first)
+## Outer GT curves on the ground: the strip widens mid-curve by this much (m, at 45 deg; measured)
+const GROUND_OUT_BULGE := {2: 0.46, 3: 0.33, 4: 0.10}
+## Rubber pads across the ground strip where it meets a cell corner (TMNF x, z; measured)
+const GROUND_PADS := {
+	"GTCurve2Out": [[[29.88, 29.94], [32.0, 32.0], [34.03, 34.16], [32.98, 35.09], [31.02, 32.99], [28.92, 31.04]]],
+	"GTCurve4In": [[[97.28, 61.97], [98.14, 62.52], [96.75, 64.64], [95.31, 66.73], [94.45, 66.13], [96.0, 64.0]],
+		[[66.17, 94.48], [66.75, 95.31], [64.66, 96.74], [62.53, 98.13], [61.98, 97.3], [64.0, 96.0]]],
+}
 const LEDGE_Y := 8.0
 const FLOOR_Y := 0.24
 
@@ -56,7 +66,7 @@ const SLOPE_TOP_WALL := [
 	[6.386, 12.818, "truss", S_CONCRETE], [6.386, 12.612, "rubber_dark", S_RUBBER],
 	[6.281, 12.232, "rubber_dark", S_RUBBER], [5.421, 11.802, "rubber_dark", S_RUBBER], [5.386, 11.683, "rubber_dark", S_RUBBER],
 	[5.055, 11.340, "rubber_dark", S_RUBBER], [4.924, 11.128, "rubber_dark", S_RUBBER], [4.843, 10.885, "rubber_dark", S_RUBBER],
-	[4.843, 10.624, "rubber_dark", S_RUBBER], [4.908, 10.454, "circuit_trim", S_RUBBER],
+	[4.843, 10.624, "rubber_dark", S_RUBBER], [4.908, 10.454, "circuit_floor", S_RUBBER],
 	[0.000, 8.000, "wall_dark", S_METAL], [0.000, 0.243, "truss", S_CONCRETE],
 	[5.387, 2.937, "rubber_dark", S_RUBBER], [5.575, 2.787, "circuit_panel", S_RUBBER], [9.228, 4.614, "circuit_panel", S_RUBBER],
 	[9.449, 4.828, "rubber_dark", S_RUBBER], [9.568, 5.093, "rubber_dark", S_RUBBER], [9.630, 5.353, "rubber_dark", S_RUBBER],
@@ -79,7 +89,7 @@ const SLOPE_BOTTOM_WALL := [
 	[25.719, 13.951, "rubber_dark", S_RUBBER], [26.579, 14.381, "rubber_dark", S_RUBBER],
 	[26.614, 14.297, "rubber_dark", S_RUBBER], [26.945, 14.286, "rubber_dark", S_RUBBER],
 	[27.076, 14.203, "rubber_dark", S_RUBBER], [27.157, 14.041, "rubber_dark", S_RUBBER],
-	[27.157, 13.780, "rubber_dark", S_RUBBER], [27.092, 13.546, "circuit_trim", S_RUBBER],
+	[27.157, 13.780, "rubber_dark", S_RUBBER], [27.092, 13.546, "circuit_floor", S_RUBBER],
 	[32.000, 16.000, "wall_dark", S_METAL], [32.000, 8.243, "truss", S_CONCRETE],
 	[26.613, 5.550, "rubber_dark", S_RUBBER], [26.425, 5.213, "circuit_panel", S_RUBBER], [22.772, 3.386, "circuit_panel", S_RUBBER],
 	[22.551, 3.379, "rubber_dark", S_RUBBER], [22.432, 3.525, "rubber_dark", S_RUBBER], [22.370, 3.723, "rubber_dark", S_RUBBER],
@@ -135,17 +145,88 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	else:
 		if not _slope(geo, parts[2], parts[3], dy):
 			return null
-		if ground and not parts[3].begins_with("Base"):
-			_ground_floor(geo, "Straight", parts[3])
+		if ground and parts[2] == "Start" and not parts[3].begins_with("Base"):
+			_slope_start_floor(geo, parts[3])
 	return geo.build()
 
 
-## Ground borders stand on the terrain (the map's ground at 1 m block-local, built separately);
-## straights add the 4.7 m concrete strip in front of the wall.
-func _ground_floor(geo: TmGeo, kind: String, _variant: String) -> void:
-	if kind == "Straight":
-		geo.quad(Vector3(32, 1.0, 17.86), Vector3(0, 1.0, 17.86), Vector3(0, 1.0, FACE - 0.47), Vector3(32, 1.0, FACE - 0.47),
-			"platform", S_CONCRETE)
+## Ground borders stand on the terrain (the map's ground at 1 m block-local, built separately). In
+## front of the wall's foot TMNF lays its blue border strip on the terrain, GROUND_STRIP out from
+## the face: along a straight, radially round corners and GT curves (outer ones a little wider
+## mid-curve), along the cell edges by a diagonal (as the wall's section is sheared there); a few
+## rubber pads cross it (GROUND_PADS).
+func _ground_floor(geo: TmGeo, kind: String, variant: String) -> void:
+	var a: float = GROUND_STRIP[0]
+	var b: float = GROUND_STRIP[1]
+	var k := int(variant.substr(0, 1)) if kind == "GTCurve" else 1
+	var s := 32.0 * k
+	var poly := PackedVector2Array()
+	match kind:
+		"Straight":
+			poly = PackedVector2Array([Vector2(0, FACE - b), Vector2(32, FACE - b), Vector2(32, FACE - a), Vector2(0, FACE - a)])
+		"Corner", "GTCurve":
+			if variant.contains("In"):
+				# the grass inside the arc about (0, 0)
+				var r := s - (32.0 - FACE)
+				for i in 8 * k + 1:
+					var ang := PI * 0.5 * float(i) / (8 * k)
+					poly.append(Vector2(cos(ang), sin(ang)) * (r - a))
+				for i in 8 * k + 1:
+					var ang := PI * 0.5 * (1.0 - float(i) / (8 * k))
+					poly.append(Vector2(cos(ang), sin(ang)) * (r - b))
+			else:
+				# outside the arc about (0, s)
+				var r := s - FACE
+				for i in 6 * k + 1:
+					var ang := -PI * 0.5 + PI * 0.5 * float(i) / (6 * k)
+					poly.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r + a))
+				var bulge: float = GROUND_OUT_BULGE.get(k, 0.0)
+				for i in 6 * k + 1:
+					var t := float(i) / (6 * k)
+					var ang := -PI * 0.5 * t
+					poly.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r + b + bulge * sin(PI * t)))
+		"Diag":
+			if variant.contains("In"):
+				poly = PackedVector2Array([Vector2(FACE - b, 0), Vector2(FACE - a, 0), Vector2(0, FACE - a), Vector2(0, FACE - b)])
+			else:
+				poly = PackedVector2Array([Vector2(0, FACE - b), Vector2(0, FACE - a), Vector2(32 - FACE + a, 32),
+					Vector2(32 - FACE + b, 32)])
+	if poly.size() < 3:
+		return
+	var y := 1.0 + GROUND_LIFT
+	var pieces: Array = [poly]
+	for pad: Array in GROUND_PADS.get(kind + ("%d" % k if kind == "GTCurve" else "") + ("In" if variant.contains("In") else "Out"), []):
+		var pp := PackedVector2Array()
+		for q: Array in pad:
+			pp.append(Vector2(q[0], q[1]))
+		# split through the pad first, so clipping it leaves notches, never a hole
+		var cx := 0.0
+		for q in pp:
+			cx += q.x / pp.size()
+		var halves := [PackedVector2Array([Vector2(-1e4, -1e4), Vector2(cx, -1e4), Vector2(cx, 1e4), Vector2(-1e4, 1e4)]),
+			PackedVector2Array([Vector2(cx, -1e4), Vector2(1e4, -1e4), Vector2(1e4, 1e4), Vector2(cx, 1e4)])]
+		var rest := []
+		for piece: PackedVector2Array in pieces:
+			for half: PackedVector2Array in halves:
+				for part: PackedVector2Array in Geometry2D.intersect_polygons(piece, half):
+					rest.append_array(Geometry2D.clip_polygons(part, pp))
+		pieces = rest
+		geo.flat_polygon(pp, y, "rubber_dark", S_RUBBER)
+	for piece: PackedVector2Array in pieces:
+		if absf(_area(piece)) > 0.01:
+			geo.flat_polygon(piece, y, "circuit_floor", S_RUBBER)
+
+
+## A slope start on the terrain ("GroundLeft" / "GroundRight"): TMNF's black rubber strip in front
+## of the wall's foot, GROUND_STRIP out from the face, for the first 12 m (before the ramp lifts
+## the wall off the ground).
+func _slope_start_floor(geo: TmGeo, variant: String) -> void:
+	var a: float = GROUND_STRIP[0]
+	var b: float = GROUND_STRIP[1]
+	var x0 := 32.0 - FACE + a if variant.ends_with("Left") else FACE - b
+	var x1 := 32.0 - FACE + b if variant.ends_with("Left") else FACE - a
+	geo.flat_polygon(PackedVector2Array([Vector2(x0, 0), Vector2(x1, 0), Vector2(x1, 12), Vector2(x0, 12)]),
+		1.0 + GROUND_LIFT, "rubber_dark", S_RUBBER)
 
 
 ## Border walls: Straight, Corner In/Out, GTCurve kIn/kOut, Diag In/Out.
@@ -291,7 +372,7 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 		# ledge to the cell edge: top at 8 m, outer face, floor
 		var e := 32.0 - FACE
 		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - 8.33) < 0.01)[0])
-		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_METAL])
+		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
 		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
 		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "truss", S_CONCRETE])
 		sec.insert(at + 4, [Vector2(3.595, _lift(FLOOR_Y, dy)), "structure", S_METAL])
@@ -341,11 +422,11 @@ func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float, band := PackedVecto
 	var lo := _lift(FLOOR_Y, dy)
 	var hi := LEDGE_Y
 	if band.is_empty():
-		geo.flat_polygon(poly, hi, "circuit_floor", S_METAL)
+		geo.flat_polygon(poly, hi, "circuit_floor", S_RUBBER)
 	else:
 		for p: PackedVector2Array in Geometry2D.intersect_polygons(poly, band):
 			if absf(_area(p)) > 0.01:
-				geo.flat_polygon(p, hi, "circuit_floor", S_METAL)
+				geo.flat_polygon(p, hi, "circuit_floor", S_RUBBER)
 		for p: PackedVector2Array in Geometry2D.clip_polygons(poly, band):
 			if absf(_area(p)) > 0.01:
 				geo.flat_polygon(p, hi, "platform", S_ASPHALT)
@@ -444,7 +525,7 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float)
 		if (sec[i][0] as Vector2).x > 4.0 and absf((sec[i][0] as Vector2).y - 8.33) < 0.01:
 			at = i
 	var e := 32.0 - FACE
-	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_METAL])
+	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
 	sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
 	sec.insert(at + 3, [Vector2(e, FLOOR_Y), "truss", S_CONCRETE])
 	sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "structure", S_METAL])
