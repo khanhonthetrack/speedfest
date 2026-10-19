@@ -401,20 +401,21 @@ func _out_quad(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, d: Vector3, out: 
 		geo.quad(a, b, c, d, "platform_tray", S_METAL)
 
 
-## A box whose faces toward closed sides are left out (the lips cover them).
+## A box whose faces toward closed sides are left out (the lips cover them); its faces at open
+## sides (seen where nothing continues the deck) TMNF's dark Stands2.
 func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array) -> void:
 	var p := [Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
 		Vector3(lo.x, hi.y, lo.z), Vector3(hi.x, hi.y, lo.z), Vector3(hi.x, hi.y, hi.z), Vector3(lo.x, hi.y, hi.z)]
 	geo.quad(p[4], p[7], p[6], p[5], "platform", S_DECK)        # top
 	geo.quad(p[0], p[1], p[2], p[3], "", S_METAL)               # floor (on the tray)
 	if not closed[2]:
-		geo.quad(p[0], p[4], p[5], p[1], "metal", S_METAL)      # -z
+		geo.quad(p[0], p[4], p[5], p[1], "platform_tray", S_METAL)      # -z
 	if not closed[0]:
-		geo.quad(p[2], p[6], p[7], p[3], "metal", S_METAL)      # +z
+		geo.quad(p[2], p[6], p[7], p[3], "platform_tray", S_METAL)      # +z
 	if not closed[1]:
-		geo.quad(p[3], p[7], p[4], p[0], "metal", S_METAL)      # -x
+		geo.quad(p[3], p[7], p[4], p[0], "platform_tray", S_METAL)      # -x
 	if not closed[3]:
-		geo.quad(p[1], p[5], p[6], p[2], "metal", S_METAL)      # +x
+		geo.quad(p[1], p[5], p[6], p[2], "platform_tray", S_METAL)      # +x
 
 
 ## Sweeps an edge section (d inward, y) along side i of the block; each end is mitred against a

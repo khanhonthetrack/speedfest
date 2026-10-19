@@ -2517,3 +2517,7 @@ on every real contact the full impulse would land at the contact point and kick 
   green line, CHECKPOINT blue on dark between two blue lines (`texgen/gates.py KINDS`: lines per
   kind); on the road gates' arch faces and curbs and the platform checkpoints' arch. Side by side
   with TMNF's blocks.
+- (M11-2) **Platform decks' open ends and the ramp onto the road as TMNF's.** Where a deck
+  continues (and nothing is built next to it) its body's end is TMNF's dark Stands2, not light
+  metal; the road ramp off a platform (Platform/ToRoad/ToRoadMainAir) has the ground road's green
+  shoulders (TMNF's), not the grid (`road.gd _green_shoulders`). Side by side with TMNF's block.

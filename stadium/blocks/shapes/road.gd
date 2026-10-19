@@ -254,6 +254,7 @@ const HOLE_PILLARS := {
 static var _diag_cache := {}
 
 var _road_mat := "asphalt"
+var _green_shoulders := false      ## the shoulders the border's green band in the air too (ramp)
 var _road_surf := S_ROAD
 var _gate_kind := "cp"            ## the gate's kind for this shape (TmGateDress.kind_of)
 var _curb_mat := "curb_face"      ## the curbs' face towards the road (a gate block's: its word)
@@ -424,7 +425,7 @@ func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
 		else:
 			key = _curb_mat
 			rows = Vector2(-1, -1)
-	elif key == "shoulder" and ground:
+	elif key == "shoulder" and (ground or _green_shoulders):
 		key = "border_green"
 		rows = Vector2(392.7, 511.0)
 	elif key == "shoulder":
@@ -859,6 +860,7 @@ func _ground_pillar(geo: TmGeo, z: float, keel: Callable) -> void:
 ## surface's material (the platform's own where the ramp is part of a platform block).
 func ramp(geo: TmGeo, heights: Array, floor_y: float, mat := "asphalt") -> void:
 	_road_mat = mat
+	_green_shoulders = true      # TMNF's ramp off a platform has the ground road's green shoulders
 	var path := []
 	var lat := []
 	for i in heights.size():
@@ -867,6 +869,7 @@ func ramp(geo: TmGeo, heights: Array, floor_y: float, mat := "asphalt") -> void:
 	var y_at := func(y: float, i: int) -> float: return maxf(y, floor_y - (path[i] as Vector3).y)
 	_sweep(geo, path, lat, false, y_at)
 	_road_mat = "asphalt"
+	_green_shoulders = false
 
 
 ## Road/Main onto a platform floor at road level (Platform/ToRoad, where the platform loops begin):
