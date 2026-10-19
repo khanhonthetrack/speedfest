@@ -7,10 +7,12 @@ import numpy as np
 from texlib import *
 
 KINDS = {
-    # word, ink, band (the word's backing), edge stripe
-    'start': ('START', (40, 196, 72), (226, 230, 226), (40, 196, 72)),
-    'cp': ('CHECKPOINT', (36, 120, 232), (30, 31, 35), (36, 120, 232)),
-    'finish': ('FINISH', (226, 44, 36), (226, 230, 226), (226, 44, 36)),
+    # word, ink, band (the word's backing), lines along the band ((top, bottom) as shares of its
+    # height, colour): TMNF's RaceSigns layout (START green on white under one green line, FINISH
+    # white on red between white lines, CHECKPOINT blue on dark between blue lines)
+    'start': ('START', (52, 168, 64), (228, 226, 222), [((0.07, 0.12), (52, 168, 64))]),
+    'cp': ('CHECKPOINT', (44, 96, 214), (34, 34, 37), [((0.15, 0.19), (44, 96, 214)), ((0.86, 0.90), (44, 96, 214))]),
+    'finish': ('FINISH', (242, 240, 236), (196, 28, 22), [((0.15, 0.18), (242, 240, 236)), ((0.89, 0.92), (242, 240, 236))]),
 }
 
 
@@ -26,8 +28,8 @@ def rubber(w, h, seed, base):
 
 def band(kind, name, ppm=128, length=8.0, height=1.25, seed=51, word_h=0.62, repeats=1):
     """A band `length` m long (u) and `height` m tall (v): the word in the kind's ink on its
-    backing, stripes of the ink colour at both edges, scuffs. Text runs along u."""
-    word, ink, back, edge = KINDS[kind]
+    backing, the kind's lines along it, scuffs. Text runs along u."""
+    word, ink, back, lines = KINDS[kind]
     w = int(length * ppm)
     h = int(height * ppm)
     col, ribs, n2 = rubber(w, h, seed, back)
@@ -44,10 +46,11 @@ def band(kind, name, ppm=128, length=8.0, height=1.25, seed=51, word_h=0.62, rep
         col = lerp(col, srgb((24, 26, 30))[None, None, :], np.clip(outline - txt, 0, 1) * 0.9)
     worn = smoothstep(0.4, 1.6, fbm(w, h, seed + 2, beta=1.0, lo=10.0)) * 0.35
     col = lerp(col, srgb(ink)[None, None, :] * (1.0 + 0.05 * n2)[..., None], txt * (1.0 - worn))
-    s = 0.07 * h
-    stripes = np.maximum(rect_mask(w, h, -10, 0.02 * h, w + 10, 0.02 * h + s, 1.0),
-                         rect_mask(w, h, -10, 0.98 * h - s, w + 10, 0.98 * h, 1.0))
-    col = lerp(col, srgb(edge)[None, None, :], stripes)
+    stripes = np.zeros((h, w), np.float32)
+    for (y0, y1), c in lines:
+        m = rect_mask(w, h, -10, y0 * h, w + 10, y1 * h, 1.0)
+        col = lerp(col, srgb(c)[None, None, :], m * (1.0 - worn))
+        stripes = np.maximum(stripes, m)
     scuff = grime(w, h, seed + 3, 0.7, 2.0)
     col = lerp(col, srgb((70, 68, 64))[None, None, :], scuff * 0.25)
     hgt = 0.6 * ribs + 0.3 * n2 + 1.2 * txt + 0.8 * stripes

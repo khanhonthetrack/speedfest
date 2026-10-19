@@ -112,10 +112,10 @@ const COLORS := {
 	"gate_shell": [Color(0.13, 0.135, 0.15), 0.7, 0.1],
 	"gate_start": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
 	"gate_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
-	"gate_finish": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"gate_finish": [Color8(196, 28, 22), 0.7, 0.0],
 	"curb_start": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
 	"curb_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
-	"curb_finish": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"curb_finish": [Color8(196, 28, 22), 0.7, 0.0],
 	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],

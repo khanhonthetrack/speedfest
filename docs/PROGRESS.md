@@ -2512,3 +2512,8 @@ on every real contact the full impulse would land at the contact point and kick 
   (`platform.gd _ring_uv`); the legs under the lips dark truss; the billboard over the arch curved
   and falling with it as TMNF's (measured: its ends 2 m lower and 2.8 m nearer the front than its
   middle). Material check (Checkpoint/Air): colour differs 828 -> 657 m2.
+- (M11-2) **The gates' word bands in TMNF's layout** (its RaceSigns, our own drawing and font):
+  FINISH white on red between two white lines (was red on white), START green on white under one
+  green line, CHECKPOINT blue on dark between two blue lines (`texgen/gates.py KINDS`: lines per
+  kind); on the road gates' arch faces and curbs and the platform checkpoints' arch. Side by side
+  with TMNF's blocks.
