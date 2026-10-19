@@ -681,6 +681,9 @@ func _fill_palette() -> void:
 		b.tooltip_text = id
 		b.add_theme_font_size_override("font_size", 15)
 		b.add_theme_constant_override("icon_max_width", 120)
+		b.add_theme_stylebox_override("normal", TmUi.glass("tm_tile"))
+		b.add_theme_stylebox_override("hover", TmUi.glass("tm_tile_lit"))
+		b.add_theme_stylebox_override("pressed", TmUi.glass("tm_tile_lit"))
 		var icon := "res://assets/ui/blocks/%s.png" % id
 		if ResourceLoader.exists(icon):
 			b.icon = load(icon)
@@ -688,8 +691,8 @@ func _fill_palette() -> void:
 			b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 			b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		if id == selected and not erasing:
-			b.add_theme_stylebox_override("normal", TmUi.glass("pressed"))
-			b.add_theme_color_override("font_color", Color(0.03, 0.07, 0.01))
+			b.add_theme_stylebox_override("normal", TmUi.glass("tm_tile_lit"))
+			b.add_theme_color_override("font_color", Color.WHITE)
 		b.pressed.connect(func() -> void: select_block(id))
 		_pal_box.add_child(b)
 

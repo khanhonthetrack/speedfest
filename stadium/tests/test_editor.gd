@@ -230,8 +230,8 @@ func _menu(path: String) -> void:
 	menu.show_page("editors")
 	await get_tree().process_frame
 	var names := _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(menu.track_rows.size() == 1 and menu.track_rows.has(path) and names.has("NEW TRACK") and names.has("EDIT")
-		and names.has("PLAY"), "editor_menu_lists", str(names))
+	TestHooks.check(menu.track_rows.size() == 1 and menu.track_rows.has(path) and names.has("New Track") and names.has("Edit")
+		and names.has("Play"), "editor_menu_lists", str(names))
 	var got := []
 	menu.edited.connect(func(p: String) -> void: got.append(p))
 	menu.edit(path)

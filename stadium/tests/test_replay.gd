@@ -245,7 +245,7 @@ func _menu(path: String) -> void:
 	(menu.replay_rows[other] as Button).focus_entered.emit()
 	var del: Button = menu._del_btn
 	del.pressed.emit()
-	TestHooks.check(menu.replay_selected == path and del.text.begins_with("DELETE ") and del.text.ends_with("?")
+	TestHooks.check(menu.replay_selected == path and del.text.begins_with("Delete ") and del.text.ends_with("?")
 		and FileAccess.file_exists(path), "replay_menu_delete_asks", "%s %s" % [menu.replay_selected, del.text])
 	del.pressed.emit()
 	await get_tree().process_frame

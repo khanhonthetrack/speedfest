@@ -108,6 +108,50 @@ static func glass(kind: String) -> TmGlassBox:
 			d.content_margin_top = 8
 			d.content_margin_bottom = 14
 			return d
+		"tm_column":     # the left column behind the rows: near black
+			return TmGlassBox.make({"top": Color(0.07, 0.07, 0.075, 0.86), "bottom": Color(0.03, 0.03, 0.035, 0.9),
+				"gloss": 0.0, "radius": 8.0, "border": Color(0.25, 0.25, 0.27, 0.8), "border_top": Color(0.4, 0.4, 0.42, 0.8),
+				"border_width": 1.5})
+		"tm_card":       # the column's header card: light grey
+			var c := TmGlassBox.make({"top": Color(0.80, 0.80, 0.81, 0.97), "bottom": Color(0.47, 0.47, 0.49, 0.97),
+				"gloss": 0.25, "gloss_depth": 0.45, "radius": 9.0, "border": Color(0.25, 0.25, 0.26, 0.9),
+				"border_top": Color(0.95, 0.95, 0.95, 1.0), "border_width": 1.5})
+			c.content_margin_left = 16
+			c.content_margin_right = 10
+			c.content_margin_top = 2
+			c.content_margin_bottom = 4
+			return c
+		"tm_row":        # an entry of the column: a faint tile
+			return TmGlassBox.make({"top": Color(1, 1, 1, 0.035), "bottom": Color(1, 1, 1, 0.02), "gloss": 0.0,
+				"radius": 5.0, "border": Color(1, 1, 1, 0.04), "border_top": Color(1, 1, 1, 0.06), "border_width": 1.0})
+		"tm_row_hover":
+			return TmGlassBox.make({"top": Color(1, 1, 1, 0.07), "bottom": Color(1, 1, 1, 0.04), "gloss": 0.0,
+				"radius": 5.0, "border": Color(1, 1, 1, 0.08), "border_top": Color(1, 1, 1, 0.1), "border_width": 1.0})
+		"tm_row_chosen":  # the page's current choice: a green ring
+			return TmGlassBox.make({"top": Color(0.05, 0.16, 0.05, 0.55), "bottom": Color(0.02, 0.08, 0.02, 0.55), "gloss": 0.0,
+				"radius": 8.0, "border": TM_GREEN, "border_top": Color(0.5, 1.0, 0.5), "border_width": 2.0})
+		"tm_row_focus":
+			return TmGlassBox.make({"top": Color(0, 0, 0, 0), "bottom": Color(0, 0, 0, 0), "gloss": 0.0, "radius": 8.0,
+				"border": Color(TM_GREEN, 0.55), "border_top": Color(TM_GREEN, 0.55), "border_width": 1.5})
+		"tm_bar":        # the bar at the top right (you, the clock): dark, its lower left corner round
+			return TmGlassBox.make({"top": Color(0.10, 0.10, 0.11, 0.9), "bottom": Color(0.03, 0.03, 0.035, 0.92),
+				"gloss": 0.0, "radius": 10.0, "corners": 2, "border": Color(0.25, 0.25, 0.27, 0.8),
+				"border_top": Color(0.25, 0.25, 0.27, 0.8), "border_width": 1.0})
+		"tm_list":       # a row of a list (replays, tracks, servers): a light grey strip, dark text
+			return TmGlassBox.make({"top": Color(0.86, 0.86, 0.87, 0.94), "bottom": Color(0.68, 0.68, 0.70, 0.94),
+				"gloss": 0.15, "gloss_depth": 0.5, "radius": 4.0, "border": Color(0.25, 0.25, 0.26, 0.8),
+				"border_top": Color(1, 1, 1, 0.9), "border_width": 1.0})
+		"tm_list_hover":
+			return TmGlassBox.make({"top": Color(0.97, 0.97, 0.97, 0.97), "bottom": Color(0.80, 0.81, 0.81, 0.97),
+				"gloss": 0.2, "gloss_depth": 0.5, "radius": 4.0, "border": Color(0.25, 0.25, 0.26, 0.8),
+				"border_top": Color(1, 1, 1, 1), "border_width": 1.0})
+		"tm_list_chosen":  # the picked row: white, a green bar along its left edge
+			return TmGlassBox.make({"top": Color(1, 1, 1, 0.98), "bottom": Color(0.88, 0.90, 0.88, 0.98),
+				"gloss": 0.2, "gloss_depth": 0.5, "radius": 4.0, "border": Color(0.1, 0.5, 0.1, 0.9),
+				"border_top": Color(1, 1, 1, 1), "border_width": 1.0, "stripe": TM_GREEN, "stripe_width": 6.0})
+		"tm_list_focus":
+			return TmGlassBox.make({"top": Color(0, 0, 0, 0), "bottom": Color(0, 0, 0, 0), "gloss": 0.0, "radius": 5.0,
+				"border": TM_GREEN, "border_top": Color(0.45, 1.0, 0.45), "border_width": 2.0})
 		"tm_title":
 			return TmGlassBox.make({"top": Color(0.17, 0.62, 0.19, 1.0), "bottom": Color(0.07, 0.44, 0.10, 1.0),
 				"gloss": 0.16, "gloss_depth": 0.5, "radius": 8.0, "border": Color(0.03, 0.25, 0.05, 0.9),
@@ -123,6 +167,15 @@ static func glass(kind: String) -> TmGlassBox:
 		"tm_button_pressed":
 			return TmGlassBox.make({"top": Color(0.70, 0.72, 0.72, 1.0), "bottom": Color(0.90, 0.91, 0.91, 1.0),
 				"gloss": 0.1, "radius": 100.0, "border": Color(0.25, 0.25, 0.26, 0.9), "border_width": 1.5})
+		"tm_tile":       # a picture tile (the campaign's track cards, the editor's blocks): light grey
+			return TmGlassBox.make({"top": Color(0.88, 0.88, 0.89, 1), "bottom": Color(0.62, 0.62, 0.64, 1), "gloss": 0.2,
+				"radius": 6.0, "border": Color(0.35, 0.35, 0.36, 1), "border_top": Color(1, 1, 1, 1), "border_width": 1.5})
+		"tm_tile_lit":   # focused or picked: all green
+			return TmGlassBox.make({"top": Color(0.55, 0.95, 0.45, 1), "bottom": Color(0.15, 0.62, 0.12, 1), "gloss": 0.25,
+				"radius": 6.0, "border": Color(0.1, 0.5, 0.1, 1), "border_top": Color(0.8, 1, 0.75, 1), "border_width": 1.5})
+		"tm_button_disabled":   # greyed: the pill faded into the panel
+			return TmGlassBox.make({"top": Color(0.62, 0.62, 0.63, 0.35), "bottom": Color(0.45, 0.45, 0.46, 0.35),
+				"gloss": 0.1, "radius": 100.0, "border": Color(0.30, 0.30, 0.31, 0.5), "border_width": 1.5})
 		"tm_button_focus":
 			return TmGlassBox.make({"top": Color(0, 0, 0, 0), "bottom": Color(0, 0, 0, 0), "gloss": 0.0, "radius": 100.0,
 				"border": TM_GREEN, "border_top": Color(0.45, 1.0, 0.45), "border_width": 2.5,
@@ -170,54 +223,55 @@ static func theme() -> Theme:
 	if _theme:
 		return _theme
 	var t := Theme.new()
-	t.default_font = font(BODY)
-	t.default_font_size = 24
+	t.default_font = font(SANS)
+	t.default_font_size = 23
 	t.set_color("font_color", "Label", TEXT)
 	t.set_color("font_outline_color", "Label", Color(0, 0, 0, 0.8))
 	t.set_constant("outline_size", "Label", 4)
+	# buttons: TMNF's white pills with dark text, green text and ring when focused
 	for kind in ["Button", "CheckButton", "OptionButton"]:
-		t.set_stylebox("normal", kind, glass("button"))
-		t.set_stylebox("hover", kind, glass("hover"))
-		t.set_stylebox("pressed", kind, glass("pressed"))
-		t.set_stylebox("hover_pressed", kind, glass("pressed"))
-		t.set_stylebox("focus", kind, glass("focus"))
-		t.set_stylebox("disabled", kind, glass("disabled"))
-		t.set_font("font", kind, font(BOLD, 1))
-		t.set_color("font_color", kind, TEXT)
-		t.set_color("font_hover_color", kind, Color.WHITE)
-		t.set_color("font_focus_color", kind, Color.WHITE)
-		t.set_color("font_pressed_color", kind, Color(0.04, 0.08, 0.02))
-		t.set_color("font_hover_pressed_color", kind, Color(0.04, 0.08, 0.02))
+		t.set_stylebox("normal", kind, glass("tm_button"))
+		t.set_stylebox("hover", kind, glass("tm_button_hover"))
+		t.set_stylebox("pressed", kind, glass("tm_button_pressed"))
+		t.set_stylebox("hover_pressed", kind, glass("tm_button_pressed"))
+		t.set_stylebox("focus", kind, glass("tm_button_focus"))
+		t.set_stylebox("disabled", kind, glass("tm_button_disabled"))
+		t.set_font("font", kind, font(SANS_BOLD))
+		t.set_color("font_color", kind, TM_INK)
+		t.set_color("font_hover_color", kind, TM_GREEN.darkened(0.15))
+		t.set_color("font_focus_color", kind, TM_GREEN.darkened(0.15))
+		t.set_color("font_pressed_color", kind, TM_INK)
+		t.set_color("font_hover_pressed_color", kind, TM_GREEN.darkened(0.15))
 		t.set_color("font_disabled_color", kind, Color(1, 1, 1, 0.3))
-		t.set_color("font_outline_color", kind, Color(0, 0, 0, 0.6))
-		t.set_constant("outline_size", kind, 3)
-		t.set_font_size("font_size", kind, 26)
+		t.set_color("font_outline_color", kind, Color(0, 0, 0, 0.0))
+		t.set_constant("outline_size", kind, 0)
+		t.set_font_size("font_size", kind, 23)
 	# checkboxes: TMNF's glossy spheres, dark off and lime on; the row doesn't light up when on
-	t.set_stylebox("pressed", "CheckButton", glass("button"))
-	t.set_stylebox("hover_pressed", "CheckButton", glass("hover"))
-	t.set_color("font_pressed_color", "CheckButton", TEXT)
-	t.set_color("font_hover_pressed_color", "CheckButton", Color.WHITE)
+	t.set_stylebox("pressed", "CheckButton", glass("tm_button"))
+	t.set_stylebox("hover_pressed", "CheckButton", glass("tm_button_hover"))
+	t.set_color("font_pressed_color", "CheckButton", TM_INK)
+	t.set_color("font_hover_pressed_color", "CheckButton", TM_GREEN.darkened(0.15))
 	for state in ["", "_disabled", "_mirrored", "_disabled_mirrored"]:
 		t.set_icon("checked" + state, "CheckButton", icon("check_on", 34))
 		t.set_icon("unchecked" + state, "CheckButton", icon("check_off", 34))
-	t.set_stylebox("panel", "PanelContainer", glass("panel"))
+	t.set_stylebox("panel", "PanelContainer", glass("tm_dialog"))
 	for kind in ["LineEdit", "TextEdit"]:
 		t.set_stylebox("normal", kind, glass("field"))
 		var f := glass("field")
-		f.border = ACCENT
-		f.border_top = ACCENT
+		f.border = TM_GREEN
+		f.border_top = TM_GREEN
 		f.border_width = 2.0
 		t.set_stylebox("focus", kind, f)
 		t.set_stylebox("read_only", kind, glass("disabled"))
-		t.set_font("font", kind, font(BOLD))
-		t.set_font_size("font_size", kind, 24)
+		t.set_font("font", kind, font(SANS))
+		t.set_font_size("font_size", kind, 23)
 		t.set_color("font_color", kind, TEXT)
-		t.set_color("caret_color", kind, ACCENT)
-		t.set_color("selection_color", kind, Color(ACCENT, 0.35))
+		t.set_color("caret_color", kind, TM_GREEN)
+		t.set_color("selection_color", kind, Color(TM_GREEN, 0.35))
 		t.set_color("font_placeholder_color", kind, Color(DIM, 0.6))
 	t.set_stylebox("panel", "PopupMenu", glass("panel"))
 	t.set_stylebox("hover", "PopupMenu", glass("hover"))
-	t.set_font("font", "PopupMenu", font(BOLD))
+	t.set_font("font", "PopupMenu", font(SANS))
 	t.set_font_size("font_size", "PopupMenu", 22)
 	t.set_color("font_hover_color", "PopupMenu", Color.WHITE)
 	var sep := StyleBoxLine.new()
@@ -249,10 +303,10 @@ static func theme() -> Theme:
 	grab_hi.bg_color = ACCENT
 	t.set_stylebox("grabber_highlight", "VScrollBar", grab_hi)
 	t.set_stylebox("grabber_pressed", "VScrollBar", grab_hi)
-	t.set_font("normal_font", "RichTextLabel", font(BOLD))
-	t.set_font("bold_font", "RichTextLabel", styled(BOLD, true, false))
-	t.set_font("italics_font", "RichTextLabel", styled(BOLD, false, true))
-	t.set_font("bold_italics_font", "RichTextLabel", styled(BOLD, true, true))
+	t.set_font("normal_font", "RichTextLabel", font(SANS))
+	t.set_font("bold_font", "RichTextLabel", styled(SANS, true, false))
+	t.set_font("italics_font", "RichTextLabel", styled(SANS, false, true))
+	t.set_font("bold_italics_font", "RichTextLabel", styled(SANS, true, true))
 	t.set_color("default_color", "RichTextLabel", TEXT)
 	t.set_color("font_outline_color", "RichTextLabel", Color(0, 0, 0, 0.7))
 	t.set_constant("outline_size", "RichTextLabel", 3)
@@ -295,6 +349,7 @@ static func tm_button(text: String, action: Callable, min_width := 220) -> Butto
 	b.add_theme_stylebox_override("pressed", glass("tm_button_pressed"))
 	b.add_theme_stylebox_override("hover_pressed", glass("tm_button_pressed"))
 	b.add_theme_stylebox_override("focus", glass("tm_button_focus"))
+	b.add_theme_stylebox_override("disabled", glass("tm_button_disabled"))
 	b.add_theme_font_override("font", font(SANS_BOLD))
 	b.add_theme_font_size_override("font_size", 23)
 	b.add_theme_constant_override("outline_size", 0)
@@ -303,7 +358,7 @@ static func tm_button(text: String, action: Callable, min_width := 220) -> Butto
 	b.add_theme_color_override("font_hover_color", TM_GREEN.darkened(0.15))
 	b.add_theme_color_override("font_focus_color", TM_GREEN.darkened(0.15))
 	b.add_theme_color_override("font_hover_pressed_color", TM_GREEN.darkened(0.15))
-	b.add_theme_color_override("font_disabled_color", Color(TM_INK, 0.4))
+	b.add_theme_color_override("font_disabled_color", Color(0.75, 0.75, 0.76, 0.55))
 	return b
 
 

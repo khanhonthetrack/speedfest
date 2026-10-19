@@ -1,11 +1,11 @@
 extends Node
-## Menus: the main page (TMNF's order: Solo, Online, Profile, Options, Quit), Solo, the campaign
-## page (a tab per series, a card per track with its record, the selected track's details, Race
-## handing the track to the race scene), going back, the profile (nickname with $-codes, zone),
-## online and options; TmNick's $-codes; the race's pause and finish menus. Also: picks on the
-## profile keep the focus, CLEAR ALL RECORDS asks again on every visit, the race menu's panel takes
-## its new content's size, no NOW PLAYING with the music off. Records go to a test folder,
-## settings to a test file.
+## Menus (TMNF's frame: rows down the left column, panels beside it): the main page (TMNF's order:
+## Play Solo, Play Online, Editors, Profile, Options, Quit), Solo (a row per series, a card per
+## track with your medal, the focused track's details, a card's press handing the track to the race
+## scene), going back, the profile (nickname with $-codes, zone), online and options; TmNick's
+## $-codes; the race's pause and finish menus. Also: picks on the profile keep the focus, Clear all
+## records asks again on every visit, the race menu's panel takes its new content's size, no NOW
+## PLAYING with the music off. Records go to a test folder, settings to a test file.
 
 const NL := char(10)
 
@@ -22,15 +22,13 @@ func _ready() -> void:
 	add_child(menu)
 	await get_tree().process_frame
 	var names := _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(names == ["SOLO", "ONLINE", "EDITORS", "PROFILE", "OPTIONS", "QUIT"], "menu_main_page", str(names))
-	_press(menu, "SOLO")
+	TestHooks.check(names == ["Play Solo", "Play Online", "Editors", "Profile", "Options", "Quit"], "menu_main_page", str(names))
+	_press(menu, "Play Solo")
 	await get_tree().process_frame
-	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(menu.page == "solo" and names == ["CAMPAIGN", "REPLAYS", "OPEN A TRACK FILE", "BACK"], "menu_solo_page", str(names))
+	names = _buttons(menu).map(func(b: Button) -> String: return b.text).filter(func(t: String) -> bool: return not t.is_empty())
+	var rows: Array = TmTracks.series().map(func(x: Dictionary) -> String: return String(x["name"])) + ["Replays", "Browse", "Back"]
+	TestHooks.check(menu.page == "solo" and names == rows, "menu_solo_page", str(names))
 	await _ours(menu)
-	menu.back()
-	await get_tree().process_frame
-	TestHooks.check(menu.page == "solo", "menu_back_to_solo", menu.page)
 	menu.back()
 	await get_tree().process_frame
 	TestHooks.check(menu.page == "main", "menu_back_to_main", menu.page)
@@ -38,19 +36,19 @@ func _ready() -> void:
 	menu.show_page("online")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(names.has("LOG IN") and names.has("REGISTER") and names.has("SERVERS") and names.has("RANKINGS") and names.has("CONNECT")
-		and names.has("BACK"), "menu_online_page", str(names))
+	TestHooks.check(names.has("Log in") and names.has("Register") and names.has("Servers") and names.has("Rankings") and names.has("Connect")
+		and names.has("Back"), "menu_online_page", str(names))
 	menu.show_page("options")
 	await get_tree().process_frame
 	TestHooks.check(_all(menu, []).filter(func(c: Node) -> bool: return c is CheckButton).size() >= 6, "menu_options_page")
-	# CLEAR ALL RECORDS: a first press on an earlier visit doesn't arm it
-	_press(menu, "CLEAR ALL RECORDS")
+	# Clear all records: a first press on an earlier visit doesn't arm it
+	_press(menu, "Clear all records")
 	menu.show_page("main")
 	menu.show_page("options")
 	await get_tree().process_frame
-	_press(menu, "CLEAR ALL RECORDS")
+	_press(menu, "Clear all records")
 	var texts := _buttons(menu).map(func(b: Button) -> String: return b.text)
-	TestHooks.check(texts.has("PRESS AGAIN TO CLEAR ALL RECORDS") and not texts.has("RECORDS CLEARED"), "menu_clear_records_asks_again",
+	TestHooks.check(texts.has("Press again to clear all records") and not texts.has("Records cleared"), "menu_clear_records_asks_again",
 		str(texts))
 	_toast()
 	await _race_menu()
@@ -78,17 +76,19 @@ func _press(menu: Node, text: String) -> void:
 	TestHooks.check(false, "menu_press_" + text, "no button %s" % text)
 
 
-## Our own campaign: a tab per series, a card per track with its name, details, a record, Race.
+## Our own campaign on the Solo page: a row per series, a card per track with its name and your
+## medal, the focused track's details with your record, a race handed over.
 func _ours(menu: TmMenu) -> void:
 	var ids := TmTracks.ids()
 	var series := TmTracks.series()
 	TestHooks.check(not ids.is_empty() and menu.tracks == ids and menu.selected == ids[0] and not series.is_empty(), "menu_our_tracks",
 		"%s" % [menu.tracks.slice(0, 3)])
-	_press(menu, "CAMPAIGN")
+	menu.show_page("campaign")       # TMNF's campaign is the Solo page
 	await get_tree().process_frame
-	TestHooks.check(menu.page == "campaign", "menu_campaign_page", menu.page)
-	var tabs := _buttons(menu).filter(func(b: Button) -> bool: return b.toggle_mode)
-	TestHooks.check(tabs.size() == series.size() and tabs[0].text == String(series[0]["name"]).to_upper(), "menu_series_tabs",
+	TestHooks.check(menu.page == "solo", "menu_campaign_page", menu.page)
+	var names: Array = series.map(func(x: Dictionary) -> String: return String(x["name"]))
+	var tabs := _buttons(menu).filter(func(b: Button) -> bool: return names.has(b.text))
+	TestHooks.check(tabs.size() == series.size() and tabs[0].text == String(series[0]["name"]), "menu_series_rows",
 		str(tabs.map(func(b: Button) -> String: return b.text)))
 	var first: Array = series[0]["tracks"]
 	var ch := TmTracks.challenge(ids[0])
@@ -102,7 +102,9 @@ func _ours(menu: TmMenu) -> void:
 	TmRecords.submit(ch, ch.gold_ms - 10, [], g)
 	menu.show_page("campaign")
 	await get_tree().process_frame
-	TestHooks.check(_labels(menu._tiles[ids[0]]).has(TmRace.time_text(ch.gold_ms - 10)), "menu_card_shows_record")
+	var gold := TmUi.icon("medal_gold")
+	TestHooks.check(_all(menu._tiles[ids[0]], []).any(func(c: Node) -> bool: return c is TextureRect and (c as TextureRect).texture == gold)
+		and _labels(menu).has(TmRace.time_text(ch.gold_ms - 10)), "menu_card_shows_record")
 	TestHooks.check(_labels(menu).has("Gold medal"), "menu_details_show_medal")
 	var counts := menu.medal_counts()
 	TestHooks.check(counts["gold"] == 1 and counts["finished"] == 1, "menu_medal_counts", str(counts))
@@ -115,7 +117,7 @@ func _ours(menu: TmMenu) -> void:
 
 ## The profile: the nickname (saved as typed, previewed with its codes) and the zone.
 func _profile(menu: TmMenu) -> void:
-	_press(menu, "PROFILE")
+	_press(menu, "Profile")
 	await get_tree().process_frame
 	var edits := _all(menu, []).filter(func(c: Node) -> bool: return c is LineEdit)
 	TestHooks.check(menu.page == "profile" and edits.size() == 1, "menu_profile_page", menu.page)

@@ -2124,3 +2124,21 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   `tools/texgen/globe.py` draws the land map (Natural Earth 1:50m via world-atlas, public domain;
   cached outside the repo) into `assets/tex/globe_map_albedo.jpg`, `ui/tm_globe.gdshader` lights it
   as a slowly turning embossed sphere.
+- **Menus as TMNF's** (`ui/tm_menu.gd`, compared side by side with TMNF running): black with our
+  green globe turning behind (the profile keeps our car on the field); down the left a dark column
+  with a grey header card (the page's title in bold italic, what to do, an icon: "Welcome! / Choose
+  an activity", "Play Solo / Choose a difficulty", ...) and the page's entries as icon rows (white,
+  green when focused, the current choice ringed green), Back or Quit at its foot; panels with green
+  title bars beside it; a dark bar at the top right with your nickname, zone and the clock in the
+  seven-segment digits (TMNF's bar has its volume and clock there). Main: Play Solo, Play Online,
+  Editors, Profile, Options, Quit, your campaign's medals per series at the right (where TMNF lists
+  your buddies). Solo is TMNF's campaign page: a row per series with its flag, the series' tracks
+  as a 5 x 3 grid of cards (picture above, name below; the focused card all green with a play mark,
+  your medal in its corner; a press races), the focused track's medal times and your best in the
+  panel above; Replays, Browse (a track file), Back at the foot. Replays, Editors, Options, Profile
+  and Online follow the same frame: lists as TMNF's light grey rows (the picked one white with a
+  green bar), white pill buttons, mixed-case labels ("Watch", "Delete", "New Track", "Log in",
+  "Clear all records"). The theme's buttons are TMNF's pills everywhere; the editor's block tiles
+  and the cards share a square tile (`TmUi.glass("tm_tile")`). Tests follow the new pages and
+  labels (`test_menu`, `test_editor`, `test_replay`). Next: pictures of our tracks on the cards
+  (TMNF shows a shot of each track), the loading screen, the opponent dialog, the sounds.
