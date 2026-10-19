@@ -18,7 +18,7 @@ tuning, reverse engineered in `docs/research/tmnf_physics.md` and implemented in
 (grand tourer, 334), Lodowiec 1600 (Eastern Bloc classic, 248), Ridge RX (offroad pre-runner, 236).
 
 **The circuits** — Neon Downtown (1912 m: a flyover, a tunnel under the Kaiju building, a hairpin
-behind the arcades) and Harbour Lights. The bot laps Downtown in 42.9 s with the F4 and 51.2 s
+behind the arcades) and Harbour Lights. The bot laps Downtown in 41.4 s with the F4 and 46.1 s
 with the Kaze, so the times to beat are real.
 
 **Controls** — W/S drive and brake, A/D steer, Shift or Space nitrous, Backspace respawn, Enter
