@@ -886,3 +886,7 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   affair) and 3 endings (THE COLLECTION / HOME / LAST CALL). Design only; build list in STORY §7
   (medals first, then forked roads with several finishes, story runner, scene player, 30 maps, the
   X). Waiting on the owner's answers (STORY §8).
+- Owner asked for the story written out properly with decisions: `docs/STORY.md` now holds the full
+  story (premise, cast, decision rules, 10 chapters with scenes/dialogue/maps/decision tables, finale
+  with 3 endings + mismatch turns + secret Confession ending, decision map), mirrored in a Claude Doc
+  for the owner (link in STORY.md). Still design only.

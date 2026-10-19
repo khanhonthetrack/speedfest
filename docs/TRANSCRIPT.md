@@ -554,3 +554,16 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   CLEAN) and three home-or-Lena choices (3/5/7). Chapters 9-10 have no choice. The finale replays
   the chapter 1 arrival, and the hidden values pick THE COLLECTION / HOME / LAST CALL. Nothing built; questions
   in STORY §8 (names, theme, gold vs easy, how to show people, priority).
+
+### User (verbatim)
+
+> Write down the story properly for me, with decisions
+
+### Claude
+
+- Wrote the full story as a Claude Doc the owner can edit and comment on
+  (https://claude.ai/code/artifact/c545af5b-0c8b-46ed-88c0-4f283ab9e145) and the same text in
+  `docs/STORY.md`. It has the premise, the cast (Saint = Daniel Santos), how decisions work, all 10 chapters with
+  scenes, dialogue, three maps each, and decision tables, the finale with three endings, the turn scenes
+  when the chapter 1 gate doesn't match, the secret Confession ending, and a decision map. One question left as a doc
+  comment: should the affair path really lead to the happy ending?

@@ -189,6 +189,7 @@ the upgrade is verified on both renderers.
 ### M9 — Story mode "Rear View" (owner, session 11, 2026-10-19) ☐
 Design draft in **docs/STORY.md**. Waiting on the owner's answers (STORY §8) and the priority against M8.
 - [x] Story outline: 10 chapters x 3 maps, reverse order, choice maps, 3 endings
+- [x] Full story with every decision written out (STORY.md + the owner's Claude Doc)
 - [ ] Medals per map and per finish gate (author times from recorded runs / AutoDriver)
 - [ ] Forked roads with several finish gates (track builder)
 - [ ] Story runner (chapters, unlocks, choices, endings) and scene player (shots, subtitles, phone messages)
