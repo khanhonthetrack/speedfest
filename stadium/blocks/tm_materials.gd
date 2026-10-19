@@ -70,6 +70,7 @@ const COLORS := {
 	"water": [Color(0.06, 0.22, 0.32, 0.86), 0.04, 0.0],
 	"glass": [Color(0.70, 0.85, 0.95, 0.35), 0.05, 0.0],
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
+	"freewheel": [Color8(176, 14, 12), 0.5, 0.0],
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
 	# the inflatable decorations, in their TMNF textures' colours (measured, area-weighted)
 	"airship": [Color8(223, 201, 165), 0.4, 0.0],        # the airship's envelope (TMNF's texture's mean)
@@ -150,6 +151,7 @@ const TEXTURED := {
 	"fabric_auvent": ["circuit_panel", Vector2(16.0, 16.0), true],
 	# the turbo pads (texgen/turbo.py; UV-mapped across the pad, as TMNF's: TmGeo.remap_uv)
 	"turbo": ["turbo_pad", Vector2(1.0, 1.0), false],
+	"freewheel": ["freewheel_pad", Vector2(1.0, 1.0), false],    # (texgen/turbo.py; laid out as the turbo)
 	# TMNF's border atlas, as ours (UV-mapped: u along, 16 m a tile; v the band: TmGeo.border_uv)
 	"border_panel": ["border_atlas", Vector2(1.0, 1.0), false],
 	"border_blue": ["border_atlas", Vector2(1.0, 1.0), false],

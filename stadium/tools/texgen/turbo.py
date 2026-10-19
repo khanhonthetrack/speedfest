@@ -45,5 +45,43 @@ def turbo_pad(name='turbo_pad', seed=411):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def freewheel_pad(name='freewheel_pad', seed=413):
+    """Our free-wheeling pad (UV-mapped like the turbo pad: u along the road, 16 m a tile; v across,
+    mirrored about the centre line), laid out as TMNF's is: red ribbed panels on a grid of light
+    seams, in each panel two thick yellow chevrons pointing at each other. Drawn here."""
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    fine = fbm(W, H, seed, beta=0.7, lo=80.0)
+    mott = fbm(W, H, seed + 1, beta=2.2, lo=2.0, hi=30.0)
+    dirt = np.clip(grime(W, H, seed + 2, amount=1.0), 0, 1)
+    shear = 0.16
+    ux = (xx - shear * (yy % 128.0)) % 512.0
+    seam_u = 1.0 - smoothstep(6.0, 11.0, np.minimum(ux, 512.0 - ux))
+    vy = yy % 128.0
+    seam_v = 1.0 - smoothstep(3.0, 6.0, np.minimum(vy, 128.0 - vy))
+    seam = np.clip(seam_u + seam_v, 0, 1)
+    rib = 0.5 + 0.5 * np.cos(((xx + 0.12 * yy) / 11.0) * 2 * np.pi)
+    red = srgb((176, 14, 12))[None, None, :] * (0.8 + 0.3 * rib + 0.06 * mott + 0.05 * fine)[..., None]
+    col = lerp(red, srgb((196, 190, 172))[None, None, :] * (1.0 + 0.06 * fine)[..., None], seam[..., None])
+    # two chevrons per 512 x 256 panel: '>' on the left half, '<' on the right, tips near the middle
+    polys = []
+    for px in (0, 512):
+        for py in (0, 256):
+            cx, cy = px + 256, py + 128
+            back, tip, w, h = cx - 210, cx - 74, 60, 100
+            right = [(back, cy - h), (back + w, cy - h), (tip + w, cy), (back + w, cy + h), (back, cy + h), (tip, cy)]
+            polys.append(right)
+            polys.append([(2 * cx - x, y) for x, y in right])
+    arrows = poly_mask(W, H, polys, blur_px=1.0)
+    paint = srgb((222, 190, 8))[None, None, :] * (0.9 + 0.12 * rib + 0.05 * fine)[..., None]
+    col = lerp(col, paint, (arrows * (1.0 - 0.3 * smoothstep(0.8, 1.0, dirt)) * (1.0 - 0.8 * seam))[..., None])
+    col *= (1.0 - 0.12 * dirt)[..., None]
+    hgt = 0.6 * rib * (1.0 - seam) - 0.8 * seam + 0.3 * fine
+    nrm = normal_from_height(hgt, 0.5)
+    orm = np.stack([np.ones((H, W), np.float32), 0.55 + 0.2 * (1.0 - arrows) + 0.1 * seam,
+                    0.35 * (1.0 - arrows) * (1.0 - seam)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 if __name__ == '__main__':
     turbo_pad()
+    freewheel_pad()

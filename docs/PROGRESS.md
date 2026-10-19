@@ -2466,3 +2466,7 @@ on every real contact the full impulse would land at the contact point and kick 
   (`dirt.gd _split_tri`), so the dirt base's ring mound and the berms have smooth edges instead of
   the survey's 2 m staircase. The sculptures' plinth pads are TMNF's light panel, not red rubber.
   `tests/block_view.tscn` lays its grass under a ground block's own terrain.
+- (M11-2) **FreeWheeling pads in TMNF's layout.** TMNF's free-wheel road is red, not the turbo's
+  orange: our own texture (`texgen/turbo.py freewheel_pad`) is red ribbed panels on the turbo's
+  seam grid with two yellow chevrons per panel pointing at each other, as TMNF's (key `freewheel`,
+  Road/Main/FreeWheeling/*). Side by side with TMNF's block.
