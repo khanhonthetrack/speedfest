@@ -142,6 +142,15 @@ func _track(track: String) -> void:
 		"%s %d" % [race.state, race.time_ms])
 	TestHooks.check(not car.wheel_contact.has(false) and car.global_position.distance_to(p0) < 0.3,
 		"%s_rests_on_start" % track, "contacts %s, moved %.2f m" % [car.wheel_contact, car.global_position.distance_to(p0)])
+	# TMNF's views: the second farther back and higher than the first, the third in the cockpit
+	var cam: TmCamera = scene.cam
+	var d1 := cam.global_position.distance_to(car.global_position)
+	cam.view = 1
+	var d2 := cam.global_position.distance_to(car.global_position)
+	cam.view = 2
+	var d3 := cam.global_position.distance_to(car.global_position)
+	TestHooks.check(d2 > d1 + 2.0 and d3 < 1.0 and TmCamera.chosen == 2, "%s_views" % track, "%.1f, %.1f, %.1f m" % [d1, d2, d3])
+	cam.view = 0
 	car.gas = 1.0
 	for i in 100:
 		await get_tree().physics_frame

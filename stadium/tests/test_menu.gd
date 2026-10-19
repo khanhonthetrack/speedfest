@@ -51,6 +51,7 @@ func _ready() -> void:
 	TestHooks.check(texts.has("Press again to clear all records") and not texts.has("Records cleared"), "menu_clear_records_asks_again",
 		str(texts))
 	_toast()
+	await _loading()
 	await _race_menu()
 	TmRecords.clear()
 	TestHooks.finish()
@@ -187,6 +188,22 @@ func _race_menu() -> void:
 	await get_tree().process_frame
 	TestHooks.check(_labels(rm).has("Gold medal"), "race_menu_result_after_pause")
 	rm.queue_free()
+
+
+## The loading screen: TMNF's keyboard with the race's keys lit, each label pointing at a lit key;
+## it covers the screen (the race holds its countdown) until it has faded out.
+func _loading() -> void:
+	var lit := TmLoading.keys().filter(func(k: Array) -> bool: return k[1]).map(func(k: Array) -> String: return String(k[2]))
+	lit.sort()
+	var want := ["1", "2", "3", "Back", "Del", "Down", "Enter", "Esc", "Left", "Right", "Up"]
+	TestHooks.check(lit == want and TmLoading._labels().all(func(l: Array) -> bool: return lit.has(String(l[2]))), "loading_keys", str(lit))
+	TestHooks.check(not TmLoading.covering(), "loading_none")
+	var l := TmLoading.new()
+	add_child(l)
+	TestHooks.check(TmLoading.covering() and _labels(l).has("RESPAWN") and _labels(l).has("CHANGE VIEW"), "loading_covers")
+	l.queue_free()
+	await get_tree().process_frame
+	TestHooks.check(not TmLoading.covering(), "loading_gone")
 
 
 ## The NOW PLAYING toast: shown with the music on, not with it off.

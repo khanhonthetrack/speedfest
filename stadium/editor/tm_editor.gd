@@ -441,7 +441,7 @@ func test() -> void:
 	TestHooks.args["map"] = path
 	TestHooks.args["back"] = "editor"
 	if get_tree().current_scene == self:
-		get_tree().change_scene_to_file("res://race/race.tscn")
+		TmLoading.change_scene(get_tree(), "res://race/race.tscn")
 
 
 func leave() -> void:

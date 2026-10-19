@@ -891,7 +891,7 @@ func watch(path: String) -> void:
 	watched.emit(path)
 	if TestHooks.arg("menu_dry", false):
 		return
-	get_tree().change_scene_to_file("res://race/replay.tscn")
+	TmLoading.change_scene(get_tree(), "res://race/replay.tscn")
 
 
 ## The track's online records under its details (the world record, yours), when the master answers.
@@ -1331,7 +1331,7 @@ func race(track: String, map := "") -> void:
 	raced.emit(track, map)
 	if TestHooks.arg("menu_dry", false):
 		return
-	get_tree().change_scene_to_file("res://race/race.tscn")
+	TmLoading.change_scene(get_tree(), "res://race/race.tscn")
 
 
 func _unhandled_input(event: InputEvent) -> void:

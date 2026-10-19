@@ -2142,3 +2142,16 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   and the cards share a square tile (`TmUi.glass("tm_tile")`). Tests follow the new pages and
   labels (`test_menu`, `test_editor`, `test_replay`). Next: pictures of our tracks on the cards
   (TMNF shows a shot of each track), the loading screen, the opponent dialog, the sounds.
+- **TMNF's loading screen** (`ui/tm_loading.gd`): while a track loads (the menu's races and
+  replays, the next track, a test drive from the editor), a keyboard with the race's keys lit
+  orange (Esc, 1 2 3, Backspace and Delete, Enter, the arrows), blue arrows from white labels
+  (MENU, CHANGE VIEW, RESTART, RESPAWN, DRIVE) and an orange progress bar, over a blurred picture of
+  our car (`assets/ui/loading_bg.jpg`, rendered and blurred by `tools/icons/loading_bg.sh`). It
+  goes once the new scene is in (at least 1.2 s), and the race holds its countdown until then
+  (`TmLoading.covering()`). `--loading=hold` keeps it up for screenshots.
+- **TMNF's three views** (`car/tm_camera.gd`, keys 1, 2, 3): the chase camera close behind (as
+  before), one farther back and higher, and the driver's own from the cockpit; the choice is kept
+  from race to race (`--cam_view=N` for screenshots). `test_race` checks the views, `test_menu` the
+  loading screen's keys and cover.
+- `tools/research/tmnf/sound_survey.py`: a sound's length, envelope, partials, pitch and octave
+  bands, numbers only, to compare our cues with TMNF's (its sound files stay local).

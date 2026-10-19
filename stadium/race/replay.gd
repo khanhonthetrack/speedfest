@@ -535,7 +535,7 @@ func _input(event: InputEvent) -> void:
 ## Leaves: to the menu's replays page, or (--replay_back=race) the race's finish it came from.
 func back() -> void:
 	if String(TestHooks.arg("replay_back", "menu")) == "race" and replay != null:
-		get_tree().change_scene_to_file("res://race/race.tscn")   # its finish menu again (race.gd)
+		TmLoading.change_scene(get_tree(), "res://race/race.tscn")   # its finish menu again (race.gd)
 		return
 	TestHooks.args.erase("finish_result")
 	TestHooks.args["page"] = "replays"

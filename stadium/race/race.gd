@@ -3,7 +3,8 @@ extends Node3D
 ## the start block, the chase camera, the HUD and TmRace's rules. The race steps the car itself
 ## (after the race clock) and tests each tick's motion against the waypoint triggers (TmTriggers).
 ## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart,
-## Escape = pause (TmRaceMenu: resume, restart, menu); after the finish: retry, next track, menu.
+## 1/2/3 = TMNF's views (TmCamera.view), Escape = pause (TmRaceMenu: resume, restart, menu); after
+## the finish: retry, next track, menu. --cam_view=0|1|2 starts in that view (screenshots).
 ## Args: --track=SF01 (our own tracks, TmTracks; the first by default), --map=/path/X.Challenge.Gbx
 ## (any TMNF track file) or --map=/path/X.sftrack (made in our editor), or --track=A01 with a TMNF install (--tmnf=/path/to/TMNF, else its usual
 ## place); --laps=N overrides the map's lap count; --bot: TmBot drives (our tracks); TmCarInput's
@@ -133,6 +134,8 @@ func _ready() -> void:
 	cam.target = car
 	add_child(cam)
 	cam.current = true
+	if TestHooks.has_arg("cam_view"):
+		cam.view = int(TestHooks.arg("cam_view", 0))
 	hud = TmRaceHud.new()
 	hud.race = race
 	hud.car = car
@@ -186,7 +189,7 @@ func _message(text: String) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not ready_to_race or waiting:
+	if not ready_to_race or waiting or TmLoading.covering():   # the countdown starts once the track shows
 		return
 	if sync_start > 0.0 and race.state == TmRace.State.COUNTDOWN:
 		# the countdown follows the server's clock: everyone starts at the round's start
@@ -326,6 +329,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			respawn()
 		KEY_BACKSPACE, KEY_DELETE:
 			restart()
+		KEY_1, KEY_2, KEY_3:            # TMNF's views: close behind, far behind, the cockpit
+			cam.view = (event as InputEventKey).keycode - KEY_1
 		KEY_ESCAPE:
 			menu.toggle_pause()
 
@@ -361,7 +366,8 @@ func load_track(track: String) -> void:
 
 func _next_track() -> void:
 	TestHooks.args["track"] = next_id
-	get_tree().reload_current_scene()
+	if get_tree().current_scene == self:
+		TmLoading.change_scene(get_tree(), "res://race/race.tscn")
 
 
 ## Testing a track from the editor (--back=editor with an .sftrack map).
@@ -403,7 +409,7 @@ func watch_replay() -> void:
 		r["saved"] = menu.replay_saved()
 		TestHooks.args["finish_result"] = JSON.stringify(r)
 	if get_tree().current_scene == self:
-		get_tree().change_scene_to_file("res://race/replay.tscn")
+		TmLoading.change_scene(get_tree(), "res://race/replay.tscn")
 
 
 ## Back from watching the run (watch_replay): the car past the line, the finish menu as it was
