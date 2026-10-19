@@ -12,7 +12,8 @@ neon city at night, and make it look expensive. All of it is on
   procedural night city on top. `old/` holds the previous browser-first game, reference only.
 - **There is no browser build any more.** `server/public`, the web shell, the Web export preset
   and the browser tooling were deleted, not archived.
-- Root `tools/`: `godot_import.sh`, `check_scripts.sh`, `test_all.sh`, `run_scene.sh`.
+- Root `tools/`: `godot_import.sh`, `check_scripts.sh`, `test_all.sh`, `run_scene.sh`,
+  `export_desktop.sh`.
 
 **What works** (all verified by screenshot or test this session)
 - Five cars with their own dimensions, specs and procedural models: Vireo F4 (FIA F4
@@ -29,8 +30,10 @@ neon city at night, and make it look expensive. All of it is on
   proven drivable: Neon Downtown 42.9 s (F4) / 51.2 s (Kaze) / 84.6 s (Ridge), Harbour Lights
   31.4 / 33.8 / 41.2 s. `--autodrive=1` puts it in a normal race.
 - `tools/check_scripts.sh` → SCRIPT_ERRORS=0 (61 scripts); `tools/test_all.sh` → TESTS PASS
-  (617 checks: model lab 44, car body 22, car shapes 11, gbx 3, settings 72, tuning 363, race 40,
+  (618 checks: model lab 44, car body 22, car shapes 11, gbx 3, settings 72, tuning 363, race 41,
   autodrive 30, flow 32).
+- PC builds work again: `tools/export_desktop.sh all` (or the Desktop builds workflow on `main`
+  and on `v*` tags) produces `build/SpeedFest-windows.zip` and `build/SpeedFest-linux.zip`.
 
 **How to look at it**
 ```bash

@@ -959,3 +959,5 @@ from `stadium/` and had no export presets, and the old ones went to `old/` with 
   `build/SpeedFest-linux.zip`; `BAKE_SHADERS=1` bakes Vulkan shaders for a shorter first launch).
 - `.github/workflows/desktop.yml` needed no path changes — it already drives the root `tools/`
   scripts — so pushes to `main` and `v*` tags build both platforms again.
+- Verified in this container with the real 4.7.2 templates: the Linux export produces a 74 MB
+  self-contained `speedfest.x86_64` that boots, and the Windows export produces `SpeedFest.exe`.
