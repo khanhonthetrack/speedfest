@@ -14,9 +14,13 @@
   Windows and Linux zips). Cloud sessions can't push tags (HTTP 403), so from the PC:
   `git fetch origin && git tag -a stadium-v0.5 origin/stadium -m "SpeedFest Stadium v0.5" && git push origin stadium-v0.5`
   (or GitHub > Releases > Draft a new release, tag `stadium-v0.5` on `stadium`).
-- After v0.5 (owner, A01: "In tmnf the blue parts are not as wide"): the circuit ledges' blue is
-  now TMNF's 4.91 m strip along the wall, the deck beyond (`blocks/shapes/circuit.gd`, PROGRESS).
-  On the work branch; `stadium` gets it when the owner says (fast-forward).
+- **After v0.5, for the next release** (owner: "For the next release"; on the work branch
+  `claude/tmnf-replica-graphics-nb1kcg`, ahead of `stadium`; fast-forward `stadium` to it when the
+  next release is cut, then tag it the same way, e.g. `stadium-v0.6`): the circuit ledges' blue is
+  TMNF's 4.91 m strip along the wall, the deck beyond (owner, A01: "In tmnf the blue parts are not
+  as wide"; `blocks/shapes/circuit.gd`); the tyre smoke never draws black (owner: "When braking, i
+  still see the black thingies near wheels"; `race/tm_tyre_smoke.gdshader`), road smoke whiter.
+  `stadium-v0.5` stays as merged (f51d56c).
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).

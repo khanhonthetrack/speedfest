@@ -201,6 +201,12 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
       every track driven by the bot, medals from its best run
 
+### After v0.5 — the owner's remarks, for the next release (session 13, 2026-10-19)
+On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (owner).
+- [x] The circuit ledges' blue only TMNF's 4.91 m strip along the wall, the deck beyond (A01)
+- [x] Tyre smoke never black (its own shader); road smoke whiter
+- [ ] Next release: fast-forward `stadium`, PLAYING.txt if anything new to tell, tag (from the PC)
+
 ### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
 Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
 - [x] 1. Keep the circuit walls' screens dark (TMNF's StadiumCircuitScreen); the wall foot's blue

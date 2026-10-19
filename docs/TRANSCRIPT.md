@@ -909,3 +909,9 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct)
 
 > When braking, i still see the black thingies near wheels
+
+### Claude (asked whether `stadium` should take the ledge and smoke fixes now, before the v0.5 tag, or in the next release)
+
+### User (verbatim, session 13, 19 Oct)
+
+> For the next release
