@@ -68,16 +68,16 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-19 (session 13 continued, M10). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
-- **M10** (the owner's five requests after M9, PLAN.md M10) on `claude/tmnf-replica-graphics-nb1kcg`:
-  dark circuit screens, tyre marks, surfaces and jumps measured against TMNF's own runs, and the
-  look/UI/menus/sound side by side with TMNF running locally under Wine (HUD, countdown, dialogs,
-  menus, loading screen, camera views 1-3, cues, Select Opponent with medal ghosts, track pictures
-  on the cards). Open: TMNF's wheelie after nose-down landings (owner's call), the engine's layers'
-  pitch curves (not read). Session 14 merged M9 into `stadium` from another branch: merge M10 in
-  when the owner says so.
-- **M9 ("a 1:1 TMNF replica") is complete** on `claude/tmnf-replica-graphics-nb1kcg` (not yet merged
-  into `stadium`: the owner decides). The look of the blocks the campaign shows most follows TMNF's
+Updated 2026-10-19 (session 13 continued, v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **`stadium-v0.5` (19 Oct) is `stadium` + M10** (PLAN.md M10, merged from
+  `claude/tmnf-replica-graphics-nb1kcg`, which now equals `stadium`; continue on `stadium`):
+  dark circuit screens, tyre marks, surfaces and jumps measured against TMNF's own runs, contacts
+  that turn the car at TMNF's 0.55 (its AddVehicleImpulse), and the look/UI/menus/sound side by
+  side with TMNF running locally under Wine (HUD, countdown, dialogs, menus, loading screen,
+  camera views 1-3, cues, Select Opponent with medal ghosts, track pictures on the cards, the top
+  bar). Open: the rest of TMNF's wheelie after nose-down landings (owner's call), the engine's
+  layers' pitch curves (not read).
+- **M9 ("a 1:1 TMNF replica") is complete** (in `stadium` since v0.4). The look of the blocks the campaign shows most follows TMNF's
   measured materials (`docs/research/m9_look.md`): decks, platform and circuit walls, dirt roads,
   control booths, grandstand trusses and boards, raised grandstands at raised gates; Ultra keeps
   the fabric roofs lit. Compare with TMNF locally: `docs/research/m9_look.md`, "How to compare".
@@ -100,7 +100,7 @@ Updated 2026-10-19 (session 13 continued, M10). Details: `docs/PROGRESS.md` (lat
   checkpoints, seats in the stands, a result panel at the finish.
   The bot steers in the road's frame over 100 km/h (no more weave); medals re-set; v0.3 released.
   `stadium-v0.4` (18 Oct) is `stadium` + M9 (online, the A-E campaign, the review's fixes): the M9
-  branch is merged into `stadium`. Next: whatever the owner asks after playing v0.4. Screenshots with `--bot`: add
+  branch is merged into `stadium`; `stadium-v0.5` (19 Oct) adds M10 (above). Next: whatever the owner asks after playing v0.5. Screenshots with `--bot`: add
   `--records=<scratch dir>` (a finish is recorded like the player's).
 - Playable: `race/race.tscn` (the main scene) races any campaign track or `.Challenge.Gbx`. All 65
   campaign tracks pass `test_race --tracks=all` (421 checks); every checkpoint block is built.

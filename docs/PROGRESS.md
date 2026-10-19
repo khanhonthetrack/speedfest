@@ -2311,3 +2311,19 @@ on every real contact the full impulse would land at the contact point and kick 
   runs are chaotic enough that SF01's replay drifted off after 16 s from the 6-decimal rounding
   alone; replays are exact again.
 
+
+## 2026-10-19 — Release `stadium-v0.5`: `stadium` + M10
+- Owner: "take into account claude/sleepy-albattani-o7ygr1 (1e91708) (small physics bug fix) and
+  merge into stadium to release v0.5". 1e91708's research (WheelAbsorbContact re-read, §3.2a/§3.2b,
+  `dis.py`, `fnmap.py`) brought in alone (that branch forked from old `main`, so not merged
+  whole); its find, the 0.55 contact spin, put in (above).
+- `claude/tmnf-replica-graphics-nb1kcg` (M10: dark circuit screens, tyre marks, the surfaces and
+  jumps against TMNF's runs, the contact spin, TMNF's HUD, dialogs, menus, loading screen, camera
+  views, cues, Select Opponent with medal ghosts, track pictures, the top bar) merged into
+  `stadium` (210d298: v0.4, the rotating adverts, the official server's address). Conflicts: the
+  docs (both sides kept, `stadium`'s first) and `blocks/tm_surface.gdshader` (the ads' new
+  uniforms and M9-2's `translucent`, both kept). One fix the merge needed: the grandstands' advert
+  boards (M9-2, `fabric.gd` `_boards`) were plain quads, which the rotating ads show as unlit
+  panels; they are `screen_rect`s now, so the ads run on them too.
+- `stadium/PLAYING.txt` (the zips' how-to-play, the Release's notes): the opponent ghosts, the
+  camera keys 1-3, the volumes and the top bar.

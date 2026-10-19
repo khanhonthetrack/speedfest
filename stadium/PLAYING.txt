@@ -6,7 +6,9 @@ SPEEDFEST STADIUM - how to play
    isn't signed: click "More info" -> "Run anyway".
 2. SOLO -> CAMPAIGN races SpeedFest's own campaign: 65 tracks in five series (White, Green,
    Blue, Red, Black), each with author, gold, silver and bronze times. Your best times and the
-   ghost of your best run are saved. SOLO -> REPLAYS plays back the runs you saved.
+   ghost of your best run are saved. SOLO -> REPLAYS plays back the runs you saved. Before
+   your first run on a track (or Escape -> SELECT OPPONENTS) pick the ghost you race against: a
+   gold, silver or bronze medal run, or your personal best.
 3. ONLINE: log in or register to climb the ladder and keep online records, or play as a guest.
    Pick a server from the list and JOIN (or SPECTATE), or type its address under JOIN BY
    ADDRESS. World and zone rankings are there too.
@@ -20,10 +22,13 @@ TrackMania tracks too: SOLO -> OPEN A TRACK FILE races any TrackMania Nations Fo
 Straight into a track: SpeedFestStadium.exe -- --race=A01
 
 Keys: arrows / WASD or a gamepad to drive, Enter respawns at the last checkpoint, Backspace
-restarts, Escape pauses. Online: T chats, V opens the votes (F1 yes, F2 no), F3 spectates.
+restarts, Escape pauses, 1 / 2 / 3 change the camera (close behind, far behind, the cockpit).
+Online: T chats, V opens the votes (F1 yes, F2 no), F3 spectates.
 
 Options: graphics Low / High / Ultra (Ultra for strong graphics cards), HD textures, shadows,
-sound, music and its volume, the ghost of your best run.
+sound and music and their volumes, the ghost of your best run. The bar along the top of the
+screen (in a race: move the mouse to the top edge) has the volumes, the display settings and
+the clock too.
 
 Music and sounds: open-licensed works by their authors; see CREDITS-music.md and
 CREDITS-sounds.md. Fonts: Orbitron and Rajdhani (SIL Open Font License).

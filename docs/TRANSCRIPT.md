@@ -889,3 +889,15 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
   contact impulse by 0.55 [0x0ec], which our port does not — our contacts over-rotate. Documented
   (§3.2a, §3.2b), committed the two new RE scripts, and left the wheelie's real cause open with
   next candidates in HANDOFF.
+
+### Claude (v0.5, session 13, 19 Oct)
+
+- Brought in 1e91708's research alone (that branch started from old `main`) and put its find in:
+  every contact impulse now turns the car at TMNF's 0.55 of r x j, the spin capped at 100 rad/s.
+  Against TMNF's runs the landings end closer (0.26 m apart, was 0.34) and the car now pivots
+  onto its rear wheels after nose-down landings about two thirds as long as TMNF's (was a third).
+  Two checks followed: the lab's quarter pipe (the car bounces along it more) and exact replays
+  of recorded inputs (the steer now kept at 1/65536).
+- Merged M10 into `stadium` (with v0.4, the rotating adverts and the server address there); the
+  grandstands' new advert boards needed the rotating ads' screen layout. `PLAYING.txt` updated.
+  STADIUM_TESTS PASS on the merge. The tag `stadium-v0.5` makes the Release (see HANDOFF).

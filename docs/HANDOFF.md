@@ -1,6 +1,24 @@
 # HANDOFF: start here
 
-## Latest (18 Oct, session 13 continued, cloud): M10, the owner's five requests after M9
+## Latest (19 Oct, session 13 continued, cloud): `stadium-v0.5` = `stadium` + M10
+- Owner: "take into account claude/sleepy-albattani-o7ygr1 (1e91708) (small physics bug fix) and
+  merge into stadium to release v0.5". 1e91708's research brought in alone (c43b05b; its branch
+  forked from old `main`, don't merge it whole) and its find put in (86078cb): contact impulses
+  turn the car at 0.55 of r x j, spin capped at 100 rad/s (`core/tm_body.gd` `_apply_impulse`,
+  `TmTuning.IMPULSE_SPIN`, `MAX_SPIN`; numbers in PROGRESS 19 Oct).
+- **`claude/tmnf-replica-graphics-nb1kcg` merged into `stadium`** (7ca96ba; the work branch was
+  then fast-forwarded to `stadium`, so the two are the same). Conflicts: docs and
+  `blocks/tm_surface.gdshader`; the grandstands' advert boards became `screen_rect`s for the
+  rotating ads. `stadium/PLAYING.txt` updated. STADIUM_TESTS PASS on the merge (cloud).
+- **Tag `stadium-v0.5`** on `stadium` makes the GitHub Release (CI "Stadium builds" attaches the
+  Windows and Linux zips). Cloud sessions can't push tags (HTTP 403), so from the PC:
+  `git fetch origin && git tag -a stadium-v0.5 origin/stadium -m "SpeedFest Stadium v0.5" && git push origin stadium-v0.5`
+  (or GitHub > Releases > Draft a new release, tag `stadium-v0.5` on `stadium`).
+- Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
+  engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
+  nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).
+
+## Earlier (18-19 Oct, session 13 continued, cloud): M10, the owner's five requests after M9
 - Branch `claude/tmnf-replica-graphics-nb1kcg` (M9 is complete there; not merged into `stadium`
   until the owner says so). Plan: PLAN.md M10 (steps 1-5, the owner's order); owner's words in
   TRANSCRIPT (session 13, after M9). STADIUM_TESTS PASS at every commit.
