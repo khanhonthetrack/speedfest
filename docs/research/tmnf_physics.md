@@ -154,6 +154,24 @@ E04) and with `tools/research/tmnf/air_check.py` over every campaign ghost:
   wheelies 4 s), softer ones (0.9/0.95 per tick: ~18 s, speeds worse, mean error 7.4-8.8 km/h).
   The mechanism is in TMNF's contact code (`CSceneVehicleCar::WheelAbsorbContact`, `AbsorbContact`,
   `AfterContacts`), which this pass did not read: open.
+- **M10-4b (owner: "do it", then "nevermind")**: TMNF's contact code read locally (decompiled, never
+  in the repo). Our port matches it where it reads clearly: the suspension (spring 40, damper 1,
+  rest 0.2, relax 5/s, absorbing a wheel's penetration along the car's up axis up to its length),
+  the ground contact keep 0.8 and chassis keep 0.5 (`ComputeImpulse`: j = (keep - 1) v.n / k), the
+  side and chassis friction. Unresolved: in `WheelAbsorbContact` a ground contact takes the full
+  impulse at the contact point under a flag the decompiler lost (else only the approach left after
+  the spring's vertical share, at the wheel centre); ours takes it when the suspension bottoms.
+  `AddVehicleImpulse` scales an impulse's spin by 0.55 [0xec] on two axes (pitch untouched) and
+  caps it at 100 rad/s [0x14c]. TMNF's landings (A06 10.8 s, E04 97.9 s, D08 13.7 s): within
+  0.1 s of a nose-down touch the fall is mostly gone and the car spins nose-up at 3-4 rad/s on
+  bottomed rear springs; the rear then slows the spin only ~25 rad/s² (springs and gravity), while
+  ours stops it at once (a near-inelastic rear contact). Measured on the six tracks' landings
+  (TMNF 30.5 s on the rear wheels; ours as ported 10.5 s, speed error median 2.2 km/h): full impulse
+  always 7.8 s; never when bottomed 19.9 s but the fall is never stopped (speed error 7.9 km/h);
+  spin scaled in the car frame 9.6 s; unlimited suspension absorption: chassis drags, -30 km/h;
+  suspension once per tick 11.2 s; impulses from the centre of mass's velocity 13.8 s (wheelies on
+  flat ground 26 s vs TMNF's 6). Kept as ported. The disassembly (to name the flag) was not read:
+  the session's safety check stopped it. Next step if resumed: the spin scaling in the world frame.
 
 ### 3.8 Turbo pads
 Turbo **multiplies the acceleration curve**: drive += accel(speed) × strength, even without throttle.

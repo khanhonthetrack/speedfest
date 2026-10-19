@@ -789,3 +789,17 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 13, 19 Oct, again after a usage limit)
 
 > I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+- M10-5 done and pushed (side-by-side sheet sent). Open decisions put to the owner: 1. the engine's
+  pitch curves (reading TMNF's engine sound definition), 2. TMNF's padlocks on later campaign
+  tracks, 3. the wheelie after nose-down landings (reading TMNF's contact code).
+
+### User (verbatim, session 13, 19 Oct)
+
+> About 3 - do it
+- Wheelie (3): TMNF's contact code read locally; our port matches it where it is readable; nine
+  variants of the one unreadable choice measured against TMNF's landings, none matched without
+  breaking speeds (tmnf_physics.md §3.7b). Stopped by the owner:
+
+### User (verbatim, session 13, 19 Oct)
+
+> nevermind. did you implemented the pop up menu if you put your mouse to the top just like in tmnf?
