@@ -399,15 +399,13 @@ func _refresh_levels() -> void:
 
 func _install() -> void:
 	var slot := _current_slot()
-	var before := Garage.setup_of(car_id).duplicate()
-	if Garage.set_level(car_id, slot, level_index):
-		var changed := String(before.get(slot, 0)) != String(Garage.setup_of(car_id).get(slot, 0))
-		_refresh(changed and _affects_model(slot))
-		if not changed:
-			_refresh(false)
-	else:
+	var was := int(Garage.setup_of(car_id).get(slot, 0))
+	if not Garage.set_level(car_id, slot, level_index):
 		_price_label.text = "NOT ENOUGH CREDITS"
 		_price_label.add_theme_color_override("font_color", UiTheme.DANGER)
+		return
+	var changed := int(Garage.setup_of(car_id).get(slot, 0)) != was
+	_refresh(changed and _affects_model(slot))
 
 
 ## Which slots change the mesh or the materials (and so need the model rebuilt).

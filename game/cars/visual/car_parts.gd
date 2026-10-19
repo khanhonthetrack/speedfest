@@ -41,6 +41,7 @@ static func build(s: CarShape, kit: MeshKit, style: Dictionary) -> Dictionary:
 			_kaze_front(s, kit, info)
 			_kaze_rear(s, kit, info)
 	_plate(s, kit, info)
+	_headlight_kit(s, kit, info, int(style.get("headlight_kind", 0)))
 	_hood(s, kit, int(style.get("hood", 0)))
 	_front_kit(s, kit, int(style.get("front", 0)))
 	_rear_kit(s, kit, int(style.get("rear", 0)))
@@ -257,6 +258,46 @@ static func _plate(s: CarShape, kit: MeshKit, info: Dictionary) -> void:
 	kit.color = PLATE_BG
 	kit.box("trim", Vector3(0, y, z + 0.012), Vector3(0.44, 0.13, 0.012))
 	info["plate"] = Transform3D(Basis.IDENTITY, Vector3(0, y, z + 0.0195))
+
+
+## What the headlight slot bolts on, over whatever lamps the car already has:
+##   0 stock, 1 projector lenses, 2 an LED bar across the nose, 3 angel-eye rings.
+static func _headlight_kit(s: CarShape, kit: MeshKit, info: Dictionary, kind: int) -> void:
+	if kind <= 0:
+		return
+	var heads: Array = info.get("headlights", [])
+	match kind:
+		1:
+			# projector lenses: a chrome bowl with a bright centre in each lamp
+			for h: Vector3 in heads:
+				kit.color = CHROME
+				kit.cylinder("chrome", Vector3(h.x, h.y, h.z + 0.01), Vector3.FORWARD, 0.03, 0.055, 0.046, 14, false, true)
+				kit.color = L_HEAD
+				kit.cylinder("lights", Vector3(h.x, h.y, h.z - 0.012), Vector3.FORWARD, 0.014, 0.030, 0.030, 12, false, true)
+		2:
+			# LED bar: a slim strip right across the nose, under the lamps
+			var yb := s.bot(0.0)
+			var yt := s.belt(0.0)
+			var y := lerpf(yb, yt, 0.42)
+			var w := s.wmax(0.03) - 0.16
+			kit.color = BLACK
+			face_patch(s, kit, "trim", false, -w, w, y - 0.045, y + 0.045, 0.006, 10, 1)
+			kit.color = L_HEAD
+			face_patch(s, kit, "lights", false, -w + 0.02, w - 0.02, y - 0.022, y + 0.022, 0.012, 10, 1)
+		_:
+			# angel eyes: an emissive ring around every lamp, plus a thin brow strip
+			for h: Vector3 in heads:
+				kit.color = L_HEAD
+				var segs := 18
+				for i in segs:
+					var a0 := TAU * float(i) / float(segs)
+					var a1 := TAU * float(i + 1) / float(segs)
+					var r0 := 0.062
+					var p0 := Vector3(h.x + cos(a0) * r0, h.y + sin(a0) * r0, h.z - 0.004)
+					var p1 := Vector3(h.x + cos(a1) * r0, h.y + sin(a1) * r0, h.z - 0.004)
+					var q0 := Vector3(h.x + cos(a0) * (r0 - 0.012), h.y + sin(a0) * (r0 - 0.012), h.z - 0.004)
+					var q1 := Vector3(h.x + cos(a1) * (r0 - 0.012), h.y + sin(a1) * (r0 - 0.012), h.z - 0.004)
+					kit.flat_quad("lights", p0, p1, q1, q0, Vector3.FORWARD)
 
 
 # --- per-car fronts and rears -------------------------------------------------

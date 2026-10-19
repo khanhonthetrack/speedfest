@@ -20,7 +20,7 @@ const FLAME_SHADER := preload("res://shaders/car_flame.gdshader")
 const CONTACT_SHADER := preload("res://shaders/car_contact.gdshader")
 const CONTACT_STRENGTH := 0.55
 
-const BODY_KEYS: Array[String] = ["hood", "front", "rear", "skirts", "spoiler"]
+const BODY_KEYS: Array[String] = ["hood", "front", "rear", "skirts", "spoiler", "headlight_kind"]
 ## Index order fixed by shaders/car_paint.gdshader and shaders/car_glow.gdshader.
 const LIVERIES: Array[String] = Tuning.VINYL_NAMES
 const UNDERGLOW_MODES: Array[String] = CarDefs.UNDERGLOW_MODES
@@ -298,12 +298,17 @@ func set_headlights_real(on: bool) -> void:
 	else:
 		targets.append(heads[0])
 		targets.append(heads[heads.size() - 1])
+	# the headlight slot also changes the beam: stock, projector, LED bar, angel eyes
+	var kind := clampi(int(style.get("headlight_kind", 0)), 0, 3)
+	var energy: float = [4.0, 6.5, 8.0, 7.0][kind]
+	var reach: float = [45.0, 62.0, 75.0, 66.0][kind]
+	var angle: float = [26.0, 21.0, 30.0, 24.0][kind]
 	for p in targets:
 		var sp := SpotLight3D.new()
 		sp.light_color = hc
-		sp.light_energy = 6.0 if count == 1 else 4.0
-		sp.spot_range = 45.0
-		sp.spot_angle = 32.0 if count == 1 else 26.0
+		sp.light_energy = energy
+		sp.spot_range = reach
+		sp.spot_angle = angle
 		sp.spot_attenuation = 0.8
 		sp.shadow_enabled = false
 		sp.light_volumetric_fog_energy = 2.2          # beams in the haze (High+, where fog is on)

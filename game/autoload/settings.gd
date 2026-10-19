@@ -298,9 +298,6 @@ func _apply_render_globals() -> void:
 		[RenderingServer.ENV_SSIL_QUALITY_VERY_LOW, RenderingServer.ENV_SSIL_QUALITY_LOW,
 		RenderingServer.ENV_SSIL_QUALITY_MEDIUM, RenderingServer.ENV_SSIL_QUALITY_HIGH][q],
 		true, 0.5, 4, 50.0, 300.0)
-	RenderingServer.environment_set_ssr_roughness_quality(
-		[RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_DISABLED, RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_LOW,
-		RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_MEDIUM, RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_HIGH][q])
 	RenderingServer.environment_set_volumetric_fog_filter_active(q >= 2)
 	RenderingServer.environment_set_volumetric_fog_volume_size(128 if q >= 3 else 64, 64 if q >= 3 else 32)
 	RenderingServer.sub_surface_scattering_set_quality(RenderingServer.SUB_SURFACE_SCATTERING_QUALITY_LOW)
