@@ -2117,3 +2117,8 @@ see the previews." (TRANSCRIPT). Main menu → **COMMUNITY** (`ui/tm_menu.gd` `_
   previews, a car downloaded, on the turntable, driven, MY CARS, a track downloaded and played, a
   modded one refused, a race drawing the community car); `server/test/community.test.js` (3);
   `test_menu` (the main menu's COMMUNITY entry). Checked live against both sites (screenshots).
+- Then (checked on screenshots against the live sites): the page laid out for the menu's 1600x900
+  canvas (4 cards across, the list scrolls clear of BACK; track filters AWARDS / NEWEST / DOWNLOADS
+  / MY TRACKS); a downloaded car selected is the turntable car, framed by the camera under its
+  detail panel (the model as the game draws it, next to ManiaPark's preview); the turntable is
+  hidden otherwise on that page. `--community_tab=tracks` opens the page on the tracks.

@@ -125,7 +125,7 @@ executable (no installer needed: unzip and run) with `PLAYING.txt` and the credi
   models and skins (`stadium/server/README.md` "Admins"); players' games download them when a
   round or a car needs them, and **C** in an online race picks a car among the server's.
 - **The Community page** (main menu): browse TrackMania Exchange's tracks and ManiaPark's car
-  models and skins by their previews (most awarded / newest / most downloaded, search by name),
+  models and skins by their previews (by awards, newest or downloads, search by name),
   download one, then **PLAY** a track or **DRIVE THIS CAR** (solo races and the menu's turntable
   use it until DRIVE OUR OWN CAR). Downloads are kept in `user://community` (MY CARS, MY TRACKS);
   a modded track is kept but says why it can't be raced. The web build goes through its server

@@ -16,8 +16,8 @@ extends Node3D
 ## - options.
 ## Race starts race/race.tscn with the track in TestHooks' args.
 ## Args: --race=SF01 (straight into that track; exported builds can't be given a scene),
-## --page=main|solo|campaign|replays|editors|online|profile|options, --track=SF01 (selected), --menu_dry (tests:
-## Race only records the choice).
+## --page=main|solo|campaign|replays|editors|online|profile|options|community (--community_tab=tracks),
+## --track=SF01 (selected), --menu_dry (tests: Race only records the choice).
 
 signal raced(track: String, map: String)
 signal watched(replay: String)
@@ -52,6 +52,7 @@ var _cam: Camera3D
 var _car_holder: Node3D
 var _angle := 0.6
 var _view := 0.0                   ## 0: the menus' wide view, 1: close on the car (profile)
+var _comm_view := 0.0              ## 1: the car under the Community page's detail panel
 var _headers := {}
 var _tiles := {}
 var _detail: VBoxContainer
@@ -134,12 +135,16 @@ func _paint_car(pack: TmCarPack = null) -> void:
 func _orbit(delta: float) -> void:
 	_angle += delta * 0.12
 	_view = move_toward(_view, 1.0 if page == "profile" else 0.0, delta * 1.5)
+	_comm_view = move_toward(_comm_view, 1.0 if page == "community" else 0.0, delta * 1.5)
 	var v := smoothstep(0.0, 1.0, _view)
+	var c := smoothstep(0.0, 1.0, _comm_view)
 	var at := CENTRE + Vector3(0.0, 0.75 - 0.15 * v, 0.0)
-	var dist := lerpf(7.0, 5.4, v)
+	var dist := lerpf(lerpf(7.0, 5.4, v), 11.0, c)
 	_cam.position = at + Vector3(cos(_angle) * dist, lerpf(0.55, 0.45, v), sin(_angle) * dist)
 	_cam.look_at(at)
-	_cam.position -= _cam.basis.x * lerpf(2.4, 1.9, v)   # the car off-centre, right of the menu column
+	_cam.position -= _cam.basis.x * lerpf(lerpf(2.4, 1.9, v), 6.45, c)   # the car off-centre, right of the menu column
+	_cam.position += _cam.basis.y * 2.75 * c          # community: low in the right column, under the detail panel
+	_car_holder.visible = page != "community" or _comm_car_shown
 
 
 func _process(delta: float) -> void:
@@ -1325,9 +1330,10 @@ var _comm_status: Label
 var _comm_detail: VBoxContainer
 var _comm_nav: HBoxContainer
 var _comm_state: Label              ## the selected item's state line (downloading, errors)
+var _comm_car_shown := false        ## the selected car is downloaded: on the turntable, under its panel
 var _comm_busy := {}                ## item keys being downloaded
 const COMM_FILTERS := {"cars": [["model", "CAR MODELS"], ["skin", "SKINS"], ["mine", "MY CARS"]],
-	"tracks": [["awards", "MOST AWARDED"], ["newest", "NEWEST"], ["downloads", "MOST DOWNLOADED"], ["mine", "MY TRACKS"]]}
+	"tracks": [["awards", "AWARDS"], ["newest", "NEWEST"], ["downloads", "DOWNLOADS"], ["mine", "MY TRACKS"]]}
 const COMM_CARD := Vector2(257, 206)   ## a card (4 across the left 1070 px; the list scrolls)
 const COMM_DETAIL := 384               ## the selected one's column (the panel at the right)
 
@@ -1339,6 +1345,8 @@ func _page_community() -> void:
 	if community == null:
 		community = TmCommunity.new()
 		add_child(community)
+		comm_tab = "tracks" if String(TestHooks.arg("community_tab", comm_tab)) == "tracks" else "cars"
+	_comm_car_shown = false
 	var root := _root()
 	# CARS / TRACKS, then the filters, then the search
 	var tabs := HBoxContainer.new()
@@ -1401,7 +1409,7 @@ func _page_community() -> void:
 	# the previews
 	_comm_scroll = ScrollContainer.new()
 	_comm_scroll.position = Vector2(60, 244)
-	_comm_scroll.size = Vector2(4 * (COMM_CARD.x + 10) + 12, 556)
+	_comm_scroll.size = Vector2(4 * (COMM_CARD.x + 10) + 12, 526)
 	_comm_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_comm_scroll.follow_focus = true          # the pad's focus scrolls the list
 	root.add_child(_comm_scroll)
@@ -1417,7 +1425,7 @@ func _page_community() -> void:
 	# the selected one
 	var panel := PanelContainer.new()
 	panel.position = Vector2(60 + 4 * (COMM_CARD.x + 10) + 22, 112)
-	panel.custom_minimum_size = Vector2(COMM_DETAIL + 32, 688)
+	panel.custom_minimum_size = Vector2(COMM_DETAIL + 32, 0)   # as tall as what it says: the car shows under it
 	root.add_child(panel)
 	_comm_detail = VBoxContainer.new()
 	_comm_detail.add_theme_constant_override("separation", 10)
@@ -1604,10 +1612,9 @@ func comm_select(key: String) -> void:
 			actions.add_child(TmUi.go(TmUi.button("DRIVE THIS CAR", func() -> void: comm_drive(path), COMM_DETAIL)))
 		if not String(TmUi.setting("community_car")).is_empty():
 			actions.add_child(TmUi.button("DRIVE OUR OWN CAR", func() -> void: comm_drive(""), COMM_DETAIL))
-		if not have.is_empty():
-			_paint_car(TmCarPack.load_zip(path))         # on the turntable while it's selected
-		else:
-			_paint_car()
+		_comm_car_shown = not have.is_empty()
+		if _comm_car_shown:
+			_paint_car(TmCarPack.load_zip(path))         # on the turntable, under the panel, while it's selected
 	else:
 		if have.is_empty():
 			actions.add_child(TmUi.go(TmUi.button("DOWNLOAD", func() -> void: comm_download(key), COMM_DETAIL)))
