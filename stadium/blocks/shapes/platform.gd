@@ -111,11 +111,14 @@ const ARCH_DR := 9.348
 const ARCH_DZ := -0.105
 const ARCH_HALF := 33.8
 ## The billboard: a band leaning in over the arch, curved in plan about a vertical axis at
-## ARCH_BOARD_AXIS (x, z); its section (radius from the axis, y) at the top, and its half-angle.
-const ARCH_BOARD_AXIS := Vector2(16, 4.43)
-const ARCH_BOARD := [[14.12, 15.53, "screen", S_METAL], [12.59, 17.65, "screen", S_METAL],
-	[12.75, 17.76, "screen", S_METAL], [14.28, 15.64, "screen", S_METAL]]
-const ARCH_BOARD_HALF := 44.0
+## ARCH_BOARD_AXIS (x, z); its section (radius from the axis, y) at the top, its half-angle, and
+## how much of the arch's fall toward its ends it follows (measured: its ends at x 5.94 / 26.06,
+## 2.0 m lower and 2.8 m nearer the front than its middle).
+const ARCH_BOARD_AXIS := Vector2(16, -0.35)
+const ARCH_BOARD := [[18.90, 15.53, "screen", S_METAL], [17.37, 17.65, "screen", S_METAL],
+	[17.53, 17.76, "screen", S_METAL], [19.06, 15.64, "screen", S_METAL]]
+const ARCH_BOARD_HALF := 32.2
+const ARCH_BOARD_FALL := 0.91
 ## The curved strut from the deck's front corner up to the arch (centre line, measured), mirrored.
 const ARCH_STRUT := [Vector3(0.97, 7.8, 5.9), Vector3(1.08, 9.6, 8.2), Vector3(1.27, 10.2, 9.0), Vector3(1.55, 10.8, 9.8),
 	Vector3(1.9, 11.4, 10.6), Vector3(2.34, 11.9, 11.4), Vector3(2.85, 12.5, 12.1), Vector3(3.44, 13.0, 12.85),
@@ -173,14 +176,19 @@ const CHECKPOINT_SHEAR := {
 
 ## Vertical checkpoint ring about (16, 16) in the x-y plane: the ring's section (z, radius) with
 ## rounded sign faces front and back; four 76-degree arcs between the diagonals.
+## As TMNF's: its outer and inner faces the border atlas' light panel (rows across them: RING_ROWS),
+## the rounded front and back faces the CHECKPOINT band (gate_cp, along the ring), the bevels the
+## ribbed edge (_ring_uv).
 const RING_SECTION := [
-	[18.2, 13.954, "rubber_white", S_METAL], [14.011, 13.954, "rubber_white", S_METAL],
-	[13.976, 13.852, "logo", S_METAL], [13.59, 13.555, "logo", S_METAL], [13.48, 13.258, "logo", S_METAL],
-	[13.59, 12.961, "logo", S_METAL], [13.976, 12.664, "rubber_white", S_METAL],
-	[14.011, 12.563, "rubber_white", S_METAL], [18.2, 12.563, "rubber_white", S_METAL],
-	[18.235, 12.664, "logo", S_METAL], [18.621, 12.961, "logo", S_METAL], [18.731, 13.258, "logo", S_METAL],
-	[18.621, 13.555, "logo", S_METAL], [18.235, 13.852, "rubber_white", S_METAL],
+	[18.2, 13.954, "border_panel", S_METAL], [14.011, 13.954, "border_ribs", S_METAL],
+	[13.976, 13.852, "gate_cp", S_METAL], [13.59, 13.555, "gate_cp", S_METAL], [13.48, 13.258, "gate_cp", S_METAL],
+	[13.59, 12.961, "gate_cp", S_METAL], [13.976, 12.664, "border_ribs", S_METAL],
+	[14.011, 12.563, "border_panel", S_METAL], [18.2, 12.563, "border_ribs", S_METAL],
+	[18.235, 12.664, "gate_cp", S_METAL], [18.621, 12.961, "gate_cp", S_METAL], [18.731, 13.258, "gate_cp", S_METAL],
+	[18.621, 13.555, "gate_cp", S_METAL], [18.235, 13.852, "border_ribs", S_METAL],
 ]
+const RING_ROWS := Vector2(140.0, 6.0)
+const RING_RIB_ROW := 210.0
 const RING_ARC := 38.0          ## each arc spans +-38 degrees about an axis direction
 ## The billboard bands leaning out of the ring's front face over each diagonal (17-73 degrees).
 const RING_PANEL := [[13.35, 16.39, "screen", S_METAL], [14.52, 14.365, "screen", S_METAL],
@@ -625,7 +633,10 @@ func _revolve_z(geo: TmGeo, section: Array, a0: float, a1: float, steps: int, ca
 func _ring_v(geo: TmGeo) -> void:
 	for k in 4:
 		var c := 90.0 * k
-		_revolve_z(geo, RING_SECTION, c - RING_ARC, c + RING_ARC, 16)
+		var part := TmGeo.new()
+		_revolve_z(part, RING_SECTION, c - RING_ARC, c + RING_ARC, 16)
+		_ring_uv(part, RING_SECTION, Vector2(16, 16), c)
+		geo.merge(part)
 		_revolve_z(geo, RING_PANEL, c + 17.0, c + 73.0, 12)
 		for a in [c + 40.0, c + 50.0]:
 			_revolve_z(geo, [[13.6, 12.6, "lamp", TmGeo.NO_COLLISION], [15.0, 12.6, "lamp", TmGeo.NO_COLLISION],
@@ -635,12 +646,42 @@ func _ring_v(geo: TmGeo) -> void:
 		geo.box(Vector3(15.5, y + 0.16, 12.96), Vector3(16.5, y + 2.0, 19.04), "structure", S_METAL, "", -2, 0.04)
 
 
+## The UVs of a ring arc revolved from `sec` about centre (x, y) round the angle mid (degrees): the
+## panel faces' atlas rows across them (front to back), the ribbed bevels one row, the CHECKPOINT
+## band along the arc (metres, a word centred at mid; read left to right from the front (-z) and
+## from the back; its top at the outer edge).
+func _ring_uv(part: TmGeo, sec: Array, centre: Vector2, mid: float) -> void:
+	var z0 := INF
+	var z1 := -INF
+	var r0 := INF
+	var r1 := -INF
+	for q: Array in sec:
+		z0 = minf(z0, float(q[0]))
+		z1 = maxf(z1, float(q[0]))
+		r0 = minf(r0, float(q[1]))
+		r1 = maxf(r1, float(q[1]))
+	var zm := (z0 + z1) * 0.5
+	var rm := (r0 + r1) * 0.5
+	var along := func(p: Vector3) -> float:
+		return wrapf(atan2(p.y - centre.y, p.x - centre.x) - deg_to_rad(mid), -PI, PI) * rm
+	part.remap_uv("border_panel", func(p: Vector3) -> Vector2:
+		return Vector2(float(along.call(p)) / 16.0, lerpf(RING_ROWS.x, RING_ROWS.y, (p.z - z0) / (z1 - z0)) / 512.0))
+	part.remap_uv("border_ribs", func(p: Vector3) -> Vector2: return Vector2(float(along.call(p)) / 16.0, RING_RIB_ROW / 512.0))
+	part.remap_uv("gate_cp", func(p: Vector3) -> Vector2:
+		var r := Vector2(p.x - centre.x, p.y - centre.y).length()
+		var u := -float(along.call(p)) if p.z < zm else float(along.call(p))
+		return Vector2(u + 4.0, (r1 - r) * 1.25 / (r1 - r0)))
+
+
 ## The checkpoint arch over the deck: the ring's section revolved on a circle of radius 23.3 about
 ## (16, -8.976) between radial cuts 33.8 degrees either side of the top, a billboard leaning on its
 ## back, and the two struts holding it from the deck's front corners.
 func _checkpoint_arch(geo: TmGeo) -> void:
 	var sec := RING_SECTION.map(func(q: Array) -> Array: return [float(q[0]) + ARCH_DZ, float(q[1]) + ARCH_DR, q[2], q[3]])
-	_revolve_z(geo, sec, 90.0 - ARCH_HALF, 90.0 + ARCH_HALF, 16, true, ARCH_CENTRE)
+	var part := TmGeo.new()
+	_revolve_z(part, sec, 90.0 - ARCH_HALF, 90.0 + ARCH_HALF, 16, true, ARCH_CENTRE)
+	_ring_uv(part, sec, ARCH_CENTRE, 90.0)
+	geo.merge(part)
 	# the billboard follows the arch down toward its ends
 	var path := []
 	var outward := []
@@ -650,9 +691,9 @@ func _checkpoint_arch(geo: TmGeo) -> void:
 		var dir := Vector3(cos(a), 0, sin(a))
 		path.append(Vector3(ARCH_BOARD_AXIS.x, 0, ARCH_BOARD_AXIS.y))
 		outward.append(dir)
-		var x := ARCH_BOARD_AXIS.x + dir.x * 13.4
+		var x := ARCH_BOARD_AXIS.x + dir.x * 18.2
 		var r := ARCH_DR + 13.954
-		drop.append(0.5 * (sqrt(maxf(0.0, r * r - (x - 16.0) * (x - 16.0))) - r))
+		drop.append(ARCH_BOARD_FALL * (sqrt(maxf(0.0, r * r - (x - 16.0) * (x - 16.0))) - r))
 	var board := ARCH_BOARD.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
 	geo.wall_sweep(board, path, outward, true, "screen", S_METAL,
 		func(y: float, i: int) -> float: return y + float(drop[i]))
@@ -667,7 +708,7 @@ func _checkpoint_arch(geo: TmGeo) -> void:
 	# short legs under the lips, two per side
 	for c: Vector2 in [Vector2(8, 2), Vector2(24, 2), Vector2(8, 30), Vector2(24, 30), Vector2(2, 8), Vector2(2, 24),
 			Vector2(30, 8), Vector2(30, 24)]:
-		geo.box(Vector3(c.x - 0.5, 0, c.y - 0.5), Vector3(c.x + 0.5, 3.42, c.y + 0.5), "stands", S_METAL, "", -2, 0.05)
+		geo.box(Vector3(c.x - 0.5, 0, c.y - 0.5), Vector3(c.x + 0.5, 3.42, c.y + 0.5), "truss", S_METAL, "", -2, 0.05)
 
 
 ## Grid wall round a GT curve: on the arc of radius 32 k about the footprint's corner (0, 32 k), the

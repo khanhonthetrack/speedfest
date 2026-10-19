@@ -2506,3 +2506,9 @@ on every real contact the full impulse would land at the contact point and kick 
   disc). The rim's bevel is TMNF's TURBO sign (our own texture: `texgen/turbo.py turbo_rim`, the
   word every 4 m), the plate's underside ring TMNF's light plates. Material check: TMNF surface we
   lacked 2820 -> 814 m2, colour differs 838 -> 664 m2.
+- (M11-2) **Platform checkpoints' arch and ring as TMNF's.** Not white with blue edges: the outer and
+  inner faces the border atlas' light panel, the rounded front and back faces the CHECKPOINT band
+  (our gate_cp: TMNF's RaceSigns sign there), read along the arc from the front and the back
+  (`platform.gd _ring_uv`); the legs under the lips dark truss; the billboard over the arch curved
+  and falling with it as TMNF's (measured: its ends 2 m lower and 2.8 m nearer the front than its
+  middle). Material check (Checkpoint/Air): colour differs 828 -> 657 m2.
