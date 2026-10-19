@@ -520,15 +520,18 @@ func _pads() -> void:
 		body.name = "BoostPad"
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
-		box.size = Vector3(w * 2.0, 0.22, len_m)
+		# The pad is part of the road, not a ramp on top of it: a deep block whose top face sits
+		# 5 mm above the asphalt. A 17 cm step here launched cars at 240 km/h.
+		box.size = Vector3(w * 2.0, 0.60, len_m)
 		cs.shape = box
+		cs.position = Vector3(0.0, -0.295, 0.0)
 		body.add_child(cs)
-		body.transform = Transform3D(t.basis, t.origin + t.basis.y * 0.06)
+		body.transform = Transform3D(t.basis, t.origin + t.basis.y * 0.005)
 		body.set_meta("surface", SURFACE_TURBO)
 		body.set_meta("pad_dir", -t.basis.z)
 		var mi := MeshInstance3D.new()
 		mi.mesh = _pad_mesh(w * 2.0, len_m)
-		mi.position = Vector3(0, 0.12, 0)
+		mi.position = Vector3(0, 0.012, 0)
 		mi.material_override = _boost_mat
 		mi.set_instance_shader_parameter("pad_len", len_m)
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -538,7 +541,7 @@ func _pads() -> void:
 			ol.light_color = Color(1.0, 0.45, 0.1)
 			ol.light_energy = 4.0
 			ol.omni_range = 16.0
-			ol.position = Vector3(0, 1.2, 0)
+			ol.position = Vector3(0, 1.3, 0)
 			ol.light_volumetric_fog_energy = 2.0
 			Settings.tune_point_light(ol)
 			body.add_child(ol)

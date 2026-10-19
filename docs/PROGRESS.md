@@ -961,3 +961,17 @@ from `stadium/` and had no export presets, and the old ones went to `old/` with 
   scripts — so pushes to `main` and `v*` tags build both platforms again.
 - Verified in this container with the real 4.7.2 templates: the Linux export produces a 74 MB
   self-contained `speedfest.x86_64` that boots, and the Windows export produces `SpeedFest.exe`.
+
+### 2026-10-19, after the first screenshot of the bot driving: the boost pads were ramps
+
+The look-dev shot of a lap in progress showed the car upside down at 152 km/h seven seconds in.
+Reproduced headless: at 240 km/h the Kaze hit the first turbo pad on the main straight, flew three
+metres into the air and landed on its roof. The pad's collider was a 0.22 m box sitting 0.06 m
+above the road — a 17 cm step at racing speed.
+- The pad is part of the road now: a 0.6 m deep block whose top face is 5 mm above the asphalt,
+  with the glowing quad at 12 mm. It still reads as `TmTuning.Surface.TURBO2` and still fires the
+  TMNF red-pad turbo (strength 20) when a wheel touches it.
+- `test_autodrive` now fails any run where the car spends a tick on its roof or more than an
+  eighth of the lap in the air, so this class of bug cannot come back quietly.
+- Lap times improved once the cars stopped being launched: Neon Downtown 46.1 s (Kaze, was 51.2),
+  47.8 s (Ridge, was 84.6), 41.4 s (F4); Harbour Lights 32.8 / 33.8 / 29.4 s.

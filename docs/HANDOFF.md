@@ -27,11 +27,11 @@ neon city at night, and make it look expensive. All of it is on
 - menu → garage → race, countdown, checkpoints, laps, personal bests, respawn, pause, HUD with a
   lap map and a nitrous meter.
 - A bot (`cars/auto_driver.gd`) laps both circuits with three different cars, so the tracks are
-  proven drivable: Neon Downtown 42.9 s (F4) / 51.2 s (Kaze) / 84.6 s (Ridge), Harbour Lights
-  31.4 / 33.8 / 41.2 s. `--autodrive=1` puts it in a normal race.
+  proven drivable: Neon Downtown 41.4 s (F4) / 46.1 s (Kaze) / 47.8 s (Ridge), Harbour Lights
+  29.4 / 32.8 / 33.8 s. `--autodrive=1` puts it in a normal race.
 - `tools/check_scripts.sh` → SCRIPT_ERRORS=0 (61 scripts); `tools/test_all.sh` → TESTS PASS
-  (618 checks: model lab 44, car body 22, car shapes 11, gbx 3, settings 72, tuning 363, race 41,
-  autodrive 30, flow 32).
+  (630 checks: model lab 44, car body 22, car shapes 11, gbx 3, settings 72, tuning 363, race 41,
+  autodrive 42, flow 32).
 - PC builds work again: `tools/export_desktop.sh all` (or the Desktop builds workflow on `main`
   and on `v*` tags) produces `build/SpeedFest-windows.zip` and `build/SpeedFest-linux.zip`.
 

@@ -53,6 +53,8 @@ func _lap(track_id: String, car_id: String) -> void:
 	var ticks := int(max_s * 100.0)
 	var top := 0.0
 	var off_road := 0
+	var upside_down := 0
+	var airborne := 0
 	var done := false
 	var t_used := 0
 	for i in ticks:
@@ -61,6 +63,10 @@ func _lap(track_id: String, car_id: String) -> void:
 		top = maxf(top, absf(car.speed_kmh()))
 		if path.edge_clearance(car.global_transform.origin) > 3.0:
 			off_road += 1
+		if car.global_transform.basis.y.dot(Vector3.UP) < 0.35:
+			upside_down += 1
+		if not car.wheel_contact.has(true):
+			airborne += 1
 		if bot.laps >= 1:
 			done = true
 			t_used = i
@@ -82,6 +88,10 @@ func _lap(track_id: String, car_id: String) -> void:
 		TestHooks.check(rescues <= 2, "%s/%s needs almost no rescues" % [track_id, car_id], str(rescues))
 		TestHooks.check(off_road < 400, "%s/%s stays on the road" % [track_id, car_id],
 			"%d ticks wide" % off_road)
+		TestHooks.check(upside_down == 0, "%s/%s never ends up on its roof" % [track_id, car_id],
+			"%d ticks upside down" % upside_down)
+		TestHooks.check(airborne < ticks / 8, "%s/%s keeps its wheels down" % [track_id, car_id],
+			"%d of %d ticks in the air" % [airborne, t_used])
 	results.append({"track": track_id, "car": car_id, "time": secs, "top": top, "rescues": rescues})
 	car.queue_free()
 	track.queue_free()
