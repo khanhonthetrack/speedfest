@@ -13,6 +13,7 @@ signal to_menu
 signal watch_replay
 signal save_replay
 signal opponent_chosen(kind: String)
+signal select_opponent
 
 var has_next := false
 var online := false                ## in a server: "menu" leaves it
@@ -21,6 +22,7 @@ var _panel: PanelContainer
 var _box: VBoxContainer
 var paused := false
 var choosing := false              ## the opponent dialog is up (the race waits)
+var opponents := false             ## the race offers opponents: the race menu lists Select Opponents
 var finished := false
 var _result := {}
 var _replay_saved := false
@@ -97,8 +99,8 @@ func _fill(title: String, items: Array, card: Control = null, bottom: Array = []
 		body.add_child(card)
 	for it: Array in items:
 		var b := TmUi.tm_button(String(it[0]), it[1], 560)
-		b.custom_minimum_size.y = 30
-		b.add_theme_font_size_override("font_size", 21)
+		b.custom_minimum_size.y = 24          # TMNF's list pills: slim, small text
+		b.add_theme_font_size_override("font_size", 18)
 		body.add_child(b)
 		if first == null:
 			first = b
@@ -137,7 +139,9 @@ func toggle_pause() -> void:
 		return
 	paused = true
 	get_tree().paused = not online   # a server's round runs on: online, the menu only overlays
-	_fill("Race menu", [["Restart", func() -> void: _emit(restarted)]], null,
+	var items := [["Select Opponents", func() -> void: _emit(select_opponent)]] if opponents else []
+	items.append(["Restart", func() -> void: _emit(restarted)])
+	_fill("Race menu", items, null,
 		[["Resume", resume], [_menu_text(), func() -> void: _emit(to_menu)]])
 
 

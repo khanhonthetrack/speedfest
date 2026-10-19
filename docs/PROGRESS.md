@@ -2184,3 +2184,6 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   ran this container out of memory). The race also waits for the loading screen's fade before its
   countdown (`TmLoading.covering()`). Not copied: TMNF's padlocks (its later tracks open as you
   finish earlier ones), which would change play; the owner's call.
+- **The race menu lists Select Opponents**, as TMNF's does (for our tracks with medals, not online
+  or in a test drive): it opens the dialog again, and a pick there starts the race over with the
+  new opponent. Its list pills are slimmer with smaller text, as TMNF's. `test_opponent` checks it.

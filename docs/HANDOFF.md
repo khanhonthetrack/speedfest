@@ -37,8 +37,13 @@
   pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh` -> `assets/ui/thumbs`).
 - Note: session 14 (another branch, below) merged M9 into `stadium`; this branch's M10 work goes
   into `stadium` when the owner says so (expect conflicts in docs only, maybe `race/race.gd`).
-- Open after M10-5: TMNF's wheelie after nose-down landings (M10-4, owner's call); the engine's
-  layers could get the same measured comparison as the cues (M9-3 checked band energies only).
+  Also the race menu's Select Opponents. M10 is done but for the owner's decisions:
+- Open (owner's call): TMNF's wheelie after nose-down landings (M10-4: needs TMNF's contact code);
+  the engine's layers' pitch curves (TMNF's SoundEngine definition: reading it was blocked by the
+  session's safety check; our engine is brighter than TMNF's samples, which sit lower: TMNF's
+  strongest partial is the 3rd order of a low fundamental); TMNF's padlocks on later campaign
+  tracks (would change play). Side-by-side sheets: render ours with the commands in PROGRESS,
+  TMNF under Wine locally (never commit its frames).
 
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium

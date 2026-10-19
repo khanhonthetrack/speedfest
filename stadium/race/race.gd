@@ -166,6 +166,8 @@ func _ready() -> void:
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
 	menu.opponent_chosen.connect(set_opponent)
+	menu.select_opponent.connect(func() -> void: menu.show_opponents(_opponent_options(), opponent))
+	menu.opponents = _offers_opponents()
 	# the map's collision is in the physics space from the next physics frame
 	await get_tree().physics_frame
 	if _asks_opponent():
@@ -189,8 +191,13 @@ func _asks_opponent() -> bool:
 	var arg := String(TestHooks.arg("opponent", ""))
 	if arg != "ask" and (TestHooks.is_testing() or not arg.is_empty()):
 		return false
-	return TmTracks.has(track_id) and not online and not editing() and not TestHooks.has_arg("finish_result") \
-		and challenge.gold_ms > 0 and opponent.is_empty()
+	return _offers_opponents() and not TestHooks.has_arg("finish_result") and opponent.is_empty()
+
+
+## Our own tracks with medals offer opponents (not online or in a test drive): TMNF's race menu
+## lists Select Opponents for them too.
+func _offers_opponents() -> bool:
+	return TmTracks.has(track_id) and not online and not editing() and challenge.gold_ms > 0
 
 
 ## The opponents: [kind, name, time]: the medals' ghosts, your best run's, none.
@@ -215,8 +222,9 @@ func _opponent_focus() -> String:
 
 
 ## Races against an opponent: a medal's ghost (TmMedalGhost: our bot's run at that medal's time),
-## your best run's, or none.
+## your best run's, or none. Picked again from the race menu, the race starts over.
 func set_opponent(kind: String) -> void:
+	var again := not opponent.is_empty() and race != null and race.state != TmRace.State.COUNTDOWN
 	opponent = kind
 	match kind:
 		"gold", "silver", "bronze":
@@ -226,6 +234,8 @@ func set_opponent(kind: String) -> void:
 			best_ghost = TmRecords.ghost(challenge)
 		"none":
 			best_ghost = null
+	if again:
+		restart()
 	_show_ghost()
 
 

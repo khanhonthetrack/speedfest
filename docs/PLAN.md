@@ -201,7 +201,7 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
       every track driven by the bot, medals from its best run
 
-### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☐
+### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
 Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
 - [x] 1. Keep the circuit walls' screens dark (TMNF's StadiumCircuitScreen); the wall foot's blue
       kerb, logo bumper and blue trim (owner's side-by-side remark)
@@ -213,7 +213,7 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
       columns were misread (grip = 1, drive = 2, brakes = 3); fixed, tmnf_physics.md §3.10
 - [x] 4. Jump physics against TMNF (air phases, landings): flight identical, take-offs agree,
       landings agree in the median; open: TMNF's wheelie after nose-down landings (§3.7b)
-- [ ] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
+- [x] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
       (TMNF under Wine locally, an offline profile; nothing of it in the repo):
   - [x] race HUD and countdown (seven-segment clock and speed pills, -2.60 s start, 3-2-1-Go)
   - [x] race menu and finish card (TMNF's dialogs: dark glass, green title bar, white pills)
@@ -222,6 +222,10 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
   - [x] cues (beeps, crowd at Go and at a medal, swoosh, crash, landing, menu blip/tock, wind)
   - [x] Select Opponent with medal ghosts (the bot's run slowed to each medal's time)
   - [x] pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh`)
+  - [x] the race menu's Select Opponents (as TMNF's)
+  - Owner decisions open: TMNF's padlocks on later campaign tracks (changes play); the engine's
+    layers' pitch curves (reading TMNF's engine sound definition was blocked by the session's
+    safety check); TMNF's wheelie after nose-down landings (M10-4).
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
