@@ -508,3 +508,22 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   game exported with 4.7.2, smoke-tested on Windows. Download: artifact SpeedFest-windows-rtx of run
   38965547516. The NVIDIA DLLs aren't in it (licence; a public download was blocked):
   `add_nvidia_dlss.bat` in the folder adds them.
+
+## Session 11 — 2026-10-19 (cloud session, branch `ccr-be8add6f-thdbey`)
+
+### User (verbatim)
+
+> Lets talk about a story mode for the trackmania-like game ok?
+
+### Claude
+
+- Discussion only, nothing built yet. Pitched a story mode for SpeedFest built on what exists
+  (34 maps, 6 cars, weather, ghosts, special pads, cosmetic garage; no medals yet): a chaptered
+  "underground stunt festival" campaign where each chapter is a crew with a boss driving one of
+  the six cars, events on the existing maps (medal runs, rival ghost duels, weather and modifier
+  challenges), story told cheaply through phone messages and in-engine comic panels, and
+  cosmetic unlocks as rewards. Medals (bronze/silver/gold/author) are the foundation it needs first.
+- Open questions for the owner: how much story (medal campaign only / light story with rivals /
+  NFSU2-style free-roam city), tone, whether story locks cars and cosmetics (online friends have
+  everything today), SpeedFest vs the `stadium/` remake, and where it sits against the Stadium
+  remake and the pending TMNF handling decision (medal times depend on the handling).
