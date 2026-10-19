@@ -80,11 +80,13 @@ func _effects_apply() -> void:
 		TestHooks.check(float(full["boost_power"]) > 0.0 and float(full["boost_tank"]) > 0.0,
 			"nitrous fitted %s" % id)
 		TestHooks.check(float(full["ride"]) < 0.0, "the body drops %s" % id, str(full["ride"]))
-	# a stock car has no bottle at all
+	# every car rolls out with a small bottle; removing it takes the boost away entirely
 	var s := Tuning.default_setup("kaze")
-	TestHooks.check(float(Tuning.resolve("kaze", s)["boost_power"]) == 0.0, "no nitrous when stock")
-	s["nitrous"] = 1
-	TestHooks.check(float(Tuning.resolve("kaze", s)["boost_power"]) > 0.0, "a bottle gives boost")
+	TestHooks.check(int(s["nitrous"]) == 1, "a bottle is fitted from the showroom", str(s["nitrous"]))
+	TestHooks.check(float(Tuning.resolve("kaze", s)["boost_power"]) > 0.0, "so the car can boost")
+	s["nitrous"] = 0
+	TestHooks.check(float(Tuning.resolve("kaze", s)["boost_power"]) == 0.0, "no bottle, no boost")
+	TestHooks.check(float(Tuning.resolve("kaze", s)["boost_tank"]) == 0.0, "and no tank")
 	# the long gearbox trades acceleration for top speed, the drag set does the opposite
 	var longg := Tuning.default_setup("kaze")
 	longg["gearbox"] = 3

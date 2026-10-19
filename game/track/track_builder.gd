@@ -45,6 +45,8 @@ func build(id: String, rng_seed: int = 12345) -> Node3D:
 	_tunnels()
 	_arches()
 	_pads()
+	_checkpoint_gates()
+	_chevrons()
 	_start_gantry()
 	var cps: Array = []
 	for i in def.get("checkpoints", []):
@@ -444,7 +446,7 @@ func _arches() -> void:
 		kit.box("g", top, Vector3(w * 2.0, 0.85, 0.8), Basis(t.basis))
 		# neon tubes under and along the beam
 		neon.color = col
-		_neon_bar(neon, top - Vector3(0, 0.5, 0), t.basis.x * (w * 2.0 - 0.6), Vector3.DOWN, 0.16, Vector2(4.0, 0.0))
+		_neon_bar(neon, top - Vector3(0, 0.5, 0), t.basis.x * (w * 2.0 - 0.6), Vector3.DOWN, 0.18, Vector2(0.0, 0.0))
 		neon.color = col * 0.9
 		_neon_bar(neon, top + Vector3(0, 0.5, 0), t.basis.x * (w * 2.0 - 0.6), Vector3.UP, 0.12, Vector2(3.0, 0.3))
 		# a screen panel on the beam
@@ -541,6 +543,85 @@ static func _pad_mesh(w: float, l: float) -> ArrayMesh:
 	return m
 
 
+## A lit gate over the road at every checkpoint, so the driver sees where the clock splits.
+func _checkpoint_gates() -> void:
+	var cps: Array = def.get("checkpoints", [])
+	for k in cps.size():
+		var d := path.point_offset(int(cps[k]))
+		var t := path.sample_transform(d)
+		var w := path.width_at(d) * 0.5 + 1.0
+		var h := 6.4
+		var kit := MeshKit.new()
+		var neon := MeshKit.new()
+		kit.color = Color(0.075, 0.08, 0.095)
+		for side: float in [-1.0, 1.0]:
+			var base := t.origin + t.basis.x * w * side
+			kit.box("g", base + Vector3(0, h * 0.5, 0), Vector3(0.42, h, 0.52), Basis(t.basis))
+		kit.box("g", t.origin + Vector3(0, h, 0), Vector3(w * 2.0, 0.55, 0.55), Basis(t.basis))
+		# a cyan tube down each post and across the beam: a TM checkpoint, read at 250 km/h
+		neon.color = Color(0.10, 0.95, 1.0)
+		_neon_bar(neon, t.origin + Vector3(0, h - 0.35, 0), t.basis.x * (w * 2.0 - 0.4), Vector3.DOWN,
+			0.22, Vector2(0.0, 0.0))
+		_neon_bar(neon, t.origin + Vector3(0, h + 0.35, 0), t.basis.x * (w * 2.0 - 0.4), Vector3.UP,
+			0.16, Vector2(0.0, 0.0))
+		for side2: float in [-1.0, 1.0]:
+			var post := t.origin + t.basis.x * (w - 0.24) * side2
+			_neon_bar(neon, post + Vector3(0, h * 0.5, 0), Vector3(0, h - 0.6, 0),
+				-t.basis.x * side2, 0.16, Vector2(0.0, 0.0))
+		var mi := MeshInstance3D.new()
+		mi.name = "Checkpoint%d" % (k + 1)
+		mi.mesh = kit.commit({"g": _metal_mat})
+		root.add_child(mi)
+		var nmi := MeshInstance3D.new()
+		nmi.name = "CheckpointNeon%d" % (k + 1)
+		nmi.mesh = neon.commit({"n": _neon_mat})
+		nmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(nmi)
+		if Settings.quality >= 1:
+			var ol := OmniLight3D.new()
+			ol.position = t.origin + Vector3(0, h - 1.0, 0)
+			ol.light_color = Color(0.25, 0.95, 1.0)
+			ol.light_energy = 4.5
+			ol.omni_range = 24.0
+			ol.light_volumetric_fog_energy = 3.0
+			Settings.tune_point_light(ol)
+			root.add_child(ol)
+
+
+## Lit chevron boards on the outside of every real corner.
+func _chevrons() -> void:
+	var mat_left := _track_shader_mat("track_chevron", {"fg": Color(1.0, 0.75, 0.1), "flip": 1.0})
+	var mat_right := _track_shader_mat("track_chevron", {"fg": Color(1.0, 0.75, 0.1), "flip": 0.0})
+	var d := 0.0
+	var placed := 0
+	while d < path.length:
+		var curve := _curb_at(d)
+		if curve < 0.45:
+			d += 6.0
+			continue
+		# which side is the outside of this corner?
+		var a := path.sample_position(fposmod(d - 10.0, path.length))
+		var b := path.sample_position(d)
+		var c := path.sample_position(fposmod(d + 10.0, path.length))
+		var turn := (b - a).normalized().cross((c - b).normalized()).y
+		var side := 1.0 if turn > 0.0 else -1.0
+		var t := path.sample_transform(d)
+		var w := path.width_at(d) * 0.5 + 0.14
+		var board := MeshInstance3D.new()
+		var qm := QuadMesh.new()
+		qm.size = Vector2(5.0, 0.75)
+		board.mesh = qm
+		board.material_override = mat_left if side > 0.0 else mat_right
+		board.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var n := -t.basis.x * side
+		board.transform = Transform3D(Basis(t.basis.z * -side, t.basis.y, n).orthonormalized(),
+			t.origin + t.basis.x * w * side + Vector3(0, WALL_H * 0.62, 0) + n * 0.03)
+		root.add_child(board)
+		placed += 1
+		d += 7.0
+	root.set_meta("chevrons", placed)
+
+
 func _start_transform() -> Transform3D:
 	var t := path.sample_transform(2.0)
 	# the car faces +Z in its own frame; the path frame's -Z is the direction of travel
@@ -561,7 +642,7 @@ func _start_gantry() -> void:
 	var top := t.origin + Vector3(0, h, 0)
 	kit.box("g", top, Vector3(w * 2.0, 1.3, 1.0), Basis(t.basis))
 	neon.color = Color(0.1, 1.0, 0.45)
-	_neon_bar(neon, top - Vector3(0, 0.75, 0), t.basis.x * (w * 2.0 - 0.8), Vector3.DOWN, 0.22, Vector2(4.0, 0.0))
+	_neon_bar(neon, top - Vector3(0, 0.75, 0), t.basis.x * (w * 2.0 - 0.8), Vector3.DOWN, 0.26, Vector2(0.0, 0.0))
 	# start lights: five red lamps across the beam
 	for k in 5:
 		neon.color = Color(1.0, 0.08, 0.05)

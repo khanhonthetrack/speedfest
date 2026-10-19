@@ -177,8 +177,7 @@ func _process(delta: float) -> void:
 	_boost_glow.size.x = _boost_fill.size.x + 4.0
 	_boost_glow.color.a = 0.5 if race.car.boosting else 0.18
 	_boost_label.add_theme_color_override("font_color", UiTheme.MAGENTA if race.car.boosting else UiTheme.DIM)
-	if race.car.boost_tank <= 0.0:
-		_boost_label.text = "NO NOS"
+	_boost_label.text = "NOS" if race.car.boost_tank > 0.0 else "NO NOS"
 	_gear.text = "BOOST" if race.car.boosting else ""
 
 	_time.text = Game.format_time(race.elapsed_ms())

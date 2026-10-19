@@ -15,7 +15,7 @@ func _ready() -> void:
 	_spin = bool(TestHooks.arg("spin", false))
 	_world()
 	var ids: Array = CarDefs.IDS if car_arg == "all" else [car_arg]
-	var spacing := 3.4
+	var spacing := float(TestHooks.arg("spacing", 4.4))
 	for i in ids.size():
 		var id: String = ids[i]
 		if not CarDefs.has(id):
@@ -91,13 +91,14 @@ func _world() -> void:
 
 func _camera(angle: String, n: int, spacing: float) -> void:
 	cam = Camera3D.new()
-	cam.fov = 38.0
+	cam.fov = float(TestHooks.arg("fov", 34.0))
 	add_child(cam)
 	cam.current = true
-	var span := maxf(float(n - 1) * spacing + 5.0, 6.0)
-	var d := span * 0.95
-	var p := Vector3(d * 0.75, 1.5, -d * 0.85)
-	var look := Vector3(0, 0.55, 0)
+	var span := maxf(float(n - 1) * spacing + 5.5, 7.0)
+	var d := span * (1.15 if n > 1 else 1.0)
+	# the cars face -Z, so the camera sits in front of the row and a little to the side
+	var p := Vector3(d * 0.30, d * 0.26, -d * 0.92)
+	var look := Vector3(0, 0.50, 0)
 	match angle:
 		"front":
 			p = Vector3(0, 1.1, -d)
@@ -111,7 +112,10 @@ func _camera(angle: String, n: int, spacing: float) -> void:
 		"top":
 			p = Vector3(0.01, d * 0.9, -0.01)
 		_:
-			p = Vector3(d * 0.72, 1.45, -d * 0.82)
+			if n > 1:
+				p = Vector3(d * 0.30, d * 0.26, -d * 0.92)
+			else:
+				p = Vector3(d * 0.72, 1.35, -d * 0.80)
 	cam.position = p
 	cam.look_at(look, Vector3.UP)
 

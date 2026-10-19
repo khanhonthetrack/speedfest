@@ -273,6 +273,9 @@ static func default_setup(car_id: String) -> Dictionary:
 	var s := {}
 	for slot in PERF_SLOTS:
 		s[slot] = 0
+	# every car leaves the showroom with a small bottle fitted: the boost meter is part of how the
+	# cars differ (the owner asked for "top speed, boost gain etc."), not an upgrade to unlock
+	s["nitrous"] = 1
 	s["bodykit"] = 0
 	s["spoiler"] = 0
 	s["rims"] = int(style.get("rims", 0))

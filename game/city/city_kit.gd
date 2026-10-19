@@ -403,20 +403,22 @@ func _pick_height(c: Vector3, near_road: bool) -> float:
 	var dc := Vector2(c.x - field.center().x, c.z - field.center().z).length()
 	var core := exp(-pow(dc / maxf(field.extent().length() * 0.45, 200.0), 2.0))
 	var h: float
-	if r < 0.6:
-		h = rng.randf_range(12.0, 38.0)
-	elif r < 0.9:
-		h = rng.randf_range(38.0, 80.0)
+	# Downtown, not suburbs: half the blocks are mid-rise, a fifth are towers (owner: "a lot of
+	# buildings, tall buildings"). The core factor stacks the tallest ones inside the circuit.
+	if r < 0.45:
+		h = rng.randf_range(22.0, 58.0)
+	elif r < 0.80:
+		h = rng.randf_range(58.0, 115.0)
 	else:
-		h = rng.randf_range(80.0, 150.0)
-	h *= 0.7 + core * (0.9 if not near_road else 0.5)
+		h = rng.randf_range(115.0, 230.0)
+	h *= 0.75 + core * (1.0 if not near_road else 0.65)
 	return h
 
 
 func _backfill() -> void:
 	var spacing := 34.0
-	var mn := field.bmin - Vector2(380, 380)
-	var mx := field.bmax + Vector2(380, 380)
+	var mn := field.bmin - Vector2(520, 520)
+	var mx := field.bmax + Vector2(520, 520)
 	var x := mn.x
 	while x < mx.x:
 		var z := mn.y
@@ -435,7 +437,7 @@ func _backfill() -> void:
 			_claim(cells)
 			var h := _pick_height(c, false)
 			if clear < 40.0:
-				h = minf(h, 70.0)
+				h = minf(h, 95.0)
 			_add_building(c, bb, w, dpt, h, Vector3.FORWARD, false)
 			footprints.append([c, 0.0, "building", w * 0.5, dpt * 0.5, bb])
 		x += spacing
@@ -450,9 +452,9 @@ func _skyline() -> void:
 		var a := TAU * float(i) / n + rng.randf_range(-0.05, 0.05)
 		var r := rad + rng.randf_range(0.0, 450.0)
 		var c := cen + Vector3(cos(a) * r, ground_y - 0.3, sin(a) * r)
-		var w := rng.randf_range(30.0, 60.0)
+		var w := rng.randf_range(34.0, 68.0)
 		var bb := Basis(Vector3.UP, rng.randf_range(0.0, PI))
-		_add_building(c, bb, w, w * rng.randf_range(0.7, 1.3), rng.randf_range(120.0, 320.0), Vector3.FORWARD, false)
+		_add_building(c, bb, w, w * rng.randf_range(0.7, 1.3), rng.randf_range(150.0, 380.0), Vector3.FORWARD, false)
 
 
 # --- street furniture ----------------------------------------------------------
