@@ -112,6 +112,13 @@ is **not** a plain rigid-body impulse:
 The 0.55 is the part that matters: **every contact in TMNF produces only 55% of the rotation a
 textbook impulse would give.** Our port applies the full `r x j`, so our contacts over-rotate.
 
+**Implemented (v0.5):** `TmBody._apply_impulse` turns the car by `IMPULSE_SPIN` (0.55) of `r x j` and
+caps the spin at `MAX_SPIN` (100 rad/s); the impulse is still sized with the full inertia, as
+`ComputeImpulse`. Against TMNF's own runs (the six jumpiest tracks, `race/ghost_fit.tscn`): landings
+0.34 -> 0.26 m apart (median), speed error 2.2 -> 1.9 km/h (p90 17.7 -> 15.7); time on the rear
+wheels after nose-down landings 10.5 -> 20.8 s (TMNF 30.5): the softer spin of the rear contact
+lets the car pivot up as TMNF's does. Overall (3844 windows) 0.15 -> 0.14 m.
+
 ### 3.3 Slope adherence: the wall/loop rule
 Before the tyre forces, the game measures how much of the current force on the car (gravity) lies
 along the car's up axis: r = |F_up| / |F|, i.e. |cos(tilt)| relative to gravity.

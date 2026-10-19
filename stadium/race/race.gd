@@ -277,6 +277,8 @@ func _physics_process(_delta: float) -> void:
 			car.brake = v[1]
 			car.steer = v[2]
 		if TestHooks.has_arg("record_inputs"):
+			# at the script's resolution (TMInterface's 1/65536), so that replaying it is exact
+			car.steer = roundf(car.steer * TmInputScript.FULL) / TmInputScript.FULL
 			_recorded.append([race.time_ms, car.gas, car.brake, car.steer])
 	car.step_tick()
 	var p := car.global_position

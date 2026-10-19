@@ -2236,3 +2236,22 @@ on every real contact the full impulse would land at the contact point and kick 
   (3.0 ↔ 2.5 [0x160/0x164]) at the moment of touchdown, and the load-transfer torque
   [0x228–0x23c], which `tm_car_model.gd` does implement. Fixing the 0.55 first is worthwhile on its
   own and changes landing behaviour, so it should land before any wheelie tuning.
+
+## 2026-10-19 — Session 13 continued: the contact spin fix (v0.5)
+- **Every contact impulse now turns the car at 0.55 of r x j** and the spin is capped at 100 rad/s,
+  as TMNF's `AddVehicleImpulse` [0x0ec, 0x14c] (found by the parallel session on
+  `claude/sleepy-albattani-o7ygr1`, commit 1e91708, brought in; `core/tm_body.gd`, `TmTuning.
+  IMPULSE_SPIN`, `MAX_SPIN`). Measured against TMNF's own runs on the six jumpiest tracks: landings
+  end 0.26 m from TMNF's (was 0.34), speed error median 1.9 km/h (was 2.2, p90 15.7 from 17.7); the
+  car now pivots onto its rear wheels after nose-down landings for 20.8 s over those windows (was
+  10.5; TMNF 30.5). The rest unchanged (0.14 m overall). On flat ground ours lifts its nose a little
+  more than before (19.1 s of the ground windows, was 14; TMNF 5.9): open. The body and model tests
+  pass unchanged.
+- Two checks followed it. The lab's quarter pipe (`tests/test_car_shapes`, our own shape, not a
+  TMNF block): the car rides it but bounces along it more (4 wheels down 25-71% of the ride's
+  second half over 9 entry angles and speeds, was 54-81%), so "on its wheels at the end" now means
+  all four touch in the last second, not at the one tick 5 s in. And recording a run's inputs
+  (`--record_inputs`) now keeps the steer at the script's resolution (TMInterface's 1/65536): the
+  runs are chaotic enough that SF01's replay drifted off after 16 s from the 6-decimal rounding
+  alone; replays are exact again.
+

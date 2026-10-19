@@ -12,7 +12,9 @@ extends RefCounted
 ## - a wheel's penetration along the car's up axis goes into its suspension (up to its length); the
 ##   rest, and every chassis penetration, is pushed out of the surface;
 ## - contact impulses keep a share of the approach speed: wheel on the ground 0.8, wheel side or
-##   chassis 0.5; the chassis impulse runs along the approach clipped to a friction cone (mu 0.3).
+##   chassis 0.5; the chassis impulse runs along the approach clipped to a friction cone (mu 0.3);
+##   an impulse moves the car in full but turns it at 0.55 of what r x j gives, the spin capped at
+##   100 rad/s (TMNF's AddVehicleImpulse, tmnf_physics.md §3.2b).
 ##
 ## Pose: `xform.basis` is the car frame (+X left, +Y up, +Z forward), `xform.origin` the centre of
 ## mass. Mass 1: everything is an acceleration.
@@ -324,11 +326,16 @@ func _surface_at(p: Vector3, n: Vector3) -> Array:
 	return [surf, pad]
 
 
+## CSceneVehicleCar::AddVehicleImpulse: the impulse's linear part in full, its spin (r x j) at
+## IMPULSE_SPIN, then the angular speed capped at MAX_SPIN (§3.2b). The impulse itself was sized
+## with the full inertia (_impulse, as ComputeImpulse).
 func _apply_impulse(j: Vector3, at: Vector3) -> void:
 	lin_vel += j / T.MASS
 	var r := at - xform.origin
 	var inv := xform.basis.transposed()
-	ang_vel += xform.basis * ((inv * r.cross(j)) * _inv_inertia)
+	ang_vel += xform.basis * ((inv * r.cross(j)) * _inv_inertia) * T.IMPULSE_SPIN
+	if ang_vel.length_squared() > T.MAX_SPIN * T.MAX_SPIN:
+		ang_vel = ang_vel.normalized() * T.MAX_SPIN
 
 
 ## Velocity change per unit impulse along dir at r (world), for ComputeImpulse.

@@ -225,9 +225,13 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
   - [x] the race menu's Select Opponents (as TMNF's)
 - [x] 6. (owner, after M10-5) TMNF's top bar: volumes, display, clock, window; up in the menus, sliding
       down at the top edge in races and replays (`ui/tm_top_bar.gd`)
+- [x] 7. (owner) The parallel session's physics find (1e91708: TMNF's `AddVehicleImpulse` turns the
+      car at 0.55 of a contact's r x j, spin capped at 100 rad/s) put in (`core/tm_body.gd`), and
+      M10 merged into `stadium` for **`stadium-v0.5`**
   - Owner decisions open: TMNF's padlocks on later campaign tracks (changes play); the engine's
     layers' pitch curves (reading TMNF's engine sound definition was blocked by the session's
-    safety check); TMNF's wheelie after nose-down landings (M10-4).
+    safety check); the rest of TMNF's wheelie after nose-down landings (M10-4: halfway there with
+    the 0.55; on flat ground ours now lifts its nose more than TMNF's).
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

@@ -108,6 +108,8 @@ const BODY_FRICTION_METAL := 0.2     ## [0x174]
 const BODY_KEEP := 0.5               ## [0x17c] impulse keeps this much of the approach speed
 const WHEEL_SIDE_KEEP := 0.5         ## [0x178]
 const WHEEL_GROUND_KEEP := 0.8       ## [0x184]
+const IMPULSE_SPIN := 0.55           ## [0x0ec] AddVehicleImpulse applies this share of a contact impulse's spin (r x j)
+const MAX_SPIN := 100.0              ## [0x14c] rad/s: AddVehicleImpulse caps the angular speed
 const SUBSTEP_DIST := 0.3            ## [0x168] max travel per collision sub-step (m)
 
 # --- turbo ---
