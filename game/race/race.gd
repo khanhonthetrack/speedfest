@@ -191,6 +191,11 @@ func countdown_number() -> int:
 func _track_progress(delta: float) -> void:
 	if car == null or path == null:
 		return
+	# safety net first: a car that ends up far below the road (through a gap, off a barrier) comes
+	# back, even when it has fallen so far that the path query no longer finds it
+	if car.global_transform.origin.y < path.sample_position(_progress).y - 25.0:
+		respawn()
+		return
 	field.query(car.global_transform.origin, 400.0)
 	if field.q_index < 0:
 		return
@@ -209,10 +214,6 @@ func _track_progress(delta: float) -> void:
 		_off_road_ms = 0
 	else:
 		_off_road_ms += int(delta * 1000.0)
-	# safety net: a car that ends up far below the road (through a gap, off a barrier) comes back
-	if car.global_transform.origin.y < path.sample_position(_progress).y - 25.0:
-		respawn()
-		return
 	if not started or finished or step <= 0.0:
 		return
 	var wrapped := _progress < prev

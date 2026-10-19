@@ -171,3 +171,9 @@ func _check_respawn() -> void:
 	TestHooks.check(race.car.lin_vel.length() < 0.01, "and at a standstill")
 	var up := race.car.global_transform.basis.y.dot(Vector3.UP)
 	TestHooks.check(up > 0.9, "the right way up", str(up))
+	# the safety net: a car that falls out of the world is picked up without being asked
+	race.car.place(Transform3D(Basis(), race.path.sample_position(200.0) + Vector3(0, -120, 0)))
+	race._track_progress(0.016)
+	var y := race.car.global_transform.origin.y
+	TestHooks.check(y > race.path.sample_position(200.0).y - 25.0,
+		"a car that falls through the world is rescued", "y=%.1f" % y)
