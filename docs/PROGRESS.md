@@ -2492,3 +2492,9 @@ on every real contact the full impulse would land at the contact point and kick 
   square the lines make, and along each side of that square whose block edge is open (measured
   on Base, Straight, Corner, Cross, Checkpoint; `platform.gd _underside`, `_beam`). Material check
   on Platform/Road/BaseAir: TMNF surface we lacked 766 -> 125 m2, colour differs 291 -> 232 m2.
+- (M11-2) **Platform slopes as TMNF's underneath.** The rim takes the deck lip's atlas bands, the
+  ledges TMNF's light plates, the panel between them its dark Stands2 (not our blue seats), and
+  under it TMNF's frame (measured): a round post from the level's ground to the plate's middle, a
+  cross of struts slanting down away from it to 7.86 m out, and from each strut's end a truss up
+  to under the rim (`platform.gd _slope_frame`, `_strut`). Material check (2StraightAir, 92 uses):
+  colour differs 1211 -> 197 m2, TMNF surface we lacked 406 -> 50 m2; the BiSlopes alike.

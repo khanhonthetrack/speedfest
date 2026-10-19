@@ -105,15 +105,32 @@ const TO_ROAD_MAIN := [8.0, 8.008, 8.017, 8.071, 8.125, 8.248, 8.372, 8.522, 8.6
 
 ## Platform slopes: a thin plate with a lip on every edge, sheared through the slope's surface
 ## heights (every 2 m along z); its section across (x, y) at a top of 8 m, and the underside's rise
-## into the end lips (z from the end, y), measured.
+## into the end lips (z from the end, y), measured. As TMNF's: the rim the deck lip's atlas bands
+## (rows as LIP's; the right half walked back, its rows reversed), the underside's ledges its light
+## plates, the panel between them its dark Stands2.
 const SLOPE_PLATE := [
-	[0.0, TOP, "metal", S_METAL], [0.0, 7.9, "structure", S_METAL], [0.122, 7.9, "metal", S_METAL],
-	[0.249, 7.611, "metal", S_METAL], [0.505, 7.423, "metal", S_METAL], [0.847, UNDER, "structure", S_METAL],
-	[3.08, UNDER, "structure", S_METAL], [3.08, 7.12, "stands", S_METAL], [28.92, 7.12, "structure", S_METAL],
-	[28.92, UNDER, "structure", S_METAL], [31.153, UNDER, "metal", S_METAL], [31.495, 7.423, "metal", S_METAL],
-	[31.751, 7.611, "metal", S_METAL], [31.878, 7.9, "structure", S_METAL], [32.0, 7.9, "metal", S_METAL],
+	[0.0, TOP, "border_ribs", S_METAL, Vector2(150.0, 162.4)], [0.0, 7.9, "border_ribs", S_METAL, Vector2(162.4, 177.5)],
+	[0.122, 7.9, "border_ribs", S_METAL, Vector2(177.5, 216.7)], [0.249, 7.611, "border_black", S_METAL, Vector2(216.7, 256.1)],
+	[0.505, 7.423, "border_black", S_METAL, Vector2(256.1, 300.0)], [0.847, UNDER, "road_under", S_METAL],
+	[3.08, UNDER, "road_under", S_METAL], [3.08, 7.12, "platform_tray", S_METAL], [28.92, 7.12, "road_under", S_METAL],
+	[28.92, UNDER, "road_under", S_METAL], [31.153, UNDER, "border_black", S_METAL, Vector2(300.0, 256.1)],
+	[31.495, 7.423, "border_black", S_METAL, Vector2(256.1, 216.7)], [31.751, 7.611, "border_ribs", S_METAL, Vector2(216.7, 177.5)],
+	[31.878, 7.9, "border_ribs", S_METAL, Vector2(177.5, 162.4)], [32.0, 7.9, "border_ribs", S_METAL, Vector2(162.4, 150.0)],
 	[32.0, TOP, "platform", S_DECK],
 ]
+## Under a slope (measured, TMNF's Stands2 and its trusses): a round post (SLOPE_POST: radius,
+## sides) from the level's ground up to the plate's middle, and from it a cross of struts
+## SLOPE_BEAM_HALF wide, reaching SLOPE_BEAM_LEN either way and slanting down away from it (their
+## top's and bottom's depth below the plate: [top at the centre, at the end, bottom at the centre,
+## at the end], across x and along z); from each strut's end a truss (SLOPE_TRUSS: half width,
+## height) slants up to under the rim at SLOPE_TRUSS_RIM.
+const SLOPE_POST := [1.64, 16]
+const SLOPE_BEAM_HALF := 0.9
+const SLOPE_BEAM_LEN := 7.86
+const SLOPE_STRUT_X := [0.0, 1.83, 1.23, 3.04]
+const SLOPE_STRUT_Z := [0.27, 1.47, 1.54, 2.67]
+const SLOPE_TRUSS := Vector2(0.49, 0.9)
+const SLOPE_TRUSS_RIM := 1.58
 const SLOPE_END := [[0.0, 7.9], [0.122, 7.9], [0.249, 7.611], [0.505, 7.423], [0.847, UNDER], [3.07, UNDER], [3.09, 7.12]]
 const SLOPES := {
 	"2StraightAir": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],
@@ -460,11 +477,76 @@ func _slope(geo: TmGeo, h: Array) -> void:
 	for z in zs:
 		path.append(Vector3(16, float(height.call(z)) - TOP, z))
 		lat.append(Vector3(1, 0, 0))
-	var sec := SLOPE_PLATE.map(func(q: Array) -> Array: return [Vector2(float(q[0]) - 16.0, q[1]), q[2], q[3]])
+	var sec := SLOPE_PLATE.map(func(q: Array) -> Array: return [Vector2(float(q[0]) - 16.0, q[1]), q[2], q[3]] + q.slice(4))
 	var y_at := func(y: float, i: int) -> float:
 		return y if y >= TOP - 0.01 else maxf(y, float(under.call((path[i] as Vector3).z)))
-	geo.wall_sweep(sec, path, lat, true, "metal", S_METAL, y_at)
-	geo.box(Vector3(14.37, 0, 14.37), Vector3(17.64, float(height.call(16.0)) - 0.88, 17.64), "stands", S_METAL, "", -2, 0.06)
+	geo.wall_sweep(sec, path, lat, true, "road_metal", S_METAL, y_at)
+	_slope_frame(geo, func(z: float) -> float: return float(height.call(z)) - 0.88)
+
+
+## TMNF's frame under a slope: the post, the cross of beams and the four trusses (SLOPE_*);
+## plate(z): the plate's underside along the slope.
+func _slope_frame(geo: TmGeo, plate: Callable) -> void:
+	var post_top := float(plate.call(16.0)) - 0.5
+	geo.pipe(Vector3(16, 0, 16), Vector3(16, post_top, 16), float(SLOPE_POST[0]), int(SLOPE_POST[1]), "platform_tray", S_METAL)
+	var hw := SLOPE_BEAM_HALF
+	var ln := SLOPE_BEAM_LEN
+	for along_z in [false, true]:
+		var w := Vector3(0, 0, 1) if along_z else Vector3(1, 0, 0)
+		var n := Vector3(1, 0, 0) if along_z else Vector3(0, 0, 1)
+		var dep: Array = SLOPE_STRUT_Z if along_z else SLOPE_STRUT_X
+		var ss := [-ln, -6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0, ln]
+		var top := func(p: Vector3, s: float) -> Vector3:
+			return Vector3(p.x, float(plate.call(p.z)) - lerpf(float(dep[0]), float(dep[1]), absf(s) / ln), p.z)
+		var low := func(p: Vector3, s: float) -> Vector3:
+			return Vector3(p.x, float(plate.call(p.z)) - lerpf(float(dep[2]), float(dep[3]), absf(s) / ln), p.z)
+		for k in ss.size() - 1:
+			var s0: float = ss[k]
+			var s1: float = ss[k + 1]
+			var c0 := Vector3(16, 0, 16) + w * s0
+			var c1 := Vector3(16, 0, 16) + w * s1
+			for side: float in [-1.0, 1.0]:
+				var a: Vector3 = c0 + n * side * hw
+				var b: Vector3 = c1 + n * side * hw
+				_out_quad(geo, top.call(a, s0), top.call(b, s1), low.call(b, s1), low.call(a, s0), n * side)
+			for f: Callable in [top, low]:
+				_out_quad(geo, f.call(c0 - n * hw, s0), f.call(c1 - n * hw, s1), f.call(c1 + n * hw, s1),
+					f.call(c0 + n * hw, s0), Vector3.UP if f == top else Vector3.DOWN)
+		for e: float in [-1.0, 1.0]:
+			var c := Vector3(16, 0, 16) + w * e * ln
+			var a: Vector3 = c - n * hw
+			var b: Vector3 = c + n * hw
+			_out_quad(geo, top.call(a, ln), top.call(b, ln), low.call(b, ln), low.call(a, ln), w * e)
+			# the truss from the strut's end up to under the rim
+			var rim := Vector3(16, 0, 16) + w * e * (16.0 - SLOPE_TRUSS_RIM)
+			var p0: Vector3 = (top.call(c, ln) + low.call(c, ln)) * 0.5
+			var p1 := Vector3(rim.x, float(plate.call(rim.z)) - SLOPE_TRUSS.y * 0.5 + 0.15, rim.z)
+			_strut(geo, p0, p1, n, SLOPE_TRUSS.x, SLOPE_TRUSS.y)
+
+
+## A straight strut of rectangular section (half width hw across n, height h, centred on the
+## line a -> b), its ends closed: TMNF's trusses under the platform pieces.
+func _strut(geo: TmGeo, a: Vector3, b: Vector3, n: Vector3, hw: float, h: float) -> void:
+	var up := Vector3(0, h * 0.5, 0)
+	var ring := func(p: Vector3) -> Array:
+		return [p - n * hw - up, p + n * hw - up, p + n * hw + up, p - n * hw + up]
+	var ra: Array = ring.call(a)
+	var rb: Array = ring.call(b)
+	var mid := (a + b) * 0.5
+	for k in 4:
+		var k1 := (k + 1) % 4
+		var out: Vector3 = ((ra[k] + ra[k1]) * 0.5 + (rb[k] + rb[k1]) * 0.5) * 0.5 - mid
+		var q := [ra[k], ra[k1], rb[k1], rb[k]]
+		if (q[1] - q[0]).cross(q[2] - q[0]).dot(out) < 0.0:
+			geo.quad(q[0], q[3], q[2], q[1], "truss", S_METAL)
+		else:
+			geo.quad(q[0], q[1], q[2], q[3], "truss", S_METAL)
+	for r: Array in [ra, rb]:
+		var out: Vector3 = (r[0] + r[2]) * 0.5 - mid
+		if (r[1] - r[0]).cross(r[2] - r[0]).dot(out) < 0.0:
+			geo.quad(r[0], r[3], r[2], r[1], "truss", S_METAL)
+		else:
+			geo.quad(r[0], r[1], r[2], r[3], "truss", S_METAL)
 
 
 ## A (z, radius) section revolved about the axis through centre (x, y) along z from angle a0 to a1
