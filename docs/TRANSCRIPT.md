@@ -812,3 +812,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 13, 19 Oct, while the top bar was being finished)
 
 > the bar should be as wide as the window screen
+
+### User (verbatim, session 13, 19 Oct)
+
+> take into account claude/sleepy-albattani-o7ygr1 (1e91708) (small physics bug fix) and merge into stadium to release v0.5
