@@ -905,3 +905,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct, after v0.5; with a screenshot of A01 from the raised level: a wide blue floor behind the circuit walls)
 
 > A01. In tmnf the blue parts are not as wide
+
+### User (verbatim, session 13, 19 Oct)
+
+> When braking, i still see the black thingies near wheels
