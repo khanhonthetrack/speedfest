@@ -18,8 +18,9 @@ extends RefCounted
 ##
 ## body: ArrayMesh in the car's frame (surfaces "pack_skin", "pack_details", "pack_glass");
 ## wheels: per wheel FL, FR, RL, RR: {} (the model has none: its wheels are part of the body) or
-##         {centre: Vector3, spin: ArrayMesh or null, fixed: ArrayMesh or null} (meshes about the
-##         wheel's centre); lamps: {name: Vector3}.
+##         {centre: Vector3, axle: Basis (the wheel part's frame: it spins about its x), spin:
+##         ArrayMesh or null (in that frame), fixed: ArrayMesh or null (hubs, guards: car-aligned,
+##         about the centre)}; lamps: {name: Vector3}.
 
 const CORNERS := ["FL", "FR", "RL", "RR"]
 const TEXTURE_EXT := ["dds", "tga", "png", "jpg", "jpeg", "bmp"]
@@ -237,8 +238,11 @@ static func _sound(bytes: PackedByteArray, ext: String) -> AudioStream:
 func _build() -> void:
 	var groups := {}            ## "body" / "spin<i>" / "fixed<i>" -> {surface: [part, transform]}
 	var centres := [null, null, null, null]
-	# a wheel's centre: the middle of its spinning parts' box in the car (else of its hub's), so
-	# models that keep their wheels' vertices in the car's frame spin them about their axle too
+	var axles := [Basis.IDENTITY, Basis.IDENTITY, Basis.IDENTITY, Basis.IDENTITY]
+	# a wheel's axle: its spinning part's own origin, about which TMNF spins it (else its hub's);
+	# a model that keeps its wheels' vertices in the car's frame (part origin at the car's) gets
+	# the middle of their box instead. Never the box when there is an origin: a few stray vertices
+	# move it off the axle (the TM2020 rally car's rear right wheel: 6 of 4905, up to 1.4 m away).
 	for spin_pass in [true, false]:
 		var boxes := [null, null, null, null]
 		for p: Dictionary in solid.parts:
@@ -247,6 +251,10 @@ func _build() -> void:
 			if i < 0 or bool(w[1]) != spin_pass or centres[i] != null or material_of(String(p["name"])) == "":
 				continue
 			var xf: Transform3D = p["xform"]
+			if xf.origin.length() > 0.05:
+				centres[i] = xf.origin
+				axles[i] = xf.basis.orthonormalized()
+				continue
 			for v: Vector3 in p["verts"]:
 				var q := xf * v
 				boxes[i] = AABB(q, Vector3.ZERO) if boxes[i] == null else (boxes[i] as AABB).expand(q)
@@ -263,7 +271,10 @@ func _build() -> void:
 		var xf: Transform3D = p["xform"]
 		if int(w[0]) >= 0:
 			key = ("spin%d" if w[1] else "fixed%d") % int(w[0])
-			xf = Transform3D(Basis.IDENTITY, -(centres[int(w[0])] as Vector3)) * xf
+			# spinning parts in the wheel's own frame (it spins about its x: TMNF's), fixed ones
+			# (hubs, guards) in the car's, about the wheel's centre
+			var frame := Transform3D(axles[int(w[0])] if w[1] else Basis.IDENTITY, centres[int(w[0])])
+			xf = frame.affine_inverse() * xf
 		var surf: String = SURFACES[mat]
 		if not groups.has(key):
 			groups[key] = {}
@@ -277,7 +288,7 @@ func _build() -> void:
 	for i in 4:
 		if centres[i] == null:
 			continue
-		wheels[slot[i]] = {"centre": centres[i], "spin": _mesh(groups.get("spin%d" % i, {})),
+		wheels[slot[i]] = {"centre": centres[i], "axle": axles[i], "spin": _mesh(groups.get("spin%d" % i, {})),
 			"fixed": _mesh(groups.get("fixed%d" % i, {}))}
 	for name: String in solid.points:
 		if name.to_lower().begins_with("light"):

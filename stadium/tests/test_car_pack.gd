@@ -59,6 +59,12 @@ func _ready() -> void:
 		ok = ok and not w.is_empty() and signf((w["centre"] as Vector3).x) == signf(want.x) \
 			and signf((w["centre"] as Vector3).z) == signf(want.z) and w["spin"] != null
 	TestHooks.check(ok, "pack_wheels_by_place", str(pack.wheels.map(func(w: Dictionary) -> Variant: return w.get("centre"))))
+	# the axle is the wheel part's origin (TMNF's), not its box (a stray vertex would move that)
+	var axles_ok := true
+	for w: Dictionary in pack.wheels:
+		var c: Vector3 = w.get("centre", Vector3.ZERO)
+		axles_ok = axles_ok and is_equal_approx(absf(c.x), 0.8) and is_equal_approx(c.y, 0.36)
+	TestHooks.check(axles_ok, "pack_wheel_axle_is_its_origin", str(pack.wheels.map(func(w: Dictionary) -> Variant: return w.get("centre"))))
 	TestHooks.check(pack.lamps.has(TmTestCar.LAMP[0]), "pack_lamps", str(pack.lamps.keys()))
 	pack.textures["illum"] = pack.textures["details"]
 	var lit := pack.material("pack_details")
@@ -80,7 +86,7 @@ func _ready() -> void:
 	holder.add_child(v)
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var spin := (v._wheels[0].get_child(0) as Node3D).rotation.x
+	var spin := v._spins[0].rotation.x
 	TestHooks.check(v._wheels.size() == 4 and absf(spin) > 0.0, "visual_wheels_spin", "spin %f" % spin)
 	TestHooks.check(v._wheels[0].rotation.y > 0.1 and is_zero_approx(v._wheels[2].rotation.y), "visual_front_wheels_steer",
 		"%f %f" % [v._wheels[0].rotation.y, v._wheels[2].rotation.y])

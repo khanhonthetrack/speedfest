@@ -2068,3 +2068,13 @@ found and fixed:
   skin and the base "2024 Porsche 963" model, so the white/orange Penske livery in that skin's
   screenshots isn't in its download; we draw the white/red factory livery the file holds.
 - test_car_pack 29 (v by format, normals rebuilt, lamps multiplied); test_compat_cars: 160/160.
+- **Wheels on their axles** (owner: "the rally car tm2020 has something wrong with the rear
+  wheel"): a wheel spun about the middle of its part's box, and the TM2020 rally car's rear right
+  wheel carries 6 stray vertices up to 1.4 m away, so it sat outside its arch and would orbit.
+  Now a wheel spins as in TMNF: about its part's own origin and its own x axis (the box only for
+  parts left at the car's origin). That also fixes the HoverCraft, whose "wheel" is its rear fan:
+  a part at the car's centre turned 90 degrees, the fan 1.39 m out along its axis (it floated over
+  the hull; now it turns in its housing). A scan of all 160 packs: the other wheels off their
+  part's centre are rigged that way on purpose (Speedy's feet, the Road Runner's legs whirl
+  about the hip; AeroPole's are 7 mm markers). test_car_pack 30 (a stray vertex in the test's
+  wheels).

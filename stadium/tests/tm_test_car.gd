@@ -154,6 +154,8 @@ func _part(name: String, centre: Vector3, half: Vector3) -> void:
 	var verts: Array[Vector3] = []
 	for k in 8:
 		verts.append(Vector3(half.x * (1 if k & 1 else -1), half.y * (1 if k & 2 else -1), half.z * (1 if k & 4 else -1)))
+	if name.contains("Wheel"):
+		verts[7] += Vector3(-1.2, 1.0, 0.0)   # a stray vertex, as some exporters leave: the axle stays the origin
 	_hex(0x0900600D)
 	_i32(0)                 # flags: normals and colours as floats
 	_i32(1)                 # one UV set

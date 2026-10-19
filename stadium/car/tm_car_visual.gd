@@ -85,6 +85,7 @@ var _from_pack := true            ## drawn from the pack's model (false: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
 var _rest: Array[Vector3] = []    ## per wheel: the pivot's place at rest (node space)
 var _radius: Array[float] = []    ## per wheel: the tyre's radius (its spin)
+var _spins: Array[Node3D] = []    ## per wheel: the node that spins (about its x)
 var _brake_glow: Array[StandardMaterial3D] = []
 var _arms := []                   ## [MeshInstance3D, inner point (node space), outer offset from the wheel centre, wheel]
 var _spin := 0.0
@@ -242,6 +243,7 @@ func _ready() -> void:
 		spin.add_child(_instance("wheel" + axle + side, true))
 		pivot.add_child(_instance("hub" + axle + side, true))
 		_wheels.append(pivot)
+		_spins.append(spin)
 		_rest.append(pivot.position)
 		_radius.append(TYRE_R)
 	_suspension()
@@ -353,13 +355,19 @@ func _pack_parts() -> void:
 		pivot.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 		pivot.position = ((w["centre"] as Vector3) - VIS) if not w.is_empty() else T.WHEELS[i]
 		add_child(pivot)
+		# the wheel part's own frame: it spins about its x (a hovercraft's fan, cambered wheels)
+		var axle := Node3D.new()
+		axle.basis = w.get("axle", Basis.IDENTITY)
+		pivot.add_child(axle)
 		var spin := Node3D.new()
-		pivot.add_child(spin)
+		axle.add_child(spin)
+		_spins.append(spin)
 		var radius := TYRE_R
 		if not w.is_empty():
 			if w["spin"] != null:
 				spin.add_child(_pack_instance(w["spin"], true))
-				radius = maxf(0.1, (w["spin"] as ArrayMesh).get_aabb().size.y * 0.5)
+				var box := (w["spin"] as ArrayMesh).get_aabb()
+				radius = maxf(0.1, maxf(box.size.y, box.size.z) * 0.5)
 			if w["fixed"] != null:
 				pivot.add_child(_pack_instance(w["fixed"], true))
 		_wheels.append(pivot)
@@ -506,7 +514,7 @@ func _process(delta: float) -> void:
 		var w := _wheels[i]
 		w.position = _rest[i] + Vector3(0.0, T.SUSP_STATIC - (car.model.susp_len[i] if car else T.SUSP_STATIC), 0.0)
 		w.rotation = Vector3(0.0, steer_vis if i < 2 else 0.0, 0.0)
-		(w.get_child(0) as Node3D).rotation = Vector3(fmod(_spin / _radius[i], TAU), 0.0, 0.0)
+		_spins[i].rotation = Vector3(fmod(_spin / _radius[i], TAU), 0.0, 0.0)
 	if not _from_pack:
 		_aim_arms()
 
