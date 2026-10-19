@@ -336,6 +336,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		# (measured: the pad's plane), the air section on the ground too
 		var dir := _form(rest.get_slice("/", 1))
 		_straight(geo, 0.0, 32.0, ground and dir.is_empty())
+		# the pad's texture as TMNF lays it: 16 m a tile along z, mirrored about the centre line
+		geo.remap_uv("turbo", func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, absf(p.x - 16.0) / 10.46))
 		_turbo_gate(geo)
 		var t: Array = TILT_PLANES.get("Road/Main/Checkpoint" + dir, ["", 0.0, 0.0, 0.0])
 		geo.shear_y(float(t[1]), float(t[2]), float(t[3]))

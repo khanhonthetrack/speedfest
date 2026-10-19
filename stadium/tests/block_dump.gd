@@ -4,11 +4,13 @@ extends Node
 ## tools/research/tmnf/material_check.py (ours against TMNF's own meshes, kept locally).
 ## Run: stadium/tools/run.sh res://tests/block_dump.tscn --headless --timeout 1200 -- \
 ##        --shapes=<file: one shape per line, "/" or "__"> --out=<dir>
-## Writes <dir>/blocks.bin (per triangle: int32 key index, 9 float32), <dir>/blocks.json (per
-## shape: name, first triangle, count, its keys) and <dir>/colours.json (key: mean albedo, sRGB 0..1).
+## Writes <dir>/blocks.bin (per triangle: int32 key index, 9 float32 corners, 6 float32 UVs),
+## <dir>/blocks.json (per shape: name, first triangle, count, its keys), <dir>/colours.json (key:
+## mean albedo, sRGB 0..1) and <dir>/textures.json (UV-mapped textured keys: albedo file, UV scale).
 
 var _keys := {}          ## Material -> key (TmMaterials' cache, inverted)
 var _colours := {}       ## key -> [r, g, b]
+var _textures := {}      ## key -> {"file", "scale"} (UV-mapped textures only)
 
 
 func _ready() -> void:
@@ -52,6 +54,9 @@ func _ready() -> void:
 						ki = keys.size() - 1
 					var arr := mesh.surface_get_arrays(si)
 					var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+					var uvs := PackedVector2Array()
+					if arr[Mesh.ARRAY_TEX_UV] != null:
+						uvs = arr[Mesh.ARRAY_TEX_UV]
 					var idx := PackedInt32Array()
 					if arr[Mesh.ARRAY_INDEX] != null:
 						idx = arr[Mesh.ARRAY_INDEX]
@@ -64,6 +69,11 @@ func _ready() -> void:
 								bin.store_float(-p.x)
 								bin.store_float(p.y)
 								bin.store_float(p.z)
+							for j in 3:
+								var vi: int = idx[t + j] if idx.size() > 0 else t + j
+								var uv := uvs[vi] if vi < uvs.size() else Vector2.ZERO
+								bin.store_float(uv.x)
+								bin.store_float(uv.y)
 							count += 1
 		index.append({"shape": shape, "first": tri, "count": count, "keys": keys})
 		tri += count
@@ -74,6 +84,9 @@ func _ready() -> void:
 	f.close()
 	f = FileAccess.open(dir.path_join("colours.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(_colours))
+	f.close()
+	f = FileAccess.open(dir.path_join("textures.json"), FileAccess.WRITE)
+	f.store_string(JSON.stringify(_textures))
 	f.close()
 	print("BLOCK_DUMP %d shapes, %d triangles" % [index.size(), tri])
 	TestHooks.finish()
@@ -104,6 +117,15 @@ func _key_of(mat: Material) -> String:
 	if not _colours.has(key):
 		var c := _albedo(mat)
 		_colours[key] = [c.r, c.g, c.b]
+		if mat is ShaderMaterial and (mat as ShaderMaterial).get_shader_parameter("world") != true:
+			var at: Variant = (mat as ShaderMaterial).get_shader_parameter("albedo_tex")
+			var sc: Variant = (mat as ShaderMaterial).get_shader_parameter("uv_scale")
+			var tint: Variant = (mat as ShaderMaterial).get_shader_parameter("tint")
+			if at is Texture2D and (at as Texture2D).resource_path.begins_with("res://"):
+				var tc: Color = tint if tint is Color else Color(1, 1, 1)
+				_textures[key] = {"file": ProjectSettings.globalize_path((at as Texture2D).resource_path),
+					"scale": [(sc as Vector2).x, (sc as Vector2).y] if sc is Vector2 else [1.0, 1.0],
+					"tint": [tc.r, tc.g, tc.b]}
 	return key
 
 

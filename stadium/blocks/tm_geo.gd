@@ -86,6 +86,31 @@ func quad_uv(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surfac
 	tri(a, c, d, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
 
 
+## Re-maps the UVs of every face of a material made so far: f(p) -> UV, p in TMNF block-local
+## coordinates (for textures laid out across a whole piece, e.g. the turbo pads').
+func remap_uv(mat: String, f: Callable) -> void:
+	if not _vis.has(mat):
+		return
+	var grp: Group = _vis[mat]
+	for i in grp.v.size():
+		grp.uv[i] = f.call(g(grp.v[i]))
+
+
+## A face carrying bands of the border atlas (TmMaterials "border_*", texgen/borders.py: 1024 x
+## 512, u along the border, 16 m a tile): a -> b along it (u0 -> u1), a -> d across it, from atlas
+## row r0 at the a-b edge to r1 at the d-c edge; front turned to `out`.
+func band_quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int, u0: float,
+		u1: float, r0: float, r1: float, out: Vector3) -> void:
+	var ua := Vector2(u0, r0 / 512.0)
+	var ub := Vector2(u1, r0 / 512.0)
+	var uc := Vector2(u1, r1 / 512.0)
+	var ud := Vector2(u0, r1 / 512.0)
+	if (b - a).cross(c - a).dot(out) >= 0.0:
+		quad_uv(a, b, c, d, mat, surface, ua, ub, uc, ud)
+	else:
+		quad_uv(a, d, c, b, mat, surface, ua, ud, uc, ub)
+
+
 ## A screen's UV `along` metres (0..w) along it and `down` metres (0..h) from one long edge (see
 ## SCREENS); `first` tells screens apart (a billboard's ads, the moment it changes).
 static func screen_uv(along: float, w: float, down: float, h: float, first := 0) -> Vector2:

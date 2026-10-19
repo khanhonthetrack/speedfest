@@ -194,7 +194,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Wall":
 			match parts[2]:
 				"BorderAir":
-					geo.box(Vector3(0, 0, 0), Vector3(32, 8, 1.345), "platform_wall", S_DECK)
+					_border_wall(geo)
 				"1Air":
 					_grid_wall(geo, 1, false)
 				"2Air":
@@ -248,7 +248,7 @@ func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array) -> void:
 
 ## Sweeps an edge section (d inward, y) along side i of the block; each end is mitred against a
 ## closed neighbouring side, or square to the block edge.
-func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array) -> void:
+func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array, mid := false) -> void:
 	var o: Vector3 = SIDES[i]
 	var t := Vector3(o.z, 0.0, -o.x)
 	var c := Vector3(16, 0, 16)
@@ -261,7 +261,10 @@ func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array) -> void:
 	var la := n + t if closed[at_a] else n
 	var lb := n - t if closed[at_b] else n
 	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
-	geo.wall_sweep(sec, [a, b], [la, lb], true, "metal", S_METAL)
+	if mid:      # a vertex half way (a texture mirrored about the centre line needs one)
+		geo.wall_sweep(sec, [a, (a + b) * 0.5, b], [la, n, lb], true, "metal", S_METAL)
+	else:
+		geo.wall_sweep(sec, [a, b], [la, lb], true, "metal", S_METAL)
 
 
 ## Turbo deck: a thin plate (8 -> 7.325 m) with a turbo top and rounded underside edges, over a
@@ -269,11 +272,13 @@ func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array) -> void:
 func _turbo(geo: TmGeo) -> void:
 	var all := [true, true, true, true]
 	for i in 4:
-		_edge_sweep(geo, PLATE_LIP, i, all)
-	var lo := Vector3(1.0, UNDER, 1.0)
-	var hi := Vector3(31.0, TOP, 31.0)
-	geo.box(lo, hi, "structure", S_METAL, "turbo", S_TURBO)
+		_edge_sweep(geo, PLATE_LIP, i, all, true)
+	# the plate in two halves (its texture is mirrored about x = 16)
+	geo.box(Vector3(1.0, UNDER, 1.0), Vector3(16.0, TOP, 31.0), "structure", S_METAL, "turbo", S_TURBO)
+	geo.box(Vector3(16.0, UNDER, 1.0), Vector3(31.0, TOP, 31.0), "structure", S_METAL, "turbo", S_TURBO)
 	geo.box(Vector3(10.64, 1.21, 2.64), Vector3(21.36, UNDER, 29.36), "fabric", S_SLIDING)
+	# the pad's texture as TMNF lays it: 16 m a tile along z, mirrored about the centre line
+	geo.remap_uv("turbo", func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, -0.5 - 1.5 * absf(p.x - 16.0) / 16.0))
 
 
 ## The grid wall's plan (x across, depth) swept round an arc in the y-z plane about c = (y, z) from
@@ -429,6 +434,23 @@ func _sector(geo: TmGeo, c: Vector2, r0: float, r1: float, a0: float, a1: float,
 		var a := deg_to_rad(lerpf(a0, a1, float(i) / steps))
 		loop.append([c + Vector2(cos(a), sin(a)) * r0, mat, surf])
 	geo.extrude_y(loop, y0, y1, true, mat, surf)
+
+
+## The platform's border wall (the cell's -z edge, 0 -> 1.345 m, 8 m high): its sides dark
+## concrete panels, its top, foot and ends the border atlas' orange band with the blue line on the
+## outer side (z = 0), as TMNF's (16 m a tile along the top and foot, 8 m up the ends).
+func _border_wall(geo: TmGeo) -> void:
+	var t := 1.345
+	geo.quad(Vector3(0, 0, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, 0, 0), "platform_wall", S_DECK)
+	geo.quad(Vector3(0, 0, t), Vector3(32, 0, t), Vector3(32, 8, t), Vector3(0, 8, t), "platform_wall", S_DECK)
+	for x0: float in [0.0, 16.0]:
+		geo.band_quad(Vector3(x0, 8, 0), Vector3(x0 + 16, 8, 0), Vector3(x0 + 16, 8, t), Vector3(x0, 8, t),
+			"border_orange", S_DECK, 2.0, 1.0, 391.0, 298.0, Vector3.UP)
+		geo.band_quad(Vector3(x0, 0, 0), Vector3(x0 + 16, 0, 0), Vector3(x0 + 16, 0, t), Vector3(x0, 0, t),
+			"border_orange", S_DECK, 1.0, 2.0, 391.0, 298.0, Vector3.DOWN)
+	for x: float in [0.0, 32.0]:
+		geo.band_quad(Vector3(x, 0, 0), Vector3(x, 8, 0), Vector3(x, 8, t), Vector3(x, 0, t),
+			"border_orange", S_DECK, 0.0, 0.5, 391.0, 298.0, Vector3(-1 if x == 0.0 else 1, 0, 0))
 
 
 ## Grid walls `units` blocks high on the cell's -z edge (0 -> 1.345 m): the measured plan

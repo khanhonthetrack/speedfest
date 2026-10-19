@@ -92,8 +92,34 @@ class Ref:
 def ours_shapes(root):
     index = json.load(open(os.path.join(root, 'blocks.json')))
     colours = json.load(open(os.path.join(root, 'colours.json')))
-    raw = np.fromfile(os.path.join(root, 'blocks.bin'), dtype=np.dtype([('k', '<i4'), ('v', '<f4', (9,))]))
-    return index, colours, raw
+    raw = np.fromfile(os.path.join(root, 'blocks.bin'),
+                      dtype=np.dtype([('k', '<i4'), ('v', '<f4', (9,)), ('uv', '<f4', (6,))]))
+    tpath = os.path.join(root, 'textures.json')
+    textures = json.load(open(tpath)) if os.path.exists(tpath) else {}
+    return index, colours, raw, textures
+
+
+class OurTex:
+    """Our UV-mapped textures, read at our UVs (blurred as TMNF's are)."""
+    def __init__(self, spec):
+        self.spec = spec
+        self.img = {}
+
+    def colour(self, key, uv):
+        sp = self.spec.get(key)
+        if sp is None:
+            return None
+        if key not in self.img:
+            im = Image.open(sp['file']).convert('RGB')
+            w, h = im.size
+            # blur to the same share of the texture as TMNF's (an atlas band survives)
+            self.img[key] = np.asarray(im.resize((max(BLUR, w // max(1, w // (BLUR * 2))), max(BLUR, h // max(1, h // (BLUR * 2)))), Image.BOX), dtype=np.float64) / 255.0
+        a = self.img[key]
+        h, w = a.shape[:2]
+        u = (uv[:, 0] * sp['scale'][0]) % 1.0
+        v = (uv[:, 1] * sp['scale'][1]) % 1.0
+        c = a[np.floor(v * h).astype(int) % h, np.floor(u * w).astype(int) % w]
+        return c * np.array(sp.get('tint', [1, 1, 1]))
 
 
 def shape_uses(catalogue):
@@ -110,7 +136,7 @@ def shape_uses(catalogue):
     return uses
 
 
-def check(name, ours, ref_shape, colours, ref, density, de_lim, rng):
+def check(name, ours, ref_shape, colours, ref, density, de_lim, rng, ourtex=None):
     keys, tris_o = ours
     # TMNF: points with their colour
     pts, nrm, col, mat = [], [], [], []
@@ -136,8 +162,9 @@ def check(name, ours, ref_shape, colours, ref, density, de_lim, rng):
     pts = np.concatenate(pts); nrm = np.concatenate(nrm); col = np.concatenate(col); mat = np.array(mat)
     # ours: dense (to match TMNF's points against our surface) and sparse (our own points)
     tri_o = tris_o['v'].reshape(-1, 3, 3).astype(np.float64)
-    po, no, io, _, area_o = sample(tri_o, DENSE, rng)
+    po, no, io, wo, area_o = sample(tri_o, DENSE, rng)
     ko = tris_o['k'][io]
+    uvo = (tris_o['uv'].reshape(-1, 3, 2).astype(np.float64)[io] * wo[:, :, None]).sum(1)
     res = {'shape': name, 'tmnf_area': len(pts) / density, 'ours_area': float(area_o.sum())}
     if len(po) == 0:
         res.update(missing=res['tmnf_area'], extra=0.0, differ=0.0, pairs={}, missing_by={}, extra_by={})
@@ -154,6 +181,12 @@ def check(name, ours, ref_shape, colours, ref, density, de_lim, rng):
     # colours
     key_names = [keys[k] for k in ko[jo]]
     ours_col = np.array([colours.get(k, [np.nan] * 3) for k in key_names], dtype=np.float64)
+    if ourtex is not None:
+        for k in set(key_names):
+            sel = np.array([kn == k for kn in key_names])
+            c = ourtex.colour(k, uvo[jo[sel]])
+            if c is not None:
+                ours_col[sel] = c
     dE = np.linalg.norm(srgb_to_lab(np.clip(col, 0, 1)) - srgb_to_lab(np.clip(ours_col, 0, 1)), axis=1)
     known = hit & np.isfinite(dE)
     differ = known & (dE > de_lim)
@@ -198,7 +231,8 @@ def main():
     opt = dict(a[2:].split('=', 1) if '=' in a else (a[2:], '1') for a in sys.argv[1:] if a.startswith('--'))
     ours_root, ref_root, cat_path = args
     density = float(opt.get('density', 4)); de_lim = float(opt.get('de', 25)); top = int(opt.get('top', 60))
-    index, colours, raw = ours_shapes(ours_root)
+    index, colours, raw, textures = ours_shapes(ours_root)
+    ourtex = OurTex(textures)
     ref = Ref(ref_root)
     uses = shape_uses(json.load(open(cat_path)))
     rng = np.random.default_rng(7)
@@ -210,7 +244,8 @@ def main():
         rs = ref.shape(name)
         if rs is None:
             continue
-        r = check(name, (e['keys'], raw[e['first']:e['first'] + e['count']]), rs, colours, ref, density, de_lim, rng)
+        r = check(name, (e['keys'], raw[e['first']:e['first'] + e['count']]), rs, colours, ref, density, de_lim, rng,
+                  ourtex)
         if r is None:
             continue
         r['uses'] = uses.get(name, 0)

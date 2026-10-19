@@ -28,6 +28,13 @@ const COLORS := {
 	"wall_dark": [Color(0.32, 0.34, 0.38), 0.8, 0.0],
 	# the platform walls and the circuit walls in TMNF's colours (measured from its renders)
 	"platform_wall": [Color8(50, 51, 53), 0.82, 0.0],
+	# the border atlas' bands (texgen/borders.py; one texture, the UVs pick the band): their own
+	# colours when HD is off
+	"border_panel": [Color8(179, 171, 168), 0.75, 0.0],
+	"border_ribs": [Color8(36, 35, 31), 0.9, 0.0],
+	"border_black": [Color8(16, 15, 15), 0.85, 0.0],
+	"border_orange": [Color8(190, 99, 8), 0.6, 0.0],
+	"border_green": [Color8(58, 128, 66), 0.65, 0.0],
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
@@ -104,6 +111,14 @@ const TEXTURED := {
 	"wall_dark": ["wall_panels", Vector2(16.0, 16.0), true, Color(0.36, 0.38, 0.42)],
 	# the platforms' walls; the circuit walls' cladding and band (along the wall), the truss behind
 	"platform_wall": ["platform_wall", Vector2(8.0, 8.0), true],
+	# the turbo pads (texgen/turbo.py; UV-mapped across the pad, as TMNF's: TmGeo.remap_uv)
+	"turbo": ["turbo_pad", Vector2(1.0, 1.0), false],
+	# TMNF's border atlas, as ours (UV-mapped: u along, 16 m a tile; v the band: TmGeo.border_uv)
+	"border_panel": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_ribs": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_black": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_orange": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_green": ["border_atlas", Vector2(1.0, 1.0), false],
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],

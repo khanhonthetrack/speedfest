@@ -2388,3 +2388,13 @@ on every real contact the full impulse would land at the contact point and kick 
   geometry per shape, by our material key, by TMNF material). First run over the 548 shapes we
   build: colour differs on 23% of TMNF's area, 18% missing; the list, weighted by our tracks'
   block counts, is `docs/research/m11_check.md`. Fixing it family by family (PLAN M11-2).
+- (M11-2) **Platform walls and turbo pads as TMNF's.** Our own border atlas
+  (`tools/texgen/borders.py`, `border_atlas`: TMNF's band layout and colours, our emblem) and
+  turbo pad (`tools/texgen/turbo.py`, `turbo_pad`: dark ribbed panels on a seam grid, a big yellow
+  arrow each half, red scrapes); UV-mapped as TMNF maps its own (`TmGeo.band_quad`,
+  `TmGeo.remap_uv`). The platform border wall's top, foot and ends carry the orange band with its
+  blue line outside (it was charcoal all over; 4082 walls on our tracks); turbo pads (road and
+  platform) are TMNF's chevrons, 16 m a tile along the road, mirrored about the centre line (the
+  platform plate split at x = 16 for it). Checked: platform wall 5% of its area off (the logos'
+  edges), turbo pads mean dE 14-15, side by side with TMNF's blocks on A04. `block_dump` now reads
+  UV-mapped textures at their UVs.
