@@ -901,3 +901,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 - Merged M10 into `stadium` (with v0.4, the rotating adverts and the server address there); the
   grandstands' new advert boards needed the rotating ads' screen layout. `PLAYING.txt` updated.
   STADIUM_TESTS PASS on the merge. The tag `stadium-v0.5` makes the Release (see HANDOFF).
+
+### User (verbatim, session 13, 19 Oct, after v0.5; with a screenshot of A01 from the raised level: a wide blue floor behind the circuit walls)
+
+> A01. In tmnf the blue parts are not as wide
