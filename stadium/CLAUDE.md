@@ -51,6 +51,9 @@ Already set up there (session 12; outside the repo): Godot `C:\dev\godot-4.7.2` 
 `C:\dev\tmnf`, Python venv `C:\dev\pyenv`. Use Windows-style paths in Godot args and
 `TMNF_DIR`: `--tmnf=C:/dev/tmnf/tmnf/app`, `--meas=C:/dev/tmnf/blocks/meas`. `run.sh` opens a real
 window (no Xvfb) for screenshots. To redo the data: `tools/research/tmnf/README.md` "On Windows".
+Gate there with a clean `user://`: `APPDATA="$(cygpath -w <scratch dir>)" TMNF_DIR=... stadium/tools/test_all.sh`
+(the PC's own game settings are the owner's: `ghost=false` fails `test_race`). Don't run other
+Godot work alongside the gate (`test_online` checks timing against its test servers' clocks).
 
 ## Tests (gate every commit on them)
     TMNF_DIR=/tmp/tmnf/tmnf/app stadium/tools/test_all.sh            # STADIUM_TESTS PASS
@@ -68,8 +71,14 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-19 (session 15: v0.5 merged with the community work, on `stadium`; no release since v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
-- **Community content (session 15, PLAN M11; in `stadium` since 19 Oct, after v0.5, not released yet):** server admins
+Updated 2026-10-19 (`stadium-v0.6` released: v0.5 + the community work + the look work after v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **`stadium-v0.6` (19 Oct) is `stadium` + the community work (PLAN M12) + `claude/tmnf-replica-graphics-nb1kcg`
+  after v0.5** (now contained in `stadium`; continue on `stadium`): the circuit ledges' blue and
+  borders as TMNF's, no black tyre smoke, and M11 (PLAN: the block-by-block look check against
+  TMNF, `docs/research/m11_check.md`; steps 1-3 so far: platform walls and decks, turbo pads, the
+  circuit's sides, undersides, end caps and slope bases, roads, inflatable trees and cacti). Next:
+  M11-2 on (the road, then grandstands, camera booths, sculptures, dirt roads, castles), M11-5..8.
+- **Community content (session 15, PLAN M12; released in v0.6):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a
   round's track and every player's car pack (`Online.fetch`, SHA-256, `user://content`); TMNF car

@@ -28,6 +28,22 @@ const COLORS := {
 	"wall_dark": [Color(0.32, 0.34, 0.38), 0.8, 0.0],
 	# the platform walls and the circuit walls in TMNF's colours (measured from its renders)
 	"platform_wall": [Color8(50, 51, 53), 0.82, 0.0],
+	"circuit_side": [Color8(48, 44, 40), 0.6, 0.2],       # the circuit's sides: dark panels, orange bands
+	"circuit_cap": [Color8(40, 38, 36), 0.6, 0.2],        # the circuit walls' end caps
+	"fabric_auvent": [Color8(222, 223, 220), 0.7, 0.0],   # the white fabric under raised circuits
+	# the border atlas' bands (texgen/borders.py; one texture, the UVs pick the band): their own
+	# colours when HD is off
+	"border_panel": [Color8(179, 171, 168), 0.75, 0.0],
+	"border_blue": [Color8(62, 133, 254), 0.5, 0.0],
+	"border_ribs": [Color8(36, 35, 31), 0.9, 0.0],
+	"border_black": [Color8(16, 15, 15), 0.85, 0.0],
+	"border_orange": [Color8(190, 99, 8), 0.6, 0.0],
+	"border_green": [Color8(58, 128, 66), 0.65, 0.0],
+	"road_under": [Color8(141, 136, 133), 0.6, 0.3],      # the road keel's underside (TMNF's light plates)
+	"road_grid": [Color8(80, 79, 78), 0.5, 0.6],         # the road shoulder's grid (TMNF's RoadGrid)
+	"road_metal": [Color8(42, 40, 37), 0.7, 0.3],        # the road's dark border metal (curb ends, deck sides)
+	"platform_tray": [Color8(34, 34, 34), 0.8, 0.2],     # the dark tray under the decks (TMNF's Stands2)
+	"pillar": [Color8(182, 183, 179), 0.8, 0.0],         # the road's pillars (TMNF's light concrete)
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
@@ -49,6 +65,22 @@ const COLORS := {
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
 	"turbo_roulette": [Color(0.92, 0.22, 0.62), 0.5, 0.0],    # the roulette pad (our own colour: magenta)
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
+	# the inflatable decorations, in their TMNF textures' colours (measured, area-weighted)
+	"airship": [Color8(223, 201, 165), 0.4, 0.0],        # the airship's envelope (TMNF's texture's mean)
+	"infl_leaf": [Color8(51, 131, 41), 0.35, 0.0],
+	"infl_trunk": [Color8(188, 138, 58), 0.35, 0.0],
+	"infl_trunk_low": [Color8(140, 82, 33), 0.35, 0.0],
+	"infl_trunk_top": [Color8(158, 110, 49), 0.35, 0.0],
+	"infl_trunk_ring": [Color8(105, 62, 26), 0.35, 0.0],
+	"infl_sand": [Color8(215, 164, 37), 0.4, 0.0],
+	"infl_base": [Color8(125, 123, 116), 0.4, 0.0],
+	"infl_cactus": [Color8(86, 107, 60), 0.35, 0.0],
+	"infl_tree": [Color8(25, 61, 51), 0.35, 0.0],
+	"infl_snow": [Color8(228, 234, 238), 0.35, 0.0],
+	"infl_rope": [Color8(22, 22, 22), 0.8, 0.0],
+	"infl_label": [Color8(240, 245, 206), 0.35, 0.0],
+	"infl_ink": [Color8(40, 44, 40), 0.35, 0.0],
+	"infl_rope_red": [Color8(231, 8, 8), 0.5, 0.0],
 	"fabric": [Color(0.93, 0.93, 0.94), 0.8, 0.0],
 	"fabric_under": [Color(0.80, 0.82, 0.86), 0.85, 0.0],     # the Fabric roofs' underside, in their shade
 	"pipe": [Color(0.82, 0.84, 0.88), 0.35, 0.55],
@@ -105,6 +137,24 @@ const TEXTURED := {
 	"wall_dark": ["wall_panels", Vector2(16.0, 16.0), true, Color(0.36, 0.38, 0.42)],
 	# the platforms' walls; the circuit walls' cladding and band (along the wall), the truss behind
 	"platform_wall": ["platform_wall", Vector2(8.0, 8.0), true],
+	# the circuit's sides (texgen/circuit_side.py; UV-mapped as TMNF's: TmGeo.remap_uv_sides) and
+	# the white fabric under raised circuit pieces (the cladding's texture, laid flat)
+	"circuit_side": ["circuit_side", Vector2(1.0, 1.0), false],
+	"circuit_cap": ["circuit_side", Vector2(1.0, 1.0), false],    # its left part (circuit.gd _cap_uv)
+	"fabric_auvent": ["circuit_panel", Vector2(16.0, 16.0), true],
+	# the turbo pads (texgen/turbo.py; UV-mapped across the pad, as TMNF's: TmGeo.remap_uv)
+	"turbo": ["turbo_pad", Vector2(1.0, 1.0), false],
+	# TMNF's border atlas, as ours (UV-mapped: u along, 16 m a tile; v the band: TmGeo.border_uv)
+	"border_panel": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_blue": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_ribs": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_black": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_orange": ["border_atlas", Vector2(1.0, 1.0), false],
+	"border_green": ["border_atlas", Vector2(1.0, 1.0), false],
+	# the road keel's underside (texgen/decks.py road_under; UV-mapped along and across)
+	"road_under": ["road_under", Vector2(8.0, 4.0), false],
+	"road_grid": ["road_grid", Vector2(2.0, 1.965), false],       # (texgen/road.py grid)
+	"pillar": ["stadium_concrete", Vector2(4.0, 4.0), true],
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],
@@ -133,6 +183,19 @@ const TEXTURED := {
 	"roof": ["fabric_top", Vector2(16.0, 16.0), true],
 	# inflatable cushion walls (8 m pillows on the 8 m grid), the tube network's pillars and pipes
 	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
+	# the decorations: one near-white vinyl (texgen/stadium.py inflatable_skin), tinted per part
+	"airship": ["inflatable_skin", Vector2(8.0, 8.0), true, Color8(241, 217, 178)],
+	"infl_leaf": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(55, 142, 44)],
+	"infl_trunk": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(203, 149, 63)],
+	"infl_trunk_low": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(151, 89, 36)],
+	"infl_trunk_top": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(171, 119, 53)],
+	"infl_trunk_ring": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(114, 67, 28)],
+	"infl_sand": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(232, 177, 40)],
+	"infl_base": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(135, 133, 125)],
+	"infl_cactus": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(93, 116, 65)],
+	"infl_tree": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(27, 66, 55)],
+	"infl_snow": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(246, 253, 255)],
+	"infl_label": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(255, 255, 223)],
 	"pipe": ["pillar_steel", Vector2(8.0, 8.0), true],
 }
 

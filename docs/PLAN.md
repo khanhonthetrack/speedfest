@@ -201,6 +201,44 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
       every track driven by the bot, medals from its best run
 
+### Release `stadium-v0.6` (owner: "merge everything done so far in the stadium branches to release 0.6", 2026-10-19) ☑
+- [x] `claude/tmnf-replica-graphics-nb1kcg` (after v0.5: the ledge, smoke and blue fixes, M11-1..3
+      so far) merged into `stadium`, which already had M12 (the community work) on top of v0.5
+- [x] STADIUM_TESTS PASS on the merge (owner's Windows PC); `stadium` pushed, tag `stadium-v0.6`
+- Not in it (not stadium branches): `claude/speedfest-stadium-overhaul-dvdcal` (session 11's neon
+  city game built from an older `stadium`: it moves `stadium/` to `game/` and drops the TMNF look),
+  `ccr-be8add6f-thdbey` (story mode, docs only) and `claude/loving-fermi-79nbzc` (BlendSwap trial),
+  all from `main`
+
+### M11 — Everything left that differs from TMNF (owner: "yes do the systematic check and fix everything", 2026-10-19)
+On `claude/tmnf-replica-graphics-nb1kcg` (steps 1-3 so far in `stadium-v0.6`; continue on `stadium`). One step at a time, each committed
+and pushed, gated; TMNF data only locally (never in the repo). The deliberate differences stay
+(our tracks, car, textures, logos, music: no Nadeo content).
+- [x] 1. A block-by-block material check (`tools/research/tmnf/material_check.py` + a dump of our
+      blocks): for every shape, where TMNF puts each material against where ours does; the list
+      of mismatches by area and campaign use (`docs/research/m11_check.md`)
+- [ ] 2. Fix the mismatches it finds, family by family (most visible first). Done: platform walls,
+      turbo pads, the circuit (sides, undersides, end caps, slope bases); next: the road
+- [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
+      bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
+      dirt fences and signs; fidelity test)
+- [x] 4. The circuit base variants (bump, hole, pillars): built from measurements in M12 (session 15, for
+      TMX tracks); in the v0.6 merge they take M11-2's circuit sides and white fabric underneath,
+      as the circuit's turbo plate and slopes do (the material check not yet re-run on them)
+- [ ] 5. Physics: flat-ground and landing wheelies, water, reverse switch, turbo pad direction,
+      burnout / donut
+- [ ] 6. TMNF's padlocks on the campaign
+- [ ] 7. The engine's pitch curves (measured from TMNF's sound, not its files) and the tyre smoke
+      side by side
+- [ ] 8. The stadium's surroundings (outer roads, forecourts, parking, roof light panels)
+
+### After v0.5 — the owner's remarks, for the next release (session 13, 2026-10-19)
+On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (owner).
+- [x] The circuit ledges' blue only TMNF's 4.91 m strip along the wall, the deck beyond (A01)
+- [x] Tyre smoke never black (its own shader); road smoke whiter
+- [x] The circuit borders' blue as TMNF's on every shape (ground strips, slope walls, surfaces)
+- [x] Next release: merged into `stadium` (it had moved on: M12) and tagged `stadium-v0.6` (from the PC)
+
 ### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
 Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
 - [x] 1. Keep the circuit walls' screens dark (TMNF's StadiumCircuitScreen); the wall foot's blue
@@ -233,7 +271,7 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
     safety check); the rest of TMNF's wheelie after nose-down landings (M10-4: halfway there with
     the 0.55; on flat ground ours now lifts its nose more than TMNF's).
 
-### M11 — Community content on admins' servers (owner, session 15, 2026-10-18; called M10 on its branch) ☑
+### M12 — Community content on admins' servers (owner, session 15, 2026-10-18; called M10 on its branch, M11 until the v0.6 merge) ☑
 "make sure that all the community tracks and car models can be uploaded and put on a admins
 server correctly ... I want full compatibility" (TRANSCRIPT session 15). Branch
 `ccr-1ce252fc-wl7p3m` (`stadium` + M9; v0.5 merged in and the result put on `stadium`, 19 Oct). Samples from TrackMania Exchange and ManiaPark stay

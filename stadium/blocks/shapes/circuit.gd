@@ -5,7 +5,9 @@ extends RefCounted
 ## Every border is one wall section swept along a path: its inner (road) face runs 8.985 m inside
 ## the border's cell; corners and GT curves are arcs about the footprint's inner corner (radius
 ## 32k - 8.985) or outer corner (32(k - 1) + 8.985); the ledge behind the wall (top 8 m) fills the
-## rest of the footprint. Slopes rise 16 m per block (0.5); start/end ease in over a block.
+## rest of the footprint. Its top is the blue border strip, BAND wide along the wall as on a
+## straight, and the lane's deck beyond it (TMNF's StadiumRoadCircuitBorder and StadiumPlatform,
+## measured on every border). Slopes rise 16 m per block (0.5); start/end ease in over a block.
 
 const PlatformShapes := preload("res://blocks/shapes/platform.gd")
 
@@ -16,6 +18,17 @@ const S_CONCRETE := 0
 const S_TURBO := 7
 const FACE := 23.015            ## the wall's inner face, from the cell's road side (z)
 const LEDGE_D := 4.075          ## the stands' foot behind the face (d), where the ledge starts
+const BAND := 32.0 - FACE - LEDGE_D   ## the blue strip on the ledge, along the wall (4.91 m)
+const GROUND_STRIP := [0.465, 5.155]  ## ground borders: the blue strip on the terrain, from / to (m out from the face)
+const GROUND_LIFT := 0.01       ## that strip above the grass (no z-fighting; a wheel's ray finds it first)
+## Outer GT curves on the ground: the strip widens mid-curve by this much (m, at 45 deg; measured)
+const GROUND_OUT_BULGE := {2: 0.46, 3: 0.33, 4: 0.10}
+## Rubber pads across the ground strip where it meets a cell corner (TMNF x, z; measured)
+const GROUND_PADS := {
+	"GTCurve2Out": [[[29.88, 29.94], [32.0, 32.0], [34.03, 34.16], [32.98, 35.09], [31.02, 32.99], [28.92, 31.04]]],
+	"GTCurve4In": [[[97.28, 61.97], [98.14, 62.52], [96.75, 64.64], [95.31, 66.73], [94.45, 66.13], [96.0, 64.0]],
+		[[66.17, 94.48], [66.75, 95.31], [64.66, 96.74], [62.53, 98.13], [61.98, 97.3], [64.0, 96.0]]],
+}
 const LEDGE_Y := 8.0
 const FLOOR_Y := 0.24
 
@@ -33,8 +46,8 @@ const WALL := [
 	[2.665, 16.0, "fabric", S_METAL], [2.835, 15.94, "fabric", S_METAL], [2.885, 15.77, "fabric", S_METAL],
 	[2.885, 15.28, "circuit_trim", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
 	[2.595, 9.63, "truss", S_CONCRETE], [2.595, 9.42, "circuit_bumper", S_RUBBER], [3.565, 9.09, "circuit_bumper", S_RUBBER],
-	[3.935, 8.81, "circuit_bumper", S_RUBBER], [4.145, 8.33, "circuit_bumper", S_RUBBER], [4.075, 8.0, "wall_dark", S_METAL],
-	[4.075, 0.24, "structure", S_METAL], [3.595, 0.24, "structure", S_METAL], [3.415, 0.0, "structure", S_METAL],
+	[3.935, 8.81, "circuit_bumper", S_RUBBER], [4.145, 8.33, "circuit_bumper", S_RUBBER], [4.075, 8.0, "", S_METAL],
+	[4.075, 0.24, "truss", S_METAL], [3.595, 0.24, "truss", S_METAL], [3.415, 0.0, "fabric_auvent", S_RUBBER],
 	[-0.245, 0.0, "rubber_dark", S_RUBBER],
 ]
 
@@ -56,8 +69,8 @@ const SLOPE_TOP_WALL := [
 	[6.386, 12.818, "truss", S_CONCRETE], [6.386, 12.612, "rubber_dark", S_RUBBER],
 	[6.281, 12.232, "rubber_dark", S_RUBBER], [5.421, 11.802, "rubber_dark", S_RUBBER], [5.386, 11.683, "rubber_dark", S_RUBBER],
 	[5.055, 11.340, "rubber_dark", S_RUBBER], [4.924, 11.128, "rubber_dark", S_RUBBER], [4.843, 10.885, "rubber_dark", S_RUBBER],
-	[4.843, 10.624, "rubber_dark", S_RUBBER], [4.908, 10.454, "circuit_trim", S_RUBBER],
-	[0.000, 8.000, "wall_dark", S_METAL], [0.000, 0.243, "truss", S_CONCRETE],
+	[4.843, 10.624, "rubber_dark", S_RUBBER], [4.908, 10.454, "circuit_floor", S_RUBBER],
+	[0.000, 8.000, "circuit_side", S_METAL], [0.000, 0.243, "truss", S_CONCRETE],
 	[5.387, 2.937, "rubber_dark", S_RUBBER], [5.575, 2.787, "circuit_panel", S_RUBBER], [9.228, 4.614, "circuit_panel", S_RUBBER],
 	[9.449, 4.828, "rubber_dark", S_RUBBER], [9.568, 5.093, "rubber_dark", S_RUBBER], [9.630, 5.353, "rubber_dark", S_RUBBER],
 	[9.597, 5.611, "rubber_dark", S_RUBBER], [9.405, 5.983, "structure", S_ASPHALT]
@@ -79,8 +92,8 @@ const SLOPE_BOTTOM_WALL := [
 	[25.719, 13.951, "rubber_dark", S_RUBBER], [26.579, 14.381, "rubber_dark", S_RUBBER],
 	[26.614, 14.297, "rubber_dark", S_RUBBER], [26.945, 14.286, "rubber_dark", S_RUBBER],
 	[27.076, 14.203, "rubber_dark", S_RUBBER], [27.157, 14.041, "rubber_dark", S_RUBBER],
-	[27.157, 13.780, "rubber_dark", S_RUBBER], [27.092, 13.546, "circuit_trim", S_RUBBER],
-	[32.000, 16.000, "wall_dark", S_METAL], [32.000, 8.243, "truss", S_CONCRETE],
+	[27.157, 13.780, "rubber_dark", S_RUBBER], [27.092, 13.546, "circuit_floor", S_RUBBER],
+	[32.000, 16.000, "circuit_side", S_METAL], [32.000, 8.243, "truss", S_CONCRETE],
 	[26.613, 5.550, "rubber_dark", S_RUBBER], [26.425, 5.213, "circuit_panel", S_RUBBER], [22.772, 3.386, "circuit_panel", S_RUBBER],
 	[22.551, 3.379, "rubber_dark", S_RUBBER], [22.432, 3.525, "rubber_dark", S_RUBBER], [22.370, 3.723, "rubber_dark", S_RUBBER],
 	[22.404, 4.014, "rubber_dark", S_RUBBER], [22.595, 4.578, "structure", S_ASPHALT]
@@ -176,11 +189,17 @@ func handles(shape: String) -> bool:
 
 
 var _cells: Array = []        ## the shape's footprint cells (bottom layer, Vector2i x, z units)
+var _sides_mapped := false    ## the circuit sides' UVs are TMNF's already (before a turn or shear)
+var _top_at := Callable()     ## the sides' top at a point (TMNF x, y, z) on slopes (else 8 m)
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var geo := TmGeo.new()
+	geo.cap_uv = _cap_uv
+	geo.cap_split = LEDGE_Y
 	_cells = []
+	_sides_mapped = false
+	_top_at = Callable()
 	for u in TmBlockCatalogue.shape_units(shape):
 		if int(u[1]) == 0:
 			_cells.append(Vector2i(int(u[0]), int(u[2])))
@@ -194,9 +213,13 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif shape.begins_with("Circuit/Turbo/"):
 		var form := parts[2].trim_suffix("Air").trim_suffix("Ground")
 		if form.is_empty():
-			geo.box(Vector3(0, dy, 0), Vector3(32, 8, 32), "wall_dark", S_METAL, "turbo", S_TURBO)
+			_plate(geo, dy, "turbo", S_TURBO)
+			_map_turbo(geo)
 		elif TURBO_TURNS.has(form):
+			_top_at = func(p: Vector3) -> float: return _profile_at(SLOPE_STRAIGHT, p.z)
 			_ramp(geo, SLOPE_STRAIGHT, dy, "turbo", S_TURBO)
+			_map_turbo(geo)
+			_map_sides(geo)
 			geo.turn_y(int(TURBO_TURNS[form]), Vector2(16.0, 16.0))
 		else:
 			return null
@@ -210,7 +233,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			"Hole":
 				_hole_plate(geo, dy)
 			_:
-				geo.box(Vector3(0, dy, 0), Vector3(32, 8, 32), "wall_dark", S_METAL, "platform", S_ASPHALT)
+				_plate(geo, dy)
 				for c: Array in PILLARS.get(form, []):
 					_lathe_y(geo, PILLAR_PROFILE, Vector2(float(c[0]), float(c[1])), 16)
 	elif shape.begins_with("Circuit/Border/"):
@@ -221,17 +244,120 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	else:
 		if not _slope(geo, parts[2], parts[3], dy):
 			return null
-		if ground and not parts[3].begins_with("Base"):
-			_ground_floor(geo, "Straight", parts[3])
+		if ground and parts[2] == "Start" and not parts[3].begins_with("Base"):
+			_slope_start_floor(geo, parts[3])
+	_map_sides(geo)
 	return geo.build()
 
 
-## Ground borders stand on the terrain (the map's ground at 1 m block-local, built separately);
-## straights add the 4.7 m concrete strip in front of the wall.
-func _ground_floor(geo: TmGeo, kind: String, _variant: String) -> void:
-	if kind == "Straight":
-		geo.quad(Vector3(32, 1.0, 17.86), Vector3(0, 1.0, 17.86), Vector3(0, 1.0, FACE - 0.47), Vector3(32, 1.0, FACE - 0.47),
-			"platform", S_CONCRETE)
+## The circuit sides' texture as TMNF lays it: 16 m a tile along every upright face (mirrored
+## every other tile), the whole texture over 8 m of height down from the piece's top (on slopes
+## the road's edge).
+func _map_sides(geo: TmGeo) -> void:
+	if not _sides_mapped:
+		geo.remap_uv_sides("circuit_side", 16.0, 8.0, 8.0, _top_at)
+		_sides_mapped = true
+
+
+## The walls' end caps as TMNF maps them: the circuit side's left part (its bolted plate) laid over
+## the section (q: d, y), one chart up to the ledge's top and one above it (measured on the straight).
+static func _cap_uv(q: Vector2, cen: Vector2) -> Vector2:
+	if cen.y < LEDGE_Y:
+		return Vector2(0.012 + (32.0 - FACE - q.x) * 0.0484, 0.861 - 0.0874 * q.y)
+	return Vector2(0.007 + (q.x + 0.135) * 0.0385, 1.406 - 0.0781 * q.y)
+
+
+## The circuit's plate: the deck on top, TMNF's circuit sides, the white fabric underneath.
+func _plate(geo: TmGeo, dy: float, top := "platform", top_surf := S_ASPHALT) -> void:
+	var y0 := dy
+	# the deck in two halves (a turbo pad's texture is mirrored about x = 16: _map_turbo)
+	geo.quad(Vector3(0, 8, 0), Vector3(0, 8, 32), Vector3(16, 8, 32), Vector3(16, 8, 0), top, top_surf)
+	geo.quad(Vector3(16, 8, 0), Vector3(16, 8, 32), Vector3(32, 8, 32), Vector3(32, 8, 0), top, top_surf)
+	if dy <= 0.0:   # (on the ground the terrain hides it)
+		geo.quad(Vector3(0, y0, 0), Vector3(32, y0, 0), Vector3(32, y0, 32), Vector3(0, y0, 32), "fabric_auvent", S_RUBBER)
+	geo.quad(Vector3(0, y0, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, y0, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(32, y0, 32), Vector3(32, 8, 32), Vector3(0, 8, 32), Vector3(0, y0, 32), "circuit_side", S_METAL)
+	geo.quad(Vector3(0, y0, 32), Vector3(0, 8, 32), Vector3(0, 8, 0), Vector3(0, y0, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(32, y0, 0), Vector3(32, 8, 0), Vector3(32, 8, 32), Vector3(32, y0, 32), "circuit_side", S_METAL)
+
+
+## Ground borders stand on the terrain (the map's ground at 1 m block-local, built separately). In
+## front of the wall's foot TMNF lays its blue border strip on the terrain, GROUND_STRIP out from
+## the face: along a straight, radially round corners and GT curves (outer ones a little wider
+## mid-curve), along the cell edges by a diagonal (as the wall's section is sheared there); a few
+## rubber pads cross it (GROUND_PADS).
+func _ground_floor(geo: TmGeo, kind: String, variant: String) -> void:
+	var a: float = GROUND_STRIP[0]
+	var b: float = GROUND_STRIP[1]
+	var k := int(variant.substr(0, 1)) if kind == "GTCurve" else 1
+	var s := 32.0 * k
+	var poly := PackedVector2Array()
+	match kind:
+		"Straight":
+			poly = PackedVector2Array([Vector2(0, FACE - b), Vector2(32, FACE - b), Vector2(32, FACE - a), Vector2(0, FACE - a)])
+		"Corner", "GTCurve":
+			if variant.contains("In"):
+				# the grass inside the arc about (0, 0)
+				var r := s - (32.0 - FACE)
+				for i in 8 * k + 1:
+					var ang := PI * 0.5 * float(i) / (8 * k)
+					poly.append(Vector2(cos(ang), sin(ang)) * (r - a))
+				for i in 8 * k + 1:
+					var ang := PI * 0.5 * (1.0 - float(i) / (8 * k))
+					poly.append(Vector2(cos(ang), sin(ang)) * (r - b))
+			else:
+				# outside the arc about (0, s)
+				var r := s - FACE
+				for i in 6 * k + 1:
+					var ang := -PI * 0.5 + PI * 0.5 * float(i) / (6 * k)
+					poly.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r + a))
+				var bulge: float = GROUND_OUT_BULGE.get(k, 0.0)
+				for i in 6 * k + 1:
+					var t := float(i) / (6 * k)
+					var ang := -PI * 0.5 * t
+					poly.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r + b + bulge * sin(PI * t)))
+		"Diag":
+			if variant.contains("In"):
+				poly = PackedVector2Array([Vector2(FACE - b, 0), Vector2(FACE - a, 0), Vector2(0, FACE - a), Vector2(0, FACE - b)])
+			else:
+				poly = PackedVector2Array([Vector2(0, FACE - b), Vector2(0, FACE - a), Vector2(32 - FACE + a, 32),
+					Vector2(32 - FACE + b, 32)])
+	if poly.size() < 3:
+		return
+	var y := 1.0 + GROUND_LIFT
+	var pieces: Array = [poly]
+	for pad: Array in GROUND_PADS.get(kind + ("%d" % k if kind == "GTCurve" else "") + ("In" if variant.contains("In") else "Out"), []):
+		var pp := PackedVector2Array()
+		for q: Array in pad:
+			pp.append(Vector2(q[0], q[1]))
+		# split through the pad first, so clipping it leaves notches, never a hole
+		var cx := 0.0
+		for q in pp:
+			cx += q.x / pp.size()
+		var halves := [PackedVector2Array([Vector2(-1e4, -1e4), Vector2(cx, -1e4), Vector2(cx, 1e4), Vector2(-1e4, 1e4)]),
+			PackedVector2Array([Vector2(cx, -1e4), Vector2(1e4, -1e4), Vector2(1e4, 1e4), Vector2(cx, 1e4)])]
+		var rest := []
+		for piece: PackedVector2Array in pieces:
+			for half: PackedVector2Array in halves:
+				for part: PackedVector2Array in Geometry2D.intersect_polygons(piece, half):
+					rest.append_array(Geometry2D.clip_polygons(part, pp))
+		pieces = rest
+		geo.flat_polygon(pp, y, "rubber_dark", S_RUBBER)
+	for piece: PackedVector2Array in pieces:
+		if absf(_area(piece)) > 0.01:
+			geo.flat_polygon(piece, y, "circuit_floor", S_RUBBER)
+
+
+## A slope start on the terrain ("GroundLeft" / "GroundRight"): TMNF's black rubber strip in front
+## of the wall's foot, GROUND_STRIP out from the face, for the first 12 m (before the ramp lifts
+## the wall off the ground).
+func _slope_start_floor(geo: TmGeo, variant: String) -> void:
+	var a: float = GROUND_STRIP[0]
+	var b: float = GROUND_STRIP[1]
+	var x0 := 32.0 - FACE + a if variant.ends_with("Left") else FACE - b
+	var x1 := 32.0 - FACE + b if variant.ends_with("Left") else FACE - a
+	geo.flat_polygon(PackedVector2Array([Vector2(x0, 0), Vector2(x1, 0), Vector2(x1, 12), Vector2(x0, 12)]),
+		1.0 + GROUND_LIFT, "rubber_dark", S_RUBBER)
 
 
 ## Border walls: Straight, Corner In/Out, GTCurve kIn/kOut, Diag In/Out.
@@ -251,29 +377,44 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 		if inner:
 			var r := s - (32.0 - FACE)
 			var a := _arc_dip(Vector2(0, 0), r, 0.0, PI * 0.5, 8 * k, dip)
-			geo.wall_sweep(section, a[0], a[1], true, "wall_dark", S_METAL, _dip_fn(a[2]))
-			# ledge: the footprint outside the stands' foot circle
+			geo.wall_sweep(section, a[0], a[1], true, "circuit_cap", S_METAL, _dip_fn(a[2]))
+			# ledge: the footprint outside the stands' foot circle; blue out to radius s, the deck
+			# in the corner beyond
 			var poly := PackedVector2Array()
+			var band := PackedVector2Array()
 			for i in 8 * k + 1:
 				var ang := PI * 0.5 * (1.0 - float(i) / (8 * k))
 				poly.append(Vector2(cos(ang), sin(ang)) * (r + LEDGE_D))
+				band.append(Vector2(cos(ang), sin(ang)) * (r + LEDGE_D))
+			for i in 8 * k + 1:
+				var ang := PI * 0.5 * float(i) / (8 * k)
+				band.append(Vector2(cos(ang), sin(ang)) * (r + LEDGE_D + BAND))
 			poly.append(Vector2(s, 0))
 			poly.append(Vector2(s, s))
 			poly.append(Vector2(0, s))
-			_ledge(geo, poly, dy)
+			_ledge(geo, poly, dy, band, func(q: Vector2) -> bool: return absf(q.length() - r - LEDGE_D) < 0.01)
 		else:
 			var r := s - FACE
 			var a := _arc_dip(Vector2(0, s), r, -PI * 0.5, 0.0, 6 * k, [] if kind == "Corner" else dip)
 			var outs := []
 			for d in a[1]:
 				outs.append(-(d as Vector3))
-			geo.wall_sweep(section, a[0], outs, true, "wall_dark", S_METAL, _dip_fn(a[2]))
+			geo.wall_sweep(section, a[0], outs, true, "circuit_cap", S_METAL, _dip_fn(a[2]))
+			# ledge: inside the stands' foot circle; blue down to radius s - 32, the deck inside
+			# that (a 1x1 corner's ledge is all strip)
 			var poly := PackedVector2Array()
+			var band := PackedVector2Array()
 			for i in 6 * k + 1:
 				var ang := -PI * 0.5 + PI * 0.5 * float(i) / (6 * k)
 				poly.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r - LEDGE_D))
+				band.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r - LEDGE_D))
 			poly.append(Vector2(0, s))
-			_ledge(geo, poly, dy)
+			if k > 1:
+				for i in 6 * k + 1:
+					var ang := -PI * 0.5 * float(i) / (6 * k)
+					band.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r - LEDGE_D - BAND))
+			_ledge(geo, poly, dy, band if k > 1 else PackedVector2Array(),
+				func(q: Vector2) -> bool: return absf((q - Vector2(0, s)).length() - r + LEDGE_D) < 0.01)
 		return true
 	if kind == "Diag":
 		# 45 deg walls across the cell's corner: the straight wall's section sheared along each
@@ -281,11 +422,14 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 		if inner:
 			_diag_wall(geo, section, Vector3(0, 0, FACE), Vector3(FACE, 0, 0), Vector3(0, 0, 1), Vector3(1, 0, 0))
 			var e := FACE + LEDGE_D
-			_ledge(geo, PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(32, 32), Vector2(0, 32), Vector2(0, e)]), dy)
+			_ledge(geo, PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(32, 32), Vector2(0, 32), Vector2(0, e)]), dy,
+				PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(0, 32), Vector2(0, e)]),
+				func(q: Vector2) -> bool: return absf(q.x + q.y - e) < 0.01)
 		else:
 			_diag_wall(geo, section, Vector3(0, 0, FACE), Vector3(32 - FACE, 0, 32), Vector3(0, 0, 1), Vector3(-1, 0, 0))
 			var e := LEDGE_D
-			_ledge(geo, PackedVector2Array([Vector2(0, FACE + e), Vector2(32 - FACE - e, 32), Vector2(0, 32)]), dy)
+			_ledge(geo, PackedVector2Array([Vector2(0, FACE + e), Vector2(32 - FACE - e, 32), Vector2(0, 32)]), dy,
+				PackedVector2Array(), func(q: Vector2) -> bool: return absf(q.y - q.x - FACE - e) < 0.01)
 		return true
 	return false
 
@@ -327,7 +471,7 @@ static func _dip_fn(drops: Array) -> Callable:
 ## A diagonal wall a -> b: at a its section runs along l_a (the outward of the straight wall that
 ## continues it there), at b along l_b; the two sheared halves meet on the mitre at the middle.
 func _diag_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, l_a: Vector3, l_b: Vector3) -> void:
-	geo.wall_sweep(section, [a, (a + b) * 0.5, b], [l_a, (l_a + l_b) * 0.5, l_b])
+	geo.wall_sweep(section, [a, (a + b) * 0.5, b], [l_a, (l_a + l_b) * 0.5, l_b], true, "circuit_cap", S_METAL)
 
 
 ## The wall section (d, y) with the ground variants' heights (see _lift).
@@ -335,6 +479,10 @@ func _section(dy: float) -> Array:
 	var out := []
 	for p in WALL:
 		out.append([Vector2(float(p[0]), _lift(float(p[1]), dy)), String(p[2]), int(p[3])])
+	# on the ground the faces on the terrain are collision only (the terrain hides them)
+	for i in out.size() - 1:
+		if dy > 0.0 and (out[i][0] as Vector2).y == dy and (out[i + 1][0] as Vector2).y == dy:
+			out[i][1] = ""
 	return out
 
 
@@ -362,19 +510,20 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 		# ledge to the cell edge: top at 8 m, outer face, floor
 		var e := 32.0 - FACE
 		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - 8.33) < 0.01)[0])
-		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_METAL])
-		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
-		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "truss", S_CONCRETE])
-		sec.insert(at + 4, [Vector2(3.595, _lift(FLOOR_Y, dy)), "structure", S_METAL])
-	geo.wall_sweep(sec, [a, b], [outward, outward])
+		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
+		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
+		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_CONCRETE])
+		sec.insert(at + 4, [Vector2(3.595, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_METAL])
+	geo.wall_sweep(sec, [a, b], [outward, outward], true, "circuit_cap", S_METAL)
 
 
 ## Ledge behind a curved wall: a solid prism over the polygon (TMNF x, z), floor 0.24 m (ground:
 ## the terrain), top 8 m; clipped to the block's footprint cells (big curves leave out the cells
-## near their centre or far corner).
-func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
+## near their centre or far corner). Its top is blue inside `band` (empty: all of it), the deck
+## outside; no side where it meets the wall's back (`at_wall`: points on that line).
+func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float, band := PackedVector2Array(), at_wall := Callable()) -> void:
 	if _cells.is_empty():
-		_prism(geo, poly, dy)
+		_prism(geo, poly, dy, band, at_wall)
 		return
 	var pieces := []
 	for c: Vector2i in _cells:
@@ -397,7 +546,7 @@ func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
 		rest.append(cur)
 		merged = rest
 	for p: PackedVector2Array in merged:
-		_prism(geo, p, dy)
+		_prism(geo, p, dy, band, at_wall)
 
 
 static func _area(p: PackedVector2Array) -> float:
@@ -407,14 +556,36 @@ static func _area(p: PackedVector2Array) -> float:
 	return a * 0.5
 
 
-func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
+func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float, band := PackedVector2Array(), at_wall := Callable()) -> void:
 	var lo := _lift(FLOOR_Y, dy)
 	var hi := LEDGE_Y
-	geo.flat_polygon(poly, hi, "circuit_floor", S_METAL)
-	geo.flat_polygon(poly, lo, "structure", S_METAL, true)
+	if band.is_empty():
+		geo.flat_polygon(poly, hi, "circuit_floor", S_RUBBER)
+	else:
+		for p: PackedVector2Array in Geometry2D.intersect_polygons(poly, band):
+			if absf(_area(p)) > 0.01:
+				geo.flat_polygon(p, hi, "circuit_floor", S_RUBBER)
+		for p: PackedVector2Array in Geometry2D.clip_polygons(poly, band):
+			if absf(_area(p)) > 0.01:
+				geo.flat_polygon(p, hi, "platform", S_ASPHALT)
+	# underneath: TMNF's dark stands' floor under the blue strip, its white fabric under the deck
+	# (on the ground the terrain hides it)
+	if dy > 0.0:
+		pass
+	elif band.is_empty():
+		geo.flat_polygon(poly, lo, "truss", S_METAL, true)
+	else:
+		for p: PackedVector2Array in Geometry2D.intersect_polygons(poly, band):
+			if absf(_area(p)) > 0.01:
+				geo.flat_polygon(p, lo, "truss", S_METAL, true)
+		for p: PackedVector2Array in Geometry2D.clip_polygons(poly, band):
+			if absf(_area(p)) > 0.01:
+				geo.flat_polygon(p, lo, "fabric_auvent", S_RUBBER, true)
 	for i in poly.size():
 		var p: Vector2 = poly[i]
 		var q: Vector2 = poly[(i + 1) % poly.size()]
+		if at_wall.is_valid() and at_wall.call(p) and at_wall.call(q):
+			continue
 		var a := Vector3(p.x, lo, p.y)
 		var b := Vector3(q.x, lo, q.y)
 		var c := Vector3(q.x, hi, q.y)
@@ -426,9 +597,9 @@ func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
 			cen += Vector3(v.x, 0, v.y)
 		cen /= poly.size()
 		if (b - a).cross(c - a).dot(Vector3(mid.x - cen.x, 0, mid.z - cen.z)) < 0.0:
-			geo.quad(a, d, c, b, "wall_dark", S_METAL)
+			geo.quad(a, d, c, b, "circuit_side", S_METAL)
 		else:
-			geo.quad(a, b, c, d, "wall_dark", S_METAL)
+			geo.quad(a, b, c, d, "circuit_side", S_METAL)
 
 
 ## Slope blocks: Base (the road ramp) and the border walls along (Left/Right) or across
@@ -439,6 +610,7 @@ func _slope(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 	var prof: Array = SLOPE_START if kind == "Start" else (SLOPE_END if kind == "End" else SLOPE_STRAIGHT)
 	if kind not in ["Start", "Straight", "End"]:
 		return false
+	_top_at = func(p: Vector3) -> float: return _profile_at(prof, p.z)
 	if variant.begins_with("Base"):
 		_ramp(geo, prof, dy)
 		return true
@@ -457,6 +629,8 @@ func _slope(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 		if kind != "Straight":
 			return false
 		var table: Array = SLOPE_TOP_WALL if variant.ends_with("Top") else SLOPE_BOTTOM_WALL
+		var top := 8.0 if variant.ends_with("Top") else 16.0
+		_top_at = func(_p: Vector3) -> float: return top
 		var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1] + dy), q[2], q[3]])
 		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(32, 0, 0)], [Vector3(0, 0, 1), Vector3(0, 0, 1)])
 		return true
@@ -485,6 +659,7 @@ func _slope_turn(geo: TmGeo, kind: String, variant: String) -> bool:
 			_cells.append(Vector2i(int(u[0]), int(u[2])))
 	if not _border(geo, kind, (str(k) if kind == "GTCurve" else "") + flat, 0.0):
 		return false
+	_map_sides(geo)
 	geo.turn_y(int(turns[at]), Vector2(16.0 * k, 16.0 * k))
 	geo.shear_y(0.0, SLOPE_K, 0.0)
 	var lo := geo.min_y()
@@ -506,50 +681,67 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float)
 		if (sec[i][0] as Vector2).x > 4.0 and absf((sec[i][0] as Vector2).y - 8.33) < 0.01:
 			at = i
 	var e := 32.0 - FACE
-	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_METAL])
-	sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
+	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
+	sec.insert(at + 2, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
 	sec.insert(at + 3, [Vector2(e, FLOOR_Y), "truss", S_CONCRETE])
-	sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "structure", S_METAL])
+	sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "truss", S_METAL])
 	var y_at := Callable()
 	if dy > 0.0:
 		y_at = func(y: float, i: int) -> float: return maxf(y, dy - (path[i] as Vector3).y)
-	geo.wall_sweep(sec, path, outs, true, "wall_dark", S_METAL, y_at)
+	geo.wall_sweep(sec, path, outs, true, "circuit_cap", S_METAL, y_at)
 
 
-## The circuit ramp: road surface y(z) on x 0..32, solid down to the block floor.
-## A circuit slope (measured): the road on the profile, the slab's underside 8 m below it (on the
-## floor at dy where it would go lower), its sides and ends, and under the block's centre the
-## support column (16 sides, radius 1.64 m) up to the underside.
-func _ramp(geo: TmGeo, prof: Array, dy: float, top := "platform", top_surf := S_ASPHALT) -> void:
-	var under := func(h: float) -> float: return maxf(h - LEDGE_Y, dy)
-	for i in prof.size() - 1:
-		var z0 := float(prof[i][0])
-		var z1 := float(prof[i + 1][0])
-		var h0 := float(prof[i][1])
-		var h1 := float(prof[i + 1][1])
-		var u0: float = under.call(h0)
-		var u1: float = under.call(h1)
-		# road (up), underside (down), sides (x = 0 facing -x, x = 32 facing +x)
-		geo.quad(Vector3(32, h0, z0), Vector3(0, h0, z0), Vector3(0, h1, z1), Vector3(32, h1, z1), top, top_surf)
-		geo.quad(Vector3(0, u0, z0), Vector3(32, u0, z0), Vector3(32, u1, z1), Vector3(0, u1, z1), "fabric_under", S_METAL)
-		geo.quad(Vector3(0, u0, z0), Vector3(0, u1, z1), Vector3(0, h1, z1), Vector3(0, h0, z0), "wall_dark", S_METAL)
-		geo.quad(Vector3(32, u0, z0), Vector3(32, h0, z0), Vector3(32, h1, z1), Vector3(32, u1, z1), "wall_dark", S_METAL)
-	var hn := float(prof[prof.size() - 1][1])
-	var h0 := float(prof[0][1])
-	var ua: float = under.call(h0)
-	var un: float = under.call(hn)
-	geo.quad(Vector3(0, ua, 0), Vector3(0, h0, 0), Vector3(32, h0, 0), Vector3(32, ua, 0), "wall_dark", S_METAL)
-	geo.quad(Vector3(32, un, 32), Vector3(32, hn, 32), Vector3(0, hn, 32), Vector3(0, un, 32), "wall_dark", S_METAL)
-	var mid: float = under.call(_profile_at(prof, 16.0))
-	if mid > dy + 0.5:
-		var r := 1.64
-		for k in 16:
-			var a0 := TAU * k / 16.0
-			var a1 := TAU * (k + 1) / 16.0
-			var p0 := Vector3(16.0 + r * cos(a0), dy, 16.0 + r * sin(a0))
-			var p1 := Vector3(16.0 + r * cos(a1), dy, 16.0 + r * sin(a1))
-			# up into the slab a little, so the column meets its sloping underside
-			geo.quad(p0, p0 + Vector3(0, mid + 1.0 - dy, 0), p1 + Vector3(0, mid + 1.0 - dy, 0), p1, "structure", S_METAL)
+## The circuit's slope base, as TMNF's: the plate (8 m thick) following the road's heights (z, y),
+## its underside the white fabric (on the ground: where it is above the terrain), and a round pillar
+## under its middle from the block's floor, a collar plate where it meets the underside (measured).
+func _ramp(geo: TmGeo, prof: Array, dy: float, top_mat := "platform", top_surf := S_ASPHALT) -> void:
+	# the profile with a point every 16 m at most and where the underside meets the ground
+	var pts := []
+	for i in prof.size():
+		var z := float(prof[i][0])
+		var h := float(prof[i][1])
+		if i > 0:
+			var zp := float(prof[i - 1][0])
+			var hp := float(prof[i - 1][1])
+			var cuts := []
+			for k in range(1, ceili((z - zp) / 16.0 - 1e-4)):
+				cuts.append(zp + 16.0 * k)
+			if (hp - 8.0 - dy) * (h - 8.0 - dy) < 0.0:
+				cuts.append(lerpf(zp, z, (dy + 8.0 - hp) / (h - hp)))
+			cuts.sort()
+			for zc: float in cuts:
+				pts.append(Vector2(zc, lerpf(hp, h, (zc - zp) / (z - zp))))
+		pts.append(Vector2(z, h))
+	var under := func(h: float) -> float: return maxf(h - 8.0, dy)
+	for i in pts.size() - 1:
+		var z0: float = pts[i].x
+		var z1: float = pts[i + 1].x
+		var h0: float = pts[i].y
+		var h1: float = pts[i + 1].y
+		var b0: float = under.call(h0)
+		var b1: float = under.call(h1)
+		# road (up, in two halves for a turbo pad's mirrored texture), sides (x = 0 facing -x,
+		# x = 32 facing +x), underside (down)
+		geo.quad(Vector3(16, h0, z0), Vector3(0, h0, z0), Vector3(0, h1, z1), Vector3(16, h1, z1), top_mat, top_surf)
+		geo.quad(Vector3(32, h0, z0), Vector3(16, h0, z0), Vector3(16, h1, z1), Vector3(32, h1, z1), top_mat, top_surf)
+		geo.quad(Vector3(0, b0, z0), Vector3(0, b1, z1), Vector3(0, h1, z1), Vector3(0, h0, z0), "circuit_side", S_METAL)
+		geo.quad(Vector3(32, b0, z0), Vector3(32, h0, z0), Vector3(32, h1, z1), Vector3(32, b1, z1), "circuit_side", S_METAL)
+		if dy <= 0.0 or maxf(h0, h1) - 8.0 > dy + 1e-3:
+			geo.quad(Vector3(0, b0, z0), Vector3(32, b0, z0), Vector3(32, b1, z1), Vector3(0, b1, z1), "fabric_auvent", S_RUBBER)
+	var hn: float = pts[pts.size() - 1].y
+	var h0: float = pts[0].y
+	for x in [[0.0, 16.0], [16.0, 32.0]]:
+		geo.quad(Vector3(x[0], under.call(h0), 0), Vector3(x[0], h0, 0), Vector3(x[1], h0, 0), Vector3(x[1], under.call(h0), 0), "circuit_side", S_METAL)
+		geo.quad(Vector3(x[1], under.call(hn), 32), Vector3(x[1], hn, 32), Vector3(x[0], hn, 32), Vector3(x[0], under.call(hn), 32), "circuit_side", S_METAL)
+	# the pillar: a 12-sided column (r 1.64 m, its foot chamfered to 1.49 m), a 24-sided collar
+	# (r 2.0 m, 0.1 m thick) under the plate
+	var c := Vector2(16, 16)
+	var top := func(q: Vector2) -> float: return _profile_at(prof, q.y) - 8.0
+	geo.ring(c, 12, 1.49, func(_q: Vector2) -> float: return 0.0, 1.64, func(_q: Vector2) -> float: return 0.1, "truss", S_METAL)
+	geo.ring(c, 12, 1.64, func(_q: Vector2) -> float: return 0.1, 1.64, func(q: Vector2) -> float: return top.call(q) - 0.05, "truss", S_CONCRETE)
+	geo.ring(c, 24, 2.0, func(q: Vector2) -> float: return top.call(q) - 0.1, 2.0, top, "truss", S_METAL)
+	geo.disc(c, 12, 1.49, func(_q: Vector2) -> float: return 0.0, "truss", S_METAL)
+	geo.disc(c, 24, 2.0, func(q: Vector2) -> float: return top.call(q) - 0.1, "truss", S_METAL)
 
 
 ## The circuit loop's start: see LOOP_RIDE. Ground: the underside rests on the ground (1 m).
@@ -604,7 +796,7 @@ func _loop_start(geo: TmGeo, dy: float) -> void:
 		var u1: float = under.call(z1)
 		if u0 <= dy + 0.01 and u1 <= dy + 0.01 and dy > 0.5:
 			continue          # on the ground
-		geo.quad(Vector3(0, u0, z0), Vector3(0, u1, z1), Vector3(32, u1, z1), Vector3(32, u0, z0), "fabric_under", S_RUBBER)
+		geo.quad(Vector3(0, u0, z0), Vector3(0, u1, z1), Vector3(32, u1, z1), Vector3(32, u0, z0), "fabric_auvent", S_RUBBER)
 	var f0: Array = LOOP_FRONT[0]
 	var f1: Array = LOOP_FRONT[1]
 	geo.quad(Vector3(32, f0[1], f0[0]), Vector3(32, f1[1], f1[0]), Vector3(0, f1[1], f1[0]), Vector3(0, f0[1], f0[0]), "wall_dark", S_METAL)
@@ -698,7 +890,13 @@ func _kicker(geo: TmGeo, prof: Array, dy: float) -> void:
 	geo.quad(Vector3(0, dy, 0), Vector3(0, hs, 0), Vector3(32, hs, 0), Vector3(32, dy, 0), "wall_dark", S_METAL)
 	geo.quad(Vector3(32, dy, 32), Vector3(32, 8.0, 32), Vector3(0, 8.0, 32), Vector3(0, dy, 32), "wall_dark", S_METAL)
 	if dy < 0.5:
-		geo.quad(Vector3(0, 0, 0), Vector3(32, 0, 0), Vector3(32, 0, 32), Vector3(0, 0, 32), "fabric_under", S_RUBBER)
+		geo.quad(Vector3(0, 0, 0), Vector3(32, 0, 0), Vector3(32, 0, 32), Vector3(0, 0, 32), "fabric_auvent", S_RUBBER)
+
+
+## The turbo pad's texture on the circuit's turbo plate and slope, laid as on the platform's turbo
+## deck (platform.gd _turbo): 16 m a tile along z, mirrored about the centre line. Before a turn.
+static func _map_turbo(geo: TmGeo) -> void:
+	geo.remap_uv("turbo", func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, -0.5 - 1.5 * absf(p.x - 16.0) / 16.0))
 
 
 ## The plate variant's form: "" (plain), "BumpUp", "BumpUp2", "Hole", "Pillar1" ...
@@ -742,13 +940,13 @@ func _bump_plate(geo: TmGeo, dy: float, c: Vector2, depth: float) -> void:
 		var a := Vector3(0, dy, z)
 		var b := Vector3(32, dy, z)
 		if face.z < 0.0:
-			geo.quad(a, Vector3(0, 8, z), Vector3(32, 8, z), b, "wall_dark", S_METAL)
+			geo.quad(a, Vector3(0, 8, z), Vector3(32, 8, z), b, "circuit_side", S_METAL)
 		else:
-			geo.quad(b, Vector3(32, 8, z), Vector3(0, 8, z), a, "wall_dark", S_METAL)
-	geo.quad(Vector3(0, dy, 0), Vector3(0, dy, depth), Vector3(0, 8, depth), Vector3(0, 8, 0), "wall_dark", S_METAL)
-	geo.quad(Vector3(32, dy, 0), Vector3(32, 8, 0), Vector3(32, 8, depth), Vector3(32, dy, depth), "wall_dark", S_METAL)
+			geo.quad(b, Vector3(32, 8, z), Vector3(0, 8, z), a, "circuit_side", S_METAL)
+	geo.quad(Vector3(0, dy, 0), Vector3(0, dy, depth), Vector3(0, 8, depth), Vector3(0, 8, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(32, dy, 0), Vector3(32, 8, 0), Vector3(32, 8, depth), Vector3(32, dy, depth), "circuit_side", S_METAL)
 	if dy < 0.5:
-		geo.quad(Vector3(0, 0, 0), Vector3(32, 0, 0), Vector3(32, 0, depth), Vector3(0, 0, depth), "fabric_under", S_RUBBER)
+		geo.quad(Vector3(0, 0, 0), Vector3(32, 0, 0), Vector3(32, 0, depth), Vector3(0, 0, depth), "fabric_auvent", S_RUBBER)
 
 
 ## The plate with HOLE cut through it: the top and underside round it, the hole's walls.
@@ -763,17 +961,17 @@ func _hole_plate(geo: TmGeo, dy: float) -> void:
 		var b := r.end
 		geo.quad(Vector3(b.x, 8, a.y), Vector3(a.x, 8, a.y), Vector3(a.x, 8, b.y), Vector3(b.x, 8, b.y), "platform", S_ASPHALT)
 		if dy < 0.5:
-			geo.quad(Vector3(a.x, 0, a.y), Vector3(b.x, 0, a.y), Vector3(b.x, 0, b.y), Vector3(a.x, 0, b.y), "fabric_under", S_RUBBER)
+			geo.quad(Vector3(a.x, 0, a.y), Vector3(b.x, 0, a.y), Vector3(b.x, 0, b.y), Vector3(a.x, 0, b.y), "fabric_auvent", S_RUBBER)
 	# the hole's walls, facing into it
 	geo.quad(Vector3(x0, dy, z0), Vector3(x0, dy, z1), Vector3(x0, 8, z1), Vector3(x0, 8, z0), "structure", S_METAL)
 	geo.quad(Vector3(x1, dy, z0), Vector3(x1, 8, z0), Vector3(x1, 8, z1), Vector3(x1, dy, z1), "structure", S_METAL)
 	geo.quad(Vector3(x0, dy, z0), Vector3(x0, 8, z0), Vector3(x1, 8, z0), Vector3(x1, dy, z0), "structure", S_METAL)
 	geo.quad(Vector3(x0, dy, z1), Vector3(x1, dy, z1), Vector3(x1, 8, z1), Vector3(x0, 8, z1), "structure", S_METAL)
 	# the block's outer sides
-	geo.quad(Vector3(0, dy, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, dy, 0), "wall_dark", S_METAL)
-	geo.quad(Vector3(32, dy, 32), Vector3(32, 8, 32), Vector3(0, 8, 32), Vector3(0, dy, 32), "wall_dark", S_METAL)
-	geo.quad(Vector3(0, dy, 0), Vector3(0, dy, 32), Vector3(0, 8, 32), Vector3(0, 8, 0), "wall_dark", S_METAL)
-	geo.quad(Vector3(32, dy, 0), Vector3(32, 8, 0), Vector3(32, 8, 32), Vector3(32, dy, 32), "wall_dark", S_METAL)
+	geo.quad(Vector3(0, dy, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, dy, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(32, dy, 32), Vector3(32, 8, 32), Vector3(0, 8, 32), Vector3(0, dy, 32), "circuit_side", S_METAL)
+	geo.quad(Vector3(0, dy, 0), Vector3(0, dy, 32), Vector3(0, 8, 32), Vector3(0, 8, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(32, dy, 0), Vector3(32, 8, 0), Vector3(32, 8, 32), Vector3(32, dy, 32), "circuit_side", S_METAL)
 
 
 ## The profile's height at z (linear between its points).

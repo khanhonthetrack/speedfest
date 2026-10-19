@@ -22,14 +22,27 @@ const BOTTOM := 1.0
 const INSET := 3.3              ## the lip's depth into the deck; the slab's body starts behind it
 
 ## Lip of a side that doesn't continue: (d inward from the edge, y), closed loop.
+## As TMNF's: the rim is bands of the border atlas (rows at the segment's ends, from TMNF's UVs:
+## the ribbed edge, the black underside with the blue line), the flat underside and the foot
+## ledge TMNF's light plates, the skirt its white fabric.
 const LIP := [
-	[INSET, TOP, "platform", S_DECK], [0.0, TOP, "metal", S_METAL], [0.0, 7.9, "structure", S_METAL],
-	[0.122, 7.9, "metal", S_METAL], [0.249, 7.611, "metal", S_METAL], [0.505, 7.423, "metal", S_METAL],
-	[0.847, UNDER, "structure", S_METAL], [3.085, UNDER, "fabric", S_SLIDING], [2.835, 7.15, "fabric", S_SLIDING],
+	[INSET, TOP, "platform", S_DECK], [0.0, TOP, "border_ribs", S_METAL, Vector2(150.0, 162.4)],
+	[0.0, 7.9, "border_ribs", S_METAL, Vector2(162.4, 177.5)], [0.122, 7.9, "border_ribs", S_METAL, Vector2(177.5, 216.7)],
+	[0.249, 7.611, "border_black", S_METAL, Vector2(216.7, 256.1)], [0.505, 7.423, "border_black", S_METAL, Vector2(256.1, 300.0)],
+	[0.847, UNDER, "road_under", S_METAL], [3.085, UNDER, "fabric", S_SLIDING], [2.835, 7.15, "fabric", S_SLIDING],
 	[2.695, 6.795, "fabric", S_SLIDING], [2.635, 4.298, "fabric", S_SLIDING], [2.695, 1.836, "fabric", S_SLIDING],
-	[2.835, 1.444, "fabric", S_SLIDING], [3.133, 1.207, "structure", S_METAL], [2.802, 1.207, "metal", S_METAL],
-	[2.802, BOTTOM, "structure", S_METAL], [INSET, BOTTOM, "", TmGeo.NO_COLLISION],
+	[2.835, 1.444, "fabric", S_SLIDING], [3.133, 1.207, "road_under", S_METAL], [2.802, 1.207, "road_under", S_METAL],
+	[2.802, BOTTOM, "road_under", S_METAL], [INSET, BOTTOM, "", TmGeo.NO_COLLISION],
 ]
+## Under the deck (measured): TMNF's dark tray from the ground of the level (0 m) to the body's
+## floor, TRAY_IN inside each closed side; on each closed side two truss columns (centred COLUMNS
+## along it, COLUMN_W wide) slanting from the tray's edge up under the rim.
+const TRAY_IN := 2.0
+const TRAY_BOTTOM_IN := 5.0
+const COLUMNS := [8.0, 24.0]
+const COLUMN_W := 1.0
+const COLUMN_FOOT := [Vector2(1.9, 0.05), Vector2(2.35, 0.05)]     ## (d, y) its two bottom edges
+const COLUMN_HEAD := [Vector2(0.85, UNDER), Vector2(1.3, UNDER)]   ## and top edges
 ## The turbo plate's rounded underside edge (every side).
 const PLATE_LIP := [
 	[1.0, TOP, "turbo", S_TURBO], [0.0, TOP, "metal", S_METAL], [0.0, 7.9, "structure", S_METAL],
@@ -207,7 +220,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Wall":
 			match parts[2]:
 				"BorderAir":
-					geo.box(Vector3(0, 0, 0), Vector3(32, 8, 1.345), "platform_wall", S_DECK)
+					_border_wall(geo)
 				"1Air":
 					_grid_wall(geo, 1, false)
 				"2Air":
@@ -241,6 +254,55 @@ func _deck(geo: TmGeo, closed: Array) -> void:
 	var lo := Vector3(inset.call(1), BOTTOM, inset.call(2))
 	var hi := Vector3(32.0 - inset.call(3), TOP, 32.0 - inset.call(0))
 	_body(geo, lo, hi, closed)
+	_underside(geo, closed)
+
+
+## TMNF's tray under the body and the truss columns on the closed sides.
+func _underside(geo: TmGeo, closed: Array) -> void:
+	# the tray: TRAY_IN in at the body's floor, chamfered in to TRAY_BOTTOM_IN at the bottom
+	var top_in := func(i: int) -> float: return TRAY_IN if closed[i] else 0.0
+	var bot_in := func(i: int) -> float: return TRAY_BOTTOM_IN if closed[i] else 0.0
+	var ring := func(f: Callable, y: float) -> Array:
+		return [Vector3(32.0 - f.call(3), y, 32.0 - f.call(0)), Vector3(f.call(1), y, 32.0 - f.call(0)),
+			Vector3(f.call(1), y, f.call(2)), Vector3(32.0 - f.call(3), y, f.call(2))]
+	var up: Array = ring.call(top_in, BOTTOM - 0.01)
+	var dn: Array = ring.call(bot_in, 0.0)
+	geo.quad(dn[0], dn[1], dn[2], dn[3], "platform_tray", S_METAL)
+	for i in 4:
+		# side i (SIDES: +z, -x, -z, +x) between corners i and i + 1, facing out (and down)
+		var j := (i + 1) % 4
+		geo.quad(dn[j], dn[i], up[i], up[j], "platform_tray" if closed[i] else "", S_METAL)
+	for i in 4:
+		if not closed[i]:
+			continue
+		var o: Vector3 = SIDES[i]
+		var t := Vector3(o.z, 0.0, -o.x)
+		var edge := Vector3(16, 0, 16) + o * 16.0
+		for c: float in COLUMNS:
+			var along := t * (c - 16.0)
+			var pts := []
+			for q: Vector2 in COLUMN_FOOT + COLUMN_HEAD:
+				for s: float in [-0.5, 0.5]:
+					pts.append(edge - o * q.x + Vector3(0, q.y, 0) + along + t * s * COLUMN_W)
+			# pts: foot (outer, inner) x (-, +), head (outer, inner) x (-, +)
+			var face := func(a: int, b: int, cc: int, d: int) -> void:
+				var pa: Vector3 = pts[a]
+				var pb: Vector3 = pts[b]
+				var pc: Vector3 = pts[cc]
+				var pd: Vector3 = pts[d]
+				var mid := (pa + pb + pc + pd) * 0.25
+				var cen := Vector3.ZERO
+				for p: Vector3 in pts:
+					cen += p / 8.0
+				if (pb - pa).cross(pc - pa).dot(mid - cen) < 0.0:
+					geo.quad(pa, pd, pc, pb, "truss", S_METAL)
+				else:
+					geo.quad(pa, pb, pc, pd, "truss", S_METAL)
+			face.call(0, 1, 5, 4)      # outer face
+			face.call(2, 3, 7, 6)      # inner face
+			face.call(0, 2, 6, 4)      # one side
+			face.call(1, 3, 7, 5)      # the other
+			face.call(0, 1, 3, 2)      # foot
 
 
 ## A box whose faces toward closed sides are left out (the lips cover them).
@@ -248,7 +310,7 @@ func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array) -> void:
 	var p := [Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
 		Vector3(lo.x, hi.y, lo.z), Vector3(hi.x, hi.y, lo.z), Vector3(hi.x, hi.y, hi.z), Vector3(lo.x, hi.y, hi.z)]
 	geo.quad(p[4], p[7], p[6], p[5], "platform", S_DECK)        # top
-	geo.quad(p[0], p[1], p[2], p[3], "structure", S_METAL)      # floor
+	geo.quad(p[0], p[1], p[2], p[3], "", S_METAL)               # floor (on the tray)
 	if not closed[2]:
 		geo.quad(p[0], p[4], p[5], p[1], "metal", S_METAL)      # -z
 	if not closed[0]:
@@ -261,7 +323,7 @@ func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array) -> void:
 
 ## Sweeps an edge section (d inward, y) along side i of the block; each end is mitred against a
 ## closed neighbouring side, or square to the block edge.
-func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array) -> void:
+func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array, mid := false) -> void:
 	var o: Vector3 = SIDES[i]
 	var t := Vector3(o.z, 0.0, -o.x)
 	var c := Vector3(16, 0, 16)
@@ -273,8 +335,11 @@ func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array) -> void:
 	var at_b := SIDES.find(t)
 	var la := n + t if closed[at_a] else n
 	var lb := n - t if closed[at_b] else n
-	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
-	geo.wall_sweep(sec, [a, b], [la, lb], true, "metal", S_METAL)
+	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]] + q.slice(4))
+	if mid:      # a vertex half way (a texture mirrored about the centre line needs one)
+		geo.wall_sweep(sec, [a, (a + b) * 0.5, b], [la, n, lb], true, "metal", S_METAL)
+	else:
+		geo.wall_sweep(sec, [a, b], [la, lb], true, "metal", S_METAL)
 
 
 ## Turbo deck: a thin plate (8 -> 7.325 m) with a turbo top and rounded underside edges, over a
@@ -282,11 +347,13 @@ func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array) -> void:
 func _turbo(geo: TmGeo) -> void:
 	var all := [true, true, true, true]
 	for i in 4:
-		_edge_sweep(geo, PLATE_LIP, i, all)
-	var lo := Vector3(1.0, UNDER, 1.0)
-	var hi := Vector3(31.0, TOP, 31.0)
-	geo.box(lo, hi, "structure", S_METAL, "turbo", S_TURBO)
+		_edge_sweep(geo, PLATE_LIP, i, all, true)
+	# the plate in two halves (its texture is mirrored about x = 16)
+	geo.box(Vector3(1.0, UNDER, 1.0), Vector3(16.0, TOP, 31.0), "structure", S_METAL, "turbo", S_TURBO)
+	geo.box(Vector3(16.0, UNDER, 1.0), Vector3(31.0, TOP, 31.0), "structure", S_METAL, "turbo", S_TURBO)
 	geo.box(Vector3(10.64, 1.21, 2.64), Vector3(21.36, UNDER, 29.36), "fabric", S_SLIDING)
+	# the pad's texture as TMNF lays it: 16 m a tile along z, mirrored about the centre line
+	geo.remap_uv("turbo", func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, -0.5 - 1.5 * absf(p.x - 16.0) / 16.0))
 
 
 ## The grid wall's plan (x across, depth) swept round an arc in the y-z plane about c = (y, z) from
@@ -444,6 +511,23 @@ func _sector(geo: TmGeo, c: Vector2, r0: float, r1: float, a0: float, a1: float,
 		var a := deg_to_rad(lerpf(a0, a1, float(i) / steps))
 		loop.append([c + Vector2(cos(a), sin(a)) * r0, mat, surf])
 	geo.extrude_y(loop, y0, y1, true, mat, surf)
+
+
+## The platform's border wall (the cell's -z edge, 0 -> 1.345 m, 8 m high): its sides dark
+## concrete panels, its top, foot and ends the border atlas' orange band with the blue line on the
+## outer side (z = 0), as TMNF's (16 m a tile along the top and foot, 8 m up the ends).
+func _border_wall(geo: TmGeo) -> void:
+	var t := 1.345
+	geo.quad(Vector3(0, 0, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, 0, 0), "platform_wall", S_DECK)
+	geo.quad(Vector3(0, 0, t), Vector3(32, 0, t), Vector3(32, 8, t), Vector3(0, 8, t), "platform_wall", S_DECK)
+	for x0: float in [0.0, 16.0]:
+		geo.band_quad(Vector3(x0, 8, 0), Vector3(x0 + 16, 8, 0), Vector3(x0 + 16, 8, t), Vector3(x0, 8, t),
+			"border_orange", S_DECK, 2.0, 1.0, 391.0, 298.0, Vector3.UP)
+		geo.band_quad(Vector3(x0, 0, 0), Vector3(x0 + 16, 0, 0), Vector3(x0 + 16, 0, t), Vector3(x0, 0, t),
+			"border_orange", S_DECK, 1.0, 2.0, 391.0, 298.0, Vector3.DOWN)
+	for x: float in [0.0, 32.0]:
+		geo.band_quad(Vector3(x, 0, 0), Vector3(x, 8, 0), Vector3(x, 8, t), Vector3(x, 0, t),
+			"border_orange", S_DECK, 0.0, 0.5, 391.0, 298.0, Vector3(-1 if x == 0.0 else 1, 0, 0))
 
 
 ## Grid walls `units` blocks high on the cell's -z edge (0 -> 1.345 m): the measured plan

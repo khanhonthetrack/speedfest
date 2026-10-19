@@ -118,3 +118,23 @@ def pillar(name='pillar_steel', ppm=64, size_m=8.0, seed=131):
 if __name__ == '__main__':
     inflatable()
     pillar()
+
+
+def inflatable_skin(name='inflatable_skin', ppm=64, size_m=4.0, seed=141):
+    """The inflatable decorations' vinyl (world-mapped, tinted per part: TmMaterials): near-white
+    glossy skin with soft wrinkles and faint welded seams every 2 m, a little dust."""
+    w = h = int(size_m * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    um = xx / ppm
+    vm = yy / ppm
+    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
+    n2 = fbm(w, h, seed + 1, beta=1.0, lo=24.0)
+    wr = blur(fbm(w, h, seed + 2, beta=1.6, lo=3.0), 1.5)
+    seam = np.clip(1 - smoothstep(0.0, 0.03, np.minimum(vm % 2.0, 2.0 - vm % 2.0)), 0, 1)
+    col = srgb((236, 236, 234))[None, None, :] * ((1.0 + 0.025 * n1 + 0.015 * n2 + 0.03 * wr) * (1 - 0.12 * seam))[..., None]
+    dust = grime(w, h, seed + 3, 0.6, 2.0)
+    col = lerp(col, srgb((200, 196, 186))[None, None, :], dust * 0.15)
+    nrm = normal_from_height(0.8 * wr - 1.2 * seam + 0.1 * n2, 0.5)
+    rough = 0.3 + 0.08 * n2 + 0.2 * dust + 0.1 * seam
+    orm = np.stack([1.0 - 0.2 * seam, rough, np.zeros_like(rough)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)

@@ -34,6 +34,10 @@ var _vis := {}                      ## material key -> Group
 var _col := PackedVector3Array()
 var _surf := PackedInt32Array()
 var sheared := Vector3.ZERO           ## the shear_y applied so far: (kx, kz, dy)
+## wall_sweep's caps: UVs f(section point, part centre) -> UV when set (else planar), the cap split
+## at section height cap_split first (finite: one UV chart below it, one above, as TMNF's caps)
+var cap_uv := Callable()
+var cap_split := INF
 
 
 static func g(p: Vector3) -> Vector3:
@@ -84,6 +88,97 @@ func quad_uv(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surfac
 		ub: Vector2, uc: Vector2, ud: Vector2) -> void:
 	tri(a, b, c, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, ub, uc)
 	tri(a, c, d, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
+
+
+## Re-maps the UVs of every face of a material made so far: f(p) -> UV, p in TMNF block-local
+## coordinates (for textures laid out across a whole piece, e.g. the turbo pads').
+func remap_uv(mat: String, f: Callable) -> void:
+	if not _vis.has(mat):
+		return
+	var grp: Group = _vis[mat]
+	for i in grp.v.size():
+		grp.uv[i] = f.call(g(grp.v[i]))
+
+
+## Re-maps the UVs of a material's upright faces as TMNF maps its sides: u along the face (its
+## horizontal direction (n.z, 0, -n.x), TMNF coordinates) from 0 to 1 over u_m metres and back over
+## the next (mirrored; a face across a turn is cut there), v down from the top per v_m metres (the
+## texture's top row at top_y, or at top_at(p) for p in TMNF coordinates). Faces must not be
+## sheared or turned yet.
+func remap_uv_sides(mat: String, u_m: float, v_m: float, top_y: float, top_at := Callable()) -> void:
+	if not _vis.has(mat):
+		return
+	var grp: Group = _vis[mat]
+	var out := Group.new()
+	for i in range(0, grp.v.size() - 2, 3):
+		var a := g(grp.v[i])
+		var b := g(grp.v[i + 1])
+		var c := g(grp.v[i + 2])
+		var n := (b - a).cross(c - a)
+		var t := Vector3(n.z, 0.0, -n.x)
+		if t.length_squared() < 1e-12:
+			t = Vector3.RIGHT
+		t = t.normalized() / u_m
+		var pieces := [[[a, grp.n[i]], [b, grp.n[i + 1]], [c, grp.n[i + 2]]]]
+		var s0 := minf(a.dot(t), minf(b.dot(t), c.dot(t)))
+		var s1 := maxf(a.dot(t), maxf(b.dot(t), c.dot(t)))
+		for k in range(floori(s0 + 1e-4) + 1, ceili(s1 - 1e-4)):
+			var cut := []
+			for pc: Array in pieces:
+				cut.append_array(_cut_poly(pc, t, float(k)))
+			pieces = cut
+		for pc: Array in pieces:
+			var sm := 0.0
+			for q: Array in pc:
+				sm += (q[0] as Vector3).dot(t) / pc.size()
+			var k := floorf(sm)
+			for j in range(1, pc.size() - 1):
+				for q: Array in [pc[0], pc[j], pc[j + 1]]:
+					var p: Vector3 = q[0]
+					var u := p.dot(t) - k
+					if posmod(int(k), 2) == 1:
+						u = 1.0 - u
+					var top := float(top_at.call(p)) if top_at.is_valid() else top_y
+					out.v.append(g(p))
+					out.n.append(q[1])
+					out.uv.append(Vector2(u, (top - p.y) / v_m))
+	_vis[mat] = out
+
+
+## A convex polygon of [point, normal] cut by the plane p . t = k: the parts on each side.
+static func _cut_poly(pc: Array, t: Vector3, k: float) -> Array:
+	var lo := []
+	var hi := []
+	for i in pc.size():
+		var q: Array = pc[i]
+		var r: Array = pc[(i + 1) % pc.size()]
+		var dq := (q[0] as Vector3).dot(t) - k
+		var dr := (r[0] as Vector3).dot(t) - k
+		if dq <= 0.0:
+			lo.append(q)
+		if dq >= 0.0:
+			hi.append(q)
+		if (dq < 0.0 and dr > 0.0) or (dq > 0.0 and dr < 0.0):
+			var f := dq / (dq - dr)
+			var m := [(q[0] as Vector3).lerp(r[0], f), (q[1] as Vector3).lerp(r[1], f).normalized()]
+			lo.append(m)
+			hi.append(m)
+	return [lo, hi].filter(func(x: Array) -> bool: return x.size() >= 3)
+
+
+## A face carrying bands of the border atlas (TmMaterials "border_*", texgen/borders.py: 1024 x
+## 512, u along the border, 16 m a tile): a -> b along it (u0 -> u1), a -> d across it, from atlas
+## row r0 at the a-b edge to r1 at the d-c edge; front turned to `out`.
+func band_quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int, u0: float,
+		u1: float, r0: float, r1: float, out: Vector3) -> void:
+	var ua := Vector2(u0, r0 / 512.0)
+	var ub := Vector2(u1, r0 / 512.0)
+	var uc := Vector2(u1, r1 / 512.0)
+	var ud := Vector2(u0, r1 / 512.0)
+	if (b - a).cross(c - a).dot(out) >= 0.0:
+		quad_uv(a, b, c, d, mat, surface, ua, ub, uc, ud)
+	else:
+		quad_uv(a, d, c, b, mat, surface, ua, ud, uc, ub)
 
 
 ## A screen's UV `along` metres (0..w) along it and `down` metres (0..h) from one long edge (see
@@ -348,10 +443,18 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 				side = -side
 				va = float(vhi[k]) - va
 				vb = float(vhi[k]) - vb
-			var ua := Vector2(side * float(us[f][k]), va)
-			var ub := Vector2(side * float(us[f][k + 1]), vb)
-			var uc := Vector2(side * float(us[f + 1][k + 1]), vb)
-			var ud := Vector2(side * float(us[f + 1][k]), va)
+			var tile := 1.0
+			if (profile[k] as Array).size() > 3:
+				# an atlas segment ([point, key, surface, Vector2(row at its start, at its end)]):
+				# v the atlas' rows (of 512, TmGeo.band_quad), u 16 m a tile along
+				var rows: Vector2 = profile[k][3]
+				va = rows.x / 512.0
+				vb = rows.y / 512.0
+				tile = 1.0 / 16.0
+			var ua := Vector2(side * float(us[f][k]) * tile, va)
+			var ub := Vector2(side * float(us[f][k + 1]) * tile, vb)
+			var uc := Vector2(side * float(us[f + 1][k + 1]) * tile, vb)
+			var ud := Vector2(side * float(us[f + 1][k]) * tile, va)
 			if mat in SCREENS:
 				# a screen per segment: as long as the path, as high as the segment
 				var h := ((pr0[k + 1][0] as Vector2) - (pr0[k][0] as Vector2)).length()
@@ -505,20 +608,34 @@ func _section_cap(loop: Array, frame: Transform3D, side: float, mat: String, sur
 	var poly := PackedVector2Array()
 	for p in loop:
 		poly.append(p[0])
-	var idx := Geometry2D.triangulate_polygon(poly)
+	var parts := [poly]
+	if cap_uv.is_valid() and is_finite(cap_split):
+		parts = []
+		for half: PackedVector2Array in [
+				PackedVector2Array([Vector2(-1e4, -1e4), Vector2(1e4, -1e4), Vector2(1e4, cap_split), Vector2(-1e4, cap_split)]),
+				PackedVector2Array([Vector2(-1e4, cap_split), Vector2(1e4, cap_split), Vector2(1e4, 1e4), Vector2(-1e4, 1e4)])]:
+			parts.append_array(Geometry2D.intersect_polygons(poly, half))
 	var fwd := frame.basis.z * side
-	for k in range(0, idx.size(), 3):
-		var pts := []
-		for j in 3:
-			var q: Vector2 = poly[idx[k + j]]
-			pts.append(frame.origin + frame.basis.x * q.x + frame.basis.y * q.y)
-		var a: Vector3 = pts[0]
-		var b: Vector3 = pts[1]
-		var c: Vector3 = pts[2]
-		if (b - a).cross(c - a).dot(fwd) < 0.0:
-			tri(a, c, b, mat, surface)
-		else:
-			tri(a, b, c, mat, surface)
+	for part: PackedVector2Array in parts:
+		var idx := Geometry2D.triangulate_polygon(part)
+		var cen := Vector2.ZERO
+		for q in part:
+			cen += q / part.size()
+		for k in range(0, idx.size(), 3):
+			var pts := []
+			var uvs := [Vector2.ZERO, Vector2.ZERO, Vector2.ZERO]
+			for j in 3:
+				var q: Vector2 = part[idx[k + j]]
+				pts.append(frame.origin + frame.basis.x * q.x + frame.basis.y * q.y)
+				if cap_uv.is_valid():
+					uvs[j] = cap_uv.call(q, cen)
+			var a: Vector3 = pts[0]
+			var b: Vector3 = pts[1]
+			var c: Vector3 = pts[2]
+			if (b - a).cross(c - a).dot(fwd) < 0.0:
+				tri(a, c, b, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uvs[0], uvs[2], uvs[1])
+			else:
+				tri(a, b, c, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uvs[0], uvs[1], uvs[2])
 
 
 ## A vertical prism over a closed horizontal loop of [Vector2(x, z), mat, surface] points (each
@@ -572,6 +689,38 @@ func pipe(a: Vector3, b: Vector3, r: float, sides: int, mat: String, surface: in
 			tri(p0, p1, q1, mat, surface, n0, n1, n1)
 
 
+## A band of a round pillar about c (TMNF x, z), n sides (a corner on +x): from radius r0 at
+## heights y0(q) to r1 at y1(q) (q: the corner's x, z), facing out, shaded round.
+func ring(c: Vector2, n: int, r0: float, y0: Callable, r1: float, y1: Callable, mat: String, surface: int) -> void:
+	for k in n:
+		var a0 := TAU * k / n
+		var a1 := TAU * (k + 1) / n
+		var d0 := Vector2(cos(a0), sin(a0))
+		var d1 := Vector2(cos(a1), sin(a1))
+		var p0 := c + d0 * r0
+		var p1 := c + d1 * r0
+		var q0 := c + d0 * r1
+		var q1 := c + d1 * r1
+		var a := Vector3(p0.x, y0.call(p0), p0.y)
+		var b := Vector3(p1.x, y0.call(p1), p1.y)
+		var cc := Vector3(q1.x, y1.call(q1), q1.y)
+		var d := Vector3(q0.x, y1.call(q0), q0.y)
+		var n0 := Vector3(d0.x, 0, d0.y)
+		var n1 := Vector3(d1.x, 0, d1.y)
+		# (b - a) runs toward +angle, (d - a) up: their cross points in, so wind a, d, c, b
+		tri(a, d, cc, mat, surface, n0, n0, n1)
+		tri(a, cc, b, mat, surface, n0, n1, n1)
+
+
+## A pillar's flat end about c, n sides of radius r, at heights y(q), facing down.
+func disc(c: Vector2, n: int, r: float, y: Callable, mat: String, surface: int) -> void:
+	var m := Vector3(c.x, y.call(c), c.y)
+	for k in n:
+		var p0 := c + Vector2(cos(TAU * k / n), sin(TAU * k / n)) * r
+		var p1 := c + Vector2(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n)) * r
+		tri(m, Vector3(p0.x, y.call(p0), p0.y), Vector3(p1.x, y.call(p1), p1.y), mat, surface)
+
+
 ## Horizontal polygon (TMNF x, z points) at height y, facing up (or down if down).
 func flat_polygon(poly: PackedVector2Array, y: float, mat: String, surface: int, down := false) -> void:
 	var idx := Geometry2D.triangulate_polygon(poly)
@@ -601,7 +750,10 @@ static func reversed_loop(loop: Array) -> Array:
 	for i in n:
 		var p: Array = loop[n - 1 - i]
 		var seg: Array = loop[(n - 2 - i + n) % n]
-		out.append([p[0], seg[1], seg[2]])
+		if seg.size() > 3:     # atlas rows (see sweep): the segment now runs the other way
+			out.append([p[0], seg[1], seg[2], Vector2((seg[3] as Vector2).y, (seg[3] as Vector2).x)])
+		else:
+			out.append([p[0], seg[1], seg[2]])
 	return out
 
 

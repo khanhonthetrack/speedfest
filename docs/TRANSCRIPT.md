@@ -968,3 +968,55 @@ custom blocks (2); a texture mod or custom music is ignored and the track races 
 the branch, then put it on `stadium` for a v0.6.)
 
 > Yes, do both - dont release yet
+
+## Session 13 continued — 2026-10-19 (cloud; after v0.5, branch `claude/tmnf-replica-graphics-nb1kcg`)
+
+### User (verbatim, session 13, 19 Oct, after v0.5; with a screenshot of A01 from the raised level: a wide blue floor behind the circuit walls)
+
+> A01. In tmnf the blue parts are not as wide
+
+### User (verbatim, session 13, 19 Oct)
+
+> When braking, i still see the black thingies near wheels
+
+### Claude (asked whether `stadium` should take the ledge and smoke fixes now, before the v0.5 tag, or in the next release)
+
+### User (verbatim, session 13, 19 Oct)
+
+> For the next release
+
+### User (verbatim, session 13, 19 Oct)
+
+> But dont just fix A01 but all maps which have that problem
+
+### Claude (asked whether to match TMNF where it has more blue: the ground strip along ground circuits' walls, the steps of the walls across a slope)
+
+### User (verbatim, session 13, 19 Oct)
+
+> Yes, match in every way
+
+### User (verbatim, session 13, 19 Oct)
+
+> Anything left which is different from tmnf?
+
+### Claude (listed what is still different from TMNF: landings' and flat-ground wheelies, the pipe ride, water, small RE details, grass's id; rough decorations and details, the stadium's surroundings, the smoke, four circuit base variants; the engine's pitch curves, the padlocks; the deliberate ones: our tracks, car, textures, logos, music; and offered a block-by-block material check)
+
+### User (verbatim, session 13, 19 Oct)
+
+> yes do the systematic check and fix everything
+
+## Release v0.6 — 2026-10-19 (owner's Windows PC, branch `stadium`)
+
+### User (verbatim)
+
+> merge everything done so far in the stadium branches to release 0.6
+
+### Claude
+
+`stadium` (v0.5 + session 15's community work, M12) and `claude/tmnf-replica-graphics-nb1kcg`
+(session 13 after v0.5: the circuit ledges' blue, no black tyre smoke, TMNF's blue on every circuit
+border, and M11-1..3, the block-by-block look check and its fixes) merged into `stadium`, gated and
+tagged `stadium-v0.6`. Left out as not stadium branches (all from `main`):
+`claude/speedfest-stadium-overhaul-dvdcal` (session 11's neon-city game, which moves `stadium/` to
+`game/` and replaces the TMNF look), `ccr-be8add6f-thdbey` (story mode, docs only) and
+`claude/loving-fermi-79nbzc` (BlendSwap trial).

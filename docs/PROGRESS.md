@@ -2502,3 +2502,170 @@ didn't have this branch), then "Yes, do both - dont release yet" (TRANSCRIPT).
   campaign, not SF01). A crashed test leaves its node server holding the gate's output pipe (the
   gate then waits): kill leftover `server.js` processes if the gate stalls.
 - Then `stadium` fast-forwarded to the merge (owner's go-ahead). No tag: the owner releases later.
+
+## 2026-10-19 — Session 13 continued (after v0.5): the circuit ledges' blue as narrow as TMNF's
+- Owner (screenshot of A01 from the lane): "In tmnf the blue parts are not as wide". The ledge
+  behind a circuit wall (top 8 m, the lane's level) was blue all over; on inner corners, GT curves
+  and diagonals that is a wide wedge. Measured on TMNF's border blocks (local reference meshes,
+  per material at 8 m): the blue border strip (StadiumRoadCircuitBorder) is always 4.91 m wide
+  along the wall, radially on curves, and the rest is the lane's deck (StadiumPlatform).
+  `blocks/shapes/circuit.gd`: the curves' and diagonals' ledges are split into that band
+  (`BAND`, "circuit_floor") and the deck ("platform", asphalt as the circuit base; the grip and
+  drive factors are the same as before). Our ledge tops now match TMNF's per shape to 0.5% (e.g.
+  GTCurve 3 In 721.0 / 1982.9 m² against 721.0 / 1975.9; Corner In 226.4 / 224.9 against
+  227.5 / 220.8); A01's inner corner checked side by side with TMNF's blocks in the same view.
+
+## 2026-10-19 — Session 13 continued: no more black tyre smoke
+- Owner: "When braking, i still see the black thingies near wheels". Reproduced in the test arena
+  (hard braking from 160 km/h, chase camera): the newest puffs at each wheel still drew as dark,
+  near-opaque blobs; the draw-order change of M10-2 had only hidden it in some frames. Their colour
+  came from the particle's vertex colour (a StandardMaterial3D with `vertex_color_use_as_albedo`),
+  which went wrong for fresh particles. Now the puffs have their own shader
+  (`race/tm_tyre_smoke.gdshader`: the particle billboard, unshaded, the colour a per-wheel `tint`
+  for the surface, the particle only fading it), so a puff can fade but never draw darker than its
+  tint. With the puffs at their intended opacity the road smoke barely showed on the light decks,
+  so it is whiter and denser (0.9 grey at 0.55, was 0.78 at 0.3); dust and grass bits unchanged.
+- (same day) Owner: "But dont just fix A01 but all maps which have that problem". The fix is in the
+  circuit border generator, so it holds on every map that has circuit borders: our 26 tracks with
+  circuits (A01, A08, A13, A15, B01, B05, B10, B12, B15, C02, C04, C05, C06, C11, C13, C15, D02,
+  D04, D05, D07, D08, D12, D13, D14, E03, E05: 238 inner corners, all raised), the editor's
+  tracks and TMNF track files. Checked shape by shape against TMNF's own blocks (every Circuit
+  border and slope shape, flat, sloped and turned): the ledge's blue strip and the deck agree
+  within 1%; C11 rendered as well. Two differences remain, both where TMNF has blue and ours
+  doesn't, and only in pieces our tracks don't use: borders standing on the ground (TMNF lays the
+  blue strip on the ground along the wall's outside, 4.7 m; ours is grey there and has none at the
+  outer corners) and the walls across a slope (Slope/Straight Top/Bottom: TMNF's ledge steps are
+  blue, ours grey). Left for the owner to decide.
+- (same day) Owner: "Yes, match in every way". `blocks/shapes/circuit.gd`, measured on TMNF's
+  border blocks (the blue is its StadiumRoadCircuitBorder texture wherever it is used):
+  - Borders standing on the ground now lay the blue strip on the terrain in front of the wall's
+    foot, 0.465 to 5.155 m out from the face (`GROUND_STRIP`), on every shape: straights,
+    corners and GT curves (radially; outer GT curves widen mid-curve by 0.46 / 0.33 / 0.10 m for
+    2 / 3 / 4 cells, `GROUND_OUT_BULGE`), diagonals (along the cell edges), with TMNF's rubber pads
+    where it crosses a cell corner (2-cell outer, 4-cell inner curves, `GROUND_PADS`). It lies
+    1 cm above the grass (`GROUND_LIFT`: no flicker, and a wheel's ray finds the strip, not the
+    grass). Straights had a grey strip there; the other shapes had none.
+  - Slope starts on the ground: TMNF's black rubber strip in front of the wall for the first
+    12 m; ours had the straight's strip laid across the piece instead (a bug).
+  - The walls across a slope (Slope/Straight Top / Bottom): their step is the blue strip, not the
+    wall's top-lip blue.
+  - Every blue strip takes TMNF's surface for that material (9, rubber; the ledge was metal): the
+    same grip and drive, and the chassis slides on it as on rubber, not metal.
+  - Checked per shape against TMNF (blue on the ground and up on the walls, the deck, the pads):
+    within 2.5% on every Circuit border and slope shape, exact on straights, corners and
+    diagonals; TMNF's B08 (ground circuits) rendered side by side with TMNF's blocks.
+
+## 2026-10-19 — M11-1: the block-by-block look check against TMNF
+- Owner: "yes do the systematic check and fix everything". New research tool:
+  `stadium/tests/block_dump.tscn` (every shape we build as triangles with material keys and each
+  key's mean albedo) and `tools/research/tmnf/material_check.py` (TMNF's surfaces sampled every
+  0.5 m with their texture colour, matched to ours; colour differences, missing and extra
+  geometry per shape, by our material key, by TMNF material). First run over the 548 shapes we
+  build: colour differs on 23% of TMNF's area, 18% missing; the list, weighted by our tracks'
+  block counts, is `docs/research/m11_check.md`. Fixing it family by family (PLAN M11-2).
+- (M11-2) **Platform walls and turbo pads as TMNF's.** Our own border atlas
+  (`tools/texgen/borders.py`, `border_atlas`: TMNF's band layout and colours, our emblem) and
+  turbo pad (`tools/texgen/turbo.py`, `turbo_pad`: dark ribbed panels on a seam grid, a big yellow
+  arrow each half, red scrapes); UV-mapped as TMNF maps its own (`TmGeo.band_quad`,
+  `TmGeo.remap_uv`). The platform border wall's top, foot and ends carry the orange band with its
+  blue line outside (it was charcoal all over; 4082 walls on our tracks); turbo pads (road and
+  platform) are TMNF's chevrons, 16 m a tile along the road, mirrored about the centre line (the
+  platform plate split at x = 16 for it). Checked: platform wall 5% of its area off (the logos'
+  edges), turbo pads mean dE 14-15, side by side with TMNF's blocks on A04. `block_dump` now reads
+  UV-mapped textures at their UVs.
+- (M11-2) **Circuit sides, undersides and slope bases as TMNF's.** Our own circuit side texture
+  (`tools/texgen/circuit_side.py`, `circuit_side`: TMNF's row layout and colours measured from its
+  StadiumCircuit texture: light rails top and bottom, an orange band under the top rail and one
+  over the bottom rail, dark panels; the left quarter, the blocks' ends, a bolted plate with vented
+  strips; drawn here) on every upright circuit face (plates, ramps, ledges' outer faces), UV-mapped
+  as TMNF maps it: 16 m a tile along the face, mirrored every other tile (faces cut where it turns,
+  `TmGeo.remap_uv_sides`), the 8 m height down from the piece's top (on slopes from the road's
+  edge). The walls' end caps take its left quarter in TMNF's two charts, below and above the ledge
+  (`TmGeo.cap_uv` / `cap_split`, `circuit.gd _cap_uv`; key `circuit_cap`). Underneath: TMNF's
+  white fabric (`fabric_auvent`, surface 9 as TMNF's) under raised plates, ramps and the curves'
+  ledges outside the blue strip; its dark stands' floor (`truss`) under the strip and the
+  straights' ledges. **Slope bases** (Start, Straight, End) are TMNF's 8 m thick plate following
+  the road with a round pillar under its middle (12 sides, r 1.64 m, chamfered foot, a 24-sided
+  collar under the plate; collision as TMNF's), not a solid block down to the floor. Faces TMNF
+  doesn't have are gone: plates' and ledges' bottoms on the ground (under the terrain; collision
+  kept), the ledge's side against the wall's back in curves. Check over the 63 Circuit shapes:
+  colour differs on 9.1% of TMNF's area (was 20.1%), missing 0.8% (2.8%), extra 3,332 m² (67,478);
+  the sides' texture mean dE 12; side by side with TMNF's blocks on A01 (slopes, pillar) and
+  alone (`tests/block_view.tscn`, new: one shape in the Day light, `--ref` for TMNF's look).
+  `map_view --view=near:` takes a yaw and height.
+- (M11-2) **Roads as TMNF's.** TMNF's curbs, road lip and keel plates are bands of the same
+  border atlas we recreated (our `border_atlas`): every segment of the road's section now picks
+  TMNF's band at TMNF's rows (measured from its UVs; `road.gd` HALF_* fifth column, carried by
+  `TmGeo.sweep` as atlas rows): the curb's round top and the ground pieces' outer face the light
+  panel, its flat top the dark ribs, its faces the black band with a white line, our emblem and a
+  blue line at the foot, the road's lip blue, the ground shoulder the green band. The keel's
+  underside is TMNF's light plates (our `road_under`, texgen/decks.py), the shoulder and its
+  underside TMNF's two-panel grid (our `road_grid`, texgen/road.py), road pillars TMNF's light
+  concrete, the curbs' ends and the junction deck's closed sides TMNF's dark border metal; noses
+  have the grid on top. **Ground slopes** (Slope/Straight, Base, Base2, BiSlope, U bottom) keep the
+  raised road's section as TMNF does (open underneath, its keel into the terrain at the low end)
+  with TMNF's round pillar under the raised end (r 1.42 m, flared foot and head; collision too),
+  not curb faces walled down to the grass. Road family check: colour differs 11.9% -> 10.5% of
+  TMNF's area after the atlas step (was 23% overall in the first run), missing 11.2% -> 10.5%;
+  side by side with TMNF's blocks (straights, curbs, undersides, ground slopes).
+- (M11-3) **The inflatable decorations as TMNF's** (our tracks place 1,170 of them: palm trees,
+  snow trees, cacti). Measured from TMNF's blocks with a new tool, `tools/research/tmnf/blob_slices.py`
+  (a mesh cut into horizontal slices object by object: centres and radii), and its textures'
+  colours sampled over the surfaces: each block is a group, as TMNF's, not one rough shape.
+  Cacti: four (two kinds, each twice turned), ribbed trunks with rounded tops and two arms each
+  (level, then up), a white label band at the foot (ours plain with an ink line), a grey base ring,
+  red tie ropes. Snow trees: four, tiered lathes with eight branches per tier (staggered), snow on
+  each tier's rim and the top cone (where TMNF's texture is light). Palms: two sand islands (TMNF's
+  outline) with grey rims, two leaning palms on each (ringed trunks darker at the foot, a white
+  label band, five drooping fronds each of TMNF's three kinds, a crown cap, four black tie ropes).
+  One near-white vinyl texture tinted per part (`inflatable_skin`, texgen/stadium.py). Collision
+  fidelity (top-down, 0.15 m): cactus 86.5 -> 94.6%, palm 66.1 -> 82.4%, snow tree 81.6 -> 84.7%;
+  side by side with TMNF's blocks.
+- (M11-2) **Platform decks' sides and underside as TMNF's** (our tracks' most used block,
+  Platform/Road/BaseAir, 1,489 on our tracks): the rim is the border atlas' ribbed edge and black
+  underside with the blue line (TMNF's rows), the flat underside and foot ledge TMNF's light plates,
+  and under the body TMNF's dark tray (chamfered, to the level's floor) with two slanted truss
+  columns on every closed side, as TMNF's (measured; collision too). The airship's envelope takes
+  TMNF's beige (its texture's mean), not the fabric white. Side by side with TMNF's block.
+
+## 2026-10-19 — Release `stadium-v0.6` (owner's Windows PC): `stadium` + the work after v0.5
+Owner: "merge everything done so far in the stadium branches to release 0.6".
+- The stadium branches: `stadium` (a35a542: v0.5 + session 15's community work; `ccr-1ce252fc-wl7p3m`
+  is the same commit), `claude/tmnf-replica-graphics-nb1kcg` (7da8889: 18 commits after v0.5) and
+  `claude/trackmania-stadium-review-lds3no` (already contained). Merged the M11 branch into `stadium`.
+  Not merged, being other lines forked from `main`: `claude/speedfest-stadium-overhaul-dvdcal`
+  (session 11's neon-city game built on a 16 Oct `stadium`: `stadium/` moved to `game/`, the TMNF
+  stadium replaced by a city), `ccr-be8add6f-thdbey` (story mode, docs), `claude/loving-fermi-79nbzc`
+  (BlendSwap trial); `claude/sleepy-albattani-o7ygr1`'s find has been in since v0.5.
+- Conflicts: PROGRESS and TRANSCRIPT (both sides kept, `stadium`'s first; the M11 branch's owner
+  messages under a "Session 13 continued" heading) and `stadium/blocks/shapes/circuit.gd`, where
+  session 15 had added the TMX tracks' circuit pieces and M11-2 had rebuilt the plate and the slope
+  base as TMNF's. Resolved: session 15's dispatch (loop start, kickers, turbo plate and slopes,
+  bump / hole / pillar plates) on M11's `_plate` and `_ramp` (both take a top material now, for the
+  turbo pieces; M11's `_prof_y` dropped for session 15's identical `_profile_at`). The plate
+  variants (bump, hole, pillars) take M11's circuit sides and white fabric (`fabric_auvent`, not the
+  fabric roofs' translucent `fabric_under`) underneath. The turbo plate and slopes take M11's pad
+  texture, its UVs as on the platform's turbo deck (`_map_turbo`, before the slope is turned; the
+  sides mapped before the turn too); the plate's and slope's tops are now two halves at x = 16,
+  since the texture mirrors there (one quad gave every corner the same v: streaks). The kickers
+  keep session 15's sides (the Big one's 10 m face doesn't fit the 8 m side texture; left for
+  M11's check). Screenshots (`tests/block_view.tscn`): Circuit/Turbo/Air and LeftAir as the
+  platform's pad, BaseBumpUpAir and BaseHoleAir as the plain plate.
+- PLAN: the community milestone renamed M12 (two M11s after the merge; the look check keeps M11, its
+  commits are labelled so); M11-4 (circuit base variants) marked done by M12's pieces.
+- Gate on Windows: run with `APPDATA` set to a scratch dir. With the PC's own `user://`, `test_race`
+  failed `A01_ghost_kept` (the owner's `settings.cfg` has `ghost=false`, so no ghost is kept).
+- `test_online` made independent of how long a track takes to build (owner: "Make the first-round
+  check in test_online independent of how long the track takes to build"). On this PC a track builds
+  in about 9 s headless; `rounds_start_together` failed on the merge every time (546-966 ms late)
+  and passed before it (3 runs each): logged, the client got ready 444 ms after the Rounds test
+  server's first start on the merge and 34 ms after it before (the build itself was 0.8 s faster
+  on the merge, 8.8 against 9.6 s): it joined a round that had already started, so nothing was
+  held and only the phase of the build against the server's round cycle decided it. Likewise
+  `online_finish_ranked`, `online_server_finish_is_a_record` and `online_results` failed in 2 of 3
+  runs on both trees: the Time Attack test server's 6 s round ended before a big track (picked at
+  random) was built. Now the server takes `--start-ms` (config `start_ms`, env `START_MS`: the
+  Rounds / Team / Laps lead before a start, default 3000; `server.js`, server README) and the test
+  runs its Time Attack server with 30 s rounds and its Rounds server with a 30 s lead
+  (`TA_ROUND_MS`, `ROUNDS_LEAD_MS`), waiting as long as they need: every online check passes on
+  this PC, and the first round's countdown is really held now.

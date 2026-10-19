@@ -152,3 +152,16 @@ same way with left and right swapped (`ghost_fit` mirrors the states itself; `gh
 writes TMNF's own sides). Results so far: asphalt agrees to centimetres over 0.5 s; the surface
 table's columns were misread and are fixed (`docs/research/tmnf_physics.md` §3.10); in the air
 TMNF's gravity (25), drag (0.03 v) and angular drag match ours.
+
+## Look check, block by block (session 13, M11)
+`stadium/tests/block_dump.tscn` writes every block shape we build as triangles with their material
+keys and each key's mean albedo; `material_check.py` compares them with TMNF's own meshes (the
+local reference visuals from `ref_visuals.py`): it samples TMNF's surfaces, reads TMNF's texture
+colour at each point (blurred to the atlas' regions; TMNF's v runs up), finds our surface there
+facing the same way, and lists per shape where the colours differ (Lab dE > 25), TMNF surface we
+lack (missing) and ours TMNF lacks (extra), ranked by area times campaign use; `--pairs=N` sums
+each (TMNF material -> our key) over all shapes with both mean colours, `--missing=N` the missing
+and extra area by material and family, `--shape=substr --detail` one family in detail.
+
+    stadium/tools/run.sh res://tests/block_dump.tscn --headless -- --shapes=<list> --out=$W/ours
+    python3 -I tools/research/tmnf/material_check.py $W/ours $W/ref stadium/blocks/data/block_catalogue.json --pairs=60

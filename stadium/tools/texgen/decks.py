@@ -138,6 +138,32 @@ def circuit_panel(name='circuit_panel', ppm=64, size_u=16.0, size_v=8.0, seed=28
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def road_under(name='road_under', ppm=64, size_u=8.0, size_v=4.0, seed=301, base=(146, 141, 137)):
+    """The road keel's underside (UV-mapped: u along the road, v across it), as TMNF's light steel
+    plates: rows 1 m wide, 4 m long, staggered, dark joints with rivets along them, grime."""
+    w, h = int(size_u * ppm), int(size_v * ppm)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    mott = fbm(w, h, seed, beta=2.4, lo=1.0, hi=10.0)
+    fine = fbm(w, h, seed + 1, beta=0.7, lo=64.0)
+    dirt = np.clip(grime(w, h, seed + 2, amount=1.0), 0, 1)
+    row = np.floor(yy / ppm)
+    dv = np.minimum(yy % ppm, ppm - yy % ppm) / ppm
+    ux = (xx + (row % 2) * 2 * ppm) % (4 * ppm)
+    du = np.minimum(ux, 4 * ppm - ux) / ppm
+    joint = np.maximum(1.0 - smoothstep(0.0, 0.02, dv), 1.0 - smoothstep(0.0, 0.02, du))
+    rv = (yy % ppm) / ppm
+    rivet = np.zeros((h, w), np.float32)
+    for c in (0.08, 0.92):
+        d = np.sqrt(((xx % (0.5 * ppm)) - 0.25 * ppm) ** 2 + ((rv - c) * ppm) ** 2) / ppm
+        rivet = np.maximum(rivet, 1.0 - smoothstep(0.02, 0.035, d))
+    tone = (1.0 + 0.04 * mott + 0.03 * fine) * (1.0 - 0.12 * dirt) * (1.0 - 0.55 * joint)
+    col = srgb(base)[None, None, :] * tone[..., None]
+    col = lerp(col, srgb((110, 106, 102))[None, None, :], (0.7 * rivet)[..., None])
+    nrm = normal_from_height(0.15 * fine - 1.5 * joint + 0.8 * rivet, 0.45)
+    orm = np.stack([1.0 - 0.3 * joint, 0.6 + 0.05 * fine + 0.1 * dirt, 0.25 * (1.0 - joint)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 def circuit_band(name='circuit_band', ppm=64, size_u=16.0, size_v=3.5, seed=291):
     """The blue band along the circuit walls' outside (UV-mapped; 3.5 m high): deep blue lighter
     toward its lower edge, a field of small lit squares fading in from below, our name in the
@@ -248,6 +274,7 @@ if __name__ == '__main__':
     platform_wall()
     circuit_panel()
     circuit_band()
+    road_under()
     steel_truss()
     circuit_kerb()
     circuit_bumper()

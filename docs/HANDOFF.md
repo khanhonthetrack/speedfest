@@ -1,6 +1,35 @@
 # HANDOFF: start here
 
-## Latest (19 Oct, session 15, cloud): session 15 merged with v0.5 and into `stadium` (no release yet)
+## Latest (19 Oct, owner's Windows PC): `stadium-v0.6` = `stadium` + the work after v0.5
+- Owner: "merge everything done so far in the stadium branches to release 0.6".
+- **`claude/tmnf-replica-graphics-nb1kcg` merged into `stadium`** (which already had v0.5 + session
+  15's community work). In v0.6: the Community page and admins' TMX / ManiaPark uploads (M12), the
+  circuit ledges' blue as TMNF's, no black tyre smoke, TMNF's blue on every circuit border, and
+  M11-1..3 (the block-by-block look check; platform walls and decks, turbo pads, the circuit's
+  sides, undersides, end caps and slope bases, roads, inflatable trees and cacti, the airship).
+- Conflicts: docs (both sides kept) and `blocks/shapes/circuit.gd`: session 15's new circuit
+  pieces for TMX tracks (loop start, kickers, turbo plate and slopes, bump / hole / pillar plates)
+  now stand on M11's TMNF plate and ramp (circuit sides, white fabric underneath, the slope's
+  pillar and collar); the turbo pieces take M11's pad texture, mapped as on the platform's turbo
+  deck (the tops in two halves at x = 16: the texture mirrors there); the kickers keep their own
+  look (a 10 m face doesn't fit the 8 m side texture; for M11's check). Screenshots checked
+  (`tests/block_view.tscn`).
+- Milestones: M11 stays the TMNF look check (its commits say M11-x); the community work is now
+  **M12** in PLAN.md (it was M11 on `stadium`, M10 on its branch).
+- `test_online` no longer depends on how long a track takes to build (it did: ~9 s on this PC,
+  against the test servers' 6 s rounds and 3 s Rounds lead): the server takes `--start-ms` and the
+  test runs 30 s rounds and a 30 s lead (PROGRESS, v0.6).
+- STADIUM_TESTS PASS on the merge (Windows; run with `APPDATA=<scratch dir>` so the tests get a
+  clean `user://`: on this PC the game's own `settings.cfg` has the owner's `ghost=false`, which
+  fails `test_race`'s ghost checks). Tag `stadium-v0.6` pushed from the PC: CI "Stadium builds"
+  makes the GitHub Release with the Windows and Linux zips.
+- Not merged (not stadium branches; all forked from `main`): `claude/speedfest-stadium-overhaul-dvdcal`
+  (session 11's neon-city game: moves `stadium/` to `game/`, drops the TMNF look and the web
+  build), `ccr-be8add6f-thdbey` (story mode, docs only), `claude/loving-fermi-79nbzc` (BlendSwap).
+- Continue on `stadium` (the M11 work branch is contained in it). Next: M11-2 on (the road, then
+  by our tracks' use: grandstands, camera booths, sculptures, dirt roads, castles), M11-5..8.
+
+## Earlier (19 Oct, session 15, cloud): session 15 merged with v0.5 and into `stadium` (no release yet)
 - Owner: "Why cant i see the community tab in the 0.5 version?" (v0.5 was tagged from `stadium`,
   which didn't have session 15's branch), then "Yes, do both - dont release yet": merge v0.5 into
   `ccr-1ce252fc-wl7p3m`, then put it on `stadium`. **Don't tag `stadium-v0.6` until the owner
@@ -11,7 +40,7 @@
   in a little viewport of its own, the previews as TMNF's picture cards), `tm_ui.gd` settings,
   `control.gd` (session 15's ground camera lights take v0.5's dark glass), `test_all.sh`,
   `test_menu`, docs (both sides kept, `stadium`'s first). Milestones: v0.5's M10 is TMNF's look
-  and physics; session 15's community work is **M11** in PLAN.md.
+  and physics; session 15's community work is **M11** in PLAN.md (**M12** since the v0.6 merge).
 - Continue on `stadium`.
 
 ## Earlier (18-19 Oct, session 15, cloud): community tracks and cars on admins' servers, the Community page
@@ -50,6 +79,26 @@
   Windows and Linux zips). Cloud sessions can't push tags (HTTP 403), so from the PC:
   `git fetch origin && git tag -a stadium-v0.5 origin/stadium -m "SpeedFest Stadium v0.5" && git push origin stadium-v0.5`
   (or GitHub > Releases > Draft a new release, tag `stadium-v0.5` on `stadium`).
+- **After v0.5, for the next release** (owner: "For the next release"; on the work branch
+  `claude/tmnf-replica-graphics-nb1kcg`, ahead of `stadium`; fast-forward `stadium` to it when the
+  next release is cut, then tag it the same way, e.g. `stadium-v0.6`): the circuit ledges' blue is
+  TMNF's 4.91 m strip along the wall, the deck beyond (owner, A01: "In tmnf the blue parts are not
+  as wide"; `blocks/shapes/circuit.gd`); the tyre smoke never draws black (owner: "When braking, i
+  still see the black thingies near wheels"; `race/tm_tyre_smoke.gdshader`), road smoke whiter;
+  then (owner: "match in every way") TMNF's blue everywhere on the circuit borders: the strip on
+  the ground along ground borders' walls, the walls across a slope, the slope starts' rubber strip,
+  TMNF's surface on every strip (PROGRESS 19 Oct; checked per shape against TMNF's blocks).
+  `stadium-v0.5` stays as merged (f51d56c).
+- **M11 (owner: "yes do the systematic check and fix everything"), on the work branch**: the
+  block-by-block look check (`tests/block_dump.tscn` + `tools/research/tmnf/material_check.py`,
+  `docs/research/m11_check.md`) and the fixes, one family per commit (PROGRESS 19 Oct): platform
+  walls and turbo pads, the circuit (sides, undersides, end caps, slope bases with their pillar),
+  roads (TMNF's atlas bands per section segment, keel plates, grid, ground slopes raised on a
+  pillar), the inflatable palm / snow trees / cacti (`blob_slices.py`), the platform decks' rim,
+  tray and truss columns, the airship's colour. Side-by-side renders: `tests/block_view.tscn`
+  (one shape; `--ref=<local ref dir>` shows TMNF's own look). Next by our tracks' use (the list
+  in m11_check.md): the grandstands (Fabric), camera booths, sculptures, dirt roads, castles; then
+  PLAN M11-4..8.
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).
