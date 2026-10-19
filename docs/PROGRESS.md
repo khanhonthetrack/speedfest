@@ -2187,3 +2187,13 @@ to TMNF, compared side by side with screenshots. Worked in that order.
 - **The race menu lists Select Opponents**, as TMNF's does (for our tracks with medals, not online
   or in a test drive): it opens the dialog again, and a pick there starts the race over with the
   new opponent. Its list pills are slimmer with smaller text, as TMNF's. `test_opponent` checks it.
+- **M10-6, TMNF's top bar** (owner: "yes build it, in races too"; `ui/tm_top_bar.gd`, drawn after
+  TMNF's): at the top right, a sound volume wedge with its knob and a speaker (a press mutes), a
+  music volume wedge and a note (a press turns the music off), display settings, the clock in the
+  seven-segment digits and a window button (fullscreen / windowed). In the menus it stays up with
+  your nickname and zone at its left and its display button opens the Options page; in races and
+  replays it slides down when the mouse reaches the top edge, stays while the mouse is on it and
+  goes 0.6 s after it leaves; there its display button opens a small panel (graphics quality,
+  shadows, HD). New setting `sound_volume` (the master bus; Options has its slider too). Not
+  copied: TMNF's 3D glasses button (no stereo mode). `--top_bar=show|display` for screenshots;
+  `tests/test_top_bar` (in the gate).

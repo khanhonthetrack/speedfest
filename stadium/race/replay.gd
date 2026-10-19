@@ -106,6 +106,7 @@ func _ready() -> void:
 	add_child(audio)
 	_cameras()
 	_controls()
+	add_child(TmTopBar.new())          # TMNF's bar: down when the mouse reaches the top edge
 	t_ms = float(TestHooks.arg("replay_at", -PREROLL_MS))
 	if TestHooks.has_arg("replay_at"):
 		_set_playing(false)

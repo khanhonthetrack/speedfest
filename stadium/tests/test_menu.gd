@@ -21,7 +21,7 @@ func _ready() -> void:
 	var menu: TmMenu = (load("res://ui/menu.tscn") as PackedScene).instantiate()
 	add_child(menu)
 	await get_tree().process_frame
-	var names := _buttons(menu).map(func(b: Button) -> String: return b.text)
+	var names := _buttons(menu).map(func(b: Button) -> String: return b.text).filter(func(t: String) -> bool: return not t.is_empty())
 	TestHooks.check(names == ["Play Solo", "Play Online", "Editors", "Profile", "Options", "Quit"], "menu_main_page", str(names))
 	_press(menu, "Play Solo")
 	await get_tree().process_frame

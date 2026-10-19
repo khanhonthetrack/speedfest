@@ -803,3 +803,8 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 13, 19 Oct)
 
 > nevermind. did you implemented the pop up menu if you put your mouse to the top just like in tmnf?
+- Answered: not built yet (our menus have a fixed bar with the nickname, zone and clock).
+
+### User (verbatim, session 13, 19 Oct)
+
+> yes build it, in races too

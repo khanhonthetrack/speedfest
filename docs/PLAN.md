@@ -223,6 +223,8 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
   - [x] Select Opponent with medal ghosts (the bot's run slowed to each medal's time)
   - [x] pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh`)
   - [x] the race menu's Select Opponents (as TMNF's)
+- [x] 6. (owner, after M10-5) TMNF's top bar: volumes, display, clock, window; up in the menus, sliding
+      down at the top edge in races and replays (`ui/tm_top_bar.gd`)
   - Owner decisions open: TMNF's padlocks on later campaign tracks (changes play); the engine's
     layers' pitch curves (reading TMNF's engine sound definition was blocked by the session's
     safety check); TMNF's wheelie after nose-down landings (M10-4).

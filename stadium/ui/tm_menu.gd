@@ -4,8 +4,8 @@ extends Node3D
 ## TMNF running, M10-5): a green globe turning on black behind; down the left a dark column with a
 ## header card (the page's title, what to do, an icon) and the page's entries as icon rows (green
 ## when focused, the current choice ringed green), Back or Quit at its foot; on the right, panels
-## with green title bars; a bar at the top right with your nickname, zone and the clock. The profile
-## shows our car on the field instead of the globe. Pages:
+## with green title bars; TMNF's bar at the top right (TmTopBar: volumes, display, clock, window, and
+## your nickname and zone). The profile shows our car on the field instead of the globe. Pages:
 ## - main: Play Solo, Play Online, Editors, Profile, Options, Quit; your campaign's medals;
 ## - solo (also "campaign"): the series down the left (White .. Black), the series' tracks as cards
 ##   in a grid (a press races; the focused track's medal times and your best above the grid),
@@ -67,11 +67,9 @@ var _spin := 0.4
 var _rows: VBoxContainer           ## the left column's entries
 var _rows_bottom: VBoxContainer    ## its entries at the foot (Back, Quit)
 const COLUMN := Rect2(7, 4, 364, 892)
-const BAR_WIDTH := 945.0           ## the top right bar (TMNF's: volume, display, clock; ours: you, the clock)
-const BAR_HEIGHT := 38.0
-const TOP := 48.0                  ## the panels start under the bar
+const TOP := 48.0                  ## the panels start under the top bar (TmTopBar)
 const RIGHT := Rect2(400, 48, 1180, 0)   ## the right of the column, under the bar
-var _clock: TmSegText
+var _bar: TmTopBar                 ## TMNF's bar at the top right: volumes, display, clock, window; you
 const GLOBE := preload("res://ui/tm_globe.gdshader")
 const GLOBE_MAP := preload("res://assets/tex/globe_map_albedo.jpg")
 
@@ -91,6 +89,11 @@ func _ready() -> void:
 	_grade.material = sm
 	_layer.add_child(_grade)
 	_make_backdrop()
+	_bar = TmTopBar.new()
+	_bar.popup = false                 # the menus keep it up, with you at its left
+	_bar.profile = true
+	_bar.display_pressed.connect(func() -> void: show_page("options"))
+	add_child(_bar)
 	tracks = TmTracks.ids()
 	_online_tab = int(TestHooks.arg("online_tab", 0))
 	selected = String(TestHooks.arg("track", tracks[0] if not tracks.is_empty() else ""))
@@ -161,14 +164,6 @@ func _process(delta: float) -> void:
 	_orbit(delta)
 	_spin += delta * 0.05
 	_globe.set_shader_parameter("spin", _spin)
-	if is_instance_valid(_clock):
-		_clock.text = _clock_text()
-
-
-## The time of day for the bar's clock, as TMNF's (hh:mm:ss).
-static func _clock_text() -> String:
-	var t := Time.get_time_dict_from_system()
-	return "%02d:%02d:%02d" % [int(t["hour"]), int(t["minute"]), int(t["second"])]
 
 
 ## TMNF's backdrop: black, a green globe turning slowly right of the column.
@@ -208,7 +203,7 @@ func _clear() -> void:
 
 
 ## A page's frame as TMNF's: down the left the dark column, its header card (the page's title, what
-## to do there, an icon) and the rows (_row) under it; your nickname and zone at the top right.
+## to do there, an icon) and the rows (_row) under it (the top bar, TmTopBar, stays across pages).
 ## Returns the page's root.
 func _root(title := "", subtitle := "", icon_name := "") -> Control:
 	var root := Control.new()
@@ -256,33 +251,6 @@ func _root(title := "", subtitle := "", icon_name := "") -> Control:
 	_rows_bottom.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE)
 	_rows_bottom.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_rows_bottom.position = Vector2(COLUMN.position.x + 4, COLUMN.end.y - 4)
-	# the bar at the top right, as TMNF's: your nickname and zone, the clock
-	var bar := PanelContainer.new()
-	bar.add_theme_stylebox_override("panel", TmUi.glass("tm_bar"))
-	bar.anchor_left = 1.0
-	bar.anchor_right = 1.0
-	bar.offset_left = -BAR_WIDTH
-	bar.offset_bottom = BAR_HEIGHT
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(bar)
-	var line := HBoxContainer.new()
-	line.alignment = BoxContainer.ALIGNMENT_END
-	line.add_theme_constant_override("separation", 14)
-	bar.add_child(line)
-	var nick := TmUi.nick_label(String(TmUi.setting("name")), 21)
-	nick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	line.add_child(nick)
-	var zone := String(TmUi.setting("zone"))
-	var zl := TmUi.label((zone.replace("|", "  ·  ") if not zone.is_empty() else "World").to_upper(), 15, TmUi.DIM, TmUi.SANS)
-	line.add_child(zl)
-	_clock = TmSegText.new()
-	_clock.digit_height = 16.0
-	_clock.custom_minimum_size = Vector2(118, 30)
-	_clock.text = _clock_text()
-	line.add_child(_clock)
-	var pad := Control.new()
-	pad.custom_minimum_size.x = 6
-	line.add_child(pad)
 	root.modulate.a = 0.0
 	root.create_tween().tween_property(root, "modulate:a", 1.0, 0.25)
 	call_deferred("_settle_rows")
@@ -364,6 +332,8 @@ func show_page(name: String) -> void:
 	if name != page:
 		_account_asked = false
 	page = name if PAGES.has(name) else "main"
+	if is_instance_valid(_bar):
+		_bar.refresh()
 	if page == "campaign":
 		page = "solo"              # TMNF's campaign is the Solo page
 	_clear()
@@ -938,17 +908,21 @@ func _page_options() -> void:
 		c.toggled.connect(func(on: bool) -> void: TmUi.set_setting(key, on))
 		c.mouse_entered.connect(c.grab_focus)
 		col.add_child(c)
-	var vol := HBoxContainer.new()
-	vol.add_child(TmUi.label("Music volume  ", 22, TmUi.TEXT, TmUi.SANS))
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 1.0
-	slider.step = 0.05
-	slider.value = float(TmUi.setting("music_volume"))
-	slider.custom_minimum_size = Vector2(380, 40)
-	slider.value_changed.connect(func(v: float) -> void: TmUi.set_setting("music_volume", v))
-	vol.add_child(slider)
-	col.add_child(vol)
+	for vk: Array in [["sound_volume", "Sound volume  "], ["music_volume", "Music volume  "]]:
+		var vol := HBoxContainer.new()
+		var vl := TmUi.label(String(vk[1]), 22, TmUi.TEXT, TmUi.SANS)
+		vl.custom_minimum_size.x = 180
+		vol.add_child(vl)
+		var slider := HSlider.new()
+		slider.min_value = 0.0
+		slider.max_value = 1.0
+		slider.step = 0.05
+		slider.value = float(TmUi.setting(vk[0]))
+		slider.custom_minimum_size = Vector2(380, 40)
+		var vkey: String = vk[0]
+		slider.value_changed.connect(func(v: float) -> void: TmUi.set_setting(vkey, v))
+		vol.add_child(slider)
+		col.add_child(vol)
 	col.add_child(_cycle("Graphics", "quality", TmRtx.QUALITY_NAMES))
 	if TmRtx.is_fork():   # NVIDIA's RTX build of Godot
 		col.add_child(_cycle("DLSS", "dlss", TmRtx.DLSS_NAMES))

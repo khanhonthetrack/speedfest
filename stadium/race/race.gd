@@ -29,6 +29,7 @@ var hud: TmRaceHud
 var ready_to_race := false
 var best := {}                     ## the track's record: {time_ms, splits}; {} if none
 var best_ghost: TmGhost            ## the ghost raced against (the record's, or the opponent picked); null if none
+var top_bar: TmTopBar              ## TMNF's bar at the top right (volumes, display, clock, window)
 var opponent := ""                 ## the opponent picked (gold, silver, bronze, best, none); "" not asked
 var run: TmGhost                   ## this run, being recorded
 var replay: TmReplay               ## this run as a replay, being recorded
@@ -143,6 +144,8 @@ func _ready() -> void:
 	hud.challenge = challenge
 	hud.best = best
 	add_child(hud)
+	top_bar = TmTopBar.new()           # TMNF's bar: down when the mouse reaches the top edge
+	add_child(top_bar)
 	menu = TmRaceMenu.new()
 	menu.editing = editing()
 	add_child(menu)

@@ -38,6 +38,9 @@
 - Note: session 14 (another branch, below) merged M9 into `stadium`; this branch's M10 work goes
   into `stadium` when the owner says so (expect conflicts in docs only, maybe `race/race.gd`).
   Also the race menu's Select Opponents. M10 is done but for the owner's decisions:
+- M10-6 (owner): TMNF's top bar (`ui/tm_top_bar.gd`): volumes, display, clock, window; always up in
+  the menus, sliding down at the top edge in races and replays. The wheelie (M10-4b) was looked into
+  and stopped by the owner (tmnf_physics.md §3.7b: what was read and measured).
 - Open (owner's call): TMNF's wheelie after nose-down landings (M10-4: needs TMNF's contact code);
   the engine's layers' pitch curves (TMNF's SoundEngine definition: reading it was blocked by the
   session's safety check; our engine is brighter than TMNF's samples, which sit lower: TMNF's
