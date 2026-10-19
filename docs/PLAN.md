@@ -201,6 +201,25 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
       every track driven by the bot, medals from its best run
 
+### M11 — Everything left that differs from TMNF (owner: "yes do the systematic check and fix everything", 2026-10-19)
+On `claude/tmnf-replica-graphics-nb1kcg`, for the next release. One step at a time, each committed
+and pushed, gated; TMNF data only locally (never in the repo). The deliberate differences stay
+(our tracks, car, textures, logos, music: no Nadeo content).
+- [ ] 1. A block-by-block material check (`tools/research/tmnf/material_check.py` + a dump of our
+      blocks): for every shape, where TMNF puts each material against where ours does; the list
+      of mismatches by area and campaign use
+- [ ] 2. Fix the mismatches it finds, family by family (most visible first)
+- [ ] 3. The rough decorations to TMNF's shapes (inflatable castles, palm tree, camera light base,
+      bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
+      dirt fences and signs; fidelity test)
+- [ ] 4. The circuit base variants (bump, hole, pillars)
+- [ ] 5. Physics: flat-ground and landing wheelies, water, reverse switch, turbo pad direction,
+      burnout / donut
+- [ ] 6. TMNF's padlocks on the campaign
+- [ ] 7. The engine's pitch curves (measured from TMNF's sound, not its files) and the tyre smoke
+      side by side
+- [ ] 8. The stadium's surroundings (outer roads, forecourts, parking, roof light panels)
+
 ### After v0.5 — the owner's remarks, for the next release (session 13, 2026-10-19)
 On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (owner).
 - [x] The circuit ledges' blue only TMNF's 4.91 m strip along the wall, the deck beyond (A01)

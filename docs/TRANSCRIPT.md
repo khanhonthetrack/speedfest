@@ -929,3 +929,9 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct)
 
 > Anything left which is different from tmnf?
+
+### Claude (listed what is still different from TMNF: landings' and flat-ground wheelies, the pipe ride, water, small RE details, grass's id; rough decorations and details, the stadium's surroundings, the smoke, four circuit base variants; the engine's pitch curves, the padlocks; the deliberate ones: our tracks, car, textures, logos, music; and offered a block-by-block material check)
+
+### User (verbatim, session 13, 19 Oct)
+
+> yes do the systematic check and fix everything
