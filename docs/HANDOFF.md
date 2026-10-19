@@ -19,6 +19,8 @@ neon city at night, and make it look expensive. All of it is on
   single-seater), Kaze RS, Vector GT8, Lodowiec 1600 (Polonez type), Ridge RX (offroad).
   Top speeds 236–334 km/h, different nitrous power/tank/gain.
 - Sixteen tuning slots per car (8 performance, 8 look) with prices, credits and a live rebuild.
+  The light slots are real: four headlight kits change the lamps and the beam, the full neon kit
+  adds tubes under the sills.
 - Neon Downtown (1912 m: flyover, tunnel, hairpin, boost pads, light gantries) and Harbour Lights,
   wrapped in ~1500 generated towers with lit windows, 133 neon signs and 86 street lamps.
 - menu → garage → race, countdown, checkpoints, laps, personal bests, respawn, pause, HUD with a

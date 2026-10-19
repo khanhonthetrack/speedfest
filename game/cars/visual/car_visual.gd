@@ -42,6 +42,7 @@ var _body: MeshInstance3D
 var _wheels_mm: MultiMeshInstance3D
 var _calipers_mm: MultiMeshInstance3D
 var _glow: MeshInstance3D
+var _glow_tubes: MeshInstance3D
 var _glow_light: OmniLight3D
 var _contact: MeshInstance3D
 var _contact_mat: ShaderMaterial
@@ -163,6 +164,7 @@ func apply_style(p_style: Dictionary) -> void:
 		_build_wheels()
 	_apply_materials()
 	_apply_ride()
+	_build_glow_tubes()
 	_update_glow_mode()
 	set_underglow_enabled(_underglow_on)
 	if _ghost < 1.0:
@@ -267,6 +269,8 @@ func set_underglow_enabled(on: bool) -> void:
 	if _glow:
 		_glow.visible = show
 		_glow_mat.set_shader_parameter("enabled", _ghost)
+	if _glow_tubes:
+		_glow_tubes.visible = show and _ghost > 0.6
 	if _glow_light:
 		_glow_light.visible = show and _ghost > 0.6
 
@@ -457,7 +461,40 @@ func _build_glow() -> void:
 		_glow_light.shadow_enabled = false
 		_glow_light.light_specular = 0.05
 		add_child(_glow_light)
+	_build_glow_tubes()
 	_update_glow_mode()
+
+
+## The "full kit" neon level adds visible tubes under the sills and the bumpers, not just the
+## pool of light on the road.
+func _build_glow_tubes() -> void:
+	if _glow_tubes:
+		_glow_tubes.queue_free()
+		_glow_tubes = null
+	if not bool(style.get("underglow_full", false)):
+		return
+	var g := shape.g
+	var hw := float(g["width"]) * 0.5 - 0.09
+	var hl := float(g["length"]) * 0.5 - 0.22
+	var y := -float(g["wheel_radius"]) + float(g["ground_clearance"]) * 0.45
+	var kit := MeshKit.new()
+	kit.color = Color(1, 1, 1, 1)
+	for side: float in [-1.0, 1.0]:
+		kit.box("t", Vector3(hw * side, y, 0.0), Vector3(0.05, 0.05, hl * 1.5))
+		kit.box("t", Vector3(0.0, y, hl * side), Vector3(hw * 1.5, 0.05, 0.05))
+	_glow_tubes = MeshInstance3D.new()
+	_glow_tubes.name = "GlowTubes"
+	_glow_tubes.mesh = kit.commit({})
+	_glow_tubes.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var m := StandardMaterial3D.new()
+	var col := Color(String(style.get("underglow", "#00e5ff")))
+	m.albedo_color = col
+	m.emission_enabled = true
+	m.emission = col
+	m.emission_energy_multiplier = 5.0
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_glow_tubes.material_override = m
+	add_child(_glow_tubes)
 
 
 func _build_contact() -> void:

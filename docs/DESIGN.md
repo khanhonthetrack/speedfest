@@ -51,7 +51,11 @@ Rules that make the choices interesting rather than a ladder:
 - A **wide body kit** and a **big wing** add grip and take top speed away.
 - **Weight** reduction improves acceleration, grip and braking at once, which is why it is the
   dearest ladder in the shop.
-- Paint, vinyl and neon cost credits but change nothing; they are the reason to come back.
+- Paint, vinyl and neon cost credits but change nothing mechanical; they are the reason to come
+  back. The top neon level ("full kit") is the only one that adds visible tubes under the sills
+  and bumpers as well as the pool on the road.
+- **Headlights** are not just a colour: projector lenses throw a narrow 62 m beam, the LED bar a
+  wide 75 m one, angel eyes ring every lamp. On a night circuit that is a handling aid.
 
 Parts are bought once per car and then free to swap: `Garage.owned[car][slot]` is the highest level
 paid for. Everyone starts with 150 000 credits.
