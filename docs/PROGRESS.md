@@ -2327,3 +2327,15 @@ on every real contact the full impulse would land at the contact point and kick 
   panels; they are `screen_rect`s now, so the ads run on them too.
 - `stadium/PLAYING.txt` (the zips' how-to-play, the Release's notes): the opponent ghosts, the
   camera keys 1-3, the volumes and the top bar.
+
+## 2026-10-19 — Session 13 continued (after v0.5): the circuit ledges' blue as narrow as TMNF's
+- Owner (screenshot of A01 from the lane): "In tmnf the blue parts are not as wide". The ledge
+  behind a circuit wall (top 8 m, the lane's level) was blue all over; on inner corners, GT curves
+  and diagonals that is a wide wedge. Measured on TMNF's border blocks (local reference meshes,
+  per material at 8 m): the blue border strip (StadiumRoadCircuitBorder) is always 4.91 m wide
+  along the wall, radially on curves, and the rest is the lane's deck (StadiumPlatform).
+  `blocks/shapes/circuit.gd`: the curves' and diagonals' ledges are split into that band
+  (`BAND`, "circuit_floor") and the deck ("platform", asphalt as the circuit base; the grip and
+  drive factors are the same as before). Our ledge tops now match TMNF's per shape to 0.5% (e.g.
+  GTCurve 3 In 721.0 / 1982.9 m² against 721.0 / 1975.9; Corner In 226.4 / 224.9 against
+  227.5 / 220.8); A01's inner corner checked side by side with TMNF's blocks in the same view.

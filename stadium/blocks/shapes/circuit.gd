@@ -5,7 +5,9 @@ extends RefCounted
 ## Every border is one wall section swept along a path: its inner (road) face runs 8.985 m inside
 ## the border's cell; corners and GT curves are arcs about the footprint's inner corner (radius
 ## 32k - 8.985) or outer corner (32(k - 1) + 8.985); the ledge behind the wall (top 8 m) fills the
-## rest of the footprint. Slopes rise 16 m per block (0.5); start/end ease in over a block.
+## rest of the footprint. Its top is the blue border strip, BAND wide along the wall as on a
+## straight, and the lane's deck beyond it (TMNF's StadiumRoadCircuitBorder and StadiumPlatform,
+## measured on every border). Slopes rise 16 m per block (0.5); start/end ease in over a block.
 
 const S_ASPHALT := 16   # TmTuning.Surface ids
 const S_METAL := 4
@@ -13,6 +15,7 @@ const S_RUBBER := 9
 const S_CONCRETE := 0
 const FACE := 23.015            ## the wall's inner face, from the cell's road side (z)
 const LEDGE_D := 4.075          ## the stands' foot behind the face (d), where the ledge starts
+const BAND := 32.0 - FACE - LEDGE_D   ## the blue strip on the ledge, along the wall (4.91 m)
 const LEDGE_Y := 8.0
 const FLOOR_Y := 0.24
 
@@ -163,15 +166,21 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 			var r := s - (32.0 - FACE)
 			var a := _arc_dip(Vector2(0, 0), r, 0.0, PI * 0.5, 8 * k, dip)
 			geo.wall_sweep(section, a[0], a[1], true, "wall_dark", S_METAL, _dip_fn(a[2]))
-			# ledge: the footprint outside the stands' foot circle
+			# ledge: the footprint outside the stands' foot circle; blue out to radius s, the deck
+			# in the corner beyond
 			var poly := PackedVector2Array()
+			var band := PackedVector2Array()
 			for i in 8 * k + 1:
 				var ang := PI * 0.5 * (1.0 - float(i) / (8 * k))
 				poly.append(Vector2(cos(ang), sin(ang)) * (r + LEDGE_D))
+				band.append(Vector2(cos(ang), sin(ang)) * (r + LEDGE_D))
+			for i in 8 * k + 1:
+				var ang := PI * 0.5 * float(i) / (8 * k)
+				band.append(Vector2(cos(ang), sin(ang)) * (r + LEDGE_D + BAND))
 			poly.append(Vector2(s, 0))
 			poly.append(Vector2(s, s))
 			poly.append(Vector2(0, s))
-			_ledge(geo, poly, dy)
+			_ledge(geo, poly, dy, band)
 		else:
 			var r := s - FACE
 			var a := _arc_dip(Vector2(0, s), r, -PI * 0.5, 0.0, 6 * k, [] if kind == "Corner" else dip)
@@ -179,12 +188,20 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 			for d in a[1]:
 				outs.append(-(d as Vector3))
 			geo.wall_sweep(section, a[0], outs, true, "wall_dark", S_METAL, _dip_fn(a[2]))
+			# ledge: inside the stands' foot circle; blue down to radius s - 32, the deck inside
+			# that (a 1x1 corner's ledge is all strip)
 			var poly := PackedVector2Array()
+			var band := PackedVector2Array()
 			for i in 6 * k + 1:
 				var ang := -PI * 0.5 + PI * 0.5 * float(i) / (6 * k)
 				poly.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r - LEDGE_D))
+				band.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r - LEDGE_D))
 			poly.append(Vector2(0, s))
-			_ledge(geo, poly, dy)
+			if k > 1:
+				for i in 6 * k + 1:
+					var ang := -PI * 0.5 * float(i) / (6 * k)
+					band.append(Vector2(0, s) + Vector2(cos(ang), sin(ang)) * (r - LEDGE_D - BAND))
+			_ledge(geo, poly, dy, band if k > 1 else PackedVector2Array())
 		return true
 	if kind == "Diag":
 		# 45 deg walls across the cell's corner: the straight wall's section sheared along each
@@ -192,7 +209,8 @@ func _border(geo: TmGeo, kind: String, variant: String, dy: float) -> bool:
 		if inner:
 			_diag_wall(geo, section, Vector3(0, 0, FACE), Vector3(FACE, 0, 0), Vector3(0, 0, 1), Vector3(1, 0, 0))
 			var e := FACE + LEDGE_D
-			_ledge(geo, PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(32, 32), Vector2(0, 32), Vector2(0, e)]), dy)
+			_ledge(geo, PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(32, 32), Vector2(0, 32), Vector2(0, e)]), dy,
+				PackedVector2Array([Vector2(e, 0), Vector2(32, 0), Vector2(0, 32), Vector2(0, e)]))
 		else:
 			_diag_wall(geo, section, Vector3(0, 0, FACE), Vector3(32 - FACE, 0, 32), Vector3(0, 0, 1), Vector3(-1, 0, 0))
 			var e := LEDGE_D
@@ -282,10 +300,11 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 
 ## Ledge behind a curved wall: a solid prism over the polygon (TMNF x, z), floor 0.24 m (ground:
 ## the terrain), top 8 m; clipped to the block's footprint cells (big curves leave out the cells
-## near their centre or far corner).
-func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
+## near their centre or far corner). Its top is blue inside `band` (empty: all of it), the deck
+## outside.
+func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float, band := PackedVector2Array()) -> void:
 	if _cells.is_empty():
-		_prism(geo, poly, dy)
+		_prism(geo, poly, dy, band)
 		return
 	var pieces := []
 	for c: Vector2i in _cells:
@@ -308,7 +327,7 @@ func _ledge(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
 		rest.append(cur)
 		merged = rest
 	for p: PackedVector2Array in merged:
-		_prism(geo, p, dy)
+		_prism(geo, p, dy, band)
 
 
 static func _area(p: PackedVector2Array) -> float:
@@ -318,10 +337,18 @@ static func _area(p: PackedVector2Array) -> float:
 	return a * 0.5
 
 
-func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
+func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float, band := PackedVector2Array()) -> void:
 	var lo := _lift(FLOOR_Y, dy)
 	var hi := LEDGE_Y
-	geo.flat_polygon(poly, hi, "circuit_floor", S_METAL)
+	if band.is_empty():
+		geo.flat_polygon(poly, hi, "circuit_floor", S_METAL)
+	else:
+		for p: PackedVector2Array in Geometry2D.intersect_polygons(poly, band):
+			if absf(_area(p)) > 0.01:
+				geo.flat_polygon(p, hi, "circuit_floor", S_METAL)
+		for p: PackedVector2Array in Geometry2D.clip_polygons(poly, band):
+			if absf(_area(p)) > 0.01:
+				geo.flat_polygon(p, hi, "platform", S_ASPHALT)
 	geo.flat_polygon(poly, lo, "structure", S_METAL, true)
 	for i in poly.size():
 		var p: Vector2 = poly[i]

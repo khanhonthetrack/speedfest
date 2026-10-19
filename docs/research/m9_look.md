@@ -35,7 +35,11 @@ other side. From the material placement on the straight border's section (block 
   1.28-2.41, white 2.41-3.4, the blue band 3.4-7.0 (blue (7-24, 78-85, 172-180) with a dot matrix
   and a white logo), white cladding 7.0-14.86 (222, 223, 221; smooth, faint vertical streaks),
   the top lip 14.86-16 dark blue-grey (66-87, 113-126, 160-177).
-- **Lane side, bottom to top**: the ledge strip at 8 m, z 27-32, dark blue (32, 70, 117); black
+- **Lane side, bottom to top**: the ledge strip at 8 m, z 27-32, dark blue (32, 70, 117) (it is
+  4.91 m wide on every border: on corners, GT curves and diagonals it follows the wall that far,
+  radially, and the rest of the ledge is the lane's deck, StadiumPlatform; blue / deck m² on the
+  ledge top, e.g. Corner In 227.5 / 220.8, GTCurve 3 In 721.0 / 1975.9, 3 Out 512.2 / 2192.4,
+  Diag In 144.2 / 512.0, Corner and Diag Out all blue); black
   rubber 8.3-9.4 with small logos; the screen 9.6-12.7 (black: a display surface); dark steel
   truss 12.7-15.1 (35-40 grey); the blue lip on top.
 - The cap is white with blue edges; the inside faces under the ledge are the dark truss.
