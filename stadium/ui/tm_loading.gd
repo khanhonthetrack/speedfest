@@ -45,9 +45,10 @@ static func change_scene(tree: SceneTree, path: String) -> void:
 	l._go(path)
 
 
-## True while a loading screen covers the screen (the race waits with its countdown).
+## True while a loading screen covers the screen, its fade included (the race waits with its
+## countdown until the track shows).
 static func covering() -> bool:
-	return is_instance_valid(_current) and not _current._done
+	return is_instance_valid(_current) and not _current.is_queued_for_deletion()
 
 
 func _ready() -> void:

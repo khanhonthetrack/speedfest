@@ -68,7 +68,14 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-18 (session 13, M9). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-19 (session 13 continued, M10). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **M10** (the owner's five requests after M9, PLAN.md M10) on `claude/tmnf-replica-graphics-nb1kcg`:
+  dark circuit screens, tyre marks, surfaces and jumps measured against TMNF's own runs, and the
+  look/UI/menus/sound side by side with TMNF running locally under Wine (HUD, countdown, dialogs,
+  menus, loading screen, camera views 1-3, cues, Select Opponent with medal ghosts, track pictures
+  on the cards). Open: TMNF's wheelie after nose-down landings (owner's call), the engine's layers'
+  pitch curves (not read). Session 14 merged M9 into `stadium` from another branch: merge M10 in
+  when the owner says so.
 - **M9 ("a 1:1 TMNF replica") is complete** on `claude/tmnf-replica-graphics-nb1kcg` (not yet merged
   into `stadium`: the owner decides). The look of the blocks the campaign shows most follows TMNF's
   measured materials (`docs/research/m9_look.md`): decks, platform and circuit walls, dirt roads,
