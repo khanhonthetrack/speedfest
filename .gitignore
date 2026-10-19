@@ -1,12 +1,12 @@
 # Godot
 game/.godot/
+old/game/.godot/
 game/export_credentials.cfg
 *.translation
-# local builds (the committed web build lives in server/public)
+# local builds
 build/
 dist/
 # node
-server/node_modules/
 node_modules/
 # misc
 *.tmp
