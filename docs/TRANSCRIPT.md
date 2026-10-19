@@ -808,3 +808,7 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 ### User (verbatim, session 13, 19 Oct)
 
 > yes build it, in races too
+
+### User (verbatim, session 13, 19 Oct, while the top bar was being finished)
+
+> the bar should be as wide as the window screen

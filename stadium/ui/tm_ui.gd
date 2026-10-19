@@ -133,9 +133,9 @@ static func glass(kind: String) -> TmGlassBox:
 		"tm_row_focus":
 			return TmGlassBox.make({"top": Color(0, 0, 0, 0), "bottom": Color(0, 0, 0, 0), "gloss": 0.0, "radius": 8.0,
 				"border": Color(TM_GREEN, 0.55), "border_top": Color(TM_GREEN, 0.55), "border_width": 1.5})
-		"tm_bar":        # the bar at the top right (you, the clock): dark, its lower left corner round
-			return TmGlassBox.make({"top": Color(0.10, 0.10, 0.11, 0.9), "bottom": Color(0.03, 0.03, 0.035, 0.92),
-				"gloss": 0.0, "radius": 10.0, "corners": 2, "border": Color(0.25, 0.25, 0.27, 0.8),
+		"tm_bar":        # the bar across the top (TmTopBar): near black, square
+			return TmGlassBox.make({"top": Color(0.10, 0.10, 0.11, 1.0), "bottom": Color(0.03, 0.03, 0.035, 1.0),
+				"gloss": 0.0, "radius": 0.0, "corners": 0, "border": Color(0.25, 0.25, 0.27, 0.8),
 				"border_top": Color(0.25, 0.25, 0.27, 0.8), "border_width": 1.0})
 		"tm_list":       # a row of a list (replays, tracks, servers): a light grey strip, dark text
 			return TmGlassBox.make({"top": Color(0.86, 0.86, 0.87, 0.94), "bottom": Color(0.68, 0.68, 0.70, 0.94),

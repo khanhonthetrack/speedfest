@@ -1,6 +1,7 @@
 class_name TmTopBar
 extends CanvasLayer
-## TMNF's bar at the top right (M10-6, drawn after TMNF's): the sound volume (a wedge with its
+## TMNF's bar at the top (M10-6, drawn after TMNF's; the window's full width, the owner's choice: TMNF's
+## covers its right half): the sound volume (a wedge with its
 ## knob, then a speaker), the music volume (a wedge, then a note), display settings, the clock and
 ## a window button (fullscreen or windowed). In the menus it stays up (`popup` false) with your
 ## nickname and zone at its left (`profile`); in races and replays it slides down when the mouse
@@ -12,7 +13,6 @@ extends CanvasLayer
 
 signal display_pressed
 
-const WIDTH := 945.0               ## as TMNF's: from 52 % of the width to the right edge (1600 x 900)
 const HEIGHT := 38.0
 const TRIGGER := 8.0               ## the mouse this close to the top edge brings it down (races)
 const HIDE_AFTER_S := 0.6          ## it goes this long after the mouse left it
@@ -49,9 +49,8 @@ func _ready() -> void:
 	add_child(_root)
 	_bar = PanelContainer.new()
 	_bar.add_theme_stylebox_override("panel", TmUi.glass("tm_bar"))
-	_bar.anchor_left = 1.0
+	_bar.anchor_left = 0.0
 	_bar.anchor_right = 1.0
-	_bar.offset_left = -WIDTH
 	_bar.offset_bottom = HEIGHT
 	_bar.mouse_filter = Control.MOUSE_FILTER_STOP
 	_root.add_child(_bar)
@@ -144,9 +143,8 @@ func _process(delta: float) -> void:
 	_music_icon.off = not bool(TmUi.setting("music"))
 	if popup:
 		var m := mouse_override if mouse_override.x >= 0.0 else (_root.get_local_mouse_position() if _moved else Vector2(-1, 999))
-		var w := _root.size.x
 		var over := m.y >= 0.0 and m.y <= TRIGGER
-		if shown() and m.y >= 0.0 and m.y <= HEIGHT + 12.0 and m.x >= w - WIDTH - 12.0:
+		if shown() and m.y >= 0.0 and m.y <= HEIGHT + 12.0:
 			over = true                 # on the bar
 		if _panel.visible and _panel.get_global_rect().grow(12.0).has_point(m):
 			over = true

@@ -2197,3 +2197,7 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   shadows, HD). New setting `sound_volume` (the master bus; Options has its slider too). Not
   copied: TMNF's 3D glasses button (no stereo mode). `--top_bar=show|display` for screenshots;
   `tests/test_top_bar` (in the gate).
+- **The top bar spans the window's full width** (owner: "the bar should be as wide as the window
+  screen"; TMNF's covers the right half): in races and replays it slides down across the whole top
+  edge; in the menus it runs across the top and the left column starts under it. The bar is opaque
+  (the race HUD's track name no longer shows through it).

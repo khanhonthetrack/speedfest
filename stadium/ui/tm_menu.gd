@@ -4,7 +4,7 @@ extends Node3D
 ## TMNF running, M10-5): a green globe turning on black behind; down the left a dark column with a
 ## header card (the page's title, what to do, an icon) and the page's entries as icon rows (green
 ## when focused, the current choice ringed green), Back or Quit at its foot; on the right, panels
-## with green title bars; TMNF's bar at the top right (TmTopBar: volumes, display, clock, window, and
+## with green title bars; TMNF's bar across the top (TmTopBar: volumes, display, clock, window, and
 ## your nickname and zone). The profile shows our car on the field instead of the globe. Pages:
 ## - main: Play Solo, Play Online, Editors, Profile, Options, Quit; your campaign's medals;
 ## - solo (also "campaign"): the series down the left (White .. Black), the series' tracks as cards
@@ -66,7 +66,7 @@ var _globe: ShaderMaterial
 var _spin := 0.4
 var _rows: VBoxContainer           ## the left column's entries
 var _rows_bottom: VBoxContainer    ## its entries at the foot (Back, Quit)
-const COLUMN := Rect2(7, 4, 364, 892)
+const COLUMN := Rect2(7, 44, 364, 852)    ## under the top bar (TmTopBar, 38 px)
 const TOP := 48.0                  ## the panels start under the top bar (TmTopBar)
 const RIGHT := Rect2(400, 48, 1180, 0)   ## the right of the column, under the bar
 var _bar: TmTopBar                 ## TMNF's bar at the top right: volumes, display, clock, window; you
@@ -1012,7 +1012,7 @@ func _medal_summary_panel(root: Control, rect: Rect2) -> void:
 	p.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE)
 	p.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	p.offset_left = rect.position.x
-	p.offset_bottom = -COLUMN.position.y
+	p.offset_bottom = -(900.0 - COLUMN.end.y)
 
 
 ## The zone: World, or a country (data/zones.json, by continent), stored as "Continent|Country".
