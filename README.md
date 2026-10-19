@@ -14,6 +14,17 @@ tuning, reverse engineered in `docs/research/tmnf_physics.md` and implemented in
 - **Night city tracks** — procedural downtown with tall towers, animated billboards, neon tube
   barriers, wet reflective asphalt, volumetric fog and light shafts.
 
+**The lineup** — Vireo F4 (FIA F4 single-seater, 302 km/h), Kaze RS (JDM coupe, 291), Vector GT8
+(grand tourer, 334), Lodowiec 1600 (Eastern Bloc classic, 248), Ridge RX (offroad pre-runner, 236).
+
+**The circuits** — Neon Downtown (1912 m: a flyover, a tunnel under the Kaiju building, a hairpin
+behind the arcades) and Harbour Lights. The bot laps Downtown in 42.9 s with the F4 and 51.2 s
+with the Kaze, so the times to beat are real.
+
+**Controls** — W/S drive and brake, A/D steer, Shift or Space nitrous, Backspace respawn, Enter
+restart, Esc pause. In the garage: arrows pick the car and the part, Enter fits it, Tab switches
+between performance and looks, C cycles a colour, R drives.
+
 > Status: under construction. Start at [docs/HANDOFF.md](docs/HANDOFF.md).
 
 ## Develop
@@ -24,6 +35,7 @@ tools/godot_import.sh                                            # import assets
 tools/check_scripts.sh                                           # compile-check every .gd
 tools/test_all.sh                                                # every headless test scene
 tools/run_scene.sh res://race/main.tscn                          # play (Xvfb + software Vulkan here)
+tools/export_desktop.sh all                                      # build/SpeedFest-{windows,linux}.zip
 ```
 
 ## `old/`
