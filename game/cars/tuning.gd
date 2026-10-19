@@ -100,7 +100,7 @@ const CATALOGUE := {
 		],
 	},
 	"gearbox": {
-		"label": "Gearbox", "kind": Kind.PERFORMANCE,
+		"label": "Gearbox", "kind": Kind.PERFORMANCE, "choice": true,
 		"hint": "Final drive. Trade top speed for punch, or the other way round.",
 		"levels": [
 			{"name": "Stock", "price": 0, "mul": {}, "add": {}},
@@ -153,7 +153,7 @@ const CATALOGUE := {
 		],
 	},
 	"paint": {
-		"label": "Paint", "kind": Kind.LOOK, "colour": true,
+		"label": "Paint", "kind": Kind.LOOK, "colour": true, "choice": true,
 		"hint": "Base colour. The finish decides how the city lights sit on it.",
 		"levels": [
 			{"name": "Gloss", "price": 400, "mul": {}, "add": {}},
@@ -164,7 +164,7 @@ const CATALOGUE := {
 		],
 	},
 	"vinyl": {
-		"label": "Vinyl", "kind": Kind.LOOK,
+		"label": "Vinyl", "kind": Kind.LOOK, "choice": true,
 		"hint": "Graphics over the paint, in the accent colour.",
 		"levels": [
 			{"name": "None", "price": 0, "mul": {}, "add": {}},
@@ -236,6 +236,12 @@ static func slot_label(slot: String) -> String:
 
 static func slot_kind(slot: String) -> int:
 	return int((CATALOGUE.get(slot, {}) as Dictionary).get("kind", Kind.LOOK))
+
+
+## True when the levels are alternatives to pick from (paint finishes, vinyls, gearbox ratios)
+## rather than an upgrade ladder where each level costs more than the last.
+static func is_choice(slot: String) -> bool:
+	return bool((CATALOGUE.get(slot, {}) as Dictionary).get("choice", false))
 
 
 static func levels(slot: String) -> Array:

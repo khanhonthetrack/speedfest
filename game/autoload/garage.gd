@@ -125,9 +125,23 @@ func reset_car(car_id: String) -> void:
 	save_garage()
 
 
+## Back to a brand new garage: stock cars, nothing bought, the starting balance. Used by the
+## tests and by "sell everything" in the garage screen.
+func reset_all() -> void:
+	credits = START_CREDITS
+	for id: String in CarDefs.IDS:
+		setups[id] = Tuning.default_setup(id)
+		owned[id] = _owned_from_setup(setups[id])
+	credits_changed.emit(credits)
+	changed.emit(selected)
+	save_garage()
+
+
 # --- persistence --------------------------------------------------------------------------------
 
 func load_garage() -> void:
+	if TestHooks.is_testing():
+		return                      # tests run on a fresh garage and never touch the real save
 	if not FileAccess.file_exists(SAVE_PATH):
 		return
 	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
@@ -158,6 +172,8 @@ func load_garage() -> void:
 
 
 func save_garage() -> void:
+	if TestHooks.is_testing():
+		return
 	var d := {"credits": credits, "selected": selected, "setups": setups, "owned": owned}
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f == null:
