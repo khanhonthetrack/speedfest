@@ -2446,3 +2446,9 @@ on every real contact the full impulse would land at the contact point and kick 
   One near-white vinyl texture tinted per part (`inflatable_skin`, texgen/stadium.py). Collision
   fidelity (top-down, 0.15 m): cactus 86.5 -> 94.6%, palm 66.1 -> 82.4%, snow tree 81.6 -> 84.7%;
   side by side with TMNF's blocks.
+- (M11-2) **Platform decks' sides and underside as TMNF's** (our tracks' most used block,
+  Platform/Road/BaseAir, 1,489 on our tracks): the rim is the border atlas' ribbed edge and black
+  underside with the blue line (TMNF's rows), the flat underside and foot ledge TMNF's light plates,
+  and under the body TMNF's dark tray (chamfered, to the level's floor) with two slanted truss
+  columns on every closed side, as TMNF's (measured; collision too). The airship's envelope takes
+  TMNF's beige (its texture's mean), not the fabric white. Side by side with TMNF's block.

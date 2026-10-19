@@ -42,6 +42,7 @@ const COLORS := {
 	"road_under": [Color8(141, 136, 133), 0.6, 0.3],      # the road keel's underside (TMNF's light plates)
 	"road_grid": [Color8(80, 79, 78), 0.5, 0.6],         # the road shoulder's grid (TMNF's RoadGrid)
 	"road_metal": [Color8(42, 40, 37), 0.7, 0.3],        # the road's dark border metal (curb ends, deck sides)
+	"platform_tray": [Color8(34, 34, 34), 0.8, 0.2],     # the dark tray under the decks (TMNF's Stands2)
 	"pillar": [Color8(182, 183, 179), 0.8, 0.0],         # the road's pillars (TMNF's light concrete)
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
@@ -64,6 +65,7 @@ const COLORS := {
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
 	# the inflatable decorations, in their TMNF textures' colours (measured, area-weighted)
+	"airship": [Color8(223, 201, 165), 0.4, 0.0],        # the airship's envelope (TMNF's texture's mean)
 	"infl_leaf": [Color8(51, 131, 41), 0.35, 0.0],
 	"infl_trunk": [Color8(188, 138, 58), 0.35, 0.0],
 	"infl_trunk_low": [Color8(140, 82, 33), 0.35, 0.0],
@@ -181,6 +183,7 @@ const TEXTURED := {
 	# inflatable cushion walls (8 m pillows on the 8 m grid), the tube network's pillars and pipes
 	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
 	# the decorations: one near-white vinyl (texgen/stadium.py inflatable_skin), tinted per part
+	"airship": ["inflatable_skin", Vector2(8.0, 8.0), true, Color8(241, 217, 178)],
 	"infl_leaf": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(55, 142, 44)],
 	"infl_trunk": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(203, 149, 63)],
 	"infl_trunk_low": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(151, 89, 36)],

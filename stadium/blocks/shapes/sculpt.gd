@@ -50,7 +50,7 @@ const MIRROR_X := {"Sculpt/ArchRing/StartGroundMirror": 64.0, "Sculpt/ArchRing/E
 ## A piece's extra parts in the lofts (key suffix -> visual material).
 const PARTS := {"#struts": "structure", "#rail": "metal"}
 ## Lofted pieces that are not white sculpture (shape -> visual material).
-const MATERIAL := {"Other/Airship": "fabric"}
+const MATERIAL := {"Other/Airship": "airship"}
 
 
 func handles(shape: String) -> bool:

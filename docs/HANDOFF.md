@@ -24,6 +24,16 @@
   the ground along ground borders' walls, the walls across a slope, the slope starts' rubber strip,
   TMNF's surface on every strip (PROGRESS 19 Oct; checked per shape against TMNF's blocks).
   `stadium-v0.5` stays as merged (f51d56c).
+- **M11 (owner: "yes do the systematic check and fix everything"), on the work branch**: the
+  block-by-block look check (`tests/block_dump.tscn` + `tools/research/tmnf/material_check.py`,
+  `docs/research/m11_check.md`) and the fixes, one family per commit (PROGRESS 19 Oct): platform
+  walls and turbo pads, the circuit (sides, undersides, end caps, slope bases with their pillar),
+  roads (TMNF's atlas bands per section segment, keel plates, grid, ground slopes raised on a
+  pillar), the inflatable palm / snow trees / cacti (`blob_slices.py`), the platform decks' rim,
+  tray and truss columns, the airship's colour. Side-by-side renders: `tests/block_view.tscn`
+  (one shape; `--ref=<local ref dir>` shows TMNF's own look). Next by our tracks' use (the list
+  in m11_check.md): the grandstands (Fabric), camera booths, sculptures, dirt roads, castles; then
+  PLAN M11-4..8.
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).
