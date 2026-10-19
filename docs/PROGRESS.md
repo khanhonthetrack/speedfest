@@ -2433,3 +2433,16 @@ on every real contact the full impulse would land at the contact point and kick 
   not curb faces walled down to the grass. Road family check: colour differs 11.9% -> 10.5% of
   TMNF's area after the atlas step (was 23% overall in the first run), missing 11.2% -> 10.5%;
   side by side with TMNF's blocks (straights, curbs, undersides, ground slopes).
+- (M11-3) **The inflatable decorations as TMNF's** (our tracks place 1,170 of them: palm trees,
+  snow trees, cacti). Measured from TMNF's blocks with a new tool, `tools/research/tmnf/blob_slices.py`
+  (a mesh cut into horizontal slices object by object: centres and radii), and its textures'
+  colours sampled over the surfaces: each block is a group, as TMNF's, not one rough shape.
+  Cacti: four (two kinds, each twice turned), ribbed trunks with rounded tops and two arms each
+  (level, then up), a white label band at the foot (ours plain with an ink line), a grey base ring,
+  red tie ropes. Snow trees: four, tiered lathes with eight branches per tier (staggered), snow on
+  each tier's rim and the top cone (where TMNF's texture is light). Palms: two sand islands (TMNF's
+  outline) with grey rims, two leaning palms on each (ringed trunks darker at the foot, a white
+  label band, five drooping fronds each of TMNF's three kinds, a crown cap, four black tie ropes).
+  One near-white vinyl texture tinted per part (`inflatable_skin`, texgen/stadium.py). Collision
+  fidelity (top-down, 0.15 m): cactus 86.5 -> 94.6%, palm 66.1 -> 82.4%, snow tree 81.6 -> 84.7%;
+  side by side with TMNF's blocks.

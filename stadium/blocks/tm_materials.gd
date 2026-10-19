@@ -63,6 +63,21 @@ const COLORS := {
 	"glass": [Color(0.70, 0.85, 0.95, 0.35), 0.05, 0.0],
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
+	# the inflatable decorations, in their TMNF textures' colours (measured, area-weighted)
+	"infl_leaf": [Color8(51, 131, 41), 0.35, 0.0],
+	"infl_trunk": [Color8(188, 138, 58), 0.35, 0.0],
+	"infl_trunk_low": [Color8(140, 82, 33), 0.35, 0.0],
+	"infl_trunk_top": [Color8(158, 110, 49), 0.35, 0.0],
+	"infl_trunk_ring": [Color8(105, 62, 26), 0.35, 0.0],
+	"infl_sand": [Color8(215, 164, 37), 0.4, 0.0],
+	"infl_base": [Color8(125, 123, 116), 0.4, 0.0],
+	"infl_cactus": [Color8(86, 107, 60), 0.35, 0.0],
+	"infl_tree": [Color8(25, 61, 51), 0.35, 0.0],
+	"infl_snow": [Color8(228, 234, 238), 0.35, 0.0],
+	"infl_rope": [Color8(22, 22, 22), 0.8, 0.0],
+	"infl_label": [Color8(240, 245, 206), 0.35, 0.0],
+	"infl_ink": [Color8(40, 44, 40), 0.35, 0.0],
+	"infl_rope_red": [Color8(231, 8, 8), 0.5, 0.0],
 	"fabric": [Color(0.93, 0.93, 0.94), 0.8, 0.0],
 	"fabric_under": [Color(0.80, 0.82, 0.86), 0.85, 0.0],     # the Fabric roofs' underside, in their shade
 	"pipe": [Color(0.82, 0.84, 0.88), 0.35, 0.55],
@@ -165,6 +180,18 @@ const TEXTURED := {
 	"roof": ["fabric_top", Vector2(16.0, 16.0), true],
 	# inflatable cushion walls (8 m pillows on the 8 m grid), the tube network's pillars and pipes
 	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
+	# the decorations: one near-white vinyl (texgen/stadium.py inflatable_skin), tinted per part
+	"infl_leaf": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(55, 142, 44)],
+	"infl_trunk": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(203, 149, 63)],
+	"infl_trunk_low": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(151, 89, 36)],
+	"infl_trunk_top": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(171, 119, 53)],
+	"infl_trunk_ring": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(114, 67, 28)],
+	"infl_sand": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(232, 177, 40)],
+	"infl_base": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(135, 133, 125)],
+	"infl_cactus": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(93, 116, 65)],
+	"infl_tree": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(27, 66, 55)],
+	"infl_snow": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(246, 253, 255)],
+	"infl_label": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(255, 255, 223)],
 	"pipe": ["pillar_steel", Vector2(8.0, 8.0), true],
 }
 
