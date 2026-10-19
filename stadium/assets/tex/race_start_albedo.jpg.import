@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cbtsn6d0ieeux"
-path.s3tc="res://.godot/imported/line_cp_normal.jpg-519bfd7e467d1021c2605ec7d78d074c.s3tc.ctex"
+uid="uid://cs0ll7226xsmw"
+path.s3tc="res://.godot/imported/race_start_albedo.jpg-de30737876df42cf7645bb0a869d9a29.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/tex/line_cp_normal.jpg"
-dest_files=["res://.godot/imported/line_cp_normal.jpg-519bfd7e467d1021c2605ec7d78d074c.s3tc.ctex"]
+source_file="res://assets/tex/race_start_albedo.jpg"
+dest_files=["res://.godot/imported/race_start_albedo.jpg-de30737876df42cf7645bb0a869d9a29.s3tc.ctex"]
 
 [params]
 
@@ -22,7 +22,7 @@ compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=1
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

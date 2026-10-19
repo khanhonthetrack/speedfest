@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cuiwngm7r8okb"
-path.s3tc="res://.godot/imported/pad_finish_normal.jpg-700f13cf1899f718b308c5f50bd3f4c4.s3tc.ctex"
+uid="uid://cl7v2i0vdypm4"
+path.s3tc="res://.godot/imported/race_finish_orm.jpg-d642392affde464b801066b676cccedc.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/tex/pad_finish_normal.jpg"
-dest_files=["res://.godot/imported/pad_finish_normal.jpg-700f13cf1899f718b308c5f50bd3f4c4.s3tc.ctex"]
+source_file="res://assets/tex/race_finish_orm.jpg"
+dest_files=["res://.godot/imported/race_finish_orm.jpg-d642392affde464b801066b676cccedc.s3tc.ctex"]
 
 [params]
 
@@ -22,7 +22,7 @@ compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=1
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

@@ -2470,3 +2470,12 @@ on every real contact the full impulse would land at the contact point and kick 
   orange: our own texture (`texgen/turbo.py freewheel_pad`) is red ribbed panels on the turbo's
   seam grid with two yellow chevrons per panel pointing at each other, as TMNF's (key `freewheel`,
   Road/Main/FreeWheeling/*). Side by side with TMNF's block.
+- (M11-2) **Start / finish roads and the gate line as TMNF's.** TMNF paints no pads: its finish
+  block's road is red the whole way (z 0-17), its start block's green from the nose up to the line,
+  a start/finish line's (MultiLap) green 8 m either side of it, each with a chequered strip two
+  squares wide along both edges (RoadRace's layout and colours, measured; our own texture,
+  `texgen/gates.py race_road`, with our chevrons where TMNF has its mark). The line across the road
+  at every gate is TMNF's: 0.36 m of the border atlas' blue band (`road.gd _gate_line`, the road
+  top cut there: `TmGeo.split_mat`). Our 8 m pads with the word and the checkpoint's 1 m band
+  (`TmGateDress`, textures pad_start / pad_finish / line_cp) are gone; the grass checkpoint has
+  no line (TMNF's has none). Side by side with TMNF's blocks.

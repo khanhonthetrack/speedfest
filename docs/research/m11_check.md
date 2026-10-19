@@ -58,8 +58,8 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   bands are TMNF's atlas rows; the keel's plates, the grid, pillars, noses, ground slopes (raised
   section and pillar) as TMNF's. Left: the junctions' underside (TMNF's keel bands round the
   corners; ours a flat plate), the brackets under the shoulders (RoadDetails, every 16 m), the
-  turbo gantry (TurboStands2 / TurboAlpha), FreeWheeling's own red texture, the start / finish
-  roads' RoadRace texture, the dirt roads (next).
+  turbo gantry (TurboStands2 / TurboAlpha), the dirt roads (next). Done since: FreeWheeling's red
+  chevron pads, the start / finish roads (RoadRace's layout) and the gate line (the blue band).
 - Inflatable decorations (M11-3): palm trees, snow trees and cacti rebuilt from TMNF's layout
   (`blob_slices.py`); collision fidelity cactus 94.6%, palm 82.4%, snow tree 84.7% (organic
   shapes against a 0.15 m test). Left: the castles (14-22%), the cushion structures' details.

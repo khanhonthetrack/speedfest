@@ -145,8 +145,46 @@ func remap_uv_sides(mat: String, u_m: float, v_m: float, top_y: float, top_at :=
 	_vis[mat] = out
 
 
-## A convex polygon of [point, normal] cut by the plane p . t = k: the parts on each side.
+## Moves a material's faces made so far to other keys by region: cut at the planes p . t =
+## cuts[i] (TMNF coordinates, ascending), the part before the first cut to mats[0], between the
+## first and second to mats[1]... (one key more than cuts; the same key keeps them). UVs are
+## carried over (interpolated at the cuts).
+func split_mat(mat: String, t: Vector3, cuts: Array, mats: Array) -> void:
+	if not _vis.has(mat):
+		return
+	var grp: Group = _vis[mat]
+	_vis.erase(mat)
+	for i in range(0, grp.v.size() - 2, 3):
+		var rest := []
+		for j in 3:
+			rest.append([g(grp.v[i + j]), grp.n[i + j], grp.uv[i + j]])
+		for k in mats.size():
+			var part := rest
+			if k < cuts.size():
+				var halves := _split_poly(rest, t, float(cuts[k]))
+				part = halves[0]
+				rest = halves[1]
+			if part.size() >= 3:
+				var out := _group(String(mats[k]))
+				for j in range(1, part.size() - 1):
+					var e: Vector3 = (part[j][0] - part[0][0]).cross(part[j + 1][0] - part[0][0])
+					if e.length_squared() < 1e-12:
+						continue
+					for q: Array in [part[0], part[j], part[j + 1]]:
+						out.v.append(g(q[0]))
+						out.n.append(q[1])
+						out.uv.append(q[2])
+			if rest.size() < 3:
+				break
+
+
+## A convex polygon of [point, normal(, uv)] cut by the plane p . t = k: the parts on each side.
 static func _cut_poly(pc: Array, t: Vector3, k: float) -> Array:
+	return _split_poly(pc, t, k).filter(func(x: Array) -> bool: return x.size() >= 3)
+
+
+## The same, both parts (below the plane, above it) whatever their size.
+static func _split_poly(pc: Array, t: Vector3, k: float) -> Array:
 	var lo := []
 	var hi := []
 	for i in pc.size():
@@ -161,9 +199,11 @@ static func _cut_poly(pc: Array, t: Vector3, k: float) -> Array:
 		if (dq < 0.0 and dr > 0.0) or (dq > 0.0 and dr < 0.0):
 			var f := dq / (dq - dr)
 			var m := [(q[0] as Vector3).lerp(r[0], f), (q[1] as Vector3).lerp(r[1], f).normalized()]
+			if q.size() > 2:
+				m.append((q[2] as Vector2).lerp(r[2], f))
 			lo.append(m)
 			hi.append(m)
-	return [lo, hi].filter(func(x: Array) -> bool: return x.size() >= 3)
+	return [lo, hi]
 
 
 ## A face carrying bands of the border atlas (TmMaterials "border_*", texgen/borders.py: 1024 x

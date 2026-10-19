@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c2ts3wy8v6eiy"
-path.s3tc="res://.godot/imported/line_cp_orm.jpg-ef89a3290c0deb4478c0b0db7b4faaab.s3tc.ctex"
+uid="uid://cjjpswrg2q7yr"
+path.s3tc="res://.godot/imported/race_finish_albedo.jpg-3ca5ed01384c62451abe580f8b7a6ac1.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/tex/line_cp_orm.jpg"
-dest_files=["res://.godot/imported/line_cp_orm.jpg-ef89a3290c0deb4478c0b0db7b4faaab.s3tc.ctex"]
+source_file="res://assets/tex/race_finish_albedo.jpg"
+dest_files=["res://.godot/imported/race_finish_albedo.jpg-3ca5ed01384c62451abe580f8b7a6ac1.s3tc.ctex"]
 
 [params]
 

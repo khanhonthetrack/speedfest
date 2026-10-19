@@ -1,6 +1,6 @@
 """Gate textures (start, checkpoint, finish, lap), our own art in the Stadium's style: moulded
 rubber bands with the gate's word repeated (the arch's faces, the gate block's curb faces), the
-start and finish pads painted on the road, the checkpoint line.
+start and finish roads (TMNF's RoadRace layout).
 usage: python3 stadium/tools/texgen/gates.py"""
 import math
 import numpy as np
@@ -57,44 +57,66 @@ def band(kind, name, ppm=128, length=8.0, height=1.25, seed=51, word_h=0.62, rep
     save(name, np.clip(col, 0, 1), nrm, orm, size=(w // 2, h // 2))
 
 
-def pad(kind, name, ppm=64, across=21.0, depth=8.0, seed=61):
-    """A start or finish pad on the road (across x depth m, the line at v = 0.5): the kind's
-    colour painted on concrete, a chequered band across, our emblem in the middle, worn by tyres.
-    Mapped with the road's UVs: u across, v along."""
-    word, ink, back, edge = KINDS[kind]
-    w = int(across * ppm)
-    h = int(depth * ppm)
+# TMNF's start and finish roads (its RoadRace texture's layout and colours, measured; our own art):
+# the paint toward the edge and at the centre line, the edge's tinted light line, the dark band
+RACE = {
+    'start': ((40, 120, 60), (37, 135, 60), (35, 147, 64), (149, 169, 151), (56, 93, 62)),
+    'finish': ((140, 41, 40), (152, 35, 35), (165, 31, 33), (176, 153, 150), (102, 64, 58)),
+}
+
+
+def race_road(kind, name, w=256, h=512, seed=91):
+    """A start or finish road: u along the road (6 m a tile), v from the road's edge (row 0) to its
+    centre line (row h, 10.46 m; mirrored on the other half). From the edge: a dark rim, a light
+    line, a dark band, a chequered strip two squares wide (0.65 m squares, eight a tile), a dark
+    line, three of our chevrons pointing down the road, then the paint (darker toward the edge,
+    lighter in the middle 3 m), with tyre streaks along the road."""
+    edge_c, mid_c, centre_c, light_c, band_c = RACE[kind]
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    conc = srgb((168, 167, 163))
-    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
-    n2 = fbm(w, h, seed + 1, beta=0.7, lo=40.0)
-    col = conc[None, None, :] * (1.0 + 0.03 * n1 + 0.04 * n2)[..., None]
-    paint = srgb(ink) * 0.82
-    # painted panel with a light border, chequers at the line
-    panel = rect_mask(w, h, 0.4 * ppm, 0.6 * ppm, w - 0.4 * ppm, h - 0.6 * ppm, 1.5)
-    col = lerp(col, paint[None, None, :] * (1.0 + 0.06 * n2)[..., None], panel)
-    sq = 1.0 * ppm
-    cy = h * 0.5
-    chk = ((np.floor(xx / sq) + np.floor((yy - cy) / sq)) % 2 == 0).astype(np.float32)
-    inband = rect_mask(w, h, 0.4 * ppm, cy - 1.0 * sq, w - 0.4 * ppm, cy + 1.0 * sq, 1.0)
-    col = lerp(col, lerp(srgb((24, 24, 26))[None, None, :] * np.ones((h, w, 1)), srgb((236, 236, 232))[None, None, :] * np.ones((h, w, 1)), chk), inband)
-    # our emblem and the word, in white, either side of the line
-    em = text_mask(w, h, word, font('orbitron-latin-900-normal', int(1.3 * ppm)), (w * 0.5, h * 0.2), 'mm', italic=0.22)
-    em2 = em[::-1, ::-1]   # the same word turned round on the other side of the line
-    col = lerp(col, srgb((240, 240, 236))[None, None, :], np.clip(em + em2, 0, 1) * panel)
-    # tyre wear: darker, along the driving lines
-    lines = 0
-    for x in (0.33, 0.67):
-        lines = lines + np.exp(-((xx / w - x) / 0.06) ** 2)
-    wear = lines * smoothstep(-0.5, 1.2, fbm(w, h, seed + 2, beta=1.4, lo=4.0)) * 0.35
-    col *= (1.0 - 0.35 * wear)[..., None]
-    worn = smoothstep(1.2, 2.0, fbm(w, h, seed + 3, beta=1.8, lo=3.0)) * 0.6
-    col = lerp(col, conc[None, None, :] * (1.0 + 0.04 * n2)[..., None], worn * panel)
-    hgt = 0.4 * n2 + 0.5 * panel
-    nrm = normal_from_height(hgt, 0.3)
-    rough = 0.82 - 0.12 * panel + 0.08 * worn
-    orm = np.stack([np.ones_like(rough), rough, np.zeros_like(rough)], -1)
-    save(name, np.clip(col, 0, 1), nrm, orm, size=(w // 2, h // 2))
+    s = h / 512.0
+    r = yy / s                      # the row on a 512-row half
+    fine = fbm(w, h, seed, beta=0.7, lo=60.0)
+    mott = fbm(w, h, seed + 1, beta=2.2, lo=2.0, hi=40.0)
+    paint = lerp(srgb(edge_c)[None, None, :] * np.ones((h, w, 1)), srgb(mid_c)[None, None, :] * np.ones((h, w, 1)),
+                 smoothstep(116.0, 170.0, r))
+    paint = lerp(paint, srgb(centre_c)[None, None, :] * np.ones((h, w, 1)), smoothstep(412.0, 428.0, r))
+    col = paint * (1.0 + 0.05 * mott + 0.04 * fine)[..., None]
+    def stripe(r0, r1, c):
+        m = rect_mask(w, h, -10, r0 * s, w + 10, r1 * s, 0.8)
+        return lerp(col, srgb(c)[None, None, :] * (1.0 + 0.05 * fine)[..., None], m)
+    col = stripe(-10, 4, (59, 56, 55))
+    col = stripe(4, 14, light_c)
+    col = stripe(14, 30, band_c)
+    sq = w / 8.0
+    chk = ((np.floor(xx / sq) + np.floor((r - 30.0) / 32.0)) % 2 == 0).astype(np.float32)
+    strip = rect_mask(w, h, -10, 30 * s, w + 10, 94 * s, 0.6)
+    squares = lerp(srgb((37, 38, 36))[None, None, :] * np.ones((h, w, 1)),
+                   srgb((186, 187, 184))[None, None, :] * np.ones((h, w, 1)), chk)
+    col = lerp(col, squares * (1.0 + 0.05 * fine)[..., None], strip)
+    col = stripe(94, 100, (69, 64, 62))
+    # our chevrons, white, once a tile (where TMNF has its small mark)
+    polys = []
+    for i in range(3):
+        x0 = (90 + i * 30) * w / 256.0
+        y0, y1 = 102 * s, 120 * s
+        cy = 0.5 * (y0 + y1)
+        polys.append([(x0, y0), (x0 + 8 * w / 256.0, y0), (x0 + 20 * w / 256.0, cy), (x0 + 8 * w / 256.0, y1),
+                      (x0, y1), (x0 + 12 * w / 256.0, cy)])
+    mark = poly_mask(w, h, polys, blur_px=0.6)
+    col = lerp(col, srgb((198, 194, 192))[None, None, :] * (1.0 + 0.04 * fine)[..., None], mark)
+    # tyre streaks along the road (rows of dark and light), stronger toward the driving lines
+    g = rng(seed + 2)
+    rows = blur(np.tile(g.standard_normal((h, 1)).astype(np.float32), (1, w)), 0.6)
+    along = 0.5 + 0.5 * fbm(w, h, seed + 3, beta=2.0, lo=1.0, hi=6.0)
+    streak = np.clip(rows * along, -2.5, 2.5)
+    col *= (1.0 + 0.045 * streak)[..., None]
+    dirt = grime(w, h, seed + 4, amount=0.6)
+    col = lerp(col, srgb((60, 58, 54))[None, None, :] * np.ones((h, w, 1)), dirt * 0.18)
+    hgt = 0.3 * fine + 0.2 * streak + 0.4 * strip + 0.4 * mark
+    nrm = normal_from_height(hgt, 0.25)
+    orm = np.stack([np.ones((h, w), np.float32), 0.78 - 0.1 * strip - 0.08 * mark + 0.04 * dirt,
+                    np.zeros((h, w), np.float32)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
 
 
 def lamp_panel(name='gate_lamps', ppm=256, w_m=2.0, h_m=1.0, seed=71):
@@ -123,34 +145,12 @@ def lamp_panel(name='gate_lamps', ppm=256, w_m=2.0, h_m=1.0, seed=71):
     write_import(os.path.join(OUT, name + '_emission.jpg'), False)
 
 
-def line(kind, name, ppm=64, across=21.0, depth=1.0, seed=81):
-    """The checkpoint line: a band of the kind's colour across the road, white edges, worn."""
-    word, ink, back, edge = KINDS[kind]
-    w = int(across * ppm)
-    h = int(depth * ppm)
-    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    conc = srgb((168, 167, 163))
-    n2 = fbm(w, h, seed, beta=0.7, lo=40.0)
-    col = conc[None, None, :] * (1.0 + 0.04 * n2)[..., None]
-    band_m = rect_mask(w, h, -10, 0.2 * h, w + 10, 0.8 * h, 1.0)
-    edges = np.maximum(rect_mask(w, h, -10, 0.1 * h, w + 10, 0.2 * h, 1.0), rect_mask(w, h, -10, 0.8 * h, w + 10, 0.9 * h, 1.0))
-    col = lerp(col, srgb(ink)[None, None, :] * 0.9, band_m)
-    col = lerp(col, srgb((236, 236, 232))[None, None, :], edges)
-    worn = smoothstep(1.0, 2.0, fbm(w, h, seed + 1, beta=1.6, lo=6.0)) * 0.6
-    col = lerp(col, conc[None, None, :] * (1.0 + 0.04 * n2)[..., None], worn * (band_m + edges))
-    nrm = normal_from_height(0.4 * n2, 0.3)
-    rough = 0.8 - 0.1 * band_m
-    orm = np.stack([np.ones_like(rough), rough, np.zeros_like(rough)], -1)
-    save(name, np.clip(col, 0, 1), nrm, orm)
-
-
 if __name__ == '__main__':
     for k in KINDS:
         # the arch's faces: the word along the arch (8 m), the arch 1.25 m deep at its faces
         band(k, 'gate_%s' % k, length=8.0, height=1.25, repeats=1)
         # the gate block's curb faces: as the road's curb face (8 m x 1.25 m)
         band(k, 'curb_%s' % k, length=8.0, height=1.25, seed=57, word_h=0.5, repeats=1)
-    pad('start', 'pad_start')
-    pad('finish', 'pad_finish')
-    line('cp', 'line_cp')
+    race_road('start', 'race_start')
+    race_road('finish', 'race_finish')
     lamp_panel()

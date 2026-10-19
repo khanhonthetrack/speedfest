@@ -121,6 +121,11 @@ const TURBO_POD := [[7.633, 0.0], [7.633, 1.53], [7.723, 1.78], [8.569, 1.946], 
 const TURBO_FIN_HALF := 0.802
 const TURBO_TRAY := [Vector2(8.441, 7.01), Vector2(17.446, 7.01), Vector2(23.611, 2.972), Vector2(25.898, 2.972)]
 const TURBO_PANEL := [0.17, 0.916]
+## A gate's line across the road (TMNF's: the border atlas' blue band, rows LINE_ROWS, LINE_HALF
+## either side of the gate's centre) and the start / finish roads' texture tile along z (m).
+const LINE_HALF := 0.181
+const LINE_ROWS := Vector2(367.1, 390.4)
+const RACE_TILE := 6.0
 ## Checkpoint / finish / multilap gate: the arch band (x, y), 4.2 m along z.
 const GATE_ARCH := [
 	[16.000, 8.806, "structure", 22], [14.407, 8.743, "structure", 22], [12.824, 8.552, "structure", 22],
@@ -364,21 +369,26 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif rest.begins_with("Checkpoint/") or rest.begins_with("MultiLap/"):
 		_straight(geo, 0.0, 32.0, ground)
 		_gate(geo, 16.0)
+		if rest.begins_with("MultiLap/"):
+			_race_road(geo, "race_start", 8.0, 24.0)
 	elif rest.begins_with("Finish/"):
-		# the road comes in from -z and ends past the line in a nose
+		# the road comes in from -z and ends past the line in a nose; all of it the finish road
 		_straight(geo, 0.0, 17.0, ground)
 		_nose(geo, 17.0, 1.0, ground, TOP - 0.04)
 		_gate(geo, 12.0)
+		_race_road(geo, "race_finish", -1.0, 18.0)
 	elif rest.begins_with("Start/"):
-		# the road leaves to +z from a nose behind the spawn (z 11.2); the line near the far end
+		# the road leaves to +z from a nose behind the spawn (z 11.2); the line near the far end,
+		# the start road up to it
 		_straight(geo, 8.0, 32.0, ground)
 		_nose(geo, 8.0, -1.0, ground, TOP - 0.04)
 		_gate(geo, 28.0)
+		_race_road(geo, "race_start", 7.0, 28.0 - LINE_HALF)
 	else:
 		return null
 	var node := geo.build()
 	for zc: float in _gates:
-		TmGateDress.dress(node, _gate_kind, zc, TOP, geo.sheared)
+		TmGateDress.dress(node, _gate_kind, zc, geo.sheared)
 	return node
 
 
@@ -922,9 +932,10 @@ func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN -
 ## running along the arch ("gate_<kind>", UVs along the arch), its underside lit in the gate's
 ## colour, light rigs on its shoulders aimed at the road. TMNF's two sign boards on top are left
 ## out (the review's gate option B: they read as horns); TmGateDress adds an LED screen in the
-## crown instead (TmGateScreen), and paints the road (start/finish pads, the checkpoint line).
+## crown instead (TmGateScreen). The road takes TMNF's line across it (_gate_line).
 func _gate(geo: TmGeo, zc: float) -> void:
 	_gates.append(zc)
+	_gate_line(geo, zc)
 	var sec := GATE_ARCH.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), "gate_shell", q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, zc - 2.1), Vector3(0, 0, zc + 2.1)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
 		false, "gate_shell", S_METAL)
@@ -933,6 +944,23 @@ func _gate(geo: TmGeo, zc: float) -> void:
 	for x0 in [2.9, 27.7]:
 		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL, "", -2, 0.06)
 	_gate_lights(geo, zc)
+
+
+## TMNF's line across the road at a gate: the road top cut LINE_HALF either side of zc and laid
+## with the border atlas' blue band (u across the road, 16 m a tile).
+func _gate_line(geo: TmGeo, zc: float) -> void:
+	geo.split_mat(_road_mat, Vector3(0, 0, 1), [zc - LINE_HALF, zc + LINE_HALF], [_road_mat, "gate_line", _road_mat])
+	geo.remap_uv("gate_line", func(p: Vector3) -> Vector2:
+		return Vector2(p.x / 16.0, lerpf(LINE_ROWS.x, LINE_ROWS.y, (p.z - zc + LINE_HALF) / (2.0 * LINE_HALF)) / 512.0))
+
+
+## TMNF's start / finish road (RoadRace: texgen/gates.py race_road) on the road top between z0 and
+## z1 (the rest stays asphalt; a finish block's road is laid with it whole): u along the road,
+## RACE_TILE m a tile, v from the edge (0) to the centre line (1), mirrored.
+func _race_road(geo: TmGeo, key: String, z0: float, z1: float) -> void:
+	geo.split_mat("asphalt", Vector3(0, 0, 1), [z0, z1], ["asphalt", key, "asphalt"])
+	geo.remap_uv(key, func(p: Vector3) -> Vector2:
+		return Vector2(p.z / RACE_TILE, 1.0 - absf(p.x - 16.0) / (16.0 - ROAD_EDGE)))
 
 
 ## The word a gate block shows: a start/finish line (MultiLap) ends our races, so it says FINISH.
