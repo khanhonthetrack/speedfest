@@ -2,7 +2,7 @@ class_name TmCarInput
 extends Node
 ## Player controls for a TmCar: keyboard (arrows / WASD) and gamepad, TMNF style. Keyboard steering is
 ## digital (-1/0/+1); the car model slews it at 20/s. Pad: left stick (analog), triggers or A/X.
-## Scripted input for tests: --auto_gas=1 --auto_steer=0.3 --auto_brake=0 (user args).
+## Scripted input for tests: --auto_gas=1 --auto_steer=0.3 --auto_brake=0 --auto_boost=1 (user args).
 
 @export var car: TmCar
 
@@ -10,6 +10,7 @@ var _auto := false
 var _auto_gas := 0.0
 var _auto_brake := 0.0
 var _auto_steer := 0.0
+var _auto_boost := false
 
 
 func _ready() -> void:
@@ -19,6 +20,7 @@ func _ready() -> void:
 		_auto_gas = TestHooks.arg("auto_gas", 0.0)
 		_auto_brake = TestHooks.arg("auto_brake", 0.0)
 		_auto_steer = TestHooks.arg("auto_steer", 0.0)
+		_auto_boost = bool(TestHooks.arg("auto_boost", false))
 
 
 func _physics_process(_delta: float) -> void:
@@ -28,10 +30,12 @@ func _physics_process(_delta: float) -> void:
 		car.gas = _auto_gas
 		car.brake = _auto_brake
 		car.steer = _auto_steer
+		car.boost_input = _auto_boost
 		return
 	var gas := 0.0
 	var brake := 0.0
 	var steer := 0.0
+	car.boost_input = Input.is_key_pressed(KEY_SHIFT) or Input.is_key_pressed(KEY_SPACE)
 	if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W):
 		gas = 1.0
 	if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
@@ -50,6 +54,8 @@ func _physics_process(_delta: float) -> void:
 			gas = 1.0
 		if Input.is_joy_button_pressed(pad, JOY_BUTTON_X):
 			brake = 1.0
+		if Input.is_joy_button_pressed(pad, JOY_BUTTON_B) or Input.is_joy_button_pressed(pad, JOY_BUTTON_RIGHT_SHOULDER):
+			car.boost_input = true
 	car.gas = gas
 	car.brake = brake
 	car.steer = clampf(steer, -1.0, 1.0)

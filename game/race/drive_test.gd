@@ -1,5 +1,5 @@
 extends Node3D
-## Drivable test scene: the TestArena, the car, the chase camera and a speed readout.
+## Drivable physics lab: the TestArena, a garage car, the chase camera and a speed readout.
 ## Keys: arrows/WASD drive, Enter/Backspace = respawn. Test args: --spawn=x,y,z,heading_deg
 ## --speed=kmh (start speed), plus TmCarInput's --auto_* args and TestHooks' --shot/--frames.
 
@@ -14,7 +14,9 @@ func _ready() -> void:
 	add_child(TestArena.new())
 	car = TmCar.new()
 	add_child(car)
-	car.add_child(TmCarVisual.new())
+	car.configure(String(TestHooks.arg("car", "kaze")), Garage.setup_of(String(TestHooks.arg("car", "kaze"))))
+	var rig := CarRig.new(car)
+	car.add_child(rig)
 	var inp := TmCarInput.new()
 	inp.car = car
 	add_child(inp)
