@@ -1,6 +1,6 @@
-# PC builds (M7): exports Windows + Linux with the official Godot 4.7.2 release and templates,
-# both verified against the release's SHA512-SUMS.txt. Download the zips from the run's
-# artifacts; a pushed tag v* also attaches them to a GitHub Release.
+# PC builds: exports Windows + Linux with the official Godot 4.7.2 release and templates, both
+# verified against the release's SHA512-SUMS.txt. Download the zips from the run's artifacts;
+# a pushed tag v* also attaches them to a GitHub Release.
 # The optional RTX build (NVIDIA's fork + DLSS DLLs) is never built here: see docs/RTX.md.
 name: Desktop builds
 

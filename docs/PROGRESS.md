@@ -948,3 +948,14 @@ regression, more circuits, and the owner's call on the credit economy.
   between all five cars and rebuilds each one, fitting a race engine adds power and costs credits,
   a wing changes the model, and the race starts with the car and the circuit that were chosen,
   with the HUD and the pause overlay wired.
+
+### 2026-10-19, end of session 11: the PC build path
+
+The browser build is gone, so the way the owner actually plays is a desktop export. `game/` came
+from `stadium/` and had no export presets, and the old ones went to `old/` with the rest:
+- `game/export_presets.cfg` rewritten for this game: Windows and Linux only, console wrapper,
+  embedded pck, S3TC/BPTC textures, shader baking on, `tests/*` excluded.
+- `tools/export_desktop.sh` brought forward (`build/SpeedFest-windows.zip`,
+  `build/SpeedFest-linux.zip`; `BAKE_SHADERS=1` bakes Vulkan shaders for a shorter first launch).
+- `.github/workflows/desktop.yml` needed no path changes — it already drives the root `tools/`
+  scripts — so pushes to `main` and `v*` tags build both platforms again.
