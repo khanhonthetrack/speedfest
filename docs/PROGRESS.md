@@ -2339,3 +2339,14 @@ on every real contact the full impulse would land at the contact point and kick 
   drive factors are the same as before). Our ledge tops now match TMNF's per shape to 0.5% (e.g.
   GTCurve 3 In 721.0 / 1982.9 m² against 721.0 / 1975.9; Corner In 226.4 / 224.9 against
   227.5 / 220.8); A01's inner corner checked side by side with TMNF's blocks in the same view.
+
+## 2026-10-19 — Session 13 continued: no more black tyre smoke
+- Owner: "When braking, i still see the black thingies near wheels". Reproduced in the test arena
+  (hard braking from 160 km/h, chase camera): the newest puffs at each wheel still drew as dark,
+  near-opaque blobs; the draw-order change of M10-2 had only hidden it in some frames. Their colour
+  came from the particle's vertex colour (a StandardMaterial3D with `vertex_color_use_as_albedo`),
+  which went wrong for fresh particles. Now the puffs have their own shader
+  (`race/tm_tyre_smoke.gdshader`: the particle billboard, unshaded, the colour a per-wheel `tint`
+  for the surface, the particle only fading it), so a puff can fade but never draw darker than its
+  tint. With the puffs at their intended opacity the road smoke barely showed on the light decks,
+  so it is whiter and denser (0.9 grey at 0.55, was 0.78 at 0.3); dust and grass bits unchanged.

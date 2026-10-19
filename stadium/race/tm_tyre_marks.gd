@@ -17,7 +17,7 @@ const MIN_SPEED := 3.0           ## m/s the wheel must slide over the ground to 
 const JUMP := 3.0                ## a wheel moving further in a tick was respawned: the mark ends
 ## kind: [texture, segments kept, roughness, smoke colour]
 const KINDS := {
-	"rubber": ["mark_asphalt", 3000, 0.65, Color(0.78, 0.78, 0.79, 0.3)],
+	"rubber": ["mark_asphalt", 3000, 0.65, Color(0.9, 0.9, 0.92, 0.55)],
 	"dirt": ["mark_dirt", 1500, 0.95, Color(0.5, 0.43, 0.33, 0.45)],
 	"grass": ["mark_grass", 1500, 0.95, Color(0.33, 0.38, 0.24, 0.28)],
 }
@@ -114,15 +114,13 @@ func _puff() -> CPUParticles3D:
 	p.color_ramp = fade
 	var quad := QuadMesh.new()
 	quad.size = Vector2(1.0, 1.0)
-	var m := StandardMaterial3D.new()
-	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	m.vertex_color_use_as_albedo = true
-	m.albedo_texture = load("res://assets/tex/smoke_puff_albedo.png")
-	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED     # lit smoke, also against the sun
-	m.cull_mode = BaseMaterial3D.CULL_DISABLED
-	quad.material = m
 	p.mesh = quad
+	# its own shader: the colour is the surface's tint and the particle only fades it (with a
+	# vertex-coloured StandardMaterial3D the newest puffs drew black)
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://race/tm_tyre_smoke.gdshader")
+	m.set_shader_parameter("puff_tex", load("res://assets/tex/smoke_puff_albedo.png"))
+	p.material_override = m
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# sorted back to front: in index order the newest puffs drew black (seen in Forward+)
 	p.draw_order = CPUParticles3D.DRAW_ORDER_VIEW_DEPTH
@@ -212,6 +210,6 @@ func _smoke(i: int, kind: String, p: Vector3, n: Vector3) -> void:
 	var on := not kind.is_empty()
 	if on:
 		pf.global_position = p + n * 0.15
-		pf.color = KINDS[kind][3]
+		(pf.material_override as ShaderMaterial).set_shader_parameter("tint", KINDS[kind][3])
 	if pf.emitting != on:
 		pf.emitting = on
