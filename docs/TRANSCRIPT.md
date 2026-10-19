@@ -792,3 +792,13 @@ Owner, later in session 15 (verbatim):
 Owner, later in session 15 (verbatim):
 > Daytona 2 USA Car also has something wrong, as Number 41 should be on the side and PHANTOM in front
 > When you finish all the tasks, include in the menu the community tab which lets you set a car to drive, or to download a community maps (from the sources you use) - the player should directly see the previews.
+
+Owner, later in session 15 (verbatim): the same message again, after both were done
+(64fc9de; 213235f, 1a93dd8):
+> Daytona 2 USA Car also has something wrong, as Number 41 should be on the side and PHANTOM in front
+> When you finish all the tasks, include in the menu the community tab which lets you set a car to drive, or to download a community maps (from the sources you use) - the player should directly see the previews.
+
+Then, after the screenshots (verbatim):
+> Great
+
+(Open, asked: TMUnlimiter 2 tracks, the static placed blocks first, or keep refusing them.)
