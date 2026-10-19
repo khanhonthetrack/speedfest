@@ -48,6 +48,32 @@
   tracks (would change play). Side-by-side sheets: render ours with the commands in PROGRESS,
   TMNF under Wine locally (never commit its frames).
 
+## Also 19 Oct (a parallel session, branch `claude/sleepy-albattani-o7ygr1`): the wheelie is NOT the contact layer
+
+Owner approved reading TMNF's code for the wheelie-after-nose-down-landing question. Re-read
+`WheelAbsorbContact` from the binary (no Ghidra needed — see below). **The "bottomed" flag means
+exactly what we assumed**: it is set only where the suspension cannot swallow the whole penetration,
+and the full-impulse-at-the-contact-point branch needs it. `stadium/core/tm_body.gd::_collide`
+already matches TMNF branch for branch. Written up as **§3.2a** of `docs/research/tmnf_physics.md`.
+So the contact layer is exonerated and the wheelie has to come from somewhere else.
+
+**Found on the way (a real bug, worth fixing on its own):** `AddVehicleImpulse` scales the angular
+`r x j` of *every* contact impulse by **0.55 [0x0ec]** and then clamps `|w|` to 100 rad/s [0x14c];
+linear is unscaled. Our `_apply_impulse` applies the full `r x j`, so **our contacts over-rotate by
+~1.8x**. New §3.2b and three rows in the §5 table. Fix this in `tm_body.gd` before tuning the
+wheelie — it changes every landing. It needs the stadium lab re-run
+(`stadium/tools/test_all.sh`, 22 body + 44 model tests are calibrated against the old behaviour),
+which needs Godot installed (see CLAUDE.md "Environment setup"); this container had no Godot.
+
+**Next candidates for the wheelie:** the spring force and where it is applied during compression
+(§3.2), the ground/air gravity switch 3.0 ↔ 2.5 [0x160/0x164] at touchdown, and the load-transfer
+torque [0x228–0x23c] (already implemented in `tm_car_model.gd`).
+
+**RE pipeline is now cheap:** `tools/research/tmnf/fnmap.py` (name → address range from
+`TmForever.map`) + `dis.py` (objdump + call/constant annotation). No Ghidra, no REA, no JDK — they
+are only needed for pseudocode. Installer, `7z`, `innoextract`, `pip install pycryptodome` and the
+existing pack scripts do the rest; README has the commands.
+
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium
   and tag stadium-v0.4"): `stadium` was fast-forwarded to `claude/trackmania-stadium-review-lds3no`

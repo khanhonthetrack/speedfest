@@ -63,6 +63,55 @@ penetration. Four springs at full compression give 32 m/s² against 30 m/s² of 
 sits deep in a stiff, short suspension. Wheel contact impulses remove 20% of the approach speed per
 tick (factor 0.8 [0x184/0x18c]).
 
+### 3.2a Wheel ground contact: what `WheelAbsorbContact` actually does
+*(Session 11, re-read from the disassembly at 0x7c11d0 to settle whether the "bottomed" flag means
+what §3.2 assumes. It does.)*
+
+The whole suspension/impulse half of the function is behind `tuning[0x350] == 2` ("suspension model
+2"; the Stadium car's value, §5). A contact whose normal is more than 45° off the car's up axis is a
+**side** contact (`|n_car.x| >= sin 45°`): it only sets the wall flag and the lateral slow-down
+vector, and takes an impulse keeping 0.5 [0x178/0x17c] at the contact point. A ground contact
+accumulates the normal, the contact count and the surface, and then:
+
+```
+if pen_car.y > 0:                        # penetration pushing up into the car
+    room     = wheel.susp_len - 0x11c    # 0x11c < -1e-5 disables this: take = pen_car.y
+    take     = min(pen_car.y, room)
+    bottomed = (room <= pen_car.y)       # <- the flag, set ONLY here
+    wheel.absorb = max(wheel.absorb, take)
+    pen_car.y   -= take
+else:
+    bottomed = true                      # nothing for the spring to take
+
+vn = dot(n, v_rel)
+if vn < 0:
+    vn_up = (n * vn)_car.y
+    if bottomed or vn_up >= 0:
+        impulse(keep 0.8, v_rel, n)  at the CONTACT POINT       # full kick, with torque
+    else:
+        v2 = v_rel - up * vn_up                                 # spring takes the vertical part
+        if dot(n, v2) < 0:
+            impulse(keep 0.8, v2, n) at the WHEEL CENTRE        # remainder only
+```
+
+So the flag is genuinely "the spring could not swallow the whole penetration", it is **not** set for
+every real contact, and TMNF does **not** apply the full contact impulse on every ground touch. The
+two application points (contact point when bottomed, wheel centre otherwise) are real and are what
+decides how much pitch a landing produces. `stadium/core/tm_body.gd::_collide` already implements
+exactly this, branch for branch.
+
+### 3.2b The angular scale and clamp in `AddVehicleImpulse` (0x7be390)
+Both contact branches above hand their impulse to `CSceneVehicleCar::AddVehicleImpulse(j, at)`, which
+is **not** a plain rigid-body impulse:
+
+- linear: `v += j / mass` — unscaled;
+- angular: the `r x j` term is scaled by **0.55 [0x0ec]** before it is added (one axis is scaled
+  again by [0x0e8], which the tuning chunks never write, so it keeps its constructor default);
+- then `|w|` is clamped to **100 rad/s [0x14c]** (so high it effectively never binds).
+
+The 0.55 is the part that matters: **every contact in TMNF produces only 55% of the rotation a
+textbook impulse would give.** Our port applies the full `r x j`, so our contacts over-rotate.
+
 ### 3.3 Slope adherence: the wall/loop rule
 Before the tyre forces, the game measures how much of the current force on the car (gravity) lies
 along the car's up axis: r = |F_up| / |F|, i.e. |cos(tilt)| relative to gravity.
@@ -161,8 +210,9 @@ E04) and with `tools/research/tmnf/air_check.py` over every campaign ghost:
   side and chassis friction. Unresolved: in `WheelAbsorbContact` a ground contact takes the full
   impulse at the contact point under a flag the decompiler lost (else only the approach left after
   the spring's vertical share, at the wheel centre); ours takes it when the suspension bottoms.
-  `AddVehicleImpulse` scales an impulse's spin by 0.55 [0xec] on two axes (pitch untouched) and
-  caps it at 100 rad/s [0x14c]. TMNF's landings (A06 10.8 s, E04 97.9 s, D08 13.7 s): within
+  `AddVehicleImpulse` scales an impulse's spin by 0.55 [0xec] and caps it at 100 rad/s [0x14c]
+  (§3.2b: the disassembly, read by a parallel session, scales every axis; the decompiled view had
+  suggested two). TMNF's landings (A06 10.8 s, E04 97.9 s, D08 13.7 s): within
   0.1 s of a nose-down touch the fall is mostly gone and the car spins nose-up at 3-4 rad/s on
   bottomed rear springs; the rear then slows the spin only ~25 rad/s² (springs and gravity), while
   ours stops it at once (a near-inelastic rear contact). Measured on the six tracks' landings
@@ -283,7 +333,9 @@ interpolation 1.
 | 0x11c, 0x120 | 0, 0.7 | suspension lengths mapped to damper ratio 1 and 0 (grip factor) |
 | 0x130 | 1 | mass |
 | 0x134, 0x138–0x140 | 5; 0.5, 0.5, 1.0 | inertia box: mass, half-size |
+| 0x0e8, 0x0ec | (not written), 0.55 | angular scale on every contact impulse (AddVehicleImpulse) |
 | 0x148 | 0.45 | centre of mass height above wheel contact |
+| 0x14c | 100 | max angular speed, rad/s (clamped in AddVehicleImpulse) |
 | 0x154 | 0.03 | linear damping in the air |
 | 0x158, 0x15c | 0.4, 0.2 | air angular drag: linear, quadratic |
 | 0x160, 0x164 | 3, 2.5 | gravity factor: ground, air |
