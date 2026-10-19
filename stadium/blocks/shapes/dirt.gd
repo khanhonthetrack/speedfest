@@ -16,6 +16,7 @@ const S_ROAD := 16
 const CLASSES := {"g": ["grass", S_GRASS], "d": ["dirt_road", S_DIRT], "r": ["asphalt", S_ROAD]}
 const PATH := "res://blocks/data/dirt_heights.json"
 const QUAD := 1.0               ## render/collision quad size (m)
+const GRASS_EPS := 0.05         ## how far off the grass level (1 m) a corner still counts as on it
 ## Checkpoints: the terrain they stand on, and how far the Road/Main gate is raised for them.
 const CHECKPOINTS := {
 	"Road/Dirt/RoadDirtCheckpoint/Ground": ["Road/Dirt/StraightGround", 1.0],
@@ -78,8 +79,54 @@ func _surface(geo: TmGeo, s: Dictionary) -> void:
 			var cj := mini(int((j + 0.5) * QUAD / step), cls.size() - 1)
 			var line := String(cls[cj])
 			var ci := mini(int((i + 0.5) * QUAD / step), line.length() - 1)
-			var m: Array = CLASSES.get(line[ci], CLASSES["d"])
-			geo.quad(pts[j][i], pts[j + 1][i], pts[j + 1][i + 1], pts[j][i + 1], m[0], m[1])
+			var c := line[ci]
+			var q := [pts[j][i], pts[j + 1][i], pts[j + 1][i + 1], pts[j][i + 1]]
+			# the dirt follows the ground's shape, as TMNF's meshes do, not the survey's 2 m cells
+			# (their staircase): next to dirt, the ground off the grass's level is dirt and on it
+			# grass, the line between them cut through the quads along the level
+			if c == "d" or (c == "g" and _near_dirt(cls, cj, ci)):
+				_split_tri(geo, q[0], q[1], q[2])
+				_split_tri(geo, q[0], q[2], q[3])
+				continue
+			var m: Array = CLASSES.get(c, CLASSES["d"])
+			geo.quad(q[0], q[1], q[2], q[3], m[0], m[1])
+
+
+## A triangle of the terrain cut where it leaves the grass's level (|y - 1| = GRASS_EPS): dirt off
+## it, grass on it.
+func _split_tri(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3) -> void:
+	var tri := [a, b, c]
+	var off := func(p: Vector3) -> float: return absf(p.y - 1.0) - GRASS_EPS
+	var dirt := []
+	var grass := []
+	for k in 3:
+		var p: Vector3 = tri[k]
+		var r: Vector3 = tri[(k + 1) % 3]
+		var dp: float = off.call(p)
+		var dr: float = off.call(r)
+		if dp > 0.0:
+			dirt.append(p)
+		else:
+			grass.append(p)
+		if (dp > 0.0) != (dr > 0.0):
+			var m := p.lerp(r, dp / (dp - dr))
+			dirt.append(m)
+			grass.append(m)
+	for poly: Array in [[dirt, CLASSES["d"]], [grass, CLASSES["g"]]]:
+		var pp: Array = poly[0]
+		for k in range(1, pp.size() - 1):
+			geo.tri(pp[0], pp[k], pp[k + 1], poly[1][0], poly[1][1])
+
+
+## Whether a survey cell (row j, column i) touches a dirt cell (its eight neighbours).
+static func _near_dirt(cls: Array, j: int, i: int) -> bool:
+	for dj in [-1, 0, 1]:
+		for di in [-1, 0, 1]:
+			var jj: int = j + dj
+			var ii: int = i + di
+			if jj >= 0 and jj < cls.size() and ii >= 0 and ii < String(cls[jj]).length() and String(cls[jj])[ii] == "d":
+				return true
+	return false
 
 
 static func _cr(p0: float, p1: float, p2: float, p3: float, t: float) -> float:

@@ -2460,3 +2460,9 @@ on every real contact the full impulse would land at the contact point and kick 
   dark ends; camera galleries: a dark foot, TMNF's band of windows 1.56-2.79 m above the wall's
   foot, the roof grey along its edge and dark beyond, the ground plinth light. Side by side with
   TMNF's blocks.
+- (M11-2) **Dirt roads' outline and the sculptures' plinth as TMNF's.** The dirt follows the
+  ground's shape as TMNF's meshes do: next to the survey's dirt cells, the terrain off the grass
+  level (more than 5 cm) is dirt and on it grass, each triangle cut along that level
+  (`dirt.gd _split_tri`), so the dirt base's ring mound and the berms have smooth edges instead of
+  the survey's 2 m staircase. The sculptures' plinth pads are TMNF's light panel, not red rubber.
+  `tests/block_view.tscn` lays its grass under a ground block's own terrain.

@@ -20,7 +20,7 @@ func _ready() -> void:
 	pm.size = Vector2(2000, 2000)
 	grass.mesh = pm
 	grass.material_override = TmMaterials.get_material("grass")
-	grass.position = Vector3(0, 1.0 if shape.contains("Ground") else -0.02, 0)
+	grass.position = Vector3(0, 0.9 if shape.contains("Ground") else -0.02, 0)   # (under the blocks' own terrain)
 	add_child(grass)
 	var t := String(TestHooks.arg("target", "16,4,16")).split(",")
 	var target := TmGeo.g(Vector3(float(t[0]), float(t[1]), float(t[2])))

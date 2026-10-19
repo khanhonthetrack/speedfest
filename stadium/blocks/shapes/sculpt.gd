@@ -69,9 +69,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_tube(geo, tube, PARTS[part], S_METAL, msum)
 	match shape:
 		"Sculpt/A/Ground", "Sculpt/B/Ground", "Sculpt/C/Ground":
-			# the three sculptures share their plinth (measured: the same pads and curbs)
+			# the three sculptures share their plinth (measured: the same pads and curbs; the pads
+			# light as TMNF's, its border atlas' panel)
 			for tube: Dictionary in lofts().get("Sculpt/A/Ground#pads", []):
-				_tube(geo, tube, "rubber", 9)
+				_tube(geo, tube, "plinth_pad", 9)
 			for zc: float in A_CURB_Z:
 				var sec := A_CURB.map(func(q: Array) -> Array: return [Vector2(zc + float(q[0]), float(q[1])), "rubber_white", S_ROAD])
 				geo.wall_sweep(sec, [Vector3(A_CURB_X[0], 0, 0), Vector3(A_CURB_X[1], 0, 0)], [Vector3(0, 0, 1), Vector3(0, 0, 1)],
