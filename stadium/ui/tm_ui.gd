@@ -33,6 +33,13 @@ const TITLE := "orbitron-latin-900-normal"
 const HEAD := "orbitron-latin-700-normal"
 const BODY := "rajdhani-latin-500-normal"
 const BOLD := "rajdhani-latin-700-normal"
+## TMNF's own type (M10-5): a humanist sans for its menus and in-race text (Cabin, SIL OFL, in the
+## spirit of TMNF's Gill-like face) and 7-segment digits for the race clock and speed (DSEG7
+## Classic, SIL OFL).
+const SANS := "cabin-latin-600-normal"
+const SANS_BOLD := "cabin-latin-700-normal"
+const SANS_ITALIC := "cabin-latin-700-italic"
+const DIGITS := "dseg7-classic-bold"
 
 
 ## One of the UI fonts (TITLE, HEAD, BODY, BOLD), optionally letter-spaced (pixels).

@@ -107,10 +107,12 @@ func _process(delta: float) -> void:
 	_wind.pitch_scale = 0.8 + clampf(absf(kmh) / 600.0, 0.0, 0.6)
 	if race:
 		if race.state == TmRace.State.COUNTDOWN:
-			var d := ceili(race.countdown_ms / 500.0)
-			if d != _digit and d > 0:
-				_digit = d
+			# a beep as each figure (3, 2, 1) shows (TmRace.figure_at)
+			var fig := TmRace.figure_at(race.clock_ms())
+			var d := TmRace.FIGURES.find(fig)
+			if d != _digit and d >= 0:
 				cue("beep", -3.0)
+			_digit = d
 			_was_racing = false
 		elif race.state == TmRace.State.RACING and not _was_racing:
 			_was_racing = true

@@ -2091,3 +2091,24 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   wheel contact code, not read this session (reading the decompiled code was blocked by the
   session's safety check; asked the owner). Tools: `ghost_fit` groups landings/take-offs, counts
   wheelie time, `--trace_at` prints pitch and spin per tick.
+- **M10-5 started: TMNF itself as the reference.** TMNF runs here under Wine (9.0, 32-bit prefix
+  outside the repo, an offline local profile; its network shut off with `unshare -n`, so no
+  account is created anywhere; shader quality PC2, Wine's own shader compiler can't build PC3's).
+  Reference screenshots of its menus (globe, the left column of icon rows, green title bars, the
+  campaign's grid of thumbnails), loading screen, opponent picker, race HUD, countdown and race
+  menu, and video of its countdown, all local only.
+- **In-race HUD as TMNF's** (`race/tm_race_hud.gd`): the clock in TMNF's seven-segment digits in a
+  pill on the bottom edge (a blue tint growing toward the bottom; negative before the start, as
+  TMNF's: -0:02.60), the speed with the distance driven ("125 m") in a darkening pill in the
+  bottom-right corner, the map's name and author (and checkpoints / laps) in a grey pill hung from
+  the top right; no medal list on screen; "Press Return to respawn / Press Delete to restart" when
+  the car stands still. The pills' fills were measured against TMNF's frames (the speed's darkens
+  every channel x0.76). The digits are our own drawing, `ui/tm_seg_text.gd` (pointed segment ends,
+  a narrow 1, square dots, a drop shadow; letters fall back to the sans); pills by
+  `ui/tm_pill.gdshader`. New fonts (SIL OFL): Cabin (a Gill-like humanist sans, TMNF's menus'
+  feel) and DSEG7 Classic (`assets/fonts`, `TmUi.SANS`, `SANS_BOLD`, `DIGITS`).
+- **TMNF's countdown** (measured from video of its restarts): the clock starts at -2.60 s (ours was
+  1.5 s); the figures 3, 2, 1, Go! come every 0.75 s from -2.0 s, each shown 0.65 s, just above the
+  middle, small (`TmRace.COUNTDOWN_MS`, `figure_at`; the beeps follow them). The figures redrawn
+  upright in the sans with Go! pale inside a blue outline (`tools/texgen/ui.py`). `test_race` checks
+  the schedule.
