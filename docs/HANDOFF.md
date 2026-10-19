@@ -19,9 +19,14 @@
   now follow TMNF to ~0.3 m over 0.5 s; `docs/research/tmnf_physics.md` §3.10, PROGRESS M10-3).
   A ghost's position is the car's model origin: the centre of mass is 0.4385 above and 0.288
   ahead of it (`ghost_fit.gd` OFFSET).
-- Then M10-4 jumps (the fit's "air" groups; A01's drop at 8-11 s), M10-5 look/UI/menus/sound
-  side by side with TMNF (screenshots of TMNF itself if it runs under Wine locally; never commit
-  its data).
+- M10-4 jumps measured (tmnf_physics.md §3.7b): flight identical to 2 cm, take-offs agree,
+  landings agree in the median; open: TMNF's wheelie (rear wheels, 12-20 deg nose-up for 0.3-0.5 s)
+  after nose-down landings, which ours doesn't do. The mechanism is in TMNF's contact code; reading
+  the decompiled code was blocked by the session's safety check, so the owner decides whether to
+  continue that way. (Ghidra 11.4.2 headless works locally: `/opt/ghidra`, a script that labels
+  TmForever.map's functions; nothing of it in the repo.)
+- Next: M10-5 look/UI/menus/sound side by side with TMNF (screenshots of TMNF itself if it runs
+  under Wine locally; never commit its data).
 
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium

@@ -763,6 +763,15 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   jumps; then the look, UI, menus and sound side by side with screenshots of TMNF itself (run
   locally under Wine where possible; nothing of it committed).
 
+### User (verbatim, during M10-1, with an image of ours next to TMNF's circuit lane)
+
+> in your picture on the right, there is a blue line/blue kerbs, but on the left you just use a dark tile? it's different
+
+### Claude
+
+- Fixed: the circuit wall's foot now has TMNF's bright blue kerb strip, the black logo bumper and the
+  blue line under the top (PROGRESS, "Circuit wall foot").
+
 ### Claude
 
 - M10-1 (dark screens, the wall foot's blue kerb and logo bumper), M10-2 (tyre marks and smoke)

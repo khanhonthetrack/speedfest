@@ -2081,3 +2081,13 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   from the neighbouring positions (a ghost stores velocities with 8-bit direction angles, up to
   ~0.7 m/s off; in pure flight that alone made 0.38 m of the 0.5 s error, now 0.02 m), and
   `--trace_at=<t>` prints our car tick by tick through one window.
+- **M10-4 jumps against TMNF** (owner: "Revisit jump physics whether it's the same as in TMNF"):
+  measured, model unchanged. Flight is identical (0.01-0.02 m apart after 0.5 s in the air, gravity,
+  drag and spin decay checked separately over every campaign ghost: `air_check.py`); take-offs agree;
+  landings agree in the median with scatter both ways. The one visible difference: TMNF's car pops
+  onto its rear wheels after a nose-down landing (12-20 deg nose-up for 0.3-0.5 s) and sometimes
+  loses 4-15 km/h; ours lands flatter and keeps its speed. Contact-stiffness variants did not
+  reproduce it (`docs/research/tmnf_physics.md` §3.7b, numbers there); the mechanism is in TMNF's
+  wheel contact code, not read this session (reading the decompiled code was blocked by the
+  session's safety check; asked the owner). Tools: `ghost_fit` groups landings/take-offs, counts
+  wheelie time, `--trace_at` prints pitch and spin per tick.

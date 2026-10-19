@@ -211,7 +211,8 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
 - [x] 3. Physics off asphalt (grass, dirt, ...) against TMNF's own runs (the campaign replays'
       ghosts: `tools/research/tmnf/ghost_dump.py`, `race/ghost_fit.tscn`): the surface table's
       columns were misread (grip = 1, drive = 2, brakes = 3); fixed, tmnf_physics.md §3.10
-- [ ] 4. Jump physics against TMNF (air phases, landings)
+- [x] 4. Jump physics against TMNF (air phases, landings): flight identical, take-offs agree,
+      landings agree in the median; open: TMNF's wheelie after nose-down landings (§3.7b)
 - [ ] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)

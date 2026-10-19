@@ -132,6 +132,29 @@ ground gravity the car needs ≥ 129 km/h at the top (g·R) and so about 280 km/
 **No air steering.** In the air the only torque is angular drag 0.4·|ω| + 0.2·|ω|² against the spin
 [0x158, 0x15c]: the car keeps the rotation it took off with, slowly damped. Gravity 25 m/s².
 
+### 3.7b Jumps against TMNF's own runs (M10-4, session 13)
+Measured with `stadium/race/ghost_fit.tscn` (our car started from a campaign ghost's state, driven
+0.5 s with the run's own inputs; start velocity from the neighbouring positions, since a ghost
+packs velocities with 8-bit angles) on the six jumpiest campaign tracks (A06, B12, C11, D05, D08,
+E04) and with `tools/research/tmnf/air_check.py` over every campaign ghost:
+- **Flight is identical**: TMNF's heights give −24.4 to −24.9 m/s² (gravity 25 plus the 0.03·v
+  drag), horizontal drag 0.03·v at every speed (−2.7 m/s² at 300-350 km/h, −5.2 at 600-650), spin
+  decay = (0.4|ω| + 0.2|ω|²)/inertia (0.19 vs our 0.20 rad/s² at 0.75 rad/s). Ours ends 0.01-0.02 m
+  from TMNF after 0.5 s in the air (median, 738 windows).
+- **Take-offs agree** (0.11-0.45 m, speed within 0.1-0.7 km/h median).
+- **Landings agree in the median** (309 windows: 0.31 m, speed +0.3 km/h) but scatter: a tenth of
+  them end 4 km/h slower and a tenth 11-15 km/h faster than TMNF. The visible difference: after a
+  nose-down landing (pitch −11 to −26°) TMNF's car kicks up to −4 to −6.5 rad/s nose-up, rides on its
+  rear wheels 12-20° nose-up for 0.3-0.5 s (nose coming down at a steady ~9.3 rad/s², a rigid car
+  pivoting on its rear contact) and sometimes loses 4-15 km/h; ours stops that rotation when the
+  rear wheels touch (peak +3.5° on E04 at 98 s) and keeps its speed. Over those windows TMNF spends
+  ~29 s on its rear wheels alone, ours ~10 s.
+- Tried and rejected (all measured on the same windows): the ground contact's keep factor once per
+  tick instead of per substep (wheelies 10 -> 16.6 s, speeds worse), a harder contact (keep 0.2:
+  wheelies 4 s), softer ones (0.9/0.95 per tick: ~18 s, speeds worse, mean error 7.4-8.8 km/h).
+  The mechanism is in TMNF's contact code (`CSceneVehicleCar::WheelAbsorbContact`, `AbsorbContact`,
+  `AfterContacts`), which this pass did not read: open.
+
 ### 3.8 Turbo pads
 Turbo **multiplies the acceleration curve**: drive += accel(speed) × strength, even without throttle.
 Yellow pad (surface 7): strength **5** [0xf0], **250 ms** [0xf8]; red pad (surface 26): strength
