@@ -25,8 +25,20 @@
   the decompiled code was blocked by the session's safety check, so the owner decides whether to
   continue that way. (Ghidra 11.4.2 headless works locally: `/opt/ghidra`, a script that labels
   TmForever.map's functions; nothing of it in the repo.)
-- Next: M10-5 look/UI/menus/sound side by side with TMNF (screenshots of TMNF itself if it runs
-  under Wine locally; never commit its data).
+- M10-5 (look, UI, menus, sound side by side with TMNF; session 13 continued, 19 Oct): TMNF runs
+  locally under Wine (9.0, 32-bit prefix, an offline profile, its network cut with `unshare -n`,
+  shader quality PC2) for reference screenshots; nothing of it in the repo. Done, one commit each
+  (PROGRESS has the details): the race HUD and countdown (`race/tm_race_hud.gd`, `ui/tm_seg_text.gd`,
+  -2.60 s start), the race menu and finish card in TMNF's dialog style, the menus in TMNF's frame
+  (`ui/tm_menu.gd`: globe, icon-row column, green-titled panels, the campaign grid of cards), the
+  loading screen with the keyboard (`ui/tm_loading.gd`) and the three camera views (keys 1-3), the
+  cues shaped to TMNF's measured ones (`tools/sfxgen/cues.py`, numbers in `research/m9_sound.md`),
+  Select Opponent with medal ghosts (`race/tm_medal_ghost.gd`: the bot's run slowed to each medal),
+  pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh` -> `assets/ui/thumbs`).
+- Note: session 14 (another branch, below) merged M9 into `stadium`; this branch's M10 work goes
+  into `stadium` when the owner says so (expect conflicts in docs only, maybe `race/race.gd`).
+- Open after M10-5: TMNF's wheelie after nose-down landings (M10-4, owner's call); the engine's
+  layers could get the same measured comparison as the cues (M9-3 checked band energies only).
 
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium

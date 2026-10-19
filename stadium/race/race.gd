@@ -28,7 +28,8 @@ var cam: TmCamera
 var hud: TmRaceHud
 var ready_to_race := false
 var best := {}                     ## the track's record: {time_ms, splits}; {} if none
-var best_ghost: TmGhost            ## the record's ghost, raced against; null if none
+var best_ghost: TmGhost            ## the ghost raced against (the record's, or the opponent picked); null if none
+var opponent := ""                 ## the opponent picked (gold, silver, bronze, best, none); "" not asked
 var run: TmGhost                   ## this run, being recorded
 var replay: TmReplay               ## this run as a replay, being recorded
 var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarVisual)
@@ -164,14 +165,68 @@ func _ready() -> void:
 		add_child(online)
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
+	menu.opponent_chosen.connect(set_opponent)
 	# the map's collision is in the physics space from the next physics frame
 	await get_tree().physics_frame
+	if _asks_opponent():
+		TmMedalGhost.bot_run(self)       # the medal opponents' run, while the loading screen is up
 	restart(true)
 	if TestHooks.has_arg("finish_result"):
 		_back_from_replay()
 	ready_to_race = true
+	if _asks_opponent():
+		menu.show_opponents(_opponent_options(), _opponent_focus())
+	elif TestHooks.has_arg("opponent"):
+		set_opponent(String(TestHooks.arg("opponent", "")))
 	if TestHooks.has_arg("pause"):      # screenshots: the race menu over the start
 		menu.toggle_pause()
+
+
+## TMNF's Select Opponent comes up when one of our tracks is loaded from the menu (not on a
+## restart, online, in a test drive or back from a replay); --opponent=ask shows it in tests and
+## screenshots, --opponent=<kind> picks one.
+func _asks_opponent() -> bool:
+	var arg := String(TestHooks.arg("opponent", ""))
+	if arg != "ask" and (TestHooks.is_testing() or not arg.is_empty()):
+		return false
+	return TmTracks.has(track_id) and not online and not editing() and not TestHooks.has_arg("finish_result") \
+		and challenge.gold_ms > 0 and opponent.is_empty()
+
+
+## The opponents: [kind, name, time]: the medals' ghosts, your best run's, none.
+func _opponent_options() -> Array:
+	var out := [["gold", "Gold Medal", challenge.gold_ms], ["silver", "Silver Medal", challenge.silver_ms],
+		["bronze", "Bronze Medal", challenge.bronze_ms]]
+	if TmRecords.ghost(challenge) != null:
+		out.append(["best", "Personal Best", int(best.get("time_ms", -1))])
+	out.append(["none", "None", -1])
+	return out
+
+
+## The row focused first: the next medal to win (bronze when you have none), as TMNF's.
+func _opponent_focus() -> String:
+	var m := TmRace.medal(int(best.get("time_ms", -1)), challenge)
+	match m:
+		"bronze":
+			return "silver"
+		"silver", "gold", "author":
+			return "gold"
+	return "bronze"
+
+
+## Races against an opponent: a medal's ghost (TmMedalGhost: our bot's run at that medal's time),
+## your best run's, or none.
+func set_opponent(kind: String) -> void:
+	opponent = kind
+	match kind:
+		"gold", "silver", "bronze":
+			var ms: int = {"gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms}[kind]
+			best_ghost = TmMedalGhost.at_time(TmMedalGhost.bot_run(self), ms)
+		"best":
+			best_ghost = TmRecords.ghost(challenge)
+		"none":
+			best_ghost = null
+	_show_ghost()
 
 
 ## A full-screen message (no map to race), e.g. when TMNF isn't installed.
@@ -189,7 +244,7 @@ func _message(text: String) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not ready_to_race or waiting or TmLoading.covering():   # the countdown starts once the track shows
+	if not ready_to_race or waiting or TmLoading.covering() or menu.choosing:   # the countdown waits for the track
 		return
 	if sync_start > 0.0 and race.state == TmRace.State.COUNTDOWN:
 		# the countdown follows the server's clock: everyone starts at the round's start
@@ -314,7 +369,8 @@ func _on_finished(time_ms: int) -> void:
 		online.on_finish(time_ms)
 	if new_record:
 		best = TmRecords.best(challenge)
-		best_ghost = run if TmUi.setting("ghost") else null
+		if opponent in ["", "best"]:      # a medal opponent stays
+			best_ghost = run if TmUi.setting("ghost") or opponent == "best" else null
 		hud.best = best
 	var this_run := run
 	get_tree().create_timer(TmRaceHud.FINISH_FLASH).timeout.connect(func() -> void:

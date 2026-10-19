@@ -2165,3 +2165,14 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   a metal clang), a new landing thump after jumps (`TmCarAudio._landing`, louder the harder it comes
   down), the menus' blip and tock (TMNF's Forever menus), the wind. Kenney's interface and impact
   sounds and the wind recording are gone (respawn stays); `test_sound` checks the landing.
+- **TMNF's Select Opponent** (`ui/tm_race_menu.gd` `show_opponents`, `race/tm_medal_ghost.gd`): when
+  one of our tracks is loaded from the menu, a dialog on black before the race, as TMNF's: Gold
+  Medal, Silver Medal, Bronze Medal (each with its disc and time), Personal Best (when you have one)
+  and None; the next medal to win is focused (bronze when you have none). TMNF races recorded medal
+  ghosts; ours are our bot's run (TmBot driving the track once, unseen, about 25x faster than real
+  time behind the loading screen; 0.8 s for A01) slowed to each medal's time: the same line,
+  arriving on the medal's time. The run is kept per track for the session. A medal opponent stays
+  when you set a record; Personal Best follows your record. `--opponent=ask` shows the dialog in
+  screenshots, `--opponent=<kind>` picks one. `tests/test_opponent` (in the gate): the bot's run
+  finishes near gold, a medal ghost arrives on its time along the same line, the dialog lists the
+  medals and None and a pick sets the race's ghost.

@@ -12,6 +12,7 @@ signal next_track
 signal to_menu
 signal watch_replay
 signal save_replay
+signal opponent_chosen(kind: String)
 
 var has_next := false
 var online := false                ## in a server: "menu" leaves it
@@ -19,6 +20,7 @@ var editing := false               ## testing a track from the editor: "menu" go
 var _panel: PanelContainer
 var _box: VBoxContainer
 var paused := false
+var choosing := false              ## the opponent dialog is up (the race waits)
 var finished := false
 var _result := {}
 var _replay_saved := false
@@ -38,6 +40,7 @@ void fragment() {
 }
 """
 var _frost: ColorRect
+var _black: ColorRect              ## behind the opponent dialog: TMNF shows it on black, before the track
 
 
 func _ready() -> void:
@@ -56,6 +59,11 @@ func _ready() -> void:
 	_frost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_frost.visible = false
 	root.add_child(_frost)
+	_black = ColorRect.new()
+	_black.color = Color.BLACK
+	_black.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_black.visible = false
+	root.add_child(_black)
 	_panel = PanelContainer.new()
 	_panel.add_theme_stylebox_override("panel", TmUi.glass("tm_dialog"))
 	_panel.set_anchors_preset(Control.PRESET_CENTER)
@@ -246,6 +254,108 @@ static func _medal(kind: String, size: int) -> Control:
 	return r
 
 
+## TMNF's "Select Opponent", before the first run on a track loaded from the menu: a row per
+## opponent ([kind, name, time ms (-1: none)]: the medal ghosts, your best, None) with its disc,
+## name and time; the race waits (the tree is paused) until one is picked (opponent_chosen).
+func show_opponents(options: Array, focus_kind := "") -> void:
+	choosing = true
+	get_tree().paused = true
+	_black.visible = true
+	for c in _box.get_children():
+		_box.remove_child(c)
+		c.queue_free()
+	_box.add_child(TmUi.tm_title("Select Opponent"))
+	var pad := MarginContainer.new()
+	for side in ["left", "right"]:
+		pad.add_theme_constant_override("margin_" + side, 40)
+	pad.add_theme_constant_override("margin_top", 10)
+	pad.add_theme_constant_override("margin_bottom", 34)
+	_box.add_child(pad)
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 12)
+	pad.add_child(body)
+	var focus: Button = null
+	for o: Array in options:
+		var b := _opponent_row(String(o[0]), String(o[1]), int(o[2]))
+		body.add_child(b)
+		if focus == null or String(o[0]) == focus_kind:
+			focus = b
+	_panel.visible = true
+	_panel.reset_size()
+	_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
+	_frost_under.call_deferred()
+	if focus:
+		_focus.call_deferred(focus)
+
+
+## An opponent's row as TMNF's: a dark pill, lighter and its text green when focused; the medal's
+## disc, the name above, the time in a grey pill under it.
+func _opponent_row(kind: String, label: String, ms: int) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(430, 68)
+	var dark := TmGlassBox.make({"top": Color(0.17, 0.17, 0.18, 0.95), "bottom": Color(0.11, 0.11, 0.12, 0.95), "gloss": 0.05,
+		"radius": 100.0, "border": Color(0.27, 0.27, 0.29, 0.9), "border_width": 1.5})
+	var lit := TmGlassBox.make({"top": Color(0.45, 0.46, 0.47, 1.0), "bottom": Color(0.27, 0.28, 0.29, 1.0), "gloss": 0.2,
+		"radius": 100.0, "border": Color(0.6, 0.61, 0.63, 1.0), "border_top": Color(0.8, 0.8, 0.82), "border_width": 1.5})
+	b.add_theme_stylebox_override("normal", dark)
+	for st in ["hover", "pressed", "hover_pressed", "focus"]:
+		b.add_theme_stylebox_override(st, lit)
+	var row := HBoxContainer.new()
+	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 40
+	row.offset_right = -30
+	row.add_theme_constant_override("separation", 22)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(row)
+	var disc := TextureRect.new()
+	disc.texture = TmUi.icon("medal_" + kind if kind in ["author", "gold", "silver", "bronze"] else "medal_none")
+	disc.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	disc.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	disc.custom_minimum_size = Vector2(54, 54)
+	disc.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	disc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(disc)
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.add_theme_constant_override("separation", 2)
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(col)
+	var name_l := TmUi.label(label, 21, Color.WHITE, TmUi.SANS)
+	name_l.add_theme_constant_override("outline_size", 0)
+	col.add_child(name_l)
+	var pill := PanelContainer.new()
+	var ps := StyleBoxFlat.new()
+	ps.bg_color = Color(0.36, 0.37, 0.40, 0.9)
+	ps.set_corner_radius_all(10)
+	ps.content_margin_left = 8
+	ps.content_margin_right = 8
+	pill.add_theme_stylebox_override("panel", ps)
+	pill.custom_minimum_size = Vector2(200, 24)
+	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(pill)
+	var time := TmSegText.new()
+	time.text = TmRace.time_text(ms) if ms > 0 else ""
+	time.digit_height = 14.0
+	time.colour = Color(0.18, 0.18, 0.2)
+	time.shadow = Color(0, 0, 0, 0)
+	time.h_align = HORIZONTAL_ALIGNMENT_LEFT
+	time.custom_minimum_size = Vector2(180, 22)
+	pill.add_child(time)
+	var on := func(lit_up: bool) -> void:
+		name_l.add_theme_color_override("font_color", TmUi.TM_GREEN if lit_up else Color.WHITE)
+		time.colour = TmUi.TM_GREEN if lit_up else Color(0.18, 0.18, 0.2)
+	b.focus_entered.connect(on.bind(true))
+	b.focus_exited.connect(on.bind(false))
+	b.mouse_entered.connect(b.grab_focus)
+	b.pressed.connect(func() -> void:
+		TmUi.play("click")
+		choosing = false
+		hide_all()
+		opponent_chosen.emit(kind))
+	return b
+
+
 func _menu_text() -> String:
 	return "Leave server" if online else ("Editor" if editing else "Quit")
 
@@ -272,6 +382,8 @@ func mark_saved() -> void:
 
 func hide_all() -> void:
 	paused = false
+	choosing = false
+	_black.visible = false
 	finished = false
 	get_tree().paused = false
 	_panel.visible = false

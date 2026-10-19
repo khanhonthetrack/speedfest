@@ -214,6 +214,14 @@ Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in 
 - [x] 4. Jump physics against TMNF (air phases, landings): flight identical, take-offs agree,
       landings agree in the median; open: TMNF's wheelie after nose-down landings (§3.7b)
 - [ ] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
+      (TMNF under Wine locally, an offline profile; nothing of it in the repo):
+  - [x] race HUD and countdown (seven-segment clock and speed pills, -2.60 s start, 3-2-1-Go)
+  - [x] race menu and finish card (TMNF's dialogs: dark glass, green title bar, white pills)
+  - [x] menus (globe, icon-row column with header card, green-titled panels, campaign grid)
+  - [x] loading screen (keyboard with the race keys) and the three camera views
+  - [x] cues (beeps, crowd at Go and at a medal, swoosh, crash, landing, menu blip/tock, wind)
+  - [x] Select Opponent with medal ghosts (the bot's run slowed to each medal's time)
+  - [ ] pictures of our tracks on the campaign cards (renders in progress)
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
