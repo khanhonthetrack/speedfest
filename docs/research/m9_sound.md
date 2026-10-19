@@ -38,3 +38,24 @@ A four-cylinder racing engine (two firing pulses a revolution, so 11000 rpm give
 fundamental), exhaust ring and thump through a short pipe, intake roar under load, valvetrain
 whine and crackles off load; band energies checked against TMNF's own engine samples.
 `stadium/tools/sfxgen/preview.py OUT.wav` renders a standing start for listening.
+
+## M10-5: TMNF's cues, measured (numbers only; `tools/research/tmnf/sound_survey.py`)
+Our cues (`stadium/tools/sfxgen/cues.py`) are synthesized to these shapes; TMNF's files stay local.
+
+| cue | TMNF's sound | length | shape | octave bands 63 Hz..16 kHz (dB) |
+|---|---|---|---|---|
+| 3, 2, 1 | the same beep each time | 1.11 s | a clean 756 Hz tone (octave -26 dB), struck, -1 to -11 dB over the length | - |
+| Go! | the crowd's roar | 1.41 s | sustained -2..-10 dB for 0.9 s, gone by 1.4 s | 0 0 0 -1 -2 -4 -12 -24 -42 |
+| checkpoint | a swoosh | 1.5 s | peak at 110 ms, -23 dB by 300 ms, a faint tail | 0 -5 -11 -14 -13 -7 0 0 -5 |
+| finish, new record | silent (empty files) | - | - | - |
+| gold medal | a big cheer: voices, applause, whistles | 1.8 s | rises 250 ms, holds -7..-17 dB to 1.4 s | 0 0 -4 -6 -12 -15 -6 -7 -30 |
+| bronze medal | a smaller cheer | 1.8 s | rises 270 ms, holds -9..-17 dB | 0 0 -4 -6 -12 -8 -12 -10 -31 |
+| wall impact | a broadband crash, rattling | 0.73 s | -1..-6 dB for 0.6 s | -7 -3 -3 -2 -3 -2 0 -3 -17 |
+| landing | a heavy thump on the road | 1.09 s | peak at 190 ms, -20 dB by 500 ms | 0 -2 0 -3 -3 0 -7 -13 -30 |
+| menu focus (Forever menus) | a blip, partials 760/624/487 Hz | 0.05 s | up in 30 ms | -43 -24 -14 0 0 -10 -17 -27 |
+| menu confirm (Forever menus) | a tock, 260 Hz and harmonics | 0.11 s | struck, gone in 0.1 s | -62 -44 0 -3 -6 -17 -28 -41 |
+| wind | an air loop | 2 s | gusting +-3 dB | -44 -10 -4 0 -2 -10 -22 -31 -38 |
+
+TMNF's older interface set (a 0.5 s 125 Hz "whum" for focus, a bright click for confirm) sits in
+its Interface folder too; the Forever menus' own effects (`Menu/Media/audio`) are the ones we follow.
+Its skid (a squeal at 820-920 Hz, peaking in the 1 kHz octave) is close to our recording already.

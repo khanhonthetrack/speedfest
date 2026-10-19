@@ -302,7 +302,12 @@ func _on_finished(time_ms: int) -> void:
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
 		"validated": _validated_ms == time_ms}
 	_result = result
-	audio.cue("record" if new_record else "finish")
+	# the crowd cheers by medal, as TMNF's: big for gold and author, smaller for silver and bronze
+	var medal := TmRace.medal(time_ms, challenge)
+	if medal in ["author", "gold"]:
+		audio.cue("cheer_big")
+	elif medal in ["silver", "bronze"]:
+		audio.cue("cheer")
 	if not online and Master.logged_in() and not TestHooks.has_arg("records"):
 		Master.submit_record(challenge.uid, time_ms)     # the online records (a server's finishes go through the server)
 	if online:

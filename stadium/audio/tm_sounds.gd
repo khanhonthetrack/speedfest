@@ -1,8 +1,10 @@
 class_name TmSounds
 extends RefCounted
 ## The remake's sounds: our own synthesized engine (six loops, one per layer, and the gear
-## change's clunk: stadium/tools/sfxgen/engine.py), open-licensed recordings in audio/sfx (tyre
-## squeal, wind, Kenney's interface and impact sounds; audio/sfx/CREDITS.md), and, for any of those
+## change's clunk: stadium/tools/sfxgen/engine.py), our own cues made to sound like TMNF's (the
+## countdown's beeps, the crowd at the start and at a medal, the checkpoint's swoosh, a wall's crash,
+## a landing's thump, the menus' whum and click, the wind: stadium/tools/sfxgen/cues.py), open-licensed recordings in audio/sfx
+## (tyre squeal, Kenney's respawn sound; audio/sfx/CREDITS.md), and, for any of those
 ## missing, our synthesized stand-ins below (filtered noise, tone cues). Each stream is loaded or
 ## made once and cached. Also TMNF's engine model: its six gears and rev range (rpm()).
 
@@ -10,8 +12,8 @@ const RATE := 22050
 const FILES := {"engine_idle": "engine_idle.wav", "engine_low": "engine_low.wav", "engine_mid": "engine_mid.wav",
 	"engine_high": "engine_high.wav", "engine_coast_low": "engine_coast_low.wav", "engine_coast_high": "engine_coast_high.wav",
 	"shift": "shift.wav", "skid": "skid.wav",
-	"wind": "wind.ogg", "beep": "beep.ogg", "go": "beep.ogg", "checkpoint": "checkpoint.ogg", "finish": "finish.ogg",
-	"record": "record.ogg", "respawn": "respawn.ogg", "hit": "hit.ogg", "turbo": "turbo.wav", "click": "ui_click.ogg",
+	"wind": "wind.ogg", "beep": "beep.ogg", "go": "go.ogg", "checkpoint": "checkpoint.ogg", "cheer": "cheer.ogg",
+	"cheer_big": "cheer_big.ogg", "respawn": "respawn.ogg", "hit": "hit.ogg", "land": "land.ogg", "turbo": "turbo.wav", "click": "ui_click.ogg",
 	"move": "ui_move.ogg"}
 const ENGINE_LAYERS := ["engine_idle", "engine_low", "engine_mid", "engine_high", "engine_coast_low", "engine_coast_high"]
 const LOOPS := ["engine_idle", "engine_low", "engine_mid", "engine_high", "engine_coast_low", "engine_coast_high", "skid", "wind"]
@@ -76,7 +78,7 @@ static func _recorded(name: String) -> AudioStream:
 
 
 const NAMES := ["engine_idle", "engine_low", "engine_mid", "engine_high", "engine_coast_low", "engine_coast_high",
-	"shift", "skid", "wind", "beep", "go", "checkpoint", "finish", "record", "respawn", "hit", "turbo", "click", "move"]
+	"shift", "skid", "wind", "beep", "go", "checkpoint", "cheer", "cheer_big", "respawn", "hit", "land", "turbo", "click", "move"]
 
 
 static func get_stream(name: String) -> AudioStream:
@@ -91,10 +93,10 @@ static func get_stream(name: String) -> AudioStream:
 			"beep": s = _make_beep()
 			"go": s = _make_go()
 			"checkpoint": s = _make_checkpoint()
-			"finish": s = _make_finish()
-			"record": s = _make_record()
+			"cheer": s = _make_cheer()
+			"cheer_big": s = _make_cheer_big()
 			"respawn": s = _make_respawn()
-			"hit": s = _make_hit()
+			"hit", "land": s = _make_hit()
 			"turbo": s = _make_turbo()
 			"click": s = _make_click()
 			"move": s = _make_move()
@@ -152,11 +154,11 @@ static func _make_checkpoint() -> AudioStreamWAV:
 	return _tones([[880.0, 0.0, 0.12, 0.45], [1320.0, 0.09, 0.25, 0.45]], 0.36)
 
 
-static func _make_finish() -> AudioStreamWAV:
+static func _make_cheer() -> AudioStreamWAV:
 	return _tones([[523.3, 0.0, 0.3, 0.4], [659.3, 0.1, 0.3, 0.4], [784.0, 0.2, 0.3, 0.4], [1046.5, 0.3, 0.7, 0.45]], 1.05)
 
 
-static func _make_record() -> AudioStreamWAV:
+static func _make_cheer_big() -> AudioStreamWAV:
 	return _tones([[784.0, 0.0, 0.2, 0.35], [988.0, 0.12, 0.2, 0.35], [1175.0, 0.24, 0.2, 0.35], [1568.0, 0.36, 0.8, 0.4],
 		[1175.0, 0.36, 0.8, 0.25]], 1.2)
 

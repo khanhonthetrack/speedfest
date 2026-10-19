@@ -2155,3 +2155,13 @@ to TMNF, compared side by side with screenshots. Worked in that order.
   loading screen's keys and cover.
 - `tools/research/tmnf/sound_survey.py`: a sound's length, envelope, partials, pitch and octave
   bands, numbers only, to compare our cues with TMNF's (its sound files stay local).
+- **Sounds as TMNF's** (`tools/sfxgen/cues.py`, numbers in `docs/research/m9_sound.md`): TMNF's
+  cues measured (length, envelope, partials, octave bands; its files stay local) and ours
+  synthesized to the same shapes, each cue's octave bands pulled onto TMNF's by a final EQ: the
+  countdown's beep (a clean 756 Hz tone, 1.1 s, the same for 3, 2 and 1), the crowd roaring at Go!,
+  the checkpoint's swoosh, the crowd cheering at the finish by medal as TMNF does (a big cheer with
+  applause and whistles for gold and author, a smaller one for silver and bronze, none without a
+  medal; TMNF's finish and record sounds are empty), a wall's crash (a broadband rattle instead of
+  a metal clang), a new landing thump after jumps (`TmCarAudio._landing`, louder the harder it comes
+  down), the menus' blip and tock (TMNF's Forever menus), the wind. Kenney's interface and impact
+  sounds and the wind recording are gone (respawn stays); `test_sound` checks the landing.

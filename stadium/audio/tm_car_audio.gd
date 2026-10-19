@@ -35,6 +35,8 @@ var _digit := -1
 var _was_racing := false
 var _turbo_on := false
 var _hit_ready_ms := 0
+var _air_s := 0.0                  ## how long no wheel has touched (s)
+var _fall := 0.0                   ## the car's vertical speed as it comes down (m/s, < 0 falling)
 var engine_rpm := TmSounds.RPM_IDLE   ## the engine's rpm now
 var engine_gear := 1                 ## its gear (0: reverse)
 var engine_mix := 0.0                ## the load layers' share (0 coast .. 1 load)
@@ -88,6 +90,18 @@ func _on_hit() -> void:
 		cue("hit", -4.0)
 
 
+## TMNF's landing thump: the wheels touch again after a jump; louder the harder it comes down.
+func _landing(delta: float) -> void:
+	if not car.wheel_contact.has(true):
+		_air_s += delta
+		_fall = car.lin_vel.y
+		return
+	if _air_s > 0.25 and _fall < -4.0:
+		cue("land", -14.0 + 12.0 * clampf((-_fall - 4.0) / 16.0, 0.0, 1.0))
+	_air_s = 0.0
+	_fall = 0.0
+
+
 static func _db(level: float) -> float:
 	return linear_to_db(maxf(level, 0.0001))
 
@@ -96,6 +110,7 @@ func _process(delta: float) -> void:
 	if car == null:
 		return
 	var kmh := car.speed_kmh()
+	_landing(delta)
 	var k := 1.0 - exp(-delta * 8.0)
 	_throttle += (clampf(car.gas, 0.0, 1.0) - _throttle) * k
 	_engine(kmh, delta)
@@ -117,7 +132,7 @@ func _process(delta: float) -> void:
 		elif race.state == TmRace.State.RACING and not _was_racing:
 			_was_racing = true
 			_digit = -1
-			cue("go", -2.0, 1.5)
+			cue("go", -2.0)              # the crowd roars, as TMNF's does
 	# a pad renews the turbo every tick the car is on it: one cue when it starts
 	var turbo := car.model.turbo_until_ms > car.now_ms
 	if turbo and not _turbo_on:
