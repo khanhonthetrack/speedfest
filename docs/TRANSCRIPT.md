@@ -508,3 +508,25 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   game exported with 4.7.2, smoke-tested on Windows. Download: artifact SpeedFest-windows-rtx of run
   38965547516. The NVIDIA DLLs aren't in it (licence; a public download was blocked):
   `add_nvidia_dlss.bat` in the folder adds them.
+
+### User (verbatim, 2026-10-19, session 11; with a screenshot of the previous session's plan)
+
+> problem: Wheelie after nose-down landings (from the jumps request): TMNF's car pops onto its rear wheels after a nose-down landing and ours doesn't; this still waits on your decision about reading TMNF's code.
+>
+> solution approach:in the screenshot - do it
+
+The screenshot showed the previous session's reasoning: *"Likely culprit found: WheelAbsorbContact
+applies the full contact impulse under a flag we assumed meant 'suspension bottomed,' but if it's
+actually set for every real contact, that would produce TMNF's nose-up kick on nose-down landings.
+I'll check the disassembly to confirm what the flag really represents."* — with its last step
+("Locate ground-contact branch in the disassembly") blocked.
+
+### Claude
+
+- Read as approval to read TMNF's code for this question. Rebuilt the RE pipeline without Ghidra
+  (map + objdump), disassembled `WheelAbsorbContact`, and **disproved the hypothesis**: the flag is
+  set only on `room <= penetration` (the spring could not swallow it), and our port already matches
+  TMNF branch for branch. Found instead that `AddVehicleImpulse` scales the angular part of every
+  contact impulse by 0.55 [0x0ec], which our port does not — our contacts over-rotate. Documented
+  (§3.2a, §3.2b), committed the two new RE scripts, and left the wheelie's real cause open with
+  next candidates in HANDOFF.

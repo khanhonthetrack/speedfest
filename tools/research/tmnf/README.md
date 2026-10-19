@@ -27,5 +27,17 @@ Pipeline (Linux, all in a scratch directory outside the repo):
    chunk layout taken from `CSceneVehicleCarTuning::Chunk`. `annotate.py tunings.json in.c out.c`
    rewrites tuning reads in pseudocode as `T[offset]{value}`.
 
+Lighter path (session 11): for **reading one function** you do not need Ghidra or REA at all.
+`TmForever.map` gives every function's exact start, and the next symbol bounds it, so
+`objdump -d -b pei-i386 -m i386 --start-address=.. --stop-address=..` disassembles it directly.
+`fnmap.py TmForever.map <name-substring>` prints matching functions with their start, end and size;
+`dis.py TmForever.exe TmForever.map 0xSTART 0xEND` disassembles that range and annotates call targets
+and float constants from the map. Ghidra setup is ~8 min of analysis and ~1 GB; this is instant and
+objdump is already installed. Pseudocode still needs REA/Ghidra.
+
+The pack scripts need `pycryptodome` (`pip install pycryptodome`) and import each other, so run them
+from `tools/research/tmnf/` with absolute paths to the data rather than with `python3 -I`
+(isolated mode drops the script's own directory from `sys.path`).
+
 Format knowledge for the packs (salts, Blowfish variant, header layout) comes from GBX.NET
 (https://github.com/BigBang1112/gbx-net, `Src/GBX.NET.PAK`); the scripts are a Python reimplementation.

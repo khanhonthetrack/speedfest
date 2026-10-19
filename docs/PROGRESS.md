@@ -877,3 +877,36 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   cycles all 34 tracks.
 - Note for session 9: `tmnf-physics` still lacks bd65cbc (puddles; its defs have 0 puddle markers vs
   3 on `m7-maps`). Merging `main` into `tmnf-physics` now brings it in.
+
+## 2026-10-19 — Session 11: `WheelAbsorbContact` re-read; the "bottomed" flag is real
+
+Owner approved reading TMNF's code to settle the wheelie-after-nose-down-landing question (the
+screenshot's plan: confirm what the flag in `WheelAbsorbContact` represents, because if it were set
+on every real contact the full impulse would land at the contact point and kick the nose up).
+
+- Rebuilt the RE pipeline from scratch in a cloud container **without Ghidra or REA**: the official
+  installer (SHA-256 `2f659138…6355`, the same build as session 9), `7z` + `innoextract`, then plain
+  `objdump -b pei-i386` sliced by the addresses in `TmForever.map`. New `tools/research/tmnf/dis.py`
+  (annotates call targets and float constants from the map) and `fnmap.py` (name → start/end/size).
+  Both committed; README updated with this lighter path. Ghidra is only needed for pseudocode.
+- **The hypothesis is wrong.** `WheelAbsorbContact` (0x7c11d0, 1600 bytes) sets the flag in exactly
+  one place — `room <= penetration`, i.e. the spring could not swallow the whole penetration — and
+  the full-impulse-at-the-contact-point branch is taken only when that flag is set or the normal
+  approach is already non-negative. Written up as **§3.2a** of `docs/research/tmnf_physics.md`.
+  `stadium/core/tm_body.gd::_collide` already matches it branch for branch, including both impulse
+  application points (contact point when bottomed, wheel centre otherwise), the `|n_car.x| >= sin 45°`
+  side test and the 0.8 keep factor. Also confirmed `0x184 == 0x18c == -0.8` and `0x178 == 0x17c ==
+  -0.5`, so the surface-4 variants the code selects are identical and our single constants are right.
+- The whole block is gated on `tuning[0x350] == 2`; re-decrypted the `20juin2006` tuning to confirm
+  it is 2 (and `0x354 == 5` = force model 6), matching §5. The force model is `0x354`, not `0x350`.
+- **Two real gaps found in `AddVehicleImpulse` (0x7be390)**, new **§3.2b** and three table rows:
+  the angular `r x j` term is scaled by **0.55 [0x0ec]** before it is added, and `|w|` is then
+  clamped to **100 rad/s [0x14c]** (never binds). Linear is `j / mass`, unscaled. Our
+  `tm_body.gd::_apply_impulse` applies the full `r x j`, so **our contacts over-rotate by ~1.8x**
+  relative to TMNF. Not the wheelie cause (it makes us rotate more, not less) but a genuine fidelity
+  bug in the contact layer.
+- **Next for the wheelie:** the contact layer is exonerated, so look at what feeds it — the spring
+  force and its application point during the compression (§3.2), the ground/air gravity switch
+  (3.0 ↔ 2.5 [0x160/0x164]) at the moment of touchdown, and the load-transfer torque
+  [0x228–0x23c], which `tm_car_model.gd` does implement. Fixing the 0.55 first is worthwhile on its
+  own and changes landing behaviour, so it should land before any wheelie tuning.
