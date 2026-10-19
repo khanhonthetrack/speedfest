@@ -32,25 +32,25 @@ The game ends on the most beautiful map in it: a golden coast road at sunset, on
 Nico's life.
 
 **How the cars run backwards.** You start the game in the most powerful car, Saint's black car, the X.
-You end it in Nico's old Kaze RS, the car he had before any of this.
+You end it in Nico's old coupe, the car he had before any of this.
 
 ## Cast
 
-Seven people and one car carry the story. The four bosses each drive one of SpeedFest's existing cars,
-so every boss you beat adds a car to Nico's garage.
+Seven people and one car carry the story. Each of the four bosses drives a different kind of car, like the
+environment cars in Trackmania, so every boss you beat adds a car to Nico's garage.
 
 | Who | Car | Who they are |
 | --- | --- | --- |
-| **Nico** | the X (chapters 1-9), Kaze RS (chapters 9-10) | The main character. A mechanic with a small workshop, a wife and a daughter. He raced on the coast roads when he was young and stopped when Ella was born. |
-| **Clara** | Pixie S | Nico's wife. A nurse on night shifts, which is why she never sees where he goes at night. She is patient until she isn't. |
+| **Nico** | the X (chapters 1-9), his old coupe (chapters 9-10) | The main character. A mechanic with a small workshop, a wife and a daughter. He raced on the coast roads when he was young and stopped when Ella was born. |
+| **Clara** | a little hatchback | Nico's wife. A nurse on night shifts, which is why she never sees where he goes at night. She is patient until she isn't. |
 | **Ella** | — | Their daughter. 7 tonight, 5 in chapter 10. Draws cars. Her favourite is "Daddy's black car". |
 | **Lena** | — | A mechanic from the night scene. She built the X's engine for Saint and knows the car the moment she sees it. She keeps Nico's secret and is the only person he can talk to about the nights. |
 | **SHE** | — | The woman in the passenger seat in chapters 1 and 2. Her face is never shown and her lines are text only. She is **Clara or Lena**, and your decisions choose which. |
 | **Saint** | the X | The final boss. Two years ago, the king of the coast roads. Never lost a pink slip. Nobody in the scene knew his real name: Daniel Santos. |
-| **Hammer** | Brute V8 | Boss of chapter 2. Loud, proud, the last challenger. He knew Saint and never believed the crash was an accident. |
-| **Fox** | Kitsune R4 | Boss of chapter 4. A rally driver who races the canyon stages. Quiet, precise, hates losing on her own roads. |
-| **The Countess** | Veloce GT | Boss of chapter 6. Rich, fast, races the stadium under floodlights for fun. Has never needed the money. |
-| **Big Joe** | Goliath HD | Boss of chapter 8. The first challenger after Saint. He wants to know who is driving Saint's car. |
+| **Hammer** | muscle car (like Trackmania's Canyon car) | Boss of chapter 2. Loud, proud, the last challenger. He knew Saint and never believed the crash was an accident. |
+| **Fox** | rally car (like Trackmania's Rally car) | Boss of chapter 4. A rally driver who races the canyon stages. Quiet, precise, hates losing on her own roads. |
+| **The Countess** | supercar (like Trackmania's Island car) | Boss of chapter 6. Rich, fast, races the stadium under floodlights for fun. Has never needed the money. |
+| **Big Joe** | 4x4 pickup (like Trackmania's Bay 4x4) | Boss of chapter 8. The first challenger after Saint. He wants to know who is driving Saint's car. |
 
 **The X** is Saint's one-of-a-kind black car: long, low, louder than anything on the coast. It has a
 dent in the passenger door that is never repaired. You see the dent in chapter 1 and find out where it
@@ -112,7 +112,7 @@ second too long: there is an old dent in it. Up ahead the brake lights go out on
    jump across the interchange, turbo pads on the overhead sign gantries. Below you, thousands of red
    brake lights. No dialogue. He turns the radio off.
 2. **Off-ramp.** The dive off the ring road into the city: a wall ride around a car-park spiral, then
-   a straight through a flooded underpass where the puddles decide your line.
+   a flat-out tunnel under the river.
 3. **Three Ways (decision).** The city splits into three districts, each with its own finish gate.
 
 **Decision 1: where does he go?**
@@ -121,7 +121,7 @@ second too long: there is an old dent in it. Up ahead the brake lights go out on
 | --- | --- | --- |
 | **Garage** | The shortest and darkest: the docks, under the cranes, no streetlights, a long jump over the canal. Finish: the lockup door on the industrial estate. | He goes to the lockup where he stores the X with a lot of other cars. |
 | **Home** | The longest and most technical: tight suburban streets and quick left-rights. Finish: the porch light of a small terraced house. | He goes home to his family. |
-| **Pub** | Wet cobbles in the old town that slide like gravel, with puddles on every apex. Finish: the neon sign of *The Last Lap*. | He goes to drink, sad and alone. |
+| **Pub** | Old-town cobbles that slide like dirt, tight corners between the houses. Finish: the neon sign of *The Last Lap*. | He goes to drink, sad and alone. |
 
 **Closing.** We see only the arrival: the X's headlights on the lockup door, on the porch, or on the
 pub window. The engine stops. Black. This is where Nico *wants* to go. The finale shows where he ends up.
@@ -134,8 +134,8 @@ pub window. The engine stops. Black. This is where Nico *wants* to go. The final
 
 **Opening.** The floodlights of a dead stadium are switched on for one night. There are a hundred
 cars on the pitch and a thousand phones held up. The X rolls in and the crowd goes quiet. SHE is in
-the passenger seat, hood up, face turned away. Hammer walks over to the X with the Brute's pink slip
-held up between two fingers.
+the passenger seat, hood up, face turned away. Hammer walks over to the X with the pink slip for his
+muscle car held up between two fingers.
 
 > HAMMER: Two years I've waited to see who's driving Saint's car.
 >
@@ -158,10 +158,10 @@ held up between two fingers.
 
 | Gate | The route | What it means |
 | --- | --- | --- |
-| **Push** | The inside line along the roof edge, with no barrier, door to door with Hammer. Short and fast, one mistake and you fall. | Nico leans on the Brute at the end of the roof. Hammer goes over the edge into the dark. |
+| **Push** | The inside line along the roof edge, with no barrier, door to door with Hammer. Short and fast, one mistake and you fall. | Nico leans on Hammer's car at the end of the roof. Hammer goes over the edge into the dark. |
 | **Clean** | The outside line, down the ramps through the stands and back onto the pitch. Longer, tighter, technical. | Nico wins clean. Hammer slams the pink slip on the X's bonnet and walks away. |
 
-**Closing.** Either way, the Brute is Nico's. They leave by the service road. Nobody at a meet like
+**Closing.** Either way, Hammer's car is Nico's. They leave by the service road. Nobody at a meet like
 this calls the police. In the car SHE says nothing for a long time.
 
 > NICO: Say something.
@@ -220,12 +220,12 @@ Either way, the race with Hammer is set for chapter 2.
 
 ## Chapter 4 · Pink Slip: Fox
 
-*One month earlier · a coast canyon at dusk, dirt and gravel · Nico drives the X*
+*One month earlier · a coast canyon at dusk, all dirt · Nico drives the X*
 
 **Opening.** Fox only races on her own stage, a dirt road cut into the side of a canyon above the sea.
-She leans on her Kitsune while the X pulls up, dust settling around it. Lena is up on the ridge with a radio.
+She leans on her rally car while the X pulls up, dust settling around it. Lena is up on the ridge with a radio.
 
-> FOX: Saint raced me here three times. He never beat me on the gravel.
+> FOX: Saint raced me here three times. He never beat me on the dirt.
 >
 > FOX: If you win, take the car. If I win, I take the X, and you tell me what really happened to him.
 >
@@ -233,8 +233,7 @@ She leans on her Kitsune while the X pulls up, dust settling around it. Lena is 
 
 **The maps**
 
-1. **Canyon Road.** The way in: fast asphalt sweepers along the cliffs with loose gravel on the inside
-   of every bend.
+1. **Canyon Road.** The way in: fast sweepers along the cliffs with dirt on the inside of every bend.
 2. **Fox's Stage.** A full dirt rally stage. Fox's ghost shows the line, and Lena's pace notes appear
    as subtitles: *"Left four over crest, don't cut."*
 3. **Fox (decision).** The final section. The stage splits at the canyon rim.
@@ -243,12 +242,12 @@ She leans on her Kitsune while the X pulls up, dust settling around it. Lena is 
 
 | Gate | The route | What it means |
 | --- | --- | --- |
-| **Push** | The rim line: loose gravel along the cliff edge with no barrier, the Kitsune on the outside. Short and fast, one slide and you're over. | Nico closes the door on Fox at the rim. |
-| **Clean** | Down into the dry riverbed: deep sand, a jump out over the rocks, a gravel hairpin back up. Longer and technical. | Nico beats her on her own stage, clean. |
+| **Push** | The rim line: loose dirt along the cliff edge with no barrier, her rally car on the outside. Short and fast, one slide and you're over. | Nico closes the door on Fox at the rim. |
+| **Clean** | Down into the dry riverbed: deep ruts, a jump out over the rocks, a dirt hairpin back up. Longer and technical. | Nico beats her on her own stage, clean. |
 
 **Closing.**
 
-- **Push:** The Kitsune clips a rock at the rim and rolls into the canyon. Dust hangs in the X's
+- **Push:** Her rally car clips a rock at the rim and rolls into the canyon. Dust hangs in the X's
   headlights. The radio is silent for a long time. Then Lena: *"Nico. Drive. Now."*
 - **Clean:** Fox walks over and drops her key into Nico's hand. She looks at the dent in the X's door
   for a long time. *"Saint never let anyone touch this car."*
@@ -265,7 +264,7 @@ Either way, Nico gets home at four in the morning. Clara is sitting at the kitch
 
 *Three months earlier · the city, morning drizzle into evening · Nico drives the X*
 
-**Opening.** Clara's Pixie won't start, so Nico drives the family in the X: Ella to school, then
+**Opening.** Clara's little hatchback won't start, so Nico drives the family in the X: Ella to school, then
 Clara to her shift at the hospital. Ella in the back seat, delighted:
 
 > ELLA: Faster, Daddy! Make it fly!
@@ -285,7 +284,7 @@ until the hospital doors.
 1. **School Run.** A tight city map in the drizzle with traffic islands, chicanes, and a jump over the
    tram lines. Ella's lines appear as subtitles.
 2. **Rush Hour.** Clara to the hospital, after the glovebox. No dialogue at all. A fast boulevard map
-   with puddles on the braking zones.
+   with long, open sweepers.
 3. **The Papers (decision).** Evening. He has to go somewhere.
 
 **Decision 5: home or Lena's?**
@@ -311,7 +310,7 @@ until the hospital doors.
 *Six months earlier · a stadium under floodlights · Nico drives the X*
 
 **Opening.** The Countess has hired a whole stadium for the night: floodlights, a DJ, champagne on the
-pitch. Her white Veloce GT stands on the start line. She doesn't need the money. She wants the X
+pitch. Her white supercar stands on the start line. She doesn't need the money. She wants the X
 because it's the only car she has ever been refused.
 
 > COUNTESS: I offered Saint a fortune for that car. He laughed at me.
@@ -331,12 +330,12 @@ because it's the only car she has ever been refused.
 
 | Gate | The route | What it means |
 | --- | --- | --- |
-| **Push** | Into the service tunnel under the stands: narrow, unlit, concrete pillars, the Veloce alongside at full speed. The shortest line. | Nico eases her across into a pillar. |
+| **Push** | Into the service tunnel under the stands: narrow, unlit, concrete pillars, the supercar alongside at full speed. The shortest line. | Nico eases her across into a pillar. |
 | **Clean** | Up and over: a huge jump across the stadium roof and a drop to the finish. Long airtime, a hard landing to stick. | Nico beats the fastest car in the city clean. |
 
 **Closing.**
 
-- **Push:** The Veloce hits a pillar in the tunnel. White carbon is spread across the concrete. On the
+- **Push:** The supercar hits a pillar in the tunnel. White carbon is spread across the concrete. On the
   pitch the DJ keeps playing for a few seconds after the crowd goes quiet.
 - **Clean:** The Countess laughs, really laughs, and throws him the key. *"Saint would have hated
   losing to you. I don't mind. Next year I'll want it back."*
@@ -367,8 +366,7 @@ She fixes it and never asks again. For the first time in a year, Nico has someon
 
 **The maps**
 
-1. **Rooftops.** The way to her workshop, across the city at roof height: gap jumps between buildings
-   and a wall ride along a billboard.
+1. **Rooftops.** The way to her workshop, across the city at roof height, from one car park to the next.
 2. **Her Workshop.** The test drive with Lena in the passenger seat: a spiral up the car park to the
    top deck and back down. Her lines are subtitles: *"Again. Faster. It wants more."*
 3. **Lena (decision).** Midnight on the top deck. *"I live upstairs. You can stay, or you can go home."*
@@ -394,7 +392,7 @@ She fixes it and never asks again. For the first time in a year, Nico has someon
 *One year earlier · the coast dunes at sunset · Nico drives the X*
 
 **Opening.** For a year the X has stayed in the lockup, and Nico only drives it on empty roads after
-midnight. Someone saw it. One afternoon a huge pickup, a Goliath HD, parks outside Nico's workshop in
+midnight. Someone saw it. One afternoon a huge 4x4 pickup parks outside Nico's workshop in
 broad daylight. The scene has found his real life.
 
 > BIG JOE: A year ago Saint goes off the coast road. Then his car disappears. Now it's out at night again.
@@ -407,9 +405,9 @@ This is the first time Nico has to decide whether to do it again.
 
 **The maps**
 
-1. **Dune Road.** The coast at sunset: beach roads, boardwalks, and sand that bogs you down if you cut
-   the inside of the bends.
-2. **Big Joe's Jumps.** Joe's own course through the dunes: turbo pads and huge jumps that the Goliath
+1. **Dune Road.** The coast at sunset: beach roads, boardwalks, and grass on the inside of the bends that
+   kills your speed if you cut it.
+2. **Big Joe's Jumps.** Joe's own course through the dunes: turbo pads and huge jumps that the pickup
    lands easily and the X doesn't. His ghost is in front of you.
 3. **Big Joe (decision).** The last dune. The track splits at the top.
 
@@ -417,12 +415,12 @@ This is the first time Nico has to decide whether to do it again.
 
 | Gate | The route | What it means |
 | --- | --- | --- |
-| **Push** | The ridge line: along the crest of the dune above the sea cliff, the Goliath beside you, a jump to land side by side. Short and fast. | Nico leans on the Goliath as it lands. |
-| **Clean** | The beach line: down to the waterline, wet sand, a long boost along the surf. Longer and slippery. | Nico wins on the beach, clean. |
+| **Push** | The ridge line: along the crest of the dune above the sea cliff, the pickup beside you, a jump to land side by side. Short and fast. | Nico leans on the pickup as it lands. |
+| **Clean** | The beach line: down to the waterline and a long boost along the surf. Longer and slippery. | Nico wins on the beach, clean. |
 
 **Closing.**
 
-- **Push:** The Goliath comes down on its roof in the surf at the bottom of the cliff. Nico stops at
+- **Push:** The pickup comes down on its roof in the surf at the bottom of the cliff. Nico stops at
   the top. This time he doesn't climb down. He drives away.
 - **Clean:** Big Joe drops the key into his hand. *"Nobody'll ask about Saint. You have my word."* He
   keeps it. The word gets out anyway.
@@ -436,7 +434,7 @@ under a single bulb. There are two cars in there now.
 
 ## Chapter 9 · Headlines
 
-*Two years earlier, the day after · the city by day, the coast by night · Nico drives the Kaze RS, then the X · no decision*
+*Two years earlier, the day after · the city by day, the coast by night · Nico drives his old coupe, then the X · no decision*
 
 **Opening.** 7 a.m., the kitchen. Clara is making breakfast and Ella is drawing at the table. The radio:
 
@@ -446,11 +444,11 @@ under a single bulb. There are two cars in there now.
 >
 > NICO: I don't race any more.
 
-Outside, the Kaze RS stands in the drive. Its nose is dented, with black paint on the bumper.
+Outside, his old coupe stands in the drive. Its nose is dented, with black paint on the bumper.
 
 **The maps**
 
-1. **Headlines** (Kaze RS). The morning drive to the workshop with the dented nose. A police car sits
+1. **Headlines** (the old coupe). The morning drive to the workshop with the dented nose. A police car sits
    behind him for three junctions. A careful, technical city map with no big jumps. He spends the day
    sanding black paint off the bumper.
 2. **Boathouse** (the X). That night he takes a taxi to the coast, walks down the cliff path, and
@@ -472,7 +470,7 @@ There's no decision in this chapter. The deeper into the past you go, the less y
 
 ## Chapter 10 · The Night of the X
 
-*Two years earlier · the coast road, sunset into night · Nico drives the Kaze RS · the final boss, no decision*
+*Two years earlier · the coast road, sunset into night · Nico drives his old coupe · the final boss, no decision*
 
 **Opening.** Nico's workshop, late at night. A letter from the bank on the bench: 30 days, then the
 workshop is gone. Clara is on a night shift and Ella is asleep upstairs. On his phone, a post on an old racing forum:
@@ -482,7 +480,7 @@ workshop is gone. Clara is on a night shift and Ella is asleep upstairs. On his 
 The X is worth more than everything Nico owns. Sunday, the cliff-top lay-by, golden light. A few cars,
 a few people. Saint leans on the X, sunglasses on.
 
-> SAINT: A Kaze. I had one of those when I was a kid.
+> SAINT: An old coupe. I had one of those when I was a kid.
 >
 > SAINT: Your slip against mine. Nobody has ever taken mine.
 >
@@ -492,15 +490,15 @@ a few people. Saint leans on the X, sunglasses on.
 
 **The maps**
 
-1. **Sunset Road.** The coast road at golden hour: fast sweepers over the sea, the most beautiful map
-   in the game. Just Nico and the road.
-2. **Saint's Line.** The full course, learned behind Saint's ghost: a loop on the headland, a wall ride
-   along the cliff face, the bay below.
+1. **Sunset Road.** The coast road at golden hour: long curves high above the sea, the most beautiful
+   map in the game. Just Nico and the road.
+2. **Saint's Line.** The full course, learned behind Saint's ghost: a tunnel through the headland, a jump
+   across a cove, the hairpins above the bay.
 3. **Pink Slip: Saint (final boss).** The race starts as the sun touches the sea. **Gold** means
    beating Saint. **Author** means beating Saint's own record, the one nobody ever beat.
 
 **The cutscene.** The last hairpin above the bay. Saint is a car length ahead. Nico doesn't lift. He
-turns in. The Kaze's nose hits the X's passenger door. The X goes through the barrier, rolls down the
+turns in. The coupe's nose hits the X's passenger door. The X goes through the barrier, rolls down the
 slope, and lands upright on the sand. Its engine is still running and its headlights are on.
 
 Nico climbs down the cliff path. Saint lies on the rocks, thrown from the car, his sunglasses beside
@@ -518,8 +516,8 @@ full. Your gate was where Nico *wanted* to go. The past you built decides where 
 ### The three endings
 
 **The Collection** — Nico pushed 3 or 4 bosses. The lockup lights come on row by row: Big Joe's
-Goliath, the Countess's Veloce, Fox's Kitsune, Hammer's Brute (still dented from tonight), his old
-Kaze. Every car belonged to a driver who "crashed". He parks the X in the last bay. Next to it there
+pickup, the Countess's supercar, Fox's rally car, Hammer's muscle car (still dented from tonight),
+his old coupe. Every car belonged to a driver who "crashed". He parks the X in the last bay. Next to it there
 is one more empty bay. His phone shows her photo, and for the first time we see SHE's face, whoever she
 was. He switches the phone off. A message from an unknown number: *"Heard you've got Saint's car. Coast
 road, Sunday?"* He smiles.
@@ -574,19 +572,17 @@ was in the car. The chapter 1 gate only decides where the finale opens.
 ## What it needs (build list, in order)
 
 1. **Medals** (bronze/silver/gold/author) per map and per finish gate. Author times are generated from
-   recorded runs or the AutoDriver so they can be regenerated if the handling changes (the TMNF port
-   on `tmnf-physics`).
-2. **Forked roads with several finish gates.** The track builder has one path and one finish today
-   (`game/tracks/track_builder.gd`).
+   recorded runs so they can be regenerated if the handling changes.
+2. **Forked roads with several finish gates** (Trackmania-style multi-finish maps).
 3. **Story runner:** chapter flow, gold unlocks, saved choices and hidden values, endings, chapter
    select, the finale's turn scenes.
 4. **Scene player:** camera shots, car moves, subtitles, phone messages.
-5. **30 story maps** built around the scenes, in the existing city/stadium/coast settings.
+5. **30 story maps** built around the scenes.
 6. **The X** (new car) and the **boss ghosts** (one recorded run per boss map).
 
 Optional extras: author medals unlock memory fragments (clippings, photos, old messages); a
-"chronological cut" after the credits (play the chapters in time order); the X as a 7th car for solo
-and online after the story.
+"chronological cut" after the credits (play the chapters in time order); the X as a playable car after
+the story.
 
 ## Open questions for the owner
 
@@ -594,6 +590,7 @@ and online after the story.
 2. The theme: the affair path leads to the happy ending (the lie keeps the family) and the faithful
    path loses it. OK, or should honesty decide who was in the car? (Also asked as a comment in the doc.)
 3. Gold to advance for everyone, or silver on an easy setting?
-4. How to show people in scenes: in-engine (our cars, the driver figure, silhouettes, subtitles; keeps
-   the "no binary art" rule) or illustrated stills like *As Dusk Falls* (needs drawn art)?
+4. How to show people in scenes: in-engine (cars, silhouettes, subtitles) or illustrated stills like *As Dusk Falls* (needs drawn art)?
 5. Priority against the Stadium remake and the pending TMNF handling decision.
+6. Which game is this for: its own project, or the Stadium remake? (The story uses no SpeedFest
+   content, owner rule session 11: Trackmania references only.)

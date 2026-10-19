@@ -567,3 +567,19 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   scenes, dialogue, three maps each, and decision tables, the finale with three endings, the turn scenes
   when the chapter 1 gate doesn't match, the secret Confession ending, and a decision map. One question left as a doc
   comment: should the affair path really lead to the happy ending?
+
+### User (verbatim)
+
+> Dont use any references from speedtest. At most only, using trackmania references
+
+### Claude
+
+- Read "speedtest" as SpeedFest. Took SpeedFest's car names and track features out of the story, in
+  both the doc and `docs/STORY.md`:
+  - Cars became plain types. The bosses' cars are compared to Trackmania's environment cars: muscle
+    car (Canyon), rally car (Rally), supercar (Island), 4x4 pickup (Bay). Nico drives his old coupe;
+    Clara a little hatchback.
+  - SpeedFest mechanics were replaced: puddle lines, gravel, sand traps, and the Sunset Coast and
+    rooftop set pieces. Dirt and grass stand in for the surfaces.
+  - The build list no longer names SpeedFest code.
+- Rule recorded in PLAN M9. Asked which game the story is for.

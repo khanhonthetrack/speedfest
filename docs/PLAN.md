@@ -193,7 +193,8 @@ Design draft in **docs/STORY.md**. Waiting on the owner's answers (STORY §8) an
 - [ ] Medals per map and per finish gate (author times from recorded runs / AutoDriver)
 - [ ] Forked roads with several finish gates (track builder)
 - [ ] Story runner (chapters, unlocks, choices, endings) and scene player (shots, subtitles, phone messages)
-- [ ] 30 story maps, the X (7th car), boss ghosts
+- [ ] 30 story maps, the X, boss ghosts
+- Owner rule (session 11): the story uses no SpeedFest content (cars, maps, mechanics); Trackmania references only
 
 ### Later
 - **Beyond-web graphics and front end:** see docs/RENDERING.md (path tracing investigation, real
