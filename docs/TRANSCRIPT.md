@@ -925,3 +925,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct)
 
 > Yes, match in every way
+
+### User (verbatim, session 13, 19 Oct)
+
+> Anything left which is different from tmnf?
