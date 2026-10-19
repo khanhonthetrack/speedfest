@@ -25,9 +25,9 @@ signal edited(track_file: String)
 
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
 const PAGES := {"main": "", "solo": "main", "campaign": "solo", "replays": "solo", "editors": "main", "online": "main", "profile": "main",
-	"options": "main"}
+	"options": "main", "community": "main"}
 const TITLES := {"main": [], "solo": ["SOLO"], "campaign": ["SOLO", "CAMPAIGN"], "replays": ["SOLO", "REPLAYS"], "editors": ["EDITORS"],
-	"online": ["ONLINE"],
+	"online": ["ONLINE"], "community": ["COMMUNITY"],
 	"profile": ["PROFILE"], "options": ["OPTIONS"]}
 const MEDALS := ["author", "gold", "silver", "bronze"]
 ## The backdrop's grade: dark green at the edges and behind the menu column (TMNF's menus sit
@@ -121,11 +121,13 @@ func _scene() -> void:
 	_orbit(0.0)
 
 
-func _paint_car() -> void:
+## The car on the turntable: ours, the community car we drive, or one being looked at (pack).
+func _paint_car(pack: TmCarPack = null) -> void:
 	for c in _car_holder.get_children():
 		c.queue_free()
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
+	look.pack = pack if pack else TmCommunity.my_car_pack()
 	_car_holder.add_child(look)
 
 
@@ -218,6 +220,8 @@ func show_page(name: String) -> void:
 		Master.push_profile()      # the account takes the profile's nickname and zone
 	if name != page:
 		_account_asked = false
+	if page == "community" and name != "community":
+		_paint_car()               # the car we drive back on the turntable
 	page = name if PAGES.has(name) else "main"
 	_clear()
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25 if page == "profile" else 0.55)
@@ -234,6 +238,8 @@ func show_page(name: String) -> void:
 			_page_options()
 		"online":
 			_page_online()
+		"community":
+			_page_community()
 		"profile":
 			_page_profile()
 		_:
@@ -273,6 +279,7 @@ func _page_main() -> void:
 	var solo := _big("SOLO", func() -> void: show_page("solo"))
 	col.add_child(solo)
 	col.add_child(_big("ONLINE", func() -> void: show_page("online")))
+	col.add_child(_big("COMMUNITY", func() -> void: show_page("community")))
 	col.add_child(_big("EDITORS", func() -> void: show_page("editors")))
 	col.add_child(_big("PROFILE", func() -> void: show_page("profile")))
 	col.add_child(_big("OPTIONS", func() -> void: show_page("options")))
@@ -1298,3 +1305,369 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and page != "main":
 		back()
 		get_viewport().set_input_as_handled()
+
+
+# --- community: TrackMania Exchange's tracks and ManiaPark's cars ----------------------------------
+
+var community: TmCommunity          ## the page's source (made on the first visit)
+var comm_tab := "cars"              ## "cars" or "tracks"
+var comm_filter := {"cars": "model", "tracks": "awards"}   ## cars: model, skin, mine; tracks: awards, newest, downloads, mine
+var comm_text := ""                 ## the search
+var comm_items: Array = []          ## the page's items (TmCommunity's)
+var comm_cards := {}                ## item key -> its card
+var comm_selected := ""             ## the selected item's key
+var _comm_after: Array = [""]       ## the pages so far: each one's "after" (back: pop)
+var _comm_more := false
+var _comm_gen := 0                  ## bumped on every listing: late answers for an old one are dropped
+var _comm_grid: GridContainer
+var _comm_scroll: ScrollContainer
+var _comm_status: Label
+var _comm_detail: VBoxContainer
+var _comm_nav: HBoxContainer
+var _comm_state: Label              ## the selected item's state line (downloading, errors)
+var _comm_busy := {}                ## item keys being downloaded
+const COMM_FILTERS := {"cars": [["model", "CAR MODELS"], ["skin", "SKINS"], ["mine", "MY CARS"]],
+	"tracks": [["awards", "MOST AWARDED"], ["newest", "NEWEST"], ["downloads", "MOST DOWNLOADED"], ["mine", "MY TRACKS"]]}
+const COMM_CARD := Vector2(257, 206)   ## a card (4 across the left 1070 px; the list scrolls)
+const COMM_DETAIL := 384               ## the selected one's column (the panel at the right)
+
+
+## The Community page: browse TrackMania Exchange's tracks and ManiaPark's car models and skins by
+## their previews, download them, drive a car (from now on: races and the menu's turntable) or race
+## a track. The cars and tracks downloaded are kept (MY CARS, MY TRACKS).
+func _page_community() -> void:
+	if community == null:
+		community = TmCommunity.new()
+		add_child(community)
+	var root := _root()
+	# CARS / TRACKS, then the filters, then the search
+	var tabs := HBoxContainer.new()
+	tabs.position = Vector2(60, 112)
+	tabs.add_theme_constant_override("separation", 6)
+	root.add_child(tabs)
+	var group := ButtonGroup.new()
+	for t: Array in [["cars", "CARS"], ["tracks", "TRACKS"]]:
+		var b := TmUi.button(String(t[1]), Callable(), 150)
+		b.toggle_mode = true
+		b.button_group = group
+		b.button_pressed = comm_tab == t[0]
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.add_theme_font_override("font", TmUi.font(TmUi.HEAD, 2))
+		var key: String = t[0]
+		b.pressed.connect(func() -> void:
+			if comm_tab != key:
+				comm_tab = key
+				comm_selected = ""
+				_comm_after = [""]
+				show_page("community"))
+		tabs.add_child(b)
+	var spacer := Control.new()
+	spacer.custom_minimum_size.x = 18
+	tabs.add_child(spacer)
+	var fgroup := ButtonGroup.new()
+	for f: Array in COMM_FILTERS[comm_tab]:
+		var b := TmUi.button(String(f[1]), Callable(), 0)
+		b.toggle_mode = true
+		b.button_group = fgroup
+		b.button_pressed = comm_filter[comm_tab] == f[0]
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.custom_minimum_size.x = 130
+		var key: String = f[0]
+		b.pressed.connect(func() -> void:
+			comm_filter[comm_tab] = key
+			_comm_after = [""]
+			comm_load())
+		tabs.add_child(b)
+	var search := LineEdit.new()
+	search.text = comm_text
+	search.placeholder_text = "Search by name"
+	search.custom_minimum_size = Vector2(320, 50)
+	search.position = Vector2(60, 180)
+	search.text_submitted.connect(func(t: String) -> void:
+		comm_text = t.strip_edges()
+		_comm_after = [""]
+		comm_load())
+	root.add_child(search)
+	var go := TmUi.go(TmUi.button("SEARCH", func() -> void:
+		comm_text = search.text.strip_edges()
+		_comm_after = [""]
+		comm_load(), 140))
+	go.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	go.position = Vector2(390, 180)
+	root.add_child(go)
+	_comm_status = TmUi.label("", 20, TmUi.DIM, TmUi.BOLD)
+	_comm_status.position = Vector2(550, 192)
+	root.add_child(_comm_status)
+	# the previews
+	_comm_scroll = ScrollContainer.new()
+	_comm_scroll.position = Vector2(60, 244)
+	_comm_scroll.size = Vector2(4 * (COMM_CARD.x + 10) + 12, 556)
+	_comm_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_comm_scroll.follow_focus = true          # the pad's focus scrolls the list
+	root.add_child(_comm_scroll)
+	_comm_grid = GridContainer.new()
+	_comm_grid.columns = 4
+	_comm_grid.add_theme_constant_override("h_separation", 10)
+	_comm_grid.add_theme_constant_override("v_separation", 10)
+	_comm_scroll.add_child(_comm_grid)
+	_comm_nav = HBoxContainer.new()
+	_comm_nav.add_theme_constant_override("separation", 10)
+	_comm_nav.position = Vector2(60 + 4 * (COMM_CARD.x + 10) - 10 - 2 * 200 - 10, 812)
+	root.add_child(_comm_nav)
+	# the selected one
+	var panel := PanelContainer.new()
+	panel.position = Vector2(60 + 4 * (COMM_CARD.x + 10) + 22, 112)
+	panel.custom_minimum_size = Vector2(COMM_DETAIL + 32, 688)
+	root.add_child(panel)
+	_comm_detail = VBoxContainer.new()
+	_comm_detail.add_theme_constant_override("separation", 10)
+	panel.add_child(_comm_detail)
+	var back := _back_button()
+	back.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 64)
+	back.position.x = 60
+	back.position.y -= 24
+	root.add_child(back)
+	(tabs.get_child(0 if comm_tab == "cars" else 1) as Control).grab_focus.call_deferred()
+	comm_load()
+
+
+## Lists the current page: a search on the site, or the library (MY CARS / MY TRACKS).
+func comm_load() -> void:
+	_comm_gen += 1
+	var gen := _comm_gen
+	for c in _comm_grid.get_children():
+		c.queue_free()
+	comm_cards.clear()
+	_comm_scroll.scroll_vertical = 0
+	comm_items = []
+	var filter: String = comm_filter[comm_tab]
+	var r := {}
+	if filter == "mine":
+		community.library = TmCommunity.load_library()
+		var items: Array = []
+		var lib: Dictionary = community.library[comm_tab]
+		for key: String in lib:
+			var e: Dictionary = (lib[key] as Dictionary).duplicate()
+			e["key"] = key
+			e["id"] = key.trim_prefix("model_").trim_prefix("skin_")
+			if comm_text.is_empty() or String(e.get("name", "")).to_lower().contains(comm_text.to_lower()):
+				items.append(e)
+		r = {"items": items, "more": false, "error": ""}
+		_comm_status.text = "NOTHING DOWNLOADED YET" if items.is_empty() else ""
+	else:
+		_comm_status.text = "LOADING ..."
+		var after: String = _comm_after.back()
+		r = await community.search_cars(filter, comm_text, after) if comm_tab == "cars" else await community.search_tracks(comm_text, filter, after)
+		if gen != _comm_gen or not is_instance_valid(_comm_grid):
+			return
+		_comm_status.text = "" if String(r.get("error", "")).is_empty() else ("%s  ·  %s" % [
+			"MANIAPARK" if comm_tab == "cars" else "TRACKMANIA EXCHANGE", String(r["error"]).to_upper()])
+		if (r["items"] as Array).is_empty() and _comm_status.text.is_empty():
+			_comm_status.text = "NOTHING FOUND"
+		_comm_more = bool(r.get("more", false))
+		if _comm_more:
+			r["next"] = String(r.get("after", ""))
+	comm_items = r["items"]
+	for item: Dictionary in comm_items:
+		var card := _comm_card(item, gen)
+		_comm_grid.add_child(card)
+		comm_cards[String(item["key"])] = card
+	# paging
+	for c in _comm_nav.get_children():
+		c.queue_free()
+	if _comm_after.size() > 1:
+		_comm_nav.add_child(TmUi.button("PREVIOUS PAGE", func() -> void:
+			_comm_after.pop_back()
+			comm_load(), 200))
+	if filter != "mine" and _comm_more:
+		var next := String(r.get("next", ""))
+		_comm_nav.add_child(TmUi.button("NEXT PAGE", func() -> void:
+			_comm_after.append(next)
+			comm_load(), 200))
+	if not comm_items.is_empty():
+		var keep := comm_selected if comm_cards.has(comm_selected) else String(comm_items[0]["key"])
+		comm_select(keep)
+
+
+## An item's card: its preview, name and author (the preview loads in after).
+func _comm_card(item: Dictionary, gen: int) -> Button:
+	var card := Button.new()
+	card.custom_minimum_size = COMM_CARD
+	card.tooltip_text = String(item.get("name", ""))
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
+	box.add_theme_constant_override("separation", 2)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(box)
+	var pic := TextureRect.new()
+	pic.name = "Preview"
+	pic.custom_minimum_size = Vector2(COMM_CARD.x - 16, 136)
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	pic.clip_contents = true
+	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(pic)
+	var name_l := TmUi.label(String(item.get("name", "")), 18, TmUi.TEXT, TmUi.BOLD)
+	name_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_l.clip_text = true
+	name_l.custom_minimum_size.x = COMM_CARD.x - 16
+	box.add_child(name_l)
+	var by := "by %s" % String(item.get("author", "")) if not String(item.get("author", "")).is_empty() else ""
+	var mine: bool = (community.library[comm_tab] as Dictionary).has(String(item["key"]))
+	var drive: bool = comm_tab == "cars" and mine and String((community.library["cars"][String(item["key"])] as Dictionary).get("path", "")) == String(TmUi.setting("community_car"))
+	var sub := TmUi.label(("DRIVING  ·  " if drive else ("DOWNLOADED  ·  " if mine else "")) + by, 16,
+		TmUi.ACCENT if mine else TmUi.DIM, TmUi.BOLD)
+	sub.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	sub.clip_text = true
+	sub.custom_minimum_size.x = COMM_CARD.x - 16
+	box.add_child(sub)
+	var key := String(item["key"])
+	card.pressed.connect(func() -> void: comm_select(key))
+	card.pressed.connect(func() -> void: TmUi.play("click"))
+	card.focus_entered.connect(func() -> void: comm_select(key))
+	card.mouse_entered.connect(card.grab_focus)
+	_comm_preview(pic, String(item.get("image", "")), gen)
+	return card
+
+
+func _comm_preview(pic: TextureRect, url: String, gen: int) -> void:
+	if url.is_empty():
+		return
+	var tex: Texture2D = await community.image(url)
+	if gen == _comm_gen and is_instance_valid(pic):
+		pic.texture = tex
+
+
+## Shows an item: its big preview, name, author, what it is, and what can be done with it.
+func comm_select(key: String) -> void:
+	var item := {}
+	for it: Dictionary in comm_items:
+		if String(it["key"]) == key:
+			item = it
+	if item.is_empty() or _comm_detail == null:
+		return
+	comm_selected = key
+	for k: String in comm_cards:
+		var c: Button = comm_cards[k]
+		c.modulate = Color.WHITE if k == key else Color(0.82, 0.86, 0.84)
+	for c in _comm_detail.get_children():
+		_comm_detail.remove_child(c)
+		c.queue_free()
+	var pic := TextureRect.new()
+	pic.name = "Preview"
+	pic.custom_minimum_size = Vector2(COMM_DETAIL, COMM_DETAIL * 0.5625)
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_comm_detail.add_child(pic)
+	var name_l := TmUi.label(String(item.get("name", "")), 24, TmUi.TEXT, TmUi.HEAD, 1)
+	name_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_l.custom_minimum_size.x = COMM_DETAIL
+	_comm_detail.add_child(name_l)
+	if not String(item.get("author", "")).is_empty():
+		_comm_detail.add_child(TmUi.label("by %s" % String(item["author"]), 20, TmUi.DIM, TmUi.BOLD))
+	var facts: PackedStringArray = []
+	if comm_tab == "tracks":
+		if not String(item.get("type", "")).is_empty():
+			facts.append(String(item["type"]))
+		if int(item.get("author_ms", -1)) > 0:
+			facts.append("AUTHOR %s" % TmRace.time_text(int(item["author_ms"])))
+		if int(item.get("awards", 0)) > 0:
+			facts.append("%d AWARDS" % int(item["awards"]))
+		facts.append("TRACKMANIA EXCHANGE")
+	else:
+		facts.append("CAR MODEL" if String(item.get("kind", "")) == "model" else "SKIN")
+		if int(item.get("downloads", 0)) > 0:
+			facts.append("%d DOWNLOADS" % int(item["downloads"]))
+		facts.append("MANIAPARK")
+	var facts_l := TmUi.label("  ·  ".join(facts), 16, TmUi.ACCENT, TmUi.BOLD, 1)
+	facts_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	facts_l.custom_minimum_size.x = COMM_DETAIL
+	_comm_detail.add_child(facts_l)
+	var state := TmUi.label("DOWNLOADING ..." if _comm_busy.has(key) else "", 20, TmUi.DIM, TmUi.BOLD)
+	state.name = "State"
+	_comm_state = state
+	state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	state.custom_minimum_size.x = COMM_DETAIL
+	var lib: Dictionary = community.library[comm_tab]
+	var have: Dictionary = lib.get(key, {})
+	var actions := VBoxContainer.new()
+	actions.add_theme_constant_override("separation", 10)
+	if comm_tab == "cars":
+		var path := String(have.get("path", ""))
+		var driving := not path.is_empty() and path == String(TmUi.setting("community_car"))
+		if have.is_empty():
+			actions.add_child(TmUi.go(TmUi.button("DOWNLOAD", func() -> void: comm_download(key), COMM_DETAIL)))
+		elif driving:
+			state.text = "YOU DRIVE THIS CAR"
+			state.add_theme_color_override("font_color", TmUi.ACCENT)
+		else:
+			actions.add_child(TmUi.go(TmUi.button("DRIVE THIS CAR", func() -> void: comm_drive(path), COMM_DETAIL)))
+		if not String(TmUi.setting("community_car")).is_empty():
+			actions.add_child(TmUi.button("DRIVE OUR OWN CAR", func() -> void: comm_drive(""), COMM_DETAIL))
+		if not have.is_empty():
+			_paint_car(TmCarPack.load_zip(path))         # on the turntable while it's selected
+		else:
+			_paint_car()
+	else:
+		if have.is_empty():
+			actions.add_child(TmUi.go(TmUi.button("DOWNLOAD", func() -> void: comm_download(key), COMM_DETAIL)))
+		elif bool(have.get("playable", false)):
+			var path := String(have["path"])
+			actions.add_child(TmUi.go(TmUi.button("PLAY", func() -> void: race("", path), COMM_DETAIL)))
+		else:
+			state.text = "CAN'T BE RACED HERE: %s" % String(have.get("why", "")).to_upper()
+	for b in actions.get_children():
+		(b as Button).alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_comm_detail.add_child(state)
+	_comm_detail.add_child(actions)
+	var url := String(item.get("shot", item.get("image", "")))
+	_comm_big_preview(pic, url, String(item.get("image", "")), key)
+
+
+func _comm_big_preview(pic: TextureRect, url: String, small: String, key: String) -> void:
+	var tex: Texture2D = await community.image(small)      # the card's, at once (cached)
+	if is_instance_valid(pic) and comm_selected == key and tex:
+		pic.texture = tex
+	if url != small:
+		tex = await community.image(url)
+		if is_instance_valid(pic) and comm_selected == key and tex:
+			pic.texture = tex
+
+
+## Downloads the selected car or track into the library (and checks it).
+func comm_download(key: String) -> void:
+	var item := {}
+	for it: Dictionary in comm_items:
+		if String(it["key"]) == key:
+			item = it
+	if item.is_empty() or _comm_busy.has(key):
+		return
+	_comm_busy[key] = true
+	if is_instance_valid(_comm_state) and comm_selected == key:
+		_comm_state.text = "DOWNLOADING ..."
+	var r: Dictionary = {}
+	if comm_tab == "cars":
+		r = await community.download_car(item)
+	else:
+		r = await community.download_track(item)
+	_comm_busy.erase(key)
+	if page != "community" or not is_instance_valid(_comm_detail):
+		return
+	var selected := comm_selected == key
+	if not String(r.get("error", "")).is_empty():
+		if selected and is_instance_valid(_comm_state):
+			_comm_state.text = String(r["error"]).to_upper()
+		return
+	if comm_cards.has(key):      # its card says so now
+		var sub := (comm_cards[key] as Node).get_child(0).get_child(2) as Label
+		sub.text = "DOWNLOADED  ·  by %s" % String(item.get("author", ""))
+		sub.add_theme_color_override("font_color", TmUi.ACCENT)
+	if selected:
+		comm_select(key)
+
+
+## Drives a community car from now on ("" our own).
+func comm_drive(path: String) -> void:
+	TmCommunity.drive(path)
+	comm_load()
+

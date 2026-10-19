@@ -346,6 +346,8 @@ func _apply_cars() -> void:
 	if scene == null or scene.car == null:
 		return
 	var mine := _pack_of(Online.my_id)
+	if mine == null:
+		mine = TmCommunity.my_car_pack()     # our community car (only we see it: the others don't have it)
 	for c in scene.car.get_children():
 		if c is TmCarVisual and (c as TmCarVisual).pack != mine:
 			var look := TmCarVisual.new()

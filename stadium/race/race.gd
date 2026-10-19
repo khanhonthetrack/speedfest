@@ -110,6 +110,8 @@ func _ready() -> void:
 	look.paint_colour = TmUi.car_colour()
 	if TestHooks.has_arg("car_pack"):        # a community car pack (.zip) to drive (tests, screenshots)
 		look.pack = TmCarPack.load_zip(String(TestHooks.arg("car_pack", "")))
+	else:
+		look.pack = TmCommunity.my_car_pack()  # the community car we drive (Community page), if any
 	car.add_child(look)
 	input = TmCarInput.new()
 	input.car = car
@@ -150,6 +152,8 @@ func _ready() -> void:
 	audio.car = car
 	audio.race = race
 	add_child(audio)
+	if look.pack and look.pack.ok():
+		audio.use_pack(look.pack)            # its own engine
 	if Online.is_online():
 		menu.online = true
 		menu.has_next = false

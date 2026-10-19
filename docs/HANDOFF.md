@@ -1,6 +1,6 @@
 # HANDOFF: start here
 
-## Latest (18 Oct, session 15, cloud): community tracks and cars on admins' servers
+## Latest (18-19 Oct, session 15, cloud): community tracks and cars on admins' servers, the Community page
 - Owner: "make sure that all the community tracks and car models can be uploaded and put on a
   admins server correctly" (TMX for tracks, maniapark.com for cars), "I want full compatibility"
   (verbatim in TRANSCRIPT session 15). Work branch
@@ -13,9 +13,13 @@
 - Samples (never in the repo): `python3 -I stadium/tools/compat/fetch_tmx.py <dir>` then
   `tests/test_compat_tracks --dir=<dir> --build`; `fetch_maniapark.py <dir>` then
   `tests/test_compat_cars --dir=<dir>`.
+- 19 Oct: car frame corrected (not mirrored, v flipped for every file: the Daytona's PHANTOM and
+  41); the menu's **Community** page (owner: "include in the menu the community tab"): TMX tracks
+  and ManiaPark cars by their previews, downloaded into `user://community`, a car driven (solo,
+  online, turntable), a track played (`net/tm_community.gd`, `ui/tm_menu.gd`, server
+  `lib/community.js` for the web build; `tests/test_community` in the gate).
 - Open: TMUnlimiter 2 tracks (13 of 1113: their blocks are in Unlimiter's chunks 0x3F001000-3,
-  free placement; refused with that reason); offline use of car packs (menu); remote players' pack
-  engine sounds.
+  free placement; refused with that reason; asked the owner); remote players' pack engine sounds.
 
 ## Latest (18 Oct, session 14, cloud): the review's fix list, real flags, Polish adverts; v0.4
 - **Merged into `stadium`; the `stadium-v0.4` tag is still to push** (owner: "merge it into stadium

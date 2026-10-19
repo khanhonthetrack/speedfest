@@ -68,7 +68,7 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-18 (session 15). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-19 (session 15). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **Community content (session 15, PLAN M10, branch `ccr-1ce252fc-wl7p3m`):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a
@@ -77,7 +77,9 @@ Updated 2026-10-18 (session 15). Details: `docs/PROGRESS.md` (latest entries), `
   wheels by place) draw through `TmCarVisual.pack` (`tests/test_compat_cars`, `test_car_pack`).
   TMNF's car frame is ours as-is (x left; not mirrored, unlike the blocks); every car file keeps
   texture v upwards (flip it); the car is MainBodyHigh (MainBody is the low LOD). Open:
-  TMUnlimiter 2 tracks (refused with the reason), the menu's Community tab (owner, 19 Oct).
+  TMUnlimiter 2 tracks (refused with the reason). The menu's Community page (19 Oct):
+  `net/tm_community.gd` + `ui/tm_menu.gd` `_page_community` (TMX / ManiaPark by their previews,
+  download, drive, play; the web build through `server/lib/community.js`; `tests/test_community`).
 - **Standalone** (owner, 2026-10-17): our campaign is `tracks/SF01..SF11.json`, laid out by
   `race/tm_track_builder.gd`, listed by `race/tm_tracks.gd`; `tests/test_tracks` (in the gate)
   drives each with the bot (`race/tm_bot.gd`) within gold. New track: write the JSON, then

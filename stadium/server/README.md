@@ -55,6 +55,15 @@ it; in a race, **C** picks a car among the server's packs.
   all 1098 vanilla ones build and race); `stadium/tools/compat/fetch_maniapark.py` +
   `tests/test_compat_cars --dir=<dir>` (160 ManiaPark models and skins: all load and draw).
 
+## The Community page's pass-through
+The game's **Community** page browses TrackMania Exchange (tracks) and ManiaPark (car models and
+skins) directly; a browser can't (neither site sends CORS headers), so the web build asks its
+server: `GET /api/community/tmx/...` and `/api/community/maniapark/...` (`lib/community.js`) pass
+only the two sites' searches, preview images and files, by GET (JSON, images and zips/GBX, at most
+40 MB; previews cached a day). Tests: `--community-fixtures=<dir>` serves local files in their
+place (`tmx_tracks.json`, `tmx_<id>.png|jpg`, `tmx_<id>.Challenge.Gbx`, `mp_search_<1|2>.json`,
+`mp_img_<id>.png|webp`, `mp_<id>.zip`; `test/community.test.js`, `tests/test_community`).
+
 ## The official servers (the owner's Raspberry Pi)
 `docker compose up -d` here runs this server (`Dockerfile`, `config.example.json`'s four
 servers, data on a volume) and `cloudflared` with a **named** tunnel, so the address never

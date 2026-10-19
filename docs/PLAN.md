@@ -211,7 +211,11 @@ outside the repo (`stadium/tools/compat/`).
 - [ ] 5. TMUnlimiter 2 tracks (~1% of TMX; chunk 0x3F001003 v7): static free-placed game blocks
       first (offset, rotation, scale), then embedded blocks; scripts and moving blocks need a
       runtime of their own. Refused with that reason until then
-- [ ] 6. Car packs offline (a Car page: the packs downloaded so far and `user://cars/*.zip`)
+- [x] 6. The menu's Community page (owner, 19 Oct: "include in the menu the community tab which lets
+      you set a car to drive, or to download a community maps ... the player should directly see
+      the previews"): TMX tracks and ManiaPark cars by their previews, downloaded (`user://community`),
+      a car driven offline and online, a track played (`net/tm_community.gd`, `ui/tm_menu.gd`,
+      server `lib/community.js` for browsers; `tests/test_community`)
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

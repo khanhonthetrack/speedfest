@@ -9,6 +9,8 @@
 // Admins (lib/admin.js): /api/admin/... and the page /admin upload community tracks (TrackMania
 // Exchange) and car packs (ManiaPark) and set each server's rotation and cars; players download
 // the files from /content/ (lib/content.js; files in DATA_DIR/content).
+// The game's Community page (lib/community.js): /api/community/... passes TrackMania Exchange and
+// ManiaPark searches, previews and files to browsers (the web build; those sites send no CORS headers).
 // Run: node server.js [--config=config.json] [--port=8090] [--host=127.0.0.1] [--data=./data]
 //      [--name= --mode=TimeAttack|Rounds|Team|Laps --round-ms= --results-ms= --max-players= --tracks=]
 // config.json: {"port", "host", "data", "admins": [logins], "admin_password", "servers": [{"id", "name",
@@ -24,6 +26,7 @@ const { Game, VERSION } = require('./lib/game');
 const { TRACKS, TMNF_CAMPAIGN } = require('./lib/rounds');
 const { Content } = require('./lib/content');
 const { Admin } = require('./lib/admin');
+const { Community, fixtureFetch } = require('./lib/community');
 
 function trackList(v) {
   const list = String(v || '').trim();
@@ -54,7 +57,10 @@ function createApp(config = {}) {
     res.writeHead(code, { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' });
     res.end(JSON.stringify(body));
   };
+  const community = new Community(config.communityFixtures ? { fetch: fixtureFetch(config.communityFixtures) }
+    : config.fetch ? { fetch: config.fetch } : {});
   const httpServer = http.createServer((req, res) => {
+    if (community.handle(req, res)) return;
     if (admin.handle(req, res)) return;
     if (master && master.handle(req, res)) return;
     const url = new URL(req.url, 'http://x');
@@ -107,7 +113,7 @@ if (require.main === module) {
   const admins = String(args.admins || process.env.ADMINS || '').split(',').map((a) => a.trim()).filter(Boolean)
     .concat(Array.isArray(cfg.admins) ? cfg.admins : []);
   const adminPassword = args['admin-password'] || process.env.ADMIN_PASSWORD || cfg.admin_password || '';
-  const app = createApp({ data, servers, admins, adminPassword });
+  const app = createApp({ data, servers, admins, adminPassword, communityFixtures: args['community-fixtures'] || '' });
   app.listen(port, () => {
     console.log(`SpeedFest Stadium on http://${host || 'localhost'}:${port}: master /api, data ${data}`);
     console.log(app.admin.enabled() ? `  admins: http://${host || 'localhost'}:${port}/admin (${admins.length} admin accounts${adminPassword ? ', admin password set' : ''})`

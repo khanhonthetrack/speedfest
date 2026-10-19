@@ -2091,3 +2091,29 @@ triangles are reversed to Godot's winding), v flipped for every file. Checked ag
 screenshots of 23 packs (lettering on the Daytona Phantom and Scorpio, Noddy, the Yamaha rider,
 the DeLorean, the 2CV ...): all match. test_car_pack: the test model's FL wheel at +x, both
 formats' v flipped.
+
+## 2026-10-19 — Session 15: the menu's Community page (owner: "include in the menu the community tab")
+Owner: "When you finish all the tasks, include in the menu the community tab which lets you set a car
+to drive, or to download a community maps (from the sources you use) - the player should directly
+see the previews." (TRANSCRIPT). Main menu → **COMMUNITY** (`ui/tm_menu.gd` `_page_community`):
+- **CARS / TRACKS**, then filters: car models, skins, MY CARS; most awarded, newest, most
+  downloaded, MY TRACKS; a name search; 12 per page (NEXT / PREVIOUS PAGE); the list scrolls with
+  the pad's focus. Every item is a card with its preview (ManiaPark's first image, TMX's
+  thumbnail), name and author; the selected one shows a big preview (TMX's screenshot), what it
+  is (type, author time, awards / downloads) and what can be done.
+- **Cars:** DOWNLOAD (the pack is checked: it must load as `TmCarPack`), then DRIVE THIS CAR: it is
+  the setting `community_car`; solo races draw it and play its engine sounds (`race.gd`), online
+  races use it for you unless the server gives you a car (`tm_race_online.gd`), the menu's turntable
+  shows it; DRIVE OUR OWN CAR goes back. A selected downloaded car is on the turntable.
+- **Tracks:** DOWNLOAD (read by `TmChallenge`, checked by `TmTrackCheck`), then PLAY; a modded track
+  (TMUnlimiter, other environments' blocks) is kept but says why it can't be raced.
+- `net/tm_community.gd` (`TmCommunity`): the two sites' searches (TMX `/api/tracks`, ManiaPark
+  `/api/search`), previews (JPEG, PNG, WebP; cached in memory and in `user://community/img`),
+  downloads into `user://community` with a library (`library.json`: MY CARS, MY TRACKS). The
+  desktop builds ask the sites directly; the web build asks its server, which passes only those
+  paths (`server/lib/community.js`, `/api/community/{tmx,maniapark}/...`; neither site sends CORS
+  headers). `--community-fixtures=<dir>` serves local files in their place (tests).
+- Tests: `tests/test_community` (15 checks, in the gate: a server with fixtures; the lists and their
+  previews, a car downloaded, on the turntable, driven, MY CARS, a track downloaded and played, a
+  modded one refused, a race drawing the community car); `server/test/community.test.js` (3);
+  `test_menu` (the main menu's COMMUNITY entry). Checked live against both sites (screenshots).
