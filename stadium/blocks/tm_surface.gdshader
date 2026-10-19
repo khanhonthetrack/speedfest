@@ -25,6 +25,7 @@ uniform sampler2D advert_tex : source_color, filter_linear_mipmap_anisotropic, r
 uniform sampler2D advert_fill : source_color, filter_linear, repeat_disable;
 uniform bool has_advert = false;
 uniform bool billboard = false;     // changes on its own (else a board: all of them together)
+uniform float translucent = 0.0;    // fabric: tm_membrane_glow
 // The ads (env/tm_adverts.gd): one at a time on each screen, fitted to it by its UVs (TmGeo.SCREENS:
 // u = AD_SLOT * screen + the ad's x, v = the ad's y; beyond 0..1 the board carries the ad's
 // background, advert_fill). Every board shows the same ad, and they all change to the next
@@ -278,7 +279,8 @@ void fragment() {
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = rough;
 	METALLIC = metal;
-	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy;
+	EMISSION = (pattern == 6 || pattern == 8 || pattern == 13 ? emit : albedo) * emission_energy
+		+ tm_membrane_glow(ALBEDO, n, translucent);
 	AO = tm_sky_visibility(wpos, n);
 	AO_LIGHT_AFFECT = 0.0;
 }

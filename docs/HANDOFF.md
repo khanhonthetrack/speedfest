@@ -1,6 +1,80 @@
 # HANDOFF: start here
 
-## Latest (18 Oct, owner's Windows PC): `stadium-v0.4` released = `stadium` + M9
+## Latest (18 Oct, session 13 continued, cloud): M10, the owner's five requests after M9
+- Branch `claude/tmnf-replica-graphics-nb1kcg` (M9 is complete there; not merged into `stadium`
+  until the owner says so). Plan: PLAN.md M10 (steps 1-5, the owner's order); owner's words in
+  TRANSCRIPT (session 13, after M9). STADIUM_TESTS PASS at every commit.
+- Done: M10-1 dark circuit screens and the wall foot (blue kerb, logo bumper, blue trim);
+  M10-2 tyre marks (`race/tm_tyre_marks.gd`, in races and replays; `tests/test_tyre_marks`);
+  M10-3 the surfaces off asphalt (below).
+- M10-3, the physics off asphalt against TMNF's own runs. Tools: `ghost_dump.py` (a
+  Replay.Gbx's ghosts: samples every 100 ms with each wheel's surface and sliding flag, and the
+  run's inputs; `--json=` for the harness, `--inputs=` a TMInterface-style script),
+  `race/ghost_fit.tscn` (puts our car in a ghost's state, drives it 0.5 s with the run's own
+  inputs, prints how far apart it ends by surface), `accel_curve.py`, `lateral_grip.py`,
+  `ghost_compare.py` (a whole run: `race.tscn --inputs=... --trace=...` against the ghost).
+  Our world is TMNF's mirror image (x negated): feed a TMNF run's inputs with left and right
+  swapped. Asphalt agrees to centimetres over 0.5 s. **Fixed**: the surface table's columns
+  were misread; TMNF's runs say column 1 is the grip, 2 the drive, 3 the brakes (grass and dirt
+  now follow TMNF to ~0.3 m over 0.5 s; `docs/research/tmnf_physics.md` §3.10, PROGRESS M10-3).
+  A ghost's position is the car's model origin: the centre of mass is 0.4385 above and 0.288
+  ahead of it (`ghost_fit.gd` OFFSET).
+- M10-4 jumps measured (tmnf_physics.md §3.7b): flight identical to 2 cm, take-offs agree,
+  landings agree in the median; open: TMNF's wheelie (rear wheels, 12-20 deg nose-up for 0.3-0.5 s)
+  after nose-down landings, which ours doesn't do. The mechanism is in TMNF's contact code; reading
+  the decompiled code was blocked by the session's safety check, so the owner decides whether to
+  continue that way. (Ghidra 11.4.2 headless works locally: `/opt/ghidra`, a script that labels
+  TmForever.map's functions; nothing of it in the repo.)
+- M10-5 (look, UI, menus, sound side by side with TMNF; session 13 continued, 19 Oct): TMNF runs
+  locally under Wine (9.0, 32-bit prefix, an offline profile, its network cut with `unshare -n`,
+  shader quality PC2) for reference screenshots; nothing of it in the repo. Done, one commit each
+  (PROGRESS has the details): the race HUD and countdown (`race/tm_race_hud.gd`, `ui/tm_seg_text.gd`,
+  -2.60 s start), the race menu and finish card in TMNF's dialog style, the menus in TMNF's frame
+  (`ui/tm_menu.gd`: globe, icon-row column, green-titled panels, the campaign grid of cards), the
+  loading screen with the keyboard (`ui/tm_loading.gd`) and the three camera views (keys 1-3), the
+  cues shaped to TMNF's measured ones (`tools/sfxgen/cues.py`, numbers in `research/m9_sound.md`),
+  Select Opponent with medal ghosts (`race/tm_medal_ghost.gd`: the bot's run slowed to each medal),
+  pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh` -> `assets/ui/thumbs`).
+- Note: session 14 (another branch, below) merged M9 into `stadium`; this branch's M10 work goes
+  into `stadium` when the owner says so (expect conflicts in docs only, maybe `race/race.gd`).
+  Also the race menu's Select Opponents. M10 is done but for the owner's decisions:
+- M10-6 (owner): TMNF's top bar (`ui/tm_top_bar.gd`): volumes, display, clock, window; always up in
+  the menus, sliding down at the top edge in races and replays. The wheelie (M10-4b) was looked into
+  and stopped by the owner (tmnf_physics.md §3.7b: what was read and measured).
+- Open (owner's call): TMNF's wheelie after nose-down landings (M10-4: needs TMNF's contact code);
+  the engine's layers' pitch curves (TMNF's SoundEngine definition: reading it was blocked by the
+  session's safety check; our engine is brighter than TMNF's samples, which sit lower: TMNF's
+  strongest partial is the 3rd order of a low fundamental); TMNF's padlocks on later campaign
+  tracks (would change play). Side-by-side sheets: render ours with the commands in PROGRESS,
+  TMNF under Wine locally (never commit its frames).
+
+## Also 19 Oct (a parallel session, branch `claude/sleepy-albattani-o7ygr1`): the wheelie is NOT the contact layer
+
+Owner approved reading TMNF's code for the wheelie-after-nose-down-landing question. Re-read
+`WheelAbsorbContact` from the binary (no Ghidra needed — see below). **The "bottomed" flag means
+exactly what we assumed**: it is set only where the suspension cannot swallow the whole penetration,
+and the full-impulse-at-the-contact-point branch needs it. `stadium/core/tm_body.gd::_collide`
+already matches TMNF branch for branch. Written up as **§3.2a** of `docs/research/tmnf_physics.md`.
+So the contact layer is exonerated and the wheelie has to come from somewhere else.
+
+**Found on the way (a real bug, worth fixing on its own):** `AddVehicleImpulse` scales the angular
+`r x j` of *every* contact impulse by **0.55 [0x0ec]** and then clamps `|w|` to 100 rad/s [0x14c];
+linear is unscaled. Our `_apply_impulse` applies the full `r x j`, so **our contacts over-rotate by
+~1.8x**. New §3.2b and three rows in the §5 table. Fix this in `tm_body.gd` before tuning the
+wheelie — it changes every landing. It needs the stadium lab re-run
+(`stadium/tools/test_all.sh`, 22 body + 44 model tests are calibrated against the old behaviour),
+which needs Godot installed (see CLAUDE.md "Environment setup"); this container had no Godot.
+
+**Next candidates for the wheelie:** the spring force and where it is applied during compression
+(§3.2), the ground/air gravity switch 3.0 ↔ 2.5 [0x160/0x164] at touchdown, and the load-transfer
+torque [0x228–0x23c] (already implemented in `tm_car_model.gd`).
+
+**RE pipeline is now cheap:** `tools/research/tmnf/fnmap.py` (name → address range from
+`TmForever.map`) + `dis.py` (objdump + call/constant annotation). No Ghidra, no REA, no JDK — they
+are only needed for pseudocode. Installer, `7z`, `innoextract`, `pip install pycryptodome` and the
+existing pack scripts do the rest; README has the commands.
+
+## Earlier (18 Oct, owner's Windows PC): `stadium-v0.4` released = `stadium` + M9
 - Owner: "release the most up to date version ... of the stadium", choosing "stadium + M9 branch"
   (TRANSCRIPT "Release"). `claude/tmnf-replica-graphics-nb1kcg` (M9-7 online, the M9 review's 42
   fixes, M9-8 the 65-track A-E campaign) is **merged into `stadium`** on top of session 14's v0.4
@@ -96,10 +170,24 @@
   ~25 min with D15's 10 laps; D15 and E05 are off the online rotation, `"online": false`).
   Untracked planning helpers (recreate if needed): `tests/tmp/ascii.tscn` (a track's top view),
   `layout_all.tscn` (lay out many), `bot_probe.tscn` (where the bot is, every second).
-- Next (M9, in order): M9-2 the look of what the campaign now shows most (platform walls and
-  decks, circuit walls, dirt and its hills, tube pillars, decoration placed for area tracks, light
-  and atmosphere, the RTX preset), then M9-0's remaining research notes. Merge this branch into
-  `stadium` when the owner says so.
+- M9-2 second pass done (PROGRESS "M9-2: the decks, walls and dirt roads"): decks (steel plate per
+  block + a tread detail map), dark platform walls, circuit walls in TMNF's layout (white, blue
+  band with our name, black rubber, truss), dirt roads (packed track blending into loose berms).
+  Compare with TMNF locally: `map_view --ref=<dir>` (tools/research/tmnf ref_visuals; normal maps
+  now read right). Views that worked: `--view=gate:StadiumCircuitBorderStraight:2:30:3 --gz=22`
+  (a circuit wall from outside; `:-25:12` from the lane), `--view=path:0.4` on A01/A06,
+  `--view=gate:StadiumRoadDirt:3:24:2.5 --gz=24` on A02.
+  Then the control booths (dark roofs, white sides, smoked windows) and the grandstands' truss
+  arches and advert boards. TMNF's "fences" along dirt roads are grass blades (shell layers).
+  Ultra (SDFGI) no longer leaves the fabric roofs black underneath (a membrane glow,
+  `TmRtx.MEMBRANE`). Compare quality presets with `--set_quality=1|2` on the same view.
+  Raised gates get raised grandstands on fabric pillars (TMNF's A07 way).
+- M9-0's research notes are all written (`docs/research/m9_look.md`, `m9_menus.md`,
+  `m9_sound.md`, with `m9_online.md` and `m9_campaign.md`). **M9 is complete** (steps 0-8).
+- Next: whatever the owner asks after trying it; merge this branch into `stadium` when the owner
+  says so. Polish left (PLAN M9-2): dressing for raised tracks (TMNF: control rows at deck height,
+  inflatable towers, B05/A12), grass tufts along dirt roads, SDFGI tuned on a real GPU.
+  Merge this branch into `stadium` when the owner says so.
 
 ## Latest (17 Oct, session 12): quality pass after the owner's complaints and an independent review
 - **Released `stadium-v0.2`** (owner-approved): https://github.com/khanhonthetrack/speedfest/releases/tag/stadium-v0.2 (the quality pass, loops,

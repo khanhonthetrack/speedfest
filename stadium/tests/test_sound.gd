@@ -1,7 +1,7 @@
 extends Node
 ## Sounds (no TMNF install needed): every stream (the recordings in audio/sfx) exists and isn't
 ## silent, the loops loop, the virtual rpm climbs through each gear and drops at the shifts, the engine
-## follows the throttle and the speed, and the countdown beeps then says go.
+## follows the throttle and the speed, a landing thumps, and the countdown beeps then the crowd roars.
 
 
 func _ready() -> void:
@@ -78,6 +78,20 @@ func _engine() -> void:
 	for i in 40:
 		await get_tree().process_frame
 	TestHooks.check(audio.engine_mix < 0.1, "engine_coasts_off_throttle", "%.2f" % audio.engine_mix)
+	# a landing: half a second in the air coming down at 10 m/s, then the wheels touch: the thump
+	var air: Array[bool] = [false, false, false, false]
+	var ground: Array[bool] = [true, true, true, true]
+	car.body.wheel_contact = air
+	for i in 30:
+		car.lin_vel = Vector3(0, -10, 20)
+		await get_tree().process_frame
+	car.body.wheel_contact = ground
+	await get_tree().process_frame
+	var thump := false
+	for v in audio.get_children():
+		if v is AudioStreamPlayer and (v as AudioStreamPlayer).playing and (v as AudioStreamPlayer).stream == TmSounds.get_stream("land"):
+			thump = true
+	TestHooks.check(thump, "landing_thump")
 	audio.queue_free()
 	car.queue_free()
 
@@ -98,7 +112,7 @@ func _countdown() -> void:
 		await get_tree().process_frame
 		for v in audio.get_children():
 			if v is AudioStreamPlayer and (v as AudioStreamPlayer).playing and (v as AudioStreamPlayer).stream in [TmSounds.get_stream("beep"), TmSounds.get_stream("go")]:
-				var key := "go" if (v as AudioStreamPlayer).pitch_scale > 1.2 else "beep%d" % v.get_index()
+				var key := "go" if (v as AudioStreamPlayer).stream == TmSounds.get_stream("go") else "beep%d" % v.get_index()
 				if not heard.has(key):
 					heard.append(key)
 		if race.time_ms > 500:

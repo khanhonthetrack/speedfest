@@ -17,21 +17,22 @@ const LEDGE_Y := 8.0
 const FLOOR_Y := 0.24
 
 ## Wall section: (d, y) points around the solid, d = offset from the inner face outward, with the
-## material/surface of the segment starting at each point. Rubber bumper at the foot, logo band,
-## rubber top lip at 15-16 m, cap, stands and screen outside, down to the stands' foot.
+## material/surface of the segment starting at each point. Rubber bumper at the foot, light band,
+## blue band, white cladding, blue top lip at 15-16 m, cap, truss and the dark screen on the lane's
+## side above the lane-level ledge (8 m), down to the truss' foot (TMNF's colours: TmMaterials).
 const WALL := [
-	[-0.465, 0.10, "rubber", S_RUBBER], [-0.585, 0.31, "rubber", S_RUBBER], [-0.645, 0.54, "rubber", S_RUBBER],
-	[-0.615, 0.81, "rubber", S_RUBBER], [-0.415, 1.28, "structure", S_METAL], [-0.415, 1.79, "structure", S_METAL],
-	[0.305, 2.41, "structure", S_METAL], [-0.055, 2.65, "structure", S_METAL], [-0.125, 2.87, "structure", S_METAL],
-	[-0.125, 3.22, "structure", S_METAL], [0.0, 3.40, "logo", S_METAL], [0.0, 7.00, "wall", S_RUBBER],
-	[-0.135, 7.07, "wall", S_RUBBER], [-0.135, 14.86, "rubber_white", S_RUBBER], [-0.065, 15.61, "rubber_white", S_RUBBER],
-	[0.105, 15.83, "rubber_white", S_RUBBER], [0.415, 15.96, "rubber_white", S_RUBBER], [0.775, 16.0, "fabric", S_METAL],
+	[-0.465, 0.10, "rubber_dark", S_RUBBER], [-0.585, 0.31, "rubber_dark", S_RUBBER], [-0.645, 0.54, "rubber_dark", S_RUBBER],
+	[-0.615, 0.81, "rubber_dark", S_RUBBER], [-0.415, 1.28, "metal", S_METAL], [-0.415, 1.79, "metal", S_METAL],
+	[0.305, 2.41, "metal", S_METAL], [-0.055, 2.65, "metal", S_METAL], [-0.125, 2.87, "metal", S_METAL],
+	[-0.125, 3.22, "metal", S_METAL], [0.0, 3.40, "circuit_band", S_METAL], [0.0, 7.00, "circuit_panel", S_RUBBER],
+	[-0.135, 7.07, "circuit_panel", S_RUBBER], [-0.135, 14.86, "circuit_trim", S_RUBBER], [-0.065, 15.61, "circuit_trim", S_RUBBER],
+	[0.105, 15.83, "circuit_trim", S_RUBBER], [0.415, 15.96, "circuit_trim", S_RUBBER], [0.775, 16.0, "fabric", S_METAL],
 	[2.665, 16.0, "fabric", S_METAL], [2.835, 15.94, "fabric", S_METAL], [2.885, 15.77, "fabric", S_METAL],
-	[2.885, 15.28, "fabric", S_METAL], [2.595, 15.06, "stands", S_CONCRETE], [2.595, 12.66, "screen", S_METAL],
-	[2.595, 9.63, "stands", S_CONCRETE], [2.595, 9.42, "rubber", S_RUBBER], [3.565, 9.09, "rubber", S_RUBBER],
-	[3.935, 8.81, "rubber", S_RUBBER], [4.145, 8.33, "rubber", S_RUBBER], [4.075, 8.0, "wall_dark", S_METAL],
+	[2.885, 15.28, "circuit_trim", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
+	[2.595, 9.63, "truss", S_CONCRETE], [2.595, 9.42, "circuit_bumper", S_RUBBER], [3.565, 9.09, "circuit_bumper", S_RUBBER],
+	[3.935, 8.81, "circuit_bumper", S_RUBBER], [4.145, 8.33, "circuit_bumper", S_RUBBER], [4.075, 8.0, "wall_dark", S_METAL],
 	[4.075, 0.24, "structure", S_METAL], [3.595, 0.24, "structure", S_METAL], [3.415, 0.0, "structure", S_METAL],
-	[-0.245, 0.0, "rubber", S_RUBBER],
+	[-0.245, 0.0, "rubber_dark", S_RUBBER],
 ]
 
 ## Level walls across a slope (Top: at the top of the slope, facing down it; Bottom: at its foot):
@@ -39,47 +40,47 @@ const WALL := [
 ## (measured: tools/research/tmnf/section_loop.py).
 const SLOPE_TOP_WALL := [
 	[9.405, 6.495, "structure", S_ASPHALT], [9.027, 6.629, "structure", S_ASPHALT],
-	[8.681, 6.753, "wall", S_RUBBER], [9.039, 7.164, "wall", S_RUBBER], [9.112, 7.429, "wall", S_RUBBER],
-	[9.115, 7.780, "wall", S_RUBBER], [9.082, 7.893, "wall", S_RUBBER], [8.985, 7.892, "rubber_white", S_RUBBER],
-	[8.985, 8.034, "logo", S_METAL], [8.985, 11.351, "rubber_white", S_RUBBER], [8.985, 11.492, "wall", S_RUBBER],
-	[9.115, 11.627, "wall", S_RUBBER], [9.117, 19.417, "rubber_white", S_RUBBER],
-	[9.118, 19.798, "rubber_white", S_RUBBER], [9.048, 20.130, "rubber_white", S_RUBBER],
-	[8.883, 20.274, "rubber_white", S_RUBBER], [8.573, 20.250, "rubber_white", S_RUBBER],
-	[8.214, 20.107, "rubber_white", S_RUBBER], [7.944, 19.972, "wall", S_RUBBER],
-	[6.323, 19.162, "wall", S_RUBBER], [6.153, 19.020, "wall", S_RUBBER], [6.103, 18.820, "wall", S_RUBBER],
-	[6.102, 18.409, "wall", S_RUBBER], [6.101, 18.334, "wall", S_RUBBER], [6.145, 18.302, "rubber", S_RUBBER],
-	[6.386, 18.247, "stands", S_CONCRETE], [6.386, 15.850, "screen", S_METAL],
-	[6.386, 12.818, "stands", S_CONCRETE], [6.386, 12.612, "rubber", S_RUBBER],
-	[6.281, 12.232, "rubber", S_RUBBER], [5.421, 11.802, "rubber", S_RUBBER], [5.386, 11.683, "rubber", S_RUBBER],
-	[5.055, 11.340, "rubber", S_RUBBER], [4.924, 11.128, "rubber", S_RUBBER], [4.843, 10.885, "rubber", S_RUBBER],
-	[4.843, 10.624, "rubber", S_RUBBER], [4.908, 10.454, "rubber_white", S_RUBBER],
-	[0.000, 8.000, "wall_dark", S_METAL], [0.000, 0.243, "stands", S_CONCRETE],
-	[5.387, 2.937, "rubber", S_RUBBER], [5.575, 2.787, "wall", S_RUBBER], [9.228, 4.614, "wall", S_RUBBER],
-	[9.449, 4.828, "rubber", S_RUBBER], [9.568, 5.093, "rubber", S_RUBBER], [9.630, 5.353, "rubber", S_RUBBER],
-	[9.597, 5.611, "rubber", S_RUBBER], [9.405, 5.983, "structure", S_ASPHALT]
+	[8.681, 6.753, "circuit_panel", S_RUBBER], [9.039, 7.164, "circuit_panel", S_RUBBER], [9.112, 7.429, "circuit_panel", S_RUBBER],
+	[9.115, 7.780, "circuit_panel", S_RUBBER], [9.082, 7.893, "circuit_panel", S_RUBBER], [8.985, 7.892, "circuit_trim", S_RUBBER],
+	[8.985, 8.034, "circuit_band", S_METAL], [8.985, 11.351, "circuit_trim", S_RUBBER], [8.985, 11.492, "circuit_panel", S_RUBBER],
+	[9.115, 11.627, "circuit_panel", S_RUBBER], [9.117, 19.417, "circuit_trim", S_RUBBER],
+	[9.118, 19.798, "circuit_trim", S_RUBBER], [9.048, 20.130, "circuit_trim", S_RUBBER],
+	[8.883, 20.274, "circuit_trim", S_RUBBER], [8.573, 20.250, "circuit_trim", S_RUBBER],
+	[8.214, 20.107, "circuit_trim", S_RUBBER], [7.944, 19.972, "circuit_panel", S_RUBBER],
+	[6.323, 19.162, "circuit_panel", S_RUBBER], [6.153, 19.020, "circuit_panel", S_RUBBER], [6.103, 18.820, "circuit_panel", S_RUBBER],
+	[6.102, 18.409, "circuit_panel", S_RUBBER], [6.101, 18.334, "circuit_panel", S_RUBBER], [6.145, 18.302, "rubber_dark", S_RUBBER],
+	[6.386, 18.247, "truss", S_CONCRETE], [6.386, 15.850, "screen_dark", S_METAL],
+	[6.386, 12.818, "truss", S_CONCRETE], [6.386, 12.612, "rubber_dark", S_RUBBER],
+	[6.281, 12.232, "rubber_dark", S_RUBBER], [5.421, 11.802, "rubber_dark", S_RUBBER], [5.386, 11.683, "rubber_dark", S_RUBBER],
+	[5.055, 11.340, "rubber_dark", S_RUBBER], [4.924, 11.128, "rubber_dark", S_RUBBER], [4.843, 10.885, "rubber_dark", S_RUBBER],
+	[4.843, 10.624, "rubber_dark", S_RUBBER], [4.908, 10.454, "circuit_trim", S_RUBBER],
+	[0.000, 8.000, "wall_dark", S_METAL], [0.000, 0.243, "truss", S_CONCRETE],
+	[5.387, 2.937, "rubber_dark", S_RUBBER], [5.575, 2.787, "circuit_panel", S_RUBBER], [9.228, 4.614, "circuit_panel", S_RUBBER],
+	[9.449, 4.828, "rubber_dark", S_RUBBER], [9.568, 5.093, "rubber_dark", S_RUBBER], [9.630, 5.353, "rubber_dark", S_RUBBER],
+	[9.597, 5.611, "rubber_dark", S_RUBBER], [9.405, 5.983, "structure", S_ASPHALT]
 ]
 const SLOPE_BOTTOM_WALL := [
 	[22.595, 5.089, "structure", S_ASPHALT], [22.627, 5.132, "structure", S_ASPHALT],
-	[23.319, 6.072, "wall", S_RUBBER], [22.961, 6.126, "wall", S_RUBBER], [22.888, 6.318, "wall", S_RUBBER],
-	[22.885, 6.665, "wall", S_RUBBER], [22.918, 6.811, "wall", S_RUBBER],
-	[23.015, 6.908, "rubber_white", S_RUBBER], [23.015, 7.049, "logo", S_METAL],
-	[23.015, 10.366, "rubber_white", S_RUBBER], [23.015, 10.508, "wall", S_RUBBER],
-	[22.885, 10.512, "wall", S_RUBBER], [22.883, 18.299, "rubber_white", S_RUBBER],
-	[22.882, 18.681, "rubber_white", S_RUBBER], [22.952, 19.081, "rubber_white", S_RUBBER],
-	[23.117, 19.391, "rubber_white", S_RUBBER], [23.427, 19.677, "rubber_white", S_RUBBER],
-	[23.786, 19.893, "rubber_white", S_RUBBER], [24.056, 20.028, "wall", S_RUBBER],
-	[25.677, 20.838, "wall", S_RUBBER], [25.847, 20.867, "wall", S_RUBBER], [25.897, 20.717, "wall", S_RUBBER],
-	[25.898, 20.306, "wall", S_RUBBER], [25.898, 20.232, "wall", S_RUBBER], [25.855, 20.157, "rubber", S_RUBBER],
-	[25.614, 19.862, "stands", S_CONCRETE], [25.614, 17.464, "screen", S_METAL],
-	[25.614, 14.432, "stands", S_CONCRETE], [25.614, 14.226, "rubber", S_RUBBER],
-	[25.719, 13.951, "rubber", S_RUBBER], [26.579, 14.381, "rubber", S_RUBBER],
-	[26.614, 14.297, "rubber", S_RUBBER], [26.945, 14.286, "rubber", S_RUBBER],
-	[27.076, 14.203, "rubber", S_RUBBER], [27.157, 14.041, "rubber", S_RUBBER],
-	[27.157, 13.780, "rubber", S_RUBBER], [27.092, 13.546, "rubber_white", S_RUBBER],
-	[32.000, 16.000, "wall_dark", S_METAL], [32.000, 8.243, "stands", S_CONCRETE],
-	[26.613, 5.550, "rubber", S_RUBBER], [26.425, 5.213, "wall", S_RUBBER], [22.772, 3.386, "wall", S_RUBBER],
-	[22.551, 3.379, "rubber", S_RUBBER], [22.432, 3.525, "rubber", S_RUBBER], [22.370, 3.723, "rubber", S_RUBBER],
-	[22.404, 4.014, "rubber", S_RUBBER], [22.595, 4.578, "structure", S_ASPHALT]
+	[23.319, 6.072, "circuit_panel", S_RUBBER], [22.961, 6.126, "circuit_panel", S_RUBBER], [22.888, 6.318, "circuit_panel", S_RUBBER],
+	[22.885, 6.665, "circuit_panel", S_RUBBER], [22.918, 6.811, "circuit_panel", S_RUBBER],
+	[23.015, 6.908, "circuit_trim", S_RUBBER], [23.015, 7.049, "circuit_band", S_METAL],
+	[23.015, 10.366, "circuit_trim", S_RUBBER], [23.015, 10.508, "circuit_panel", S_RUBBER],
+	[22.885, 10.512, "circuit_panel", S_RUBBER], [22.883, 18.299, "circuit_trim", S_RUBBER],
+	[22.882, 18.681, "circuit_trim", S_RUBBER], [22.952, 19.081, "circuit_trim", S_RUBBER],
+	[23.117, 19.391, "circuit_trim", S_RUBBER], [23.427, 19.677, "circuit_trim", S_RUBBER],
+	[23.786, 19.893, "circuit_trim", S_RUBBER], [24.056, 20.028, "circuit_panel", S_RUBBER],
+	[25.677, 20.838, "circuit_panel", S_RUBBER], [25.847, 20.867, "circuit_panel", S_RUBBER], [25.897, 20.717, "circuit_panel", S_RUBBER],
+	[25.898, 20.306, "circuit_panel", S_RUBBER], [25.898, 20.232, "circuit_panel", S_RUBBER], [25.855, 20.157, "rubber_dark", S_RUBBER],
+	[25.614, 19.862, "truss", S_CONCRETE], [25.614, 17.464, "screen_dark", S_METAL],
+	[25.614, 14.432, "truss", S_CONCRETE], [25.614, 14.226, "rubber_dark", S_RUBBER],
+	[25.719, 13.951, "rubber_dark", S_RUBBER], [26.579, 14.381, "rubber_dark", S_RUBBER],
+	[26.614, 14.297, "rubber_dark", S_RUBBER], [26.945, 14.286, "rubber_dark", S_RUBBER],
+	[27.076, 14.203, "rubber_dark", S_RUBBER], [27.157, 14.041, "rubber_dark", S_RUBBER],
+	[27.157, 13.780, "rubber_dark", S_RUBBER], [27.092, 13.546, "circuit_trim", S_RUBBER],
+	[32.000, 16.000, "wall_dark", S_METAL], [32.000, 8.243, "truss", S_CONCRETE],
+	[26.613, 5.550, "rubber_dark", S_RUBBER], [26.425, 5.213, "circuit_panel", S_RUBBER], [22.772, 3.386, "circuit_panel", S_RUBBER],
+	[22.551, 3.379, "rubber_dark", S_RUBBER], [22.432, 3.525, "rubber_dark", S_RUBBER], [22.370, 3.723, "rubber_dark", S_RUBBER],
+	[22.404, 4.014, "rubber_dark", S_RUBBER], [22.595, 4.578, "structure", S_ASPHALT]
 ]
 
 ## Curved borders (but the 1x1 outer corner) lower the wall's top (above the screen, 12.66 m) by
@@ -272,9 +273,9 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 		# ledge to the cell edge: top at 8 m, outer face, floor
 		var e := 32.0 - FACE
 		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - 8.33) < 0.01)[0])
-		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "wall_dark", S_METAL])
+		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_METAL])
 		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
-		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "stands", S_CONCRETE])
+		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "truss", S_CONCRETE])
 		sec.insert(at + 4, [Vector2(3.595, _lift(FLOOR_Y, dy)), "structure", S_METAL])
 	geo.wall_sweep(sec, [a, b], [outward, outward])
 
@@ -320,7 +321,7 @@ static func _area(p: PackedVector2Array) -> float:
 func _prism(geo: TmGeo, poly: PackedVector2Array, dy: float) -> void:
 	var lo := _lift(FLOOR_Y, dy)
 	var hi := LEDGE_Y
-	geo.flat_polygon(poly, hi, "wall_dark", S_METAL)
+	geo.flat_polygon(poly, hi, "circuit_floor", S_METAL)
 	geo.flat_polygon(poly, lo, "structure", S_METAL, true)
 	for i in poly.size():
 		var p: Vector2 = poly[i]
@@ -416,9 +417,9 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float)
 		if (sec[i][0] as Vector2).x > 4.0 and absf((sec[i][0] as Vector2).y - 8.33) < 0.01:
 			at = i
 	var e := 32.0 - FACE
-	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "wall_dark", S_METAL])
+	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_METAL])
 	sec.insert(at + 2, [Vector2(e, LEDGE_Y), "wall_dark", S_METAL])
-	sec.insert(at + 3, [Vector2(e, FLOOR_Y), "stands", S_CONCRETE])
+	sec.insert(at + 3, [Vector2(e, FLOOR_Y), "truss", S_CONCRETE])
 	sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "structure", S_METAL])
 	var y_at := Callable()
 	if dy > 0.0:

@@ -3,7 +3,8 @@ extends Node3D
 ## the start block, the chase camera, the HUD and TmRace's rules. The race steps the car itself
 ## (after the race clock) and tests each tick's motion against the waypoint triggers (TmTriggers).
 ## Keys: arrows/WASD drive, Enter = respawn at the last checkpoint, Backspace/Delete = restart,
-## Escape = pause (TmRaceMenu: resume, restart, menu); after the finish: retry, next track, menu.
+## 1/2/3 = TMNF's views (TmCamera.view), Escape = pause (TmRaceMenu: resume, restart, menu); after
+## the finish: retry, next track, menu. --cam_view=0|1|2 starts in that view (screenshots).
 ## Args: --track=SF01 (our own tracks, TmTracks; the first by default), --map=/path/X.Challenge.Gbx
 ## (any TMNF track file) or --map=/path/X.sftrack (made in our editor), or --track=A01 with a TMNF install (--tmnf=/path/to/TMNF, else its usual
 ## place); --laps=N overrides the map's lap count; --bot: TmBot drives (our tracks); TmCarInput's
@@ -27,13 +28,17 @@ var cam: TmCamera
 var hud: TmRaceHud
 var ready_to_race := false
 var best := {}                     ## the track's record: {time_ms, splits}; {} if none
-var best_ghost: TmGhost            ## the record's ghost, raced against; null if none
+var best_ghost: TmGhost            ## the ghost raced against (the record's, or the opponent picked); null if none
+var top_bar: TmTopBar              ## TMNF's bar at the top right (volumes, display, clock, window)
+var opponent := ""                 ## the opponent picked (gold, silver, bronze, best, none); "" not asked
 var run: TmGhost                   ## this run, being recorded
 var replay: TmReplay               ## this run as a replay, being recorded
 var ghost_car: Node3D              ## the best ghost's car (a translucent TmCarVisual)
 var new_record := false            ## the last finish set a new record
 var menu: TmRaceMenu               ## pause and finish menus
 var audio: TmCarAudio              ## engine, skid, wind and the race's cues
+var marks: TmTyreMarks             ## the tyre marks a sliding wheel lays, and its smoke
+var _trace: FileAccess             ## --trace: the car's state every 100 ms
 var online: TmRaceOnline           ## the online side, in a server (Online)
 var bot: TmBot                     ## the driving bot (--bot), else null
 var input_script: TmInputScript     ## --inputs=<file>: a script drives the car, else null
@@ -109,6 +114,9 @@ func _ready() -> void:
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
 	car.add_child(look)
+	marks = TmTyreMarks.new()          # after the race in the tree: it reads each tick's stepped car
+	marks.car = car
+	add_child(marks)
 	input = TmCarInput.new()
 	input.car = car
 	add_child(input)
@@ -128,12 +136,16 @@ func _ready() -> void:
 	cam.target = car
 	add_child(cam)
 	cam.current = true
+	if TestHooks.has_arg("cam_view"):
+		cam.view = int(TestHooks.arg("cam_view", 0))
 	hud = TmRaceHud.new()
 	hud.race = race
 	hud.car = car
 	hud.challenge = challenge
 	hud.best = best
 	add_child(hud)
+	top_bar = TmTopBar.new()           # TMNF's bar: down when the mouse reaches the top edge
+	add_child(top_bar)
 	menu = TmRaceMenu.new()
 	menu.editing = editing()
 	add_child(menu)
@@ -156,12 +168,78 @@ func _ready() -> void:
 		add_child(online)
 	print("RACE %s: %d checkpoints, %d lap(s), %d triggers, start %s" % [challenge.name, cps, race.laps,
 		_triggers.size(), "yes" if builder.has_start else "MISSING"])
+	menu.opponent_chosen.connect(set_opponent)
+	menu.select_opponent.connect(func() -> void: menu.show_opponents(_opponent_options(), opponent))
+	menu.opponents = _offers_opponents()
 	# the map's collision is in the physics space from the next physics frame
 	await get_tree().physics_frame
+	if _asks_opponent():
+		TmMedalGhost.bot_run(self)       # the medal opponents' run, while the loading screen is up
 	restart(true)
 	if TestHooks.has_arg("finish_result"):
 		_back_from_replay()
 	ready_to_race = true
+	if _asks_opponent():
+		menu.show_opponents(_opponent_options(), _opponent_focus())
+	elif TestHooks.has_arg("opponent"):
+		set_opponent(String(TestHooks.arg("opponent", "")))
+	if TestHooks.has_arg("pause"):      # screenshots: the race menu over the start
+		menu.toggle_pause()
+
+
+## TMNF's Select Opponent comes up when one of our tracks is loaded from the menu (not on a
+## restart, online, in a test drive or back from a replay); --opponent=ask shows it in tests and
+## screenshots, --opponent=<kind> picks one.
+func _asks_opponent() -> bool:
+	var arg := String(TestHooks.arg("opponent", ""))
+	if arg != "ask" and (TestHooks.is_testing() or not arg.is_empty()):
+		return false
+	return _offers_opponents() and not TestHooks.has_arg("finish_result") and opponent.is_empty()
+
+
+## Our own tracks with medals offer opponents (not online or in a test drive): TMNF's race menu
+## lists Select Opponents for them too.
+func _offers_opponents() -> bool:
+	return TmTracks.has(track_id) and not online and not editing() and challenge.gold_ms > 0
+
+
+## The opponents: [kind, name, time]: the medals' ghosts, your best run's, none.
+func _opponent_options() -> Array:
+	var out := [["gold", "Gold Medal", challenge.gold_ms], ["silver", "Silver Medal", challenge.silver_ms],
+		["bronze", "Bronze Medal", challenge.bronze_ms]]
+	if TmRecords.ghost(challenge) != null:
+		out.append(["best", "Personal Best", int(best.get("time_ms", -1))])
+	out.append(["none", "None", -1])
+	return out
+
+
+## The row focused first: the next medal to win (bronze when you have none), as TMNF's.
+func _opponent_focus() -> String:
+	var m := TmRace.medal(int(best.get("time_ms", -1)), challenge)
+	match m:
+		"bronze":
+			return "silver"
+		"silver", "gold", "author":
+			return "gold"
+	return "bronze"
+
+
+## Races against an opponent: a medal's ghost (TmMedalGhost: our bot's run at that medal's time),
+## your best run's, or none. Picked again from the race menu, the race starts over.
+func set_opponent(kind: String) -> void:
+	var again := not opponent.is_empty() and race != null and race.state != TmRace.State.COUNTDOWN
+	opponent = kind
+	match kind:
+		"gold", "silver", "bronze":
+			var ms: int = {"gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms}[kind]
+			best_ghost = TmMedalGhost.at_time(TmMedalGhost.bot_run(self), ms)
+		"best":
+			best_ghost = TmRecords.ghost(challenge)
+		"none":
+			best_ghost = null
+	if again:
+		restart()
+	_show_ghost()
 
 
 ## A full-screen message (no map to race), e.g. when TMNF isn't installed.
@@ -179,7 +257,7 @@ func _message(text: String) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not ready_to_race or waiting:
+	if not ready_to_race or waiting or TmLoading.covering() or menu.choosing:   # the countdown waits for the track
 		return
 	if sync_start > 0.0 and race.state == TmRace.State.COUNTDOWN:
 		# the countdown follows the server's clock: everyone starts at the round's start
@@ -199,9 +277,13 @@ func _physics_process(_delta: float) -> void:
 			car.brake = v[1]
 			car.steer = v[2]
 		if TestHooks.has_arg("record_inputs"):
+			# at the script's resolution (TMInterface's 1/65536), so that replaying it is exact
+			car.steer = roundf(car.steer * TmInputScript.FULL) / TmInputScript.FULL
 			_recorded.append([race.time_ms, car.gas, car.brake, car.steer])
 	car.step_tick()
 	var p := car.global_position
+	if TestHooks.has_arg("trace") and race.racing() and race.time_ms % 100 == 0:
+		_trace_state()
 	if race.racing():
 		run.record(race.time_ms, car.global_transform, car.model.steer, car.local_velocity().z)
 		replay.record(race.time_ms, car)
@@ -220,6 +302,26 @@ func _physics_process(_delta: float) -> void:
 		if _tail_ms >= TmReplay.TAIL_MS and new_record:
 			replay.save(TmReplay.autosave_path(challenge))   # the record's replay, its tail too
 	_prev = p
+
+
+## --trace=<file>: the car every 100 ms of the race (TMNF's ghost sample period) as JSON lines,
+## {t, pos, quat, vel, angvel, wheels: [[contact, surface, sliding] x4]}, to set beside a TMNF
+## ghost's samples (tools/research/tmnf/ghost_dump.py, ghost_compare.py). Written as it goes.
+func _trace_state() -> void:
+	if _trace == null:
+		_trace = FileAccess.open(String(TestHooks.arg("trace", "")), FileAccess.WRITE)
+		if _trace == null:
+			return
+	var xf := car.global_transform
+	var q := xf.basis.orthonormalized().get_rotation_quaternion()
+	var wheels := []
+	for i in 4:
+		wheels.append([car.body.wheel_contact[i], car.body.wheel_surface[i], car.model.sliding[i]])
+	_trace.store_line(JSON.stringify({"t": race.time_ms, "pos": [xf.origin.x, xf.origin.y, xf.origin.z],
+		"quat": [q.x, q.y, q.z, q.w], "vel": [car.lin_vel.x, car.lin_vel.y, car.lin_vel.z],
+		"angvel": [car.ang_vel.x, car.ang_vel.y, car.ang_vel.z], "wheels": wheels,
+		"gas": car.gas, "brake": car.brake, "steer": car.steer}))
+	_trace.flush()
 
 
 ## The best run's ghost at the race clock: at its start through the countdown, gone a moment
@@ -270,14 +372,20 @@ func _on_finished(time_ms: int) -> void:
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
 		"validated": _validated_ms == time_ms}
 	_result = result
-	audio.cue("record" if new_record else "finish")
+	# the crowd cheers by medal, as TMNF's: big for gold and author, smaller for silver and bronze
+	var medal := TmRace.medal(time_ms, challenge)
+	if medal in ["author", "gold"]:
+		audio.cue("cheer_big")
+	elif medal in ["silver", "bronze"]:
+		audio.cue("cheer")
 	if not online and Master.logged_in() and not TestHooks.has_arg("records"):
 		Master.submit_record(challenge.uid, time_ms)     # the online records (a server's finishes go through the server)
 	if online:
 		online.on_finish(time_ms)
 	if new_record:
 		best = TmRecords.best(challenge)
-		best_ghost = run if TmUi.setting("ghost") else null
+		if opponent in ["", "best"]:      # a medal opponent stays
+			best_ghost = run if TmUi.setting("ghost") or opponent == "best" else null
 		hud.best = best
 	var this_run := run
 	get_tree().create_timer(TmRaceHud.FINISH_FLASH).timeout.connect(func() -> void:
@@ -297,6 +405,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			respawn()
 		KEY_BACKSPACE, KEY_DELETE:
 			restart()
+		KEY_1, KEY_2, KEY_3:            # TMNF's views: close behind, far behind, the cockpit
+			cam.view = (event as InputEventKey).keycode - KEY_1
 		KEY_ESCAPE:
 			menu.toggle_pause()
 
@@ -332,7 +442,8 @@ func load_track(track: String) -> void:
 
 func _next_track() -> void:
 	TestHooks.args["track"] = next_id
-	get_tree().reload_current_scene()
+	if get_tree().current_scene == self:
+		TmLoading.change_scene(get_tree(), "res://race/race.tscn")
 
 
 ## Testing a track from the editor (--back=editor with an .sftrack map).
@@ -374,7 +485,7 @@ func watch_replay() -> void:
 		r["saved"] = menu.replay_saved()
 		TestHooks.args["finish_result"] = JSON.stringify(r)
 	if get_tree().current_scene == self:
-		get_tree().change_scene_to_file("res://race/replay.tscn")
+		TmLoading.change_scene(get_tree(), "res://race/replay.tscn")
 
 
 ## Back from watching the run (watch_replay): the car past the line, the finish menu as it was
@@ -428,6 +539,7 @@ func restart(force := false) -> void:
 		return
 	menu.hide_all()
 	race.restart()
+	marks.clear()
 	run = TmGhost.new()
 	replay = TmReplay.start(challenge, track_id, String(TestHooks.arg("map", "")), race.laps, race.checkpoint_count)
 	new_record = false

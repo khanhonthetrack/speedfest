@@ -11,9 +11,9 @@ const RoadShapes := preload("res://blocks/shapes/road.gd")
 const S_GRASS := 2
 const S_DIRT := 6
 const S_ROAD := 16
-## Survey cell class -> [material, surface id]: grass, dirt, and the asphalt where a piece meets
-## Road/Main.
-const CLASSES := {"g": ["grass", S_GRASS], "d": ["dirt", S_DIRT], "r": ["asphalt", S_ROAD]}
+## Survey cell class -> [material, surface id]: grass, dirt (the track, its berms loose dirt: the
+## material blends by slope) and the asphalt where a piece meets Road/Main.
+const CLASSES := {"g": ["grass", S_GRASS], "d": ["dirt_road", S_DIRT], "r": ["asphalt", S_ROAD]}
 const PATH := "res://blocks/data/dirt_heights.json"
 const QUAD := 1.0               ## render/collision quad size (m)
 ## Checkpoints: the terrain they stand on, and how far the Road/Main gate is raised for them.

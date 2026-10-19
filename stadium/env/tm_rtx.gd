@@ -11,6 +11,7 @@ extends RefCounted
 const DLSS_NAMES := ["Off", "DLAA", "Quality", "Balanced", "Performance"]
 const DLSS_SCALES := [1.0, 1.0, 0.67, 0.58, 0.5]
 const QUALITY_NAMES := ["Low", "High", "Ultra"]
+const MEMBRANE := 0.35                  ## the fabric roofs' glow under Ultra (tm_membrane)
 
 
 static func is_fork() -> bool:
@@ -103,6 +104,9 @@ static func apply_viewport(vp: Viewport) -> void:
 ## The environment's effects for the quality preset, and path tracing on the fork.
 static func apply_environment(env: Environment, sun: DirectionalLight3D) -> void:
 	var q := clampi(int(TmUi.setting("quality")), 0, 2)
+	# SDFGI lights the fabric roofs' undersides only by what bounces off the grass: add the
+	# sunlight that comes through the membrane (TmMaterials.TRANSLUCENT)
+	RenderingServer.global_shader_parameter_set(&"tm_membrane", MEMBRANE if q == 2 else 0.0)
 	if q == 0:
 		env.ssao_enabled = false
 		env.glow_enabled = false

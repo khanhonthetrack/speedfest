@@ -163,17 +163,22 @@ Owner's words and answers in TRANSCRIPT (session 13). Branch `claude/tmnf-replic
 (started from `stadium`; only `stadium/`, `docs/`, `tools/research/`). Rule unchanged: TMNF is
 measured locally, our own assets are built to match it, no Nadeo file is committed or shipped.
 Work sequentially, push after every step. Research notes go to `docs/research/m9_*.md`.
-- [ ] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
+- [x] 0. Research (numbers and descriptions only): TMNF's look (materials, gates, adverts, stadium,
       light), menus (screens, flow, layout), online (accounts, ladder, server modes, browser, votes,
       chat), sound (engine layers, gears, cues), campaign style (A-E statistics: lengths, times,
-      checkpoints, block families per series)
+      checkpoints, block families per series). Done: docs/research/m9_look.md, m9_menus.md,
+      m9_online.md, m9_sound.md, m9_campaign.md
 - [x] 1. Car model: wheels that hold together (tyre, rim seated in the bead, hub, brake), TMNF's
       body from the measured visual mesh proportions, the driver, PBR paint/carbon/rubber
-- [ ] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
+- [x] 2. Graphics: road/platform/dirt/grass surfaces, start/checkpoint/finish gates, billboards and
       adverts (our own brand art), the stadium (stands with crowd, roof, floodlights), light (TMNF's
       day mood with modern GI/SSR/AO), RTX/Ultra preset; side-by-side checks against local
-      reference renders. First pass done (road, gates, adverts, fabric, stadium); open: platform,
-      dirt, circuit, tube, control and airship families, light and atmosphere, RTX preset
+      reference renders. First pass done (road, gates, adverts, fabric, stadium); second pass
+      (PROGRESS "M9-2: the decks, walls and dirt roads"): platform and circuit decks, platform
+      walls, circuit walls, dirt roads, control booths, grandstand trusses and boards; Ultra's
+      roofs lit (membrane glow); raised grandstands at raised gates. Polish for later: more
+      dressing for the raised tracks (TMNF: control rows at deck height, inflatable towers), grass
+      tufts along the dirt roads, SDFGI tuned on a real GPU
 - [x] 3. Engine and sounds: TMNF's engine behaviour (rpm, gears, layers), skid, turbo, impacts, cues
 - [x] 4. Menus: TMNF's structure and flow (Solo / Online / Editors / Profile / Options / Quit,
       campaign A-E tabs with medals), in-race menus. Done (PROGRESS 18 Oct); the EDITORS entry
@@ -195,6 +200,38 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
       `.Challenge.Gbx` files still open). Done (PROGRESS 18 Oct, docs/research/m9_campaign.md):
       the builder lays TMNF's circuit, platform and dirt (race/tm_track_areas.gd) and lap races;
       every track driven by the bot, medals from its best run
+
+### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
+Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
+- [x] 1. Keep the circuit walls' screens dark (TMNF's StadiumCircuitScreen); the wall foot's blue
+      kerb, logo bumper and blue trim (owner's side-by-side remark)
+- [x] 2. Tyre marks when drifting or braking hard, like TMNF's (`race/tm_tyre_marks.gd`): rubber
+      on the road and decks, grooves in dirt, torn turf on grass, smoke/dust puffs; in races and
+      replays (replays record which wheels slide); `tests/test_tyre_marks`
+- [x] 3. Physics off asphalt (grass, dirt, ...) against TMNF's own runs (the campaign replays'
+      ghosts: `tools/research/tmnf/ghost_dump.py`, `race/ghost_fit.tscn`): the surface table's
+      columns were misread (grip = 1, drive = 2, brakes = 3); fixed, tmnf_physics.md §3.10
+- [x] 4. Jump physics against TMNF (air phases, landings): flight identical, take-offs agree,
+      landings agree in the median; open: TMNF's wheelie after nose-down landings (§3.7b)
+- [x] 5. Look, UI, menus and sound identical to TMNF, compared side by side with screenshots
+      (TMNF under Wine locally, an offline profile; nothing of it in the repo):
+  - [x] race HUD and countdown (seven-segment clock and speed pills, -2.60 s start, 3-2-1-Go)
+  - [x] race menu and finish card (TMNF's dialogs: dark glass, green title bar, white pills)
+  - [x] menus (globe, icon-row column with header card, green-titled panels, campaign grid)
+  - [x] loading screen (keyboard with the race keys) and the three camera views
+  - [x] cues (beeps, crowd at Go and at a medal, swoosh, crash, landing, menu blip/tock, wind)
+  - [x] Select Opponent with medal ghosts (the bot's run slowed to each medal's time)
+  - [x] pictures of our tracks on the campaign cards (`tools/icons/thumbs.sh`)
+  - [x] the race menu's Select Opponents (as TMNF's)
+- [x] 6. (owner, after M10-5) TMNF's top bar: volumes, display, clock, window; up in the menus, sliding
+      down at the top edge in races and replays (`ui/tm_top_bar.gd`)
+- [x] 7. (owner) The parallel session's physics find (1e91708: TMNF's `AddVehicleImpulse` turns the
+      car at 0.55 of a contact's r x j, spin capped at 100 rad/s) put in (`core/tm_body.gd`), and
+      M10 merged into `stadium` for **`stadium-v0.5`**
+  - Owner decisions open: TMNF's padlocks on later campaign tracks (changes play); the engine's
+    layers' pitch curves (reading TMNF's engine sound definition was blocked by the session's
+    safety check); the rest of TMNF's wheelie after nose-down landings (M10-4: halfway there with
+    the 0.55; on flat ground ours now lifts its nose more than TMNF's).
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

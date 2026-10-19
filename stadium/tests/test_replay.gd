@@ -111,7 +111,7 @@ func _ready() -> void:
 		if not b.is_queued_for_deletion():
 			texts.append((b as Button).text)
 	TestHooks.check(again.race.state == TmRace.State.FINISHED and again.race.finish_ms == fin and again.replay.count() == rp.count()
-		and texts.has("SAVED") and texts.has("REPLAY") and not TestHooks.has_arg("finish_result"), "replay_back_to_the_finish",
+		and texts.has("Saved") and texts.has("Replay") and not TestHooks.has_arg("finish_result"), "replay_back_to_the_finish",
 		"%s, %d ms, %s" % [again.race.state, again.race.finish_ms, str(texts)])
 	again.queue_free()
 	await get_tree().physics_frame
@@ -245,7 +245,7 @@ func _menu(path: String) -> void:
 	(menu.replay_rows[other] as Button).focus_entered.emit()
 	var del: Button = menu._del_btn
 	del.pressed.emit()
-	TestHooks.check(menu.replay_selected == path and del.text.begins_with("DELETE ") and del.text.ends_with("?")
+	TestHooks.check(menu.replay_selected == path and del.text.begins_with("Delete ") and del.text.ends_with("?")
 		and FileAccess.file_exists(path), "replay_menu_delete_asks", "%s %s" % [menu.replay_selected, del.text])
 	del.pressed.emit()
 	await get_tree().process_frame

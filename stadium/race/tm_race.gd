@@ -14,7 +14,13 @@ signal finished(time_ms: int)
 enum State { COUNTDOWN, RACING, FINISHED }
 
 const TICK_MS := 10
-const COUNTDOWN_MS := 1500
+## TMNF's start (measured from its own runs, M10-5): after a (re)start the clock shows -2.60 s;
+## the figures 3, 2, 1 and Go! come every 0.75 s from -2.0 s, each shown 0.65 s.
+const COUNTDOWN_MS := 2600
+const FIGURES := ["3", "2", "1", "go"]
+const FIGURE_FROM_MS := -2000
+const FIGURE_STEP_MS := 750
+const FIGURE_SHOW_MS := 650
 
 var state := State.COUNTDOWN
 var countdown_ms := COUNTDOWN_MS    ## left before the start
@@ -112,6 +118,20 @@ static func medal(ms: int, ch: TmChallenge) -> String:
 
 
 ## A race time as TMNF shows it: m:ss.cc
+## The countdown figure showing at race time t_ms (negative before the start): "3", "2", "1",
+## "go" or "".
+static func figure_at(t_ms: int) -> String:
+	var k := floori(float(t_ms - FIGURE_FROM_MS) / FIGURE_STEP_MS)
+	if k < 0 or k >= FIGURES.size():
+		return ""
+	return FIGURES[k] if t_ms - FIGURE_FROM_MS - k * FIGURE_STEP_MS < FIGURE_SHOW_MS else ""
+
+
+## The clock: the race time, or before the start how long is left as a negative time (as TMNF's).
+func clock_ms() -> int:
+	return -countdown_ms if state == State.COUNTDOWN else time_ms
+
+
 static func time_text(ms: int) -> String:
 	if ms < 0:
 		return "-:--.--"

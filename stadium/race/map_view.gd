@@ -105,14 +105,15 @@ func _camera() -> void:
 		cam.global_position = c + dir * dist + b.y * dist * 0.28
 		cam.look_at(c, b.y)
 	elif view.begins_with("gate:"):
-		# gate:<block id>[:index[:dist[:height[:side]]]]: on the road in front of that block's gate
-		# (block-local TMNF z 16, or `gz`), dist m before it, looking at it
+		# gate:<block id>[:index[:dist[:height[:side[:look_y]]]]]: on the road in front of that block's
+		# gate (block-local TMNF z 16, or `gz`), dist m before it, looking at it (at 4.5 m, or look_y)
 		var parts := view.split(":")
 		var want := parts[1]
 		var idx := int(parts[2]) if parts.size() > 2 else 0
 		var dist := float(parts[3]) if parts.size() > 3 else 18.0
 		var hgt := float(parts[4]) if parts.size() > 4 else 2.5
 		var side := float(parts[5]) if parts.size() > 5 else 0.0
+		var look_y := float(parts[6]) if parts.size() > 6 else 4.5
 		var gz := float(TestHooks.arg("gz", 16.0))
 		for n in builder.root.get_node("Blocks").get_children():
 			if String(n.get_meta("block", "")) == want:
@@ -121,7 +122,7 @@ func _camera() -> void:
 					continue
 				var xf := (n as Node3D).global_transform
 				cam.global_position = xf * Vector3(-16.0 - side, hgt, gz - dist)
-				cam.look_at(xf * Vector3(-16.0, 4.5, gz), xf.basis.y)
+				cam.look_at(xf * Vector3(-16.0, look_y, gz), xf.basis.y)
 				break
 	elif view.begins_with("rel:") and builder.has_start:
 		# rel:x,y,z,tx,ty,tz: camera and target in the start's frame (x left, y up, z ahead, m)

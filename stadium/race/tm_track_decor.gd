@@ -15,6 +15,9 @@ const ROWS := ["StadiumControlRoadGlass", "StadiumControlRoadPub", "StadiumContr
 const STANDS := "StadiumFabricStraight1x1"
 const GATES := ["StadiumRoadMainStartLine", "StadiumRoadMainStartFinishLine", "StadiumRoadMainFinishLine"]
 const STANDS_SPAN := [-1, 2]     ## the grandstands run from a cell behind the gate to two past it
+## Raised gates get raised grandstands as TMNF builds them (A07): the stand on a stack of fabric
+## pillars (the ground piece, then pieces three levels tall), so its level is G + 1 + 3k.
+const STAND_PILLAR := "StadiumFabricPillarAir"
 const WALL := "StadiumInflatablePillar"
 const BILLBOARD := "StadiumInflatableAdvert"
 const INFLATABLES := ["StadiumInflatablePalmTree", "StadiumInflatableCactus", "StadiumInflatableSnowTree"]
@@ -97,15 +100,17 @@ static func _facing(v: Vector2i) -> int:
 
 ## TMNF's white wave grandstands by the start and the finish: on each side of the gate a row of
 ## Fabric stands two cells out, facing the road, their roof arching over the cell between (48 m
-## up), from a cell behind the gate to two past it, where the cells are clear.
+## up), from a cell behind the gate to two past it, where the cells are clear. A gate two or more
+## levels up gets them raised on fabric pillars, their seats at the pillar step nearest the road.
 static func _stands(b: TmTrackBuilder, road: Dictionary) -> void:
 	var entry := TmBlockCatalogue.info(STANDS)
 	if entry.is_empty():
 		return
 	for blk: Dictionary in b.blocks.duplicate():
-		if String(blk["name"]) not in GATES or not bool(blk["ground"]):
-			continue
 		var c: Vector3i = blk["coord"]
+		if String(blk["name"]) not in GATES or (not bool(blk["ground"]) and c.y < G + 2):
+			continue
+		var steps := maxi(0, roundi(float(c.y - G - 2) / 3.0)) if c.y > G else -1
 		var along := Vector2i(0, 1) if int(blk["dir"]) % 2 == 0 else Vector2i(1, 0)
 		for s: int in [1, -1]:
 			var out := Vector2i(along.y, along.x) * s
@@ -118,8 +123,47 @@ static func _stands(b: TmTrackBuilder, road: Dictionary) -> void:
 					stand_unit = u[0]
 			for k in range(STANDS_SPAN[0], STANDS_SPAN[1] + 1):
 				var cell := Vector2i(c.x, c.z) + along * k + out * 2
-				if _clear(road, cell, 1):
+				if not _clear(road, cell, 1):
+					continue
+				if steps < 0:
 					_try(b, road, STANDS, Vector3i(cell.x, G, cell.y) - Vector3i(stand_unit.x, 0, stand_unit.z), d)
+					continue
+				var level := G + 1 + 3 * steps
+				var parts := [[STAND_PILLAR, Vector3i(cell.x, G, cell.y), true]]
+				for j in steps:
+					parts.append([STAND_PILLAR, Vector3i(cell.x, G + 1 + 3 * j, cell.y), false])
+				parts.append([STANDS, Vector3i(cell.x, level, cell.y) - Vector3i(stand_unit.x, 0, stand_unit.z), false])
+				_try_all(b, road, parts, d)
+
+
+## Places every [id, at, ground] of `parts` (turned by d) if all of them fit, else none: each on
+## the map, free and off the track's columns (as _try). Ground parts are one-unit blocks (their
+## ground variant: TmTrackBuilder._rotated_units gives the raised one's units).
+static func _try_all(b: TmTrackBuilder, road: Dictionary, parts: Array, d: int) -> bool:
+	var cells := []
+	var taken := {}
+	for pt: Array in parts:
+		var entry := TmBlockCatalogue.info(String(pt[0]))
+		if entry.is_empty():
+			return false
+		var own := []
+		var units := [[Vector3i.ZERO]] if bool(pt[2]) else TmTrackBuilder._rotated_units(entry, d)
+		for u: Array in units:
+			var w: Vector3i = (pt[1] as Vector3i) + (u[0] as Vector3i)
+			if w.x < 0 or w.z < 0 or w.x >= TmTrackBuilder.MAP or w.z >= TmTrackBuilder.MAP or b._occupied.has(w) \
+					or taken.has(w) or road.has(Vector2i(w.x, w.z)):
+				return false
+			taken[w] = true
+			own.append(w)
+		cells.append(own)
+	for i in parts.size():
+		var pt: Array = parts[i]
+		for w: Vector3i in cells[i]:
+			b._occupied[w] = String(pt[0])
+		var g: bool = pt[2]
+		b.blocks.append({"name": String(pt[0]), "dir": d, "coord": pt[1], "flags": TmTrackBuilder.GROUND_FLAG if g else 0,
+			"ground": g})
+	return true
 
 
 ## By each checkpoint on the ground, on both sides a cell out: a camera booth with its screens

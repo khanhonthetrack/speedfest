@@ -127,7 +127,9 @@ func _loop(kmh: float, must_finish: bool) -> void:
 
 
 func _pipe() -> void:
-	# 25 deg into the quarter pipe at 220 km/h: rides up the curve and stays on its wheels
+	# 25 deg into the quarter pipe at 220 km/h: rides up the curve and stays on its wheels (since
+	# contacts turn the car at TMNF's 0.55 of r x j it bounces along the pipe: all four wheels
+	# touch again in the last second, not at every tick)
 	car.place(Transform3D(Basis(Vector3.UP, deg_to_rad(-25.0)), Vector3(TestArena.PIPE_X + 30.0, 0, -150.0)))
 	for i in 20:
 		car.step_tick()
@@ -135,16 +137,19 @@ func _pipe() -> void:
 	var t := 0.0
 	var top := 0.0
 	var body := false
+	var on4_late := 0
 	car.gas = 1.0
 	while t < 5.0:
 		car.step_tick()
 		t += 0.01
 		top = maxf(top, car.global_position.y)
 		body = body or car.body_contact
+		if t > 4.0 and car.wheel_contact.count(true) == 4:
+			on4_late += 1
 	car.gas = 0.0
 	var tilt := rad_to_deg(acos(clampf(car.global_transform.basis.y.y, -1.0, 1.0)))
-	print("LAB pipe 220 km/h 25 deg: top %.1f m, body hit %s, end tilt %.0f deg, wheels %s, end speed %.0f km/h, x %.1f" % [
-		top, body, tilt, str(car.wheel_contact), car.speed_kmh(), car.global_position.x])
+	print("LAB pipe 220 km/h 25 deg: top %.1f m, body hit %s, end tilt %.0f deg, wheels %s, on 4 wheels %d of the last 100 ticks, end speed %.0f km/h, x %.1f" % [
+		top, body, tilt, str(car.wheel_contact), on4_late, car.speed_kmh(), car.global_position.x])
 	_check("pipe_rides_up", top, 3.0, 40.0, " m")
 	TestHooks.check(not body, "pipe_no_body_hit", "the chassis hit the pipe")
-	_check("pipe_on_wheels_at_end", car.wheel_contact.count(true), 4, 4)
+	_check("pipe_on_wheels_at_end", on4_late, 1, 100, " ticks of the last 100 on 4 wheels")

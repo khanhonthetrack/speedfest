@@ -22,6 +22,7 @@ const F_SLIDING := 32
 const F_WALL := 64                ## hit a wall since the last sample
 const F_TURBO := 128              ## a turbo started since the last sample (not one a pad keeps going)
 const F_CUT := 256                ## a respawn: don't blend into this sample
+const F_SLIDE0 := 512             ## bits 9-12: each wheel sliding (its tyre marks); older replays lack them
 
 var samples := PackedFloat32Array()
 var finish_ms := -1               ## the run's time; -1 if it didn't finish
@@ -94,6 +95,9 @@ func record(t_ms: int, car: TmCar) -> void:
 		flags |= F_GROUNDED
 	if m.any_sliding:
 		flags |= F_SLIDING
+	for i in 4:
+		if m.sliding[i]:
+			flags |= F_SLIDE0 << i
 	_events = 0
 	var v := car.lin_vel
 	samples.append_array(PackedFloat32Array([xf.origin.x, xf.origin.y, xf.origin.z, q.x, q.y, q.z, q.w, v.x, v.y, v.z,
@@ -117,7 +121,8 @@ func flags_at(i: int) -> int:
 
 
 ## The car at race time t_ms, between the samples around it: {xform, vel, steer, gas, brake,
-## susp (4), contact (4 bools), grounded, sliding, index (the sample at or before t)}; {} if empty.
+## susp (4), contact (4 bools), grounded, sliding, slide (4 bools: each wheel), index (the sample at
+## or before t)}; {} if empty.
 func state(t_ms: float) -> Dictionary:
 	var n := count()
 	if n == 0:
@@ -140,11 +145,15 @@ func state(t_ms: float) -> Dictionary:
 		susp.append(lerpf(s[a + 13 + k], s[b + 13 + k], u))
 	var fl := int(s[a + 17]) if u < 0.5 else int(s[b + 17])
 	var contact: Array[bool] = []
+	var slide: Array[bool] = []
+	var per_wheel := fl & (0xF * F_SLIDE0) != 0
 	for k in 4:
 		contact.append(fl & (1 << k) != 0)
+		# an older replay only says some wheel slid: the ones on the ground
+		slide.append(fl & (F_SLIDE0 << k) != 0 if per_wheel else (fl & F_SLIDING != 0 and contact[k]))
 	return {"xform": Transform3D(Basis(qa.slerp(qb, u)), pos), "vel": vel, "steer": lerpf(s[a + 10], s[b + 10], u),
 		"gas": lerpf(s[a + 11], s[b + 11], u), "brake": lerpf(s[a + 12], s[b + 12], u), "susp": susp, "contact": contact,
-		"grounded": fl & F_GROUNDED != 0, "sliding": fl & F_SLIDING != 0, "index": i}
+		"grounded": fl & F_GROUNDED != 0, "sliding": fl & F_SLIDING != 0, "slide": slide, "index": i}
 
 
 ## The run as a ghost (TmGhost: pose, steering and speed), e.g. to race against it.

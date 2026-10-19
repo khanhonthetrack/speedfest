@@ -2017,3 +2017,297 @@ done for each) is checked against the code finding by finding, fixed, tested and
   `stadium/server/data/`); the new quick-tunnel address is in `official.json` (b150220). Checked
   through the tunnel: `GET /`, `/api/servers`, and a spectator's `hello` on `wss://.../ws/main`
   answered with `welcome`.
+
+## 2026-10-18 — Session 13 (M9-2): the decks, walls and dirt roads in TMNF's look
+What the campaign shows most, compared side by side with TMNF's own meshes and textures at the
+same camera (`map_view --ref=<local dir>`, research only, nothing of it committed):
+- **The reference renders were wrong until now**: TMNF keeps a normal map's x in the alpha
+  channel (red is empty), so every reference surface leaned along -x and its brightness was off
+  (the decks looked 40% brighter than ours). `blocks/tm_ref_visuals.gd` moves alpha into red;
+  with that, TMNF's deck and ours render alike (127 vs 115 in the same light).
+- **Decks** (platform and circuit, key "platform"): our own `platform_plate` (one texture per
+  32 m block, world-mapped so its edge is the block's seam; light steel with smears and skid
+  marks along x, no more 4 m tile grid) and a **detail map**, `tread_plate` (diamond tread, 1 m),
+  through a new detail layer in `blocks/tm_textured.gdshader` (`TmMaterials.DETAIL`).
+- **Platform walls** (`Platform/Wall/*`, the builder's wall borders): dark charcoal concrete panels
+  (`platform_wall`, joints every 8 m and halfway up), as TMNF's, instead of light cladding.
+- **Circuit walls**, mapped from where TMNF puts each material on the section: outside, a black
+  rubber foot, a light band, a blue band with our name (`circuit_band`), plain white cladding
+  (`circuit_panel`), a blue top lip (`circuit_trim`); lane side, the dark blue floor strip
+  (`circuit_floor`), a black bumper, the screen, dark steel truss (`steel_truss`). The red rubber
+  and the gridded white panels are gone.
+- **Dirt roads**: a packed track lighter than the berms, combed by tyres along the road
+  (`dirt_road`, UV-mapped along the piece), blending into the loose dirt (darker now, TMNF's
+  tone) on the berms and slopes: `blocks/tm_dirt.gdshader`, key "dirt_road" (`blocks/shapes/dirt.gd`).
+- Textures: `stadium/tools/texgen/decks.py` (new) and `surfaces.py` (dirt road; the old
+  `platform_panels` removed).
+- Next in M9-2: fences and signs along the dirt roads, tube pillars, decoration for the area
+  tracks, light and atmosphere, the RTX preset. Open question for the owner: TMNF's circuit
+  screens are dark; ours show the adverts.
+- (same day, next step) **Control booths** (`blocks/shapes/control.gd`): TMNF's materials there
+  are a dark steel roof (its dark truss texture), white sides and smoked windows; ours had blue
+  seats on the roof and pale blue glass. Now "truss" on top, "control_panel" white sides,
+  "glass_dark" windows and light-rig tops. **Grandstand trusses** (`blocks/shapes/fabric.gd`,
+  TRUSS): the arches TMNF hangs under the roof (measured: light ones 1.45 m deep at z 0.3,
+  12.5, 19.5, 31.7; the main one at z 16, 5 m deep at the foot to 4.4 m at the top) as real
+  geometry following the underside (white chords, dark lattice, visual only); the underside's
+  ribs now every 16 m to meet them. `map_view --view=gate:...:look_y` looks up (under a roof:
+  `gate:StadiumFabricStraight1x1:0:20:3:14:30 --gz=30` on A03). Both new shaders render on the
+  web renderer (Compatibility) too. **Boards** (`BOARDS`, measured): two advert screens hung on
+  cables from the main truss facing the field (turned 3 deg steeper than TMNF's so the screen
+  shader shows adverts on them) and one on the back of the roof's foot.
+- (same day) **Ultra (SDFGI) left the roofs black underneath**: with SDFGI on, a fabric roof's
+  underside gets only the light that bounces off the dark grass (doubling SDFGI's energy or its
+  bounce barely changed it; the baked sky occlusion and more frames neither). Real membrane roofs
+  let 10-15% of the sun through, and TMNF's lightmaps show them light: a membrane glow on
+  surfaces facing down, for the fabric keys (`TmMaterials.TRANSLUCENT`: grandstand roofs, the
+  stadium's roofs), through a global shader parameter `tm_membrane` (env/tm_occlusion.gdshaderinc)
+  that `TmRtx` sets to 0.35 on Ultra and 0 otherwise. High is unchanged (checked side by side).
+- (same day) **Grandstands at raised gates** (`race/tm_track_decor.gd` `_stands`): the platform and
+  circuit tracks start and finish up to 14 levels up, and the decoration put stands only by gates
+  on the ground, so those tracks had none (a probe of all 65: no stands, booths or rows on any
+  area track). TMNF's A07 shows how it dresses a raised track: the raised stand
+  (FabricStraight1x1's air variant) on a stack of fabric pillars, the ground piece and then pieces
+  three levels tall. Raised gates now get that, the stand at the pillar step nearest the road's
+  height, both sides, placed all or nothing (`_try_all`); area tracks now have 6-16 stand blocks
+  (C14: no room).
+- (same day) **M9-0's research notes**: `docs/research/m9_look.md` (TMNF's materials per block
+  family with the measured colours and heights, how its maps are laid out, the Day light, how to
+  compare locally), `m9_sound.md` (the gear model and the engine's six layers), `m9_menus.md`
+  (look, structure, in-race). With `m9_online.md` and `m9_campaign.md` the research step is done;
+  PLAN M9-0 and M9-2 checked (M9-2's polish listed there): **M9 is complete.**
+
+## 2026-10-18 — Session 13 (M10): the owner's five requests after M9
+Owner (TRANSCRIPT): keep the circuit screens dark; tyre marks when drifting or braking hard like
+TMNF's; the physics off asphalt and in jumps against TMNF; the look, UI, menus and sound identical
+to TMNF, compared side by side with screenshots. Worked in that order.
+- **M10-1 dark circuit screens**: the circuit walls' lane-side screens are "screen_dark" (glossy
+  black, off), as TMNF's StadiumCircuitScreen; the adverts stay on the boards and other screens.
+- **Circuit wall foot** (owner: "on the right there is a blue line/blue kerbs, on the left just a
+  dark tile"): from TMNF's material placement, the lane-level strip along the wall is its bright
+  blue border texture, the rubber above it black with small logos and a grey line, a thin blue line
+  under the light cap at the top. Ours now: `circuit_kerb` (blue painted plate, fine grooves, a
+  joint plate every 16 m, world-mapped), `circuit_bumper` (black rubber, grey edge lines,
+  SPEEDFEST every 16 m) and the blue trim on the lane side's top edge; checked side by side.
+- **M10-2 tyre marks** (owner: "When you drift or brake hard, i want to see scratchmarks like in
+  TMNF"): `race/tm_tyre_marks.gd` (TmTyreMarks). While a wheel slides on the ground (a drift, or
+  the wheels locked by hard braking: `TmCarModel.sliding`) and moves over it faster than 3 m/s, it
+  lays a mark one tyre wide (0.3 m) behind it, a segment every 0.4 m joined end to end, of its
+  surface's kind: black rubber on the road, decks and concrete, grooves in dirt and dirt roads,
+  torn turf on grass and snow, none on ice or water. Each kind is one MultiMesh of quads with a
+  ring of 3000 (rubber) / 1500 segments (the oldest quarter fades out as it is reused;
+  `race/tm_tyre_marks.gdshader`, textures from `stadium/tools/texgen/marks.py`). Light grey smoke
+  puffs off sliding wheels on the road, dust on dirt, bits of grass on grass. The marks stay for
+  the run and clear on a restart. Replays lay them too: a sample now records which wheels slide
+  (`TmReplay.F_SLIDE0`, bits 9-12; older replays fall back to "the wheels on the ground slid"),
+  the viewer finds the surface under each wheel (`TmBody.surface_under`) and clears them on a
+  seek. `tests/test_tyre_marks` (in the gate, 12 checks): kinds by surface, none while gripping
+  or in the air, laid while sliding, segments join, none across a respawn, the ring reuses the
+  oldest, clear; on SF01 the bot lays none pulling away, some by the finish, none after a
+  restart. Checked in renders: a hard brake into a turn leaves two curving black streaks.
+  Also `race.tscn --trace=<file>`: the car's state every 100 ms as JSON lines (for M10-3).
+- **M10-3 the physics off asphalt** (owner: "Revisit the physics on grass or dirt or anything else
+  than asphalt, it feels a bit different than TMNF"): measured against TMNF's own runs. Every
+  campaign replay holds four ghosts, TMNF's simulation sampled every 100 ms with each wheel's
+  surface and sliding flag, and the run's inputs: `tools/research/tmnf/ghost_dump.py` reads them
+  (record chunk 0x0303F005, inputs 0x03092019), `accel_curve.py` / `lateral_grip.py` /
+  `air_check.py` measure TMNF's accelerations by surface and speed, and `stadium/race/ghost_fit.tscn`
+  puts our car in a ghost's state and drives it 0.5 s with the run's own inputs (README of the
+  toolkit, "TMNF's own runs"). Found on the way: **our world is TMNF's mirror image** (x negated):
+  A01's author run drives our car along TMNF's line only with left and right swapped (0.5 m apart
+  after 2 s). On asphalt the model agrees to centimetres (0.16 m, 0.2 km/h median after 0.5 s).
+  **Grass and dirt were wrong: the surface table's columns were misread.** TMNF accelerates on
+  grass at exactly 0.4x asphalt's curve at every step and brakes at 30 x 0.05, on dirt 0.9x and
+  0.4x: column 2 is the drive, column 3 the brakes; started from ghost states, our car follows
+  TMNF best with column 1 as the grip (grass 1.08 -> 0.24 m apart, 3.4 -> 0.7 km/h; dirt 1.47 ->
+  0.44 m, 12.7 -> 1.9 km/h; the other readings tried are in `docs/research/tmnf_physics.md`
+  §3.10). So on grass the car now keeps 40% of its drive (was 15%) and 15% of its grip (was 5%)
+  and barely brakes (5%, was 40%); dirt drives at 90% (was 25%) with 25% grip (was 40%) and 40%
+  brakes (was 90%). `TmTuning.SURFACES` keeps the file's order, read through `S_TOP`, `S_GRIP`,
+  `S_ACCEL`, `S_BRAKE`. `test_model_lab`: grass 0-100 in 4.35 s, dirt 1.93 s, braking on grass at
+  220 km/h 20.8 m/s^2 (TMNF 20.7), ice drives slowly. Also: a ghost records the car's model
+  origin, not its centre of mass (the recorded positions move like a point 0.29-0.40 m behind
+  the recorded velocities' in turns; StadiumCar.Solid puts the centre of mass 0.4385 above and
+  0.288 ahead of the origin): with that offset the asphalt fit tightens to 0.10 m.
+- (same day) **Tyre smoke fix**: freshly emitted puffs drew as black blobs in Forward+ (an
+  alpha-blended CPUParticles3D in index draw order; probe: plain colour or opaque drew fine, depth
+  order fixed it): puffs are now drawn back to front, light grey on the road, tan dust on dirt,
+  green bits on grass, on both renderers; and they grow as meant (a Curve's range is 0..1 unless
+  widened first: the growth to 2.6x was clamped to 1). `ghost_fit`: the start velocity now comes
+  from the neighbouring positions (a ghost stores velocities with 8-bit direction angles, up to
+  ~0.7 m/s off; in pure flight that alone made 0.38 m of the 0.5 s error, now 0.02 m), and
+  `--trace_at=<t>` prints our car tick by tick through one window.
+- **M10-4 jumps against TMNF** (owner: "Revisit jump physics whether it's the same as in TMNF"):
+  measured, model unchanged. Flight is identical (0.01-0.02 m apart after 0.5 s in the air, gravity,
+  drag and spin decay checked separately over every campaign ghost: `air_check.py`); take-offs agree;
+  landings agree in the median with scatter both ways. The one visible difference: TMNF's car pops
+  onto its rear wheels after a nose-down landing (12-20 deg nose-up for 0.3-0.5 s) and sometimes
+  loses 4-15 km/h; ours lands flatter and keeps its speed. Contact-stiffness variants did not
+  reproduce it (`docs/research/tmnf_physics.md` §3.7b, numbers there); the mechanism is in TMNF's
+  wheel contact code, not read this session (reading the decompiled code was blocked by the
+  session's safety check; asked the owner). Tools: `ghost_fit` groups landings/take-offs, counts
+  wheelie time, `--trace_at` prints pitch and spin per tick.
+- **M10-5 started: TMNF itself as the reference.** TMNF runs here under Wine (9.0, 32-bit prefix
+  outside the repo, an offline local profile; its network shut off with `unshare -n`, so no
+  account is created anywhere; shader quality PC2, Wine's own shader compiler can't build PC3's).
+  Reference screenshots of its menus (globe, the left column of icon rows, green title bars, the
+  campaign's grid of thumbnails), loading screen, opponent picker, race HUD, countdown and race
+  menu, and video of its countdown, all local only.
+- **In-race HUD as TMNF's** (`race/tm_race_hud.gd`): the clock in TMNF's seven-segment digits in a
+  pill on the bottom edge (a blue tint growing toward the bottom; negative before the start, as
+  TMNF's: -0:02.60), the speed with the distance driven ("125 m") in a darkening pill in the
+  bottom-right corner, the map's name and author (and checkpoints / laps) in a grey pill hung from
+  the top right; no medal list on screen; "Press Return to respawn / Press Delete to restart" when
+  the car stands still. The pills' fills were measured against TMNF's frames (the speed's darkens
+  every channel x0.76). The digits are our own drawing, `ui/tm_seg_text.gd` (pointed segment ends,
+  a narrow 1, square dots, a drop shadow; letters fall back to the sans); pills by
+  `ui/tm_pill.gdshader`. New fonts (SIL OFL): Cabin (a Gill-like humanist sans, TMNF's menus'
+  feel) and DSEG7 Classic (`assets/fonts`, `TmUi.SANS`, `SANS_BOLD`, `DIGITS`).
+- **TMNF's countdown** (measured from video of its restarts): the clock starts at -2.60 s (ours was
+  1.5 s); the figures 3, 2, 1, Go! come every 0.75 s from -2.0 s, each shown 0.65 s, just above the
+  middle, small (`TmRace.COUNTDOWN_MS`, `figure_at`; the beeps follow them). The figures redrawn
+  upright in the sans with Go! pale inside a blue outline (`tools/texgen/ui.py`). `test_race` checks
+  the schedule.
+- **Race menu and finish card in TMNF's dialog style** (`ui/tm_race_menu.gd`, `ui/tm_ui.gd`): a dark
+  glass panel (frosted only under the panel), a green title bar, white pill buttons with dark text
+  (the focused one green-ringed), mixed-case labels as TMNF's ("Race menu", "Restart", "Resume",
+  "Retry", "Replay", "Save replay", "Next track", "Quit"); the result card's time in the
+  seven-segment digits; "Gold medal" / "New record" / "No medal". `race.tscn -- --pause` opens the
+  race menu for screenshots. Tests follow the new labels (`test_menu`, `test_editor`, `test_replay`).
+- **Menu assets drawn** for the coming menus: list icons (solo, online, profile, editors, quit,
+  browse, back, replays, options, car) and a waving checkered flag per series
+  (`tools/texgen/menu_icons.py` -> `assets/ui/icon_*.png`, `flag_*.png`), and the menu's globe:
+  `tools/texgen/globe.py` draws the land map (Natural Earth 1:50m via world-atlas, public domain;
+  cached outside the repo) into `assets/tex/globe_map_albedo.jpg`, `ui/tm_globe.gdshader` lights it
+  as a slowly turning embossed sphere.
+- **Menus as TMNF's** (`ui/tm_menu.gd`, compared side by side with TMNF running): black with our
+  green globe turning behind (the profile keeps our car on the field); down the left a dark column
+  with a grey header card (the page's title in bold italic, what to do, an icon: "Welcome! / Choose
+  an activity", "Play Solo / Choose a difficulty", ...) and the page's entries as icon rows (white,
+  green when focused, the current choice ringed green), Back or Quit at its foot; panels with green
+  title bars beside it; a dark bar at the top right with your nickname, zone and the clock in the
+  seven-segment digits (TMNF's bar has its volume and clock there). Main: Play Solo, Play Online,
+  Editors, Profile, Options, Quit, your campaign's medals per series at the right (where TMNF lists
+  your buddies). Solo is TMNF's campaign page: a row per series with its flag, the series' tracks
+  as a 5 x 3 grid of cards (picture above, name below; the focused card all green with a play mark,
+  your medal in its corner; a press races), the focused track's medal times and your best in the
+  panel above; Replays, Browse (a track file), Back at the foot. Replays, Editors, Options, Profile
+  and Online follow the same frame: lists as TMNF's light grey rows (the picked one white with a
+  green bar), white pill buttons, mixed-case labels ("Watch", "Delete", "New Track", "Log in",
+  "Clear all records"). The theme's buttons are TMNF's pills everywhere; the editor's block tiles
+  and the cards share a square tile (`TmUi.glass("tm_tile")`). Tests follow the new pages and
+  labels (`test_menu`, `test_editor`, `test_replay`). Next: pictures of our tracks on the cards
+  (TMNF shows a shot of each track), the loading screen, the opponent dialog, the sounds.
+- **TMNF's loading screen** (`ui/tm_loading.gd`): while a track loads (the menu's races and
+  replays, the next track, a test drive from the editor), a keyboard with the race's keys lit
+  orange (Esc, 1 2 3, Backspace and Delete, Enter, the arrows), blue arrows from white labels
+  (MENU, CHANGE VIEW, RESTART, RESPAWN, DRIVE) and an orange progress bar, over a blurred picture of
+  our car (`assets/ui/loading_bg.jpg`, rendered and blurred by `tools/icons/loading_bg.sh`). It
+  goes once the new scene is in (at least 1.2 s), and the race holds its countdown until then
+  (`TmLoading.covering()`). `--loading=hold` keeps it up for screenshots.
+- **TMNF's three views** (`car/tm_camera.gd`, keys 1, 2, 3): the chase camera close behind (as
+  before), one farther back and higher, and the driver's own from the cockpit; the choice is kept
+  from race to race (`--cam_view=N` for screenshots). `test_race` checks the views, `test_menu` the
+  loading screen's keys and cover.
+- `tools/research/tmnf/sound_survey.py`: a sound's length, envelope, partials, pitch and octave
+  bands, numbers only, to compare our cues with TMNF's (its sound files stay local).
+- **Sounds as TMNF's** (`tools/sfxgen/cues.py`, numbers in `docs/research/m9_sound.md`): TMNF's
+  cues measured (length, envelope, partials, octave bands; its files stay local) and ours
+  synthesized to the same shapes, each cue's octave bands pulled onto TMNF's by a final EQ: the
+  countdown's beep (a clean 756 Hz tone, 1.1 s, the same for 3, 2 and 1), the crowd roaring at Go!,
+  the checkpoint's swoosh, the crowd cheering at the finish by medal as TMNF does (a big cheer with
+  applause and whistles for gold and author, a smaller one for silver and bronze, none without a
+  medal; TMNF's finish and record sounds are empty), a wall's crash (a broadband rattle instead of
+  a metal clang), a new landing thump after jumps (`TmCarAudio._landing`, louder the harder it comes
+  down), the menus' blip and tock (TMNF's Forever menus), the wind. Kenney's interface and impact
+  sounds and the wind recording are gone (respawn stays); `test_sound` checks the landing.
+- **TMNF's Select Opponent** (`ui/tm_race_menu.gd` `show_opponents`, `race/tm_medal_ghost.gd`): when
+  one of our tracks is loaded from the menu, a dialog on black before the race, as TMNF's: Gold
+  Medal, Silver Medal, Bronze Medal (each with its disc and time), Personal Best (when you have one)
+  and None; the next medal to win is focused (bronze when you have none). TMNF races recorded medal
+  ghosts; ours are our bot's run (TmBot driving the track once, unseen, about 25x faster than real
+  time behind the loading screen; 0.8 s for A01) slowed to each medal's time: the same line,
+  arriving on the medal's time. The run is kept per track for the session. A medal opponent stays
+  when you set a record; Personal Best follows your record. `--opponent=ask` shows the dialog in
+  screenshots, `--opponent=<kind>` picks one. `tests/test_opponent` (in the gate): the bot's run
+  finishes near gold, a medal ghost arrives on its time along the same line, the dialog lists the
+  medals and None and a pick sets the race's ghost.
+- **Track pictures on the campaign cards**, as TMNF's (`tools/icons/thumbs.sh`): every campaign
+  track built by `race/map_view.tscn` and shot from above and behind its start, cropped to the
+  card's shape, 316 x 200 JPEG in `assets/ui/thumbs/<ID>.jpg` (1.2 MB for 65; imported lossy for a
+  small web build, as is the loading screen's picture); a card without one keeps the map's outline.
+  About 70 s a track under the software renderer: run the generator alone (two renderers at once
+  ran this container out of memory). The race also waits for the loading screen's fade before its
+  countdown (`TmLoading.covering()`). Not copied: TMNF's padlocks (its later tracks open as you
+  finish earlier ones), which would change play; the owner's call.
+- **The race menu lists Select Opponents**, as TMNF's does (for our tracks with medals, not online
+  or in a test drive): it opens the dialog again, and a pick there starts the race over with the
+  new opponent. Its list pills are slimmer with smaller text, as TMNF's. `test_opponent` checks it.
+- **M10-6, TMNF's top bar** (owner: "yes build it, in races too"; `ui/tm_top_bar.gd`, drawn after
+  TMNF's): at the top right, a sound volume wedge with its knob and a speaker (a press mutes), a
+  music volume wedge and a note (a press turns the music off), display settings, the clock in the
+  seven-segment digits and a window button (fullscreen / windowed). In the menus it stays up with
+  your nickname and zone at its left and its display button opens the Options page; in races and
+  replays it slides down when the mouse reaches the top edge, stays while the mouse is on it and
+  goes 0.6 s after it leaves; there its display button opens a small panel (graphics quality,
+  shadows, HD). New setting `sound_volume` (the master bus; Options has its slider too). Not
+  copied: TMNF's 3D glasses button (no stereo mode). `--top_bar=show|display` for screenshots;
+  `tests/test_top_bar` (in the gate).
+- **The top bar spans the window's full width** (owner: "the bar should be as wide as the window
+  screen"; TMNF's covers the right half): in races and replays it slides down across the whole top
+  edge; in the menus it runs across the top and the left column starts under it. The bar is opaque
+  (the race HUD's track name no longer shows through it).
+
+<!-- (another session, in parallel on branch `claude/sleepy-albattani-o7ygr1`, commit 1e91708; brought in for v0.5) -->
+
+## 2026-10-19 — Session 11: `WheelAbsorbContact` re-read; the "bottomed" flag is real
+
+Owner approved reading TMNF's code to settle the wheelie-after-nose-down-landing question (the
+screenshot's plan: confirm what the flag in `WheelAbsorbContact` represents, because if it were set
+on every real contact the full impulse would land at the contact point and kick the nose up).
+
+- Rebuilt the RE pipeline from scratch in a cloud container **without Ghidra or REA**: the official
+  installer (SHA-256 `2f659138…6355`, the same build as session 9), `7z` + `innoextract`, then plain
+  `objdump -b pei-i386` sliced by the addresses in `TmForever.map`. New `tools/research/tmnf/dis.py`
+  (annotates call targets and float constants from the map) and `fnmap.py` (name → start/end/size).
+  Both committed; README updated with this lighter path. Ghidra is only needed for pseudocode.
+- **The hypothesis is wrong.** `WheelAbsorbContact` (0x7c11d0, 1600 bytes) sets the flag in exactly
+  one place — `room <= penetration`, i.e. the spring could not swallow the whole penetration — and
+  the full-impulse-at-the-contact-point branch is taken only when that flag is set or the normal
+  approach is already non-negative. Written up as **§3.2a** of `docs/research/tmnf_physics.md`.
+  `stadium/core/tm_body.gd::_collide` already matches it branch for branch, including both impulse
+  application points (contact point when bottomed, wheel centre otherwise), the `|n_car.x| >= sin 45°`
+  side test and the 0.8 keep factor. Also confirmed `0x184 == 0x18c == -0.8` and `0x178 == 0x17c ==
+  -0.5`, so the surface-4 variants the code selects are identical and our single constants are right.
+- The whole block is gated on `tuning[0x350] == 2`; re-decrypted the `20juin2006` tuning to confirm
+  it is 2 (and `0x354 == 5` = force model 6), matching §5. The force model is `0x354`, not `0x350`.
+- **Two real gaps found in `AddVehicleImpulse` (0x7be390)**, new **§3.2b** and three table rows:
+  the angular `r x j` term is scaled by **0.55 [0x0ec]** before it is added, and `|w|` is then
+  clamped to **100 rad/s [0x14c]** (never binds). Linear is `j / mass`, unscaled. Our
+  `tm_body.gd::_apply_impulse` applies the full `r x j`, so **our contacts over-rotate by ~1.8x**
+  relative to TMNF. Not the wheelie cause (it makes us rotate more, not less) but a genuine fidelity
+  bug in the contact layer.
+- **Next for the wheelie:** the contact layer is exonerated, so look at what feeds it — the spring
+  force and its application point during the compression (§3.2), the ground/air gravity switch
+  (3.0 ↔ 2.5 [0x160/0x164]) at the moment of touchdown, and the load-transfer torque
+  [0x228–0x23c], which `tm_car_model.gd` does implement. Fixing the 0.55 first is worthwhile on its
+  own and changes landing behaviour, so it should land before any wheelie tuning.
+
+## 2026-10-19 — Session 13 continued: the contact spin fix (v0.5)
+- **Every contact impulse now turns the car at 0.55 of r x j** and the spin is capped at 100 rad/s,
+  as TMNF's `AddVehicleImpulse` [0x0ec, 0x14c] (found by the parallel session on
+  `claude/sleepy-albattani-o7ygr1`, commit 1e91708, brought in; `core/tm_body.gd`, `TmTuning.
+  IMPULSE_SPIN`, `MAX_SPIN`). Measured against TMNF's own runs on the six jumpiest tracks: landings
+  end 0.26 m from TMNF's (was 0.34), speed error median 1.9 km/h (was 2.2, p90 15.7 from 17.7); the
+  car now pivots onto its rear wheels after nose-down landings for 20.8 s over those windows (was
+  10.5; TMNF 30.5). The rest unchanged (0.14 m overall). On flat ground ours lifts its nose a little
+  more than before (19.1 s of the ground windows, was 14; TMNF 5.9): open. The body and model tests
+  pass unchanged.
+- Two checks followed it. The lab's quarter pipe (`tests/test_car_shapes`, our own shape, not a
+  TMNF block): the car rides it but bounces along it more (4 wheels down 25-71% of the ride's
+  second half over 9 entry angles and speeds, was 54-81%), so "on its wheels at the end" now means
+  all four touch in the last second, not at the one tick 5 s in. And recording a run's inputs
+  (`--record_inputs`) now keeps the steer at the script's resolution (TMInterface's 1/65536): the
+  runs are chaotic enough that SF01's replay drifted off after 16 s from the 6-decimal rounding
+  alone; replays are exact again.
+

@@ -26,12 +26,24 @@ const COLORS := {
 	"grid": [Color(0.42, 0.44, 0.48), 0.5, 0.6],
 	"wall": [Color(0.88, 0.89, 0.91), 0.75, 0.0],
 	"wall_dark": [Color(0.32, 0.34, 0.38), 0.8, 0.0],
+	# the platform walls and the circuit walls in TMNF's colours (measured from its renders)
+	"platform_wall": [Color8(50, 51, 53), 0.82, 0.0],
+	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
+	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
+	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
+	"circuit_floor": [Color8(26, 84, 170), 0.5, 0.25],
+	"circuit_bumper": [Color8(20, 20, 22), 0.85, 0.0],
+	"truss": [Color8(40, 40, 41), 0.55, 0.3],
+	"screen_dark": [Color(0.015, 0.018, 0.022), 0.2, 0.0],     # the circuit walls' screens: off, as TMNF's
+	"control_panel": [Color8(222, 223, 221), 0.55, 0.0],
+	"glass_dark": [Color(0.09, 0.11, 0.13, 0.72), 0.05, 0.3],     # the control booths' smoked windows
 	"logo": [Color(0.12, 0.30, 0.72), 0.6, 0.0],
 	"screen": [Color(0.12, 0.22, 0.48), 0.3, 0.0, 0.7],     # lit displays, as in TMNF
 	"stands": [Color(0.17, 0.29, 0.58), 0.8, 0.0],                  # seats (pattern 7: sectors, rows)
 	"structure": [Color(0.30, 0.31, 0.34), 0.7, 0.3],
 	"grass": [Color8(66, 98, 48), 0.95, 0.0],
-	"dirt": [Color8(92, 78, 58), 0.95, 0.0],
+	"dirt": [Color8(84, 74, 58), 0.95, 0.0],
+	"dirt_road": [Color8(122, 109, 92), 0.9, 0.0],     # the dirt roads' packed track (HD: _dirt_road)
 	"water": [Color(0.06, 0.22, 0.32, 0.86), 0.04, 0.0],
 	"glass": [Color(0.70, 0.85, 0.95, 0.35), 0.05, 0.0],
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
@@ -85,10 +97,19 @@ const TEXTURED := {
 	# the field, dirt roads, platforms, structures and walls (texgen/surfaces.py)
 	"grass": ["stadium_grass", Vector2(32.0, 32.0), true, Color.WHITE, 0.16],
 	"dirt": ["stadium_dirt", Vector2(8.0, 8.0), true, Color.WHITE, 0.14],
-	"platform": ["platform_panels", Vector2(16.0, 16.0), true, Color.WHITE, 0.08],
+	# (the decks: one texture per 32 m block, its edge the blocks' seam; the tread is a DETAIL map)
+	"platform": ["platform_plate", Vector2(32.0, 32.0), true, Color.WHITE, 0.05],
 	"structure": ["steel_painted", Vector2(8.0, 8.0), true],
 	"wall": ["wall_panels", Vector2(16.0, 16.0), true],
 	"wall_dark": ["wall_panels", Vector2(16.0, 16.0), true, Color(0.36, 0.38, 0.42)],
+	# the platforms' walls; the circuit walls' cladding and band (along the wall), the truss behind
+	"platform_wall": ["platform_wall", Vector2(8.0, 8.0), true],
+	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
+	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
+	"truss": ["steel_truss", Vector2(8.0, 8.0), true],
+	"circuit_floor": ["circuit_kerb", Vector2(16.0, 16.0), true],     # the lane-level blue strip
+	"circuit_bumper": ["circuit_bumper", Vector2(16.0, 2.0), false],  # the lane side's rubber, our name on it
+	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"shoulder": ["road_shoulder", Vector2(8.0, 2.0), false],
@@ -104,7 +125,7 @@ const TEXTURED := {
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
-	"fabric_under": ["fabric_under", Vector2(8.0, 8.0), false],
+	"fabric_under": ["fabric_under", Vector2(16.0, 8.0), false],     # its ribs on the truss arches
 	# the Stadium around the field (env/tm_stadium_build.gd): world-mapped
 	"facade": ["stadium_facade", Vector2(16.0, 16.0), true],
 	"concrete": ["stadium_concrete", Vector2(16.0, 16.0), true],
@@ -113,6 +134,16 @@ const TEXTURED := {
 	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
 	"pipe": ["pillar_steel", Vector2(8.0, 8.0), true],
 }
+
+## Detail maps over a textured key (tm_textured.gdshader): [map name (assets/tex/<name>_detail),
+## metres one detail tile covers, strength].
+const DETAIL := {
+	"platform": ["tread_plate", 1.0, 1.0],
+}
+
+## Fabric (the grandstands' and the stadium's roofs): how much sunlight shows through underneath
+## (shader "translucent"; the glow is on with SDFGI, TmRtx: tm_membrane).
+const TRANSLUCENT := {"fabric": 1.0, "fabric_under": 1.0, "roof": 1.0, "roof_under": 0.6}
 
 ## The surface shader per key: [pattern, second colour, pattern size (m), variation, bump].
 ## Patterns: see blocks/tm_surface.gdshader.
@@ -148,6 +179,8 @@ const SURFACES := {
 	"rubber": [0, Color(0.3, 0.3, 0.3), 0.0, 0.05, 0.005],
 	"rubber_white": [0, Color(0.3, 0.3, 0.3), 0.0, 0.05, 0.005],
 	"rubber_dark": [0, Color(0.3, 0.3, 0.3), 0.0, 0.05, 0.005],
+	"circuit_trim": [0, Color(0.3, 0.3, 0.3), 0.0, 0.04, 0.005],
+	"circuit_floor": [5, Color(0.3, 0.3, 0.3), 4.0, 0.05, 0.01],
 	"inflatable": [14, Color(0.95, 0.95, 0.95), 2.4, 0.04, 0.03],
 	"lamp": [13, Color(0.10, 0.10, 0.12), 4.0, 0.0, 0.0],
 }
@@ -200,13 +233,17 @@ static func get_material(key: String) -> Material:
 	var spec: Array = COLORS.get(key, [Color(1, 0, 1), 0.5, 0.0])
 	var m: Material
 	if hd() and TEXTURED.has(key):
-		m = _textured(TEXTURED[key])
+		m = _textured(TEXTURED[key], DETAIL.get(key, []))
 	elif hd() and SURFACES.has(key):
 		m = _surface(key, spec)
 	elif hd() and key == "water":
 		m = _water(spec)
+	elif hd() and key == "dirt_road" and _tex("dirt_road", "albedo") != null:
+		m = _dirt_road()
 	else:
 		m = _flat(spec)
+	if m is ShaderMaterial and TRANSLUCENT.has(key):
+		(m as ShaderMaterial).set_shader_parameter("translucent", float(TRANSLUCENT[key]))
 	_cache[key] = m
 	return m
 
@@ -228,7 +265,7 @@ static func _flat(spec: Array) -> StandardMaterial3D:
 
 ## A textured material (HD): albedo, normal and ORM maps from assets/tex (blocks/tm_textured.gdshader:
 ## what ORMMaterial3D did, with the map's sky occlusion).
-static func _textured(spec: Array) -> ShaderMaterial:
+static func _textured(spec: Array, detail: Array = []) -> ShaderMaterial:
 	var metres: Vector2 = spec[1]
 	var m := textured(String(spec[0]), Vector2(1.0 / metres.x, 1.0 / metres.y), bool(spec[2]), 1.0 / metres.x)
 	if m != null and spec.size() > 3:
@@ -236,6 +273,12 @@ static func _textured(spec: Array) -> ShaderMaterial:
 	if m != null and spec.size() > 4 and float(spec[4]) > 0.0:
 		m.set_shader_parameter("macro_tex", noise_textures()[1])
 		m.set_shader_parameter("macro", float(spec[4]))
+	var dt := _tex(String(detail[0]), "detail") if m != null and not detail.is_empty() else null
+	if dt != null:
+		m.set_shader_parameter("detail_tex", dt)
+		m.set_shader_parameter("has_detail", true)
+		m.set_shader_parameter("detail_ratio", metres.x / float(detail[1]))
+		m.set_shader_parameter("detail_strength", float(detail[2]))
 	return m
 
 
@@ -266,6 +309,18 @@ static func _tex(name: String, map: String) -> Texture2D:
 		if ResourceLoader.exists(path):
 			return load(path)
 	return null
+
+
+## The dirt roads (HD, blocks/tm_dirt.gdshader): the packed track where the ground is level, the
+## loose dirt ("dirt") on the berms and slopes.
+static func _dirt_road() -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://blocks/tm_dirt.gdshader")
+	for part in ["albedo", "normal", "orm"]:
+		m.set_shader_parameter("road_" + part, _tex("dirt_road", part))
+		m.set_shader_parameter("loose_" + part, _tex("stadium_dirt", part))
+	m.set_shader_parameter("macro_tex", noise_textures()[1])
+	return m
 
 
 ## Water (HD): glossy, deep teal, ripples from a noise normal map projected in world space.

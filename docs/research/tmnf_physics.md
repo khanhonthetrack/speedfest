@@ -63,6 +63,62 @@ penetration. Four springs at full compression give 32 m/s² against 30 m/s² of 
 sits deep in a stiff, short suspension. Wheel contact impulses remove 20% of the approach speed per
 tick (factor 0.8 [0x184/0x18c]).
 
+### 3.2a Wheel ground contact: what `WheelAbsorbContact` actually does
+*(Session 11, re-read from the disassembly at 0x7c11d0 to settle whether the "bottomed" flag means
+what §3.2 assumes. It does.)*
+
+The whole suspension/impulse half of the function is behind `tuning[0x350] == 2` ("suspension model
+2"; the Stadium car's value, §5). A contact whose normal is more than 45° off the car's up axis is a
+**side** contact (`|n_car.x| >= sin 45°`): it only sets the wall flag and the lateral slow-down
+vector, and takes an impulse keeping 0.5 [0x178/0x17c] at the contact point. A ground contact
+accumulates the normal, the contact count and the surface, and then:
+
+```
+if pen_car.y > 0:                        # penetration pushing up into the car
+    room     = wheel.susp_len - 0x11c    # 0x11c < -1e-5 disables this: take = pen_car.y
+    take     = min(pen_car.y, room)
+    bottomed = (room <= pen_car.y)       # <- the flag, set ONLY here
+    wheel.absorb = max(wheel.absorb, take)
+    pen_car.y   -= take
+else:
+    bottomed = true                      # nothing for the spring to take
+
+vn = dot(n, v_rel)
+if vn < 0:
+    vn_up = (n * vn)_car.y
+    if bottomed or vn_up >= 0:
+        impulse(keep 0.8, v_rel, n)  at the CONTACT POINT       # full kick, with torque
+    else:
+        v2 = v_rel - up * vn_up                                 # spring takes the vertical part
+        if dot(n, v2) < 0:
+            impulse(keep 0.8, v2, n) at the WHEEL CENTRE        # remainder only
+```
+
+So the flag is genuinely "the spring could not swallow the whole penetration", it is **not** set for
+every real contact, and TMNF does **not** apply the full contact impulse on every ground touch. The
+two application points (contact point when bottomed, wheel centre otherwise) are real and are what
+decides how much pitch a landing produces. `stadium/core/tm_body.gd::_collide` already implements
+exactly this, branch for branch.
+
+### 3.2b The angular scale and clamp in `AddVehicleImpulse` (0x7be390)
+Both contact branches above hand their impulse to `CSceneVehicleCar::AddVehicleImpulse(j, at)`, which
+is **not** a plain rigid-body impulse:
+
+- linear: `v += j / mass` — unscaled;
+- angular: the `r x j` term is scaled by **0.55 [0x0ec]** before it is added (one axis is scaled
+  again by [0x0e8], which the tuning chunks never write, so it keeps its constructor default);
+- then `|w|` is clamped to **100 rad/s [0x14c]** (so high it effectively never binds).
+
+The 0.55 is the part that matters: **every contact in TMNF produces only 55% of the rotation a
+textbook impulse would give.** Our port applies the full `r x j`, so our contacts over-rotate.
+
+**Implemented (v0.5):** `TmBody._apply_impulse` turns the car by `IMPULSE_SPIN` (0.55) of `r x j` and
+caps the spin at `MAX_SPIN` (100 rad/s); the impulse is still sized with the full inertia, as
+`ComputeImpulse`. Against TMNF's own runs (the six jumpiest tracks, `race/ghost_fit.tscn`): landings
+0.34 -> 0.26 m apart (median), speed error 2.2 -> 1.9 km/h (p90 17.7 -> 15.7); time on the rear
+wheels after nose-down landings 10.5 -> 20.8 s (TMNF 30.5): the softer spin of the rear contact
+lets the car pivot up as TMNF's does. Overall (3844 windows) 0.15 -> 0.14 m.
+
 ### 3.3 Slope adherence: the wall/loop rule
 Before the tyre forces, the game measures how much of the current force on the car (gravity) lies
 along the car's up axis: r = |F_up| / |F|, i.e. |cos(tilt)| relative to gravity.
@@ -132,6 +188,48 @@ ground gravity the car needs ≥ 129 km/h at the top (g·R) and so about 280 km/
 **No air steering.** In the air the only torque is angular drag 0.4·|ω| + 0.2·|ω|² against the spin
 [0x158, 0x15c]: the car keeps the rotation it took off with, slowly damped. Gravity 25 m/s².
 
+### 3.7b Jumps against TMNF's own runs (M10-4, session 13)
+Measured with `stadium/race/ghost_fit.tscn` (our car started from a campaign ghost's state, driven
+0.5 s with the run's own inputs; start velocity from the neighbouring positions, since a ghost
+packs velocities with 8-bit angles) on the six jumpiest campaign tracks (A06, B12, C11, D05, D08,
+E04) and with `tools/research/tmnf/air_check.py` over every campaign ghost:
+- **Flight is identical**: TMNF's heights give −24.4 to −24.9 m/s² (gravity 25 plus the 0.03·v
+  drag), horizontal drag 0.03·v at every speed (−2.7 m/s² at 300-350 km/h, −5.2 at 600-650), spin
+  decay = (0.4|ω| + 0.2|ω|²)/inertia (0.19 vs our 0.20 rad/s² at 0.75 rad/s). Ours ends 0.01-0.02 m
+  from TMNF after 0.5 s in the air (median, 738 windows).
+- **Take-offs agree** (0.11-0.45 m, speed within 0.1-0.7 km/h median).
+- **Landings agree in the median** (309 windows: 0.31 m, speed +0.3 km/h) but scatter: a tenth of
+  them end 4 km/h slower and a tenth 11-15 km/h faster than TMNF. The visible difference: after a
+  nose-down landing (pitch −11 to −26°) TMNF's car kicks up to −4 to −6.5 rad/s nose-up, rides on its
+  rear wheels 12-20° nose-up for 0.3-0.5 s (nose coming down at a steady ~9.3 rad/s², a rigid car
+  pivoting on its rear contact) and sometimes loses 4-15 km/h; ours stops that rotation when the
+  rear wheels touch (peak +3.5° on E04 at 98 s) and keeps its speed. Over those windows TMNF spends
+  ~29 s on its rear wheels alone, ours ~10 s.
+- Tried and rejected (all measured on the same windows): the ground contact's keep factor once per
+  tick instead of per substep (wheelies 10 -> 16.6 s, speeds worse), a harder contact (keep 0.2:
+  wheelies 4 s), softer ones (0.9/0.95 per tick: ~18 s, speeds worse, mean error 7.4-8.8 km/h).
+  The mechanism is in TMNF's contact code (`CSceneVehicleCar::WheelAbsorbContact`, `AbsorbContact`,
+  `AfterContacts`), which this pass did not read: open.
+- **M10-4b (owner: "do it", then "nevermind")**: TMNF's contact code read locally (decompiled, never
+  in the repo). Our port matches it where it reads clearly: the suspension (spring 40, damper 1,
+  rest 0.2, relax 5/s, absorbing a wheel's penetration along the car's up axis up to its length),
+  the ground contact keep 0.8 and chassis keep 0.5 (`ComputeImpulse`: j = (keep - 1) v.n / k), the
+  side and chassis friction. Unresolved: in `WheelAbsorbContact` a ground contact takes the full
+  impulse at the contact point under a flag the decompiler lost (else only the approach left after
+  the spring's vertical share, at the wheel centre); ours takes it when the suspension bottoms.
+  `AddVehicleImpulse` scales an impulse's spin by 0.55 [0xec] and caps it at 100 rad/s [0x14c]
+  (§3.2b: the disassembly, read by a parallel session, scales every axis; the decompiled view had
+  suggested two). TMNF's landings (A06 10.8 s, E04 97.9 s, D08 13.7 s): within
+  0.1 s of a nose-down touch the fall is mostly gone and the car spins nose-up at 3-4 rad/s on
+  bottomed rear springs; the rear then slows the spin only ~25 rad/s² (springs and gravity), while
+  ours stops it at once (a near-inelastic rear contact). Measured on the six tracks' landings
+  (TMNF 30.5 s on the rear wheels; ours as ported 10.5 s, speed error median 2.2 km/h): full impulse
+  always 7.8 s; never when bottomed 19.9 s but the fall is never stopped (speed error 7.9 km/h);
+  spin scaled in the car frame 9.6 s; unlimited suspension absorption: chassis drags, -30 km/h;
+  suspension once per tick 11.2 s; impulses from the centre of mass's velocity 13.8 s (wheelies on
+  flat ground 26 s vs TMNF's 6). Kept as ported. The disassembly (to name the flag) was not read:
+  the session's safety check stopped it. Next step if resumed: the spin scaling in the world frame.
+
 ### 3.8 Turbo pads
 Turbo **multiplies the acceleration curve**: drive += accel(speed) × strength, even without throttle.
 Yellow pad (surface 7): strength **5** [0xf0], **250 ms** [0xf8]; red pad (surface 26): strength
@@ -149,9 +247,27 @@ yellow pad adds 35 m/s² (7 × 5).
   wall with the wheels at 200 km/h costs ~80 km/h. This is the "wall kills your run" feel.
 
 ### 3.10 Surfaces (StadiumVehicleMaterials)
-Four factors per surface, averaged over the wheels on the ground: top-speed cap, accel, brake, grip.
+Four factors per surface, averaged over the wheels on the ground. The file stores them in the
+column order below; which force each scales was **measured from TMNF's own runs** (M10-3, session
+13; until then the columns were read as top speed, accel, brake, grip, which made grass and dirt
+wrong): on grass TMNF accelerates at exactly 0.4x asphalt's curve at every step (6.33 / 4.36 /
+2.83 m/s^2 against 16 / 11 / 7) and brakes at 30 x 0.05 (20.7 m/s^2 at 200-240 km/h = 1.5 + the
+coasting drag), on dirt 0.9x and 0.4x (`tools/research/tmnf/accel_curve.py`, `--brake`); and our
+car started from a ghost's state and driven 0.5 s with the run's own inputs
+(`stadium/race/ghost_fit.tscn`) follows TMNF best with column 1 as the side grip:
 
-| Surface | Top speed | Accel | Brake | Grip |
+| reading (columns as top, accel, brake, grip) | grass B12 | grass D05 | dirt D15 | dirt E03 |
+|---|---|---|---|---|
+| 0,1,2,3 (the old one) | 1.08 m, 3.4 km/h | 0.96 m, 5.0 | 1.47 m, 12.7 | 0.93 m, 10.0 |
+| **0,2,3,1 (measured)** | **0.24 m, 0.7** | **0.25 m, 1.7** | **0.44 m, 1.9** | **0.29 m, 1.7** |
+| 0,2,3,0 | 2.74 m, 2.2 | 1.11 m, 8.0 | 3.10 m, 3.5 | 0.69 m, 2.7 |
+| 0,2,3,3 | 1.00 m, 1.4 | 0.92 m, 2.4 | 1.17 m, 2.5 | 0.62 m, 1.6 |
+| 1,2,3,1 | 1.76 m, 24.5 | 0.25 m, 1.7 | | |
+
+(median distance apart and |speed difference| after 0.5 s, all four wheels on that surface;
+asphalt for comparison: 0.16 m, 0.2 km/h.)
+
+| Surface | col 0: top speed | col 1: grip | col 2: accel | col 3: brake |
 |---|---|---|---|---|
 | Asphalt, Concrete, Metal, Wood | 1.0 | 1.0 | 1.0 | 1.0 |
 | Dirt | 0.9 | 0.25 | 0.9 | 0.4 |
@@ -163,6 +279,11 @@ Four factors per surface, averaged over the wheels on the ground: top-speed cap,
 | WetDirtRoad | 0.9 | 1.0 | 1.0 | 1.0 |
 | Snow | 0.2 | 0.1 | 0.6 | 0.1 |
 | Ice | 1.0 | 0 | 0.1 | 0 |
+
+So on grass the car keeps 40% of its drive and 15% of its grip but its brakes barely work; dirt
+drives almost like asphalt with a quarter of the grip and 40% of the brakes. Column 0 only caps
+the top speed (500 km/h on grass, above any grass run in the campaign replays: up to ~260 km/h). In the code: `TmTuning.SURFACES` (the
+file's order) and `S_TOP`, `S_GRIP`, `S_ACCEL`, `S_BRAKE`.
 
 ## 4. Behaviour numbers (from `tmnf_model.py`, flat asphalt)
 
@@ -219,7 +340,9 @@ interpolation 1.
 | 0x11c, 0x120 | 0, 0.7 | suspension lengths mapped to damper ratio 1 and 0 (grip factor) |
 | 0x130 | 1 | mass |
 | 0x134, 0x138–0x140 | 5; 0.5, 0.5, 1.0 | inertia box: mass, half-size |
+| 0x0e8, 0x0ec | (not written), 0.55 | angular scale on every contact impulse (AddVehicleImpulse) |
 | 0x148 | 0.45 | centre of mass height above wheel contact |
+| 0x14c | 100 | max angular speed, rad/s (clamped in AddVehicleImpulse) |
 | 0x154 | 0.03 | linear damping in the air |
 | 0x158, 0x15c | 0.4, 0.2 | air angular drag: linear, quadratic |
 | 0x160, 0x164 | 3, 2.5 | gravity factor: ground, air |
@@ -265,7 +388,8 @@ TMNF; these points don't:
 7. **Air**: no air steering at all (we have some), angular drag 0.4|ω| + 0.2|ω|².
 8. **Turbo**: multiplies the accel curve (×5 yellow for 250 ms, ×20 red for 100 ms, while on the pad
    plus that long).
-9. **Surfaces**: grass ×0.15 accel / ×0.05 grip, dirt ×0.25 / ×0.4 (ours are milder).
+9. **Surfaces**: grass ×0.4 accel / ×0.15 grip / ×0.05 brakes, dirt ×0.9 / ×0.25 / ×0.4 (§3.10,
+   measured in M10-3; this list first read them as grass ×0.15 accel / ×0.05 grip).
 
 Suggested next step: a `TM_FAITHFUL` handling mode in `car.gd` that follows §3 (mass-1 accelerations,
 the curves above, 100 Hz), with `tests/physics/test_tm` targets regenerated from `tmnf_model.py`; then

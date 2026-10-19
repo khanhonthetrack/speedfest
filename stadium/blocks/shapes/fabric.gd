@@ -6,13 +6,30 @@ extends RefCounted
 ## and a flat top at 8.26 m) and the roof shell, 0.3-0.4 m thick, rising from the ground in front of
 ## the stands and curving back over them to 48 m above the far cell's edge. The fabric is a road
 ## surface in TMNF (asphalt, 16): cars can drive on the roofs. Section tables are (x, y) along the
-## block's z (measured: the same section at every z; the trusses inside are not recreated yet).
+## block's z (measured: the same section at every z). Under the roof hang its truss arches (TRUSS).
 
 const S_ROAD := 16
 const S_STANDS := 0
 const S_METAL := 4
 const S_RUBBER := 9
 const SculptShapes := preload("res://blocks/shapes/sculpt.gd")
+
+## The roof's truss arches, hung under the shell along its underside from the foot to the top edge
+## (measured on TMNF's visual mesh): light ones 1.45 m deep and 0.6 m thick at these z, the main one
+## at z 16, 1.1 m thick, from 5 m deep at the foot to 4.4 m at the top; white chords, a dark lattice
+## between them. Visual only (out of reach under the roof).
+const TRUSS_LIGHT := [0.3, 12.5, 19.5, 31.7]
+const TRUSS_MAIN := 16.0
+const TRUSS_STEP := 3.5            ## lattice panel length along the arch (m)
+## Advert boards (measured on TMNF's): two hung from the main truss facing the field, one on the
+## back of the roof's foot facing out: [bottom edge (x, y), top edge (x, y), z0, z1, faces out
+## (+x side)]. The hung ones are turned 3 deg steeper than TMNF's so the screens show adverts.
+const BOARDS := [[Vector2(40.62, 27.5), Vector2(37.94, 30.56), 6.63, 15.74, false],
+	[Vector2(40.62, 27.5), Vector2(37.94, 30.56), 16.28, 25.39, false],
+	[Vector2(60.61, 2.43), Vector2(59.78, 7.79), 10.03, 22.23, true]]
+const BOARDS_AIR := [[Vector2(38.38, 21.17), Vector2(35.7, 24.22), 6.63, 15.74, false],
+	[Vector2(38.38, 21.17), Vector2(35.7, 24.22), 16.28, 25.39, false],
+	[Vector2(56.22, 8.5), Vector2(54.97, 13.78), 10.02, 22.22, true]]
 
 ## The roof shell's closed section: its underside from the foot up to the top edge, then its top
 ## surface back down (measured, simplified to 5 cm).
@@ -132,8 +149,12 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_extrude(geo, SHELL)
 			_extrude(geo, STANDS)
 			_extrude(geo, LIP)
+			_trusses(geo, SHELL)
+			_boards(geo, BOARDS)
 		"Fabric/FabricStraight1x1Air":
 			_extrude(geo, SHELL_AIR)
+			_trusses(geo, SHELL_AIR)
+			_boards(geo, BOARDS_AIR)
 			geo.box(Vector3(DECK_AIR[0], DECK_AIR[2], 0), Vector3(DECK_AIR[1], DECK_AIR[3], 32), "structure", S_METAL,
 				"stands", S_STANDS)
 			geo.box(Vector3(WALL_AIR[0], 0, 0), Vector3(WALL_AIR[1], DECK_AIR[2], 32), "structure", S_METAL)
@@ -308,6 +329,127 @@ func _open_post(geo: TmGeo, lo: Vector3, hi: Vector3) -> void:
 
 
 ## A closed (x, y) section swept along z over the block (0..32), capped at both ends.
+## The truss arches under a straight roof whose section is `table`.
+func _trusses(geo: TmGeo, table: Array) -> void:
+	var under := _underside(table)
+	if under.size() < 2:
+		return
+	for z: float in TRUSS_LIGHT:
+		_truss(geo, under, z, 0.3, 1.45, 1.45, 0.13, 0.07)
+	_truss(geo, under, TRUSS_MAIN, 0.55, 5.0, 4.4, 0.22, 0.11)
+
+
+## The advert boards: a 0.15 m slab each, the screen on its front, steel behind; the hung ones on
+## two cables up to the main truss.
+func _boards(geo: TmGeo, boards: Array) -> void:
+	for bi in boards.size():
+		var bd: Array = boards[bi]
+		var lo: Vector2 = bd[0]
+		var hi: Vector2 = bd[1]
+		var up := (hi - lo).normalized()
+		var front := Vector2(up.y, -up.x) if bool(bd[4]) else Vector2(-up.y, up.x)
+		var back := -front * 0.15
+		var z0: float = bd[2]
+		var z1: float = bd[3]
+		# corners: l/h the low/high edge, 0/1 at z0/z1, b on the back
+		var l0 := Vector3(lo.x, lo.y, z0)
+		var l1 := Vector3(lo.x, lo.y, z1)
+		var h0 := Vector3(hi.x, hi.y, z0)
+		var h1 := Vector3(hi.x, hi.y, z1)
+		var bk := Vector3(back.x, back.y, 0.0)
+		var n3 := Vector3(front.x, front.y, 0.0)
+		var u3 := Vector3(up.x, up.y, 0.0)
+		var nz := TmGeo.NO_COLLISION
+		geo.screen_rect(l0, l1, h1, h0, "screen", nz, bi, n3)     # the ads on it (TmGeo.SCREENS)
+		_face(geo, [l0 + bk, l1 + bk, h1 + bk, h0 + bk], -n3, "structure", nz)
+		_face(geo, [h0, h1, h1 + bk, h0 + bk], u3, "structure", nz)
+		_face(geo, [l0, l1, l1 + bk, l0 + bk], -u3, "structure", nz)
+		_face(geo, [l0, h0, h0 + bk, l0 + bk], Vector3(0, 0, -1), "structure", nz)
+		_face(geo, [l1, h1, h1 + bk, l1 + bk], Vector3(0, 0, 1), "structure", nz)
+		if not bool(bd[4]):
+			for z: float in [z0 + 1.0, z1 - 1.0]:
+				var top := Vector3(hi.x, hi.y, z) + bk * 0.5
+				geo.pipe(top, top + Vector3(0, 2.6, 0), 0.04, 4, "cable", nz)
+
+
+## A quad facing n (its winding chosen to match).
+static func _face(geo: TmGeo, q: Array, n: Vector3, mat: String, surface: int) -> void:
+	var a: Vector3 = q[0]
+	var b: Vector3 = q[1]
+	var c: Vector3 = q[2]
+	var d: Vector3 = q[3]
+	if (b - a).cross(c - a).dot(n) >= 0.0:
+		geo.quad(a, b, c, d, mat, surface)
+	else:
+		geo.quad(a, d, c, b, mat, surface)
+
+
+## The shell's underside (its longest run of "fabric_under" segments) from the foot up to the top.
+static func _underside(table: Array) -> Array:
+	var n := table.size()
+	var best: Array = []
+	var start := 0
+	while start < n:
+		if String(table[start][2]) != "fabric_under" or String(table[(start + n - 1) % n][2]) == "fabric_under":
+			start += 1
+			continue
+		var run: Array = []
+		var k := start
+		while String(table[k % n][2]) == "fabric_under" and run.size() <= n:
+			run.append(Vector2(table[k % n][0], table[k % n][1]))
+			k += 1
+		run.append(Vector2(table[k % n][0], table[k % n][1]))
+		if run.size() > best.size():
+			best = run
+		start += 1
+	if best.size() > 1 and (best[0] as Vector2).y > (best[best.size() - 1] as Vector2).y:
+		best.reverse()
+	return best
+
+
+## One truss arch at z (thickness 2 half): resampled along the underside every TRUSS_STEP, the top
+## chords just under the fabric, the bottom chords depth below it (d_foot at the foot, d_top at the
+## top), Warren diagonals in both faces and zig-zagging across the bottom; nothing below the foot.
+func _truss(geo: TmGeo, under: Array, z: float, half: float, d_foot: float, d_top: float, chord_r: float, web_r: float) -> void:
+	var arc := [0.0]
+	for i in range(1, under.size()):
+		arc.append(float(arc[i - 1]) + ((under[i] as Vector2) - (under[i - 1] as Vector2)).length())
+	var total: float = arc[arc.size() - 1]
+	var floor_y: float = (under[0] as Vector2).y
+	var count := maxi(2, int(round(total / TRUSS_STEP)))
+	var tops: Array = []
+	var bots: Array = []
+	var j := 0
+	for i in count + 1:
+		var s := total * float(i) / count
+		while j < under.size() - 2 and float(arc[j + 1]) < s:
+			j += 1
+		var a: Vector2 = under[j]
+		var b: Vector2 = under[j + 1]
+		var t := clampf((s - float(arc[j])) / maxf(float(arc[j + 1]) - float(arc[j]), 1e-6), 0.0, 1.0)
+		var p := a.lerp(b, t)
+		var along := (b - a).normalized()
+		var inward := Vector2(-along.y, along.x)
+		var depth := lerpf(d_foot, d_top, s / total)
+		var top := p + inward * 0.12
+		var bot := p + inward * depth
+		bot.y = maxf(bot.y, floor_y)
+		tops.append(top)
+		bots.append(bot)
+	var nz := TmGeo.NO_COLLISION
+	for side: float in [-half, half]:
+		var zz := z + side
+		for i in count:
+			geo.pipe(Vector3(tops[i].x, tops[i].y, zz), Vector3(tops[i + 1].x, tops[i + 1].y, zz), chord_r, 4, "mast", nz)
+			geo.pipe(Vector3(bots[i].x, bots[i].y, zz), Vector3(bots[i + 1].x, bots[i + 1].y, zz), chord_r, 4, "mast", nz)
+			var u: Vector2 = tops[i] if i % 2 == 0 else bots[i]
+			var v: Vector2 = bots[i + 1] if i % 2 == 0 else tops[i + 1]
+			geo.pipe(Vector3(u.x, u.y, zz), Vector3(v.x, v.y, zz), web_r, 4, "rubber_dark", nz)
+	for i in count:
+		var z0 := z - half if i % 2 == 0 else z + half
+		geo.pipe(Vector3(bots[i].x, bots[i].y, z0), Vector3(bots[i + 1].x, bots[i + 1].y, 2.0 * z - z0), web_r, 4, "rubber_dark", nz)
+
+
 func _extrude(geo: TmGeo, table: Array) -> void:
 	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(0, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true,
