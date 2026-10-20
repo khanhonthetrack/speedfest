@@ -2685,4 +2685,17 @@ on every real contact the full impulse would land at the contact point and kick 
   in a dark frame (ours filled the frame and stood out of the wall), its top edges and back foot
   grey. (TMNF's "floor" in front of these pieces is grass, our terrain's.) Side by side with
   TMNF's blocks.
+- (M11-2) **The dirt roads' furniture as TMNF's** (`dirt.gd`, `tools/research/tmnf/dirt_furniture.py`,
+  `blocks/data/dirt_furniture.json`, `texgen/stadium.py dirt_bumper`). TMNF's dirt pieces carry
+  advert boards on props, low advert bands, kiosks on legs and inflatable logo bumpers with rubber
+  ends along the road's edges; ours had none. The research tool measures their placements (board
+  corners, bumper centre lines and sizes, the kiosks' leg rings: numbers only) for the 30 furnished
+  pieces, and `dirt.gd` builds our own at them: our adverts on both faces of white-framed boards
+  with props toward the piece's middle, kiosks with advert faces round a white box over a ring of
+  white X-braced leg cards, bumpers as tubes in our logo vinyl (white, our name and emblem on
+  both sides) with dark rubber parts (solid, rubber); boards too small for an advert white; what
+  TMNF lets overhang the next block (the tilt clips') left out. On our tracks: the GT curves (24 uses; the
+  checkpoints keep their gates' own bumpers). The terrain's dirt now follows the survey's cells smoothly
+  where it lies level with the grass (they were drawn as grass there; the inner edges of TMNF's
+  curves). Side by side with TMNF's pieces.
 

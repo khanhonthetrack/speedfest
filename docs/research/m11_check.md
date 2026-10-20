@@ -114,6 +114,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
 - The ground grandstands' orange strips (quarter-pipe ends, the lip's top), dark ends, the pillar
   piece's white back with its framed screen (20 Oct). TMNF's FabricFloorNoOcc there is grass.
 
+- The dirt pieces' furniture (20 Oct): advert boards, bands, kiosks and logo bumpers at TMNF's
+  measured places (`dirt_furniture.py` -> `blocks/data/dirt_furniture.json`, built in `dirt.gd`).
+  Left: the DirtHigh fences' other parts (Auvent2, borders, grids), the bumpers' tie-downs.
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the

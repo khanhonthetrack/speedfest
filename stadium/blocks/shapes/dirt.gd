@@ -4,10 +4,13 @@ extends RefCounted
 ## hand-sculpted terrain, so each is our own bicubic surface through measured control heights 2 m
 ## apart over its footprint, grass, dirt or asphalt per 2 m cell (blocks/data/dirt_heights.json, from
 ## tools/research/tmnf/terrain_heights.py). The checkpoints are the straight's terrain under a
-## gate standing on TMNF's two rubber bumpers; where a dirt road meets the road, TMNF's curbs (_to_road_curbs). Fences, signs and awnings
-## on some pieces are not recreated yet.
+## gate standing on TMNF's two rubber bumpers; where a dirt road meets the road, TMNF's curbs
+## (_to_road_curbs). The pieces' furniture where TMNF has it (_furniture: advert boards and bands,
+## kiosks, inflatable bumpers) at TMNF's measured places (blocks/data/dirt_furniture.json, from
+## tools/research/tmnf/dirt_furniture.py), ours to look at.
 
 const RoadShapes := preload("res://blocks/shapes/road.gd")
+const SculptShapes := preload("res://blocks/shapes/sculpt.gd")
 
 const S_GRASS := 2
 const S_DIRT := 6
@@ -38,6 +41,19 @@ const TO_ROAD := ["Road/Dirt/RoadDirtToRoad/Ground"]
 const TO_ROAD_FULL := 17.0
 const TO_ROAD_D := Vector2(1.97, 0.476)
 const TO_ROAD_H := 0.8
+## The furniture: placements (FURNITURE_PATH: per shape, boards [kind, four corners], bumpers
+## [kind, width, height, centre line], kiosks' legs [kind, corners (x, z), y0, y1]); the boards'
+## white frame (FRAME_MARGIN round them, FRAME_T thick), their props (PROP_BACK behind them, from
+## PROP_UP of their height down to their foot) toward the piece's middle; the bumpers BUMPER_SIDES
+## round.
+const FURNITURE_PATH := "res://blocks/data/dirt_furniture.json"
+const FRAME_MARGIN := 0.15
+const FRAME_T := 0.08
+const PROP_BACK := 1.3
+const PROP_UP := 0.8
+const BUMPER_SIDES := 10
+const S_METAL := 4
+const S_RUBBER := 9
 const TO_ROAD_SINK := 0.3
 
 ## The dirt checkpoint's bumpers (TMNF's, measured): along each side (z GATE_BUMPER_Z) a rounded
@@ -57,6 +73,17 @@ const GATE_BUMPER := [
 ]
 
 static var _shapes: Dictionary = {}
+static var _furniture_data: Dictionary = {}
+
+
+static func furniture() -> Dictionary:
+	if _furniture_data.is_empty():
+		var f := FileAccess.open(FURNITURE_PATH, FileAccess.READ)
+		if f != null:
+			var parsed: Variant = JSON.parse_string(f.get_as_text())
+			if parsed is Dictionary:
+				_furniture_data = (parsed as Dictionary).get("shapes", {})
+	return _furniture_data
 
 
 static func shapes() -> Dictionary:
@@ -90,6 +117,9 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_to_road_curbs(geo)
 	else:
 		return null
+	if shapes().has(shape) and furniture().has(shape):
+		var sd: Dictionary = shapes()[shape]
+		_furniture(geo, furniture()[shape], Vector2(float(sd["w"]), float(sd["d"])))
 	var node := geo.build()
 	if CHECKPOINTS.has(shape):
 		var c: Array = CHECKPOINTS[shape]
@@ -124,18 +154,20 @@ func _surface(geo: TmGeo, s: Dictionary) -> void:
 			# (their staircase): next to dirt, the ground off the grass's level is dirt and on it
 			# grass, the line between them cut through the quads along the level
 			if c == "d" or (c == "g" and _near_dirt(cls, cj, ci)):
-				_split_tri(geo, q[0], q[1], q[2])
-				_split_tri(geo, q[0], q[2], q[3])
+				_split_tri(geo, q[0], q[1], q[2], cls, step)
+				_split_tri(geo, q[0], q[2], q[3], cls, step)
 				continue
 			var m: Array = CLASSES.get(c, CLASSES["d"])
 			geo.quad(q[0], q[1], q[2], q[3], m[0], m[1])
 
 
-## A triangle of the terrain cut where it leaves the grass's level (|y - 1| = GRASS_EPS): dirt off
-## it, grass on it.
-func _split_tri(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3) -> void:
+## A triangle of the terrain cut where it leaves the grass's level (|y - 1| = GRASS_EPS) or the
+## survey's dirt (its cells' dirt, 1, or not, 0, interpolated between their centres: dirt over
+## one half): dirt off the level or on the survey's dirt, grass elsewhere. (Dirt at the grass's
+## level, as the inside of TMNF's curves, stays dirt; its edge runs smoothly between the cells.)
+func _split_tri(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, cls: Array, step: float) -> void:
 	var tri := [a, b, c]
-	var off := func(p: Vector3) -> float: return absf(p.y - 1.0) - GRASS_EPS
+	var off := func(p: Vector3) -> float: return maxf(absf(p.y - 1.0) - GRASS_EPS, _dirt_at(cls, step, p.x, p.z) - 0.5)
 	var dirt := []
 	var grass := []
 	for k in 3:
@@ -155,6 +187,22 @@ func _split_tri(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3) -> void:
 		var pp: Array = poly[0]
 		for k in range(1, pp.size() - 1):
 			geo.tri(pp[0], pp[k], pp[k + 1], poly[1][0], poly[1][1])
+
+
+## The survey's dirt at (x, z): its cells' dirt (1) or not (0) interpolated between their centres.
+static func _dirt_at(cls: Array, step: float, x: float, z: float) -> float:
+	var fx := x / step - 0.5
+	var fz := z / step - 0.5
+	var i := floori(fx)
+	var j := floori(fz)
+	var tx := fx - i
+	var tz := fz - j
+	var cell := func(jj: int, ii: int) -> float:
+		var line := String(cls[clampi(jj, 0, cls.size() - 1)])
+		return 1.0 if line[clampi(ii, 0, line.length() - 1)] == "d" else 0.0
+	var top := lerpf(cell.call(j, i), cell.call(j, i + 1), tx)
+	var bot := lerpf(cell.call(j + 1, i), cell.call(j + 1, i + 1), tx)
+	return lerpf(top, bot, tz)
 
 
 ## Whether a survey cell (row j, column i) touches a dirt cell (its eight neighbours).
@@ -217,3 +265,182 @@ func _gate_bumpers(geo: TmGeo) -> void:
 			var rows: Vector2 = q[3]
 			return [p, q[2], 4] if rows.x < 0.0 else [p, q[2], 4, rows])
 		geo.wall_sweep(sec, path, lat, true, "road_metal", 4)
+
+
+## A piece's furniture (FURNITURE_PATH) on its footprint (size: x, z): boards and bands (our
+## adverts on both faces, a white frame, props toward the piece's middle), kiosks (four advert faces
+## round a white box over a ring of white X-braced leg cards), bumpers (our logo vinyl; their
+## rubber parts dark). What TMNF lets overhang the next block (the clip pieces') is left out.
+func _furniture(geo: TmGeo, f: Dictionary, size: Vector2) -> void:
+	var mid := Vector3(size.x * 0.5, 0.0, size.y * 0.5)
+	var ad := 0
+	var kiosk := []
+	for b: Array in f.get("boards", []):
+		if not _on_footprint(b[1], size):
+			continue
+		var p := (b[1] as Array).map(func(q: Array) -> Vector3: return Vector3(q[0], q[1], q[2]))
+		if String(b[0]) == "kiosk":
+			kiosk.append(p)
+			continue
+		_board(geo, p, mid, ad)
+		ad += 2
+	# the kiosks: faces near one another make one
+	var groups := []
+	for p: Array in kiosk:
+		var c: Vector3 = (p[0] + p[2]) * 0.5
+		var home: Array = []
+		for g: Array in groups:
+			var gc := ((g[0][0] as Vector3) + (g[0][2] as Vector3)) * 0.5
+			if gc.distance_to(c) < 12.0:
+				home = g
+				break
+		if home.is_empty():
+			groups.append([p])
+		else:
+			home.append(p)
+	for g: Array in groups:
+		_kiosk(geo, g, ad)
+		ad += g.size()
+	for k: Array in f.get("cards", []):
+		var xz: Array = k[1]
+		if not _on_footprint(xz, size):
+			continue
+		var y0: float = k[2]
+		var y1: float = k[3]
+		for i in xz.size():
+			var a: Array = xz[i]
+			var e: Array = xz[(i + 1) % xz.size()]
+			var pa := Vector3(a[0], y0, a[1])
+			var pb := Vector3(e[0], y0, e[1])
+			var n := maxf(1.0, roundf(pa.distance_to(pb) / (y1 - y0)))
+			geo.quad_uv(pa, pb, pb + Vector3(0, y1 - y0, 0), pa + Vector3(0, y1 - y0, 0), "lattice_x", TmGeo.NO_COLLISION,
+				Vector2(0, 1), Vector2(n, 1), Vector2(n, 0), Vector2(0, 0))
+	for b: Array in f.get("bumpers", []):
+		if _on_footprint(b[3], size):
+			_bumper(geo, b)
+
+
+## Whether points ([x, (y,) z]) all lie on a footprint (size: x, z; 1 m spare).
+static func _on_footprint(pts: Array, size: Vector2) -> bool:
+	for q: Array in pts:
+		var x := float(q[0])
+		var z := float(q[q.size() - 1])
+		if x <= -1.0 or x >= size.x + 1.0 or z <= -1.0 or z >= size.y + 1.0:
+			return false
+	return true
+
+
+## A board or band on its four corners (bottom edge, then the top going the same way): our
+## adverts on both faces (white panels on one too small for an advert), the white frame between
+## them, two props from its back down to its foot.
+func _board(geo: TmGeo, p: Array, mid: Vector3, ad: int) -> void:
+	var along := ((p[1] as Vector3) - (p[0] as Vector3)).normalized()
+	var up := ((p[3] as Vector3) - (p[0] as Vector3)).normalized()
+	var n := along.cross(up).normalized()
+	var c := ((p[0] as Vector3) + (p[2] as Vector3)) * 0.5
+	var back := n if (mid - c).dot(n) > 0.0 else -n        # toward the piece's middle
+	var blank := ((p[1] as Vector3) - (p[0] as Vector3)).length() < TmGeo.SCREEN_MIN_W \
+		or ((p[3] as Vector3) - (p[0] as Vector3)).length() < TmGeo.SCREEN_MIN_H
+	for k in 2:
+		var o: Vector3 = (n if k == 0 else -n) * (FRAME_T * 0.5 + 0.01)
+		if blank:
+			continue
+		geo.screen_rect(p[0] + o, p[1] + o, p[2] + o, p[3] + o, "screen", TmGeo.NO_COLLISION, ad + k, o.normalized())
+	var m := FRAME_MARGIN
+	var q := [p[0] - along * m - up * m, p[1] + along * m - up * m, p[2] + along * m + up * m, p[3] - along * m + up * m]
+	SculptShapes._slab(geo, q.map(func(v: Vector3) -> Vector3: return v - n * FRAME_T * 0.5),
+		q.map(func(v: Vector3) -> Vector3: return v + n * FRAME_T * 0.5), "control_panel", S_METAL)
+	for e in 2:
+		var foot: Vector3 = p[e]
+		var top: Vector3 = (p[e] as Vector3).lerp(p[3 - e], PROP_UP)
+		var ground := foot + back * PROP_BACK - Vector3(0, m + 0.3, 0)
+		geo.pipe(top + back * FRAME_T, ground, 0.06, 6, "control_panel", TmGeo.NO_COLLISION)
+
+
+## A kiosk: its faces (our adverts, facing out), a white box closed over and under them.
+func _kiosk(geo: TmGeo, faces: Array, ad: int) -> void:
+	var c := Vector3.ZERO
+	for p: Array in faces:
+		for v: Vector3 in p:
+			c += v / (4.0 * faces.size())
+	var tops := []
+	var bots := []
+	for i in faces.size():
+		var p: Array = faces[i]
+		var mid := ((p[0] as Vector3) + (p[2] as Vector3)) * 0.5
+		var out := Vector3(mid.x - c.x, 0.0, mid.z - c.z).normalized()
+		geo.screen_rect(p[0] + out * 0.02, p[1] + out * 0.02, p[2] + out * 0.02, p[3] + out * 0.02, "screen", S_METAL, ad + i, out)
+		bots.append(p[0])
+		bots.append(p[1])
+		tops.append(p[2])
+		tops.append(p[3])
+	for lid: Array in [[tops, 1.0], [bots, -1.0]]:
+		var pts: Array = lid[0]
+		var y := 0.0
+		for v: Vector3 in pts:
+			y += v.y / pts.size()
+		var ring := []
+		for v: Vector3 in pts:
+			if ring.all(func(r: Vector3) -> bool: return Vector2(r.x - v.x, r.z - v.z).length() > 0.3):
+				ring.append(Vector3(v.x, y, v.z))
+		ring.sort_custom(func(a: Vector3, b: Vector3) -> bool: return atan2(a.z - c.z, a.x - c.x) < atan2(b.z - c.z, b.x - c.x))
+		var cy := Vector3(c.x, y, c.z)
+		for i in ring.size():
+			var a: Vector3 = ring[i]
+			var b: Vector3 = ring[(i + 1) % ring.size()]
+			if (a - cy).cross(b - cy).y * float(lid[1]) > 0.0:
+				geo.tri(cy, a, b, "control_panel", S_METAL)
+			else:
+				geo.tri(cy, b, a, "control_panel", S_METAL)
+
+
+## An inflatable bumper: a tube BUMPER_SIDES round, as wide as measured, along its centre line;
+## our logo vinyl (u along it, 8 m a tile; v round it) or dark rubber; its ends closed.
+func _bumper(geo: TmGeo, b: Array) -> void:
+	var key := "dirt_bumper" if String(b[0]) == "logo" else "rubber_dark"
+	var r := float(b[1]) * 0.5
+	var line := (b[3] as Array).map(func(q: Array) -> Vector3: return Vector3(q[0], q[1], q[2]))
+	var rings := []
+	var us := []
+	var u := 0.0
+	for i in line.size():
+		var prev: Vector3 = line[maxi(i - 1, 0)]
+		var next: Vector3 = line[mini(i + 1, line.size() - 1)]
+		var t := (next - prev).normalized()
+		var side := t.cross(Vector3.UP).normalized()
+		var upv := side.cross(t).normalized()
+		if i > 0:
+			u += (line[i] as Vector3).distance_to(line[i - 1])
+		us.append(u / 8.0)
+		var ring := []
+		for k in BUMPER_SIDES + 1:
+			var a := TAU * k / BUMPER_SIDES
+			ring.append(line[i] + (upv * cos(a) + side * sin(a)) * r)
+		rings.append(ring)
+	for i in rings.size() - 1:
+		for k in BUMPER_SIDES:
+			var a: Vector3 = rings[i][k]
+			var bb: Vector3 = rings[i][k + 1]
+			var cc: Vector3 = rings[i + 1][k + 1]
+			var d: Vector3 = rings[i + 1][k]
+			var ua := Vector2(us[i], float(k) / BUMPER_SIDES)
+			var ub := Vector2(us[i], float(k + 1) / BUMPER_SIDES)
+			var uc := Vector2(us[i + 1], float(k + 1) / BUMPER_SIDES)
+			var ud := Vector2(us[i + 1], float(k) / BUMPER_SIDES)
+			var cen := ((line[i] as Vector3) + (line[i + 1] as Vector3)) * 0.5
+			if (bb - a).cross(d - a).dot((a + cc) * 0.5 - cen) > 0.0:
+				geo.quad_uv(a, bb, cc, d, key, S_RUBBER, ua, ub, uc, ud)
+			else:
+				geo.quad_uv(a, d, cc, bb, key, S_RUBBER, ua, ud, uc, ub)
+	for e in [0, rings.size() - 1]:
+		var ring: Array = rings[e]
+		var o: Vector3 = line[e]
+		var away: Vector3 = (o - (line[1] as Vector3 if e == 0 else line[line.size() - 2] as Vector3)).normalized()
+		for k in BUMPER_SIDES:
+			var a: Vector3 = ring[k]
+			var bb: Vector3 = ring[k + 1]
+			if (a - o).cross(bb - o).dot(away) > 0.0:
+				geo.tri(o, a, bb, "rubber_dark", S_RUBBER)
+			else:
+				geo.tri(o, bb, a, "rubber_dark", S_RUBBER)
+

@@ -94,6 +94,7 @@ const COLORS := {
 	"infl_trunk_ring": [Color8(105, 62, 26), 0.35, 0.0],
 	"infl_sand": [Color8(215, 164, 37), 0.4, 0.0],
 	"infl_base": [Color8(125, 123, 116), 0.4, 0.0],
+	"dirt_bumper": [Color8(214, 216, 216), 0.4, 0.0],
 	"infl_cactus": [Color8(86, 107, 60), 0.35, 0.0],
 	"infl_tree": [Color8(25, 61, 51), 0.35, 0.0],
 	"infl_snow": [Color8(228, 234, 238), 0.35, 0.0],
@@ -258,6 +259,7 @@ const TEXTURED := {
 	"infl_trunk_ring": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(114, 67, 28)],
 	"infl_sand": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(232, 177, 40)],
 	"infl_base": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(135, 133, 125)],
+	"dirt_bumper": ["dirt_bumper", Vector2(1.0, 1.0), false],     # the dirt roads' logo bumpers (u: 8 m a tile)
 	"infl_cactus": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(93, 116, 65)],
 	"infl_tree": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(27, 66, 55)],
 	"infl_snow": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(246, 253, 255)],

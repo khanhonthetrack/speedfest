@@ -221,3 +221,38 @@ def airship_skin(name='airship_skin', w=1024, h=512, seed=151):
     rough = 0.3 + 0.12 * dust + 0.1 * gore
     orm = np.stack([np.ones((h, w), np.float32), rough, np.zeros((h, w), np.float32)], -1)
     save(name, np.clip(col, 0, 1), nrm, orm)
+
+
+def dirt_bumper(name='dirt_bumper', w=1024, h=256, seed=161):
+    """The dirt roads' inflatable logo bumpers (blocks/shapes/dirt.gd: u along the tube, 8 m a
+    tile; v round it, 0.25 and 0.75 its two sides): white vinyl with welded seams every 2 m, our
+    name in black and our emblem in red twice a tile on each side, the far side's drawn mirrored so
+    both read upright from outside. Our own art and names."""
+    from road import emblem
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    u = xx / w * 8.0
+    v = yy / h
+    n1 = fbm(w, h, seed, beta=2.2, lo=1.0)
+    wr = blur(fbm(w, h, seed + 1, beta=1.4, lo=6.0), 1.0)
+    seam = 1 - smoothstep(0.0, 0.03, np.abs(((u + 1.0) % 2.0) - 1.0))
+    col = srgb((236, 238, 238))[None, None, :] * ((1.0 + 0.02 * n1 + 0.02 * wr) * (1 - 0.1 * seam))[..., None]
+    side_h = h // 2
+    fnt = font('orbitron-latin-900-normal', int(0.2 * h))
+    txt = np.zeros((side_h, w), np.float32)
+    em = np.zeros((side_h, w), np.float32)
+    for k in range(2):
+        x0 = (k * 0.5 + 0.06) * w
+        txt = np.maximum(txt, text_mask(w, side_h, 'SPEEDFEST', fnt, (x0 + 0.26 * w, 0.5 * side_h), 'mm', italic=0.18,
+                                        tracking=int(0.003 * w)))
+        em = np.maximum(em, emblem(w, side_h, x0, 0.5 * side_h, 0.1 * h))
+    # side A (v 0..0.5) as drawn, side B mirrored along u
+    txt = np.concatenate([txt, txt[:, ::-1]], 0)
+    em = np.concatenate([em, em[:, ::-1]], 0)
+    col = lerp(col, srgb((22, 22, 24))[None, None, :] * np.ones((h, w, 1)), txt)
+    col = lerp(col, srgb((206, 24, 22))[None, None, :] * np.ones((h, w, 1)), em)
+    dust = grime(w, h, seed + 3, 0.5, 2.0) * smoothstep(0.4, 0.5, 1 - np.abs(2 * v - 1))     # toward its foot
+    col = lerp(col, srgb((150, 130, 100))[None, None, :] * np.ones((h, w, 1)), dust * 0.2)
+    nrm = normal_from_height(0.4 * wr - 0.8 * seam, 0.4)
+    orm = np.stack([np.ones((h, w), np.float32), 0.35 + 0.15 * dust, np.zeros((h, w), np.float32)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+

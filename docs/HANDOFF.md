@@ -39,11 +39,12 @@
   rectangle" between arch and curb), the gate blocks' curb signs, the platform checkpoint, the
   grandstands' steel (cut-out lattice cards, `TmMaterials.CUTOUT`), the road-side booths, the
   platform truss columns (slotted plates outside), the airship (gondola, fins, moorings, livery),
-  the pub base and the camera pub, the camera lights' steel and spotlights. Side-by-side renders:
+  the pub base and the camera pub, the camera lights' steel and spotlights, the ground
+  grandstands' orange strips, the dirt roads' furniture. Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail`. Next by our tracks'
-  use: sculptures, dirt road furniture, the road turbo gantry, junction undersides, the loops,
-  the other pub forms; then PLAN M11-4..8.
+  use: sculptures, the road turbo gantry, junction undersides, the loops, the other pub forms,
+  the dirt's colour (TMNF's darker); then PLAN M11-4..8.
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).

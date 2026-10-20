@@ -165,3 +165,9 @@ and extra area by material and family, `--shape=substr --detail` one family in d
 
     stadium/tools/run.sh res://tests/block_dump.tscn --headless -- --shapes=<list> --out=$W/ours
     python3 -I tools/research/tmnf/material_check.py $W/ours $W/ref stadium/blocks/data/block_catalogue.json --pairs=60
+
+`dirt_furniture.py` measures the dirt pieces' furniture (advert boards and bands, kiosks, logo
+bumpers) from the same reference visuals as placements only (corners, centre lines, sizes):
+`stadium/blocks/data/dirt_furniture.json`, which `blocks/shapes/dirt.gd` builds our own furniture at.
+
+    python3 -I tools/research/tmnf/dirt_furniture.py $W/ref stadium/blocks/data/dirt_furniture.json
