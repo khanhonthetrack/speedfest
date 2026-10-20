@@ -10,9 +10,10 @@ import glob, json, math, os, sys
 BOARDS = {'StadiumDirtPub2x1': 'board', 'StadiumDirtRacePub8x1A': 'board8x1', 'StadiumDirtPubNvidiaWorldcup': 'band',
           'StadiumScreenArrow2x1': 'sign'}
 BUMPERS = {'StadiumDirtLogos': 'logo', 'StadiumDirtRaceSignsRubber': 'rubber', 'StadiumRaceSignsRubber': 'rubber'}
-# the border atlas' tubes (orange, or dark): only parts shaped as one (TUBE_LEN long, TUBE_W thick)
+# the border atlas' tubes (orange, or dark): only parts shaped as one (TUBE_LEN long, TUBE_W thick;
+# longer runs of it are curbs' faces)
 TUBES = {'StadiumDirtRoadBorder': 'border'}
-TUBE_LEN = 3.0
+TUBE_LEN = (3.0, 12.0)
 TUBE_W = (0.8, 2.0)
 CARDS = {'StadiumDirtStructureGeneric': 'legs'}
 KIOSK_Y = 3.5          # a band this high up is a kiosk's face
@@ -174,7 +175,7 @@ def main():
                         continue
                     b = bumper(p)
                     ln = math.dist(b[2][0], b[2][-1])
-                    if ln < TUBE_LEN or not (TUBE_W[0] <= b[0] <= TUBE_W[1] and TUBE_W[0] <= b[1] <= TUBE_W[1]):
+                    if not (TUBE_LEN[0] <= ln <= TUBE_LEN[1] and TUBE_W[0] <= b[0] <= TUBE_W[1] and TUBE_W[0] <= b[1] <= TUBE_W[1]):
                         continue
                     r = sorted(x for q in p for x in rows.get((round(q[0], 3), round(q[1], 3), round(q[2], 3)), []))
                     bumpers.append([TUBES[mat]] + b + [[round(r[len(r) // 20]), round(r[len(r) * 19 // 20])]])

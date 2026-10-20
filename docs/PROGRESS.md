@@ -2759,3 +2759,10 @@ on every real contact the full impulse would land at the contact point and kick 
   on one face (back to back on the waves), a white housing 0.7 m deep, two legs; the research tool
   now records them with the way they face (13 pieces), and ours builds them: our amber LED chevrons
   pointing toward the piece's middle, the white housing, legs down to the terrain.
+- (M11-2) **The dirt pieces' border tubes and bumpers' rubber ends** (`dirt.gd _bumper`,
+  `dirt_furniture.py`). TMNF lines its dirt waves, diagonals, GT2 hill slopes and tilt-to-road
+  corners with short tubes in the border atlas (orange, its blue line underneath; 5-7.5 m, 41 of
+  them), and ends its logo bumpers with rubber segments under a second material name the tool
+  didn't know (StadiumRaceSignsRubber, on 21 pieces). The tool now measures both (tubes only where
+  the part is tube-shaped, 3-12 m long and 0.8-2 m thick; longer runs are curbs' faces), with the
+  atlas rows a tube shows; ours builds the tubes in the border atlas round from underneath.

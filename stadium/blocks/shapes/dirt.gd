@@ -452,9 +452,23 @@ func _kiosk(geo: TmGeo, faces: Array, ad: int) -> void:
 
 
 ## An inflatable bumper: a tube BUMPER_SIDES round, as wide as measured, along its centre line;
-## our logo vinyl (u along it, 8 m a tile; v round it) or dark rubber; its ends closed.
+## our logo vinyl (u along it, 8 m a tile; v round it) or dark rubber; its ends closed. A border
+## tube ("border": b[4] the atlas rows it shows) wears the border atlas round it from underneath
+## (u 16 m a tile): orange with the blue line, or the dark bands.
 func _bumper(geo: TmGeo, b: Array) -> void:
-	var key := "dirt_bumper" if String(b[0]) == "logo" else "rubber_dark"
+	var kind := String(b[0])
+	var key := "dirt_bumper" if kind == "logo" else "rubber_dark"
+	var rows := Vector2.ZERO
+	var tile := 8.0
+	var start := 0.0
+	if kind == "border":
+		rows = Vector2(float(b[4][0]), float(b[4][1]))
+		var mid_row := (rows.x + rows.y) * 0.5
+		key = "border_orange" if mid_row >= 299.0 else ("border_black" if mid_row >= 216.0 else "border_ribs")
+		tile = 16.0
+		start = PI
+	var cap := "rubber_dark" if kind != "border" else key
+	var cap_uv := Vector2(0.0, (rows.x + rows.y) * 0.5 / 512.0)
 	var r := float(b[1]) * 0.5
 	var line := (b[3] as Array).map(func(q: Array) -> Vector3: return Vector3(q[0], q[1], q[2]))
 	var rings := []
@@ -468,10 +482,10 @@ func _bumper(geo: TmGeo, b: Array) -> void:
 		var upv := side.cross(t).normalized()
 		if i > 0:
 			u += (line[i] as Vector3).distance_to(line[i - 1])
-		us.append(u / 8.0)
+		us.append(u / tile)
 		var ring := []
 		for k in BUMPER_SIDES + 1:
-			var a := TAU * k / BUMPER_SIDES
+			var a := start + TAU * k / BUMPER_SIDES
 			ring.append(line[i] + (upv * cos(a) + side * sin(a)) * r)
 		rings.append(ring)
 	for i in rings.size() - 1:
@@ -480,10 +494,15 @@ func _bumper(geo: TmGeo, b: Array) -> void:
 			var bb: Vector3 = rings[i][k + 1]
 			var cc: Vector3 = rings[i + 1][k + 1]
 			var d: Vector3 = rings[i + 1][k]
-			var ua := Vector2(us[i], float(k) / BUMPER_SIDES)
-			var ub := Vector2(us[i], float(k + 1) / BUMPER_SIDES)
-			var uc := Vector2(us[i + 1], float(k + 1) / BUMPER_SIDES)
-			var ud := Vector2(us[i + 1], float(k) / BUMPER_SIDES)
+			var v0 := float(k) / BUMPER_SIDES
+			var v1 := float(k + 1) / BUMPER_SIDES
+			if kind == "border":
+				v0 = lerpf(rows.x, rows.y, v0) / 512.0
+				v1 = lerpf(rows.x, rows.y, v1) / 512.0
+			var ua := Vector2(us[i], v0)
+			var ub := Vector2(us[i], v1)
+			var uc := Vector2(us[i + 1], v1)
+			var ud := Vector2(us[i + 1], v0)
 			var cen := ((line[i] as Vector3) + (line[i + 1] as Vector3)) * 0.5
 			if (bb - a).cross(d - a).dot((a + cc) * 0.5 - cen) > 0.0:
 				geo.quad_uv(a, bb, cc, d, key, S_RUBBER, ua, ub, uc, ud)
@@ -496,8 +515,9 @@ func _bumper(geo: TmGeo, b: Array) -> void:
 		for k in BUMPER_SIDES:
 			var a: Vector3 = ring[k]
 			var bb: Vector3 = ring[k + 1]
+			var z := Vector3.ZERO
 			if (a - o).cross(bb - o).dot(away) > 0.0:
-				geo.tri(o, a, bb, "rubber_dark", S_RUBBER)
+				geo.tri(o, a, bb, cap, S_RUBBER, z, z, z, cap_uv, cap_uv, cap_uv)
 			else:
-				geo.tri(o, bb, a, "rubber_dark", S_RUBBER)
+				geo.tri(o, bb, a, cap, S_RUBBER, z, z, z, cap_uv, cap_uv, cap_uv)
 
