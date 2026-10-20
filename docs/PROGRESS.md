@@ -2553,3 +2553,7 @@ on every real contact the full impulse would land at the contact point and kick 
   terrain only; TMNF runs the ground road's curbs along both sides, full up to 17 m, then a
   narrower, lower curb into the dirt's berm (measured; `dirt.gd _to_road_curbs`). Side by side
   with TMNF's block.
+- (M11-2) **The dirt checkpoint's bumpers as TMNF's.** Its gate stands on two rounded dark rubber
+  bumpers along the sides (the border atlas' black band with its blue line, a ribbed top;
+  measured section, z 1.04..30.93; `dirt.gd _gate_bumpers`); ours floated over the berms. Side by
+  side with TMNF's block.

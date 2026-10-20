@@ -4,7 +4,7 @@ extends RefCounted
 ## hand-sculpted terrain, so each is our own bicubic surface through measured control heights 2 m
 ## apart over its footprint, grass, dirt or asphalt per 2 m cell (blocks/data/dirt_heights.json, from
 ## tools/research/tmnf/terrain_heights.py). The checkpoints are the straight's terrain under a
-## gate; where a dirt road meets the road, TMNF's curbs (_to_road_curbs). Fences, signs and awnings
+## gate standing on TMNF's two rubber bumpers; where a dirt road meets the road, TMNF's curbs (_to_road_curbs). Fences, signs and awnings
 ## on some pieces are not recreated yet.
 
 const RoadShapes := preload("res://blocks/shapes/road.gd")
@@ -34,6 +34,19 @@ const TO_ROAD_D := Vector2(1.97, 0.476)
 const TO_ROAD_H := 0.8
 const TO_ROAD_SINK := 0.3
 
+## The dirt checkpoint's bumpers (TMNF's, measured): along each side (z GATE_BUMPER_Z) a rounded
+## dark rubber bumper the arch's feet stand on; its section (x from the block edge, y, key, the
+## border atlas' rows from the point to the next) round to its buried bottom.
+const GATE_BUMPER_Z := Vector2(1.04, 30.93)
+const GATE_BUMPER := [
+	[0.56, 0.82, "road_metal", Vector2(-1, -1)], [0.56, 1.21, "border_black", Vector2(300.0, 283.0)],
+	[0.71, 1.7, "border_black", Vector2(283.0, 266.0)], [0.81, 2.02, "border_black", Vector2(266.0, 245.0)],
+	[0.97, 2.19, "border_black", Vector2(245.0, 230.0)], [1.22, 2.31, "border_ribs", Vector2(160.0, 200.0)],
+	[3.56, 2.33, "border_black", Vector2(230.0, 245.0)], [3.81, 2.19, "border_black", Vector2(245.0, 266.0)],
+	[3.96, 2.02, "border_black", Vector2(266.0, 283.0)], [4.06, 1.7, "border_black", Vector2(283.0, 300.0)],
+	[4.21, 1.21, "road_metal", Vector2(-1, -1)], [4.21, 0.82, "", Vector2(-1, -1)],
+]
+
 static var _shapes: Dictionary = {}
 
 
@@ -60,6 +73,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		RoadShapes.new()._gate(gate, 16.0)
 		gate.shear_y(0.0, 0.0, float(c[1]))
 		geo.merge(gate)
+		if is_equal_approx(float(c[1]), 1.0):
+			_gate_bumpers(geo)
 	elif shapes().has(shape):
 		_surface(geo, shapes()[shape])
 		if shape in TO_ROAD:
@@ -177,3 +192,17 @@ func _to_road_curbs(geo: TmGeo) -> void:
 			var d := TO_ROAD_D.x + (p.x - 1.0) * TO_ROAD_D.y
 			return [Vector2((d - 16.0) * side, 1.0 + (p.y - 1.0) * TO_ROAD_H), q[1], q[2]] + q.slice(3))
 		geo.wall_sweep(narrow, [Vector3(16, 0, TO_ROAD_FULL), Vector3(16, -TO_ROAD_SINK, 32.0)], lat, true, "road_metal", 4)
+
+
+## The dirt checkpoint's two bumpers (GATE_BUMPER) along the sides, the arch's feet on them.
+func _gate_bumpers(geo: TmGeo) -> void:
+	var lat := [Vector3(1, 0, 0), Vector3(1, 0, 0)]
+	var path := [Vector3(16, 0, GATE_BUMPER_Z.x), Vector3(16, 0, GATE_BUMPER_Z.y)]
+	for side: float in [1.0, -1.0]:
+		var sec := GATE_BUMPER.map(func(q: Array) -> Array:
+			var p := Vector2((float(q[0]) - 16.0) * side, float(q[1]))
+			if String(q[2]).is_empty():
+				return [p, "", TmGeo.NO_COLLISION]
+			var rows: Vector2 = q[3]
+			return [p, q[2], 4] if rows.x < 0.0 else [p, q[2], 4, rows])
+		geo.wall_sweep(sec, path, lat, true, "road_metal", 4)
