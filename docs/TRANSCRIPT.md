@@ -968,3 +968,15 @@ custom blocks (2); a texture mod or custom music is ignored and the track races 
 the branch, then put it on `stadium` for a v0.6.)
 
 > Yes, do both - dont release yet
+
+Owner, later in session 15 (verbatim, 20 Oct):
+> now, make sure that all textures from maniapark (compatible with TMNF or TMUF) can be loaded in our games. Download all the textures and put it in a folder in git. Same with cars and maps.
+
+(Answered: not in this repo, which is public: the files are their authors' works, many cars copy
+commercial games' models, and ManiaPark's TMNF/TMUF cars alone are ~10,400 packs, ~70 GB. Asked
+two questions; the owner's answers: downloads "Also keep a private copy" (on storage the owner
+owns: GitHub can't hold it, so a folder on the owner's PC filled by the resumable script), tracks
+"Large Stadium sample".)
+
+Then, interrupting (verbatim):
+> look at texture mods from: https://maniapark.com/search/mods?q=game%3Amaniaplanet Can you open or make sure they open in the game? (which may not be stadium!)
