@@ -152,6 +152,8 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   at each corner between two open sides (the lip turned round an open corner square) and leaves
   the bottom plate open there; its slab sides and bottom are the dark truss (Stands2). Cross
   missing 191 -> 10 m2, T 96 -> 12, corner 56 -> 12.
+- The platform checkpoint's floodlight banks (20 Oct, late): 18 banks (spots missing 54 -> 0 m2);
+  TMNF's additive glow cards (WarpSpotsGlow, ~170 m2) stay "missing": our lamps are emissive.
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a

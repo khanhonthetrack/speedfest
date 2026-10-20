@@ -2,7 +2,7 @@
 glass's height), laid round the booths (UV-mapped by blocks/shapes/control.gd): dark posts at its
 sides, a mullion, two transoms, a dark head with a warm light strip, tinted see-through panes
 (alpha: the glass blends, the frame is solid). Also the room behind them, the camera pub's
-facade and the camera lights' spotlights.
+facade, the camera lights' and the platform checkpoint's spotlights.
 usage: python3 stadium/tools/texgen/booth.py"""
 import os
 import numpy as np
@@ -160,23 +160,24 @@ def pub_end(name='pub_end', s=512, seed=519):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
-def spots(name, length_m, height_m, centres, d_m, w, h, seed):
+def spots(name, length_m, height_m, centres, d_m, w, h, seed, joint_m=2.0):
     """A strip of round spotlights (the camera lights', TMNF's layout): a dark housing with panel
-    joints every 2 m, a lens (d_m across, silvery, lit: the emission map) at each centre (metres
-    along; across, the strip's middle)."""
+    joints every joint_m, a lens (d_m across, silvery, lit: the emission map) at each centre (metres
+    along; across, the strip's middle; or (along, across))."""
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     um = (xx + 0.5) / w * length_m
     vm = (yy + 0.5) / h * height_m
     fine = fbm(w, h, seed, beta=1.0, lo=8.0)
     col = srgb((30, 31, 34))[None, None, :] * (1.0 + 0.06 * fine)[..., None]
-    joint = 1 - smoothstep(0.0, 0.03, np.abs(((um + 1.0) % 2.0) - 1.0))
+    joint = 1 - smoothstep(0.0, 0.03, np.abs(((um + 0.5 * joint_m) % joint_m) - 0.5 * joint_m))
     col = lerp(col, srgb((14, 14, 16))[None, None, :] * np.ones((h, w, 1)), joint[..., None])
     lens = np.zeros((h, w), np.float32)
     rim = np.zeros((h, w), np.float32)
     hot = np.zeros((h, w), np.float32)
     r = 0.5 * d_m
     for c in centres:
-        d = np.sqrt((um - c) ** 2 + (vm - 0.5 * height_m) ** 2) / r
+        cu, cv = c if isinstance(c, tuple) else (c, 0.5 * height_m)
+        d = np.sqrt((um - cu) ** 2 + (vm - cv) ** 2) / r
         lens = np.maximum(lens, 1 - smoothstep(0.82, 0.9, d))
         rim = np.maximum(rim, (1 - smoothstep(0.98, 1.06, d)) * smoothstep(0.82, 0.9, d))
         hot = np.maximum(hot, np.clip(1.0 - d, 0, 1))
@@ -203,6 +204,13 @@ def camera_spots():
         c = (k + 0.5) * 6.56 / 6
         bank += [c - 0.2, c + 0.2]
     spots('spots_bank', 6.56, 0.9, bank, 0.34, 1024, 140, 523)
+
+
+def grid_spots():
+    """The platform checkpoint's floodlight banks' faces (TMNF's layout): one tile 1.42 m by 0.65 m,
+    two blocks of two by two lamps (a bank's face is two tiles long)."""
+    lamps = [(u, v) for u in (0.22, 0.51, 0.91, 1.2) for v in (0.17, 0.48)]
+    spots('spots_grid', 1.42, 0.65, lamps, 0.27, 256, 128, 529, joint_m=0.71)
 
 
 def sign_arrow(name='sign_arrow', w=512, h=512, seed=527):
@@ -245,4 +253,5 @@ if __name__ == '__main__':
     pub_facade()
     pub_end()
     camera_spots()
+    grid_spots()
     sign_arrow()

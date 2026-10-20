@@ -149,6 +149,7 @@ const COLORS := {
 	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
 	"spots_nose": [Color(0.2, 0.2, 0.21), 0.5, 0.2, 2.0],
 	"spots_bank": [Color(0.3, 0.3, 0.31), 0.5, 0.2, 2.0],
+	"spots_grid": [Color(0.3, 0.3, 0.31), 0.5, 0.2, 2.0],
 	"sign_arrow": [Color8(56, 52, 45), 0.5, 0.0, 2.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
@@ -247,6 +248,7 @@ const TEXTURED := {
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
 	"spots_nose": ["spots_nose", Vector2(2.0, 1.0), false],     # the camera lights' top bar nose (rows; texgen/booth.py)
 	"spots_bank": ["spots_bank", Vector2(1.0, 1.0), false],     # their floodlight banks' faces
+	"spots_grid": ["spots_grid", Vector2(1.0, 1.0), false],     # the platform checkpoint's banks' faces
 	"sign_arrow": ["sign_arrow", Vector2(1.0, 1.0), false],     # the dirt roads' LED arrow signs (dirt.gd)
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
@@ -387,7 +389,7 @@ static func _noise(freq: float, seed_value: int, octaves: int) -> NoiseTexture2D
 
 ## Textured keys whose emission map alone glows (its lenses), times this energy; the others with a
 ## map glow all over (colour + map).
-const LENS_GLOW := {"spots_nose": 2.5, "spots_bank": 2.5, "sign_arrow": 2.5}
+const LENS_GLOW := {"spots_nose": 2.5, "spots_bank": 2.5, "spots_grid": 2.5, "sign_arrow": 2.5}
 
 
 static func get_material(key: String) -> Material:

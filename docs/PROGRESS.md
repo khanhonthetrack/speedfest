@@ -2809,3 +2809,11 @@ on every real contact the full impulse would land at the contact point and kick 
   (Stands2, our stands_dark) where ours were flat. Missing area: cross 191 -> 10 m2, T 96 -> 12,
   corner 56 -> 12; fidelity of the three 99.3-99.8% -> 100%. (Found with a census of the shapes
   our tracks build, weighted by their use: the survey's base forms had missed these.)
+- (M11-2) **The platform checkpoint's floodlight banks as TMNF's** (`platform.gd CP_SPOTS`,
+  `_checkpoint_spots`; `texgen/booth.py spots_grid`; Platform/Checkpoint 118 uses). TMNF's has
+  nine banks a side we didn't build: two back to back on each truss column under the deck aimed
+  out, two stacked by the gate's foot and three along the strut aimed at the road. Placed from
+  the measurement (centre, facing, long axis), dark boxes with the lamps on one face: our own tile
+  of two blocks of two by two round lamps, lit (LENS_GLOW). TMNF's glow cards in front of them
+  (additive sprites) stay out: our lamps glow themselves, as on the camera lights.
+

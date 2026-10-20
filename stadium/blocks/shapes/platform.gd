@@ -131,6 +131,22 @@ const CP_NOTCH := [
 	[0.49, 7.9, "border_ribs", S_METAL, Vector2(192.0, 216.0)], [1.22, UNDER, "platform_tray", S_METAL],
 ]
 const CP_RIM_ROWS := [Vector2(0.0, 157.0), Vector2(157.0, 367.5), Vector2(367.5, 512.0)]
+## Its floodlight banks (TMNF's, measured; the +x side's, mirrored for -x): CP_SPOT_SIZE boxes
+## (along, across, deep) given by the box's centre, the lamps' facing and the long axis: two back to back on each truss column under the deck aimed out, two stacked by the
+## gate's foot and three along the strut aimed at the road. Lamps: texgen/booth.py spots_grid, two
+## tiles along the face.
+const CP_SPOT_SIZE := Vector3(2.84, 0.66, 0.76)
+const CP_SPOTS := [
+	[Vector3(31.13, 3.89, 8.54), Vector3(0.68, -0.18, 0.71), Vector3(0.26, 0.97, 0.0)],
+	[Vector3(31.13, 3.89, 24.54), Vector3(0.68, -0.18, 0.71), Vector3(0.26, 0.97, 0.0)],
+	[Vector3(31.17, 3.89, 7.45), Vector3(0.68, -0.18, -0.71), Vector3(0.26, 0.97, 0.0)],
+	[Vector3(31.17, 3.89, 23.45), Vector3(0.68, -0.18, -0.71), Vector3(0.26, 0.97, 0.0)],
+	[Vector3(29.94, 8.70, 16.03), Vector3(-0.96, -0.28, 0.0), Vector3(0.0, 0.0, 1.0)],
+	[Vector3(29.24, 9.29, 16.03), Vector3(-0.96, -0.28, 0.0), Vector3(0.0, 0.0, 1.0)],
+	[Vector3(30.80, 9.86, 8.49), Vector3(-0.98, -0.10, -0.14), Vector3(-0.17, 0.58, 0.80)],
+	[Vector3(29.77, 11.74, 11.09), Vector3(-0.91, -0.25, -0.34), Vector3(-0.42, 0.53, 0.74)],
+	[Vector3(27.90, 13.44, 13.46), Vector3(-0.77, -0.37, -0.52), Vector3(-0.64, 0.45, 0.62)],
+]
 ## The arch's outer line (the circle it lies on: centre (x, y), radius) the billboard's fall follows.
 const ARCH_CENTRE := Vector2(16, -8.976)
 const ARCH_OUTER_R := 23.302
@@ -269,6 +285,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			else:
 				_checkpoint_deck(geo)
 				_checkpoint_arch(geo)
+				_checkpoint_spots(geo)
 				if CHECKPOINT_SHEAR.has(parts[2]):
 					var k: Array = CHECKPOINT_SHEAR[parts[2]]
 					geo.shear_y(k[0], k[1], k[2])
@@ -776,6 +793,42 @@ func _ring_uv(part: TmGeo, sec: Array, centre: Vector2, mid: float) -> void:
 		var r := Vector2(p.x - centre.x, p.y - centre.y).length()
 		var u := -float(along.call(p)) if p.z < zm else float(along.call(p))
 		return Vector2(u + 4.0, (r1 - r) * 1.25 / (r1 - r0)))
+
+
+## The checkpoint's floodlight banks (CP_SPOTS, both sides): dark boxes, the lamps on one face.
+func _checkpoint_spots(geo: TmGeo) -> void:
+	for side: float in [1.0, -1.0]:
+		for q: Array in CP_SPOTS:
+			var c: Vector3 = q[0]
+			var n: Vector3 = (q[1] as Vector3).normalized()
+			var l: Vector3 = q[2]
+			if side < 0.0:
+				c = Vector3(32.0 - c.x, c.y, c.z)
+				n = Vector3(-n.x, n.y, n.z)
+				l = Vector3(-l.x, l.y, l.z)
+			l = (l - n * l.dot(n)).normalized()
+			var w := n.cross(l)
+			var h := CP_SPOT_SIZE * 0.5
+			# half sizes along any of the box's axes (l, w, n)
+			var half := func(v: Vector3) -> float: return absf(v.dot(l)) * h.x + absf(v.dot(w)) * h.y + absf(v.dot(n)) * h.z
+			for out: Vector3 in [n, -n, l, -l, w, -w]:
+				var e1: Vector3 = l if absf(out.dot(l)) < 0.5 else n
+				var e2 := out.cross(e1).normalized()
+				var fc: Vector3 = c + out * float(half.call(out))
+				var a1: float = half.call(e1)
+				var a2: float = half.call(e2)
+				var p := [fc - e1 * a1 - e2 * a2, fc + e1 * a1 - e2 * a2, fc + e1 * a1 + e2 * a2, fc - e1 * a1 + e2 * a2]
+				if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+					p.reverse()
+				geo.quad(p[0], p[1], p[2], p[3], "stands_dark", TmGeo.NO_COLLISION)
+			# the lamps, just in front of the face (u: two tiles along, v across)
+			var fc := c + n * (h.z + 0.01)
+			var lp := [fc - l * h.x - w * h.y, fc + l * h.x - w * h.y, fc + l * h.x + w * h.y, fc - l * h.x + w * h.y]
+			var uv := [Vector2(0, 1), Vector2(2, 1), Vector2(2, 0), Vector2(0, 0)]
+			if ((lp[1] - lp[0]) as Vector3).cross(lp[2] - lp[0]).dot(n) < 0.0:
+				geo.quad_uv(lp[0], lp[3], lp[2], lp[1], "spots_grid", TmGeo.NO_COLLISION, uv[0], uv[3], uv[2], uv[1])
+			else:
+				geo.quad_uv(lp[0], lp[1], lp[2], lp[3], "spots_grid", TmGeo.NO_COLLISION, uv[0], uv[1], uv[2], uv[3])
 
 
 ## The checkpoint's gate over the deck (CP_GATE_*: the road's, resized as TMNF's), a billboard leaning
