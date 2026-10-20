@@ -270,8 +270,14 @@ graphics card": new assets of our own (not TMNF's), for Forward+ on a strong PC 
 - [x] 2. The city around the Stadium (`env/tm_skyline.gd`, `env/tm_city_ground.gdshader`): districts
       of towers whose tops clear the stands, landmarks behind the grandstands, blocks of lower
       buildings, a street grid; cameras see 9 km (`TmSkyline.FAR`); `tests/test_skyline` (gate)
-- [ ] 3. The owner's look at it; then maybe: night lights, towers in our own tracks' scenery, a
-      setting to turn the city off on weaker PCs
+- [x] 3. Night (owner: "add night lights to the towers"): a night mood (maps' decoration, specs'
+      `mood`, --mood), stars, floodlights on the field; lit windows in patches, crown floodlights,
+      aviation lights, street lights
+- [x] 4. Towers in our tracks' scenery (owner: "create 5 tracks of name CITY"): the campaign's
+      sixth series, City F01-F05 (`"scenery": "city"`: `TmSkyline.field`, buildings on the free
+      cells around the road with collision, a paved field; F02, F04, F05 at night); in the gate
+      (`test_skyline`, `test_tracks` drives F01)
+- [ ] 5. The owner's look at it; then maybe a setting to turn the city off on weaker PCs
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

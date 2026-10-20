@@ -2627,3 +2627,29 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   marked by the vertex colour's alpha); aviation lights grow with distance so they stay a few
   pixels wide, brighter at night; street lights along every kerb (`env/tm_city_ground.gdshader`).
 - `tests/test_skyline` (+3): maps' moods, the night and day environments.
+
+## 2026-10-20 — session 15 (cloud): the City series (M12)
+
+- Second step of the owner's "add towers in tracks scenery (instead of white,blue, create 5 tracks
+  of name CITY)": read as a sixth campaign series named City (TRANSCRIPT), next to the colour
+  series.
+- `tracks/F01..F05.json` ("City 01" .. "City 05"): street circuits on the ground with tight road
+  corners, GT curves, an overpass (F01, F05), a hill (F03), jumps over a street (F02, F05) and a
+  loop after a turbo (F04: without the turbo the bot came off the loop at 247 km/h); F02, F04,
+  F05 at night (`"mood": "night"`). `tracks/campaign.json`: the series "City". Medals by the bot
+  (`test_tracks --write_medals`): authors 31.76, 29.03, 29.76, 23.83, 35.55 s.
+- `"scenery": "city"` in a spec (`TmChallenge.scenery`): `TmSkyline.field(builder)` puts the city
+  on the field: 2 x 2-cell lots with a tower (at most 40), single cells with a lower glass or
+  masonry building, some plazas; never on a cell the track's meshes cover (`track_cells`: block
+  bounds, the line, a cell round jumps' flights, round the start and two cells behind it), walls
+  4 m inside their cells; collision boxes (a car that leaves the road hits them); shadows; lit at
+  night; one layout per track (seeded by its uid). Builds in ~60 ms.
+- The field of a city track is paved (`TmMapBuilder._terrain`: `env/tm_city_paving.gdshader`,
+  2 m concrete slabs, each cell's own tone, wear; concrete grip). `TmTrackDecor.decorate(city)`
+  keeps the stands, checkpoint cameras and curve walls; no rows, inflatables, sculptures, airship.
+- The menu: the City series in Play Solo with its own amber flag (`assets/ui/flag_city.png`,
+  `tools/texgen/menu_icons.py`) and the tracks' card pictures (`tools/icons/thumbs.sh F01 ..`).
+  The servers' rotation takes it from campaign.json as it is.
+- `tests/test_skyline` (+5): the City series, F01's field city (towers, buildings), nothing on a
+  track cell nor within 6 m of the car's line, the field paved. The gate's `test_tracks` drives
+  F01 (each series' first track).

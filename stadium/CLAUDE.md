@@ -74,7 +74,9 @@ Updated 2026-10-20 (session 15: v0.5 merged with the community work, on `stadium
 - **A city around the Stadium (PLAN M12, 20 Oct):** our own skyscrapers (`env/tm_tower.gd`: glass
   with rooms behind the windows, masonry, crowns, lights) in a city on the plain below the
   Stadium's edge (`env/tm_skyline.gd`, added on 32 x 32 maps, `--city=false` to leave it out);
-  cameras see `TmSkyline.FAR` (9 km); `tests/test_skyline`.
+  cameras see `TmSkyline.FAR` (9 km); `tests/test_skyline`. Night (20 Oct): `TmStadiumEnv.mood_of`
+  (maps' decoration, specs' `mood`, `--mood=night`), the towers lit (`tm_night`). The campaign's
+  sixth series **City** (F01-F05, `"scenery": "city"`): towers around the road (`TmSkyline.field`).
 - **Community content (session 15, PLAN M11; in `stadium` since 19 Oct, after v0.5, not released yet):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a

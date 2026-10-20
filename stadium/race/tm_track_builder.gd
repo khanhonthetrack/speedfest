@@ -92,7 +92,7 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 	if b.errors.is_empty():
 		b.add_pillars()
 		if bool(spec.get("decorate", true)):
-			TmTrackDecor.decorate(b, String(spec.get("id", "")))
+			TmTrackDecor.decorate(b, String(spec.get("id", "")), String(spec.get("scenery", "")) == "city")
 	if b.errors.is_empty() and b.laps > 1:
 		# the line once per lap: the bot drives on round
 		var lap := b.path.duplicate(true)

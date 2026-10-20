@@ -14,12 +14,23 @@
   Look: `stadium/tools/run.sh res://race/map_view.tscn -- --view=path:0.15 --frames=20 --shot=/abs.png`
   (a driver's view on A01), `--view=at:900,160,900,1940,120,700` (a downtown from the air),
   `res://env/tower_lab.tscn -- --view=street|mid|far|top` (five towers on a plaza).
+- Owner: "add night lights to the towers, add towers in tracks scenery (instead of white,blue,
+  create 5 tracks of name CITY)": **night** (`TmStadiumEnv.mood_of`: a map's decoration, our
+  specs' `"mood": "night"`, `--mood=night`; global shader value `tm_night`; floodlights on the
+  field, `TmStage._floodlights`; the city on its own render layer) and the campaign's sixth series
+  **City** (`tracks/F01..F05.json`, `"scenery": "city"`: `TmSkyline.field` puts towers and lower
+  buildings, with collision, on the cells around the road, none on the track, its line or around
+  the start; the field paved, `env/tm_city_paving.gdshader`; `TmTrackDecor` keeps only the
+  stands, cameras and curve walls there). Read as a new series next to the colour ones, not
+  instead of White and Blue. Medals by the bot (`test_tracks --write_medals`); card pictures by
+  `tools/icons/thumbs.sh F01 ..`; the amber series flag from `tools/texgen/menu_icons.py`.
 - Owner (20 Oct, not answered yet): "I want to be able to load all canyon/lagoon maps somehow."
   Their block lists already read; the blocks' geometry doesn't exist. Options put to the owner:
   approximate them from our pieces, recreate from the owner's own TM2 install locally, or a
   preview only. Wait for the answer.
-- The TMX Stadium track run (`compat_run.py tracks`, 20,256 tracks) is resumable: rerun the same
-  command; results go to `stadium/tools/compat/results/tmx_tracks.tsv` when it finishes.
+- The TMX Stadium track run (`compat_run.py tracks`, 20,256 tracks; 18,000 done, 8 not ok, when
+  the cloud session's background limit stopped it) is resumable: rerun the same command; results
+  go to `stadium/tools/compat/results/tmx_tracks.tsv` when it finishes.
 
 ## Latest (19 Oct, session 15, cloud): session 15 merged with v0.5 and into `stadium` (no release yet)
 - Owner: "Why cant i see the community tab in the 0.5 version?" (v0.5 was tagged from `stadium`,

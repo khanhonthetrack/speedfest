@@ -3,7 +3,9 @@ extends Node
 ## inside its edge), has its districts' towers and the landmarks behind the grandstands, which rise
 ## over the roofs (their tops seen from the field above the roof's edge); a tower's parts (facade,
 ## lobby, roofs, beacon) and its merged blocks' materials; the cameras see that far. Night: a map's
-## mood (a .Challenge.Gbx's decoration, our spec's "mood", --mood) and the night environment.
+## mood (a .Challenge.Gbx's decoration, our spec's "mood", --mood) and the night environment. A
+## city track (F01): towers and buildings on its field, none on a cell the track takes nor in the
+## way of the car's line (its collision boxes), the field paved, the City series in the campaign.
 
 func _ready() -> void:
 	var t0 := Time.get_ticks_msec()
@@ -79,4 +81,50 @@ func _ready() -> void:
 	TmStadiumEnv.add(lit, "day")
 	TestHooks.check(not TmStadiumEnv.night and lit.get_node_or_null("Sun") != null, "day_environment")
 	lit.free()
+	_city_track()
 	TestHooks.finish()
+
+
+func _city_track() -> void:
+	var ch := TmTracks.challenge("F01")
+	TestHooks.check(ch.ok() and ch.scenery == "city", "city_track_spec", ch.error)
+	if not ch.ok():
+		return
+	var builder := TmMapBuilder.build(ch)
+	add_child(builder.root)
+	var t0 := Time.get_ticks_msec()
+	var field := TmSkyline.field(builder)
+	var ms := Time.get_ticks_msec() - t0
+	add_child(field)
+	var towers := field.get_node("Towers").get_child_count()
+	var boxes: Array[AABB] = []
+	for cs in field.get_node("Body").get_children():
+		var shape := (cs as CollisionShape3D).shape as BoxShape3D
+		boxes.append(AABB(field.position + (cs as Node3D).position - shape.size * 0.5, shape.size))
+	print("FIELD_CITY build %d ms, %d towers, %d buildings" % [ms, towers, boxes.size()])
+	TestHooks.check(towers >= 5 and towers <= TmSkyline.FIELD_TOWERS and boxes.size() >= 60, "city_field_buildings",
+		"%d towers, %d boxes" % [towers, boxes.size()])
+	# nothing on a cell the track takes, nothing within 6 m of the car's line (at its height)
+	var busy := TmSkyline.track_cells(builder)
+	var on_track := 0
+	for b in boxes:
+		var c := Vector2i(floori(-b.get_center().x / 32.0), floori(b.get_center().z / 32.0))
+		if busy.has(c):
+			on_track += 1
+	var in_way := 0
+	for pt: Dictionary in ch.path:
+		var p: Vector3 = pt["p"]
+		for b in boxes:
+			if b.grow(6.0).has_point(p):
+				in_way += 1
+	TestHooks.check(on_track == 0 and in_way == 0, "city_field_clear_of_track", "%d on track cells, %d line points in a building" % [on_track, in_way])
+	var terrain := builder.root.get_node("Terrain")
+	var paved := false
+	for c in terrain.get_children():
+		if c is MeshInstance3D and (c as MeshInstance3D).material_override == TmSkyline.paving():
+			paved = true
+	TestHooks.check(paved, "city_field_paved")
+	var city := TmTracks.series().filter(func(s: Dictionary) -> bool: return s["name"] == "City")
+	TestHooks.check(city.size() == 1 and (city[0]["tracks"] as Array).size() == 5, "city_series")
+	field.free()
+	builder.root.free()

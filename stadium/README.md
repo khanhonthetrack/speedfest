@@ -10,7 +10,9 @@ Owner decisions (2026-10-16):
 - **Tracks:** the game is **standalone** (owner, 2026-10-17): its campaign is our own tracks
   (`tracks/*.json`, built from the recreated blocks; no TMNF needed): 65 in TMNF's five series,
   White A01-A15, Green B01-B15, Blue C01-C15, Red D01-D15, Black E01-E05 (owner, session 13:
-  "Only our own A-E"; `docs/research/m9_campaign.md`). The first SpeedFest tracks (SF01-SF11)
+  "Only our own A-E"; `docs/research/m9_campaign.md`), and a sixth series of our own, **City**
+  F01-F05 (owner, 20 Oct: street circuits between towers on a paved field, three of them at night;
+  `"scenery": "city"`, `"mood": "night"` in their specs). The first SpeedFest tracks (SF01-SF11)
   stay raceable by id. TMNF's official campaign and
   any `.Challenge.Gbx` (TMX downloads) still load **at runtime** from files the player owns (their
   TMNF install, their downloads) and are drawn with our blocks. They are never committed.

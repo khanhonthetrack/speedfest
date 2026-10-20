@@ -227,12 +227,22 @@ static func field(builder: TmMapBuilder) -> Node3D:
 
 
 ## The map cells (TMNF x, z) a track takes: every cell its blocks' meshes cover (their bounds) and
-## those under its line, with a cell's margin round a jump's flight (the car may drift there).
+## those under its line, with a cell's margin round a jump's flight (the car may drift there) and
+## round the start and two cells behind it (where the start's cameras stand).
 static func track_cells(builder: TmMapBuilder) -> Dictionary:
 	var busy := {}
 	var blocks := builder.root.get_node_or_null("Blocks")
 	if blocks != null:
 		_mark(blocks, builder.root.transform * (blocks as Node3D).transform, busy)
+	if builder.has_start:
+		# the start's surroundings and two cells behind it: the start's cameras look from there
+		var s := builder.start
+		for k in 3:
+			var p := s.origin - s.basis.z * 32.0 * k
+			var c := Vector2i(floori(-p.x / 32.0), floori(p.z / 32.0))
+			for dx in range(-1, 2):
+				for dz in range(-1, 2):
+					busy[c + Vector2i(dx, dz)] = true
 	for pt: Dictionary in builder.challenge.path:
 		var p: Vector3 = pt["p"]
 		var c := Vector2i(floori(-p.x / 32.0), floori(p.z / 32.0))
