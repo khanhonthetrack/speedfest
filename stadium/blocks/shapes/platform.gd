@@ -51,12 +51,13 @@ const COLUMN_FOOT := [Vector2(1.9, 0.05), Vector2(2.35, 0.05)]     ## (d, y) its
 const COLUMN_HEAD := [Vector2(0.85, UNDER), Vector2(1.3, UNDER)]   ## and top edges
 ## The turbo plate's rounded edge (every side) and the strip of plate behind it to TURBO_PLATE_IN:
 ## its edge the border atlas' ribs, the bevel TMNF's TURBO sign (ours: texgen/turbo.py turbo_rim, v
-## across the bevel as rows of 512), the underside TMNF's light plates (the slab beyond is dark).
+## across the bevel as rows of 512; mirrored, as TMNF's reads from outside), the underside TMNF's
+## light plates (the slab beyond is dark).
 const TURBO_PLATE_IN := 3.08
 const PLATE_LIP := [
 	[TURBO_PLATE_IN, TOP, "turbo", S_TURBO], [0.0, TOP, "border_ribs", S_METAL, Vector2(161.5, 191.9)],
-	[0.0, 7.9, "border_ribs", S_METAL, Vector2(191.9, 200.0)], [0.122, 7.9, "turbo_rim", S_SIGNS, Vector2(0.0, 163.4)],
-	[0.249, 7.611, "turbo_rim", S_SIGNS, Vector2(163.4, 370.2)], [0.505, 7.423, "turbo_rim", S_SIGNS, Vector2(370.2, 512.0)],
+	[0.0, 7.9, "border_ribs", S_METAL, Vector2(191.9, 200.0)], [0.122, 7.9, "turbo_rim_out", S_SIGNS, Vector2(0.0, 163.4)],
+	[0.249, 7.611, "turbo_rim_out", S_SIGNS, Vector2(163.4, 370.2)], [0.505, 7.423, "turbo_rim_out", S_SIGNS, Vector2(370.2, 512.0)],
 	[0.847, UNDER, "road_under", S_METAL], [TURBO_PLATE_IN, UNDER, "", TmGeo.NO_COLLISION],
 ]
 ## The turbo deck's floor under the plate (measured): its edge (d, y) at the deck's foot, the
@@ -104,12 +105,24 @@ const WALL_PLAN := [
 	[31.916, 1.100, "metal", 4], [32.000, 1.215, "metal", 4], [32.000, 1.345, "wall", 16],
 	[31.000, 1.345, "grid", 4], [24.000, 1.345, "platform_wall", 16]
 ]
-## The platform checkpoint's arch: the ring section moved out to radius 21.91 .. 23.30 about this
-## centre (and 0.1 m back along z), its half-angle, and the billboard (z, radius) on its back.
+## The platform checkpoint (TMNF's, measured): the road's gate (RoadShapes._gate: arch, feet,
+## light rigs) CP_GATE_SCALE wider about the centre line and CP_GATE_DY higher, on the deck; under
+## its feet each x side's edge set back along CP_NOTCH_Z (CP_NOTCH: a dark strip along the top
+## behind an orange band, a steeper bevel, the dark plate under it; then the lip's from its
+## underside on); elsewhere the rim's bevel the CHECKPOINT sign (CP_RIM_ROWS: the sign's rows on
+## its three segments; mirrored, as TMNF's reads from outside).
+const CP_GATE_SCALE := 1.089
+const CP_GATE_DY := 5.52
+const CP_NOTCH_Z := Vector2(12.0, 20.0)
+const CP_NOTCH := [
+	[INSET, TOP, "platform", S_DECK], [2.16, TOP, "border_orange", S_METAL, Vector2(298.0, 366.0)],
+	[2.0, TOP, "platform_tray", S_DECK], [0.49, TOP, "border_ribs", S_METAL, Vector2(161.0, 192.0)],
+	[0.49, 7.9, "border_ribs", S_METAL, Vector2(192.0, 216.0)], [1.22, UNDER, "platform_tray", S_METAL],
+]
+const CP_RIM_ROWS := [Vector2(0.0, 157.0), Vector2(157.0, 367.5), Vector2(367.5, 512.0)]
+## The arch's outer line (the circle it lies on: centre (x, y), radius) the billboard's fall follows.
 const ARCH_CENTRE := Vector2(16, -8.976)
-const ARCH_DR := 9.348
-const ARCH_DZ := -0.105
-const ARCH_HALF := 33.8
+const ARCH_OUTER_R := 23.302
 ## The billboard: a band leaning in over the arch, curved in plan about a vertical axis at
 ## ARCH_BOARD_AXIS (x, z); its section (radius from the axis, y) at the top, its half-angle, and
 ## how much of the arch's fall toward its ends it follows (measured: its ends at x 5.94 / 26.06,
@@ -243,7 +256,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			if parts[2] == "RingVAir":
 				_ring_v(geo)
 			else:
-				_deck(geo, _closed([]))       # a lip on every side, the body inset all round
+				_checkpoint_deck(geo)
 				_checkpoint_arch(geo)
 				if CHECKPOINT_SHEAR.has(parts[2]):
 					var k: Array = CHECKPOINT_SHEAR[parts[2]]
@@ -294,6 +307,30 @@ func _deck(geo: TmGeo, closed: Array) -> void:
 	for i in 4:
 		if closed[i]:
 			_edge_sweep(geo, LIP, i, closed)
+	_deck_body(geo, closed)
+
+
+## The checkpoint's deck (CP_*): closed all round, its rim the CHECKPOINT sign but under the gate's
+## feet, where the x sides' edge is set back.
+func _checkpoint_deck(geo: TmGeo) -> void:
+	var all := [true, true, true, true]
+	var rim := LIP.duplicate(true)
+	for k in 3:
+		var q: Array = rim[3 + k]
+		rim[3 + k] = [q[0], q[1], "curb_cp_out", S_SIGNS, CP_RIM_ROWS[k]]
+	var notch: Array = CP_NOTCH + LIP.slice(7)
+	for i in 4:
+		if i == 1 or i == 3:
+			_edge_sweep(geo, rim, i, all, false, 0.0, CP_NOTCH_Z.x)
+			_edge_sweep(geo, notch, i, all, false, CP_NOTCH_Z.x, CP_NOTCH_Z.y)
+			_edge_sweep(geo, rim, i, all, false, CP_NOTCH_Z.y, 32.0)
+		else:
+			_edge_sweep(geo, rim, i, all)
+	_deck_body(geo, all)
+
+
+## The deck's body behind its lips (inset on closed sides) and its underside.
+func _deck_body(geo: TmGeo, closed: Array) -> void:
 	var inset := func(i: int) -> float: return INSET if closed[i] else 0.0
 	var lo := Vector3(inset.call(1), BOTTOM, inset.call(2))
 	var hi := Vector3(32.0 - inset.call(3), TOP, 32.0 - inset.call(0))
@@ -418,25 +455,27 @@ func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array) -> void:
 		geo.quad(p[1], p[5], p[6], p[2], "platform_tray", S_METAL)      # +x
 
 
-## Sweeps an edge section (d inward, y) along side i of the block; each end is mitred against a
-## closed neighbouring side, or square to the block edge.
-func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array, mid := false) -> void:
+## Sweeps an edge section (d inward, y) along side i of the block, from s0 to s1 m along it; an
+## end at a corner is mitred against a closed neighbouring side, else square to the block edge
+## (the ends between two parts of a side closed dark).
+func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array, mid := false, s0 := 0.0, s1 := 32.0) -> void:
 	var o: Vector3 = SIDES[i]
 	var t := Vector3(o.z, 0.0, -o.x)
 	var c := Vector3(16, 0, 16)
-	var a := c + o * 16.0 - t * 16.0
-	var b := c + o * 16.0 + t * 16.0
+	var a := c + o * 16.0 + t * (s0 - 16.0)
+	var b := c + o * 16.0 + t * (s1 - 16.0)
 	var n := -o
 	# the neighbour at a has outward -t, at b +t
 	var at_a := SIDES.find(-t)
 	var at_b := SIDES.find(t)
-	var la := n + t if closed[at_a] else n
-	var lb := n - t if closed[at_b] else n
+	var la := n + t if closed[at_a] and s0 <= 0.0 else n
+	var lb := n - t if closed[at_b] and s1 >= 32.0 else n
+	var cap := "metal" if s0 <= 0.0 and s1 >= 32.0 else "platform_tray"
 	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]] + q.slice(4))
 	if mid:      # a vertex half way (a texture mirrored about the centre line needs one)
-		geo.wall_sweep(sec, [a, (a + b) * 0.5, b], [la, n, lb], true, "metal", S_METAL)
+		geo.wall_sweep(sec, [a, (a + b) * 0.5, b], [la, n, lb], true, cap, S_METAL)
 	else:
-		geo.wall_sweep(sec, [a, b], [la, lb], true, "metal", S_METAL)
+		geo.wall_sweep(sec, [a, b], [la, lb], true, cap, S_METAL)
 
 
 ## Turbo deck (TMNF's): a thin plate (8 -> 7.325 m) with a turbo top and its TURBO rim, over the
@@ -664,15 +703,13 @@ func _ring_uv(part: TmGeo, sec: Array, centre: Vector2, mid: float) -> void:
 		return Vector2(u + 4.0, (r1 - r) * 1.25 / (r1 - r0)))
 
 
-## The checkpoint arch over the deck: the ring's section revolved on a circle of radius 23.3 about
-## (16, -8.976) between radial cuts 33.8 degrees either side of the top, a billboard leaning on its
-## back, and the two struts holding it from the deck's front corners.
+## The checkpoint's gate over the deck (CP_GATE_*: the road's, resized as TMNF's), a billboard leaning
+## on the arch's back, and the two struts holding it from the deck's front corners.
 func _checkpoint_arch(geo: TmGeo) -> void:
-	var sec := RING_SECTION.map(func(q: Array) -> Array: return [float(q[0]) + ARCH_DZ, float(q[1]) + ARCH_DR, q[2], q[3]])
-	var part := TmGeo.new()
-	_revolve_z(part, sec, 90.0 - ARCH_HALF, 90.0 + ARCH_HALF, 16, true, ARCH_CENTRE)
-	_ring_uv(part, sec, ARCH_CENTRE, 90.0)
-	geo.merge(part)
+	var gate := TmGeo.new()
+	RoadShapes.new()._gate(gate, 16.0)
+	gate.scale_move(Vector3(16, 0, 16), Vector3(CP_GATE_SCALE, 1.0, 1.0), Vector3(0.0, CP_GATE_DY, 0.0))
+	geo.merge(gate)
 	# the billboard follows the arch down toward its ends
 	var path := []
 	var outward := []
@@ -683,7 +720,7 @@ func _checkpoint_arch(geo: TmGeo) -> void:
 		path.append(Vector3(ARCH_BOARD_AXIS.x, 0, ARCH_BOARD_AXIS.y))
 		outward.append(dir)
 		var x := ARCH_BOARD_AXIS.x + dir.x * 18.2
-		var r := ARCH_DR + 13.954
+		var r := ARCH_OUTER_R
 		drop.append(ARCH_BOARD_FALL * (sqrt(maxf(0.0, r * r - (x - 16.0) * (x - 16.0))) - r))
 	var board := ARCH_BOARD.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
 	geo.wall_sweep(board, path, outward, true, "screen", S_METAL,

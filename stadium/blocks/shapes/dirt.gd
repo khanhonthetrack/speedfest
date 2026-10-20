@@ -23,7 +23,7 @@ const GRASS_EPS := 0.05         ## how far off the grass level (1 m) a corner st
 ## (GATE_Z_SCALE about the block's centre, then GATE_Z_MOVE further); the clamps' straps lower
 ## (GATE_STRAP_DY: on the bumpers).
 const CHECKPOINTS := {
-	"Road/Dirt/RoadDirtCheckpoint/Ground": ["Road/Dirt/StraightGround", 1.07, 1.045],
+	"Road/Dirt/RoadDirtCheckpoint/Ground": ["Road/Dirt/StraightGround", 1.075, 1.042],
 	"Road/DirtHigh/RoadDirtCheckpointHigh/Ground": ["Road/DirtHigh/StraightGround", 5.78, 0.891],
 }
 const GATE_Z_SCALE := 0.963
@@ -92,7 +92,9 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		return null
 	var node := geo.build()
 	if CHECKPOINTS.has(shape):
-		TmGateDress.crown(node, "cp", 16.0 + GATE_Z_MOVE, Vector3(0.0, 0.0, float(CHECKPOINTS[shape][1])), true)
+		var c: Array = CHECKPOINTS[shape]
+		TmGateDress.crown(node, "cp", 16.0 + GATE_Z_MOVE, Vector3(0.0, 0.0, float(c[1])), true,
+			Vector3(float(c[2]), 1.0, GATE_Z_SCALE))
 	return node
 
 

@@ -33,14 +33,18 @@ static func dress(root: Node3D, kind: String, zc: float, shear := Vector3.ZERO) 
 
 
 ## The gate's crown screen and spotlight (TmGateScreen) under `root` (already sheared like the
-## block, or pass `shear` for a holder of its own).
-static func crown(root: Node3D, kind: String, zc: float, shear := Vector3.ZERO, own_holder := false) -> void:
+## block, or pass `shear` for a holder of its own, and `size` for a gate resized about its centre
+## line and zc: TmGeo.scale_move, the dirt roads' gates).
+static func crown(root: Node3D, kind: String, zc: float, shear := Vector3.ZERO, own_holder := false,
+		size := Vector3.ONE) -> void:
 	var holder := root
 	if own_holder:
 		holder = Node3D.new()
 		holder.name = "GateCrown"
-		holder.transform = Transform3D(Basis(Vector3(1, -shear.x, 0), Vector3(0, 1, 0), Vector3(0, shear.y, 1)),
-			Vector3(0, shear.z, 0))
+		var sh := Basis(Vector3(1, -shear.x, 0), Vector3(0, 1, 0), Vector3(0, shear.y, 1))
+		var k := Basis.from_scale(size)
+		var c := Vector3(-16.0, 0.0, zc)        # the centre line (Godot's x is TMNF's negated)
+		holder.transform = Transform3D(sh * k, Vector3(0, shear.z, 0) + sh * (c - k * c))
 		root.add_child(holder)
 	var spec: Array = KINDS.get(kind, KINDS["cp"])
 	TmGateScreen.add(holder, "finish" if kind == "lap" else kind, zc, spec[0])

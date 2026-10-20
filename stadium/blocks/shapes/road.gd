@@ -1044,13 +1044,9 @@ func _gate_feet(geo: TmGeo, zc: float, strap_dy := 0.0) -> void:
 		var b: Vector2 = mx.call(GATE_LATTICE[1])
 		var z0 := zc + GATE_LATTICE_Z.x
 		var z1 := zc + GATE_LATTICE_Z.y
-		for side_out in [1.0, -1.0]:
-			var q := [Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1)]
-			var n: Vector3 = Vector3(b.y - a.y, -(b.x - a.x), 0.0) * float(side_out)
-			if (q[1] - q[0]).cross(q[2] - q[0]).dot(n) < 0.0:
-				geo.quad(q[0], q[3], q[2], q[1], "glass_dark", TmGeo.NO_COLLISION)
-			else:
-				geo.quad(q[0], q[1], q[2], q[3], "glass_dark", TmGeo.NO_COLLISION)
+		# (one face: the translucent material shows both sides)
+		geo.quad(Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1),
+			"glass_dark", TmGeo.NO_COLLISION)
 		# the light rigs: square housings turned with the lattice, their lamps facing the road
 		var dir := (GATE_LATTICE[1] - GATE_LATTICE[0]).normalized()
 		var nrm := Vector2(dir.y, -dir.x)          # toward the road and down (left foot)

@@ -2588,3 +2588,18 @@ on every real contact the full impulse would land at the contact point and kick 
   crown screen still shows FINISH, where our lap races end). The dirt bumpers carry the sign the
   same way, the word every 5 m (`bumper_cp`). Side by side with TMNF's blocks: Checkpoint,
   Finish, Start, MultiLap, dirt checkpoint.
+- (M11-2) **Review fixes for the gates** (a sequential read-only review of 867ec69, each finding
+  checked by a second agent): the dirt gates' crown screen is resized with the gate
+  (`TmGateDress.crown` `size`; it stood 0.1 m off the arch's faces, and on the high gate its ends
+  above the narrowed arch); the lattice is one face (the translucent material shows both sides;
+  two faces made it 92% opaque instead of 72%). The dirt gates' sizes re-measured on five points:
+  1.042 wide, 1.075 m up.
+- (M11-2) **The platform checkpoint as TMNF's.** TMNF's is the road's gate again, 8.9% wider and
+  5.52 m up on the deck (measured: arch, clamps, struts, lattice, light rigs all fit), so ours is
+  that now (`platform.gd _checkpoint_arch`; it was the ring's section revolved, light grey, no
+  feet). Under the feet each side's edge is set back as TMNF's (`CP_NOTCH`, z 12..20: a dark
+  strip along the top behind an orange band, a steeper bevel), elsewhere the rim's bevel carries
+  the CHECKPOINT sign, mirrored as TMNF's reads from outside (`_checkpoint_deck`); the billboard
+  and its struts stay. The turbo deck's TURBO rim reads mirrored as TMNF's too. Side by side with
+  TMNF's blocks. Left: the high dirt checkpoint's side rails and posts (TMNF's; not on our tracks),
+  the turbo deck's advert band under the rim, the platform billboard's struts as TMNF's lattice.

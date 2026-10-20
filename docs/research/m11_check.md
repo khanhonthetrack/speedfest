@@ -76,6 +76,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   every gate block's curb signs (both faces, the word every 4 m on panels, mirrored outside;
   MULTILAP on the multilap). Left out with the sign boards (option B): the checkpoint's clamp at
   z 5.8 and its brace up to the boards.
+- The platform checkpoint is TMNF's: the road gate resized on the deck, the set-back edge under
+  its feet, the CHECKPOINT rim (the turbo deck's TURBO rim mirrored as TMNF's). Left: the high
+  dirt checkpoint's side rails and posts, the turbo deck's advert band, the platform billboard's
+  struts (TMNF's are lattice beams).
 - Control: the glass booths (grey glass, a room, the roof), the pubs (2:1 boards, the base's kiosk,
   frame, plinth), the camera lights (dark centre, floodlight bars), the camera galleries' rail.
 - Others: sculptures (concrete panels, smooth shading, atlas curbs), the grandstands' white truss
