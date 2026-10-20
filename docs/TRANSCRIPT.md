@@ -969,3 +969,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 20 Oct, after another worker restart during M11: airship, pubs, camera lights, dirt furniture, loops, roof glass done)
 
 > Cotninue
+
+### User (verbatim, session 13, 20 Oct, after the usage limit reset during M11: the platform plates' inner corners)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.

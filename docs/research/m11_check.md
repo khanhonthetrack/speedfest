@@ -148,6 +148,19 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   logos, ours our emblem); the road undersides (their mean colour TMNF's; the rest is texture
   pattern).
 
+- The platform plates' inner corners (20 Oct, late): TMNF notches its T, cross and corner plates
+  at each corner between two open sides (the lip turned round an open corner square) and leaves
+  the bottom plate open there; its slab sides and bottom are the dark truss (Stands2). Cross
+  missing 191 -> 10 m2, T 96 -> 12, corner 56 -> 12.
+- Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
+  `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
+  differing area by its count. The catalogue's "uses" are per block (its base form), so forms a
+  neighbour chooses (junctions, T and cross plates, border corners) were missing from the
+  earlier lists. Top of that list now: the grandstand straights' lattice (flat cards in TMNF),
+  the airship's livery (ours), the grandstand pillar piece and the snow / palm trees (organic),
+  the circuit border's blue shade, the platform turbo deck, the platform checkpoint's glow and
+  spots, the road straight's underside details, the camera light and camera pub straights.
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the

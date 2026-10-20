@@ -45,14 +45,20 @@
   the booths' plinth rims and gallery ends, the grandstand roofs' membrane (fabric_roof), the
   dirt-to-road transition (road_to_dirt) and TMNF's LED signs on 13 dirt pieces, the dirt pieces'
   border tubes and rubber ends, the platform ramp's orange curb underside, the turbo pads'
-  grating, the road turbo's railings and fans. Side-by-side renders:
+  grating, the road turbo's railings and fans, the sculptures' plinth pads, the snow trees' snow,
+  the turbines' exhaust caps, the road junctions' keel, the platform plates' inner corners (the
+  lip turned round a notch) and truss undersides. Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell
   coplanar or hidden surfaces apart: check a big "differ" with a render before fixing it; sample
-  TMNF's colours inside triangles, never at vertices). Left by our tracks' use: the sculptures'
-  borders, the inflatable trees (organic), the hill pieces' fabric awnings (DirtFabric), the
-  gates' big sign panels (left out: owner's option B), the open ends of platform decks; then PLAN
-  M11-3, 5..7.
+  TMNF's colours inside triangles, never at vertices). Rank what is left by our tracks' use
+  (m11_check "Survey by use": every shape our tracks build, with counts, not the catalogue's base
+  forms). Left: the grandstand straights' lattice (flat cards in TMNF), the grandstand pillar
+  piece, the snow / palm trees (organic), the circuit border's blue shade, the platform turbo
+  deck and checkpoint (glow, spots), the road straight's underside details, the camera light and
+  camera pub straights, the inflatable corner pillar, the hill pieces' fabric awnings, the
+  sculptures' borders; the gates' big sign panels stay out (owner's option B); then PLAN M11-3,
+  5..7.
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).

@@ -2798,3 +2798,14 @@ on every real contact the full impulse would land at the contact point and kick 
   own), each ring clipped to the quarter, the step up to the shoulder, and a dark face where a
   straight quarter meets a revolved one. (The survey listed road blocks by their base form, so
   the junction forms our tracks use had not been in it.)
+- (M11-2) **The platform plates' inner corners and undersides as TMNF's** (`platform.gd
+  _deck_body`, `_underside`; the plates our tracks lay most: Cross 421, T 492, Corner 272 uses).
+  TMNF's T, cross and corner plates are notched at every corner whose two sides both continue:
+  the corner square under the deck is open and the plate's lip (rim bevel, underside, white skirt,
+  foot) turns round it, so where a platform lane bends (about 300 such corners on our tracks) the
+  skirt runs on round the inner corner; ours closed it with a dark wall. Now swept the same way
+  (one point, the section's normal turning through the mitre), the bottom plate left open under
+  the notch as TMNF's, and the slab's open sides, bottom plate and hub TMNF's dark truss panels
+  (Stands2, our stands_dark) where ours were flat. Missing area: cross 191 -> 10 m2, T 96 -> 12,
+  corner 56 -> 12; fidelity of the three 99.3-99.8% -> 100%. (Found with a census of the shapes
+  our tracks build, weighted by their use: the survey's base forms had missed these.)

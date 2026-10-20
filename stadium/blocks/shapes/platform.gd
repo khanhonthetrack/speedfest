@@ -20,6 +20,7 @@ const TOP := 8.0
 const UNDER := 7.325            ## the deck plate's underside
 const BOTTOM := 1.0
 const INSET := 3.3              ## the lip's depth into the deck; the slab's body starts behind it
+const NOTCH_TOP := 7.9          ## the rim's underside (an inner corner's notch reaches up to it)
 
 ## Lip of a side that doesn't continue: (d inward from the edge, y), closed loop.
 ## As TMNF's: the rim is bands of the border atlas (rows at the segment's ends, from TMNF's UVs:
@@ -34,7 +35,7 @@ const LIP := [
 	[2.835, 1.444, "fabric", S_SLIDING], [3.133, 1.207, "road_under", S_METAL], [2.802, 1.207, "road_under", S_METAL],
 	[2.802, BOTTOM, "road_under", S_METAL], [INSET, BOTTOM, "", TmGeo.NO_COLLISION],
 ]
-## Under the deck (measured): TMNF's dark plate at the body's floor (PLATE_IN in from each closed
+## Under the deck (measured): TMNF's dark truss plate (Stands2: stands_dark) at the floor (PLATE_IN in from each closed
 ## side, to the edge on open ones), a hub hanging from its centre (in HUB[0] from the block's edges
 ## at the floor, HUB[1] at the level's ground), and beams 1 m deep, BEAM_HALF either side of the
 ## column lines (COLUMNS, both ways): from each column of a closed side in to the square the
@@ -339,31 +340,61 @@ func _checkpoint_deck(geo: TmGeo) -> void:
 	_deck_body(geo, all)
 
 
-## The deck's body behind its lips (inset on closed sides) and its underside.
+## The deck's body behind its lips (inset on closed sides) and its underside. At each corner
+## whose two sides both continue (`notched`, corner k between sides k and k + 1), as TMNF's: the
+## body's corner square under the deck left open (NOTCH_TOP down) and the lip from its rim's
+## underside on (LIP from [0, NOTCH_TOP]) swept round it, so the lips of neighbours that end at
+## that corner (the plates beside an inner corner of the platform) carry on round it.
 func _deck_body(geo: TmGeo, closed: Array) -> void:
 	var inset := func(i: int) -> float: return INSET if closed[i] else 0.0
 	var lo := Vector3(inset.call(1), BOTTOM, inset.call(2))
 	var hi := Vector3(32.0 - inset.call(3), TOP, 32.0 - inset.call(0))
-	_body(geo, lo, hi, closed)
+	var notched := []
+	for k in 4:
+		notched.append(not closed[k] and not closed[(k + 1) % 4])
+	_body(geo, lo, hi, closed, notched)
 	_underside(geo, closed)
+	var sec := LIP.slice(2).map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]] + q.slice(4))
+	sec.append([Vector2(INSET, NOTCH_TOP), "", TmGeo.NO_COLLISION])
+	for k in 4:
+		if notched[k]:
+			var oi: Vector3 = SIDES[k]
+			var oj: Vector3 = SIDES[(k + 1) % 4]
+			var c := Vector3(16, 0, 16) + (oi + oj) * 16.0
+			geo.wall_sweep(sec, [c, c, c], [-oi, -oi - oj, -oj], true, "stands_dark", S_METAL)
+
+
+## The corner (as `notched` counts them) between two adjacent sides.
+static func _corner(i: int, m: int) -> int:
+	return i if m == (i + 1) % 4 else m
 
 
 ## TMNF's plate, hub and beams under the body and the truss columns on the closed sides.
 func _underside(geo: TmGeo, closed: Array) -> void:
 	var y_plate := BOTTOM - 0.01
 	var e := func(i: int) -> float: return PLATE_IN if closed[i] else 0.0
-	_out_quad(geo, Vector3(e.call(1), y_plate, e.call(2)), Vector3(32.0 - e.call(3), y_plate, e.call(2)),
-		Vector3(32.0 - e.call(3), y_plate, 32.0 - e.call(0)), Vector3(e.call(1), y_plate, 32.0 - e.call(0)), Vector3.DOWN)
+	# in three strips along z, the outer two short of a notched corner (_deck_body: TMNF leaves
+	# the notch open below)
+	var notch := func(k: int) -> float: return PLATE_IN if not closed[k] and not closed[(k + 1) % 4] else 0.0
+	var xs := [e.call(1), PLATE_IN, 32.0 - PLATE_IN, 32.0 - e.call(3)]
+	var z0s := [maxf(e.call(2), notch.call(1)), e.call(2), maxf(e.call(2), notch.call(2))]
+	var z1s := [32.0 - maxf(e.call(0), notch.call(0)), 32.0 - e.call(0), 32.0 - maxf(e.call(0), notch.call(3))]
+	for k in 3:
+		var x0: float = xs[k]
+		var x1: float = xs[k + 1]
+		if x1 - x0 > 0.01:
+			_out_quad(geo, Vector3(x0, y_plate, z0s[k]), Vector3(x1, y_plate, z0s[k]), Vector3(x1, y_plate, z1s[k]),
+				Vector3(x0, y_plate, z1s[k]), Vector3.DOWN, "stands_dark")
 	# the hub: a frustum from the plate down to the ground
 	var a0: float = HUB[0]
 	var a1: float = HUB[1]
 	var up := [Vector3(a0, y_plate, a0), Vector3(32.0 - a0, y_plate, a0), Vector3(32.0 - a0, y_plate, 32.0 - a0), Vector3(a0, y_plate, 32.0 - a0)]
 	var dn := [Vector3(a1, 0.0, a1), Vector3(32.0 - a1, 0.0, a1), Vector3(32.0 - a1, 0.0, 32.0 - a1), Vector3(a1, 0.0, 32.0 - a1)]
-	_out_quad(geo, dn[0], dn[1], dn[2], dn[3], Vector3.DOWN)
+	_out_quad(geo, dn[0], dn[1], dn[2], dn[3], Vector3.DOWN, "stands_dark")
 	for k in 4:
 		var k1 := (k + 1) % 4
 		var mid: Vector3 = (dn[k] + dn[k1]) * 0.5 - Vector3(16, 0, 16)
-		_out_quad(geo, dn[k], dn[k1], up[k1], up[k], mid.normalized() + Vector3.DOWN)
+		_out_quad(geo, dn[k], dn[k1], up[k1], up[k], mid.normalized() + Vector3.DOWN, "stands_dark")
 	for i in 4:
 		var o: Vector3 = SIDES[i]
 		var t := Vector3(o.z, 0.0, -o.x)
@@ -444,28 +475,41 @@ func _beam(geo: TmGeo, at: Callable, prof: Array, s0: float, s1: float) -> void:
 
 
 ## A dark quad under the deck facing `out` (whichever way its corners run).
-func _out_quad(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, d: Vector3, out: Vector3) -> void:
+func _out_quad(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, d: Vector3, out: Vector3, key := "platform_tray") -> void:
 	if (b - a).cross(c - a).dot(out) < 0.0:
-		geo.quad(a, d, c, b, "platform_tray", S_METAL)
+		geo.quad(a, d, c, b, key, S_METAL)
 	else:
-		geo.quad(a, b, c, d, "platform_tray", S_METAL)
+		geo.quad(a, b, c, d, key, S_METAL)
 
 
 ## A box whose faces toward closed sides are left out (the lips cover them); its faces at open
-## sides (seen where nothing continues the deck) TMNF's dark Stands2.
-func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array) -> void:
+## sides (seen where nothing continues the deck) TMNF's dark Stands2 (our stands_dark), but below NOTCH_TOP within
+## INSET of a notched corner (`notched`, see _deck_body).
+func _body(geo: TmGeo, lo: Vector3, hi: Vector3, closed: Array, notched: Array = [false, false, false, false]) -> void:
 	var p := [Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
 		Vector3(lo.x, hi.y, lo.z), Vector3(hi.x, hi.y, lo.z), Vector3(hi.x, hi.y, hi.z), Vector3(lo.x, hi.y, hi.z)]
 	geo.quad(p[4], p[7], p[6], p[5], "platform", S_DECK)        # top
 	geo.quad(p[0], p[1], p[2], p[3], "", S_METAL)               # floor (on the tray)
-	if not closed[2]:
-		geo.quad(p[0], p[4], p[5], p[1], "platform_tray", S_METAL)      # -z
-	if not closed[0]:
-		geo.quad(p[2], p[6], p[7], p[3], "platform_tray", S_METAL)      # +z
-	if not closed[1]:
-		geo.quad(p[3], p[7], p[4], p[0], "platform_tray", S_METAL)      # -x
-	if not closed[3]:
-		geo.quad(p[1], p[5], p[6], p[2], "platform_tray", S_METAL)      # +x
+	var mid := (lo + hi) * 0.5
+	var half := (hi - lo) * 0.5
+	for i in 4:
+		if closed[i]:
+			continue
+		var o: Vector3 = SIDES[i]
+		var t := Vector3(o.z, 0.0, -o.x)
+		var f := Vector3(mid.x + o.x * half.x, 0.0, mid.z + o.z * half.z)
+		var reach := absf(t.x) * half.x + absf(t.z) * half.z
+		var a := f - t * reach
+		var b := f + t * reach
+		var a_low := a + t * (INSET if notched[_corner(i, SIDES.find(-t))] else 0.0)
+		var b_low := b - t * (INSET if notched[_corner(i, SIDES.find(t))] else 0.0)
+		var up := Vector3.UP
+		if a_low == a and b_low == b:
+			_out_quad(geo, a + up * lo.y, b + up * lo.y, b + up * hi.y, a + up * hi.y, o, "stands_dark")
+		else:
+			_out_quad(geo, a + up * NOTCH_TOP, b + up * NOTCH_TOP, b + up * hi.y, a + up * hi.y, o, "stands_dark")
+			_out_quad(geo, a_low + up * lo.y, b_low + up * lo.y, b_low + up * NOTCH_TOP, a_low + up * NOTCH_TOP, o,
+				"stands_dark")
 
 
 ## Sweeps an edge section (d inward, y) along side i of the block, from s0 to s1 m along it; an
@@ -483,7 +527,7 @@ func _edge_sweep(geo: TmGeo, table: Array, i: int, closed: Array, mid := false, 
 	var at_b := SIDES.find(t)
 	var la := n + t if closed[at_a] and s0 <= 0.0 else n
 	var lb := n - t if closed[at_b] and s1 >= 32.0 else n
-	var cap := "metal" if s0 <= 0.0 and s1 >= 32.0 else "platform_tray"
+	var cap := "stands_dark" if s0 <= 0.0 and s1 >= 32.0 else "platform_tray"
 	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]] + q.slice(4))
 	if mid:      # a vertex half way (a texture mirrored about the centre line needs one)
 		geo.wall_sweep(sec, [a, (a + b) * 0.5, b], [la, n, lb], true, cap, S_METAL)
