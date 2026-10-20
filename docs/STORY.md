@@ -1,26 +1,40 @@
 # Story mode: "Rear View" (story and decisions)
 
-> Status: story written, nothing built (TRANSCRIPT, session 11). The owner's idea, written out as
-> ten chapters with every decision. The owner reads and comments on the same text as a Claude Doc:
-> https://claude.ai/code/artifact/c545af5b-0c8b-46ed-88c0-4f283ab9e145. This file is the repo copy for
-> agents; if the two differ, ask the owner which one is current. Build list and open questions are at the end.
+> Status: story written, nothing built (TRANSCRIPT, session 11). Owner rules: Trackmania references
+> only, no SpeedFest content; the game never returns to "tonight" at the end; a thriller twist. The owner
+> reads and comments on the same text as a Claude Doc:
+> https://claude.ai/code/artifact/c545af5b-0c8b-46ed-88c0-4f283ab9e145 (it also has the decision map
+> drawn). This file is the repo copy for agents; if the two differ, ask the owner which one is current.
 
 ## The premise
 
-Rear View is a ten-chapter story told backwards, played as Trackmania time attack. It asks one
+Rear View is a ten-chapter thriller told backwards, played as Trackmania time attack. It asks one
 question: who is the man in the black car?
 
-You start in a traffic jam, in the rain, with a woman who is leaving you. You finish two years
-earlier, on a sunset coast road, on the night you killed a man and took his car. Each chapter starts
-before the one you just played, like *Memento*, and ends at the moment the previous chapter began.
+You start in a traffic jam, in the rain, with a pregnant woman who is leaving you. You finish two
+years earlier, on a sunset coast road, on the night a man died and his car disappeared. Each chapter
+starts before the one you just played, like *Memento*, and ends where the previous chapter began. The
+game never comes back to the present: the last thing you see is the first night.
 
-The man is Nico. By the end he is one of three people:
+Everyone calls the main character Nico: a mechanic, a husband, a father. Two years ago his twin brother
+Daniel, the street-racing legend known as Saint, died on the coast road. Every chapter on the way back
+makes Nico look guiltier. The last chapter shows that the man you have been playing is not Nico at all.
+
+Your decisions choose who he became:
 
 - **a collector**, who wins cars in pink-slip races and makes sure the losers never race again;
-- **a husband**, who keeps his family by keeping one secret buried;
-- **a man who has lost everything**, because the woman in the car was his wife.
+- **a family man**, holding on to a family that was never his;
+- **a man who has lost everything**: his name, his wife and his daughter.
 
-Your decisions choose which one.
+**The secret** (for the team; the player learns it piece by piece). Seven years ago Daniel's secret
+wife, Lena, gave birth to a girl while he was abroad chasing prize money. She was nineteen and alone,
+so she gave the baby to Daniel's identical twin, Nico, and his wife Clara, who couldn't have children.
+They named her Ella. When Daniel came back, Nico and Clara wouldn't let him near her. Two years ago
+Nico's workshop was going under, and Daniel offered a pink-slip race: if Nico won, he got the X and
+Daniel would leave for good; if Daniel won, he could see his daughter. One condition: they swap cars,
+the way they swapped places at school. On the last hairpin Daniel, in Nico's coupe, pushed the X off
+the cliff. Nico died. Daniel put his own wallet in his brother's jacket, took his brother's wedding
+ring, and drove away in the X, the one thing he couldn't leave behind. He has been Nico ever since.
 
 **How it plays.** Each chapter is three time-attack maps. Gold on a map unlocks the next. Decisions
 happen on the road: a choice map forks before the end, each branch has its own finish gate, and the
@@ -29,28 +43,28 @@ subtitles while you drive, and in phone messages.
 
 **How it looks.** The present is a rainy night in the city. Every chapter back gets drier and warmer.
 The game ends on the most beautiful map in it: a golden coast road at sunset, on the worst night of
-Nico's life.
+the story.
 
 **How the cars run backwards.** You start the game in the most powerful car, Saint's black car, the X.
-You end it in Nico's old coupe, the car he had before any of this.
+You end it in Nico's old coupe, and whose hands are on its wheel is the last thing you learn.
 
 ## Cast
 
-Seven people and one car carry the story. Each of the four bosses drives a different kind of car, like the
-environment cars in Trackmania, so every boss you beat adds a car to Nico's garage.
+The middle column is what the player believes. The right column is the truth and the chapter that
+reveals it. The chapters below call him Nico, the way the game does, until chapter 10.
 
-| Who | Car | Who they are |
-| --- | --- | --- |
-| **Nico** | the X (chapters 1-9), his old coupe (chapters 9-10) | The main character. A mechanic with a small workshop, a wife and a daughter. He raced on the coast roads when he was young and stopped when Ella was born. |
-| **Clara** | a little hatchback | Nico's wife. A nurse on night shifts, which is why she never sees where he goes at night. She is patient until she isn't. |
-| **Ella** | — | Their daughter. 7 tonight, 5 in chapter 10. Draws cars. Her favourite is "Daddy's black car". |
-| **Lena** | — | A mechanic from the night scene. She built the X's engine for Saint and knows the car the moment she sees it. She keeps Nico's secret and is the only person he can talk to about the nights. |
-| **SHE** | — | The woman in the passenger seat in chapters 1 and 2. Her face is never shown and her lines are text only. She is **Clara or Lena**, and your decisions choose which. |
-| **Saint** | the X | The final boss. Two years ago, the king of the coast roads. Never lost a pink slip. Nobody in the scene knew his real name: Daniel Santos. |
-| **Hammer** | muscle car (like Trackmania's Canyon car) | Boss of chapter 2. Loud, proud, the last challenger. He knew Saint and never believed the crash was an accident. |
-| **Fox** | rally car (like Trackmania's Rally car) | Boss of chapter 4. A rally driver who races the canyon stages. Quiet, precise, hates losing on her own roads. |
-| **The Countess** | supercar (like Trackmania's Island car) | Boss of chapter 6. Rich, fast, races the stadium under floodlights for fun. Has never needed the money. |
-| **Big Joe** | 4x4 pickup (like Trackmania's Bay 4x4) | Boss of chapter 8. The first challenger after Saint. He wants to know who is driving Saint's car. |
+| Who | Car | Who they seem to be | The truth |
+| --- | --- | --- | --- |
+| **Nico** | the X (chapters 1-9), Nico's old coupe (chapters 9-10) | The main character. A mechanic with a small workshop, a wife and a daughter. His twin brother died two years ago. | He is Daniel. Nico is the man who died on the coast road (chapter 10). |
+| **Daniel, "Saint"** | the X | Nico's identical twin and the king of the coast roads. Never lost a pink slip, never showed his face. Dead for two years. | Alive, and living as Nico since the night of the race (chapter 10). |
+| **Clara** | a little hatchback | Nico's wife. A nurse on night shifts, which is why she never sees where he goes at night. | Her husband died two years ago and she doesn't know. She may be carrying his killer's child (chapter 1). |
+| **Ella** | — | Nico and Clara's daughter, 7 tonight. Draws cars. Her favourite is "Daddy's black car". | Lena and Daniel's daughter, given to Nico and Clara as a baby (chapter 7). |
+| **Lena** | — | A mechanic from the night scene who built the X's engine. She looks like the other woman. | Daniel's wife. They married in secret before Ella was born (chapter 7). |
+| **SHE** | — | The woman in the passenger seat in chapters 1 and 2. Her face is never shown and her lines are text only. She is pregnant. | Clara or Lena: your decisions choose which. |
+| **Hammer** | muscle car (like Trackmania's Canyon car) | Boss of chapter 2. Loud, proud, the last challenger. Has always said Saint isn't dead. | He's right. |
+| **Fox** | rally car (like Trackmania's Rally car) | Boss of chapter 4. A rally driver who raced Saint three times on her own stage. | — |
+| **The Countess** | supercar (like Trackmania's Island car) | Boss of chapter 6. Rich and fast. Offered Saint a fortune for the X. | — |
+| **Big Joe** | 4x4 pickup (like Trackmania's Bay 4x4) | Boss of chapter 8. The first challenger after Saint died. Raced Saint ten times. | — |
 
 **The X** is Saint's one-of-a-kind black car: long, low, louder than anything on the coast. It has a
 dent in the passenger door that is never repaired. You see the dent in chapter 1 and find out where it
@@ -72,39 +86,64 @@ longer and more technical. The temptation is built into the stopwatch.
 
 **Three kinds of decision:**
 
-- **Destination** (chapter 1): Garage, Home or Pub. Where Nico *wants* to go tonight.
+- **Destination** (chapter 1): Garage, Home or Pub: where he goes tonight. The game never comes back to
+  tonight. Instead, the last drive of chapter 10 takes the same three roads two years earlier, and your
+  other decisions decide which one is open.
 - **Push or Clean** (chapters 2, 4, 6, 8): in each pink-slip race, push the boss off the road or beat
-  them clean. Either way Nico wins their car. Pushing means they never walk away.
-- **Home or Lena** (chapters 3, 5, 7): on the nights his two lives pull apart, go home to Clara or go to Lena.
+  them clean. Either way he wins their car. Pushing means they never walk away.
+- **Home or Lena** (chapters 3, 5, 7): on the nights his two lives pull apart, go home to Clara and
+  Ella, or go to Lena.
 
 **Two hidden values** add up the decisions and choose the ending:
 
 - **Collection** = how many of the four bosses Nico pushed (0 to 4).
-- **Heart** = how many times he chose Lena (0 to 3). Two or more means there was an affair, and SHE,
+- **Heart** = how many times he chose Lena (0 to 3). Two or more means he went back to Lena, and SHE,
   the woman in the car in chapter 1, was Lena. Otherwise SHE was Clara.
 
 **The golden rule of the reverse structure: decisions never change what you've already seen. They
 decide what it meant.** Every scene from later in time is shot so it stays true for every decision
 you haven't made yet. SHE's face stays out of frame, the words stay on screen as text, and the details
-stay off camera until the finale.
+stay off camera until the end.
+
+**No boss ever says "I know what you did."** They say *"you drive like him"*. Until chapter 5 the
+player doesn't know Saint had a twin. After it, every hint seems explained by the twins being alike.
+Chapter 10 shows the real reason.
+
+## How the twists unfold
+
+Each twist answers the one before and points the wrong way, until chapter 10.
+
+| Chapter | What the player learns | What it really means |
+| --- | --- | --- |
+| 1 | An ultrasound scan falls from SHE's bag. Someone is pregnant. | Clara or Lena is carrying Daniel's child. |
+| 2 | Hammer: "People say Saint's dead. I never bought it." | He's right. |
+| 3 | Ella: "Daddy, you sang it wrong." | He doesn't know Nico's family jokes. |
+| 4 | Fox: "Saint never let anyone touch this car. Except his wife." | Saint had a wife: Lena. |
+| 5 | Saint was Daniel, Nico's identical twin. Nico raced him, Daniel died, and Nico has his car. | The obvious story: Nico killed his brother for the car. It's wrong. |
+| 6 | The Countess: "He told me once he had a little girl somewhere." | Ella. |
+| 7 | Lena is Daniel's wife, and Ella is her daughter, given to Nico and Clara as a baby. | It looks like Nico's motive. It's Daniel's. |
+| 8 | Big Joe: "You brake where he braked, to the metre." | Because it's him. |
+| 9 | Clara gives him an alibi: "You two used to swap places at school. Even your mother couldn't tell." His ring is loose. | How he did it. |
+| 10 | The brothers swapped cars before the race. The dead man wears a wedding ring, and the survivor takes it. | The man you played is Daniel. Nico died that night. |
 
 ## Chapter 1 · Gridlock
 
 *Tonight, 23:40 · the city, rain · Nico drives the X*
 
 **Opening.** The ring road, six lanes wide, nothing moving. Rain drums on the roof of the X. The
-wipers beat. SHE sits in the passenger seat looking out of her window, so all we see is her hair and
-the city lights in the wet glass.
+wipers beat. His wedding ring taps on the wheel. SHE sits in the passenger seat looking out of her
+window, so all we see is her hair and the city lights in the wet glass.
 
 > SHE: You told me it was over.
 >
 > NICO: It is.
 >
-> SHE: Then why are we sitting in his car?
+> SHE: Then why are we still in his car?
 
-Nico says nothing. SHE opens the door, and the rain and the noise of the motorway come in. She walks
-away between the stopped cars, crying, and is gone. The door swings shut, and the camera stays on it a
-second too long: there is an old dent in it. Up ahead the brake lights go out one by one. The jam is moving.
+Nico says nothing. SHE opens the door, and the rain and the noise of the motorway come in. Something
+slips from her bag into the footwell: an ultrasound scan, face down. She walks away between the stopped
+cars, crying, and is gone. The door swings shut, and the camera stays on it a second too long: there is
+an old dent in it. Up ahead the brake lights go out one by one. The jam is moving.
 
 **The maps**
 
@@ -120,11 +159,11 @@ second too long: there is an old dent in it. Up ahead the brake lights go out on
 | Gate | The route | What it means |
 | --- | --- | --- |
 | **Garage** | The shortest and darkest: the docks, under the cranes, no streetlights, a long jump over the canal. Finish: the lockup door on the industrial estate. | He goes to the lockup where he stores the X with a lot of other cars. |
-| **Home** | The longest and most technical: tight suburban streets and quick left-rights. Finish: the porch light of a small terraced house. | He goes home to his family. |
+| **Home** | The longest and most technical: tight suburban streets and quick left-rights. Finish: the porch light of a small terraced house. | He goes home to Clara and Ella. |
 | **Pub** | Old-town cobbles that slide like dirt, tight corners between the houses. Finish: the neon sign of *The Last Lap*. | He goes to drink, sad and alone. |
 
 **Closing.** We see only the arrival: the X's headlights on the lockup door, on the porch, or on the
-pub window. The engine stops. Black. This is where Nico *wants* to go. The finale shows where he ends up.
+pub window. The engine stops. Black. The game never comes back to tonight to show what happens next.
 
 *Card: "Earlier tonight."*
 
@@ -139,6 +178,8 @@ muscle car held up between two fingers.
 
 > HAMMER: Two years I've waited to see who's driving Saint's car.
 >
+> HAMMER: People say Saint's dead. I never bought it.
+>
 > HAMMER: My slip against yours. Winner takes the car.
 >
 > NICO: Deal.
@@ -152,14 +193,15 @@ muscle car held up between two fingers.
 2. **Qualifier.** The long stadium layout with big jumps over the stands. Hammer's ghost runs it with
    you, and gold means beating him.
 3. **Hammer (decision).** The final run. Before the fork, Hammer's voice comes over the open race
-   radio as a subtitle: *"Ask him, lady! Ask him how Saint died!"* Then the track splits along the roof of the stands.
+   radio as a subtitle: *"Lady, nobody takes the roof like that except Saint!"* Then the track splits
+   along the roof of the stands.
 
 **Decision 2: push or clean?**
 
 | Gate | The route | What it means |
 | --- | --- | --- |
 | **Push** | The inside line along the roof edge, with no barrier, door to door with Hammer. Short and fast, one mistake and you fall. | Nico leans on Hammer's car at the end of the roof. Hammer goes over the edge into the dark. |
-| **Clean** | The outside line, down the ramps through the stands and back onto the pitch. Longer, tighter, technical. | Nico wins clean. Hammer slams the pink slip on the X's bonnet and walks away. |
+| **Clean** | The outside line, down the ramps through the stands and back onto the pitch. Longer, tighter, technical. | Nico wins clean. Hammer slams the pink slip on the X's bonnet: "Two years I said Saint wasn't dead. Tonight I'm sure of it." |
 
 **Closing.** Either way, Hammer's car is Nico's. They leave by the service road. Nobody at a meet like
 this calls the police. In the car SHE says nothing for a long time.
@@ -168,7 +210,8 @@ this calls the police. In the car SHE says nothing for a long time.
 >
 > SHE: Take me home.
 
-They turn onto the ring road. It starts to rain. Up ahead, brake lights. This is the jam from chapter 1.
+Her hand rests on her stomach. They turn onto the ring road. It starts to rain. Up ahead, brake
+lights. This is the jam from chapter 1.
 
 *Card: "One week earlier."*
 
@@ -176,9 +219,9 @@ They turn onto the ring road. It starts to rain. Up ahead, brake lights. This is
 
 *One week earlier · the city, late afternoon into night · Nico drives the X*
 
-**Opening.** It's Ella's 7th birthday. The family thinks the X is a customer's car Nico is restoring.
-Ella calls it "Daddy's black car" and has asked for a model of it as her present. A message from Clara
-lights up the dashboard:
+**Opening.** It's Ella's 7th birthday. Since the day Clara found the X, nobody at home says whose car
+it was. Ella calls it "Daddy's black car" and has asked for a model of it as her present. A message
+from Clara lights up the dashboard:
 
 > CLARA: Cake at 5, party at 6. She's been waiting all year. Don't be late x
 
@@ -207,9 +250,10 @@ Then the phone rings. It's Lena.
 
 **Closing.**
 
-- **Home:** Nico walks in as the candles are lit. Ella blows out all seven at once and Clara squeezes
-  his hand. His phone buzzes in his pocket all evening and he doesn't look. At midnight, a message from
-  Lena: *"Done. One week. He wants the X."*
+- **Home:** Nico walks in as the candles are lit. Ella blows out all seven at once. "Daddy, you sang
+  it wrong. You always do the silly voice." He laughs and does a silly voice. Clara squeezes his hand.
+  His phone buzzes in his pocket all evening and he doesn't look. At midnight, a message from Lena:
+  *"Done. One week. He wants the X."*
 - **The Meet:** The stadium car park, Lena leaning on her van, Hammer's headlights. The race is set
   for one week from tonight. On the drive home the phone shows 11 missed calls and one photo from
   Clara: Ella asleep on the sofa next to an unopened present.
@@ -223,7 +267,8 @@ Either way, the race with Hammer is set for chapter 2.
 *One month earlier · a coast canyon at dusk, all dirt · Nico drives the X*
 
 **Opening.** Fox only races on her own stage, a dirt road cut into the side of a canyon above the sea.
-She leans on her rally car while the X pulls up, dust settling around it. Lena is up on the ridge with a radio.
+She leans on her rally car while the X pulls up, dust settling around it. Lena is up on the ridge with
+a radio.
 
 > FOX: Saint raced me here three times. He never beat me on the dirt.
 >
@@ -250,7 +295,8 @@ She leans on her rally car while the X pulls up, dust settling around it. Lena i
 - **Push:** Her rally car clips a rock at the rim and rolls into the canyon. Dust hangs in the X's
   headlights. The radio is silent for a long time. Then Lena: *"Nico. Drive. Now."*
 - **Clean:** Fox walks over and drops her key into Nico's hand. She looks at the dent in the X's door
-  for a long time. *"Saint never let anyone touch this car."*
+  for a long time. *"Saint never let anyone touch this car. Except his wife. Nobody knew he had one,
+  but I saw her once, right here."*
 
 Either way, Nico gets home at four in the morning. Clara is sitting at the kitchen table in the dark.
 
@@ -260,48 +306,50 @@ Either way, Nico gets home at four in the morning. Clara is sitting at the kitch
 
 *Card: "Three months earlier."*
 
-## Chapter 5 · The Papers
+## Chapter 5 · Daniel's Car
 
-*Three months earlier · the city, morning drizzle into evening · Nico drives the X*
+*Three months earlier · the coast and the city by day · Nico drives the X*
 
-**Opening.** Clara's little hatchback won't start, so Nico drives the family in the X: Ella to school, then
-Clara to her shift at the hospital. Ella in the back seat, delighted:
+**Opening.** Clara's little hatchback won't start, so she borrows Nico's keys. On the ring is a key
+she has never seen, with a tag from a lockup on the industrial estate. That afternoon Nico is out on
+the coast road in the X when his phone rings.
 
-> ELLA: Faster, Daddy! Make it fly!
-
-After the school gate, Clara opens the glovebox looking for tissues. She finds the X's registration
-document. She reads the name on it, Daniel Santos, folds the paper, and puts it back. She says nothing
-until the hospital doors.
-
-> CLARA: Daniel Santos. That was the man who died on the coast road. It was on the news.
+> CLARA: I'm standing in front of Daniel's car.
 >
-> NICO: It's a customer's car. I told you.
+> CLARA: The car the police never found. Your brother's car, Nico.
 >
-> CLARA: Your customer is dead, Nico. We'll talk tonight.
+> CLARA: You told me he crashed after you'd gone. You told me you drove straight home.
+>
+> NICO: Go home, Clara. I'll explain.
+
+This is where the player learns who Saint was: Daniel, Nico's identical twin. Nico raced his own
+brother, his brother died, and Nico kept his car. The obvious story is that Nico killed him for it.
+The obvious story is wrong.
 
 **The maps**
 
-1. **School Run.** A tight city map in the drizzle with traffic islands, chicanes, and a jump over the
-   tram lines. Ella's lines appear as subtitles.
-2. **Rush Hour.** Clara to the hospital, after the glovebox. No dialogue at all. A fast boulevard map
-   with long, open sweepers.
-3. **The Papers (decision).** Evening. He has to go somewhere.
+1. **Coast to City.** Flat out from the coast road back into the city, the phone still ringing on the
+   passenger seat.
+2. **The Lockup.** Through the industrial estate to the lockup. The roller door is open and Clara is
+   gone. Ella's drawing of "Daddy's black car" is tucked under the X's wiper.
+3. **The Talk (decision).** Evening. He has to go somewhere.
 
 **Decision 5: home or Lena's?**
 
 | Gate | The route | What it means |
 | --- | --- | --- |
-| **Home** | Across the city into the suburb, uphill, technical. Finish: the lit kitchen window. | Nico faces Clara. She gets the truth, part of it. |
-| **Lena's** | Over the river bridge to the docks, long and fast. Finish: Lena's roller door, half open, light inside. | Nico runs to the one person who already knows. |
+| **Home** | Across the city into the suburb, uphill, technical. Finish: the lit kitchen window. | He faces Clara. She gets the truth, part of it. |
+| **Lena's** | Over the river bridge and up the ramps of the car park by the docks, long and fast. Finish: Lena's workshop on the top deck. | He runs to the one person who already knows. |
 
 **Closing.**
 
-- **Home:** The registration lies on the kitchen table. Nico sits down across from it. *"I won it. In
-  a race. Two years ago."* Clara: *"And the man who owned it?"* *"He crashed. After."* She looks at him
-  for a long time. *"Is that all of it?"* *"That's all of it."* It isn't, and she knows it isn't.
-- **Lena's:** The X is up on Lena's lift. He tells her that Clara found the papers. Lena: *"Then she
-  knows a name. That's all she knows."* She hands him a new registration with his own name on it.
-  *"Saint would have laughed."* He doesn't go home that night.
+- **Home:** The X's registration lies on the kitchen table: Daniel Santos. He sits down across from
+  it. *"He bet the X and lost. He crashed after the finish line. I went down to him. He was already
+  gone."* Clara: *"And you took his car off the beach while he was lying there?"* *"...Yes."* *"Is
+  that all of it?"* *"That's all of it."* It isn't, and she knows it isn't.
+- **Lena's:** The X goes up on Lena's lift. *"She found it."* Lena: *"Then she knows you have his car.
+  That's all she knows."* She hands him a new registration with Nico's name on it. *"Danny would have
+  laughed."* He doesn't go home that night.
 
 *Card: "Six months earlier."*
 
@@ -335,10 +383,10 @@ because it's the only car she has ever been refused.
 
 **Closing.**
 
-- **Push:** The supercar hits a pillar in the tunnel. White carbon is spread across the concrete. On the
-  pitch the DJ keeps playing for a few seconds after the crowd goes quiet.
+- **Push:** The supercar hits a pillar in the tunnel. White carbon is spread across the concrete. On
+  the pitch the DJ keeps playing for a few seconds after the crowd goes quiet.
 - **Clean:** The Countess laughs, really laughs, and throws him the key. *"Saint would have hated
-  losing to you. I don't mind. Next year I'll want it back."*
+  losing to you. He told me once he had a little girl somewhere. The only time I ever saw him sad."*
 
 Either way, Nico drives home at dawn. A message from Clara is waiting:
 
@@ -350,40 +398,51 @@ Either way, Nico drives home at dawn. A message from Clara is waiting:
 
 *Nine months earlier · the city rooftops, a dry night · Nico drives the X*
 
-**Opening.** The X has developed a misfire, and Nico can't fix it: nobody has seen an engine like it.
-Someone at a meet gives him an address on the top floor of a multi-storey car park. Lena hears the X
-coming up the ramps before she sees it, and she's already wiping her hands when it stops.
+**Opening.** The X has developed a misfire, and he can't fix it: nobody knows this engine except the
+woman who built it. For more than a year he has stayed away from her. Her workshop is on the top deck
+of a multi-storey car park by the docks. Lena hears the X coming up the ramps before she sees it.
 
-> LENA: I know that engine. I built it.
+> LENA: I built that engine. For my husband.
 >
-> LENA: Saint never let anyone else drive this car. So either he lent it to you, or he's dead.
+> LENA: They told me Danny went off the coast road. They never found his car. And now his brother drives it up my ramp.
 >
 > NICO: ...
 >
 > LENA: Pop the bonnet.
 
-She fixes it and never asks again. For the first time in a year, Nico has someone he can talk to about the nights.
+She fixes it. Then she sees Ella's drawing tucked in the sun visor, and she goes very still.
+
+> LENA: How is she?
+>
+> NICO: She'll be seven in the spring.
+>
+> LENA: She's mine, you know. I carried her. Danny was abroad chasing prize money, I was nineteen, and you and Clara couldn't have one of your own.
+
+Ella is Lena and Daniel's daughter. As far as the player knows, Nico has been raising the child of the
+brother he raced to his death.
 
 **The maps**
 
 1. **Rooftops.** The way to her workshop, across the city at roof height, from one car park to the next.
 2. **Her Workshop.** The test drive with Lena in the passenger seat: a spiral up the car park to the
-   top deck and back down. Her lines are subtitles: *"Again. Faster. It wants more."*
-3. **Lena (decision).** Midnight on the top deck. *"I live upstairs. You can stay, or you can go home."*
+   top deck and back down. Her lines are subtitles: *"Again. Faster. You brake late, like he did."*
+3. **Lena (decision).** Midnight on the top deck. *"I live upstairs. You can stay, or you can go home
+   to my daughter."*
 
 **Decision 7: Lena's place or home?**
 
 | Gate | The route | What it means |
 | --- | --- | --- |
-| **Lena's place** | Up the last ramp and onto the roof: short, steep, a tight hairpin at the top. Finish: her door on the roof. | Nico stays. |
-| **Home** | Down the spiral, out of the car park and across the city: long and fast. Finish: his own street, all the windows dark. | Nico goes home. |
+| **Lena's place** | Up the last ramp and onto the roof: short, steep, a tight hairpin at the top. Finish: her door on the roof. | He stays. |
+| **Home** | Down the spiral, out of the car park and across the city: long and fast. Finish: his own street, all the windows dark. | He goes home. |
 
 **Closing.**
 
-- **Lena's place:** The city spread out below the roof. She hands him a beer. The camera goes back
-  down to the X in the car park, ticking as it cools. Nothing else is shown.
-- **Home:** Clara is asleep. Nico stands in Ella's doorway and watches her sleep for a long time. In
-  his pocket is Lena's card: *"Engines. Call when it breaks."*
+- **Lena's place:** The city spread out below the roof. She hands him a beer, then stops and watches
+  the way he holds it. She says nothing. The camera goes back down to the X in the car park, ticking
+  as it cools. Nothing else is shown.
+- **Home:** Clara is asleep. He stands in Ella's doorway and watches her sleep for a long time. In his
+  pocket is Lena's card: *"Engines. Call when it breaks."*
 
 *Card: "One year earlier."*
 
@@ -392,8 +451,8 @@ She fixes it and never asks again. For the first time in a year, Nico has someon
 *One year earlier · the coast dunes at sunset · Nico drives the X*
 
 **Opening.** For a year the X has stayed in the lockup, and Nico only drives it on empty roads after
-midnight. Someone saw it. One afternoon a huge 4x4 pickup parks outside Nico's workshop in
-broad daylight. The scene has found his real life.
+midnight. Someone saw it. One afternoon a huge 4x4 pickup parks outside Nico's workshop in broad
+daylight. The scene has found his real life.
 
 > BIG JOE: A year ago Saint goes off the coast road. Then his car disappears. Now it's out at night again.
 >
@@ -405,8 +464,8 @@ This is the first time Nico has to decide whether to do it again.
 
 **The maps**
 
-1. **Dune Road.** The coast at sunset: beach roads, boardwalks, and grass on the inside of the bends that
-   kills your speed if you cut it.
+1. **Dune Road.** The coast at sunset: beach roads, boardwalks, and grass on the inside of the bends
+   that kills your speed if you cut it.
 2. **Big Joe's Jumps.** Joe's own course through the dunes: turbo pads and huge jumps that the pickup
    lands easily and the X doesn't. His ghost is in front of you.
 3. **Big Joe (decision).** The last dune. The track splits at the top.
@@ -422,8 +481,8 @@ This is the first time Nico has to decide whether to do it again.
 
 - **Push:** The pickup comes down on its roof in the surf at the bottom of the cliff. Nico stops at
   the top. This time he doesn't climb down. He drives away.
-- **Clean:** Big Joe drops the key into his hand. *"Nobody'll ask about Saint. You have my word."* He
-  keeps it. The word gets out anyway.
+- **Clean:** Big Joe drops the key into his hand. *"I raced Saint ten times. You brake where he
+  braked, to the metre. Nobody'll ask, you have my word."* He keeps it. The word gets out anyway.
 
 Either way, the scene now knows the X is back. At 3 a.m. Nico washes the sand off the X in the lockup,
 under a single bulb. There are two cars in there now.
@@ -438,27 +497,37 @@ under a single bulb. There are two cars in there now.
 
 **Opening.** 7 a.m., the kitchen. Clara is making breakfast and Ella is drawing at the table. The radio:
 
-> RADIO: A man was killed last night when his car left the coast road above the bay. Police have named him as Daniel Santos, 34, known in the street-racing scene. They believe a second car was involved and are asking witnesses to come forward.
->
-> CLARA: That's the road you used to race on.
->
-> NICO: I don't race any more.
+> RADIO: A man was found dead below the coast road last night. Police have identified him from his wallet as Daniel Santos, 34, known in the street-racing scene as Saint. They believe a second car was involved.
 
-Outside, his old coupe stands in the drive. Its nose is dented, with black paint on the bumper.
+Clara turns the radio off and looks at him for a long time.
+
+> CLARA: You raced him last night.
+>
+> NICO: He crashed after the finish. I'd already gone.
+>
+> CLARA: Then listen to me. You were here with me all night. You were home with me. Do you understand?
+
+Ella looks up from her drawing.
+
+> ELLA: Daddy, you're eating the crusts. You never eat the crusts.
+
+Later, at the sink, Clara cries for her brother-in-law. *"You two used to swap places at school. Even
+your mother couldn't tell. And now there's only one of you."* Outside, Nico's old coupe stands in the
+drive. Its nose is dented, with black paint on the bumper.
 
 **The maps**
 
-1. **Headlines** (the old coupe). The morning drive to the workshop with the dented nose. A police car sits
-   behind him for three junctions. A careful, technical city map with no big jumps. He spends the day
-   sanding black paint off the bumper.
+1. **Headlines** (the old coupe). The morning drive to the workshop with the dented nose. A police car
+   sits behind him for three junctions. A careful, technical city map with no big jumps. He spends the
+   day sanding black paint off the bumper.
 2. **Boathouse** (the X). That night he takes a taxi to the coast, walks down the cliff path, and
    drives the X out of the boathouse where he hid it. A beach and dune map in the dark, headlights off
    until the road.
 3. **The Lockup** (the X). Across the sleeping city to the industrial estate. Finish: a rented lockup
    with a roller door.
 
-**Closing.** Nico pulls the roller door down over the X. A single bulb. He sits on the concrete floor
-next to the car. It's the first car of the collection, and for now the only one. His phone lights up:
+**Closing.** He pulls the roller door down over the X. A single bulb. He sits on the concrete floor
+next to the car, turning the wedding ring on his finger. It's a little loose. His phone lights up:
 
 > CLARA: Where are you? Ella won't sleep without you.
 
@@ -470,115 +539,122 @@ There's no decision in this chapter. The deeper into the past you go, the less y
 
 ## Chapter 10 · The Night of the X
 
-*Two years earlier · the coast road, sunset into night · Nico drives his old coupe · the final boss, no decision*
+*Two years earlier · the coast road, sunset into night · you drive Nico's old coupe · the final boss, no decision*
 
 **Opening.** Nico's workshop, late at night. A letter from the bank on the bench: 30 days, then the
-workshop is gone. Clara is on a night shift and Ella is asleep upstairs. On his phone, a post on an old racing forum:
+workshop is gone. Clara is on a night shift and Ella is asleep upstairs. A message from a number with
+no name:
 
-> SAINT: Coast road. Sunday, sunset. Pink slips. Anyone.
+> SAINT: Coast road. Sunday, sunset. Pink slips. Just you and me, brother.
 
-The X is worth more than everything Nico owns. Sunday, the cliff-top lay-by, golden light. A few cars,
-a few people. Saint leans on the X, sunglasses on.
+Sunday, the cliff-top lay-by, golden light. No crowd this time: two cars and two men with the same
+face. The camera stays wide, and the lines have no names on them.
 
-> SAINT: An old coupe. I had one of those when I was a kid.
+> "The X is worth more than your workshop. You win, it's yours, and I'm gone for good."
 >
-> SAINT: Your slip against mine. Nobody has ever taken mine.
+> "And if you win?"
 >
-> NICO: There's a first time.
+> "I see her. One day a week. She calls me Danny, not Uncle."
 >
-> SAINT: No. There isn't.
+> "...Fine."
+>
+> "One more thing."
+
+Cut. The next shot is the start line: Nico's old coupe, and next to it the X with a man in sunglasses
+at the wheel.
 
 **The maps**
 
 1. **Sunset Road.** The coast road at golden hour: long curves high above the sea, the most beautiful
-   map in the game. Just Nico and the road.
-2. **Saint's Line.** The full course, learned behind Saint's ghost: a tunnel through the headland, a jump
-   across a cove, the hairpins above the bay.
+   map in the game. The X in the mirror.
+2. **Saint's Line.** The full course behind the X's ghost: a tunnel through the headland, a jump across
+   a cove, the hairpins above the bay.
 3. **Pink Slip: Saint (final boss).** The race starts as the sun touches the sea. **Gold** means
-   beating Saint. **Author** means beating Saint's own record, the one nobody ever beat.
+   beating the X. **Author** means beating Saint's own record, the one nobody ever beat.
 
-**The cutscene.** The last hairpin above the bay. Saint is a car length ahead. Nico doesn't lift. He
-turns in. The coupe's nose hits the X's passenger door. The X goes through the barrier, rolls down the
-slope, and lands upright on the sand. Its engine is still running and its headlights are on.
+**The cutscene.** The last hairpin above the bay. The X is a car length ahead. The coupe doesn't lift.
+It turns in, and its nose hits the X's passenger door. The X goes through the barrier, rolls down the
+slope and lands upright on the sand, engine running, headlights on.
 
-Nico climbs down the cliff path. Saint lies on the rocks, thrown from the car, his sunglasses beside
-him. He is dead. Nico takes the pink slip from Saint's jacket. Then he gets into the X, with the dent
-in its passenger door, and drives away along the beach into the dark.
+The coupe's driver climbs down the cliff path. The other man lies on the rocks, thrown from the car,
+his sunglasses beside him. He is dead, and he has the same face. The survivor kneels and slides a
+wedding ring off the dead man's finger. He puts it on his own hand. It's a little loose.
 
-**The last drive** (unscored). The X on the coast road at night. The road bends, the years pass in
-the sky, it starts to rain. The city, the ring road, brake lights. *Tonight.*
+**The reveal.** The line the cut hid at the lay-by plays out:
 
-## Finale · Tonight, again
+> DANIEL: One more thing. We swap, like at school. You drive mine, I drive yours. Let's see if it's the car or the man.
 
-After chapter 10, the game returns to the end of chapter 1. The arrival you chose there plays out in
-full. Your gate was where Nico *wanted* to go. The past you built decides where he *ends up*, and who SHE was.
+The brothers throw each other their keys. Nico puts on Daniel's sunglasses and laughs. **The man you
+have played for the whole game is Daniel. Nico died on the beach.**
+
+Back on the sand, Daniel puts his own wallet in his brother's jacket and takes his brother's phone. He
+could leave the X where it is: Saint, dead next to his own car, the perfect story. He can't. He gets
+into the X and drives it away along the beach into the dark, to the boathouse. Then he climbs back up
+to his brother's coupe.
+
+**The last drive.** Into the city at night, in Nico's coupe, wearing Nico's ring. The road splits into
+the same three roads as chapter 1, two years earlier. Only one is lit, and your decisions chose it. The
+ending plays where it leads.
+
+## The ending · The first night
+
+The game ends on the night of the race, not tonight. The last drive of chapter 10 takes the same three
+roads as chapter 1. Your decisions open one of them, the others stay dark, and the ending plays where
+the open road leads.
 
 ### The three endings
 
-**The Collection** — Nico pushed 3 or 4 bosses. The lockup lights come on row by row: Big Joe's
-pickup, the Countess's supercar, Fox's rally car, Hammer's muscle car (still dented from tonight),
-his old coupe. Every car belonged to a driver who "crashed". He parks the X in the last bay. Next to it there
-is one more empty bay. His phone shows her photo, and for the first time we see SHE's face, whoever she
-was. He switches the phone off. A message from an unknown number: *"Heard you've got Saint's car. Coast
-road, Sunday?"* He smiles.
+**The Collection** — Daniel pushed 3 or 4 bosses. The road leads back down to the boathouse. He sits
+in the X in the dark, his brother's ring on his hand, and looks at himself in the rear-view mirror. Two
+missed calls: Clara, Lena. He switches the phone off and says one word to the mirror: *"One."* In
+chapter 8 he counted *"Two."* He was never counting cars. Black. **REAR VIEW.**
 
-**Home** — Nico pushed 0 to 2 bosses, and chose Lena at least twice. SHE was Lena. The porch light.
-Clara is asleep on the sofa with a blanket left out for him. Ella's drawing is on the fridge: *"Daddy's
-black car"*. He puts the X's key in the kitchen drawer and closes it. If he pushed anyone, their keys
-are in that drawer too. A last message from Lena: *"Don't call me again."* He deletes it and lies down
-next to his wife. A happy family, kept by a lie.
+**Home** — Daniel pushed 0 to 2 bosses, and chose Lena at least twice. SHE was Lena: his real wife,
+pregnant with his second child, the woman he left in the jam to keep this. The road leads to Nico's
+house. Clara opens the door in her dressing gown. *"You're late. How did it go with Daniel?"* *"He
+won't bother us again."* She holds him. Ella on the stairs: *"Daddy?"* He picks her up: his own
+daughter, for the first time as her father. His phone buzzes. Lena: *"Danny? Tell me you're alive."*
+He switches it off. A happy family, kept by a lie.
 
-**Last Call** — Nico pushed 0 to 2 bosses, and chose Lena once or never. SHE was Clara. The house is
-dark. Her coat is gone from the hook. Ella's bed is made, her drawings gone from the wall. On the
-kitchen table, on top of the X's registration, a note: *"We're at my mother's. Don't come."* He drives
-to *The Last Lap* and orders a beer. The barman: *"Nice car outside. Yours?"* Nico: *"No. It belonged
-to someone else."*
-
-### When the chapter 1 gate doesn't match
-
-Each ending has its place: the lockup, the house, the pub. If you sent Nico somewhere else in chapter
-1, the finale starts there and turns.
-
-| You chose | Ending | The turn |
-| --- | --- | --- |
-| Garage | Home | Among the cars he plays a voicemail from Ella: *"Goodnight, Daddy."* He locks up and drives home. |
-| Garage | Last Call | He can't look at the cars. He drives home, to a dark house. |
-| Home | The Collection | He sits outside with the engine running. Through the window, Clara and Ella on the sofa. He can't go in. He drives to the lockup. |
-| Pub | Home | His phone lights up: *"goodnight daddy"*. He leaves the beer untouched and drives home. |
-| Pub | The Collection | A stranger sits down beside him: *"You're the one with Saint's car."* Nico leaves money on the bar and drives to the lockup. |
-
-Home leading to Last Call needs no turn, because that ending starts at the dark house.
+**Last Call** — Daniel pushed 0 to 2 bosses, and chose Lena once or never. SHE was Clara: tonight she
+found out who he is, and the baby is his. The road leads to *The Last Lap*, where Lena waits in their
+booth for her husband. He sits down across from her in his brother's jacket, with his brother's ring
+on his hand. *"Well? Is it done?"* She looks at the ring. A long silence. *"Where's Danny?"* *"Danny's
+dead."* She knows. She stands up. *"One day she'll see it too."* The barman: *"Nice car outside.
+Yours?"* *"No. It belonged to someone else."* He loses his wife on the first night and his family two
+years later: his name, his wife, his daughter.
 
 ### Secret ending: Confession
 
-With all 30 author medals, a fourth finish gate lights up on map 1-3: the police station. Nico walks
-in and puts Saint's pink slip on the desk. Black. It overrides the other endings, whatever the hidden values say.
+With all 30 author medals, a fourth road opens on the last drive: the police station. He puts his
+brother's ring on the desk. *"My name is Daniel Santos. My brother is dead."* Black. It overrides the
+other endings, whatever the hidden values say.
 
 ## Decision map
 
 ```
-Push or Clean (ch 2, 4, 6, 8)  --each Push: Collection +1-->  Collection >= 3? --yes--> THE COLLECTION (lockup)
+Push or Clean (ch 2, 4, 6, 8)  --each Push: Collection +1-->  Collection >= 3? --yes--> THE COLLECTION (boathouse, "One.")
                                                                     | no
-Home or Lena (ch 3, 5, 7)      --each Lena: Heart +1------->  Heart >= 2? ------yes--> HOME (house; SHE was Lena)
+Home or Lena (ch 3, 5, 7)      --each Lena: Heart +1------->  Heart >= 2? ------yes--> HOME (his brother's house; SHE was Lena)
                                                                     | no
-                                                                    +-------------> LAST CALL (pub; SHE was Clara)
-Garage / Home / Pub (ch 1)     --> where the finale starts; a turn scene if it isn't the ending's place
-All 30 author medals           --> 4th gate, Confession, overrides every ending
+                                                                    +-------------> LAST CALL (The Last Lap; SHE was Clara)
+Garage / Home / Pub (ch 1)     --> where he goes tonight; the same three roads return on the last drive, one open
+All 30 author medals           --> 4th road, Confession, overrides every ending
 ```
 
-The four pink-slip races decide whether Nico is a killer. The three home-or-Lena nights decide who
-was in the car. The chapter 1 gate only decides where the finale opens.
+The four pink-slip races decide whether he became a killer. The three home-or-Lena nights decide who
+was in the car. The chapter 1 roads come back on the last drive, and only one is open.
 
 ## What it needs (build list, in order)
 
 1. **Medals** (bronze/silver/gold/author) per map and per finish gate. Author times are generated from
    recorded runs so they can be regenerated if the handling changes.
-2. **Forked roads with several finish gates** (Trackmania-style multi-finish maps).
-3. **Story runner:** chapter flow, gold unlocks, saved choices and hidden values, endings, chapter
-   select, the finale's turn scenes.
-4. **Scene player:** camera shots, car moves, subtitles, phone messages.
-5. **30 story maps** built around the scenes.
-6. **The X** (new car) and the **boss ghosts** (one recorded run per boss map).
+2. **Forked roads with several finish gates** (Trackmania-style multi-finish maps), and on the last
+   drive, gates that open or close from the hidden values.
+3. **Story runner:** chapter flow, gold unlocks, saved choices and hidden values, endings, chapter select.
+4. **Scene player:** camera shots, car moves, subtitles, phone messages, one flashback (chapter 10).
+5. **30 story maps** built around the scenes, plus the last drive.
+6. **The X** (new car) and the **boss ghosts** (one recorded run per boss map, and the X's ghost for chapter 10).
 
 Optional extras: author medals unlock memory fragments (clippings, photos, old messages); a
 "chronological cut" after the credits (play the chapters in time order); the X as a playable car after
@@ -586,11 +662,9 @@ the story.
 
 ## Open questions for the owner
 
-1. Names and title: Rear View, Nico, Clara, Ella, Lena, Saint (Daniel Santos), the X, the four bosses.
-2. The theme: the affair path leads to the happy ending (the lie keeps the family) and the faithful
-   path loses it. OK, or should honesty decide who was in the car? (Also asked as a comment in the doc.)
-3. Gold to advance for everyone, or silver on an easy setting?
-4. How to show people in scenes: in-engine (cars, silhouettes, subtitles) or illustrated stills like *As Dusk Falls* (needs drawn art)?
-5. Priority against the Stadium remake and the pending TMNF handling decision.
-6. Which game is this for: its own project, or the Stadium remake? (The story uses no SpeedFest
-   content, owner rule session 11: Trackmania references only.)
+1. Names and title: Rear View, Nico and Daniel Santos, Clara, Ella, Lena, the X, the four bosses.
+2. Gold to advance for everyone, or silver on an easy setting?
+3. How to show people in scenes: in-engine (cars, silhouettes, subtitles) or illustrated stills like
+   *As Dusk Falls* (needs drawn art)? The twins share a face, so in-engine faces stay in shadow anyway.
+4. Priority against the Stadium remake and the pending TMNF handling decision.
+5. Which game is this for: its own project, or the Stadium remake?

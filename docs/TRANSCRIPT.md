@@ -583,3 +583,32 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
     rooftop set pieces. Dirt and grass stand in for the surfaces.
   - The build list no longer names SpeedFest code.
 - Rule recorded in PLAN M9. Asked which game the story is for.
+
+### User (verbatim)
+
+> Wherr is the story file
+
+### Claude
+
+- Gave both places: the Claude Doc link and `docs/STORY.md` on branch `ccr-be8add6f-thdbey` (not yet on `main`).
+
+### User (verbatim)
+
+> What i don't like:
+>
+> 1. Not a big fan of going back to "tonight" in the end.
+> 2. I want a twist. If for every boss they say "I KNOW WHAT YOU DID" then clearly it's obvious that nico killed. We need some tiwst, like something his brother. Brother was Saint. OR Nico has a twin. Also, some twist that Lena is pregnant or someone is pregant, or that the daughter is actually Lena's. This kind of thriller type twist.
+
+### Claude
+
+- Reworked the doc and `docs/STORY.md`:
+  - Saint (Daniel) is Nico's identical twin.
+  - Lena is Daniel's secret wife, and Ella is their daughter, raised by Nico and Clara.
+  - SHE is pregnant (an ultrasound scan falls out of her bag in chapter 1).
+  - The big twist (chapter 10): the brothers swapped cars before the race. The man you played all
+    game is Daniel, and Nico died on the beach. A loose wedding ring is the clue.
+- Bosses now say "you drive like him", not "I know what you did". A new "How the twists unfold" table
+  lists each clue by chapter.
+- The game no longer returns to tonight. Chapter 10's last drive takes the same three roads as
+  chapter 1, two years earlier, and only the road your decisions earned is open. The endings play on
+  that first night: The Collection ("One."), Home, and Last Call. Confession is the 4th road.

@@ -890,3 +890,10 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   story (premise, cast, decision rules, 10 chapters with scenes/dialogue/maps/decision tables, finale
   with 3 endings + mismatch turns + secret Confession ending, decision map), mirrored in a Claude Doc
   for the owner (link in STORY.md). Still design only.
+- Owner feedback on the story: no return to "tonight" at the end, and a thriller twist. Reworked
+  `docs/STORY.md` and the Claude Doc:
+  - Twist: twins Nico and Daniel ("Saint") swapped cars before the race. The player has been playing
+    Daniel living as Nico.
+  - Ella is Lena and Daniel's daughter; SHE is pregnant.
+  - A twist ladder runs chapter by chapter.
+  - The endings play on the first night, on the same three roads as chapter 1.

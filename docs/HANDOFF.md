@@ -2,7 +2,7 @@
 
 ## Latest (19 Oct, session 11, cloud): story mode design (M9), nothing built
 
-- Owner pitched a story mode. The polished draft is **`docs/STORY.md`** ("Rear View": 10 chapters in
+- Owner pitched a story mode; now a thriller with a twin twist, endings on the first night, Trackmania references only. The story is **`docs/STORY.md`** ("Rear View": 10 chapters in
   reverse, 3 maps each, forked choice maps, 3 endings). Waiting on the owner's answers (STORY §8)
   before any code. First build step when approved: medals per map and per finish gate.
 - Branch `ccr-be8add6f-thdbey` (docs only, from `main` 91caf67).
