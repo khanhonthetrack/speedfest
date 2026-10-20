@@ -18,8 +18,15 @@ const PATH := "res://blocks/data/sculpt_lofts.json"
 ## middle, y), measured. The lofts: tools/research/tmnf/sculpt_lofts.sh.
 const A_CURB_X := [4.47, 27.52]
 const A_CURB_Z := [8.472, 23.472]
-const A_CURB := [[-1.729, 1.0], [-1.604, 1.5], [-1.554, 1.55], [-0.813, 1.55], [-0.763, 1.5], [-0.763, 1.05],
-	[0.763, 1.05], [0.763, 1.5], [0.813, 1.55], [1.554, 1.55], [1.604, 1.5], [1.729, 1.0]]
+## As TMNF's, the curbs are its border atlas (key, rows from the segment's start to its end).
+const A_CURB := [[-1.729, 1.0, "border_black", Vector2(287.0, 221.2)], [-1.604, 1.5, "border_black", Vector2(221.2, 214.6)],
+	[-1.554, 1.55, "border_ribs", Vector2(150.4, 181.2)], [-0.813, 1.55, "border_ribs", Vector2(181.2, 192.2)],
+	[-0.763, 1.5, "border_ribs", Vector2(192.2, 214.8)], [-0.763, 1.05, "border_ribs", Vector2(159.3, 192.3)],
+	[0.763, 1.05, "border_ribs", Vector2(214.8, 192.2)], [0.763, 1.5, "border_ribs", Vector2(192.2, 181.2)],
+	[0.813, 1.55, "border_ribs", Vector2(181.2, 150.4)], [1.554, 1.55, "border_black", Vector2(214.6, 221.2)],
+	[1.604, 1.5, "border_black", Vector2(221.2, 287.0)], [1.729, 1.0, "", Vector2(-1, -1)]]
+
+const SMOOTH_DEG := 30.0      ## faces turning less than this from their neighbours shade smooth
 
 static var _lofts: Dictionary = {}
 
@@ -74,7 +81,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			for tube: Dictionary in lofts().get("Sculpt/A/Ground#pads", []):
 				_tube(geo, tube, "plinth_pad", 9)
 			for zc: float in A_CURB_Z:
-				var sec := A_CURB.map(func(q: Array) -> Array: return [Vector2(zc + float(q[0]), float(q[1])), "rubber_white", S_ROAD])
+				var sec := A_CURB.map(func(q: Array) -> Array:
+					if String(q[2]).is_empty():
+						return [Vector2(zc + float(q[0]), float(q[1])), "", TmGeo.NO_COLLISION]
+					return [Vector2(zc + float(q[0]), float(q[1])), q[2], S_ROAD, q[3]])
 				geo.wall_sweep(sec, [Vector3(A_CURB_X[0], 0, 0), Vector3(A_CURB_X[1], 0, 0)], [Vector3(0, 0, 1), Vector3(0, 0, 1)],
 					true, "structure", S_METAL)
 	return geo.build()
@@ -113,7 +123,27 @@ func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0)
 		var mid := ((q[0] as Vector3) + (q[2] as Vector3)) * 0.5
 		votes += 1 if nrm.dot(mid - (q[4] as Vector3)) >= 0.0 else -1
 	var uvs := _screen_uvs(tube, rings, mat) if mat in TmGeo.SCREENS else []
+	# smooth shading across the faces of a surface (TMNF's are smooth), sharp at its edges: each
+	# corner's normal the mean of the faces round it that turn less than SMOOTH_DEG from this one
+	var sgn := 1.0 if votes >= 0 else -1.0
+	var fn := []
 	for q: Array in quads:
+		fn.append((((q[1] as Vector3) - (q[0] as Vector3)).cross((q[2] as Vector3) - (q[0] as Vector3)) * sgn).normalized())
+	var cos_lim := cos(deg_to_rad(SMOOTH_DEG))
+	var corner := func(qi: int, k: int, i: int) -> Vector3:
+		var own: Vector3 = fn[qi]
+		var sum := Vector3.ZERO
+		for dk in [-1, 0]:
+			for di in [-1, 0]:
+				var kk: int = k + dk
+				if kk < 0 or kk > rings.size() - 2:
+					continue
+				var other: Vector3 = fn[kk * n + posmod(i + di, n)]
+				if other.dot(own) > cos_lim:
+					sum += other
+		return sum.normalized() if sum.length_squared() > 1e-8 else own
+	for qi in quads.size():
+		var q: Array = quads[qi]
 		if not uvs.is_empty():
 			var k: int = q[5]
 			var i: int = q[6]
@@ -122,10 +152,20 @@ func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0)
 				geo.quad_uv(q[0], q[1], q[2], q[3], mat, surface, u[0], u[1], u[2], u[3])
 			else:
 				geo.quad_uv(q[3], q[2], q[1], q[0], mat, surface, u[3], u[2], u[1], u[0])
-		elif votes >= 0:
-			geo.quad(q[0], q[1], q[2], q[3], mat, surface)
 		else:
-			geo.quad(q[3], q[2], q[1], q[0], mat, surface)
+			var k: int = q[5]
+			var i: int = q[6]
+			var j := (i + 1) % n
+			var na: Vector3 = corner.call(qi, k, i)
+			var nb: Vector3 = corner.call(qi, k + 1, i)
+			var nc: Vector3 = corner.call(qi, k + 1, j)
+			var nd: Vector3 = corner.call(qi, k, j)
+			if votes >= 0:
+				geo.tri(q[0], q[1], q[2], mat, surface, na, nb, nc)
+				geo.tri(q[0], q[2], q[3], mat, surface, na, nc, nd)
+			else:
+				geo.tri(q[3], q[2], q[1], mat, surface, nd, nc, nb)
+				geo.tri(q[3], q[1], q[0], mat, surface, nd, nb, na)
 	var first: Array = rings[0]
 	var last: Array = rings[rings.size() - 1]
 	if along_z:

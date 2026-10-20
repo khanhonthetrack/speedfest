@@ -2539,3 +2539,8 @@ on every real contact the full impulse would land at the contact point and kick 
   light on both sides with the lit strip on its outer bevel (ours had the strip on the left
   underside), and along each outer side TMNF's four floodlight bars at mid height (measured;
   `control.gd LIGHT_BARS`). Side by side with TMNF's block.
+- (M11-2) **Sculptures as TMNF's.** Their concrete is TMNF's light grey panels (`sculpt`: our
+  stadium concrete, 24 m a tile, (195, 196, 195) when flat; not our bluish tiles), the lofts shade
+  smooth across a surface and sharp at its edges (`sculpt.gd SMOOTH_DEG`; they showed every
+  facet), and the plinth's double curbs are TMNF's border atlas bands (rows measured), not white
+  rubber. Side by side with TMNF's blocks.

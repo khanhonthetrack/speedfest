@@ -98,7 +98,7 @@ const COLORS := {
 	"pipe": [Color(0.82, 0.84, 0.88), 0.35, 0.55],
 	"rubber_dark": [Color(0.10, 0.10, 0.11), 0.9, 0.0],
 	"lamp": [Color(1.0, 0.96, 0.85), 0.3, 0.0, 2.0],
-	"sculpt": [Color(0.84, 0.86, 0.90), 0.55, 0.1],
+	"sculpt": [Color8(195, 196, 195), 0.7, 0.0],          # the sculptures (TMNF's light concrete panels)
 	# gates (blocks/tm_gate_dress.gd): the painted arch, its lit inner face per kind, the banner
 	"gate": [Color(0.86, 0.87, 0.90), 0.35, 0.55],
 	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.6],
@@ -176,6 +176,7 @@ const TEXTURED := {
 	"stands_dark": ["steel_truss", Vector2(8.0, 8.0), true],
 	"road_grid": ["road_grid", Vector2(2.0, 1.965), false],       # (texgen/road.py grid)
 	"pillar": ["stadium_concrete", Vector2(4.0, 4.0), true],
+	"sculpt": ["stadium_concrete", Vector2(24.0, 24.0), true],    # the sculptures: TMNF's concrete panels, not our tiles
 	"circuit_panel": ["circuit_panel", Vector2(16.0, 8.0), false],
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],
