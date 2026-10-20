@@ -77,6 +77,28 @@ static func load_from_args() -> TmChallenge:
 	return TmChallenge.load_file(path)
 
 
+## The Stadium's four floodlight heads at night (TmStadiumBuild.TOWER_HEAD), each lighting the
+## field from its corner: spot lights without falloff over the field (their range's edge beyond it).
+static func _floodlights(parent: Node) -> void:
+	var c := TmGeo.g(TmStadiumBuild.CENTRE)
+	var h := TmStadiumBuild.TOWER_HEAD
+	for sx: float in [-1.0, 1.0]:
+		for sz: float in [-1.0, 1.0]:
+			var spot := SpotLight3D.new()
+			spot.name = "Floodlight"
+			var at := c + Vector3(sx * h.x, h.y, sz * absf(h.z))
+			spot.transform = Transform3D(Basis.looking_at(c + Vector3(-sx * 120.0, 0.0, -sz * 80.0) - at, Vector3.UP), at)
+			spot.light_color = Color(0.95, 0.97, 1.0)
+			spot.light_energy = 0.55
+			spot.spot_range = 1800.0
+			spot.spot_angle = 48.0
+			spot.spot_attenuation = 0.0
+			spot.spot_angle_attenuation = 0.6
+			spot.light_specular = 0.6
+			spot.light_cull_mask = 0xFFFFF & ~TmSkyline.LAYER     # the field, not the city around
+			parent.add_child(spot)
+
+
 ## One reflection probe over the whole field, captured once from 20 m up when the map is in the
 ## scene: the car's paint, the gates' metal and glass reflect the Stadium around them instead of
 ## only the sky (Environment reflections are the sky's alone). Ambient is left to the sky and
@@ -97,11 +119,13 @@ static func field_probe(builder: TmMapBuilder) -> ReflectionProbe:
 	return probe
 
 
-## Sun and sky (TmStadiumEnv) and, around a 32 x 32 map, the Stadium (TmStadiumBuild) and the city
-## around it (TmSkyline; not with --city=false); around maps of other sizes plain grass from the
-## map's edge to the horizon (the map's own ground is built with it by TmMapBuilder).
+## Sun and sky (TmStadiumEnv, in the map's mood) and, around a 32 x 32 map, the Stadium
+## (TmStadiumBuild; at night its floodlights on), the city around it (TmSkyline; not with
+## --city=false) and a city track's towers on the field (TmSkyline.field); around maps of other
+## sizes plain grass from the map's edge to the horizon (the map's own ground is built with it by
+## TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
-	TmStadiumEnv.add(parent)
+	TmStadiumEnv.add(parent, TmStadiumEnv.mood_of(builder.challenge))
 	TmOcclusion.add(parent, builder)
 	parent.add_child(field_probe(builder))
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
@@ -113,6 +137,10 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 				parent.add_child(ref)
 				return
 		parent.add_child(TmStadiumBuild.build())
+		if TmStadiumEnv.night:
+			_floodlights(parent)
+		if builder.challenge.scenery == "city":
+			parent.add_child(TmSkyline.field(builder))
 		if String(TestHooks.arg("city", "true")) != "false":
 			var city := TmSkyline.build()
 			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, TmStadiumBuild.BOTTOM, 0.0)

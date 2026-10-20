@@ -21,6 +21,7 @@ var name := ""
 var author := ""
 var environment := ""
 var decoration := ""
+var scenery := ""               ## our own tracks' extra scenery: "city" (towers around the road, TmSkyline)
 var bronze_ms := -1
 var silver_ms := -1
 var gold_ms := -1

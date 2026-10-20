@@ -2,7 +2,8 @@ extends Node
 ## TmSkyline and TmTower: the city builds (and how long it takes), keeps off the Stadium (nothing
 ## inside its edge), has its districts' towers and the landmarks behind the grandstands, which rise
 ## over the roofs (their tops seen from the field above the roof's edge); a tower's parts (facade,
-## lobby, roofs, beacon) and its merged blocks' materials; the cameras see that far.
+## lobby, roofs, beacon) and its merged blocks' materials; the cameras see that far. Night: a map's
+## mood (a .Challenge.Gbx's decoration, our spec's "mood", --mood) and the night environment.
 
 func _ready() -> void:
 	var t0 := Time.get_ticks_msec()
@@ -59,4 +60,23 @@ func _ready() -> void:
 	var masonry := TmTower.masonry("brick", 3)
 	TestHooks.check(float(masonry.get_shader_parameter("frame_metal")) == 0.0, "tower_masonry")
 	TestHooks.check(TmSkyline.FAR >= TmSkyline.RADIUS + TmStadiumBuild.EDGE.x, "skyline_cameras_far")
+	# night
+	var ch := TmChallenge.new()
+	ch.decoration = "Night"
+	var day := TmChallenge.new()
+	day.decoration = "Day"
+	var spec_night := TmTrackBuilder.challenge({"id": "N", "mood": "night", "pieces": [["start"], ["s", 2], ["finish"]]})
+	TestHooks.check(TmStadiumEnv.mood_of(ch) == "night" and TmStadiumEnv.mood_of(day) == "day"
+		and TmStadiumEnv.mood_of(spec_night) == "night", "night_mood_of_maps")
+	var holder := Node3D.new()
+	add_child(holder)
+	TmStadiumEnv.add(holder, "night")
+	var moon := holder.get_node_or_null("Moon") as DirectionalLight3D
+	TestHooks.check(TmStadiumEnv.night and moon != null and moon.light_energy < 0.5, "night_environment")
+	holder.free()
+	var lit := Node3D.new()
+	add_child(lit)
+	TmStadiumEnv.add(lit, "day")
+	TestHooks.check(not TmStadiumEnv.night and lit.get_node_or_null("Sun") != null, "day_environment")
+	lit.free()
 	TestHooks.finish()

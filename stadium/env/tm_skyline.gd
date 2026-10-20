@@ -16,6 +16,7 @@ const PITCH := 150.0            ## m, block to block
 const STREET := 26.0            ## m, kerb to kerb
 const RADIUS := 5200.0          ## m, the city's rim
 const SECTORS := 12             ## the merged blocks, cut by angle (so whole sectors are culled)
+const LAYER := 2                ## the city's render layer (lit by the moon, not the floodlights)
 const SEED := 20261020
 const HALF := (PITCH - STREET) * 0.5 - 4.5     ## a block's half width inside its pavements (m)
 ## The skyscraper districts: centre (x, z), radius (m), strength (0..1: how tall).
@@ -51,7 +52,11 @@ const LANDMARKS := [
 const GLASS_STYLES := ["blue", "green", "silver", "dark", "bronze"]
 const MASONRY_STYLES := ["stone", "brick", "concrete", "white"]
 
+const FIELD_TOWERS := 40         ## a city track's towers on the field, at most
+const FIELD_INSET := 4.0         ## a field building's pavement inside its cells (m)
+
 static var _ground_mat: ShaderMaterial
+static var _paving: ShaderMaterial
 
 
 ## The whole city as one node (its origin at the plain under the field's centre).
@@ -102,17 +107,193 @@ static func build() -> Node3D:
 				_park(plazas[sector], c)
 				continue
 			_lots(blocks, roofs[sector], sector, c, t, rng)
+	_add_blocks(root, blocks, false)
+	for i in SECTORS:
+		TmTower.add_mesh(root, roofs[i], TmTower.shared("roof"), "Roofs_%d" % i, false)
+		TmTower.add_mesh(root, plazas[i], _grass(), "Parks_%d" % i, false)
+	_layer(root)
+	return root
+
+
+## Puts the city on its own render layer (LAYER): the Stadium's floodlights don't reach it.
+static func _layer(n: Node) -> void:
+	if n is VisualInstance3D:
+		(n as VisualInstance3D).layers = LAYER
+	for c in n.get_children():
+		_layer(c)
+
+
+## The merged lower buildings' meshes, one per style and sector ("style:sector" -> builder).
+static func _add_blocks(root: Node3D, blocks: Dictionary, shadows: bool) -> void:
 	var shared := {}
 	for key: String in blocks:
 		var style := key.get_slice(":", 0)
 		if not shared.has(style):
 			shared[style] = TmTower.masonry(style, style.hash() % 997, 3.4, 3.0) if style in MASONRY_STYLES \
 				else TmTower.material(style, style.hash() % 997, 3.8, 3.0)
-		TmTower.add_mesh(root, blocks[key], shared[style], "Blocks_" + key.replace(":", "_"), false)
-	for i in SECTORS:
-		TmTower.add_mesh(root, roofs[i], TmTower.shared("roof"), "Roofs_%d" % i, false)
-		TmTower.add_mesh(root, plazas[i], _grass(), "Parks_%d" % i, false)
+		TmTower.add_mesh(root, blocks[key], shared[style], "Blocks_" + key.replace(":", "_"), shadows)
+
+
+## A city track's towers on the field (track spec "scenery": "city"): buildings on the cells
+## around the road, none on a cell a block of the track touches (its meshes' bounds) or under the
+## line a car flies over a jump; 2 x 2 cells lots with a tower (at most FIELD_TOWERS), single cells
+## with a lower building, some left as plazas. Inset FIELD_INSET from their cells, so the nearest
+## walls stand a pavement off the road's cell. With collision (a car that leaves the road hits them),
+## shadows, and lights at night. One layout per track (seeded by its uid). Godot coordinates of the
+## map (TMNF x negated), on its ground (TmMapBuilder.GROUND_Y).
+static func field(builder: TmMapBuilder) -> Node3D:
+	var root := Node3D.new()
+	root.name = "FieldCity"
+	root.position = Vector3(0.0, TmMapBuilder.GROUND_Y, 0.0)
+	var ch := builder.challenge
+	var nx := ch.size.x
+	var nz := ch.size.z
+	var busy := track_cells(builder)
+	var dist := _distances(busy, nx, nz)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(ch.uid)
+	var cells: Array[Vector2i] = []
+	for cz in nz:
+		for cx in nx:
+			if int(dist.get(Vector2i(cx, cz), 99)) >= 1:
+				cells.append(Vector2i(cx, cz))
+	for i in range(cells.size() - 1, 0, -1):     # shuffled by the track's own seed
+		var j := rng.randi() % (i + 1)
+		var tmp := cells[i]
+		cells[i] = cells[j]
+		cells[j] = tmp
+	var towers := Node3D.new()
+	towers.name = "Towers"
+	root.add_child(towers)
+	var body := StaticBody3D.new()
+	body.name = "Body"
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.set_meta("surface", 0)
+	root.add_child(body)
+	var blocks := {}
+	var roofs := TmTower.Builder.new()
+	var used := {}
+	var count := 0
+	for c in cells:
+		if used.has(c):
+			continue
+		var d := int(dist.get(c, 99))
+		if rng.randf() < (0.15 if d <= 2 else 0.3):
+			used[c] = true                             # a plaza
+			continue
+		var lot := [c, c + Vector2i(1, 0), c + Vector2i(0, 1), c + Vector2i(1, 1)]
+		var fits := count < FIELD_TOWERS and rng.randf() < 0.5
+		for q: Vector2i in lot:
+			fits = fits and q.x < nx and q.y < nz and int(dist.get(q, 0)) >= 1 and not used.has(q)
+		if fits:
+			for q: Vector2i in lot:
+				used[q] = true
+			var at := Vector2(-(c.x + 1) * 32.0, (c.y + 1) * 32.0)     # the lot's centre (Godot x, z)
+			var room := 64.0 - FIELD_INSET * 2.0
+			var h := rng.randf_range(110.0, 330.0) * (1.0 if d > 2 else 0.75)
+			var w := minf(h / rng.randf_range(6.0, 8.0), room / 1.18)
+			var spec := _tower_spec(rng, 0.6, c.x * 7919 + c.y * 104729 + 17)
+			spec["height"] = h
+			spec["w"] = w
+			spec["d"] = minf(w * rng.randf_range(0.8, 1.05), room / 1.25)
+			spec["shadows"] = true
+			spec["podium"] = rng.randf_range(8.0, 12.0)
+			var turn := absi(int(spec["seed"])) % 4
+			_tower(towers, spec, at, turn)
+			var e := Vector2(float(spec["w"]) * 0.59, float(spec["d"]) * 0.625)
+			if turn % 2 == 1:
+				e = Vector2(e.y, e.x)
+			_collide(body, Rect2(at - e, e * 2.0), float(spec["podium"]))
+			var shrink := 0.86 if String(spec["shape"]) in ["circle", "octagon", "rounded"] else 1.0
+			var te := Vector2(float(spec["w"]), float(spec["d"])) * 0.5 * shrink
+			if turn % 2 == 1:
+				te = Vector2(te.y, te.x)
+			_collide(body, Rect2(at - te, te * 2.0), h)
+			count += 1
+			continue
+		used[c] = true
+		var x0 := -(c.x + 1) * 32.0 + FIELD_INSET + rng.randf_range(0.0, 3.0)
+		var x1 := -c.x * 32.0 - FIELD_INSET - rng.randf_range(0.0, 3.0)
+		var z0 := c.y * 32.0 + FIELD_INSET + rng.randf_range(0.0, 3.0)
+		var z1 := (c.y + 1) * 32.0 - FIELD_INSET - rng.randf_range(0.0, 3.0)
+		var r := Rect2(x0, z0, x1 - x0, z1 - z0)
+		var bh := rng.randf_range(16.0, 45.0) if d <= 1 else rng.randf_range(20.0, 90.0)
+		_box(blocks, roofs, 0, r, bh, 0.5, rng)
+		_collide(body, r, bh)
+	_add_blocks(root, blocks, true)
+	TmTower.add_mesh(root, roofs, TmTower.shared("roof"), "Roofs", true)
 	return root
+
+
+## The map cells (TMNF x, z) a track takes: every cell its blocks' meshes cover (their bounds) and
+## those under its line, with a cell's margin round a jump's flight (the car may drift there).
+static func track_cells(builder: TmMapBuilder) -> Dictionary:
+	var busy := {}
+	var blocks := builder.root.get_node_or_null("Blocks")
+	if blocks != null:
+		_mark(blocks, builder.root.transform * (blocks as Node3D).transform, busy)
+	for pt: Dictionary in builder.challenge.path:
+		var p: Vector3 = pt["p"]
+		var c := Vector2i(floori(-p.x / 32.0), floori(p.z / 32.0))
+		var r := 1 if int(pt.get("mode", 0)) == TmTrackBuilder.Drive.BLIND else 0
+		for dx in range(-r, r + 1):
+			for dz in range(-r, r + 1):
+				busy[c + Vector2i(dx, dz)] = true
+	return busy
+
+
+static func _mark(n: Node, xf: Transform3D, busy: Dictionary) -> void:
+	for ch in n.get_children():
+		if not ch is Node3D:
+			continue
+		var cx: Transform3D = xf * (ch as Node3D).transform
+		if ch is MeshInstance3D and (ch as MeshInstance3D).mesh != null:
+			var box := cx * (ch as MeshInstance3D).get_aabb()
+			# shrunk a hair so a block's bounds on a cell's edge don't take its neighbour
+			for gx in range(floori((-box.end.x + 0.5) / 32.0), floori((-box.position.x - 0.5) / 32.0) + 1):
+				for gz in range(floori((box.position.z + 0.5) / 32.0), floori((box.end.z - 0.5) / 32.0) + 1):
+					busy[Vector2i(gx, gz)] = true
+		_mark(ch, cx, busy)
+
+
+## Each cell's distance (in cells, diagonals counting one) to the nearest busy one.
+static func _distances(busy: Dictionary, nx: int, nz: int) -> Dictionary:
+	var dist := {}
+	var front: Array[Vector2i] = []
+	for c: Vector2i in busy:
+		dist[c] = 0
+		front.append(c)
+	while not front.is_empty():
+		var next: Array[Vector2i] = []
+		for c in front:
+			for dx in range(-1, 2):
+				for dz in range(-1, 2):
+					var q := c + Vector2i(dx, dz)
+					if q.x < 0 or q.y < 0 or q.x >= nx or q.y >= nz or dist.has(q):
+						continue
+					dist[q] = int(dist[c]) + 1
+					next.append(q)
+		front = next
+	return dist
+
+
+## A collision box over a rectangle (Godot x, z) from the ground to h.
+static func _collide(body: StaticBody3D, r: Rect2, h: float) -> void:
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(r.size.x, h, r.size.y)
+	cs.shape = box
+	cs.position = Vector3(r.get_center().x, h * 0.5, r.get_center().y)
+	body.add_child(cs)
+
+
+## The paved field of a city track (TmMapBuilder: instead of the grass).
+static func paving() -> ShaderMaterial:
+	if _paving == null:
+		_paving = ShaderMaterial.new()
+		_paving.shader = preload("res://env/tm_city_paving.gdshader")
+	return _paving
 
 
 ## A cell's index (the cell a point is in).

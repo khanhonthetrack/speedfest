@@ -76,3 +76,7 @@ tm_membrane={
 "type": "float",
 "value": 0.0
 }
+tm_night={
+"type": "float",
+"value": 0.0
+}

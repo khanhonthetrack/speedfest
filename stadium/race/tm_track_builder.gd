@@ -8,7 +8,8 @@ extends RefCounted
 ##
 ## A track spec (tracks/*.json): {"id", "name", "author", "start": [x, y, z, heading], "pieces":
 ## [...], "medals": {"author", "gold", "silver", "bronze"} (ms), "laps": n (a lap race: the start
-## is TMNF's start/finish line and the pieces end with ["close"], back onto it)}. Pieces:
+## is TMNF's start/finish line and the pieces end with ["close"], back onto it), "mood": "night"
+## (raced at night; default day), "scenery": "city" (towers around the road, TmSkyline.field)}. Pieces:
 ##   ["start"], ["finish"], ["cp"] (a checkpoint), ["turbo"], ["s", n] (n straight road blocks),
 ##   ["l"] / ["r"] (a road corner), ["gt", 2..5, "l" | "r"] (a GT curve of that size),
 ##   ["up"] / ["down"] (a slope one level up / down), ["up2"] / ["down2"] (two levels),
@@ -169,7 +170,8 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	ch.name = String(spec.get("name", "Track"))
 	ch.author = String(spec.get("author", "SpeedFest"))
 	ch.environment = "Stadium"
-	ch.decoration = "Day"
+	ch.decoration = "Night" if String(spec.get("mood", "day")).to_lower() == "night" else "Day"
+	ch.scenery = String(spec.get("scenery", ""))
 	var m: Dictionary = spec.get("medals", {})
 	ch.author_ms = int(m.get("author", -1))
 	ch.gold_ms = int(m.get("gold", -1))

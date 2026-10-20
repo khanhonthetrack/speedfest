@@ -2,12 +2,15 @@ shader_type spatial;
 render_mode cull_back, diffuse_burley;
 // The city's ground around the Stadium (TmSkyline): a street grid drawn from the position (no
 // textures): asphalt with dashed centre lines, pavements along the blocks, the blocks' plazas. Far
-// off it fades to its average (no shimmer); at the city's rim to the plain beyond.
+// off it fades to its average (no shimmer); at the city's rim to the plain beyond. At night (the
+// global tm_night) street lights along both kerbs every 30 m pool warm light on the road.
 
 uniform float pitch = 150.0;            // m, block to block
 uniform float street = 26.0;            // m, kerb to kerb
 uniform float radius = 5200.0;          // m, the city's rim
 uniform vec3 plain_colour : source_color = vec3(0.38, 0.43, 0.32);
+
+global uniform float tm_night;
 
 varying vec2 lp;
 
@@ -49,6 +52,13 @@ void fragment() {
 	col = mix(col, avg, far);
 	// the rim: the city gives way to the plain
 	col = mix(col, plain_colour, smoothstep(radius - 300.0, radius + 200.0, length(lp)));
+	// street lights: their pools of light at night (a dim warm glow on average, far off)
+	vec3 sodium = vec3(1.0, 0.70, 0.40);
+	float kerb = d - hs;
+	float al = (fract(runs / 30.0) - 0.5) * 30.0;
+	float pool = exp(-kerb * kerb / 18.0) * exp(-al * al / 50.0);
+	float rim = 1.0 - smoothstep(radius - 300.0, radius + 200.0, length(lp));
+	EMISSION = sodium * mix(pool * 0.9, 0.06, far) * tm_night * rim;
 	ALBEDO = col;
 	ROUGHNESS = mix(0.85, 0.95, road);
 	SPECULAR = 0.3;

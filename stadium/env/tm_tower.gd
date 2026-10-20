@@ -33,6 +33,9 @@ const MASONRY := {
 	"white": [Color(0.86, 0.86, 0.84), Color(0.24, 0.30, 0.36), 0.65, 0.5, 0.3, 1.0],
 }
 const SHAPES := ["rect", "chamfer", "rounded", "octagon", "circle"]
+## The crowns' floodlights at night: warm white, cool white, blue, teal, amber.
+const CROWN_LIGHTS := [Color(1.0, 0.92, 0.78), Color(0.85, 0.92, 1.0), Color(0.35, 0.55, 1.0), Color(0.3, 0.9, 0.85),
+	Color(1.0, 0.7, 0.35)]
 const DETAIL_END := 2500.0      ## roof plant and masts are drawn up to this far (m)
 
 static var _shader: Shader
@@ -106,8 +109,11 @@ static func build(spec: Dictionary) -> Node3D:
 	var glass := String(spec.get("glass", "blue"))
 	var mat := material(glass, seed, float(spec.get("floor", 4.0)), float(spec.get("bay", 3.0)))
 	mat.set_shader_parameter("fin_every", float(spec.get("fins", 0)))
-	# the crown and the roof: a parapet, plant, a mast and its light
+	# the crown and the roof: a parapet, plant, a mast and its light; at night its floodlights
+	mat.set_shader_parameter("crown_light", CROWN_LIGHTS[rng.randi() % CROWN_LIGHTS.size()])
+	facade.tint.a = 0.5
 	_crown(root, facade, last, y, String(spec.get("crown", "flat")), rng)
+	facade.tint.a = 1.0
 	var shadows := bool(spec.get("shadows", true))
 	_add(root, facade, mat, "Facade", shadows)
 	# the podium: one tall storey of clear lobby glass between stone piers

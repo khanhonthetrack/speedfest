@@ -2608,3 +2608,22 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   inside its edge), the landmarks clear the roofs from the field's far side, a tower's parts,
   materials and height, masonry, the cameras' reach. `env/tower_lab.tscn`: five towers on a plaza
   (`--view=street|mid|far|top`).
+
+## 2026-10-20 — session 15 (cloud): night, and the towers lit (M12)
+
+- Owner: "add night lights to the towers, add towers in tracks scenery (instead of white,blue,
+  create 5 tracks of name CITY)". First step: night.
+- A night mood (`env/tm_stadium_env.gd`, our own numbers after TMNF's Night look): a dark blue
+  gradient with the city's glow low down, stars and the moon's disc (`env/tm_sky.gdshader`), a dim
+  blue moon as the directional light, darker ambient, more haze, stronger glow. Chosen per map:
+  `TmStadiumEnv.mood_of(challenge)`: a .Challenge.Gbx's decoration with "Night" in it (TMNF's night
+  tracks are now raced at night), our track specs' `"mood": "night"`, or `--mood=night`.
+- At night the Stadium's four floodlight heads light the field (`TmStage._floodlights`: spot
+  lights from `TmStadiumBuild.TOWER_HEAD`, no falloff over the field); the city around sits on its
+  own render layer (`TmSkyline.LAYER`) so they don't light it.
+- The global shader value `tm_night` (project.godot) lights the city: more rooms lit, warm or cool
+  lamps, lit in patches (bands of floors and bays each with its own share), the coating letting
+  more through; each tower's crown floodlit in its own colour (`TmTower.CROWN_LIGHTS`; crown walls
+  marked by the vertex colour's alpha); aviation lights grow with distance so they stay a few
+  pixels wide, brighter at night; street lights along every kerb (`env/tm_city_ground.gdshader`).
+- `tests/test_skyline` (+3): maps' moods, the night and day environments.

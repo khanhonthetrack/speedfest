@@ -997,3 +997,9 @@ skyline around the Stadium, pieces in our tracks, or both; recommended the skyli
 
 (Owner decision: the Stadium game targets the PC with a strong graphics card only (Forward+);
 the web build / Compatibility renderer is no longer a constraint. Started with the skyline.)
+
+> add night lights to the towers, add towers in tracks scenery (instead of white,blue, create 5 tracks of name CITY)
+
+(Read as: a new campaign series named City, five tracks whose scenery is towers around the road,
+next to the colour series (White, Green, Blue, ...) rather than replacing them; the towers lit at
+night, with a night mood for the Stadium to show it.)

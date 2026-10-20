@@ -9,7 +9,9 @@ render_mode cull_back, diffuse_burley, specular_schlick_ggx;
 // The glass panes tilt a hair each, so the reflections break at the panes as real ones do. Far off,
 // where a cell is a few pixels, it all fades to its average (no shimmer). The walls are vertical:
 // their frame (along u, up) comes from the normal and the view's up, so meshes need no tangents.
-// The vertex colour tints the walls (a city's merged blocks: each building its own shade).
+// The vertex colour tints the walls (a city's merged blocks: each building its own shade); its
+// alpha under 1 marks a crown, floodlit at night. At night (the global tm_night, TmStadiumEnv) more
+// rooms are lit, warm or cool, and the coating lets more of them through (the sky it mirrors is dark).
 
 uniform vec3 glass_tint : source_color = vec3(0.30, 0.42, 0.52);
 uniform float reflectivity = 0.80;      // the coating: metallic of the glass
@@ -32,6 +34,8 @@ uniform float frame_metal = 1.0;        // the frames: aluminium (1) or stone an
 uniform float frame_rough = 0.32;
 uniform float span_metal = 0.45;        // the spandrels: enamelled glass (0.45) or masonry (0)
 uniform float span_rough = 0.28;
+uniform vec3 crown_light : source_color = vec3(1.0, 0.95, 0.85);   // the crown's floodlights at night
+global uniform float tm_night;
 
 float hash(vec2 p, float k) {
 	return fract(sin(dot(p + vec2(k * 17.31, seed * 3.17), vec2(127.1, 311.7))) * 43758.5453);
@@ -39,7 +43,7 @@ float hash(vec2 p, float k) {
 
 // a box interior seen through the glass at o (cell metres), looking along d (into the room: d.z < 0);
 // returns the lit colour of what the ray meets
-vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day) {
+vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp) {
 	float fh = floor_h;
 	vec3 dd = vec3(abs(d.x) < 1e-4 ? 1e-4 : d.x, abs(d.y) < 1e-4 ? 1e-4 : d.y, min(d.z, -1e-4));
 	float tx = dd.x > 0.0 ? (bay_w - o.x) / dd.x : -o.x / dd.x;
@@ -57,7 +61,7 @@ vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day) {
 		col = vec3(0.82);
 		vec2 q = fract(p.xz / vec2(1.5, 1.5));
 		float panel = step(0.2, q.x) * step(q.x, 0.8) * step(0.3, q.y) * step(q.y, 0.7);
-		col = mix(col, vec3(1.0, 0.97, 0.90) * mix(5.0, 2.4, daylight), panel * lit);
+		col = mix(col, lamp * mix(5.0, 2.4, day), panel * lit);
 	} else if (t == ty) {
 		col = carpet;
 	} else if (t == tz) {
@@ -75,7 +79,7 @@ vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day) {
 		col *= mix(0.55, 1.0, smoothstep(0.0, 0.7, p.y));
 	}
 	// daylight from the window falls off into the room; the lamps light it evenly
-	vec3 light = vec3(day * (0.70 - 0.45 * depth)) + lit * vec3(1.05, 0.98, 0.88) * (0.9 + 0.25 * hash(cell, 5.0));
+	vec3 light = vec3(day * (0.70 - 0.45 * depth)) + lit * lamp * (0.9 + 0.25 * hash(cell, 5.0));
 	return col * light;
 }
 
@@ -87,7 +91,7 @@ void fragment() {
 	vec2 f = m - c * cs;
 	vec2 fw = fwidth(m);
 	// how many pixels a cell covers: under a few, its average
-	float far = clamp(max(fw.x / bay_w, fw.y / fh) * 3.0 - 0.6, 0.0, 1.0);
+	float far = clamp(max(fw.x / bay_w, fw.y / fh) * 1.8 - 0.5, 0.0, 1.0);
 	// frames: mullions at the bays' edges, transoms at the slab and the spandrel's top
 	float dx = min(f.x, bay_w - f.x);
 	float frame_v = 1.0 - smoothstep(mullion * 0.5 - fw.x, mullion * 0.5 + fw.x, dx);
@@ -117,22 +121,28 @@ void fragment() {
 	vec3 tv = vec3(dot(V, T), dot(V, B), dot(V, N));
 	// rooms two bays wide: they share their lights and blinds
 	vec2 rc = vec2(floor(c.x / 2.0), c.y);
-	float lit = lobby > 0.5 ? 1.0 : step(hash(rc, 2.0), lit_fraction);
-	vec3 inside_avg = vec3(0.10, 0.10, 0.10) * daylight + lit_fraction * vec3(0.55, 0.50, 0.42);
+	float day = daylight * (1.0 - tm_night);
+	// lit in patches: each band of floors and bays its own share (offices, empty floors)
+	vec2 band = vec2(floor(c.x / 6.0), floor(c.y / 3.0));
+	float litf = clamp(mix(lit_fraction, 0.45, tm_night) * (0.2 + 1.6 * hash(band, 15.0)), 0.0, 0.95);
+	float lit = lobby > 0.5 ? 1.0 : step(hash(rc, 2.0), litf);
+	// the rooms' lamps: warm in most, cool white in offices with fluorescent panels
+	vec3 lamp = mix(vec3(1.05, 0.90, 0.68), vec3(0.88, 0.95, 1.05), step(0.55, hash(rc, 14.0)));
+	vec3 inside_avg = vec3(0.10, 0.10, 0.10) * day + litf * mix(vec3(0.55, 0.50, 0.42), vec3(0.55, 0.47, 0.36), tm_night);
 	vec3 inside = inside_avg;
 	if (far < 0.99) {
-		inside = room(c, vec3(f.x, f.y, 0.0), -tv, lit, daylight);
+		inside = room(c, vec3(f.x, f.y, 0.0), -tv, lit, day, lamp);
 		// blinds: some rooms have them down part way (right behind the glass)
 		float blind_frac = hash(rc, 6.0) < 0.45 ? hash(rc, 7.0) * 0.75 : 0.0;
 		float win_y = (f.y - span_top) / max(fh - span_top, 0.1);
 		float blind = lobby > 0.5 ? 0.0 : step(1.0 - blind_frac, win_y);
-		vec3 blind_col = vec3(0.78, 0.76, 0.70) * (daylight * 0.55 + lit * 0.7);
+		vec3 blind_col = vec3(0.78, 0.76, 0.70) * (day * 0.55 + lit * 0.7);
 		inside = mix(mix(inside, blind_col, blind), inside_avg, far);
 	}
 	// the glass: a coating that reflects most, more at grazing angles; through it, the room
 	float ndv = clamp(dot(N, V), 0.0, 1.0);
 	float fres = reflectivity + (1.0 - reflectivity) * pow(1.0 - ndv, 5.0);
-	float transmit = lobby > 0.5 ? 0.5 : mix(0.75, 0.32, daylight);
+	float transmit = lobby > 0.5 ? mix(0.5, 1.2, tm_night) : mix(0.75, 0.32, day);
 	// each pane tilts a hair (its own random), so the reflections break at the panes
 	vec2 tilt = (vec2(hash(c, 11.0), hash(c, 12.0)) - 0.5) * pane_tilt * (1.0 - far);
 	NORMAL = normalize(N + T * tilt.x * glassm + B * tilt.y * glassm);
@@ -142,7 +152,10 @@ void fragment() {
 	ALBEDO = (frame_alb * frame + span_alb * span + glass_tint * glassm) / wsum;
 	METALLIC = (frame_metal * frame + span_metal * span + reflectivity * glassm) / wsum;
 	ROUGHNESS = (frame_rough * frame + span_rough * span + (0.035 + 0.02 * hash(c, 13.0)) * glassm) / wsum;
-	EMISSION = inside * glassm * (1.0 - fres) * transmit;
+	EMISSION = inside * glassm * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.5, tm_night) * transmit;
+	// a crown's floodlights wash up its frames at night
+	float crown = 1.0 - step(0.75, COLOR.a);
+	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;
 	// the street's shade at a building's foot (the city casts no shadows: too far for them)
 	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, UV.y));
 	AO_LIGHT_AFFECT = 0.6;
