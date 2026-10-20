@@ -96,8 +96,14 @@ const TURBO_FRAME := [
 const LOOP_FRAMES := 64
 const LOOP_ROAD_FRAMES := 4
 const LOOP_BASE_R := 44.0
-const LOOP_UNDER := [[3.212, 1.243, "structure", S_METAL], [5.163, 1.243, "structure", S_METAL],
-	[14.292, 0.656, "structure", S_METAL], [14.339, 0.0, "structure", S_METAL]]
+const LOOP_UNDER := [[3.212, 1.243, "road_metal", S_METAL], [3.3, 1.243, "road_grid", S_METAL],
+	[5.163, 1.243, "road_metal", S_METAL], [5.163, 0.84, "road_metal", S_METAL], [5.54, 0.84, "road_metal", S_METAL],
+	[5.54, 1.219, "road_grid", S_METAL], [14.292, 0.656, "road_metal", S_METAL], [14.339, 0.0, "road_metal", S_METAL]]
+## TMNF's clamps across the loop's back, every 22.5 degrees round it: a bar either side of the spine
+## (LOOP_CLAMP: from d0 to d1 across, h up from the spine's foot, the tube's radius) with dark blocks
+## at its ends and middle (LOOP_CLAMP_BLOCK: half sizes across, radially, along the loop).
+const LOOP_CLAMP := [2.85, 13.18, 0.45, 0.28]
+const LOOP_CLAMP_BLOCK := Vector3(0.3, 0.55, 0.4)
 ## Jump ramps (Ramp/, Ramp/Low): a thin plate over a dead-end road, rising from the road at z 24 to
 ## its lip at z 1.985 through TMNF's frames (z, top y; Low lifts half as much); its half-width grows
 ## linearly from RAMP_HALF[0] at the lip to RAMP_HALF[1] at the road, metal along the outer
@@ -514,9 +520,37 @@ func _loop(geo: TmGeo, left: bool) -> void:
 	_sweep_frames(geo, road, frames.slice(0, n + 1))
 	_sweep_frames(geo, sec, frames.slice(n, LOOP_FRAMES - n + 1))
 	_sweep_frames(geo, road, frames.slice(LOOP_FRAMES - n))
+	var cl: Array = LOOP_CLAMP
+	var bk: Vector3 = LOOP_CLAMP_BLOCK
+	for k in range(1, 8):
+		var f: Transform3D = frames[k * LOOP_FRAMES / 8]
+		var lat := f.basis.x
+		var up := f.basis.y
+		var along := lat.cross(up)
+		for s: float in [-1.0, 1.0]:
+			var a := f.origin + lat * s * float(cl[0]) + up * float(cl[2])
+			var b := f.origin + lat * s * float(cl[1]) + up * float(cl[2])
+			geo.pipe(a, b, cl[3], 8, "mast", S_METAL)
+			for t: float in [0.0, 0.5, 1.0]:
+				_obox(geo, a.lerp(b, t), lat * bk.x, up * bk.y, along * bk.z, "stands_dark", S_METAL)
 
 
-## The loop's section (d, y) like _section(): the road's curbs, the grid between them, LOOP_UNDER.
+## A box centred at c with half axes u, v, w (any orientation), faces outward.
+static func _obox(geo: TmGeo, c: Vector3, u: Vector3, v: Vector3, w: Vector3, key: String, surface: int) -> void:
+	for axes: Array in [[u, v, w], [v, w, u], [w, u, v]]:
+		for s: float in [-1.0, 1.0]:
+			var n: Vector3 = axes[0] * s
+			var a: Vector3 = axes[1]
+			var b: Vector3 = axes[2]
+			var q := [c + n - a - b, c + n + a - b, c + n + a + b, c + n - a + b]
+			if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).dot(n) > 0.0:
+				geo.quad(q[0], q[1], q[2], q[3], key, surface)
+			else:
+				geo.quad(q[0], q[3], q[2], q[1], key, surface)
+
+
+## The loop's section (d, y) like _section(): the road's curbs, the grid between them, LOOP_UNDER
+## (TMNF's back: grates, the dark spine down its middle and a rail under each edge).
 func _loop_section() -> Array:
 	var half := []
 	for q in HALF_AIR.slice(6) + HALF_TOP_AIR + HALF_TOP:
@@ -535,7 +569,8 @@ func _loop_section() -> Array:
 		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(q[2]), int(q[3])])
 	for i in range(LOOP_UNDER.size() - 1, -1, -1):
 		var q: Array = LOOP_UNDER[i]
-		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(q[2]), int(q[3])])
+		var m: Array = LOOP_UNDER[maxi(i - 1, 0)]       # mirrored: the segment back to point i - 1
+		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(m[2]), int(m[3])])
 	return out
 
 

@@ -2698,4 +2698,11 @@ on every real contact the full impulse would land at the contact point and kick 
   checkpoints keep their gates' own bumpers). The terrain's dirt now follows the survey's cells smoothly
   where it lies level with the grass (they were drawn as grass there; the inner edges of TMNF's
   curves). Side by side with TMNF's pieces.
+- (M11-2) **The loops' backs as TMNF's** (`road.gd`; Loop pieces 24 uses on our tracks). The loop's
+  section was TMNF's shape already (measured) but its back was plain "structure"; now TMNF's
+  materials (unwrapping TMNF's loop into its section frame: grates across the back, the dark spine
+  down the middle, a dark rail under each edge) and TMNF's clamps every 22.5 degrees round it (a
+  white tube either side of the spine with dark blocks at its ends and middle; `_obox`, an
+  oriented box). The mirrored half of the loop's underside took its neighbour segment's material
+  (harmless while all were one); fixed. Side by side with TMNF's block.
 

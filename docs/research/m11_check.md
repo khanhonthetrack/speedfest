@@ -118,6 +118,8 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   measured places (`dirt_furniture.py` -> `blocks/data/dirt_furniture.json`, built in `dirt.gd`).
   Left: the DirtHigh fences' other parts (Auvent2, borders, grids), the bumpers' tie-downs.
 
+- The loops' backs (20 Oct): grates, the dark spine and rails, the clamps every 22.5 degrees.
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the

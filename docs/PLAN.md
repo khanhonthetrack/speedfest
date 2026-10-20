@@ -217,8 +217,8 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       booths, pub blocks, camera lights, the gates' feet and curb signs, the platform checkpoint,
       the grandstands' steel (cut-out cards) and orange strips, the road-side booths' railings and
       windows, the platform truss columns, the airship, the pub base and camera pub, the camera
-      lights' steel and spotlights, the dirt roads' furniture; next: sculptures, the road turbo
-      gantry, junction undersides, the loops
+      lights' steel and spotlights, the dirt roads' furniture, the loops' backs; next: sculptures,
+      the road turbo gantry, junction undersides
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
       bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)
