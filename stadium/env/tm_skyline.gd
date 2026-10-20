@@ -18,6 +18,7 @@ const RADIUS := 5200.0          ## m, the city's rim
 const SECTORS := 12             ## the merged blocks, cut by angle (so whole sectors are culled)
 const LAYER := 2                ## the city's render layer (lit by the moon, not the floodlights)
 const ASSET_SHARE := 0.6        ## of the towers, this share are the owner's buildings when one fits
+const STOREFRONT := 5.2         ## m: the lower buildings' shop floor (from the plaza, 0.4 m up)
 const SEED := 20261020
 const HALF := (PITCH - STREET) * 0.5 - 4.5     ## a block's half width inside its pavements (m)
 ## The skyscraper districts: centre (x, z), radius (m), strength (0..1: how tall).
@@ -58,6 +59,47 @@ const FIELD_INSET := 4.0         ## a field building's pavement inside its cells
 
 static var _ground_mat: ShaderMaterial
 static var _paving: ShaderMaterial
+
+
+static var _task := -1
+
+
+## Builds the city on a worker thread and adds it under `holder` when it is done (a race loads
+## without waiting for it; it appears a moment later). The materials every building shares are
+## made here first, on the main thread; leaving the scene waits for a build still running.
+static func build_async(holder: Node3D) -> void:
+	TmTower.shared("roof")
+	TmTower.shared("plant")
+	TmTower.shared("steel")
+	TmTower.shared("beacon")
+	_grass()
+	TmMaterials.get_material("concrete")
+	TmCityAssets.catalogue()
+	wait()
+	if TestHooks.has_arg("shot"):
+		holder.add_child(build())          # a screenshot shows the city whatever the frame count
+		return
+	var ref: WeakRef = weakref(holder)
+	_task = WorkerThreadPool.add_task(func() -> void:
+		var city := build()
+		_attach.call_deferred(ref, city), false, "city")
+	holder.tree_exiting.connect(wait)
+
+
+static func _attach(ref: WeakRef, city: Node3D) -> void:
+	wait()
+	var h: Node3D = ref.get_ref()
+	if h == null or not is_instance_valid(h) or not h.is_inside_tree():
+		city.free()
+		return
+	h.add_child(city)
+
+
+## Waits for a city still being built (TmSkyline.build_async).
+static func wait() -> void:
+	if _task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
 
 
 ## The whole city as one node (its origin at the plain under the field's centre).
@@ -130,8 +172,10 @@ static func _add_blocks(root: Node3D, blocks: Dictionary, shadows: bool) -> void
 	for key: String in blocks:
 		var style := key.get_slice(":", 0)
 		if not shared.has(style):
-			shared[style] = TmTower.masonry(style, style.hash() % 997, 3.4, 3.0) if style in MASONRY_STYLES \
+			var mat := TmTower.masonry(style, style.hash() % 997, 3.4, 3.0) if style in MASONRY_STYLES \
 				else TmTower.material(style, style.hash() % 997, 3.8, 3.0)
+			mat.set_shader_parameter("storefront", STOREFRONT)      # shops at the foot of the lower buildings
+			shared[style] = mat
 		TmTower.add_mesh(root, blocks[key], shared[style], "Blocks_" + key.replace(":", "_"), shadows)
 
 
@@ -446,22 +490,87 @@ static func _box(blocks: Dictionary, roofs: TmTower.Builder, sector: int, r: Rec
 	var shade := rng.randf_range(0.82, 1.08)
 	b.tint = Color(shade, shade * rng.randf_range(0.97, 1.02), shade * rng.randf_range(0.95, 1.03))
 	var lc := r.get_center()
-	var poly := TmTower.footprint("rect", r.size.x, r.size.y)
-	for i in poly.size():
-		poly[i] += lc
+	var poly := _rect(lc, r.size)
 	# each building its own rooms: its walls' u from its own offset
 	var u0 := float(rng.randi() % 4000) * 6.0
-	TmTower.walls(b, poly, 0.4, 0.4 + h + 1.2, u0)       # with its parapet
-	roofs.tint = Color(rng.randf_range(0.8, 1.15), rng.randf_range(0.8, 1.15), rng.randf_range(0.8, 1.15))
-	TmTower.cap(roofs, poly, 0.4 + h)
-	# a setback on the taller ones
+	TmTower.walls(b, poly, 0.4, 0.4 + h, u0)
+	_crown_band(b, roofs, lc, r.size, 0.4 + h, glass, rng)
+	var roof_y := 0.4 + h
+	var roof := r.size
+	# a setback on the taller ones, standing on the roof
 	if h > 50.0 and rng.randf() < 0.5:
-		var top := TmTower.footprint("rect", r.size.x * 0.7, r.size.y * 0.7)
-		for i in top.size():
-			top[i] += lc
+		roof = r.size * 0.7
 		var h2 := h * rng.randf_range(0.15, 0.4)
-		TmTower.walls(b, top, 0.4 + h, 0.4 + h + h2 + 1.2, u0 + 3000.0)
-		TmTower.cap(roofs, top, 0.4 + h + h2)
+		TmTower.walls(b, _rect(lc, roof), roof_y, roof_y + h2, u0 + 3000.0)
+		roof_y += h2
+		_crown_band(b, roofs, lc, roof, roof_y, glass, rng)
+	_roof_clutter(roofs, lc, roof, roof_y, h, glass, rng)
+
+
+static func _rect(c: Vector2, size: Vector2) -> PackedVector2Array:
+	var p := TmTower.footprint("rect", size.x, size.y)
+	for i in p.size():
+		p[i] += c
+	return p
+
+
+## A building's top edge at y: masonry gets a cornice (a band standing 0.45 m proud, its underside
+## and top) and a parapet; glass a plain parapet. Plain walls (no windows) carry the vertex
+## colour's alpha 0.3. The roof inside at y.
+static func _crown_band(b: TmTower.Builder, roofs: TmTower.Builder, c: Vector2, size: Vector2, y: float, glass: bool,
+		rng: RandomNumberGenerator) -> void:
+	var inner := _rect(c, size)
+	var tint := b.tint
+	b.tint.a = 0.3
+	if not glass:
+		var lip := rng.randf_range(0.3, 0.6)
+		var outer := _rect(c, size + Vector2(lip, lip) * 2.0)
+		var band := rng.randf_range(0.6, 1.1)
+		TmTower.ring_cap(b, outer, inner, y, true)
+		TmTower.walls(b, outer, y, y + band)
+		TmTower.ring_cap(b, outer, inner, y + band)
+		TmTower.walls(b, inner, y + band, y + band + 0.9)
+	else:
+		TmTower.walls(b, inner, y, y + 1.2)
+	b.tint = tint
+	TmTower.cap(roofs, inner, y)
+
+
+## On a roof: a plant room or a lift overrun, units, and on older masonry blocks a water tank.
+static func _roof_clutter(roofs: TmTower.Builder, c: Vector2, size: Vector2, y: float, h: float, glass: bool,
+		rng: RandomNumberGenerator) -> void:
+	if size.x < 12.0 or size.y < 12.0:
+		return
+	var tint := roofs.tint
+	for k in 1 + rng.randi() % 3:
+		var bs := Vector2(rng.randf_range(3.0, minf(12.0, size.x * 0.4)), rng.randf_range(3.0, minf(10.0, size.y * 0.4)))
+		var at := c + Vector2(rng.randf_range(-1.0, 1.0) * (size.x * 0.5 - bs.x * 0.5 - 1.5),
+			rng.randf_range(-1.0, 1.0) * (size.y * 0.5 - bs.y * 0.5 - 1.5))
+		var bh := rng.randf_range(2.2, 4.5)
+		var g := rng.randf_range(0.75, 1.05)
+		roofs.tint = Color(g, g, g * 1.02)
+		var p := _rect(at, bs)
+		TmTower.walls(roofs, p, y, y + bh)
+		TmTower.cap(roofs, p, y + bh)
+	if not glass and h < 70.0 and rng.randf() < 0.45:
+		# a timber water tank on steel legs
+		var at := c + Vector2(rng.randf_range(-0.25, 0.25) * size.x, rng.randf_range(-0.25, 0.25) * size.y)
+		var legs := 3.5
+		roofs.tint = Color(0.35, 0.33, 0.32)
+		for q: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+			var lp := _rect(at + q * 1.6, Vector2(0.25, 0.25))
+			TmTower.walls(roofs, lp, y, y + legs)
+		roofs.tint = Color(0.62, 0.45, 0.32)
+		var tank := TmTower.footprint("octagon", 3.9, 3.9)
+		for i in tank.size():
+			tank[i] += at
+		TmTower.walls(roofs, tank, y + legs, y + legs + 4.0)
+		roofs.tint = Color(0.40, 0.30, 0.22)
+		var cone := TmTower.footprint("octagon", 4.1, 4.1)
+		for i in cone.size():
+			cone[i] += at
+		TmTower.cap(roofs, cone, y + legs + 4.0)
+	roofs.tint = tint
 
 
 ## A park: the block's lawn (a little above the plaza).

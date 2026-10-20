@@ -2683,3 +2683,30 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   our light, dressed (`--dress=false`: as exported). Screenshots at Ultra: `--set_quality=2`.
 - `tests/test_skyline` (+5): the catalogue (licences), picks that fit and none that don't,
   dressing, material kinds.
+
+## 2026-10-20 — session 15 (cloud): our own buildings, more detail (M12)
+
+- The owner's 5/10 was mostly about our own blocks, which make most of the City tracks' street
+  views. `env/tm_tower.gdshader` (shared by every building of ours):
+  - masonry windows set back in their openings (`reveal`, 0.12-0.3 m): the eye's ray meets the
+    glass further along it or the opening's sides first (the sill lit from above, the head in
+    shade, the jambs between); the room is traced from where it meets the glass; a stone sill
+    under each opening; dirt washed down from the sills (`grime`);
+  - the wall's grain: brick courses (`brick`, fading out far off), precast panel joints at each
+    floor and every two bays (`panels`), large-scale weathering;
+  - a shop floor at the foot of the lower buildings (`storefront`, 5.2 m; TmSkyline.STOREFRONT):
+    6 m panes in dark frames over a riser, the shop traced behind them, lamp-lit, darker than the
+    street by day, shelves of goods down its sides and back; a fascia in the shop's colour with its
+    name in block letters, lit at night with the shop;
+  - plain walls (vertex colour alpha < 0.4) carry no windows: cornices and parapets.
+  `room()` takes the box's size (rooms and shops).
+- `TmSkyline._box`: masonry buildings get a cornice (a band 0.3-0.6 m proud, its underside and
+  top) and a parapet, glass ones a plain parapet; roofs get plant rooms and lift overruns, older
+  masonry blocks a timber water tank on steel legs. `TmTower.ring_cap(.., down)`.
+- `TmTower.MASONRY`: each style's reveal, grain and grime.
+- The city's build grew to 3.1 s (cornices, roof clutter) and the online test's clients started
+  their rounds late. Now: `TmTower.Builder.tri3` (no arrays per triangle), 8-sided tanks: 1.9 s;
+  and the race's city is built on a worker thread (`TmSkyline.build_async`: shared materials made
+  first on the main thread, the city added when done, leaving the scene waits for it; screenshots
+  (`--shot`) build it at once). Field cities stay on the main thread (their collision is there at
+  the start). `test_skyline` (+1: the call returns at once, the city arrives).

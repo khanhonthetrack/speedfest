@@ -6,7 +6,8 @@ extends Node
 ## mood (a .Challenge.Gbx's decoration, our spec's "mood", --mood) and the night environment. A
 ## city track (F01): towers and buildings on its field, none on a cell the track takes nor in the
 ## way of the car's line (its collision boxes), the field paved, the City series in the campaign.
-## The owner's buildings (assets/city): listed with licences, picked to fit, dressed.
+## The owner's buildings (assets/city): listed with licences, picked to fit, dressed. The race's
+## city built on a worker thread (the call returns at once; the city arrives).
 
 func _ready() -> void:
 	var t0 := Time.get_ticks_msec()
@@ -36,7 +37,7 @@ func _ready() -> void:
 	print("CITY build %d ms, %d meshes, %d triangles, %d towers" % [ms, meshes, tris, towers.size()])
 	TestHooks.check(towers.size() >= 40 and towers.size() <= 320, "skyline_towers", str(towers.size()))
 	TestHooks.check(inside == 0, "skyline_off_the_stadium", "%d vertices inside the edge" % inside)
-	TestHooks.check(meshes < 1400 and tris < 1500000, "skyline_budget", "%d meshes, %d triangles" % [meshes, tris])
+	TestHooks.check(meshes < 1400 and tris < 2000000, "skyline_budget", "%d meshes, %d triangles" % [meshes, tris])
 	# the landmarks behind the grandstands: from the field's far side their tops clear the roof
 	var roof_edge: float = TmStadiumBuild.ROOF[0][1]           # the roof's front edge over the field
 	var roof_z: float = absf(TmStadiumBuild.ROOF_Z[0])
@@ -84,6 +85,17 @@ func _ready() -> void:
 	lit.free()
 	_city_track()
 	_assets()
+	# the race's city: built on a worker thread, it arrives under its city_holder a moment later
+	var city_holder := Node3D.new()
+	add_child(city_holder)
+	var t1 := Time.get_ticks_msec()
+	TmSkyline.build_async(city_holder)
+	var waited := Time.get_ticks_msec() - t1
+	while city_holder.get_child_count() == 0 and Time.get_ticks_msec() - t1 < 30000:
+		await get_tree().process_frame
+	TestHooks.check(city_holder.get_child_count() == 1 and waited < 300, "skyline_async",
+		"%d children, the call took %d ms, arrived after %d ms" % [city_holder.get_child_count(), waited, Time.get_ticks_msec() - t1])
+	city_holder.free()
 	TestHooks.finish()
 
 

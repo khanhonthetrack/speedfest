@@ -25,12 +25,13 @@ const GLASS := {
 	"dark": [Color(0.16, 0.18, 0.21), 0.82, Color(0.12, 0.12, 0.13), Color(0.05, 0.05, 0.06)],
 }
 ## Masonry walls with punched or ribbon windows: wall colour, glass tint, reflectivity, mullion
-## (pier) width, transom (lintel and sill) height, spandrel height (m).
+## (pier) width, transom (lintel and sill) height, spandrel height (m), the glass's depth in its
+## opening (m), the wall's grain ("brick" courses, precast "panels", "" plain) and grime.
 const MASONRY := {
-	"stone": [Color(0.70, 0.66, 0.58), Color(0.30, 0.33, 0.35), 0.55, 1.3, 1.0, 0.6],
-	"brick": [Color(0.50, 0.30, 0.24), Color(0.28, 0.31, 0.33), 0.55, 1.2, 0.9, 0.6],
-	"concrete": [Color(0.64, 0.64, 0.62), Color(0.26, 0.32, 0.38), 0.65, 0.18, 0.2, 1.2],
-	"white": [Color(0.86, 0.86, 0.84), Color(0.24, 0.30, 0.36), 0.65, 0.5, 0.3, 1.0],
+	"stone": [Color(0.70, 0.66, 0.58), Color(0.30, 0.33, 0.35), 0.55, 1.3, 1.0, 0.6, 0.3, "", 0.7],
+	"brick": [Color(0.50, 0.30, 0.24), Color(0.28, 0.31, 0.33), 0.55, 1.2, 0.9, 0.6, 0.22, "brick", 0.6],
+	"concrete": [Color(0.64, 0.64, 0.62), Color(0.26, 0.32, 0.38), 0.65, 0.18, 0.2, 1.2, 0.12, "panels", 0.5],
+	"white": [Color(0.86, 0.86, 0.84), Color(0.24, 0.30, 0.36), 0.65, 0.5, 0.3, 1.0, 0.15, "panels", 0.3],
 }
 const SHAPES := ["rect", "chamfer", "rounded", "octagon", "circle"]
 ## The crowns' floodlights at night: warm white, cool white, blue, teal, amber.
@@ -51,11 +52,22 @@ class Builder:
 	var tint := Color.WHITE
 
 	func tri(p: Array, nn: Array, uu: Array) -> void:
-		for k in 3:
-			v.append(p[k])
-			n.append(nn[k])
-			uv.append(uu[k])
-			col.append(tint)
+		tri3(p[0], p[1], p[2], nn[0], nn[1], nn[2], uu[0], uu[1], uu[2])
+
+	## One triangle without arrays (the hot path: thousands of walls).
+	func tri3(a: Vector3, b: Vector3, c: Vector3, na: Vector3, nb: Vector3, nc: Vector3, ua: Vector2, ub: Vector2, uc: Vector2) -> void:
+		v.append(a)
+		v.append(b)
+		v.append(c)
+		n.append(na)
+		n.append(nb)
+		n.append(nc)
+		uv.append(ua)
+		uv.append(ub)
+		uv.append(uc)
+		col.append(tint)
+		col.append(tint)
+		col.append(tint)
 
 	func empty() -> bool:
 		return v.is_empty()
@@ -181,7 +193,8 @@ static func material(glass: String, seed: int, floor_h := 4.0, bay := 3.0) -> Sh
 
 
 ## A masonry building's walls (MASONRY: stone, brick, concrete, white): the same shader, its frames
-## the wall, its windows punched (stone, brick) or in ribbons (concrete, white).
+## the wall, its windows punched (stone, brick) or in ribbons (concrete, white), the glass set back
+## in its opening, brick courses or precast panel joints, grime under the sills.
 static func masonry(style: String, seed: int, floor_h := 3.5, bay := 3.0) -> ShaderMaterial:
 	var s: Array = MASONRY.get(style, MASONRY["stone"])
 	var m := material("blue", seed, floor_h, bay)
@@ -196,6 +209,10 @@ static func masonry(style: String, seed: int, floor_h := 3.5, bay := 3.0) -> Sha
 	m.set_shader_parameter("frame_rough", 0.85)
 	m.set_shader_parameter("span_metal", 0.0)
 	m.set_shader_parameter("span_rough", 0.85)
+	m.set_shader_parameter("reveal", s[6])
+	m.set_shader_parameter("brick", 1.0 if s[7] == "brick" else 0.0)
+	m.set_shader_parameter("panels", 1.0 if s[7] == "panels" else 0.0)
+	m.set_shader_parameter("grime", s[8])
 	return m
 
 
@@ -254,8 +271,8 @@ static func walls(b: Builder, poly: PackedVector2Array, y0: float, y1: float, u0
 		var t2 := Vector2(u + len, y1)
 		var t3 := Vector2(u, y1)
 		# clockwise from outside (Godot's front faces)
-		b.tri([p0, p1, p2], [na, nb, nb], [t0, t1, t2])
-		b.tri([p0, p2, p3], [na, nb, na], [t0, t2, t3])
+		b.tri3(p0, p1, p2, na, nb, nb, t0, t1, t2)
+		b.tri3(p0, p2, p3, na, nb, na, t0, t2, t3)
 		u += len
 
 
@@ -265,11 +282,28 @@ static func cap(b: Builder, poly: PackedVector2Array, y: float) -> void:
 	for p in poly:
 		c += p
 	c /= poly.size()
-	var up := [Vector3.UP, Vector3.UP, Vector3.UP]
+	var up := Vector3.UP
+	var cc := Vector3(c.x, y, c.y)
 	for i in poly.size():
 		var a := poly[i]
 		var e := poly[(i + 1) % poly.size()]
-		b.tri([Vector3(c.x, y, c.y), Vector3(a.x, y, a.y), Vector3(e.x, y, e.y)], up, [c * 0.25, a * 0.25, e * 0.25])
+		b.tri3(cc, Vector3(a.x, y, a.y), Vector3(e.x, y, e.y), up, up, up, c * 0.25, a * 0.25, e * 0.25)
+
+
+## A flat ring between two polygons of the same vertex count, facing up, or down (a ledge's underside).
+static func ring_cap(b: Builder, outer: PackedVector2Array, inner: PackedVector2Array, y: float, down := false) -> void:
+	if not down:
+		_ring_cap(b, outer, inner, y)
+		return
+	var n := outer.size()
+	var dn := [Vector3.DOWN, Vector3.DOWN, Vector3.DOWN]
+	for i in n:
+		var a := outer[i]
+		var e := outer[(i + 1) % n]
+		var c := inner[(i + 1) % n]
+		var f := inner[i]
+		b.tri([Vector3(a.x, y, a.y), Vector3(c.x, y, c.y), Vector3(e.x, y, e.y)], dn, [a * 0.25, c * 0.25, e * 0.25])
+		b.tri([Vector3(a.x, y, a.y), Vector3(f.x, y, f.y), Vector3(c.x, y, c.y)], dn, [a * 0.25, f * 0.25, c * 0.25])
 
 
 ## The terrace between a tier and the smaller one on it (both polygons have the same vertex count).

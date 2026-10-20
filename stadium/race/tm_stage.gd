@@ -142,9 +142,12 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 		if builder.challenge.scenery == "city":
 			parent.add_child(TmSkyline.field(builder))
 		if String(TestHooks.arg("city", "true")) != "false":
-			var city := TmSkyline.build()
+			# built on a worker thread: the race doesn't wait for it (TmSkyline.build_async)
+			var city := Node3D.new()
+			city.name = "City"
 			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, TmStadiumBuild.BOTTOM, 0.0)
 			parent.add_child(city)
+			TmSkyline.build_async(city)
 		return
 	var w := float(builder.challenge.size.x) * 32.0
 	var d := float(builder.challenge.size.z) * 32.0

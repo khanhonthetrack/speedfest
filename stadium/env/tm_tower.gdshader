@@ -30,6 +30,11 @@ uniform float lobby = 0.0;              // 1: the podium (one tall storey of cle
 uniform float pane_tilt = 0.018;        // the panes' small tilts (reflections break at them)
 uniform float fin_every = 0.0;          // a deeper vertical fin every this many bays (0: none)
 uniform float fin_w = 0.45;             // m
+uniform float reveal = 0.0;             // m: the glass set back in its opening (masonry; 0: flush)
+uniform float storefront = 0.0;         // m: a shop floor this tall at the foot (0: none)
+uniform float brick = 0.0;              // 1: the wall laid in brick courses
+uniform float panels = 0.0;             // 1: precast panels (joints at each floor and every two bays)
+uniform float grime = 0.0;              // dirt washed down from the sills (0..1)
 uniform float world_map = 0.0;          // 1: windows from the world position (models without our
                                         // metre UVs: each planar wall's horizontal run, metres up)
 uniform float frame_metal = 1.0;        // the frames: aluminium (1) or stone and concrete (0)
@@ -43,21 +48,28 @@ float hash(vec2 p, float k) {
 	return fract(sin(dot(p + vec2(k * 17.31, seed * 3.17), vec2(127.1, 311.7))) * 43758.5453);
 }
 
+float vnoise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 u = fract(p);
+	u = u * u * (3.0 - 2.0 * u);
+	return mix(mix(hash(i, 21.0), hash(i + vec2(1.0, 0.0), 21.0), u.x), mix(hash(i + vec2(0.0, 1.0), 21.0), hash(i + vec2(1.0, 1.0), 21.0), u.x), u.y);
+}
+
 // a box interior seen through the glass at o (cell metres), looking along d (into the room: d.z < 0);
 // returns the lit colour of what the ray meets
-vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp) {
-	float fh = floor_h;
+vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp, vec3 box) {
+	float fh = box.y;
 	vec3 dd = vec3(abs(d.x) < 1e-4 ? 1e-4 : d.x, abs(d.y) < 1e-4 ? 1e-4 : d.y, min(d.z, -1e-4));
-	float tx = dd.x > 0.0 ? (bay_w - o.x) / dd.x : -o.x / dd.x;
+	float tx = dd.x > 0.0 ? (box.x - o.x) / dd.x : -o.x / dd.x;
 	float ty = dd.y > 0.0 ? (fh - o.y) / dd.y : -o.y / dd.y;
-	float tz = (-room_depth - o.z) / dd.z;
+	float tz = (-box.z - o.z) / dd.z;
 	float t = min(min(tx, ty), tz);
 	vec3 p = o + dd * t;
 	float r1 = hash(cell, 3.0);
 	vec3 wall = mix(vec3(0.72, 0.70, 0.64), vec3(0.86, 0.87, 0.88), r1);
 	vec3 carpet = mix(vec3(0.20, 0.20, 0.21), vec3(0.38, 0.35, 0.31), hash(cell, 4.0));
 	vec3 col;
-	float depth = clamp(-p.z / room_depth, 0.0, 1.0);
+	float depth = clamp(-p.z / box.z, 0.0, 1.0);
 	if (t == ty && dd.y > 0.0) {
 		// the ceiling: tiles and, lit, light panels
 		col = vec3(0.82);
@@ -69,7 +81,7 @@ vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp) {
 	} else if (t == tz) {
 		col = wall * 0.92;
 		// the back wall: a door or a dark doorway now and then, a desk row's edge in front of it
-		float door = step(abs(p.x - bay_w * (0.3 + 0.4 * hash(cell, 8.0))), 0.45) * step(p.y, 2.2) * step(hash(cell, 9.0), 0.4);
+		float door = step(abs(p.x - box.x * (0.3 + 0.4 * hash(cell, 8.0))), 0.45) * step(p.y, 2.2) * step(hash(cell, 9.0), 0.4);
 		col = mix(col, vec3(0.18, 0.16, 0.15), door);
 	} else {
 		col = wall;
@@ -123,6 +135,9 @@ void fragment() {
 		frame = max(frame, 1.0 - smoothstep(fin_w * 0.5 - fw.x, fin_w * 0.5 + fw.x, fd));
 	}
 	float span = lobby > 0.5 ? 0.0 : 1.0 - smoothstep(span_top - fw.y, span_top + fw.y, f.y);
+	// a plain wall (cornices, parapets: the vertex colour's alpha under 0.4) has no windows
+	float plain = 1.0 - step(0.4, COLOR.a);
+	frame = max(frame, plain);
 	// averages far off
 	float frame_avg = clamp(mullion / bay_w + transom * 2.0 / fh + (fin_every > 0.5 ? fin_w / (bay_w * fin_every) : 0.0), 0.0, 1.0);
 	float span_avg = lobby > 0.5 ? 0.0 : span_top / fh;
@@ -145,9 +160,23 @@ void fragment() {
 	// the rooms' lamps: warm in most, cool white in offices with fluorescent panels
 	vec3 lamp = mix(vec3(1.05, 0.90, 0.68), vec3(0.88, 0.95, 1.05), step(0.55, hash(rc, 14.0)));
 	vec3 inside_avg = vec3(0.10, 0.10, 0.10) * day + litf * mix(vec3(0.55, 0.50, 0.42), vec3(0.55, 0.47, 0.36), tm_night);
+	// masonry: the glass sits `reveal` back in its opening; the eye meets it further along its
+	// ray, or meets the opening's sides first: the sill (lit from above), the head (in shade), jambs
+	vec2 g = f;
+	float rev = 0.0;
+	float rev_light = 0.7;
+	vec2 o0 = vec2(mullion * 0.5, span_top + transom * 0.5);
+	vec2 o1 = vec2(bay_w - mullion * 0.5, fh - transom * 0.5);
+	if (reveal > 0.0 && far < 0.99) {
+		g = f - tv.xy / max(tv.z, 0.05) * reveal;
+		vec2 lo = step(g, o0);
+		vec2 hi = step(o1, g);
+		rev = max(max(lo.x, hi.x), max(lo.y, hi.y)) * (1.0 - far);
+		rev_light = lo.y > 0.5 ? 1.0 : (hi.y > 0.5 ? 0.42 : 0.68);
+	}
 	vec3 inside = inside_avg;
 	if (far < 0.99) {
-		inside = room(c, vec3(f.x, f.y, 0.0), -tv, lit, day, lamp);
+		inside = room(c, vec3(g.x, g.y, 0.0), -tv, lit, day, lamp, vec3(bay_w, fh, room_depth));
 		// blinds: some rooms have them down part way (right behind the glass)
 		float blind_frac = hash(rc, 6.0) < 0.45 ? hash(rc, 7.0) * 0.75 : 0.0;
 		float win_y = (f.y - span_top) / max(fh - span_top, 0.1);
@@ -164,14 +193,91 @@ void fragment() {
 	NORMAL = normalize(N + T * tilt.x * glassm + B * tilt.y * glassm);
 	vec3 frame_alb = frame_colour * COLOR.rgb;
 	vec3 span_alb = spandrel_colour * COLOR.rgb;
+	float near = 1.0 - far;
+	// the wall's own grain: brick courses or precast panel joints, a sill's stone under each
+	// opening, dirt washed down from the sills, a building's large-scale weathering
+	vec3 wall_tone = vec3(1.0);
+	if (brick > 0.5) {
+		float row = floor(m.y / 0.075);
+		vec2 bq = vec2((m.x + mod(row, 2.0) * 0.1125) / 0.225, m.y / 0.075);
+		vec2 bf = fract(bq);
+		float joint = max(1.0 - smoothstep(0.0, 0.12, min(bf.y, 1.0 - bf.y)), 1.0 - smoothstep(0.0, 0.05, min(bf.x, 1.0 - bf.x)));
+		float fine = 1.0 - smoothstep(0.004, 0.02, max(fw.x, fw.y));
+		wall_tone = mix(vec3(1.0), mix(vec3(0.82 + 0.3 * hash(floor(bq), 31.0), 0.9 + 0.15 * hash(floor(bq), 32.0), 0.95),
+			vec3(1.45, 1.6, 1.7), joint), fine);
+	}
+	if (panels > 0.5) {
+		vec2 pj = vec2(min(mod(m.x, bay_w * 2.0), bay_w * 2.0 - mod(m.x, bay_w * 2.0)), min(f.y, fh - f.y));
+		float j = 1.0 - smoothstep(0.015, 0.015 + max(fw.x, fw.y) * 1.5, min(pj.x, pj.y));
+		wall_tone *= mix(1.0, 0.55, j * near) * (0.94 + 0.12 * hash(floor(m / vec2(bay_w * 2.0, fh)), 33.0));
+	}
+	float in_x = step(o0.x - 0.12, f.x) * step(f.x, o1.x + 0.12);
+	float sill = in_x * step(o0.y - 0.12, f.y) * step(f.y, o0.y) * step(0.01, reveal) * near;
+	float streak = in_x * step(f.y, o0.y - 0.12) * (1.0 - smoothstep(0.0, 1.6, o0.y - 0.12 - f.y))
+		* (0.4 + 0.6 * hash(vec2(floor(m.x * 5.0), c.y), 34.0)) * grime * near;
+	wall_tone *= (1.0 + 0.3 * sill) * (1.0 - 0.35 * streak) * (0.9 + 0.2 * vnoise(m / 9.0 + seed));
+	frame_alb *= wall_tone;
+	span_alb *= mix(vec3(1.0), wall_tone, step(0.5, brick + panels));
+	float glass_eff = glassm * (1.0 - rev);
+	float rev_m = glassm * rev;
 	float wsum = max(frame + span + glassm, 1e-4);
-	ALBEDO = (frame_alb * frame + span_alb * span + glass_tint * glassm) / wsum;
-	METALLIC = (frame_metal * frame + span_metal * span + reflectivity * glassm) / wsum;
-	ROUGHNESS = (frame_rough * frame + span_rough * span + (0.035 + 0.02 * hash(c, 13.0)) * glassm) / wsum;
-	EMISSION = inside * glassm * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.5, tm_night) * transmit;
+	ALBEDO = (frame_alb * frame + span_alb * span + frame_colour * COLOR.rgb * rev_light * rev_m + glass_tint * glass_eff) / wsum;
+	METALLIC = (frame_metal * (frame + rev_m) + span_metal * span + reflectivity * glass_eff) / wsum;
+	ROUGHNESS = (frame_rough * (frame + rev_m) + span_rough * span + (0.035 + 0.02 * hash(c, 13.0)) * glass_eff) / wsum;
+	EMISSION = inside * glass_eff * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.5, tm_night) * transmit;
 	// a crown's floodlights wash up its frames at night
 	float crown = 1.0 - step(0.75, COLOR.a);
 	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;
+	// a shop floor at the foot: wide panes in dark frames over a low riser, the shop lit behind
+	// them (by day and night), a fascia above with its sign, lit at night
+	if (storefront > 0.0 && UV.y < storefront && world_map < 0.5 && lobby < 0.5 && plain < 0.5) {
+		float sw = 6.0;
+		float sc = floor(m.x / sw);
+		float sx = m.x - sc * sw;
+		float sy = UV.y;
+		float fascia = step(storefront - 0.9, sy);
+		float riser = step(sy, 0.85);
+		float sframe = 1.0 - smoothstep(0.09 - fw.x, 0.09 + fw.x, min(sx, sw - sx));
+		sframe = max(sframe, 1.0 - smoothstep(0.06 - fw.y, 0.06 + fw.y, abs(sy - 0.85)));
+		float spane = (1.0 - fascia) * (1.0 - riser) * (1.0 - sframe);
+		vec3 shop_lamp = mix(vec3(1.1, 0.95, 0.75), vec3(0.95, 1.0, 1.1), step(0.5, hash(vec2(sc, 7.0), 40.0)));
+		// the shop: lamp-lit, darker than the street by day; shelves of goods down its sides and back
+		vec3 sd = -tv;
+		vec3 so = vec3(sx, sy - 0.85, 0.0);
+		vec3 shop = room(vec2(sc, 99.0), so, sd, 1.0, day * 0.25, shop_lamp * 0.8, vec3(sw, storefront - 1.75, 9.0));
+		vec3 sdd = vec3(abs(sd.x) < 1e-4 ? 1e-4 : sd.x, sd.y, min(sd.z, -1e-4));
+		float stx = sdd.x > 0.0 ? (sw - so.x) / sdd.x : -so.x / sdd.x;
+		float stz = (-9.0 - so.z) / sdd.z;
+		vec3 sp = so + sdd * min(stx, stz);
+		float shelf_y = sp.y;
+		float goods = step(0.2, shelf_y) * step(shelf_y, 2.0) * step(0.25, fract(shelf_y / 0.45))
+			* step(0.15, fract((sp.x + sp.z) / 0.35 + 0.3 * hash(vec2(floor(shelf_y / 0.45), sc), 43.0)));
+		vec3 goods_col = vec3(hash(floor(sp.xz / 0.35) + shelf_y, 44.0), hash(floor(sp.xz / 0.35) + shelf_y, 45.0), hash(floor(sp.xz / 0.35) + shelf_y, 46.0));
+		shop = mix(shop * 0.55, goods_col * shop_lamp * (0.35 + 0.5 * tm_night), goods * 0.8);
+		// the sign: the shop's colour, its name in block letters (a word of four to nine letters)
+		vec3 sign_col = vec3(hash(vec2(sc, 1.0), 41.0), hash(vec2(sc, 2.0), 41.0), hash(vec2(sc, 3.0), 41.0));
+		sign_col = normalize(sign_col + 0.15) * 0.9;
+		float nl = 4.0 + floor(hash(vec2(sc, 5.0), 47.0) * 6.0);
+		float lw = 0.42;
+		float x0 = (sw - nl * lw) * 0.5;
+		float li = floor((sx - x0) / lw);
+		float lf = (sx - x0) / lw - li;
+		float ly = (sy - (storefront - 0.72)) / 0.5;
+		vec2 gcell = floor(vec2(lf * 3.0, ly * 5.0));
+		float glyph = step(0.42, hash(gcell + vec2(li * 3.0, sc * 5.0), 48.0)) + step(gcell.x, 0.5) * step(0.5, hash(vec2(li, sc), 49.0));
+		float letters = step(0.0, li) * step(li, nl - 1.0) * step(0.12, lf) * step(lf, 0.88) * step(0.0, ly) * step(ly, 1.0)
+			* clamp(glyph, 0.0, 1.0) * (1.0 - smoothstep(0.02, 0.06, fw.x));
+		vec3 fascia_col = mix(vec3(0.12), sign_col * 0.6, step(0.3, hash(vec2(sc, 4.0), 42.0)));
+		vec3 alb = mix(mix(glass_tint * 0.15, vec3(0.08, 0.08, 0.09), max(sframe, riser)), fascia_col, fascia);
+		alb = mix(alb, vec3(0.9), letters * fascia);
+		ALBEDO = alb;
+		METALLIC = mix(0.1, 0.6, max(sframe, fascia * 0.0));
+		ROUGHNESS = mix(0.07, 0.45, max(sframe, max(riser, fascia)));
+		SPECULAR = mix(0.35, 0.5, sframe);
+		NORMAL = N;
+		EMISSION = shop * spane * mix(0.3, 1.3, tm_night) * (1.0 - far * 0.5)
+			+ (sign_col * 2.2 * letters * fascia + sign_col * 0.25 * fascia) * tm_night;
+	}
 	// the street's shade at a building's foot (the city casts no shadows: too far for them)
 	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, world_map > 0.5 ? wpos.y - NODE_POSITION_WORLD.y : UV.y));
 	AO_LIGHT_AFFECT = 0.6;
