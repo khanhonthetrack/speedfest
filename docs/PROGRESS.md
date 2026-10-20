@@ -2630,3 +2630,9 @@ on every real contact the full impulse would land at the contact point and kick 
   the light gaps in the window band at +-z, no railing at the entrances. Lattice cards' metal
   lowered (they read light in the sun). Missing surface: camera booth 104 -> 1 m2, glass booth
   389 -> 280 m2. Side by side with TMNF's blocks. Left: the pub block's plinth (85 uses).
+- (M11-2) **Platform truss columns and the turbo deck's advert band as TMNF's** (`platform.gd`).
+  The truss columns under every closed deck edge are TMNF's dark open frames now (cut-out truss
+  cards, TMNF's outline: 1.07 m deep at the foot on the beam's end, 0.55 m under the rim; ours
+  were narrow solid boxes); the turbo deck has TMNF's advert band under its plate along each x
+  side (our adverts; `TmGeo.screen_rect` takes a lower `min_h` for such bands). Side by side with
+  TMNF's blocks.

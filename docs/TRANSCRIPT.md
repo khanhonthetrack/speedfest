@@ -961,3 +961,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 20 Oct, after the gates and the platform checkpoint)
 
 > Yes
+
+### User (verbatim, session 13, 20 Oct, after a worker restart during M11)
+
+> Cotninue

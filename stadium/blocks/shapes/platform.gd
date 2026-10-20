@@ -39,7 +39,8 @@ const LIP := [
 ## at the floor, HUB[1] at the level's ground), and beams 1 m deep, BEAM_HALF either side of the
 ## column lines (COLUMNS, both ways): from each column of a closed side in to the square the
 ## lines make (its outer end BEAM_END, (d, y)), and along each side of that square whose block
-## edge is open. On each closed side two truss columns (centred COLUMNS along it, COLUMN_W wide)
+## edge is open. On each closed side two truss columns (centred COLUMNS along it, COLUMN_W wide;
+## TMNF's dark open frames, cut-out truss cards)
 ## slant from the beam's end up under the rim.
 const PLATE_IN := 2.802
 const HUB := [10.0, 12.0]
@@ -47,8 +48,9 @@ const BEAM_HALF := 0.73
 const BEAM_END := [Vector2(2.0, 0.0), Vector2(1.61, 0.6), Vector2(2.8, BOTTOM)]
 const COLUMNS := [8.0, 24.0]
 const COLUMN_W := 1.0
-const COLUMN_FOOT := [Vector2(1.9, 0.05), Vector2(2.35, 0.05)]     ## (d, y) its two bottom edges
-const COLUMN_HEAD := [Vector2(0.85, UNDER), Vector2(1.3, UNDER)]   ## and top edges
+const COLUMN_FOOT := [Vector2(1.73, 0.64), Vector2(2.8, 1.0)]       ## (d, y) its two bottom edges (on the beam's end)
+const COLUMN_HEAD := [Vector2(0.17, 7.09), Vector2(0.72, 7.29)]     ## and top edges (under the rim)
+const COLUMN_PANELS := 3.0                                           ## its frame's diagonal panels
 ## The turbo plate's rounded edge (every side) and the strip of plate behind it to TURBO_PLATE_IN:
 ## its edge the border atlas' ribs, the bevel TMNF's TURBO sign (ours: texgen/turbo.py turbo_rim, v
 ## across the bevel as rows of 512; mirrored, as TMNF's reads from outside), the underside TMNF's
@@ -60,6 +62,9 @@ const PLATE_LIP := [
 	[0.249, 7.611, "turbo_rim_out", S_SIGNS, Vector2(163.4, 370.2)], [0.505, 7.423, "turbo_rim_out", S_SIGNS, Vector2(370.2, 512.0)],
 	[0.847, UNDER, "road_under", S_METAL], [TURBO_PLATE_IN, UNDER, "", TmGeo.NO_COLLISION],
 ]
+## The turbo deck's advert bands (TMNF's Pub8x1B, measured): their bottom and top edges' distance
+## from the centre line (x), heights, and z extent.
+const TURBO_PUB := [12.5, 12.68, 6.46, 7.32, 3.32, 28.68]
 ## The turbo deck's floor under the plate (measured): its edge (d, y) at the deck's foot, the
 ## border atlas' orange band facing out, the light floor from TURBO_FLOOR_IN in at FLOOR_Y.
 const FLOOR_Y := 1.207
@@ -382,7 +387,8 @@ func _underside(geo: TmGeo, closed: Array) -> void:
 			for q: Vector2 in COLUMN_FOOT + COLUMN_HEAD:
 				for s: float in [-0.5, 0.5]:
 					pts.append(edge - o * q.x + Vector3(0, q.y, 0) + along + t * s * COLUMN_W)
-			# pts: foot (outer, inner) x (-, +), head (outer, inner) x (-, +)
+			# pts: foot (outer, inner) x (-, +), head (outer, inner) x (-, +); each face TMNF's open
+			# frame (a dark truss card, its diagonals up the column: u along it, v across)
 			var face := func(a: int, b: int, cc: int, d: int) -> void:
 				var pa: Vector3 = pts[a]
 				var pb: Vector3 = pts[b]
@@ -392,10 +398,11 @@ func _underside(geo: TmGeo, closed: Array) -> void:
 				var cen := Vector3.ZERO
 				for p: Vector3 in pts:
 					cen += p / 8.0
+				var u := COLUMN_PANELS / 8.0
 				if (pb - pa).cross(pc - pa).dot(mid - cen) < 0.0:
-					geo.quad(pa, pd, pc, pb, "truss", S_METAL)
+					geo.quad_uv(pa, pd, pc, pb, "girder_dark", S_METAL, Vector2(0, 0), Vector2(u, 0), Vector2(u, 1), Vector2(0, 1))
 				else:
-					geo.quad(pa, pb, pc, pd, "truss", S_METAL)
+					geo.quad_uv(pa, pb, pc, pd, "girder_dark", S_METAL, Vector2(0, 0), Vector2(0, 1), Vector2(u, 1), Vector2(u, 0))
 			face.call(0, 1, 5, 4)      # outer face
 			face.call(2, 3, 7, 6)      # inner face
 			face.call(0, 2, 6, 4)      # one side
@@ -492,6 +499,15 @@ func _turbo(geo: TmGeo) -> void:
 	geo.box(Vector3(p0, UNDER, p0), Vector3(16.0, TOP, p1), "road_metal", S_METAL, "turbo", S_TURBO)
 	geo.box(Vector3(16.0, UNDER, p0), Vector3(p1, TOP, p1), "road_metal", S_METAL, "turbo", S_TURBO)
 	geo.box(Vector3(10.64, FLOOR_Y, 2.64), Vector3(21.36, UNDER, 29.36), "fabric", S_SLIDING)
+	# TMNF's advert band under the plate along each x side (its Pub8x1B; our adverts), facing out
+	for side: float in [-1.0, 1.0]:
+		var xb := 16.0 + side * TURBO_PUB[0]
+		var xt := 16.0 + side * TURBO_PUB[1]
+		var z0: float = TURBO_PUB[4]
+		var z1: float = TURBO_PUB[5]
+		geo.screen_rect(Vector3(xb, TURBO_PUB[2], z0 + 0.18), Vector3(xb, TURBO_PUB[2], z1 - 0.18),
+			Vector3(xt, TURBO_PUB[3], z1), Vector3(xt, TURBO_PUB[3], z0), "screen", TmGeo.NO_COLLISION,
+			1 if side > 0.0 else 0, Vector3(side, 0, 0), 0.8)
 	var f0 := TURBO_FLOOR_IN
 	var f1 := 32.0 - TURBO_FLOOR_IN
 	geo.quad(Vector3(f0, FLOOR_Y, f0), Vector3(f0, FLOOR_Y, f1), Vector3(f1, FLOOR_Y, f1), Vector3(f1, FLOOR_Y, f0), "platform", S_DECK)

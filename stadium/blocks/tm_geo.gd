@@ -237,9 +237,10 @@ func band_quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surf
 
 
 ## A screen's UV `along` metres (0..w) along it and `down` metres (0..h) from one long edge (see
-## SCREENS); `first` tells screens apart (a billboard's ads, the moment it changes).
-static func screen_uv(along: float, w: float, down: float, h: float, first := 0) -> Vector2:
-	if h < SCREEN_MIN_H or w < SCREEN_MIN_W:
+## SCREENS); `first` tells screens apart (a billboard's ads, the moment it changes); a screen lower
+## than min_h is an unlit panel.
+static func screen_uv(along: float, w: float, down: float, h: float, first := 0, min_h := SCREEN_MIN_H) -> Vector2:
+	if h < min_h or w < SCREEN_MIN_W:
 		return SCREEN_OFF
 	var ad_w := w
 	var ad_h := h
@@ -251,9 +252,9 @@ static func screen_uv(along: float, w: float, down: float, h: float, first := 0)
 
 
 ## A flat screen: bottom edge a -> b, top edge d -> c, its front (b - a) x (c - a) (turned round to
-## face `out` when given).
+## face `out` when given; an advert band lower than SCREEN_MIN_H passes its own min_h).
 func screen_rect(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int, first := 0,
-		out := Vector3.ZERO) -> void:
+		out := Vector3.ZERO, min_h := SCREEN_MIN_H) -> void:
 	if out != Vector3.ZERO and (b - a).cross(c - a).dot(out) < 0.0:
 		var t := [b, a, d, c]
 		a = t[0]
@@ -262,8 +263,8 @@ func screen_rect(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, su
 		d = t[3]
 	var w := (b - a).length()
 	var h := (d - a).length()
-	quad_uv(a, b, c, d, mat, surface, screen_uv(0.0, w, h, h, first), screen_uv(w, w, h, h, first),
-		screen_uv(w, w, 0.0, h, first), screen_uv(0.0, w, 0.0, h, first))
+	quad_uv(a, b, c, d, mat, surface, screen_uv(0.0, w, h, h, first, min_h), screen_uv(w, w, h, h, first, min_h),
+		screen_uv(w, w, 0.0, h, first, min_h), screen_uv(0.0, w, 0.0, h, first, min_h))
 
 
 ## World-aligned UVs in metres / 8 (texture tiles every 8 m), projected on the dominant axis.
