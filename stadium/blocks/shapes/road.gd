@@ -132,6 +132,11 @@ const TURBO_POD := [[7.633, 0.0, "road_grid"], [7.633, 1.53, "road_under"], [7.7
 	[8.569, 1.946, "road_under"], [10.152, 1.97, "platform_tray"], [10.666, 1.72, "platform_tray"],
 	[14.21, 1.72, "platform_tray"], [14.299, 1.822, "platform_tray"], [14.403, 1.97, "road_metal"],
 	[17.446, 1.97, "platform_tray"], [17.656, 1.70, "road_metal"], [17.656, 0.0, "road_metal"]]
+## Its back cap: eight bolt rings (radii TURBO_BOLT) TURBO_BOLT_AT out round a boss (TURBO_BOSS;
+## read off TMNF's look, as the platform turbines')
+const TURBO_BOLT := [0.13, 0.29]
+const TURBO_BOLT_AT := 1.12
+const TURBO_BOSS := [0.32, 0.56]
 ## The tray over each pod: its line (z, y), TURBO_FIN_HALF either side of the pod's axis; the side
 ## panels reach this far below and above it.
 const TURBO_FIN_HALF := 0.802
@@ -1290,6 +1295,8 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 		var side := TmGeo.new()
 		var lift := kx * x + dy
 		side.revolve_z(pod, Vector2(x, TURBO_POD_Y + lift), 0.0, 360.0, 36, false)
+		var cap: Array = TURBO_POD[TURBO_POD.size() - 2]
+		bolt_rings(side, Vector3(x, TURBO_POD_Y + lift, float(cap[0]) + 0.01), TURBO_BOSS, TURBO_BOLT, TURBO_BOLT_AT)
 		var fc := Vector3(x, TURBO_POD_Y + lift, float(TURBO_POD[0][0]) - 0.03)
 		side.fan(fc, 0.35, 1.45, 0.16, "road_metal", 9)
 		# the dark inside behind the blades, facing out of the pod (-z)
@@ -1330,6 +1337,21 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 			"glass_dark", S_METAL)
 		side.shear_y(0.0, kz, 0.0)
 		geo.merge(side)
+
+
+## A ring of eight bolts round a boss on a turbine's back cap at c (the x-y plane, facing +z):
+## light flat rims (radii boss, bolt; the bolts `at` out), visual only.
+static func bolt_rings(geo: TmGeo, c: Vector3, boss: Array, bolt: Array, at: float) -> void:
+	var rim := func(o: Vector3, r0: float, r1: float, n: int) -> void:
+		for k in n:
+			var d0 := Vector3(cos(TAU * k / n), sin(TAU * k / n), 0)
+			var d1 := Vector3(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n), 0)
+			# (out, then round toward +angle: wound to face +z)
+			geo.quad(o + d0 * r0, o + d0 * r1, o + d1 * r1, o + d1 * r0, "stands_top", TmGeo.NO_COLLISION)
+	rim.call(c, float(boss[0]), float(boss[1]), 16)
+	for k in 8:
+		var a := TAU * (k + 0.5) / 8.0
+		rim.call(c + Vector3(cos(a), sin(a), 0) * at, float(bolt[0]), float(bolt[1]), 10)
 
 
 ## T and cross: a flat deck, curbs along the closed sides (full length), and the curb revolved

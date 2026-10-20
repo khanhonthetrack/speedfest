@@ -136,6 +136,12 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   pieces' border tubes (41) and the bumpers' rubber ends (StadiumRaceSignsRubber, 21 pieces).
 - The platform ramp's curb underside (orange band), the turbo pads' grating, the road turbo's
   railings and fans.
+- The sculptures' plinth pads (white), the snow trees' snow (on each tier's slope), the turbines'
+  fans (nine dark blades) and exhaust caps (bolt rings).
+- Survey of our tracks' 75 shapes after these (20 Oct, evening): colour differs 11.5%, missing
+  5.5% (11.6% / 5.6% before them: the big rest is the deliberate (our adverts, the airship's
+  livery, the gates' sign panels left out) and what the tool can't judge (flat lattice cards
+  against our tubes, coplanar or hidden surfaces, texture pattern within a matching mean).
 - Checked and left: the road pub base and the grandstand pillar piece ("differ" from coplanar or
   hidden surfaces the tool can't tell apart: a light strip 2 mm over rubber, a screen in its
   measured frame); the platform wall's orange band (its rows TMNF's; the rest is TMNF's printed

@@ -87,6 +87,11 @@ const TURBINE := [
 	[0.0, 0.0, "road_grid"],
 ]
 const TURBINE_BEAM := [Vector2(5.5, 9.0), Vector2(3.92, 28.08), 6.1]
+## The turbine's back cap: eight bolt rings (radii TURBINE_BOLT) TURBINE_BOLT_AT out round a boss
+## (TURBINE_BOSS; read off TMNF's look)
+const TURBINE_BOLT := [0.14, 0.31]
+const TURBINE_BOLT_AT := 1.2
+const TURBINE_BOSS := [0.34, 0.6]
 
 const SIDES := [Vector3(0, 0, 1), Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(1, 0, 0)]
 const ARMS := {
@@ -527,13 +532,22 @@ func _turbo(geo: TmGeo) -> void:
 
 
 ## One turbine with its intake at c, facing -z: the outline revolved, the fan in the intake (a
-## dark hub and four dark blades on the grey disc).
+## dark hub and nine dark blades over a dark inside, as the road turbo's).
 func _turbine(geo: TmGeo, c: Vector3) -> void:
 	var sec := TURBINE.map(func(q: Array) -> Array: return [c.z + float(q[0]), float(q[1]), q[2], S_METAL])
 	geo.revolve_z(sec, Vector2(c.x, c.y), 0.0, 360.0, 16, false)
 	var hub := [[c.z - 0.45, 0.0, "road_metal", S_METAL], [c.z - 0.02, 0.45, "road_metal", S_METAL], [c.z - 0.02, 0.0, "road_metal", S_METAL]]
 	geo.revolve_z(hub, Vector2(c.x, c.y), 0.0, 360.0, 12, false)
-	geo.fan(c + Vector3(0, 0, -0.03), 0.4, 1.5, 0.32, "platform_tray")
+	# its back: a ring of bolts round a boss on the cap (as TMNF's exhaust)
+	RoadShapes.bolt_rings(geo, c + Vector3(0, 0, float(TURBINE[TURBINE.size() - 3][0]) + 0.01), TURBINE_BOSS, TURBINE_BOLT,
+		TURBINE_BOLT_AT)
+	geo.fan(c + Vector3(0, 0, -0.03), 0.4, 1.5, 0.16, "road_metal", 9)
+	for k in 24:
+		var a0 := TAU * k / 24.0
+		var a1 := TAU * (k + 1) / 24.0
+		var o := c + Vector3(0, 0, -0.01)
+		geo.tri(o, o + Vector3(cos(a1), sin(a1), 0) * 1.55, o + Vector3(cos(a0), sin(a0), 0) * 1.55, "stands_dark",
+			TmGeo.NO_COLLISION)
 
 
 ## The grid wall's plan (x across, depth) swept round an arc in the y-z plane about c = (y, z) from

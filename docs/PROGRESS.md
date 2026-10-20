@@ -2785,3 +2785,7 @@ on every real contact the full impulse would land at the contact point and kick 
   its specular). Sampling TMNF's snow tree across its faces by height: the snow lies on each
   tier's slope above its green rim (the first tier's from 1.95 to 2.7 m), not on the rim as ours
   had it; moved there (four tiers, the top cone all snow as before).
+- (M11-2) **The turbines' fans and exhaust caps as TMNF's** (`platform.gd _turbine`, `road.gd
+  bolt_rings`). The platform turbo deck's turbines get the road turbo's nine dark blades over a
+  dark inside, and both kinds of turbine TMNF's exhaust cap: a ring of eight bolts round a boss
+  (light rims on the dark cap; we had a plain cap).
