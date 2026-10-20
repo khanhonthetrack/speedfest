@@ -2770,3 +2770,12 @@ on every real contact the full impulse would land at the contact point and kick 
   Platform/ToRoad/ToRoadMainAir (38 uses on our tracks) TMNF skins the curb's slanted outer
   underside with the border atlas' orange band and blue line (rows 300-367) where its air roads
   show the black band (ours had the black band there too). Side by side with TMNF's piece.
+- (M11-2) **The turbo pads' grating and the road turbo's turbines as TMNF's** (`texgen/turbo.py
+  turbo_pad`, `road.gd _turbo_sides`; Road/Main/Turbo 145 uses on our tracks each way). Up close
+  TMNF's pad is a grating of dense round bars (~0.2 m apart, ~72 degrees to the road) with a flat
+  plate strip at each panel's start, all slanting together, thin grey seams with bolts, the
+  arrows painted over bars and plates; ours had sparse soft stripes and wide white seams. Redrawn
+  so (our drawing, the layout TMNF's): from the car it reads as TMNF's zigzag of plates between
+  the arrows. Its turbines' catwalks now have railings (our cut-out railing cards, solid to the
+  car) where we had dark glass panels, and their fans nine dark blades over a dark inside (we had
+  four light ones).

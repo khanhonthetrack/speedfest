@@ -1278,9 +1278,9 @@ func _turbo_gate(geo: TmGeo) -> void:
 		true, "structure", 22)
 
 
-## The turbo gate's sides, over each curb: a booster pod (a collar round the fan, a slimmer body
-## through the frame, a cap behind it) and on it a grid tray between two thin dark see-through
-## panels (TMNF's railing),
+## The turbo gate's sides, over each curb: a booster pod (a collar round the fan of nine blades, a
+## slimmer body through the frame, a cap behind it) and on it a grid tray between railings (TMNF's;
+## our cut-out railing cards, solid to the car),
 ## level over the pod and the frame, then down to the curb. On a road sheared by (kx, kz, dy) each
 ## side keeps its shape: lifted with the road at its axis, sheared only along the slope, the tray's
 ## level part never dipping toward the front (measured on the sloped and tilted pads).
@@ -1290,7 +1290,15 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 		var side := TmGeo.new()
 		var lift := kx * x + dy
 		side.revolve_z(pod, Vector2(x, TURBO_POD_Y + lift), 0.0, 360.0, 36, false)
-		side.fan(Vector3(x, TURBO_POD_Y + lift, float(TURBO_POD[0][0]) - 0.03), 0.35, 1.45, 0.3, "platform_tray")
+		var fc := Vector3(x, TURBO_POD_Y + lift, float(TURBO_POD[0][0]) - 0.03)
+		side.fan(fc, 0.35, 1.45, 0.16, "road_metal", 9)
+		# the dark inside behind the blades, facing out of the pod (-z)
+		for k in 24:
+			var a0 := TAU * k / 24.0
+			var a1 := TAU * (k + 1) / 24.0
+			var o := fc + Vector3(0, 0, 0.02)
+			side.tri(o, o + Vector3(cos(a1), sin(a1), 0) * 1.5, o + Vector3(cos(a0), sin(a0), 0) * 1.5, "stands_dark",
+				TmGeo.NO_COLLISION)
 		var tray := []
 		for q: Vector2 in TURBO_TRAY:
 			tray.append(Vector2(q.x, q.y + lift))
@@ -1299,17 +1307,25 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 		var x1 := x + TURBO_FIN_HALF
 		var lo: float = TURBO_PANEL[0]
 		var hi: float = TURBO_PANEL[1]
+		var u := 0.0
 		for i in tray.size() - 1:
 			var a: Vector2 = tray[i]
 			var b: Vector2 = tray[i + 1]
 			side.quad(Vector3(x0, a.y, a.x), Vector3(x0, b.y, b.x), Vector3(x1, b.y, b.x), Vector3(x1, a.y, a.x), "grid", S_METAL)
+			# the railing either side (cut-out cards, 8 m a tile; collision on their outline)
+			var du := a.distance_to(b) / 8.0
 			for px: float in [x0, x1]:
-				side.quad(Vector3(px, a.y - lo, a.x), Vector3(px, b.y - lo, b.x), Vector3(px, b.y + hi, b.x),
-					Vector3(px, a.y + hi, a.x), "glass_dark", S_METAL)
+				var q := [Vector3(px, a.y - lo, a.x), Vector3(px, b.y - lo, b.x), Vector3(px, b.y + hi, b.x), Vector3(px, a.y + hi, a.x)]
+				side.quad_uv(q[0], q[1], q[2], q[3], "railing", TmGeo.NO_COLLISION, Vector2(u, 1), Vector2(u + du, 1),
+					Vector2(u + du, 0), Vector2(u, 0))
+				side.quad(q[0], q[1], q[2], q[3], "", S_METAL)
+			u += du
 		var f: Vector2 = tray[0]
 		var e: Vector2 = tray[tray.size() - 1]
-		side.quad(Vector3(x0, f.y - lo, f.x), Vector3(x0, f.y + hi, f.x), Vector3(x1, f.y + hi, f.x),
-			Vector3(x1, f.y - lo, f.x), "glass_dark", S_METAL)
+		var w := (x1 - x0) / 8.0
+		side.quad_uv(Vector3(x0, f.y - lo, f.x), Vector3(x1, f.y - lo, f.x), Vector3(x1, f.y + hi, f.x),
+			Vector3(x0, f.y + hi, f.x), "railing", TmGeo.NO_COLLISION, Vector2(0, 1), Vector2(w, 1), Vector2(w, 0), Vector2(0, 0))
+		side.quad(Vector3(x0, f.y - lo, f.x), Vector3(x0, f.y + hi, f.x), Vector3(x1, f.y + hi, f.x), Vector3(x1, f.y - lo, f.x), "", S_METAL)
 		side.quad(Vector3(x0, e.y - lo, e.x), Vector3(x0, e.y, e.x), Vector3(x1, e.y, e.x), Vector3(x1, e.y - lo, e.x),
 			"glass_dark", S_METAL)
 		side.shear_y(0.0, kz, 0.0)

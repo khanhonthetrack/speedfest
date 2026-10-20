@@ -129,6 +129,19 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   wall dark (BaseGround missing 280 -> 1 m2). Sample TMNF's colours inside triangles, not at
   vertices: its ceiling's vertices sit on dark texels, its face is light (182).
 
+- The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
+  (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
+- The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).
+- The dirt-to-road transition's asphalt (road_to_dirt), the LED signs (13 dirt pieces), the dirt
+  pieces' border tubes (41) and the bumpers' rubber ends (StadiumRaceSignsRubber, 21 pieces).
+- The platform ramp's curb underside (orange band), the turbo pads' grating, the road turbo's
+  railings and fans.
+- Checked and left: the road pub base and the grandstand pillar piece ("differ" from coplanar or
+  hidden surfaces the tool can't tell apart: a light strip 2 mm over rubber, a screen in its
+  measured frame); the platform wall's orange band (its rows TMNF's; the rest is TMNF's printed
+  logos, ours our emblem); the road undersides (their mean colour TMNF's; the rest is texture
+  pattern).
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the
