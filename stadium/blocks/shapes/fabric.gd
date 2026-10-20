@@ -16,8 +16,8 @@ const SculptShapes := preload("res://blocks/shapes/sculpt.gd")
 
 ## The roof's truss arches, hung under the shell along its underside from the foot to the top edge
 ## (measured on TMNF's visual mesh): light ones 1.45 m deep and 0.6 m thick at these z, the main one
-## at z 16, 1.1 m thick, from 5 m deep at the foot to 4.4 m at the top; white chords, a dark lattice
-## between them. Visual only (out of reach under the roof).
+## at z 16, 1.1 m thick, from 5 m deep at the foot to 4.4 m at the top; white chords and a white
+## lattice between them (TMNF's StructureAlpha). Visual only (out of reach under the roof).
 const TRUSS_LIGHT := [0.3, 12.5, 19.5, 31.7]
 const TRUSS_MAIN := 16.0
 const TRUSS_STEP := 3.5            ## lattice panel length along the arch (m)
@@ -155,7 +155,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_extrude(geo, SHELL_AIR)
 			_trusses(geo, SHELL_AIR)
 			_boards(geo, BOARDS_AIR)
-			geo.box(Vector3(DECK_AIR[0], DECK_AIR[2], 0), Vector3(DECK_AIR[1], DECK_AIR[3], 32), "stands_dark", S_METAL,
+			geo.box(Vector3(DECK_AIR[0], DECK_AIR[2], 0), Vector3(DECK_AIR[1], DECK_AIR[3], 32), "control_under", S_METAL,
 				"stands_top", S_STANDS)
 			geo.box(Vector3(WALL_AIR[0], 0, 0), Vector3(WALL_AIR[1], DECK_AIR[2], 32), "structure", S_METAL)
 		"Fabric/FabricPillarGround":
@@ -444,10 +444,10 @@ func _truss(geo: TmGeo, under: Array, z: float, half: float, d_foot: float, d_to
 			geo.pipe(Vector3(bots[i].x, bots[i].y, zz), Vector3(bots[i + 1].x, bots[i + 1].y, zz), chord_r, 4, "mast", nz)
 			var u: Vector2 = tops[i] if i % 2 == 0 else bots[i]
 			var v: Vector2 = bots[i + 1] if i % 2 == 0 else tops[i + 1]
-			geo.pipe(Vector3(u.x, u.y, zz), Vector3(v.x, v.y, zz), web_r, 4, "rubber_dark", nz)
+			geo.pipe(Vector3(u.x, u.y, zz), Vector3(v.x, v.y, zz), web_r, 4, "mast", nz)
 	for i in count:
 		var z0 := z - half if i % 2 == 0 else z + half
-		geo.pipe(Vector3(bots[i].x, bots[i].y, z0), Vector3(bots[i + 1].x, bots[i + 1].y, 2.0 * z - z0), web_r, 4, "rubber_dark", nz)
+		geo.pipe(Vector3(bots[i].x, bots[i].y, z0), Vector3(bots[i + 1].x, bots[i + 1].y, 2.0 * z - z0), web_r, 4, "mast", nz)
 
 
 func _extrude(geo: TmGeo, table: Array) -> void:

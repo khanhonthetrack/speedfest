@@ -2557,3 +2557,8 @@ on every real contact the full impulse would land at the contact point and kick 
   bumpers along the sides (the border atlas' black band with its blue line, a ribbed top;
   measured section, z 1.04..30.93; `dirt.gd _gate_bumpers`); ours floated over the berms. Side by
   side with TMNF's block.
+- (M11-2) **Grandstand roofs' trusses white as TMNF's.** The lattice between the truss arches'
+  chords is white (TMNF's StructureAlpha, its visible texels' mean 203), not dark; the raised
+  stands' deck is light underneath (TMNF's Auvent). `material_check.py` now reads TMNF's alpha-cut
+  textures (trusses, railings) as they show: the mean of their visible texels per region (it
+  counted their transparent black ones too, reading them dark). Side by side with TMNF's block.
