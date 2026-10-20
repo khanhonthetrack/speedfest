@@ -115,6 +115,56 @@ const SLOPE_TURNS_OUT := {"LeftBottom": 0, "LeftTop": 1, "RightTop": 2, "RightBo
 const SLOPE_END := [[0, 8.0], [2.01, 8.99], [4, 9.92], [6, 10.78], [8, 11.56], [10, 12.28], [12, 12.93], [14, 13.52],
 	[16, 14.05], [18, 14.53], [20, 14.95], [22, 15.31], [24, 15.59], [26, 15.81], [28.02, 15.93], [30.08, 15.97], [32, 16.0]]
 
+## The base's variants (measured): BumpUp, a low round dome on the deck (BumpUp2: the same in the
+## middle of a 1x2 plate); Hole, a rounded shaft through the plate; PillarN, a dark pad with N round
+## pillars on it. Dome: (r, y) from its top to its foot, 64 sides, then the border atlas' rubber rim
+## (rows BUMP_RIM_ROWS) out to BUMP_R, where the deck starts.
+const BUMP_PROFILE := [[0.0, 10.0], [1.31, 10.01], [2.62, 9.93], [3.93, 9.79], [5.23, 9.6], [6.54, 9.38],
+	[7.85, 9.13], [9.16, 8.88], [10.47, 8.63], [11.78, 8.4], [13.08, 8.2], [14.13, 8.08]]
+const BUMP_R := 15.5
+const BUMP_RIM_ROWS := [391.0, 298.0]
+## Pads and the hole are rounded rectangles: the rubber rim's outer edge (x0, z0, x1, z1); every
+## edge inside it is the same rectangle `inset` metres in, its corners PAD_CORNER (fractions of the
+## corner's size, PAD_R - PAD_R_K * inset) from one side to the next.
+const PAD_CORNER := [[0.0, 1.0], [0.094, 0.773], [0.21, 0.564], [0.37, 0.37], [0.564, 0.21], [0.773, 0.094], [1.0, 0.0]]
+const PAD_R := 1.81
+const PAD_R_K := 0.8
+const RIM := 1.0                ## the orange rubber rim (atlas rows RIM_ROWS, outer to inner)
+const RIM_IN := 1.25            ## then a dark ribbed metal strip (rows STRIP_ROWS) to here
+const RIM_ROWS := [368.0, 299.0]
+const STRIP_ROWS := [160.0, 192.0]
+const HOLE := [10.0, 3.0, 22.0, 29.0]
+const HOLE_BAND_Y := 6.45       ## the hole's walls: the atlas' rows HOLE_BAND_ROWS above, dark stands below
+const HOLE_BAND_ROWS := [392.0, 298.0]
+const HOLE_FOOT := 0.67         ## under the plate the opening is this far in, the dark strip round it
+## Per variant: the pad (outer edge, as HOLE) and the pillars on it (x, z).
+const PILLARS := {
+	"1": [[10, 10, 22, 22], [[16, 16]]],
+	"2": [[10, 6, 22, 26], [[16, 10.667], [16, 21.333]]],
+	"3": [[10, 2, 22, 30], [[16, 5.333], [16, 16], [16, 26.667]]],
+	"5": [[2, 2, 30, 30], [[5.333, 5.333], [5.333, 26.667], [16, 16], [26.667, 5.333], [26.667, 26.667]]],
+	"6": [[7, 2, 25, 30], [[10.667, 5.333], [10.667, 16], [10.667, 26.667], [21.333, 5.333], [21.333, 16],
+		[21.333, 26.667]]],
+	"7": [[2, 2, 30, 30], [[5.333, 10.667], [5.333, 21.333], [16, 5.333], [16, 16], [16, 26.667], [26.667, 10.667],
+		[26.667, 21.333]]],
+}
+## A pillar: a 24-sided column (r PILLAR_R, light concrete) between an orange rubber collar at its
+## foot and a rounded rubber cap (r, y, atlas row: an orange and blue edge, then black), a dark lid on
+## top; two advert bands (PILLAR_AD_R round, PILLAR_AD_DEG either side of +x and -x) between PILLAR_AD_Y.
+const PILLAR_R := 1.37
+const PILLAR_COLLAR := [[1.37, 7.99, 369.0], [1.49, 8.06, 360.0], [1.47, 8.67, 309.0], [1.37, 8.73, 300.0]]
+const PILLAR_CAP := [[1.37, 15.0, 301.0], [1.49, 15.07, 295.0], [1.59, 15.17, 288.0], [1.64, 15.33, 273.0],
+	[1.65, 15.52, 257.0], [1.62, 15.7, 241.0], [1.56, 15.86, 226.0], [1.47, 15.95, 220.0], [1.42, 16.0, 215.0]]
+const PILLAR_AD_R := 1.5
+const PILLAR_AD_DEG := 55.2
+const PILLAR_AD_Y := [9.19, 10.42]
+## The lid's bolts: PILLAR_BOLTS rings (radii PILLAR_BOLT) PILLAR_BOLT_AT from the middle, round a
+## boss (rim radii PILLAR_BOSS; read off TMNF's look).
+const PILLAR_BOLTS := 8
+const PILLAR_BOLT := [0.1, 0.24]
+const PILLAR_BOLT_AT := 0.94
+const PILLAR_BOSS := [0.3, 0.5]
+
 
 func handles(shape: String) -> bool:
 	return shape.begins_with("Circuit/Road/Base") or shape.begins_with("Circuit/Border/") \
@@ -140,9 +190,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var dy := 1.0 if ground else 0.0
 	var parts := shape.split("/")
 	if shape.begins_with("Circuit/Road/Base"):
-		if not (shape.ends_with("BaseAir") or shape.ends_with("BaseGround")):
-			return null   # bump/hole/pillar variants: not yet
-		_plate(geo, dy)
+		if not _base(geo, parts[2].trim_prefix("Base").trim_suffix("Air").trim_suffix("Ground"), dy):
+			return null
 	elif shape.begins_with("Circuit/Border/"):
 		if not _border(geo, parts[2], parts[3], dy):
 			return null
@@ -174,16 +223,280 @@ static func _cap_uv(q: Vector2, cen: Vector2) -> Vector2:
 	return Vector2(0.007 + (q.x + 0.135) * 0.0385, 1.406 - 0.0781 * q.y)
 
 
-## The circuit's plate: the deck on top, TMNF's circuit sides, the white fabric underneath.
-func _plate(geo: TmGeo, dy: float) -> void:
+## The circuit's plate (size: x, z m): the deck on top, TMNF's circuit sides, the white fabric
+## underneath; the deck and the fabric leave out their holes (polygons, x z).
+func _plate(geo: TmGeo, dy: float, size := Vector2(32, 32), deck_hole := PackedVector2Array(),
+		under_hole := PackedVector2Array()) -> void:
 	var y0 := dy
-	geo.quad(Vector3(0, 8, 0), Vector3(0, 8, 32), Vector3(32, 8, 32), Vector3(32, 8, 0), "platform", S_ASPHALT)
+	var w := size.x
+	var l := size.y
+	_holed(geo, size, deck_hole, 8.0, "platform", S_ASPHALT, false)
 	if dy <= 0.0:   # (on the ground the terrain hides it)
-		geo.quad(Vector3(0, y0, 0), Vector3(32, y0, 0), Vector3(32, y0, 32), Vector3(0, y0, 32), "fabric_auvent", S_RUBBER)
-	geo.quad(Vector3(0, y0, 0), Vector3(0, 8, 0), Vector3(32, 8, 0), Vector3(32, y0, 0), "circuit_side", S_METAL)
-	geo.quad(Vector3(32, y0, 32), Vector3(32, 8, 32), Vector3(0, 8, 32), Vector3(0, y0, 32), "circuit_side", S_METAL)
-	geo.quad(Vector3(0, y0, 32), Vector3(0, 8, 32), Vector3(0, 8, 0), Vector3(0, y0, 0), "circuit_side", S_METAL)
-	geo.quad(Vector3(32, y0, 0), Vector3(32, 8, 0), Vector3(32, 8, 32), Vector3(32, y0, 32), "circuit_side", S_METAL)
+		_holed(geo, size, under_hole, y0, "fabric_auvent", S_RUBBER, true)
+	geo.quad(Vector3(0, y0, 0), Vector3(0, 8, 0), Vector3(w, 8, 0), Vector3(w, y0, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(w, y0, l), Vector3(w, 8, l), Vector3(0, 8, l), Vector3(0, y0, l), "circuit_side", S_METAL)
+	geo.quad(Vector3(0, y0, l), Vector3(0, 8, l), Vector3(0, 8, 0), Vector3(0, y0, 0), "circuit_side", S_METAL)
+	geo.quad(Vector3(w, y0, 0), Vector3(w, 8, 0), Vector3(w, 8, l), Vector3(w, y0, l), "circuit_side", S_METAL)
+
+
+## A flat face over the footprint (size) at y, but for a hole inside it: cut in quarters about the
+## hole's middle first, so each is a notched polygon, never one with a hole.
+static func _holed(geo: TmGeo, size: Vector2, hole: PackedVector2Array, y: float, mat: String, surface: int,
+		down: bool) -> void:
+	var rect := PackedVector2Array([Vector2.ZERO, Vector2(size.x, 0), size, Vector2(0, size.y)])
+	if hole.is_empty():
+		geo.flat_polygon(rect, y, mat, surface, down)
+		return
+	var c := Vector2.ZERO
+	for q in hole:
+		c += q / hole.size()
+	for qx in 2:
+		for qz in 2:
+			var lo := Vector2(0.0 if qx == 0 else c.x, 0.0 if qz == 0 else c.y)
+			var hi := Vector2(c.x if qx == 0 else size.x, c.y if qz == 0 else size.y)
+			var quarter := PackedVector2Array([lo, Vector2(hi.x, lo.y), hi, Vector2(lo.x, hi.y)])
+			for p: PackedVector2Array in Geometry2D.clip_polygons(quarter, hole):
+				if absf(_area(p)) > 0.01:
+					geo.flat_polygon(p, y, mat, surface, down)
+
+
+## The base and its variants ("", BumpUp, BumpUp2, Hole, Pillar1..7; see BUMP_PROFILE).
+func _base(geo: TmGeo, v: String, dy: float) -> bool:
+	if v.is_empty():
+		_plate(geo, dy)
+	elif v.begins_with("BumpUp"):
+		var size := Vector2(32, 64 if v == "BumpUp2" else 32)
+		_bump(geo, size * 0.5)
+		_plate(geo, dy, size, _circle(size * 0.5, BUMP_R, 64))
+	elif v == "Hole":
+		_hole(geo, dy)
+	elif PILLARS.has(v.trim_prefix("Pillar")):
+		var p: Array = PILLARS[v.trim_prefix("Pillar")]
+		_plate(geo, dy, Vector2(32, 32), _pad_edge(p[0], 0.0))
+		_rims(geo, p[0])
+		geo.flat_polygon(_pad_edge(p[0], RIM_IN), 8.0, "platform_wall", S_CONCRETE)
+		var ad := 0
+		for c: Array in p[1]:
+			_pillar(geo, Vector2(c[0], c[1]), ad)
+			ad += 2
+	else:
+		return false
+	return true
+
+
+static func _circle(c: Vector2, r: float, n: int) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for k in n:
+		out.append(c + Vector2(cos(TAU * k / n), sin(TAU * k / n)) * r)
+	return out
+
+
+## The dome about c: the dark floor (BUMP_PROFILE, shaded round), its orange rim out to the deck.
+func _bump(geo: TmGeo, c: Vector2) -> void:
+	var n := 64
+	var prof := BUMP_PROFILE
+	# each ring's normal (r, y): the mean of the slopes either side
+	var norms := []
+	for i in prof.size():
+		var s := Vector2.ZERO
+		for j in [i - 1, i]:
+			if j >= 0 and j + 1 < prof.size():
+				var t := Vector2(float(prof[j + 1][0]) - float(prof[j][0]), float(prof[j + 1][1]) - float(prof[j][1]))
+				s += Vector2(-t.y, t.x).normalized()
+		norms.append(s.normalized())
+	for i in prof.size() - 1:
+		for k in n:
+			var pts := []
+			var nrm := []
+			for e: Array in [[i, k], [i, k + 1], [i + 1, k + 1], [i + 1, k]]:
+				var d := Vector2(cos(TAU * e[1] / n), sin(TAU * e[1] / n))
+				var r := float(prof[e[0]][0])
+				var nr: Vector2 = norms[e[0]]
+				pts.append(Vector3(c.x + d.x * r, float(prof[e[0]][1]), c.y + d.y * r))
+				nrm.append(Vector3(d.x * nr.x, nr.y, d.y * nr.x))
+			# (round toward +angle, then out: wound to face up; the top's first ring is a fan)
+			geo.tri(pts[0], pts[1], pts[2], "platform_wall", S_CONCRETE, nrm[0], nrm[1], nrm[2])
+			geo.tri(pts[0], pts[2], pts[3], "platform_wall", S_CONCRETE, nrm[0], nrm[2], nrm[3])
+	var r0 := float(prof[prof.size() - 1][0])
+	var y0 := float(prof[prof.size() - 1][1])
+	var tiles := roundf(TAU * BUMP_R / 16.0)
+	for k in n:
+		var d0 := Vector2(cos(TAU * k / n), sin(TAU * k / n))
+		var d1 := Vector2(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n))
+		geo.band_quad(Vector3(c.x + d0.x * r0, y0, c.y + d0.y * r0), Vector3(c.x + d1.x * r0, y0, c.y + d1.y * r0),
+			Vector3(c.x + d1.x * BUMP_R, 8.0, c.y + d1.y * BUMP_R), Vector3(c.x + d0.x * BUMP_R, 8.0, c.y + d0.y * BUMP_R),
+			"border_orange", S_RUBBER, tiles * k / n, tiles * (k + 1) / n, BUMP_RIM_ROWS[0], BUMP_RIM_ROWS[1], Vector3.UP)
+
+
+## A pad's or the hole's edge `inset` m inside its outer edge e (x0, z0, x1, z1), rounded corners
+## (PAD_CORNER), going round from the -x side's corner at z0.
+static func _pad_edge(e: Array, inset: float) -> PackedVector2Array:
+	var r := PAD_R - PAD_R_K * inset
+	var lo := Vector2(float(e[0]), float(e[1])) + Vector2(inset, inset)
+	var hi := Vector2(float(e[2]), float(e[3])) - Vector2(inset, inset)
+	# each corner and its two inward directions (along the sides it joins)
+	var corners := [[lo, Vector2(1, 0), Vector2(0, 1)], [Vector2(hi.x, lo.y), Vector2(0, 1), Vector2(-1, 0)],
+		[hi, Vector2(-1, 0), Vector2(0, -1)], [Vector2(lo.x, hi.y), Vector2(0, -1), Vector2(1, 0)]]
+	var out := PackedVector2Array()
+	for cn: Array in corners:
+		for q: Array in PAD_CORNER:
+			out.append((cn[0] as Vector2) + (cn[1] as Vector2) * float(q[0]) * r + (cn[2] as Vector2) * float(q[1]) * r)
+	return out
+
+
+## A flat band of the border atlas between two of a pad's edges (insets i0 -> i1) at y, rows r0
+## at i0 to r1 at i1, 16 m a tile along; facing up (or down).
+static func _rim(geo: TmGeo, e: Array, i0: float, i1: float, y: float, mat: String, surface: int, r0: float,
+		r1: float, down := false) -> void:
+	var a := _pad_edge(e, i0)
+	var b := _pad_edge(e, i1)
+	var u := 0.0
+	for k in a.size():
+		var j := (k + 1) % a.size()
+		var du := a[k].distance_to(a[j]) / 16.0
+		if du < 1e-5 and b[k].distance_to(b[j]) < 1e-4:
+			continue
+		geo.band_quad(Vector3(a[k].x, y, a[k].y), Vector3(a[j].x, y, a[j].y), Vector3(b[j].x, y, b[j].y),
+			Vector3(b[k].x, y, b[k].y), mat, surface, u, u + du, r0, r1, Vector3.DOWN if down else Vector3.UP)
+		u += du
+
+
+## A pad's or the hole's rim on the deck: the orange rubber, then the dark metal strip.
+static func _rims(geo: TmGeo, e: Array) -> void:
+	_rim(geo, e, 0.0, RIM, 8.0, "border_orange", S_RUBBER, RIM_ROWS[0], RIM_ROWS[1])
+	_rim(geo, e, RIM, RIM_IN, 8.0, "border_ribs", S_METAL, STRIP_ROWS[0], STRIP_ROWS[1])
+
+
+## The hole: the rim round it, its walls (the atlas' band at the top, the dark stands below) down
+## through the plate; under it the dark strip round the opening (on the ground: the terrain's
+## grass at its bottom, collision only).
+func _hole(geo: TmGeo, dy: float) -> void:
+	_plate(geo, dy, Vector2(32, 32), _pad_edge(HOLE, 0.0), _pad_edge(HOLE, HOLE_FOOT))
+	_rims(geo, HOLE)
+	var w := _pad_edge(HOLE, RIM_IN)
+	var u := 0.0
+	for k in w.size():
+		var p := w[k]
+		var q := w[(k + 1) % w.size()]
+		var du := p.distance_to(q) / 16.0
+		if du < 1e-5:
+			continue
+		# facing into the hole: (q - p) runs round it anticlockwise (x, z), so in is its left
+		var inward := Vector3(-(q - p).y, 0, (q - p).x)
+		geo.band_quad(Vector3(p.x, HOLE_BAND_Y, p.y), Vector3(q.x, HOLE_BAND_Y, q.y), Vector3(q.x, 8, q.y), Vector3(p.x, 8, p.y),
+			"border_orange", S_METAL, u, u + du, HOLE_BAND_ROWS[0], HOLE_BAND_ROWS[1], inward)
+		var a := Vector3(p.x, dy, p.y)
+		var b := Vector3(q.x, dy, q.y)
+		var c := Vector3(q.x, HOLE_BAND_Y, q.y)
+		var d := Vector3(p.x, HOLE_BAND_Y, p.y)
+		if (b - a).cross(c - a).dot(inward) >= 0.0:
+			geo.quad(a, b, c, d, "stands_dark", S_METAL)
+		else:
+			geo.quad(a, d, c, b, "stands_dark", S_METAL)
+		u += du
+	if dy <= 0.0:
+		_rim(geo, HOLE, HOLE_FOOT, RIM_IN, 0.0, "border_ribs", S_METAL, STRIP_ROWS[0], STRIP_ROWS[1], true)
+	else:
+		geo.flat_polygon(w, dy, "", TmTuning.Surface.GRASS)
+
+
+## A pillar standing on the deck at c: column, collar, cap and lid, two advert bands (ads `ad`,
+## `ad` + 1).
+func _pillar(geo: TmGeo, c: Vector2, ad: int) -> void:
+	var foot := float(PILLAR_COLLAR[PILLAR_COLLAR.size() - 1][1])
+	var top := float(PILLAR_CAP[0][1])
+	geo.ring(c, 24, PILLAR_R, func(_q: Vector2) -> float: return foot, PILLAR_R, func(_q: Vector2) -> float: return top,
+		"pillar", S_CONCRETE)
+	_lathe(geo, c, 24, PILLAR_COLLAR, "border_orange", S_RUBBER)
+	_lathe(geo, c, 24, PILLAR_CAP, "border_black", S_RUBBER)
+	var lid: Array = PILLAR_CAP[PILLAR_CAP.size() - 1]
+	geo.flat_polygon(_circle(c, float(lid[0]), 24), float(lid[1]), "road_metal", S_METAL)
+	# on the lid: a ring of bolts round a boss (light rims, visual only)
+	var ly := float(lid[1]) + 0.01
+	_annulus(geo, c, PILLAR_BOSS[0], PILLAR_BOSS[1], ly, 16)
+	for k in PILLAR_BOLTS:
+		var a := TAU * (k + 0.5) / PILLAR_BOLTS
+		_annulus(geo, c + Vector2(cos(a), sin(a)) * PILLAR_BOLT_AT, PILLAR_BOLT[0], PILLAR_BOLT[1], ly, 10)
+	var y0: float = PILLAR_AD_Y[0]
+	var y1: float = PILLAR_AD_Y[1]
+	var span := deg_to_rad(PILLAR_AD_DEG)
+	var n := 8
+	var r0 := PILLAR_R - 0.04
+	var r1 := PILLAR_AD_R
+	var w := r1 * 2.0 * span
+	for side in 2:
+		var mid := PI * side
+		var at := func(a: float, r: float, y: float) -> Vector3: return Vector3(c.x + cos(a) * r, y, c.y + sin(a) * r)
+		for k in n:
+			var a0 := mid - span + 2.0 * span * k / n
+			var a1 := mid - span + 2.0 * span * (k + 1) / n
+			# the advert reads from outside: along it runs toward lower angles
+			var s0 := (mid + span - a0) * r1
+			var s1 := (mid + span - a1) * r1
+			var n0 := Vector3(cos(a0), 0, sin(a0))
+			var n1 := Vector3(cos(a1), 0, sin(a1))
+			var b0: Vector3 = at.call(a0, r1, y0)
+			var b1: Vector3 = at.call(a1, r1, y0)
+			var t0: Vector3 = at.call(a0, r1, y1)
+			var t1: Vector3 = at.call(a1, r1, y1)
+			var h := y1 - y0
+			var ub0 := TmGeo.screen_uv(s0, w, h, h, ad + side)
+			var ub1 := TmGeo.screen_uv(s1, w, h, h, ad + side)
+			var ut0 := TmGeo.screen_uv(s0, w, 0.0, h, ad + side)
+			var ut1 := TmGeo.screen_uv(s1, w, 0.0, h, ad + side)
+			geo.tri(b0, t0, t1, "screen", S_METAL, n0, n0, n1, ub0, ut0, ut1)
+			geo.tri(b0, t1, b1, "screen", S_METAL, n0, n1, n1, ub0, ut1, ub1)
+			# its top and underside, back to the column
+			geo.quad(at.call(a0, r0, y1), at.call(a1, r0, y1), t1, t0, "stands_top", S_METAL)
+			geo.quad(b0, b1, at.call(a1, r0, y0), at.call(a0, r0, y0), "stands_top", S_METAL)
+		for e: float in [-1.0, 1.0]:
+			var a := mid + e * span
+			var q0: Vector3 = at.call(a, r0, y0)
+			var q1: Vector3 = at.call(a, r1, y0)
+			var q2: Vector3 = at.call(a, r1, y1)
+			var q3: Vector3 = at.call(a, r0, y1)
+			var tangent := Vector3(-sin(a), 0, cos(a)) * e
+			if (q1 - q0).cross(q2 - q0).dot(tangent) >= 0.0:
+				geo.quad(q0, q1, q2, q3, "stands_top", S_METAL)
+			else:
+				geo.quad(q0, q3, q2, q1, "stands_top", S_METAL)
+
+
+## A light flat ring about c (radii r0 -> r1, n sides) at y, facing up, visual only.
+static func _annulus(geo: TmGeo, c: Vector2, r0: float, r1: float, y: float, n: int) -> void:
+	for k in n:
+		var d0 := Vector2(cos(TAU * k / n), sin(TAU * k / n))
+		var d1 := Vector2(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n))
+		var p := [c + d0 * r0, c + d1 * r0, c + d1 * r1, c + d0 * r1]
+		# (round toward +angle, then out: wound to face up)
+		geo.quad(Vector3(p[0].x, y, p[0].y), Vector3(p[1].x, y, p[1].y), Vector3(p[2].x, y, p[2].y),
+			Vector3(p[3].x, y, p[3].y), "stands_top", TmGeo.NO_COLLISION)
+
+
+## A round band about c, n sides (a corner on +x): the profile's (r, y, atlas row) points, bottom
+## to top, revolved and shaded round, the border atlas' rows up it, one tile round.
+static func _lathe(geo: TmGeo, c: Vector2, n: int, prof: Array, mat: String, surface: int) -> void:
+	for i in prof.size() - 1:
+		var p: Array = prof[i]
+		var q: Array = prof[i + 1]
+		var t := Vector2(float(q[0]) - float(p[0]), float(q[1]) - float(p[1])).normalized()
+		var nr := Vector2(t.y, -t.x)     # (r, y): outward of a band going up
+		for k in n:
+			var d0 := Vector2(cos(TAU * k / n), sin(TAU * k / n))
+			var d1 := Vector2(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n))
+			var a := Vector3(c.x + d0.x * float(p[0]), float(p[1]), c.y + d0.y * float(p[0]))
+			var b := Vector3(c.x + d1.x * float(p[0]), float(p[1]), c.y + d1.y * float(p[0]))
+			var cc := Vector3(c.x + d1.x * float(q[0]), float(q[1]), c.y + d1.y * float(q[0]))
+			var d := Vector3(c.x + d0.x * float(q[0]), float(q[1]), c.y + d0.y * float(q[0]))
+			var n0 := Vector3(d0.x * nr.x, nr.y, d0.y * nr.x)
+			var n1 := Vector3(d1.x * nr.x, nr.y, d1.y * nr.x)
+			var ua := Vector2(float(k) / n, float(p[2]) / 512.0)
+			var ub := Vector2(float(k + 1) / n, float(p[2]) / 512.0)
+			var uc := Vector2(float(k + 1) / n, float(q[2]) / 512.0)
+			var ud := Vector2(float(k) / n, float(q[2]) / 512.0)
+			# (b - a) runs toward +angle, (d - a) up: wound a, d, c to face out
+			geo.tri(a, d, cc, mat, surface, n0, n0, n1, ua, ud, uc)
+			geo.tri(a, cc, b, mat, surface, n0, n1, n1, ua, uc, ub)
 
 
 ## Ground borders stand on the terrain (the map's ground at 1 m block-local, built separately). In

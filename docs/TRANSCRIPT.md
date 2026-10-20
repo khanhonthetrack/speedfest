@@ -965,3 +965,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 20 Oct, after a worker restart during M11)
 
 > Cotninue
+
+### User (verbatim, session 13, 20 Oct, after another worker restart during M11: airship, pubs, camera lights, dirt furniture, loops, roof glass done)
+
+> Cotninue

@@ -2713,4 +2713,17 @@ on every real contact the full impulse would land at the contact point and kick 
   grey-teal panes, partly see-through; `TmMaterials.CUTOUT` roof_glass, blended): from the field
   the roof's front reads as framed glass against the sky, from above the stands show through.
   The surround's other parts (outer roads, forecourts, parking) were done in session 12; M11-8 done.
-
+- (M11-4) **The circuit base variants as TMNF's** (`circuit.gd`: `_base`, `_bump`, `_hole`, `_pillar`;
+  editor pieces, none on our tracks). The bump, hole and pillar bases had no model (null). Built
+  from measured numbers (TMNF's local visuals and collision): BumpUp, a 15.5 m round dome rising
+  2 m (TMNF's profile, 64 sides, the dark floor) with an orange rubber rim and a blue line round it
+  (BumpUp2: the same in the middle of a 1x2 plate); Hole, a 12 x 26 m rounded shaft through the
+  plate (orange rim, a dark strip, the atlas' orange and blue band at the top of its walls, dark
+  stands below, the dark strip round its opening underneath; on the ground the terrain's grass at
+  its bottom, collision only); Pillar1/2/3/5/6/7, a dark rounded pad with the same rim and 1, 2, 3,
+  5, 6 or 7 round pillars at TMNF's places: a 24-sided light concrete column with an orange rubber
+  collar, a rounded black rubber cap (orange and blue edge), a dark lid with a ring of bolts round
+  a boss and two of our advert bands facing either way along x. Rounded corners follow TMNF's
+  (radius 1.81 m at the rim's outer edge, 0.8 m less per metre in). The border atlas' rows read as
+  TMNF's v runs (up). The 20 shapes agree 100% with TMNF's collision (`test_block_fidelity`);
+  colour differs on 4% (our adverts on the pillar bands, the parts hidden in the collar).

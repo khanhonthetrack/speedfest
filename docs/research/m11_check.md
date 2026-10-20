@@ -120,6 +120,11 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
 
 - The loops' backs (20 Oct): grates, the dark spine and rails, the clamps every 22.5 degrees.
 
+- The circuit base variants (M11-4, 20 Oct; there was no model): the bump's dome, the hole's shaft,
+  the pillar pads with their pillars (`circuit.gd`). Collision 100% TMNF's on all 20 shapes; colour
+  differs 4.2% (our adverts on the pillars' bands; TMNF's column hidden in the collar). The border
+  atlas' rows on them read TMNF's v upward (material_check's convention): row = (1 - v) x 512.
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the

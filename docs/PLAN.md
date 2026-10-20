@@ -222,7 +222,7 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
       bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)
-- [ ] 4. The circuit base variants (bump, hole, pillars)
+- [x] 4. The circuit base variants (bump, hole, pillars; 20 Oct)
 - [ ] 5. Physics: flat-ground and landing wheelies, water, reverse switch, turbo pad direction,
       burnout / donut
 - [ ] 6. TMNF's padlocks on the campaign
