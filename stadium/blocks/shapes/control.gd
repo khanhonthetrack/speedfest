@@ -32,20 +32,21 @@ const GLASS_HALF := [
 	[4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "stands_dark", S_CONCRETE],
 ]
 ## Ground variants: a plinth over the whole cell (1 -> 2 m), the walls rising from it (the glass
-## leaning inward), a low rail at the plinth's edge. As TMNF's glass booth: the plinth grey, the
-## walkway and walls white, a dark sill under the glass, the roof grey along its edge (to 8 m in)
-## and dark beyond, and a room behind the glass (GLASS_ROOM). The glass is TMNF's window modules
-## (booth_glass: posts, mullion, transoms, see-through panes; the fifth column its rows, top 0).
+## leaning inward), a low rail at the plinth's edge. As TMNF's booths: the plinth's rim a bluish
+## grey (booth_rim), the walkway and walls white, a dark sill under the glass booth's glass, the
+## roof grey along its edge (to 8 m in) and dark beyond, and a room behind the glass (GLASS_ROOM).
+## The glass is TMNF's window modules (booth_glass: posts, mullion, transoms, see-through panes;
+## the fifth column its rows, top 0).
 const CAMERA_GROUND_HALF := [
-	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
-	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "stands_top", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "booth_rim", S_CONCRETE], [0.0, 1.5, "booth_rim", S_CONCRETE],
+	[0.49, 1.76, "booth_rim", S_CONCRETE], [0.94, 2.0, "control_panel", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
 	[3.11, 3.56, "glass_dark", S_METAL], [3.11, 4.79, "control_panel", S_METAL],
 	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
 	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_GROUND_HALF := [
-	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
-	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "control_panel", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "booth_rim", S_CONCRETE], [0.0, 1.5, "booth_rim", S_CONCRETE],
+	[0.49, 1.76, "booth_rim", S_CONCRETE], [0.94, 2.0, "control_panel", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
 	[3.11, 3.36, "control_panel", S_METAL], [3.22, 3.58, "stands_dark", S_METAL], [3.71, 3.7, "booth_glass", S_ICE, Vector2(512.0, 0.0)],
 	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
 	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "stands_dark", S_CONCRETE],
@@ -405,7 +406,8 @@ func _ledge_section(mirror: bool) -> Array:
 
 func _along(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 	var lat := Vector3(1, 0, 0)
-	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "control_panel", S_METAL)
+	# its ends dark where it stops (TMNF's; hidden against the next piece)
+	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "stands_dark", S_METAL)
 	_rails(geo, [a, b], [lat, lat], [float(_ledge[0]) - 16.0, 16.0 - float(_ledge[0])])
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), [a, b], [lat, lat], true, "structure", S_METAL)
@@ -422,7 +424,7 @@ func _corner(geo: TmGeo) -> void:
 		var d := Vector3(cos(ang), 0.0, sin(ang))
 		path.append(Vector3(0, 0, 32) + d * 16.0)
 		lat.append(d)
-	geo.wall_sweep(_section(), path, lat, true, "control_panel", S_METAL)
+	geo.wall_sweep(_section(), path, lat, true, "stands_dark", S_METAL)
 	_rails(geo, path, lat, [float(_ledge[0]) - 16.0, 16.0 - float(_ledge[0])])
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), path, lat, true, "structure", S_METAL)

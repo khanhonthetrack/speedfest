@@ -2737,3 +2737,9 @@ on every real contact the full impulse would land at the contact point and kick 
   x1]), the partitions from TMNF's measured ends, the back wall redrawn dark (two openings into the
   gloom between light columns every 4 m: gallery rails, consoles, our blue cabinet). The colour
   check's missing area on the piece 280 -> 1 m2.
+- (M11-2) **The booths' plinth rims, walkways and gallery ends as TMNF's** (`control.gd`,
+  `TmMaterials` booth_rim). Sampling TMNF's colours inside its triangles (its vertices sit on
+  texel edges): the ground booths' plinth rim is a bluish grey (138 144 150; ours was the grey
+  concrete), the camera booth's walkway white like the glass booth's (ours grey), and a gallery's
+  section ends dark where the piece stops (ours white; hidden against the next piece). Colour
+  differs: camera booth 127 -> 73 m2, camera gallery straight 392 -> 64, glass straight 650 -> 320.
