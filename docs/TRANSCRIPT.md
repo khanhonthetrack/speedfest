@@ -957,3 +957,7 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
   on the bumpers. The gate blocks' curbs carry the gate's word on both faces every 4 m as TMNF's
   (mirrored outside, as TMNF's reads), MultiLap its own yellow MULTILAP sign. TMNF's brace from a
   clamp at z 5.8 up to the sign boards stays out with the boards (option B).
+
+### User (verbatim, session 13, 20 Oct, after the gates and the platform checkpoint)
+
+> Yes

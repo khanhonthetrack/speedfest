@@ -21,6 +21,7 @@ const SculptShapes := preload("res://blocks/shapes/sculpt.gd")
 const TRUSS_LIGHT := [0.3, 12.5, 19.5, 31.7]
 const TRUSS_MAIN := 16.0
 const TRUSS_STEP := 3.5            ## lattice panel length along the arch (m)
+const SPINE := [12.5, 19.5]        ## the light trusses the spine girder hangs between (z)
 ## Advert boards (measured on TMNF's): two hung from the main truss facing the field, one on the
 ## back of the roof's foot facing out: [bottom edge (x, y), top edge (x, y), z0, z1, faces out
 ## (+x side)]. The hung ones are turned 3 deg steeper than TMNF's so the screens show adverts.
@@ -74,6 +75,37 @@ const SHELL_AIR := [[55.77, 7.99, "fabric", S_ROAD], [54.62, 12.83, "fabric", S_
 	[52.7, 16.86, "fabric_under", S_ROAD], [54.26, 12.7, "fabric_under", S_ROAD], [55.4, 7.99, "fabric_under", S_ROAD]]
 const DECK_AIR := [47.93, 60.13, 7.61, 8.0]
 const WALL_AIR := [53.76, 54.28]
+## The straight raised grandstand's base (TMNF's, measured; _air_base): white tube columns from the
+## ground up under the deck (AIR_COLUMNS: x, z, radius; to AIR_COLUMN_TOP), a tube beam along the
+## block (AIR_BEAM: x, y, radius), a tube ring under the deck's edges (AIR_RING: x0, x1, z0, z1, y,
+## radius) with posts up to the deck every AIR_POST_STEP; X-braced girders (TMNF's
+## StructureGeneric: cut-out cards, lattice_x): round the middle column from the ground up, each
+## pair of panels one X bent at its corner (AIR_DIAMOND: two runs (x, z)), and along the beam
+## (AIR_GIRDER: x, y0, y1, then its z spans, one X each); near the ground two catwalks (AIR_WALKS:
+## see _walk) and under the deck's long edges floodlight bars (AIR_LIGHTS: see _floods).
+const AIR_COLUMNS := [Vector3(50.65, 15.985, 0.36), Vector3(54.02, 16.0, 0.58), Vector3(54.02, 12.5, 0.36),
+	Vector3(54.02, 19.5, 0.36), Vector3(57.37, 0.27, 0.36), Vector3(57.37, 31.69, 0.36), Vector3(57.38, 15.985, 0.36)]
+const AIR_COLUMN_TOP := 7.68
+const AIR_BEAM := Vector3(54.02, 3.895, 0.31)
+const AIR_RING := [48.33, 59.69, 0.44, 31.56, 6.52, 0.36]
+const AIR_POST_STEP := 4.0
+const AIR_DIAMOND := [[Vector2(54.39, 12.51), Vector2(57.04, 16.0), Vector2(54.39, 19.47)],
+	[Vector2(53.66, 12.52), Vector2(51.02, 16.0), Vector2(53.67, 19.48)]]
+const AIR_GIRDER := [54.01, 4.21, 7.64, Vector2(0.43, 10.66), Vector2(21.32, 31.56)]
+const AIR_WALKS := [[49.23, 50.28, 1.5], [57.77, 58.82, 1.5]]
+const AIR_LIGHTS := [[48.07, 48.74, 2.77, 3.56, 48.42, 2.91, 6.03], [59.31, 59.98, 2.77, 3.56, 59.63, 2.91, 6.03]]
+## The straight roofs' steel inside (measured; _steel): the catwalks under the shell (_walk), the
+## floodlight bars at its top edge (_floods) and the railings on the stands' or deck's top (x, y).
+const ROOF_STEEL := {
+	"Fabric/FabricStraight1x1": [[[32.0, 33.11, 33.42], [8.84, 9.95, 41.41]], [[7.61, 8.32, 42.68, 43.47, 7.98, 42.82, 45.94]],
+		[Vector2(52.93, 8.26)]],
+	"Fabric/FabricStraight1x1Air": [[[30.17, 31.22, 33.15], [8.34, 9.39, 41.14]], [[7.17, 7.84, 42.41, 43.2, 7.53, 42.55, 45.67]],
+		[Vector2(49.85, 8.0), Vector2(58.07, 8.0)]],
+}
+## Railings and catwalks' sides (m high); the floodlight bars' and their frames' spans along z.
+const RAIL_H := 1.04
+const LIGHT_Z := [Vector2(0.51, 7.07), Vector2(24.92, 31.48)]
+const LIGHT_FRAME_Z := [Vector2(0.12, 7.45), Vector2(24.54, 31.86)]
 ## Under a raised grandstand: on the ground, a one-cell stands block (quarter-pipe front, seats at
 ## 8 m, the roof's fabric foot behind, the big screen on its back: x0, x1, y0, y1, z0, z1); higher
 ## up, the fabric wall carrying the roof down (x0, x1) with a post in the middle (x0, x1, z0, z1).
@@ -85,7 +117,11 @@ const PILLAR_STANDS := [[10.85, 1.0, "stands_front", S_ROAD], [12.04, 1.2, "stan
 	[27.76, 1.52, "stands_dark", S_ROAD], [27.76, 1.0, "stands_dark", S_ROAD]]
 const PILLAR_SCREEN := [26.94, 27.44, 1.84, 6.07, 2.11, 30.18]
 const PILLAR_WALL := [25.725, 26.107]
-const PILLAR_POST := [21.43, 22.61, 15.51, 16.51]
+const PILLAR_WALL_Z := [0.29, 31.7]
+const PILLAR_H := 24.0
+## The raised pillar's tower (TMNF's): the raised base's columns and X-braced panels (AIR_COLUMNS,
+## AIR_DIAMOND) this much nearer the wall, the full height, the panels' X every 8 m up.
+const PILLAR_SHIFT := -32.0
 ## Cross1x1: a flat fabric roof over the cell (underside, top), on trusses (not recreated yet).
 const CROSS_ROOF := [7.7, 7.98]
 ## Corners (2 x 2 cells): the straight's sections revolved through 90 deg in CORNER_STEPS segments
@@ -151,20 +187,21 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_extrude(geo, LIP)
 			_trusses(geo, SHELL)
 			_boards(geo, BOARDS)
+			_steel(geo, shape)
 		"Fabric/FabricStraight1x1Air":
 			_extrude(geo, SHELL_AIR)
 			_trusses(geo, SHELL_AIR)
 			_boards(geo, BOARDS_AIR)
+			_steel(geo, shape)
 			geo.box(Vector3(DECK_AIR[0], DECK_AIR[2], 0), Vector3(DECK_AIR[1], DECK_AIR[3], 32), "control_under", S_METAL,
 				"stands_top", S_STANDS)
-			geo.box(Vector3(WALL_AIR[0], 0, 0), Vector3(WALL_AIR[1], DECK_AIR[2], 32), "structure", S_METAL)
+			_air_base(geo)
 		"Fabric/FabricPillarGround":
 			_extrude(geo, PILLAR_STANDS)
 			var s: Array = PILLAR_SCREEN
 			geo.screen_box(Vector3(s[0], s[2], s[4]), Vector3(s[1], s[3], s[5]), "screen", S_METAL, 0.03)
 		"Fabric/FabricPillarAir":
-			geo.box(Vector3(PILLAR_WALL[0], 0, 0), Vector3(PILLAR_WALL[1], 24, 32), "fabric", S_ROAD)
-			_open_post(geo, Vector3(PILLAR_POST[0], 0, PILLAR_POST[2]), Vector3(PILLAR_POST[1], 24, PILLAR_POST[3]))
+			_pillar_air(geo)
 		"Fabric/FabricCross1x1":
 			geo.box(Vector3(0, CROSS_ROOF[0], 0), Vector3(32, CROSS_ROOF[1], 32), "structure", S_ROAD, "fabric", S_ROAD)
 		"Fabric/FabricCornerIn", "Fabric/FabricCornerOut", "Fabric/FabricCornerInAir", "Fabric/FabricCornerOutAir":
@@ -328,15 +365,124 @@ func _open_post(geo: TmGeo, lo: Vector3, hi: Vector3) -> void:
 	geo.extrude_y(loop, lo.y, hi.y)
 
 
+## The raised pillar (TMNF's): the fabric wall carrying the roof down, its face toward the tower
+## the roof's underside (TMNF's FabricStructure: framed X panels, 16 x 8 m), and the steel tower
+## beside it (PILLAR_SHIFT).
+func _pillar_air(geo: TmGeo) -> void:
+	var x0: float = PILLAR_WALL[0]
+	var x1: float = PILLAR_WALL[1]
+	var z0: float = PILLAR_WALL_Z[0]
+	var z1: float = PILLAR_WALL_Z[1]
+	geo.box(Vector3(x0 + 0.01, 0, z0), Vector3(x1, PILLAR_H, z1), "fabric", S_ROAD)
+	geo.quad_uv(Vector3(x0, 0, z0), Vector3(x0, 0, z1), Vector3(x0, PILLAR_H, z1), Vector3(x0, PILLAR_H, z0), "fabric_under",
+		S_ROAD, Vector2(z0, PILLAR_H), Vector2(z1, PILLAR_H), Vector2(z1, 0), Vector2(z0, 0))
+	for c: Vector3 in AIR_COLUMNS:
+		geo.pipe(Vector3(c.x + PILLAR_SHIFT, 0.0, c.y), Vector3(c.x + PILLAR_SHIFT, PILLAR_H, c.y), c.z, 8, "mast", S_METAL)
+	for run: Array in AIR_DIAMOND:
+		for k in 2:
+			var a: Vector2 = run[k]
+			var b: Vector2 = run[k + 1]
+			_card(geo, Vector3(a.x + PILLAR_SHIFT, 0.0, a.y), Vector3(b.x + PILLAR_SHIFT, 0.0, b.y), PILLAR_H, "lattice_x",
+				0.5 * k, 0.5 * k + 0.5, PILLAR_H / 8.0)
+
+
+## The straight raised grandstand's open steel base under its deck (AIR_*, TMNF's).
+func _air_base(geo: TmGeo) -> void:
+	for c: Vector3 in AIR_COLUMNS:
+		geo.pipe(Vector3(c.x, 0.0, c.y), Vector3(c.x, AIR_COLUMN_TOP, c.y), c.z, 8, "mast", S_METAL)
+	geo.pipe(Vector3(AIR_BEAM.x, AIR_BEAM.y, 0.0), Vector3(AIR_BEAM.x, AIR_BEAM.y, 32.0), AIR_BEAM.z, 8, "mast", S_METAL)
+	var r: Array = AIR_RING
+	var x0: float = r[0]
+	var x1: float = r[1]
+	var z0: float = r[2]
+	var z1: float = r[3]
+	var y: float = r[4]
+	var corners := [Vector3(x0, y, z0), Vector3(x1, y, z0), Vector3(x1, y, z1), Vector3(x0, y, z1)]
+	for k in 4:
+		var a: Vector3 = corners[k]
+		var b: Vector3 = corners[(k + 1) % 4]
+		geo.pipe(a, b, float(r[5]), 6, "mast", S_METAL)
+		var n := maxi(1, roundi(a.distance_to(b) / AIR_POST_STEP))
+		for i in n:
+			var p := a.lerp(b, (i + 0.5) / n)
+			geo.pipe(p + Vector3(0, float(r[5]), 0), Vector3(p.x, DECK_AIR[2], p.z), 0.08, 4, "mast", TmGeo.NO_COLLISION)
+	var nz := TmGeo.NO_COLLISION
+	for run: Array in AIR_DIAMOND:
+		for k in 2:
+			var a: Vector2 = run[k]
+			var b: Vector2 = run[k + 1]
+			_card(geo, Vector3(a.x, 0.0, a.y), Vector3(b.x, 0.0, b.y), AIR_COLUMN_TOP, "lattice_x", 0.5 * k, 0.5 * k + 0.5)
+	var g: Array = AIR_GIRDER
+	for span: Vector2 in g.slice(3):
+		_card(geo, Vector3(g[0], g[1], span.x), Vector3(g[0], g[1], span.y), float(g[2]) - float(g[1]), "lattice_x", 0.0, 1.0)
+	for w: Array in AIR_WALKS:
+		_walk(geo, w)
+	_floods(geo, AIR_LIGHTS)
+
+
+## A straight roof's steel inside it (ROOF_STEEL).
+func _steel(geo: TmGeo, shape: String) -> void:
+	var st: Array = ROOF_STEEL[shape]
+	for w: Array in st[0]:
+		_walk(geo, w)
+	_floods(geo, st[1])
+	for r: Vector2 in st[2]:
+		_card(geo, Vector3(r.x, r.y, 0.0), Vector3(r.x, r.y, 32.0), RAIL_H, "railing", 0.0, 4.0)
+
+
+## A catwalk along the block ([x0, x1, floor y]): a grating floor between two dark truss sides.
+static func _walk(geo: TmGeo, w: Array) -> void:
+	var x0: float = w[0]
+	var x1: float = w[1]
+	var y: float = w[2]
+	geo.quad_uv(Vector3(x0, y, 0.0), Vector3(x1, y, 0.0), Vector3(x1, y, 32.0), Vector3(x0, y, 32.0), "grate",
+		TmGeo.NO_COLLISION, Vector2(0, 0), Vector2(x1 - x0, 0), Vector2(x1 - x0, 32), Vector2(0, 32))
+	for x: float in [x0, x1]:
+		_card(geo, Vector3(x, y, 0.0), Vector3(x, y, 32.0), RAIL_H, "girder_dark", 0.0, 4.0)
+
+
+## Dark floodlight bars along LIGHT_Z ([x0, x1, y0, y1, then their frame's x, y0, y1]), each on a
+## dark girder frame (along LIGHT_FRAME_Z).
+static func _floods(geo: TmGeo, lights: Array) -> void:
+	for l: Array in lights:
+		for k in LIGHT_Z.size():
+			var lz: Vector2 = LIGHT_Z[k]
+			var fz: Vector2 = LIGHT_FRAME_Z[k]
+			_card(geo, Vector3(l[4], l[5], fz.x), Vector3(l[4], l[5], fz.y), float(l[6]) - float(l[5]), "girder_dark", 0.0,
+				(fz.y - fz.x) / 8.0)
+			geo.box(Vector3(l[0], l[2], lz.x), Vector3(l[1], l[3], lz.y), "gate_shell", TmGeo.NO_COLLISION)
+
+
+## A cut-out card (TmMaterials.CUTOUT) standing on the edge a -> b, h high, its texture's u from
+## u0 at a to u1 at b, v from v1 at the bottom to 0 at its top (visual only; the material shows
+## both sides).
+static func _card(geo: TmGeo, a: Vector3, b: Vector3, h: float, key: String, u0: float, u1: float, v1 := 1.0) -> void:
+	var up := Vector3(0, h, 0)
+	geo.quad_uv(a, b, b + up, a + up, key, TmGeo.NO_COLLISION, Vector2(u0, v1), Vector2(u1, v1), Vector2(u1, 0), Vector2(u0, 0))
+
+
 ## A closed (x, y) section swept along z over the block (0..32), capped at both ends.
 ## The truss arches under a straight roof whose section is `table`.
 func _trusses(geo: TmGeo, table: Array) -> void:
 	var under := _underside(table)
 	if under.size() < 2:
 		return
+	var inner := {}
 	for z: float in TRUSS_LIGHT:
-		_truss(geo, under, z, 0.3, 1.45, 1.45, 0.13, 0.07)
-	_truss(geo, under, TRUSS_MAIN, 0.55, 5.0, 4.4, 0.22, 0.11)
+		inner[z] = _truss(geo, under, z, 0.3, 1.45, 1.45, 0.13, 0.07)
+	var main := _truss(geo, under, TRUSS_MAIN, 0.55, 5.0, 4.4, 0.22, 0.11)
+	# the spine (TMNF's StructureGeneric): X-braced panels from the inner chords of the light trusses
+	# either side of the main one down to its inner chord, a V girder along the roof
+	for z: float in SPINE:
+		var side: Array = inner[z]
+		for i in main.size() - 1:
+			var a: Vector2 = side[i]
+			var b: Vector2 = side[i + 1]
+			var c: Vector2 = main[i + 1]
+			var d: Vector2 = main[i]
+			geo.quad_uv(Vector3(a.x, a.y, z), Vector3(b.x, b.y, z), Vector3(c.x, c.y, TRUSS_MAIN), Vector3(d.x, d.y, TRUSS_MAIN),
+				"lattice_x", TmGeo.NO_COLLISION, Vector2(0.5 * i, 0.5), Vector2(0.5 * i + 0.5, 0.5), Vector2(0.5 * i + 0.5, 1.0),
+				Vector2(0.5 * i, 1.0))
 
 
 ## The advert boards: a 0.15 m slab each, the screen on its front, steel behind; the hung ones on
@@ -410,7 +556,7 @@ static func _underside(table: Array) -> Array:
 ## One truss arch at z (thickness 2 half): resampled along the underside every TRUSS_STEP, the top
 ## chords just under the fabric, the bottom chords depth below it (d_foot at the foot, d_top at the
 ## top), Warren diagonals in both faces and zig-zagging across the bottom; nothing below the foot.
-func _truss(geo: TmGeo, under: Array, z: float, half: float, d_foot: float, d_top: float, chord_r: float, web_r: float) -> void:
+func _truss(geo: TmGeo, under: Array, z: float, half: float, d_foot: float, d_top: float, chord_r: float, web_r: float) -> Array:
 	var arc := [0.0]
 	for i in range(1, under.size()):
 		arc.append(float(arc[i - 1]) + ((under[i] as Vector2) - (under[i - 1] as Vector2)).length())
@@ -448,6 +594,7 @@ func _truss(geo: TmGeo, under: Array, z: float, half: float, d_foot: float, d_to
 	for i in count:
 		var z0 := z - half if i % 2 == 0 else z + half
 		geo.pipe(Vector3(bots[i].x, bots[i].y, z0), Vector3(bots[i + 1].x, bots[i + 1].y, 2.0 * z - z0), web_r, 4, "mast", nz)
+	return bots
 
 
 func _extrude(geo: TmGeo, table: Array) -> void:

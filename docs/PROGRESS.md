@@ -2603,3 +2603,20 @@ on every real contact the full impulse would land at the contact point and kick 
   and its struts stay. The turbo deck's TURBO rim reads mirrored as TMNF's too. Side by side with
   TMNF's blocks. Left: the high dirt checkpoint's side rails and posts (TMNF's; not on our tracks),
   the turbo deck's advert band under the rim, the platform billboard's struts as TMNF's lattice.
+- (M11-2) **Grandstands' steel as TMNF's** (owner: "Yes", continue the check; the Fabric pieces
+  were the biggest gap left on our tracks: 3,600-4,600 m2 of TMNF's surface missing per piece, 165-225
+  uses). TMNF draws its steel as alpha cards; ours now has cut-out cards too
+  (`TmMaterials.CUTOUT`: alpha-scissored, both sides, HD or not, both renderers) with our own
+  drawings (`texgen/lattice.py`: a white X-braced panel, a dark railing, a dark truss girder, a
+  dark grating). Measured from TMNF's blocks (`fabric.gd`): the raised straight's deck now stands
+  on TMNF's open base (white tube columns, a beam along the block, a tube ring under the deck with
+  posts, X-braced girder panels round the middle column and along the beam, two low catwalks,
+  dark floodlight bars on girder frames) instead of a solid wall; both straights get the roof's
+  spine (TMNF's V girder: X-braced panels from the light trusses' inner chords at z 12.5 / 19.5
+  down to the main truss's), two catwalks under the shell, the floodlight bars at its top edge,
+  the railings on the stands' or deck's top; the raised pillar is TMNF's (its wall's tower side
+  the framed X panels, the steel tower of seven columns and four X-braced panels, 24 m) instead of
+  a wall and a solid post. Missing surface on the four pieces 9,727 -> 4,874 m2 (the rest is
+  lattice TMNF draws as flat cards where ours are thin tubes: per-part coverage 80-100%). Side by
+  side with TMNF's blocks, Forward+ and Compatibility. Left: the corners' raised base (not on our
+  tracks), the ground pillar's orange end strips.

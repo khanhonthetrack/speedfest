@@ -76,6 +76,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   every gate block's curb signs (both faces, the word every 4 m on panels, mirrored outside;
   MULTILAP on the multilap). Left out with the sign boards (option B): the checkpoint's clamp at
   z 5.8 and its brace up to the boards.
+- The grandstands' steel (TMNF's alpha-card lattices): cut-out cards (`TmMaterials.CUTOUT`,
+  `texgen/lattice.py`); the raised straight's open base, the roofs' spine, catwalks, floodlights
+  and railings, the raised pillar's tower (Fabric missing 9,727 -> 4,874 m2 on the four pieces our
+  tracks use). Left: the corners' raised base, the ground pillar's orange end strips.
 - The platform checkpoint is TMNF's: the road gate resized on the deck, the set-back edge under
   its feet, the CHECKPOINT rim (the turbo deck's TURBO rim mirrored as TMNF's). Left: the high
   dirt checkpoint's side rails and posts, the turbo deck's advert band, the platform billboard's

@@ -120,6 +120,11 @@ const COLORS := {
 	"curb_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"curb_finish": [Color8(196, 28, 22), 0.7, 0.0],
 	"gate_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	# the cut-out cards (CUTOUT: textured always; these, their visible pixels' mean, for the checks)
+	"lattice_x": [Color(0.91, 0.92, 0.93), 0.45, 0.2],
+	"railing": [Color(0.2, 0.21, 0.23), 0.6, 0.4],
+	"girder_dark": [Color(0.23, 0.24, 0.25), 0.6, 0.4],
+	"grate": [Color(0.18, 0.18, 0.2), 0.7, 0.4],
 	"curb_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"curb_start_out": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
 	"curb_cp_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
@@ -251,6 +256,17 @@ const DETAIL := {
 	"platform": ["tread_plate", 1.0, 1.0],
 }
 
+## Cut-out cards: the steel TMNF draws as alpha cards (girders, railings, catwalks), our own RGBA
+## drawings (texgen/lattice.py), alpha-scissored and drawn from both sides, HD or not (a flat colour
+## would fill the holes): key -> [texture set, the colour its pixels average (no texture)]. Their
+## UVs are given in texture units (lattice cards: u along per its tile, v across 0..1).
+const CUTOUT := {
+	"lattice_x": ["lattice_xbrace", Color(0.91, 0.92, 0.93)],
+	"railing": ["lattice_railing", Color(0.2, 0.21, 0.23)],
+	"girder_dark": ["lattice_girder", Color(0.23, 0.24, 0.25)],
+	"grate": ["lattice_grate", Color(0.18, 0.18, 0.2)],
+}
+
 ## Fabric (the grandstands' and the stadium's roofs): how much sunlight shows through underneath
 ## (shader "translucent"; the glow is on with SDFGI, TmRtx: tm_membrane).
 const TRANSLUCENT := {"fabric": 1.0, "fabric_under": 1.0, "roof": 1.0, "roof_under": 0.6}
@@ -342,7 +358,9 @@ static func get_material(key: String) -> Material:
 		return _cache[key]
 	var spec: Array = COLORS.get(key, [Color(1, 0, 1), 0.5, 0.0])
 	var m: Material
-	if hd() and TEXTURED.has(key):
+	if CUTOUT.has(key):
+		m = _cutout(CUTOUT[key])
+	elif hd() and TEXTURED.has(key):
 		m = _textured(TEXTURED[key], DETAIL.get(key, []))
 	elif hd() and SURFACES.has(key):
 		m = _surface(key, spec)
@@ -370,6 +388,29 @@ static func _flat(spec: Array) -> StandardMaterial3D:
 	if (spec[0] as Color).a < 1.0:
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return m
+
+
+## A cut-out card's material (CUTOUT): its albedo's alpha cut at half, both sides drawn.
+static func _cutout(spec: Array) -> Material:
+	var m := ORMMaterial3D.new()
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var albedo := _tex(String(spec[0]), "albedo")
+	if albedo == null:
+		m.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		m.albedo_color = spec[1]
+		return m
+	m.albedo_texture = albedo
+	var nrm := _tex(String(spec[0]), "normal")
+	if nrm != null:
+		m.normal_enabled = true
+		m.normal_texture = nrm
+	var orm := _tex(String(spec[0]), "orm")
+	if orm != null:
+		m.orm_texture = orm
 	return m
 
 
