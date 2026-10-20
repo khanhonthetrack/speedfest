@@ -79,7 +79,7 @@ def railing(name='lattice_railing', w=1024, h=128):
         x0 = k * w / n
         x1 = (k + 1) * w / n
         bars.append((x0, t, x1, 0.3 * h, 0.4 * t) if k % 2 == 0 else (x0, 0.3 * h, x1, t, 0.4 * t))
-    card(name, w, h, bars, (52, 54, 58), 303, rough=0.6, metal=0.4)
+    card(name, w, h, bars, (52, 54, 58), 303, rough=0.6, metal=0.1)
 
 
 def girder(name='lattice_girder', w=1024, h=128):
@@ -94,7 +94,7 @@ def girder(name='lattice_girder', w=1024, h=128):
         if k < 8:
             x1 = (k + 1) * w / 8
             bars.append((x, t, x1, h - t, 0.6 * t) if k % 2 == 0 else (x, h - t, x1, t, 0.6 * t))
-    card(name, w, h, bars, (58, 60, 64), 305, rough=0.6, metal=0.4)
+    card(name, w, h, bars, (58, 60, 64), 305, rough=0.6, metal=0.1)
 
 
 def grate(name='lattice_grate', s=256):
@@ -106,7 +106,7 @@ def grate(name='lattice_grate', s=256):
     for k in range(6):
         x = (k + 0.5) * s / 5
         bars.append((x, 0, x, s, 0.02 * s))
-    card(name, s, s, bars, (46, 47, 50), 307, rough=0.7, metal=0.4)
+    card(name, s, s, bars, (46, 47, 50), 307, rough=0.7, metal=0.1)
 
 
 if __name__ == '__main__':

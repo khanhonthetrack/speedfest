@@ -2620,3 +2620,13 @@ on every real contact the full impulse would land at the contact point and kick 
   lattice TMNF draws as flat cards where ours are thin tubes: per-part coverage 80-100%). Side by
   side with TMNF's blocks, Forward+ and Compatibility. Left: the corners' raised base (not on our
   tracks), the ground pillar's orange end strips.
+- (M11-2) **Road-side booths as TMNF's** (`control.gd`; 814 and 1,116 uses on our tracks). The
+  plinth's open railing under its top bar (TMNF's ControlAuventAlpha: a cut-out card, `_rails`),
+  the glass booth's windows TMNF's modules (our drawing, `texgen/booth.py booth_window`: posts, a
+  mullion, two transoms, a lit head, see-through panes, 2.2 m each, 36 round the booth; blended,
+  `CUTOUT` booth_glass) and its room's wall facing them (`booth_wall`: concrete panels, a dark
+  opening into the back rooms), the round booths 32-sided as TMNF's; the round camera booth built
+  in arcs (`_camera_base`): TMNF's advert band under the windows either side of +-x (our adverts),
+  the light gaps in the window band at +-z, no railing at the entrances. Lattice cards' metal
+  lowered (they read light in the sun). Missing surface: camera booth 104 -> 1 m2, glass booth
+  389 -> 280 m2. Side by side with TMNF's blocks. Left: the pub block's plinth (85 uses).

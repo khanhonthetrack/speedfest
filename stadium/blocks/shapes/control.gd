@@ -33,8 +33,9 @@ const GLASS_HALF := [
 ]
 ## Ground variants: a plinth over the whole cell (1 -> 2 m), the walls rising from it (the glass
 ## leaning inward), a low rail at the plinth's edge. As TMNF's glass booth: the plinth grey, the
-## walkway and walls white, a dark sill under the grey glass, the roof grey along its edge (to 8 m
-## in) and dark beyond, and a room behind the glass (GLASS_ROOM).
+## walkway and walls white, a dark sill under the glass, the roof grey along its edge (to 8 m in)
+## and dark beyond, and a room behind the glass (GLASS_ROOM). The glass is TMNF's window modules
+## (booth_glass: posts, mullion, transoms, see-through panes; the fifth column its rows, top 0).
 const CAMERA_GROUND_HALF := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
 	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "stands_top", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
@@ -45,20 +46,31 @@ const CAMERA_GROUND_HALF := [
 const GLASS_GROUND_HALF := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
 	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "control_panel", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
-	[3.11, 3.36, "control_panel", S_METAL], [3.22, 3.58, "stands_dark", S_METAL], [3.71, 3.7, "glass_booth", S_ICE],
+	[3.11, 3.36, "control_panel", S_METAL], [3.22, 3.58, "stands_dark", S_METAL], [3.71, 3.7, "booth_glass", S_ICE, Vector2(512.0, 0.0)],
 	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
 	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "stands_dark", S_CONCRETE],
 ]
 ## The glass booth's room (measured, TMNF's ControlInterior): its back wall, ceiling and floor as
-## blocks (x0, x1 from the block edge, y0, y1, key) behind the glass.
+## blocks (x0, x1 from the block edge, y0, y1, key; and the key of the face toward the glass: the
+## wall's our concrete panels with a dark opening, booth_wall, its rows top to bottom).
 const GLASS_ROOM := [
-	[7.34, 8.0, 2.0, 6.0, "stands_top"], [3.3, 7.34, 6.0, 7.2, "control_under"], [3.6, 7.34, 1.9, 2.0, "control_panel"],
+	[7.34, 8.0, 2.0, 6.0, "stands_top", "booth_wall"], [3.3, 7.34, 6.0, 7.2, "control_under"],
+	[3.6, 7.34, 1.9, 2.0, "control_panel"],
 ]
-## The ledge along the walls (x0, x1, y0, y1); on the ground, the plinth's rail (TMNF's is an
-## open railing 1 m high: its top bar).
+## The ledge along the walls (x0, x1, y0, y1); on the ground, the plinth's rail: TMNF's open
+## railing 1 m high (its top bar, and a cut-out railing card under it: _rails).
 const CAMERA_LEDGE := [2.0, 3.11, 0.99, 1.99]
 const GLASS_LEDGE := [2.0, 4.0, 1.0, 2.0]
 const GROUND_RAIL := [0.94, 1.04, 2.9, 3.0]
+## The round camera booth on the ground (TMNF's, measured; _camera_base): either side of +-x an
+## advert band under the windows (CAMERA_PUB: degrees either side; the wall's segment from the
+## walkway up, CAMERA_PUB_ROW, a screen there) and no railing (CAMERA_RAIL_GAP: the entrances);
+## either side of +-z a light gap in the window band (CAMERA_DOOR, the band's row CAMERA_DOOR_ROW).
+const CAMERA_PUB := 28.0
+const CAMERA_PUB_ROW := 5
+const CAMERA_RAIL_GAP := 11.25
+const CAMERA_DOOR := 1.42
+const CAMERA_DOOR_ROW := 6
 const ROOF := 8.0
 const WALL_ZONE := 6.0          ## the part of the section revolved round junction corners (x < this)
 
@@ -140,7 +152,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		"Corner":
 			_corner(geo)
 		"Base":
-			_revolve(geo, Vector3(16, 0, 16), 0.0, TAU, 24)
+			if ground and not glass:
+				_camera_base(geo)
+			else:
+				_revolve(geo, Vector3(16, 0, 16), 0.0, TAU, 32)
 		"Deadend":
 			_along(geo, Vector3(16, 0, 16), Vector3(16, 0, 32))
 			# the half round toward -z: radial directions from +x through -z to -x
@@ -196,12 +211,13 @@ func _camera_piece(shape: String) -> Node3D:
 func _section() -> Array:
 	var out := []
 	for q in _half:
-		out.append([Vector2(float(q[0]) - 16.0, maxf(float(q[1]), _floor)), String(q[2]), int(q[3])])
+		out.append([Vector2(float(q[0]) - 16.0, maxf(float(q[1]), _floor)), String(q[2]), int(q[3])] + q.slice(4))
 	out.append([Vector2(0.0, ROOF), String(_half[_half.size() - 1][2]), S_CONCRETE])
 	for i in range(_half.size() - 1, 0, -1):
 		var q: Array = _half[i]
 		var prev: Array = _half[i - 1]
-		out.append([Vector2(16.0 - float(q[0]), maxf(float(q[1]), _floor)), String(prev[2]), int(prev[3])])
+		var rows := [Vector2((prev[4] as Vector2).y, (prev[4] as Vector2).x)] if prev.size() > 4 else []
+		out.append([Vector2(16.0 - float(q[0]), maxf(float(q[1]), _floor)), String(prev[2]), int(prev[3])] + rows)
 	return out
 
 
@@ -216,8 +232,15 @@ func _rooms(mirror: bool) -> Array:
 		for p in [[r[0], r[2]], [r[1], r[2]], [r[1], r[3]], [r[0], r[3]]]:
 			sec.append([Vector2((16.0 - float(p[0])) if mirror else (float(p[0]) - 16.0), maxf(float(p[1]), _floor)),
 				String(r[4]), TmGeo.NO_COLLISION])
+		_room_face(sec, r)
 		out.append(sec)
 	return out
+
+
+## A room block's section: its face toward the glass (from its top corner down) the block's own key.
+static func _room_face(sec: Array, r: Array) -> void:
+	if r.size() > 5:
+		sec[3] = [sec[3][0], String(r[5]), TmGeo.NO_COLLISION, Vector2(0.0, 512.0)]
 
 
 ## The wall part of the left half (x < WALL_ZONE), closed by an internal face; d = x from the edge.
@@ -225,7 +248,7 @@ func _wall_section() -> Array:
 	var out := []
 	for i in range(1, _half.size()):
 		var q: Array = _half[i]
-		out.append([Vector2(float(q[0]), maxf(float(q[1]), _floor)), String(q[2]), int(q[3])])
+		out.append([Vector2(float(q[0]), maxf(float(q[1]), _floor)), String(q[2]), int(q[3])] + q.slice(4))
 	out.append([Vector2(WALL_ZONE, ROOF), "", TmGeo.NO_COLLISION])
 	out.append([Vector2(WALL_ZONE, _floor), "structure", S_CONCRETE])
 	return out
@@ -246,6 +269,7 @@ func _ledge_section(mirror: bool) -> Array:
 func _along(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 	var lat := Vector3(1, 0, 0)
 	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "control_panel", S_METAL)
+	_rails(geo, [a, b], [lat, lat], [float(_ledge[0]) - 16.0, 16.0 - float(_ledge[0])])
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), [a, b], [lat, lat], true, "structure", S_METAL)
 		for room: Array in _rooms(mirror):
@@ -262,18 +286,37 @@ func _corner(geo: TmGeo) -> void:
 		path.append(Vector3(0, 0, 32) + d * 16.0)
 		lat.append(d)
 	geo.wall_sweep(_section(), path, lat, true, "control_panel", S_METAL)
+	_rails(geo, path, lat, [float(_ledge[0]) - 16.0, 16.0 - float(_ledge[0])])
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), path, lat, true, "structure", S_METAL)
 		for room: Array in _rooms(mirror):
 			geo.wall_sweep(room, path, lat, true, String(room[0][1]), TmGeo.NO_COLLISION)
 
 
+## On the ground, the plinth's railing under its top bar (a cut-out card from the walkway up), along
+## the path at each lateral distance in ds (as the sections' d).
+func _rails(geo: TmGeo, path: Array, lat: Array, ds: Array) -> void:
+	if _ledge != GROUND_RAIL:
+		return
+	var y0 := _floor + 1.0
+	var h := float(GROUND_RAIL[2]) - y0
+	for d: float in ds:
+		var u := 0.0
+		for i in path.size() - 1:
+			var a: Vector3 = (path[i] as Vector3) + (lat[i] as Vector3) * d
+			var b: Vector3 = (path[i + 1] as Vector3) + (lat[i + 1] as Vector3) * d
+			var du := a.distance_to(b) / 8.0
+			geo.quad_uv(Vector3(a.x, y0, a.z), Vector3(b.x, y0, b.z), Vector3(b.x, y0 + h, b.z), Vector3(a.x, y0 + h, a.z),
+				"railing", TmGeo.NO_COLLISION, Vector2(u, 1), Vector2(u + du, 1), Vector2(u + du, 0), Vector2(u, 0))
+			u += du
+
+
 ## The section's half (wall side outward) revolved about c from angle a0 to a1 (radians, from +x
 ## toward +z): a round pavilion or a dead end's half round.
-func _revolve(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int) -> void:
+func _revolve(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int, half: Array = [], rails := true) -> void:
 	var sec := []
-	for q in _half:
-		sec.append([Vector2(16.0 - float(q[0]), maxf(float(q[1]), _floor)), String(q[2]), int(q[3])])
+	for q in (_half if half.is_empty() else half):
+		sec.append([Vector2(16.0 - float(q[0]), maxf(float(q[1]), _floor)), String(q[2]), int(q[3])] + q.slice(4))
 	sec.append([Vector2(0.0, ROOF), "", TmGeo.NO_COLLISION])
 	var led := []
 	for p in [[_ledge[0], _ledge[2]], [_ledge[1], _ledge[2]], [_ledge[1], _ledge[3]], [_ledge[0], _ledge[3]]]:
@@ -285,12 +328,52 @@ func _revolve(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int) -> void:
 		path.append(c)
 		lat.append(Vector3(cos(ang), 0.0, sin(ang)))
 	geo.wall_sweep(sec, path, lat, false)
-	geo.wall_sweep(led, path, lat, false)
+	if rails:
+		geo.wall_sweep(led, path, lat, false)
+		_rails(geo, path, lat, [16.0 - float(_ledge[0])])
 	for r: Array in (GLASS_ROOM if _glass else []):
 		var room := []
 		for p in [[r[0], r[2]], [r[1], r[2]], [r[1], r[3]], [r[0], r[3]]]:
 			room.append([Vector2(16.0 - float(p[0]), maxf(float(p[1]), _floor)), String(r[4]), TmGeo.NO_COLLISION])
+		_room_face(room, r)
 		geo.wall_sweep(room, path, lat, false)
+
+
+## The round camera booth on the ground (CAMERA_PUB, CAMERA_DOOR, CAMERA_RAIL_GAP): its section
+## revolved in arcs, the advert bands and the window band's gaps where TMNF has them, the railing
+## (top bar and card) on its two arcs between the entrances.
+func _camera_base(geo: TmGeo) -> void:
+	var c := Vector3(16, 0, 16)
+	var pub := _half.duplicate(true)
+	pub[CAMERA_PUB_ROW] = [pub[CAMERA_PUB_ROW][0], pub[CAMERA_PUB_ROW][1], "screen", S_METAL]
+	var door := _half.duplicate(true)
+	door[CAMERA_DOOR_ROW] = [door[CAMERA_DOOR_ROW][0], door[CAMERA_DOOR_ROW][1], "control_panel", S_METAL]
+	# arcs from -CAMERA_PUB round the circle: [from, to (degrees), table]
+	var p := CAMERA_PUB
+	var d := CAMERA_DOOR
+	var arcs := [[-p, p, pub], [p, 90.0 - d, _half], [90.0 - d, 90.0 + d, door], [90.0 + d, 180.0 - p, _half],
+		[180.0 - p, 180.0 + p, pub], [180.0 + p, 270.0 - d, _half], [270.0 - d, 270.0 + d, door], [270.0 + d, 360.0 - p, _half]]
+	for a: Array in arcs:
+		var steps := maxi(1, roundi((float(a[1]) - float(a[0])) / 11.25))
+		_revolve(geo, c, deg_to_rad(a[0]), deg_to_rad(a[1]), steps, a[2], false)
+	var g := CAMERA_RAIL_GAP
+	for a: Vector2 in [Vector2(g, 180.0 - g), Vector2(180.0 + g, 360.0 - g)]:
+		_rail_arc(geo, c, deg_to_rad(a.x), deg_to_rad(a.y), roundi((a.y - a.x) / 11.25))
+
+
+## The ground rail (its top bar and the railing card under it) on an arc about c (radians).
+func _rail_arc(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int) -> void:
+	var led := []
+	for p in [[_ledge[0], _ledge[2]], [_ledge[1], _ledge[2]], [_ledge[1], _ledge[3]], [_ledge[0], _ledge[3]]]:
+		led.append([Vector2(16.0 - float(p[0]), maxf(float(p[1]), _floor)), "structure", S_METAL])
+	var path := []
+	var lat := []
+	for i in steps + 1:
+		var ang := lerpf(a0, a1, float(i) / steps)
+		path.append(c)
+		lat.append(Vector3(cos(ang), 0.0, sin(ang)))
+	geo.wall_sweep(led, path, lat, true, "structure", S_METAL)
+	_rails(geo, path, lat, [16.0 - float(_ledge[0])])
 
 
 ## T and cross: the solid block (its plan inset on the closed sides, with a quarter disc cut out at

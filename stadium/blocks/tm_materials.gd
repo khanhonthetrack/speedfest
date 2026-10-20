@@ -125,6 +125,8 @@ const COLORS := {
 	"railing": [Color(0.2, 0.21, 0.23), 0.6, 0.4],
 	"girder_dark": [Color(0.23, 0.24, 0.25), 0.6, 0.4],
 	"grate": [Color(0.18, 0.18, 0.2), 0.7, 0.4],
+	"booth_glass": [Color(0.3, 0.33, 0.36), 0.2, 0.3],
+	"booth_wall": [Color(0.6, 0.6, 0.59), 0.8, 0.0],
 	"curb_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"curb_start_out": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
 	"curb_cp_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
@@ -198,6 +200,7 @@ const TEXTURED := {
 	"circuit_floor": ["circuit_kerb", Vector2(16.0, 16.0), true],     # the lane-level blue strip
 	"circuit_bumper": ["circuit_bumper", Vector2(16.0, 2.0), false],  # the lane side's rubber, our name on it
 	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
+	"booth_wall": ["booth_wall", Vector2(0.5, 1.0), false],    # their room's wall (texgen/booth.py; 8 m, rows)
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"shoulder": ["road_shoulder", Vector2(8.0, 2.0), false],
@@ -258,9 +261,12 @@ const DETAIL := {
 
 ## Cut-out cards: the steel TMNF draws as alpha cards (girders, railings, catwalks), our own RGBA
 ## drawings (texgen/lattice.py), alpha-scissored and drawn from both sides, HD or not (a flat colour
-## would fill the holes): key -> [texture set, the colour its pixels average (no texture)]. Their
-## UVs are given in texture units (lattice cards: u along per its tile, v across 0..1).
+## would fill the holes): key -> [texture set, the colour its pixels average (no texture), and
+## optionally the UVs' scale and true to blend (glass) rather than cut]. Their UVs are given in
+## texture units (lattice cards: u along per its tile, v across 0..1).
 const CUTOUT := {
+	# the booths' windows (texgen/booth.py): a 2.2 m module, u 16 m a tile along the sweep (rows)
+	"booth_glass": ["booth_window", Color(0.3, 0.33, 0.36), Vector2(16.0 / 2.2, 1.0), true],
 	"lattice_x": ["lattice_xbrace", Color(0.91, 0.92, 0.93)],
 	"railing": ["lattice_railing", Color(0.2, 0.21, 0.23)],
 	"girder_dark": ["lattice_girder", Color(0.23, 0.24, 0.25)],
@@ -397,6 +403,10 @@ static func _cutout(spec: Array) -> Material:
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 	m.alpha_scissor_threshold = 0.5
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	if spec.size() > 2:
+		m.uv1_scale = Vector3((spec[2] as Vector2).x, (spec[2] as Vector2).y, 1.0)
+	if spec.size() > 3 and bool(spec[3]):
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	var albedo := _tex(String(spec[0]), "albedo")
 	if albedo == null:
