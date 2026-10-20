@@ -2562,3 +2562,9 @@ on every real contact the full impulse would land at the contact point and kick 
   stands' deck is light underneath (TMNF's Auvent). `material_check.py` now reads TMNF's alpha-cut
   textures (trusses, railings) as they show: the mean of their visible texels per region (it
   counted their transparent black ones too, reading them dark). Side by side with TMNF's block.
+- (M11-2) **The airship in TMNF's livery layout, our own names.** Its envelope is UV-mapped now
+  (u along it from the nose, v round it; `sculpt.gd _airship`, `_tube`'s uv_of) with our own
+  texture (`texgen/stadium.py airship_skin`): white gores, a yellow nose cap and a yellow band
+  along each upper flank, SPEEDFEST in black on each side with our emblem in red toward the nose
+  (TMNF's has its maker's name there), lettered to read upright from outside on both sides; the
+  tail fins red, the gondola white (it was all one beige). Side by side with TMNF's block.

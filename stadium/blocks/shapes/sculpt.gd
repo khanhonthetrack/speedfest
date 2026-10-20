@@ -69,8 +69,11 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var src: String = MIRRORED.get(shape, shape)
 	# mirrored pieces: x -> msum - x
 	var msum := 2.0 * float(MIRROR_X.get(shape, 16.0)) if MIRRORED.has(shape) else 0.0
-	for tube: Dictionary in lofts()[src]:
-		_tube(geo, tube, String(MATERIAL.get(src, "sculpt")), S_METAL, msum)
+	if src == "Other/Airship":
+		_airship(geo)
+	else:
+		for tube: Dictionary in lofts()[src]:
+			_tube(geo, tube, String(MATERIAL.get(src, "sculpt")), S_METAL, msum)
 	for part: String in PARTS:
 		for tube: Dictionary in lofts().get(src + part, []):
 			_tube(geo, tube, PARTS[part], S_METAL, msum)
@@ -90,11 +93,32 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	return geo.build()
 
 
+## The airship (TMNF's layout, our livery: texgen/stadium.py airship_skin): the envelope UV-mapped,
+## u along it from the nose, v round it from the top (ring point i of n); the gondola white, the
+## tail fins red (AIRSHIP_PARTS: the lofts' indices).
+const AIRSHIP_PARTS := {"envelope": 0, "gondola": [1, 9], "fins": [9, 13]}
+
+
+func _airship(geo: TmGeo) -> void:
+	var tubes: Array = lofts()["Other/Airship"]
+	var env: Dictionary = tubes[AIRSHIP_PARTS["envelope"]]
+	var rings: Array = env["rings"]
+	var z0 := float(rings[0][0])
+	var z1 := float(rings[rings.size() - 1][0])
+	var n := (rings[0][1] as Array).size() / 2
+	var uv := func(k: int, i: int) -> Vector2:
+		return Vector2((float(rings[k][0]) - z0) / (z1 - z0), float(i) / n)
+	_tube(geo, env, "airship", S_METAL, 0.0, uv)
+	for t in range(AIRSHIP_PARTS["gondola"][0], AIRSHIP_PARTS["gondola"][1]):
+		_tube(geo, tubes[t], "control_panel", S_METAL)
+	for t in range(AIRSHIP_PARTS["fins"][0], AIRSHIP_PARTS["fins"][1]):
+		_tube(geo, tubes[t], "airship_fin", S_METAL)
+
 ## One lofted tube: its rings joined ring to ring (horizontal rings up y, or rings across z for
 ## "axis": "z"); the start closed flat underneath (y) or drawn in to its base point (z); the end
 ## drawn up to its apex or closed flat at top_y. Faces are turned outward afterwards (by majority,
 ## the rings' winding is not relied on); msum > 0 mirrors: x -> msum - x.
-func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0) -> void:
+func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0, uv_of := Callable()) -> void:
 	var along_z := String(tube.get("axis", "y")) == "z"
 	var mx := func(p: Vector3) -> Vector3: return Vector3(msum - p.x, p.y, p.z) if msum > 0.0 else p
 	var rings := []
@@ -160,20 +184,29 @@ func _tube(geo: TmGeo, tube: Dictionary, mat: String, surface: int, msum := 0.0)
 			var nb: Vector3 = corner.call(qi, k + 1, i)
 			var nc: Vector3 = corner.call(qi, k + 1, j)
 			var nd: Vector3 = corner.call(qi, k, j)
+			var ua := Vector2.ZERO
+			var ub := Vector2.ZERO
+			var uc := Vector2.ZERO
+			var ud := Vector2.ZERO
+			if uv_of.is_valid():
+				ua = uv_of.call(k, i)
+				ub = uv_of.call(k + 1, i)
+				uc = uv_of.call(k + 1, i + 1)
+				ud = uv_of.call(k, i + 1)
 			if votes >= 0:
-				geo.tri(q[0], q[1], q[2], mat, surface, na, nb, nc)
-				geo.tri(q[0], q[2], q[3], mat, surface, na, nc, nd)
+				geo.tri(q[0], q[1], q[2], mat, surface, na, nb, nc, ua, ub, uc)
+				geo.tri(q[0], q[2], q[3], mat, surface, na, nc, nd, ua, uc, ud)
 			else:
-				geo.tri(q[3], q[2], q[1], mat, surface, nd, nc, nb)
-				geo.tri(q[3], q[1], q[0], mat, surface, nd, nb, na)
+				geo.tri(q[3], q[2], q[1], mat, surface, nd, nc, nb, ud, uc, ub)
+				geo.tri(q[3], q[1], q[0], mat, surface, nd, nb, na, ud, ub, ua)
 	var first: Array = rings[0]
 	var last: Array = rings[rings.size() - 1]
 	if along_z:
-		_fan(geo, first, mx.call(_vec(tube.get("base", []), _mean(first))), mat, surface)
+		_fan(geo, first, mx.call(_vec(tube.get("base", []), _mean(first))), mat, surface, uv_of, 0)
 	else:
 		geo.flat_polygon(_plan(first), float((first[0] as Vector3).y), mat, surface, true)
 	if tube.has("apex"):
-		_fan(geo, last, mx.call(_vec(tube["apex"], _mean(last))), mat, surface)
+		_fan(geo, last, mx.call(_vec(tube["apex"], _mean(last))), mat, surface, uv_of, rings.size() - 1)
 	else:
 		# a flat top: the last ring lifted to top_y
 		var ty := float(tube.get("top_y", (last[0] as Vector3).y))
@@ -242,16 +275,24 @@ static func _screen_uvs(tube: Dictionary, rings: Array, mat: String) -> Array:
 
 
 ## A ring drawn in to a point (a tube's tapering end), each triangle facing away from the ring.
-func _fan(geo: TmGeo, ring: Array, tip: Vector3, mat: String, surface: int) -> void:
+## A ring drawn in to a tip; with uv_of (the tube's UVs, ring k), the tip takes the ring's u.
+func _fan(geo: TmGeo, ring: Array, tip: Vector3, mat: String, surface: int, uv_of := Callable(), k := 0) -> void:
 	var c := _mean(ring)
 	for i in ring.size():
 		var p: Vector3 = ring[i]
 		var q: Vector3 = ring[(i + 1) % ring.size()]
 		var nrm := (q - p).cross(tip - p)
+		var up := Vector2.ZERO
+		var uq := Vector2.ZERO
+		var ut := Vector2.ZERO
+		if uv_of.is_valid():
+			up = uv_of.call(k, i)
+			uq = uv_of.call(k, i + 1)
+			ut = Vector2(up.x, (up.y + uq.y) * 0.5)
 		if nrm.dot((p + q + tip) / 3.0 - c) >= 0.0:
-			geo.tri(p, q, tip, mat, surface)
+			geo.tri(p, q, tip, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, up, uq, ut)
 		else:
-			geo.tri(p, tip, q, mat, surface)
+			geo.tri(p, tip, q, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, up, ut, uq)
 
 
 static func _mean(ring: Array) -> Vector3:

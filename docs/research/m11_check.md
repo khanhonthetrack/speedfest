@@ -63,3 +63,25 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
 - Inflatable decorations (M11-3): palm trees, snow trees and cacti rebuilt from TMNF's layout
   (`blob_slices.py`); collision fidelity cactus 94.6%, palm 82.4%, snow tree 84.7% (organic
   shapes against a 0.15 m test). Left: the castles (14-22%), the cushion structures' details.
+- Platforms: the decks' underside (plate, hub, column beams by open sides), the slopes' frame
+  (post, struts, trusses), the turbo deck's engine room (floor, four turbines, the TURBO rim), the
+  checkpoint arch and ring (panel faces, the CHECKPOINT band, the billboard's fall), the open ends
+  dark, the ramp onto the road with green shoulders. BaseAir: missing 766 -> 123 m2; 2StraightAir
+  differ 1211 -> 197 m2; Turbo missing 2820 -> 814 m2.
+- Roads: FreeWheeling pads, the start / finish roads (RoadRace's layout) and the gate line (the
+  blue band; `TmGeo.split_mat`), the gates' word bands (FINISH white on red), the turbo gantry
+  (turbines, railing, TURBO curbs), the tubes and pipe pillars (StadiumPillar), the dirt roads'
+  curbs at the road and the dirt checkpoint's bumpers.
+- Control: the glass booths (grey glass, a room, the roof), the pubs (2:1 boards, the base's kiosk,
+  frame, plinth), the camera lights (dark centre, floodlight bars), the camera galleries' rail.
+- Others: sculptures (concrete panels, smooth shading, atlas curbs), the grandstands' white truss
+  lattice, the airship's livery (our names in TMNF's layout).
+- The checker reads alpha-cut textures (trusses, railings) by their visible texels now.
+
+## Our tracks' blocks now (20 Oct)
+The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,472 m2: colour differs
+13.5%, missing 11.8%. Left, by area times our tracks' use: the grandstands' (Fabric) lattice and
+girders (StructureAlpha / StructureGeneric / AuventAlpha alpha cards: their catwalks, the main
+spine, the raised deck's lattice legs; missing 1,100-4,600 m2 a piece), the airship's gondola
+frame, the snow and palm trees (organic), the circuit border's blue shade, the camera lights'
+truss supports, the road gates' sign boards (left out: the owner's option B), the loops.
