@@ -612,3 +612,36 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
 - The game no longer returns to tonight. Chapter 10's last drive takes the same three roads as
   chapter 1, two years earlier, and only the road your decisions earned is open. The endings play on
   that first night: The Collection ("One."), Home, and Last Call. Confession is the 4th road.
+
+### User (verbatim)
+
+> But wait, but isnt it obvious when Saint steals identity of nico?
+
+### Claude
+
+- Yes, in two ways. People around him would notice: Clara, Ella, scars, habits. And players would
+  guess as soon as they hear "identical twin". Proposed six fixes:
+  1. Grief as his cover.
+  2. Clara half-knows and chooses not to see.
+  3. He copies Nico's burn scar.
+  4. "Twin" is hidden until chapter 9.
+  5. Every clue gets an innocent reading; the crusts and "sang it wrong" tells are cut.
+  6. A red herring: someone posts as Saint and a black car is seen at night, so the player hunts for Saint out there.
+
+### User (verbatim)
+
+> apply all of them
+
+### Claude
+
+- Applied all six in the Claude Doc and `docs/STORY.md`:
+  - **Grief:** the premise and cast say it; Clara says it in chapter 4.
+  - **Clara chooses not to see:** chapter 5's closing; in Last Call she has half-known for two years.
+  - **The scar:** in chapter 1 it is on his ring hand. In chapter 9 he burns his hand on the coupe's
+    exhaust. In chapter 10 the dead man has the old scar.
+  - **"Brother" in chapter 5, "twin" only in chapter 9.**
+  - **Innocent readings:** Lena coaches him to drive Saint's lines (chapter 7), and Clara blames
+    weight loss for the loose ring (chapter 4). The earliest clues contradict these explanations, as
+    fair play: Big Joe's line comes a year before the coaching, and the ring is loose the morning after.
+  - **Red herring:** forum posts signed SAINT (chapter 1) and the "ghost" car (chapter 6). In
+    chapter 7 Lena admits the posts are hers.
