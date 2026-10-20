@@ -6,6 +6,9 @@
   Findings in `docs/research/tmuf_feasibility.md`: the `stadium` research scripts open every TMUF
   pack, car tuning and replay unchanged. Island, Bay and Coast cars run the already-ported Model6;
   Desert, Rally and Snow need Model3. The bulk is six block libraries (1,254 types).
+- Then the owner gave a TMUF key: TMUF runs under Wine offline with it (launcher -> key -> bench ->
+  game; United campaign opened, IslandA1 loading) until the session's permission check blocked
+  driving the game further. The key is not in the repo (redacted in TRANSCRIPT); never commit it.
 - Nothing started: waiting for the owner's go. If it comes, branch from `stadium` (that's where
   the remake, its docs and `tools/research/tmnf/` live), not from `main`.
 

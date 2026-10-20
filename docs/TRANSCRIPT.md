@@ -525,3 +525,19 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   function (Model3). The new work is mainly six block libraries (1,254 block types, 4x Stadium's)
   and their looks. Suggested going physics first, then one environment per release on `stadium`.
   Waiting for the owner's go before starting.
+
+### User (20 Oct; verbatim except the key, which is a licence credential and is not stored in the repo)
+
+> use this key to run [TMUF CD key, redacted] check
+
+### Claude
+
+- Ran TMUF under Wine 9.0 (32-bit prefix in a scratch directory, network cut with `unshare -n`,
+  as M10-5 ran TMNF). The game sends you to the launcher for the key. The launcher took it offline
+  (only its update check failed, for lack of network), ran its video bench and started the game.
+  With "Stay offline" and a local profile, the main menu, Play Solo > United (Race, Platform,
+  Stunts, Puzzle) and the White series opened. StadiumA1, IslandA1 and DesertA1 were unlocked
+  (the rest padlocked by campaign progress, as in TMNF), and IslandA1 reached its loading screen.
+- Stopped there: the session's permission check blocked the next step (driving the game on). The
+  game was closed. The key lives only in that scratch Wine prefix, which is never committed.
+  Asked the owner how to proceed.

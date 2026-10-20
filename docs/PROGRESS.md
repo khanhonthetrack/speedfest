@@ -892,3 +892,9 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   (screenshots under Wine), not to read its packs.
 - Waiting for the owner's go. Suggested order: data-driven `TmTuning` + Model6 cars, Model3, then
   one environment per release on `stadium`.
+- Same day, owner gave a TMUF key ("use this key to run ... check"; key redacted in TRANSCRIPT).
+  TMUF runs under Wine 9.0 offline (`unshare -n`): the launcher's key dialog
+  (`TmForeverLauncher.exe`, five fields) accepts it without network, then its video bench, then
+  the game. With a local profile, Play Solo > United opened, IslandA1 loaded. Then the session's
+  permission check blocked further driving of the game; the game was stopped and the owner asked.
+  Screenshots and the prefix (which holds the key) stay in the scratch directory, never committed.

@@ -87,3 +87,15 @@ so `ghost_fit` / `ghost_compare` can check each new car the way M10-3 checked St
    checked against their StarTrack and United replays; then port Model3 for Desert, Rally and Snow.
 2. Then one environment per release on top of `stadium`: Coast, Island, Bay (cars already
    working), then Desert, Rally, Snow (after Model3 and the TMED block reader).
+
+## Running TMUF for reference (20 Oct, with the owner's key)
+Wine 9.0 (Ubuntu 24.04: `dpkg --add-architecture i386`, `wine wine32:i386`, Mesa i386), a 32-bit
+prefix, Xvfb at 1280x720, network cut with `unshare -n` (start wineserver inside it too, since Wine's
+server creates the sockets). `TmForever.exe` alone says "Please register your player key with the
+game launcher". `TmForeverLauncher.exe` asks for the key in five fields and takes it offline
+(its update check fails without network; OK). It then benchmarks the video card and starts the
+game. Answer "Network check" with Ok (Cancel quits the game), then "Stay offline" and a local
+profile. Play Solo > United lists Race / Platform / Stunts / Puzzle, and White shows StadiumA1,
+IslandA1, DesertA1 unlocked. IslandA1 loads. Xdotool clicks reach the game's own menus; Wine's
+message boxes take keys (Return) more reliably than clicks. The key is stored only in the prefix
+(`Documents/TrackMania/Config`); never commit the prefix or its frames.
