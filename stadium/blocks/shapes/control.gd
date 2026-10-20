@@ -52,10 +52,18 @@ const GLASS_GROUND_HALF := [
 ]
 ## The glass booth's room (measured, TMNF's ControlInterior): its back wall, ceiling and floor as
 ## blocks (x0, x1 from the block edge, y0, y1, key; and the key of the face toward the glass: the
-## wall's our concrete panels with a dark opening, booth_wall, its rows top to bottom).
+## wall's dark openings between light columns, booth_wall, its rows top to bottom). A y given as
+## [at x0, at x1] slopes: the ceiling, a thin plate rising from the back wall's top to the glass's.
 const GLASS_ROOM := [
-	[7.34, 8.0, 2.0, 6.0, "stands_top", "booth_wall"], [3.3, 7.34, 6.0, 7.2, "control_under"],
+	[7.34, 8.0, 2.0, 6.0, "stands_top", "booth_wall"], [3.11, 7.34, [7.11, 5.9], [7.21, 6.0], "control_under"],
 	[3.6, 7.34, 1.9, 2.0, "control_panel"],
+]
+## The ground pavilion's room is split in four (TMNF's): thin walls from the back wall to the glass
+## (TMNF x, z of the glass end, of the back end), double-sided light concrete, the room's height.
+const GLASS_PARTITIONS := [
+	[Vector2(4.0, 16.0), Vector2(7.34, 16.0)], [Vector2(28.0, 16.0), Vector2(24.66, 16.0)],
+	[Vector2(16.0, 27.98), Vector2(15.15, 24.61)], [Vector2(16.0, 27.98), Vector2(16.85, 24.61)],
+	[Vector2(16.0, 4.02), Vector2(15.15, 7.39)], [Vector2(16.0, 4.02), Vector2(16.85, 7.39)],
 ]
 ## The ledge along the walls (x0, x1, y0, y1); on the ground, the plinth's rail: TMNF's open
 ## railing 1 m high (its top bar, and a cut-out railing card under it: _rails).
@@ -190,6 +198,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 				_camera_base(geo)
 			else:
 				_revolve(geo, Vector3(16, 0, 16), 0.0, TAU, 32)
+				if ground:
+					_partitions(geo)
 		"Deadend":
 			_along(geo, Vector3(16, 0, 16), Vector3(16, 0, 32))
 			# the half round toward -z: radial directions from +x through -z to -x
@@ -332,12 +342,36 @@ func _rooms(mirror: bool) -> Array:
 		return out
 	for r: Array in GLASS_ROOM:
 		var sec := []
-		for p in [[r[0], r[2]], [r[1], r[2]], [r[1], r[3]], [r[0], r[3]]]:
+		for p in _room_corners(r):
 			sec.append([Vector2((16.0 - float(p[0])) if mirror else (float(p[0]) - 16.0), maxf(float(p[1]), _floor)),
 				String(r[4]), TmGeo.NO_COLLISION])
 		_room_face(sec, r)
 		out.append(sec)
 	return out
+
+
+## A room block's corners (x from the block edge, y): its foot at x0, x1, its top at x1, x0 (a y
+## given as [at x0, at x1] slopes; GLASS_ROOM).
+static func _room_corners(r: Array) -> Array:
+	var y := func(v: Variant, i: int) -> float: return float(v[i]) if v is Array else float(v)
+	return [[r[0], y.call(r[2], 0)], [r[1], y.call(r[2], 1)], [r[1], y.call(r[3], 1)], [r[0], y.call(r[3], 0)]]
+
+
+## The ground pavilion's partitions (GLASS_PARTITIONS): from the floor at the glass end up to the
+## glass's top (further out) and down the back wall's height, seen from both sides.
+func _partitions(geo: TmGeo) -> void:
+	var back: Array = GLASS_ROOM[0]
+	var top: Array = GLASS_GROUND_HALF[9]     # the glass's top (x from the edge, y)
+	for w: Array in GLASS_PARTITIONS:
+		var g: Vector2 = w[0]
+		var b: Vector2 = w[1]
+		var t := Vector2(16, 16) + (g - Vector2(16, 16)).normalized() * (16.0 - float(top[0]))
+		var pts := [Vector3(g.x, back[2], g.y), Vector3(t.x, top[1], t.y), Vector3(b.x, back[3], b.y),
+			Vector3(b.x, back[2], b.y)]
+		for k in 2:
+			for f: Array in [[0, 1, 2], [2, 3, 0]]:
+				var i: Array = f if k == 0 else [f[0], f[2], f[1]]
+				geo.tri(pts[i[0]], pts[i[1]], pts[i[2]], "stands_top", TmGeo.NO_COLLISION)
 
 
 ## A room block's section: its face toward the glass (from its top corner down) the block's own key.
@@ -436,7 +470,7 @@ func _revolve(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int, half: Ar
 		_rails(geo, path, lat, [16.0 - float(_ledge[0])])
 	for r: Array in (GLASS_ROOM if _glass else []):
 		var room := []
-		for p in [[r[0], r[2]], [r[1], r[2]], [r[1], r[3]], [r[0], r[3]]]:
+		for p in _room_corners(r):
 			room.append([Vector2(16.0 - float(p[0]), maxf(float(p[1]), _floor)), String(r[4]), TmGeo.NO_COLLISION])
 		_room_face(room, r)
 		geo.wall_sweep(room, path, lat, false)

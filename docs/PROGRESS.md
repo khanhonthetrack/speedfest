@@ -2727,3 +2727,13 @@ on every real contact the full impulse would land at the contact point and kick 
   (radius 1.81 m at the rim's outer edge, 0.8 m less per metre in). The border atlas' rows read as
   TMNF's v runs (up). The 20 shapes agree 100% with TMNF's collision (`test_block_fidelity`);
   colour differs on 4% (our adverts on the pillar bands, the parts hidden in the collar).
+- (M11-2) **The glass booth's room as TMNF's** (`control.gd` GLASS_ROOM, GLASS_PARTITIONS,
+  `_partitions`; `texgen/booth.py booth_wall`). The road-side glass pavilion is our tracks' most
+  used control piece (814). Seen through its glass, ours showed the room's ceiling as a 1.2 m
+  flat slab whose sunlit front read as a bright band, and a light concrete back wall; TMNF's
+  ceiling is a thin plate rising from the back wall's top (6 m) to the glass's top (7.21 m), its
+  back wall reads dark, and the ground pavilion's room is split by four light partitions (two
+  across x, a V at each z end). Ours now: the sloping ceiling (GLASS_ROOM takes [y at x0, y at
+  x1]), the partitions from TMNF's measured ends, the back wall redrawn dark (two openings into the
+  gloom between light columns every 4 m: gallery rails, consoles, our blue cabinet). The colour
+  check's missing area on the piece 280 -> 1 m2.

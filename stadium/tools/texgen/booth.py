@@ -39,30 +39,38 @@ def booth_window(name='booth_window', w=256, h=512, seed=511):
 
 
 def booth_wall(name='booth_wall', w=1024, h=512, seed=513):
-    """The room behind the windows, its wall facing them: 8 m (u) by 4 m (v, top at row 0): light
-    concrete panels 2 m wide between dark joints, a dark opening into the back rooms in the middle
-    (a rail, consoles and a cabinet in our colours in the gloom), a skirting at the floor."""
+    """The room behind the windows, its wall facing them: 8 m (u) by 4 m (v, top at row 0), dark
+    as TMNF's room reads through its glass: a light concrete column every 4 m, between them an
+    opening into the gloom of the back rooms (a gallery's rails, consoles, a cabinet in our blue in
+    every other one), a skirting at the floor."""
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     fine = fbm(w, h, seed, beta=1.0, lo=20.0)
     mott = fbm(w, h, seed + 1, beta=2.2, lo=2.0, hi=24.0)
     col = srgb((168, 168, 164))[None, None, :] * (1.0 + 0.05 * fine + 0.06 * mott)[..., None]
-    joints = np.zeros((h, w), np.float32)
-    for k in range(5):
-        x = k * w / 4
-        joints = np.maximum(joints, rect_mask(w, h, x - 3, -10, x + 3, h + 10, 0.8))
-    joints = np.maximum(joints, rect_mask(w, h, -10, 0.5 * h - 2, w + 10, 0.5 * h + 2, 0.8))
+    joints = rect_mask(w, h, -10, 0.5 * h - 2, w + 10, 0.5 * h + 2, 0.8)
     col = lerp(col, srgb((92, 92, 90))[None, None, :] * np.ones((h, w, 1)), joints * 0.8)
-    x0, x1, y0, y1 = 0.36 * w, 0.64 * w, 0.18 * h, 0.9 * h
-    hole = rect_mask(w, h, x0, y0, x1, y1, 1.0)
-    inside = srgb((26, 28, 32))[None, None, :] * (1.0 + 0.3 * (yy - y0) / (y1 - y0))[..., None]
+    hole = np.zeros((h, w), np.float32)
+    frame = np.zeros((h, w), np.float32)
+    y0, y1 = 0.06 * h, 0.94 * h
+    for k in range(2):
+        x0, x1 = (k + 0.09) * w / 2, (k + 0.91) * w / 2
+        hole = np.maximum(hole, rect_mask(w, h, x0, y0, x1, y1, 1.0))
+        frame = np.maximum(frame, rect_mask(w, h, x0 - 6, y0 - 6, x1 + 6, y1 + 6, 1.0))
+    frame = np.clip(frame - hole, 0, 1)
+    inside = srgb((26, 28, 32))[None, None, :] * (1.0 + 0.3 * (yy - y0) / (y1 - y0) + 0.08 * mott)[..., None]
     col = lerp(col, inside, hole)
-    rail = rect_mask(w, h, x0, 0.62 * h, x1, 0.64 * h, 0.8) + rect_mask(w, h, x0, 0.2 * h, x1, 0.22 * h, 0.8)
-    consoles = rect_mask(w, h, x0 + 0.02 * w, 0.72 * h, x1 - 0.02 * w, 0.9 * h, 0.8)
-    cabinet = rect_mask(w, h, 0.47 * w, 0.42 * h, 0.53 * w, 0.9 * h, 0.8)
-    col = lerp(col, srgb((70, 72, 78))[None, None, :] * np.ones((h, w, 1)), np.clip(rail, 0, 1) * hole)
+    rail = rect_mask(w, h, -10, 0.30 * h, w + 10, 0.32 * h, 0.8) + rect_mask(w, h, -10, 0.58 * h, w + 10, 0.60 * h, 0.8)
+    posts = np.zeros((h, w), np.float32)
+    for k in range(8):
+        x = (k + 0.5) * w / 8
+        posts = np.maximum(posts, rect_mask(w, h, x - 3, 0.30 * h, x + 3, 0.60 * h, 0.8))
+    consoles = np.zeros((h, w), np.float32)
+    for k in range(2):
+        consoles = np.maximum(consoles, rect_mask(w, h, (k + 0.14) * w / 2, 0.74 * h, (k + 0.86) * w / 2, 0.92 * h, 0.8))
+    cabinet = rect_mask(w, h, 0.22 * w, 0.40 * h, 0.28 * w, 0.92 * h, 0.8)
+    col = lerp(col, srgb((70, 72, 78))[None, None, :] * np.ones((h, w, 1)), np.clip(rail + posts, 0, 1) * hole)
     col = lerp(col, srgb((52, 54, 60))[None, None, :] * np.ones((h, w, 1)), consoles * hole)
     col = lerp(col, srgb((44, 86, 170))[None, None, :] * np.ones((h, w, 1)), cabinet * hole)
-    frame = np.clip(rect_mask(w, h, x0 - 8, y0 - 8, x1 + 8, y1 + 8, 1.0) - hole, 0, 1)
     col = lerp(col, srgb((120, 120, 118))[None, None, :] * np.ones((h, w, 1)), frame)
     skirt = rect_mask(w, h, -10, 0.95 * h, w + 10, h + 10, 0.8)
     col = lerp(col, srgb((60, 60, 62))[None, None, :] * np.ones((h, w, 1)), skirt)

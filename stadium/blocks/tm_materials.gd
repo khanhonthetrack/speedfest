@@ -135,7 +135,7 @@ const COLORS := {
 	"grate": [Color(0.18, 0.18, 0.2), 0.7, 0.4],
 	"booth_glass": [Color(0.3, 0.33, 0.36), 0.2, 0.3],
 	"roof_glass": [Color(0.28, 0.33, 0.35), 0.2, 0.3],
-	"booth_wall": [Color(0.6, 0.6, 0.59), 0.8, 0.0],
+	"booth_wall": [Color(0.26, 0.27, 0.29), 0.8, 0.0],
 	"curb_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"curb_start_out": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
 	"curb_cp_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],

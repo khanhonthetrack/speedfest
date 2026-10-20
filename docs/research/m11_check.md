@@ -125,6 +125,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   differs 4.2% (our adverts on the pillars' bands; TMNF's column hidden in the collar). The border
   atlas' rows on them read TMNF's v upward (material_check's convention): row = (1 - v) x 512.
 
+- The glass booth's room (20 Oct): the sloping ceiling, the ground pavilion's partitions, the back
+  wall dark (BaseGround missing 280 -> 1 m2). Sample TMNF's colours inside triangles, not at
+  vertices: its ceiling's vertices sit on dark texels, its face is light (182).
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the
