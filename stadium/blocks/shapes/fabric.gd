@@ -56,8 +56,12 @@ const STANDS := [[45.88, 1.0, "stands_front", S_ROAD], [47.08, 1.2, "stands_fron
 	[57.48, 7.42, "stands_dark", S_STANDS], [58.03, 4.21, "stands_dark", S_STANDS], [58.41, 1.0, "stands_dark", S_STANDS]]
 
 
-## The low rubber lip along the shell's foot, on the ground (measured).
-const LIP := [[59.706, 1.0, "rubber", S_RUBBER], [59.706, 1.841, "rubber", S_RUBBER], [60.043, 1.841, "structure", S_ROAD],
+## The low rubber lip along the shell's foot, on the ground (measured; its top TMNF's orange).
+## The stands' quarter-pipe fronts (STANDS, PILLAR_STANDS: their first FRONT_SEGMENTS segments)
+## have an orange strip FRONT_STRIP wide at each end, as TMNF's.
+const FRONT_SEGMENTS := 8
+const FRONT_STRIP := 0.4
+const LIP := [[59.706, 1.0, "rubber", S_RUBBER], [59.706, 1.841, "fabric_orange", S_RUBBER], [60.043, 1.841, "structure", S_ROAD],
 	[60.943, 1.542, "structure", S_ROAD], [60.971, 1.519, "structure", S_ROAD], [60.971, 1.0, "structure", S_ROAD]]
 ## The raised grandstand (FabricStraight1x1Air): its own, shorter shell standing on a deck at 8 m
 ## (top surface down from the foot, then the underside), the deck (x, y0, y1) and the one wall
@@ -107,15 +111,18 @@ const RAIL_H := 1.04
 const LIGHT_Z := [Vector2(0.51, 7.07), Vector2(24.92, 31.48)]
 const LIGHT_FRAME_Z := [Vector2(0.12, 7.45), Vector2(24.54, 31.86)]
 ## Under a raised grandstand: on the ground, a one-cell stands block (quarter-pipe front, seats at
-## 8 m, the roof's fabric foot behind, the big screen on its back: x0, x1, y0, y1, z0, z1); higher
-## up, the fabric wall carrying the roof down (x0, x1) with a post in the middle (x0, x1, z0, z1).
+## 8 m, the roof's fabric foot behind, the big screen on its back in a dark frame: PILLAR_SCREEN the
+## screen's x, y0, y1, z0, z1, PILLAR_SCREEN_FRAME the frame's x0, x1, y0, y1, z0, z1; TMNF's
+## colours: its back wall white, its top edges and back foot grey, its ends dark); higher up, the
+## fabric wall carrying the roof down (x0, x1) with a post in the middle (x0, x1, z0, z1).
 const PILLAR_STANDS := [[10.85, 1.0, "stands_front", S_ROAD], [12.04, 1.2, "stands_front", S_ROAD], [13.19, 1.56, "stands_front", S_ROAD],
 	[14.25, 2.15, "stands_front", S_ROAD], [15.18, 2.93, "stands_front", S_ROAD], [15.94, 3.9, "stands_front", S_ROAD],
-	[16.5, 4.99, "stands_front", S_ROAD], [16.85, 6.18, "stands_front", S_ROAD], [16.97, 7.16, "stands_dark", S_ROAD],
-	[17.0, 7.7, "stands_dark", S_ROAD], [17.9, 8.0, "stands_top", S_STANDS], [26.56, 8.0, "stands_dark", S_ROAD],
-	[26.56, 7.16, "fabric", S_ROAD], [26.94, 7.16, "fabric", S_ROAD], [26.94, 1.83, "stands_dark", S_ROAD],
-	[27.76, 1.52, "stands_dark", S_ROAD], [27.76, 1.0, "stands_dark", S_ROAD]]
-const PILLAR_SCREEN := [26.94, 27.44, 1.84, 6.07, 2.11, 30.18]
+	[16.5, 4.99, "stands_front", S_ROAD], [16.85, 6.18, "stands_front", S_ROAD], [16.97, 7.16, "stands_top", S_ROAD],
+	[17.0, 7.7, "stands_top", S_ROAD], [17.9, 8.0, "stands_top", S_STANDS], [26.56, 8.0, "stands_top", S_ROAD],
+	[26.56, 7.16, "fabric_auvent", S_ROAD], [26.94, 7.16, "fabric_auvent", S_ROAD], [26.94, 1.83, "stands_top", S_ROAD],
+	[27.76, 1.52, "stands_top", S_ROAD], [27.76, 1.0, "stands_dark", S_ROAD]]
+const PILLAR_SCREEN := [27.44, 2.32, 5.59, 2.11, 30.18]
+const PILLAR_SCREEN_FRAME := [26.91, 27.44, 1.84, 6.07, 1.7, 30.59]
 const PILLAR_WALL := [25.725, 26.107]
 const PILLAR_WALL_Z := [0.29, 31.7]
 const PILLAR_H := 24.0
@@ -183,7 +190,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	match shape:
 		"Fabric/FabricStraight1x1":
 			_extrude(geo, SHELL)
-			_extrude(geo, STANDS)
+			_extrude(geo, STANDS, "stands_dark")
+			_front_strips(geo, STANDS)
 			_extrude(geo, LIP)
 			_trusses(geo, SHELL)
 			_boards(geo, BOARDS)
@@ -197,9 +205,14 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 				"stands_top", S_STANDS)
 			_air_base(geo)
 		"Fabric/FabricPillarGround":
-			_extrude(geo, PILLAR_STANDS)
+			_extrude(geo, PILLAR_STANDS, "stands_dark")
+			_front_strips(geo, PILLAR_STANDS)
+			var f: Array = PILLAR_SCREEN_FRAME
+			geo.box(Vector3(f[0], f[2], f[4]), Vector3(f[1], f[3], f[5]), "stands_dark", S_METAL)
 			var s: Array = PILLAR_SCREEN
-			geo.screen_box(Vector3(s[0], s[2], s[4]), Vector3(s[1], s[3], s[5]), "screen", S_METAL, 0.03)
+			var sx: float = float(s[0]) + 0.01
+			geo.screen_rect(Vector3(sx, s[1], s[3]), Vector3(sx, s[1], s[4]), Vector3(sx, s[2], s[4]), Vector3(sx, s[2], s[3]), "screen",
+				TmGeo.NO_COLLISION, 0, Vector3(1, 0, 0))
 		"Fabric/FabricPillarAir":
 			_pillar_air(geo)
 		"Fabric/FabricCross1x1":
@@ -597,7 +610,25 @@ func _truss(geo: TmGeo, under: Array, z: float, half: float, d_foot: float, d_to
 	return bots
 
 
-func _extrude(geo: TmGeo, table: Array) -> void:
+func _extrude(geo: TmGeo, table: Array, cap := "structure") -> void:
 	var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(0, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true,
-		"structure", S_METAL)
+		cap, S_METAL)
+
+
+## The orange strips at each end of a stands' quarter-pipe front (FRONT_SEGMENTS, FRONT_STRIP),
+## just proud of it.
+func _front_strips(geo: TmGeo, table: Array) -> void:
+	for k in FRONT_SEGMENTS:
+		var a := Vector2(table[k][0], table[k][1])
+		var b := Vector2(table[k + 1][0], table[k + 1][1])
+		var d := (b - a).normalized()
+		var n := Vector2(-d.y, d.x) * 0.01        # outward (the front faces the field)
+		for z: Vector2 in [Vector2(0.0, FRONT_STRIP), Vector2(32.0 - FRONT_STRIP, 32.0)]:
+			var p := [Vector3(a.x + n.x, a.y + n.y, z.x), Vector3(b.x + n.x, b.y + n.y, z.x), Vector3(b.x + n.x, b.y + n.y, z.y),
+				Vector3(a.x + n.x, a.y + n.y, z.y)]
+			var out := Vector3(n.x, n.y, 0.0)
+			if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+				geo.quad(p[0], p[3], p[2], p[1], "fabric_orange", TmGeo.NO_COLLISION)
+			else:
+				geo.quad(p[0], p[1], p[2], p[3], "fabric_orange", TmGeo.NO_COLLISION)

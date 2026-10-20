@@ -79,7 +79,7 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
 - The grandstands' steel (TMNF's alpha-card lattices): cut-out cards (`TmMaterials.CUTOUT`,
   `texgen/lattice.py`); the raised straight's open base, the roofs' spine, catwalks, floodlights
   and railings, the raised pillar's tower (Fabric missing 9,727 -> 4,874 m2 on the four pieces our
-  tracks use). Left: the corners' raised base, the ground pillar's orange end strips.
+  tracks use). Left: the corners' raised base.
 - The platform checkpoint is TMNF's: the road gate resized on the deck, the set-back edge under
   its feet, the CHECKPOINT rim (the turbo deck's TURBO rim mirrored as TMNF's). Left: the high
   dirt checkpoint's side rails and posts, the turbo deck's advert band, the platform billboard's
@@ -111,11 +111,13 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   faces TMNF's slotted plates (`texgen/lattice.py plate`). The dump read cut-out materials as white
   (fixed in `tests/block_dump.gd`): their "colour differs" before then was the tool's.
 
+- The ground grandstands' orange strips (quarter-pipe ends, the lip's top), dark ends, the pillar
+  piece's white back with its framed screen (20 Oct). TMNF's FabricFloorNoOcc there is grass.
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the
 grandstands' (Fabric) lattice TMNF draws as flat cards (missing 1,500-1,900 m2 on each straight;
 ours are tubes there), the platform road's underside details (road_under against TMNF's detail
-atlas, 214 m2), the airship's livery (its name and logos are ours), the ground pillar's orange end
-strips, the snow and palm trees (organic), the circuit border's blue shade, the turbo deck, the
+atlas, 214 m2), the airship's livery (its name and logos are ours), the snow and palm trees (organic), the circuit border's blue shade, the turbo deck, the
 road gates' sign boards (left out: the owner's option B), the loops.

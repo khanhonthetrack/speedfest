@@ -2678,4 +2678,11 @@ on every real contact the full impulse would land at the contact point and kick 
   76 shapes' colour differences are 10.5% of TMNF's area (13.5% before this round), missing 7.5%
   (11.8%). Side by side with TMNF's blocks, Forward+ and Compatibility. Left: the round base's
   railing ring and panels (not on our tracks).
+- (M11-2) **The ground grandstands' orange strips and the pillar's back as TMNF's** (`fabric.gd`;
+  FabricStraight1x1 332 uses, FabricPillarGround 390). The quarter-pipe fronts get TMNF's orange
+  strips (0.4 m) at both ends and the straight's foot lip its orange top; the stands' ends are
+  dark (TMNF's Stands2); the pillar's back is TMNF's: a white wall, its big screen smaller and set
+  in a dark frame (ours filled the frame and stood out of the wall), its top edges and back foot
+  grey. (TMNF's "floor" in front of these pieces is grass, our terrain's.) Side by side with
+  TMNF's blocks.
 

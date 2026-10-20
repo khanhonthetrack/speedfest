@@ -38,6 +38,7 @@ const COLORS := {
 	"border_ribs": [Color8(36, 35, 31), 0.9, 0.0],
 	"border_black": [Color8(16, 15, 15), 0.85, 0.0],
 	"border_orange": [Color8(190, 99, 8), 0.6, 0.0],
+	"fabric_orange": [Color8(201, 108, 8), 0.6, 0.0],     # the grandstands' orange strips (TMNF's FabricBorderRubber)
 	"border_green": [Color8(58, 128, 66), 0.65, 0.0],
 	"road_under": [Color8(141, 136, 133), 0.6, 0.3],      # the road keel's underside (TMNF's light plates)
 	"road_grid": [Color8(80, 79, 78), 0.5, 0.6],         # the road shoulder's grid (TMNF's RoadGrid)
