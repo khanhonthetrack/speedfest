@@ -2779,3 +2779,9 @@ on every real contact the full impulse would land at the contact point and kick 
   the arrows. Its turbines' catwalks now have railings (our cut-out railing cards, solid to the
   car) where we had dark glass panels, and their fans nine dark blades over a dark inside (we had
   four light ones).
+- (M11-2) **The sculptures' plinth pads and the snow trees' snow as TMNF's** (`TmMaterials`
+  plinth_pad, `inflatable.gd` SNOW_TREE). The sculptures' corner pads are TMNF's white fabric
+  (ours were mid grey; their curbs already wear TMNF's rows: the lighter look in its renders is
+  its specular). Sampling TMNF's snow tree across its faces by height: the snow lies on each
+  tier's slope above its green rim (the first tier's from 1.95 to 2.7 m), not on the rim as ours
+  had it; moved there (four tiers, the top cone all snow as before).

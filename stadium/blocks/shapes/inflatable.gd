@@ -173,15 +173,17 @@ const SNOW_TREES := [
 	[Vector2(20.6, 15.65), Vector2(19.95, 15.05), 1.33, 12.59], [Vector2(13.7, 24.55), Vector2(14.6, 24.55), 1.16, 10.4],
 ]
 ## A snow tree's outline (r, y) for one 1.15 -> 10.5 m high (scaled to each), from the bottom centre
-## out and up to the tip, each segment's colour: four tiers with snow on their tops just above the
-## rim, the top cone all snow (measured where TMNF's texture is light). The radii are the mean
-## round the tree; each tier's rim hangs in eight branches reaching out by the lobe depth (of the
-## radius; measured: the widest against the mean), the tiers' branches staggered (phase).
+## out and up to the tip, each segment's colour: four tiers, the snow on each tier's slope above its
+## green rim (on the first from 1.95 to 2.5 m), the top cone all snow (measured where TMNF's texture
+## is light, sampled across its faces). The radii are the mean round the tree; each tier's rim hangs
+## in eight branches reaching out by the lobe depth (of the radius; measured: the widest against the
+## mean), the tiers' branches staggered (phase).
 const SNOW_TREE := [
-	[0.0, 1.15, "infl_tree", 0.0, 0.0], [2.9, 1.15, "infl_tree", 0.1, 0.0], [3.45, 1.6, "infl_snow", 0.26, 0.0],
-	[3.4, 1.95, "infl_tree", 0.22, 0.0], [3.0, 2.5, "infl_tree", 0.15, 0.0], [2.6, 3.05, "infl_tree", 0.12, 0.39],
-	[2.65, 3.45, "infl_snow", 0.24, 0.39], [2.5, 3.8, "infl_tree", 0.26, 0.39], [2.3, 4.4, "infl_tree", 0.15, 0.39],
-	[2.0, 4.95, "infl_tree", 0.12, 0.0], [2.15, 5.45, "infl_snow", 0.3, 0.0], [2.0, 6.0, "infl_tree", 0.2, 0.0],
+	[0.0, 1.15, "infl_tree", 0.0, 0.0], [2.9, 1.15, "infl_tree", 0.1, 0.0], [3.45, 1.6, "infl_tree", 0.26, 0.0],
+	[3.4, 1.95, "infl_snow", 0.22, 0.0], [3.0, 2.5, "infl_tree", 0.15, 0.0], [2.6, 3.05, "infl_tree", 0.12, 0.39],
+	[2.65, 3.45, "infl_tree", 0.24, 0.39], [2.5, 3.8, "infl_snow", 0.26, 0.39], [2.3, 4.4, "infl_snow", 0.15, 0.39],
+	[2.2, 4.62, "infl_tree", 0.14, 0.39], [2.0, 4.95, "infl_tree", 0.12, 0.0], [2.15, 5.45, "infl_tree", 0.3, 0.0],
+	[2.0, 6.0, "infl_snow", 0.2, 0.0], [1.7, 6.55, "infl_tree", 0.14, 0.0],
 	[1.6, 6.75, "infl_tree", 0.12, 0.39], [1.55, 7.3, "infl_snow", 0.4, 0.39], [1.35, 7.9, "infl_snow", 0.25, 0.39],
 	[1.1, 8.5, "infl_snow", 0.17, 0.0], [0.8, 9.1, "infl_snow", 0.2, 0.0], [0.54, 9.7, "infl_snow", 0.2, 0.0],
 	[0.23, 10.3, "infl_snow", 0.0, 0.0], [0.0, 10.5, "", 0.0, 0.0],

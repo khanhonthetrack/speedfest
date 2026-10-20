@@ -51,7 +51,7 @@ const COLORS := {
 	"stands_dark": [Color8(35, 36, 37), 0.75, 0.2],
 	"control_under": [Color8(179, 181, 181), 0.7, 0.1],  # the camera lights' undersides (TMNF's Auvent)
 	"booth_rim": [Color8(138, 144, 150), 0.75, 0.0],     # the ground booths' plinth rim (TMNF's, measured)
-	"plinth_pad": [Color8(176, 170, 166), 0.75, 0.0],    # the sculptures' plinth pads (TMNF's light panel)
+	"plinth_pad": [Color8(226, 224, 222), 0.75, 0.0],    # the sculptures' plinth pads (TMNF's white fabric, light panel)
 	"pillar": [Color8(182, 183, 179), 0.8, 0.0],         # the road's pillars (TMNF's light concrete)
 	"circuit_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
