@@ -1,5 +1,26 @@
 # HANDOFF: start here
 
+## Latest (20 Oct, session 15, cloud): a city around the Stadium (M12); the Stadium game is PC-only
+- Owner: "I dont do browser anymore. Only pc with high graphics card": the Stadium game targets
+  Forward+ on a strong PC; the web build and the Compatibility renderer are no longer constraints
+  for new work (old code paths for them stay until someone removes them on purpose).
+- Owner: "put tall, ultrarealistic buildings": **M12** (PLAN.md). `env/tm_tower.gd` builds a
+  skyscraper from a spec; `env/tm_skyline.gd` lays out a city on the plain below the Stadium's edge
+  (fixed seed: everyone sees the same city): supertall landmarks behind both grandstands (their
+  tops clear the roofs from the field), downtowns past the terraces, blocks of lower glass and
+  masonry buildings, a street grid in a shader. Added by `TmStage.add_environment` on 32 x 32 maps
+  (`--city=false` leaves it out); game cameras' far plane is `TmSkyline.FAR` (9 km). Builds in
+  ~0.5 s; ~140 towers, ~700 meshes, ~165k triangles; no shadows (too far for them).
+  Look: `stadium/tools/run.sh res://race/map_view.tscn -- --view=path:0.15 --frames=20 --shot=/abs.png`
+  (a driver's view on A01), `--view=at:900,160,900,1940,120,700` (a downtown from the air),
+  `res://env/tower_lab.tscn -- --view=street|mid|far|top` (five towers on a plaza).
+- Owner (20 Oct, not answered yet): "I want to be able to load all canyon/lagoon maps somehow."
+  Their block lists already read; the blocks' geometry doesn't exist. Options put to the owner:
+  approximate them from our pieces, recreate from the owner's own TM2 install locally, or a
+  preview only. Wait for the answer.
+- The TMX Stadium track run (`compat_run.py tracks`, 20,256 tracks) is resumable: rerun the same
+  command; results go to `stadium/tools/compat/results/tmx_tracks.tsv` when it finishes.
+
 ## Latest (19 Oct, session 15, cloud): session 15 merged with v0.5 and into `stadium` (no release yet)
 - Owner: "Why cant i see the community tab in the 0.5 version?" (v0.5 was tagged from `stadium`,
   which didn't have session 15's branch), then "Yes, do both - dont release yet": merge v0.5 into

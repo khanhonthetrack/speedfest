@@ -256,8 +256,22 @@ outside the repo (`stadium/tools/compat/`).
       server `lib/community.js` for browsers; `tests/test_community`)
 - [x] 7. Texture mods (owner, 20 Oct): every ManiaPark mod opens (TMNF/TMUF and ManiaPlanet, any
       environment); Stadium mods are worn by our blocks (`blocks/tm_texture_mod.gd`, MOD_MAP)
-- [ ] 8. The whole catalogue checked: mods (`compat_run.py mods`), TMNF/TMUF cars and skins
-      (`compat_run.py cars`); a large TMX Stadium sample (TMNF-X + TMUF-X)
+- [ ] 8. The whole catalogue checked: mods (`compat_run.py mods`: done, 890), TMNF/TMUF cars and
+      skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
+      Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
+
+### M12 — Our own city around the Stadium (owner, session 15, 2026-10-20) ☐
+"Can you create new assets to the game? Not recreating anymore but actually put tall,
+ultrarealistic buildings (godot or blender)?" and "I dont do browser anymore. Only pc with high
+graphics card": new assets of our own (not TMNF's), for Forward+ on a strong PC only.
+- [x] 1. Skyscrapers in code (`env/tm_tower.gd`, `env/tm_tower.gdshader`): footprints, setbacks,
+      podium lobbies, crowns, plant, masts, aviation lights; curtain-wall glass with rooms behind
+      every window (interior mapping), masonry walls with punched or ribbon windows
+- [x] 2. The city around the Stadium (`env/tm_skyline.gd`, `env/tm_city_ground.gdshader`): districts
+      of towers whose tops clear the stands, landmarks behind the grandstands, blocks of lower
+      buildings, a street grid; cameras see 9 km (`TmSkyline.FAR`); `tests/test_skyline` (gate)
+- [ ] 3. The owner's look at it; then maybe: night lights, towers in our own tracks' scenery, a
+      setting to turn the city off on weaker PCs
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

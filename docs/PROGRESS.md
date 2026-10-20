@@ -2571,3 +2571,40 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   server's content tests (+1).
 - The car run: a pack shipping an empty (0-byte) Diffuse.dds loads and paints the player's colour;
   the car test no longer counts that file as one that doesn't decode.
+
+## 2026-10-20 — session 15 (cloud): a city around the Stadium (M12); PC only
+
+- Owner: "Can you create new assets to the game? Not recreating anymore but actually put tall,
+  ultrarealistic buildings (godot or blender)?" and "I dont do browser anymore. Only pc with high
+  graphics card". Built in Godot, in code (no binary assets), for Forward+.
+- `env/tm_tower.gd` (`TmTower`): a skyscraper from a spec: footprint (rect, chamfer, rounded,
+  octagon, circle), tiers set back as they rise, a podium with a lobby (granite piers, clear
+  glass), a crown (parapet, spire, slanted top, glass ring), roof plant, a mast and a blinking
+  aviation light. Meshes from plain arrays (`TmTower.Builder`); materials shared where they can be.
+- `env/tm_tower.gdshader`: the curtain wall: mullions, transoms, fins, spandrels, coated glass
+  (fresnel, panes tilting a hair so reflections break at them) and a room behind every window
+  traced into a box (interior mapping: back wall, doors, desks, carpet, ceiling panels lit in some
+  rooms, blinds part way down). Far off a cell fades to its average (no shimmer) and the room
+  isn't traced. Its frame comes from the normal and the view's up (no tangents needed). Masonry
+  (`TmTower.masonry`: stone, brick, concrete, white) is the same shader with wide non-metal
+  piers: punched or ribbon windows. A darker foot where buildings meet the street (AO).
+- `env/tm_skyline.gd` (`TmSkyline`): the city on the plain below the Stadium's edge (100 m under
+  the field), 5.2 km around, 150 m blocks and 26 m streets: eight districts (downtowns past both
+  terraces, clusters behind the grandstands and at the corners) whose towers are 6-8.5 times as
+  tall as wide; eight landmarks (540-820 m) snapped to blocks behind the grandstands and at the
+  downtowns' hearts, tall enough that their tops clear the grandstand roofs from the field; a
+  tower stands off its block's centre with lower wings on the block's free sides; other blocks
+  have four lots of glass or masonry buildings (parapets, setbacks), their height from the
+  district; a few parks. Lower buildings are merged per style and sector (12 sectors, so whole
+  sectors are culled), each building its own rooms (its walls' u offset) and shade (vertex
+  colour). One layout for everyone (fixed seed).
+- `env/tm_city_ground.gdshader`: the ground's street grid from the position: asphalt with dashed
+  centre lines, pavements, plazas; averaged far off; at the rim it gives way to the plain.
+- `race/tm_stage.gd` adds the city on 32 x 32 maps (`--city=false` leaves it out); the game's
+  cameras (`car/tm_camera.gd`, replay, spectator, map view, editor) see `TmSkyline.FAR` = 9 km.
+- Numbers: builds in ~0.5 s (headless); ~140 towers, ~700 meshes, ~165k triangles; no shadows
+  (the city is beyond the sun's shadow range from anywhere on the field).
+- `tests/test_skyline` (in the gate): the build and its budget, nothing on the Stadium (no wall
+  inside its edge), the landmarks clear the roofs from the field's far side, a tower's parts,
+  materials and height, masonry, the cameras' reach. `env/tower_lab.tscn`: five towers on a plaza
+  (`--view=street|mid|far|top`).

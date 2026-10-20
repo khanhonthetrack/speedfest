@@ -68,7 +68,13 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-19 (session 15: v0.5 merged with the community work, on `stadium`; no release since v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-20 (session 15: v0.5 merged with the community work, on `stadium`; no release since v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **PC only (owner, 20 Oct: "I dont do browser anymore. Only pc with high graphics card"):** new
+  work targets Forward+ on a strong graphics card; the web build is no longer a constraint.
+- **A city around the Stadium (PLAN M12, 20 Oct):** our own skyscrapers (`env/tm_tower.gd`: glass
+  with rooms behind the windows, masonry, crowns, lights) in a city on the plain below the
+  Stadium's edge (`env/tm_skyline.gd`, added on 32 x 32 maps, `--city=false` to leave it out);
+  cameras see `TmSkyline.FAR` (9 km); `tests/test_skyline`.
 - **Community content (session 15, PLAN M11; in `stadium` since 19 Oct, after v0.5, not released yet):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a

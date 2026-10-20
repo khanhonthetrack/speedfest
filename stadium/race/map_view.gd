@@ -68,7 +68,7 @@ func _cars() -> void:
 
 func _camera() -> void:
 	var cam := Camera3D.new()
-	cam.far = 4000.0
+	cam.far = TmSkyline.FAR
 	add_child(cam)
 	var view := String(TestHooks.arg("view", "overview"))
 	if view.begins_with("at:"):

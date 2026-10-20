@@ -97,9 +97,9 @@ static func field_probe(builder: TmMapBuilder) -> ReflectionProbe:
 	return probe
 
 
-## Sun and sky (TmStadiumEnv) and, around a 32 x 32 map, the Stadium (TmStadiumBuild); around maps
-## of other sizes plain grass from the map's edge to the horizon (the map's own ground is built
-## with it by TmMapBuilder).
+## Sun and sky (TmStadiumEnv) and, around a 32 x 32 map, the Stadium (TmStadiumBuild) and the city
+## around it (TmSkyline; not with --city=false); around maps of other sizes plain grass from the
+## map's edge to the horizon (the map's own ground is built with it by TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	TmStadiumEnv.add(parent)
 	TmOcclusion.add(parent, builder)
@@ -113,6 +113,10 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 				parent.add_child(ref)
 				return
 		parent.add_child(TmStadiumBuild.build())
+		if String(TestHooks.arg("city", "true")) != "false":
+			var city := TmSkyline.build()
+			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, TmStadiumBuild.BOTTOM, 0.0)
+			parent.add_child(city)
 		return
 	var w := float(builder.challenge.size.x) * 32.0
 	var d := float(builder.challenge.size.z) * 32.0

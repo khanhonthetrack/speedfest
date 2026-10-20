@@ -980,3 +980,20 @@ owns: GitHub can't hold it, so a folder on the owner's PC filled by the resumabl
 
 Then, interrupting (verbatim):
 > look at texture mods from: https://maniapark.com/search/mods?q=game%3Amaniaplanet Can you open or make sure they open in the game? (which may not be stadium!)
+
+Owner, later in session 15 (verbatim, 20 Oct):
+> dont download cars. no need. I want to be able to load all canyon/lagoon maps somehow.
+
+(Car downloads stopped. Canyon/Lagoon maps already read (block lists); their blocks' geometry is
+missing; options offered: approximate from our pieces, recreate from the owner's TM2 install,
+or preview only. Not answered yet.)
+
+> Can you create new assets to the game? Not recreating anymore but actually put tall, ultrarealistic buildings (godot or blender)?
+
+(Answered yes: our own procedural towers, interior-mapped glass, reflections; asked where: a
+skyline around the Stadium, pieces in our tracks, or both; recommended the skyline first.)
+
+> I dont do browser anymore. Only pc with high graphics card
+
+(Owner decision: the Stadium game targets the PC with a strong graphics card only (Forward+);
+the web build / Compatibility renderer is no longer a constraint. Started with the skyline.)
