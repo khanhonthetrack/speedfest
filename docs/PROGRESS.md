@@ -2562,3 +2562,12 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
 - A worn mod's `Moods/StadiumFXClouds` becomes the sky's cloud layer (`env/tm_stadium_env.gd`).
 - Downloads four at a time from ManiaPark, two from TMX (`compat_run.py`); 404s and Nadeo packs
   are recorded with their reason.
+- The TMX run (20,256 Stadium tracks: TMNF-X's most awarded, downloaded, newest, oldest, each type
+  and tag; TMUF-X's Stadium ones, whose filter is `environment=6` for its Environment 7) found two
+  reader gaps, fixed in the game (`gbx/gbx_stream.gd`, `gbx/tm_challenge.gd`) and the server
+  (`lib/gbx.js`): a string id of -2 (0xFFFFFFFE, some editors' "unassigned", in the vehicle ident)
+  reads as empty like -1; TrackMania PowerUp's block list (chunk 0x03043013: no version, the
+  oldest block layout, 16-bit flags) is read like 0x0304301F. Tests: `test_gbx` (+1), the
+  server's content tests (+1).
+- The car run: a pack shipping an empty (0-byte) Diffuse.dds loads and paints the player's colour;
+  the car test no longer counts that file as one that doesn't decode.

@@ -104,7 +104,8 @@ def catalogue(work, kind):
 
 def godot_test(kind, batch, results):
     extra = ["--build"] if kind == "tracks" else []
-    cmd = [os.path.join(STADIUM, "tools", "run.sh"), TESTS[kind], "--headless", "--timeout", "7000", "--",
+    # (on Windows the script runs through Git Bash's bash)
+    cmd = (["bash"] if os.name == "nt" else []) + [os.path.join(STADIUM, "tools", "run.sh"), TESTS[kind], "--headless", "--timeout", "7000", "--",
            f"--dir={batch}", f"--index={os.path.join(batch, 'index.json')}", f"--results={results}"] + extra
     if os.path.exists(results):
         os.remove(results)
@@ -126,14 +127,18 @@ def run(kind, work, batch_size, keep, limit):
         todo = todo[:limit]
     print(f"{kind}: {len(items)} listed, {len(results)} done, {len(todo)} to do")
     batch = os.path.join(work, "batch")
-    for start in range(0, len(todo), batch_size):
-        chunk = todo[start:start + batch_size]
+    chunks = [todo[i:i + batch_size] for i in range(0, len(todo), batch_size)]
+    # four downloads at a time (ManiaPark serves each at a few MB/s); the next batch downloads
+    # while the game tests this one
+    pool = concurrent.futures.ThreadPoolExecutor(4)
+    fetch = lambda chunk: [pool.submit(get, f"{SITE}/{it['word']}/{it['id']}/download") for it in chunk]
+    pending = fetch(chunks[0]) if chunks else []
+    for n, chunk in enumerate(chunks):
+        fetched = [f.result() for f in pending]
+        pending = fetch(chunks[n + 1]) if n + 1 < len(chunks) else []
         shutil.rmtree(batch, ignore_errors=True)
         os.makedirs(batch)
         index, meta = {}, {}
-        # four downloads at a time (ManiaPark serves each at a few MB/s)
-        with concurrent.futures.ThreadPoolExecutor(4) as pool:
-            fetched = list(pool.map(lambda it: get(f"{SITE}/{it['word']}/{it['id']}/download"), chunk))
         for it, (raw, ctype) in zip(chunk, fetched):
             m = {"id": it["id"], "name": it["name"], "author": it["author"], "kind": it["label"], "game": it["label"],
                  "bytes": len(raw) if raw else 0, "sha256": hashlib.sha256(raw).hexdigest() if raw else ""}
@@ -171,6 +176,7 @@ def run(kind, work, batch_size, keep, limit):
             json.dump(results, f, indent=0)
         bad = sum(1 for r in results.values() if not r.get("ok"))
         print(f"{kind}: {len(results)}/{len(items)} done, {bad} not ok")
+    pool.shutdown()
     write_tsv(kind, work)
 
 

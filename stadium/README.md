@@ -147,6 +147,23 @@ executable (no installer needed: unzip and run) with `PLAYING.txt` and the credi
   Mods for environments the game doesn't have (Canyon, Valley, Lagoon, Storm; Island, Bay, Coast,
   Desert, Rally, Snow) open and show their textures, and say so. `--mod=<zip>` wears one for a run.
 
+## Check ManiaPark and TrackMania Exchange (and keep your own copy)
+`tools/compat/compat_run.py` runs ManiaPark's whole catalogue and a large TrackMania Exchange sample
+through the game, a batch at a time: it downloads a batch, has the game open each item (the
+compatibility tests), records the outcome and deletes the files, so it never needs much disk. The
+outcomes are in `tools/compat/results/` (ids, names, authors, checksums, what the game made of each);
+the files themselves never go in this repository (they are their authors' works, and the cars
+alone are ~70 GB). To keep a copy for yourself, give `--keep=<a folder of yours>`: each tested
+batch is moved there instead of deleted. On the Windows PC (Git Bash, `export PATH=/c/dev/bin:$PATH`
+for Godot):
+
+    python -I stadium/tools/compat/compat_run.py mods   C:/dev/community/work --keep=C:/dev/community/mods
+    python -I stadium/tools/compat/compat_run.py cars   C:/dev/community/work --keep=C:/dev/community/cars
+    python -I stadium/tools/compat/compat_run.py tracks C:/dev/community/work --keep=C:/dev/community/tracks
+
+Re-running continues where it stopped (the work folder remembers what is done); the folders in
+`--keep` are plain zips and `.Challenge.Gbx` files the game opens (Community, OPEN A TRACK FILE).
+
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with
 `tools/research/tmnf/setup_measurements.sh` (never committed).

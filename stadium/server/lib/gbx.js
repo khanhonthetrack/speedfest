@@ -55,7 +55,7 @@ class Stream {
       this.idsStarted = true;
     }
     const v = this.u32();
-    if (v === 0xFFFFFFFF) return '';
+    if (v === 0xFFFFFFFF || v === 0xFFFFFFFE) return '';   // unassigned (some editors write -2)
     if ((v & 0xC0000000) !== 0 && (v & 0x3FFFFFFF) === 0) {
       const s = this.string();
       this.ids.push(s);
@@ -172,7 +172,7 @@ function nodeBody(c, b, node) {
       continue;
     }
     if (!chunk(c, b, cid, node)) return;
-    if (cid === 0x0304301F) {
+    if (cid === 0x0304301F || cid === 0x03043013) {
       // the rest of the body (media clips, ...) isn't needed, but TMUnlimiter's chunks say how to read the blocks
       // a TMUnlimiter 2 track: its block list is a placeholder (the name says it needs TMUnlimiter) and
       // the blocks are in Unlimiter's chunks (older Unlimiter tracks keep TMNF's list: TMNF loads them)
@@ -208,6 +208,7 @@ function chunk(c, b, cid, node) {
       break;
     }
     case 0x0304301F: blocks(c, b); break;
+    case 0x03043013: blocks(c, b, true); break;   // TrackMania PowerUp's block list: no version, the oldest layout
     default:
       b.fail(`unknown chunk ${cid.toString(16).toUpperCase().padStart(8, '0')}`);
       return false;
@@ -215,7 +216,7 @@ function chunk(c, b, cid, node) {
   return true;
 }
 
-function blocks(c, b) {
+function blocks(c, b, legacy = false) {
   const id = b.ident();
   if (!c.uid) c.uid = id[0];
   const n2 = b.string();
@@ -223,7 +224,7 @@ function blocks(c, b) {
   b.ident();
   c.size = [b.u32(), b.u32(), b.u32()];
   b.u32();
-  const ver = b.u32();
+  const ver = legacy ? 0 : b.u32();
   b.u32(); // block count (free blocks are listed too)
   while (b.ok() && b.remaining() >= 4 && (b.peekU32() & 0xC0000000) !== 0) {
     const name = b.lookback();
@@ -281,4 +282,4 @@ function writeChallenge({ uid = 'TestUid000000000000000000', name = 'Test', auth
   return Buffer.concat([...head, bodyBuf]);
 }
 
-module.exports = { readChallenge, writeChallenge, CLASS_CHALLENGE };
+module.exports = { readChallenge, writeChallenge, CLASS_CHALLENGE, Stream };

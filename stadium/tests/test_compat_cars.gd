@@ -87,14 +87,16 @@ func _check(file: String) -> void:
 		_counts["triangles"] += pack.solid.triangle_count()
 		if pack.solid._text:
 			_counts["text_format"] += 1
-	# every texture the pack ships decodes (a skin without its own Diffuse paints the player's colour)
+	# every texture the pack ships decodes (a skin without its own Diffuse paints the player's colour;
+	# a file the pack ships empty, 0 bytes, holds no image to decode: it counts as not there)
 	var zip := ZIPReader.new()
 	var missing: Array = []
 	if zip.open(file) == OK:
 		for f in zip.get_files():
 			var low := f.get_file().to_lower()
 			for t in ["diffuse", "details", "illum"]:
-				if low.get_basename() == t and low.get_extension() in TmCarPack.TEXTURE_EXT and not pack.textures.has(t):
+				if low.get_basename() == t and low.get_extension() in TmCarPack.TEXTURE_EXT and not pack.textures.has(t) \
+						and not zip.read_file(f).is_empty():
 					missing.append(f.get_file())
 		zip.close()
 	if missing.is_empty():

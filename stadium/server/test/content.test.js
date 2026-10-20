@@ -257,3 +257,14 @@ test('real TrackMania Exchange tracks (TMX_DIR)', { skip: !process.env.TMX_DIR }
   for (const m of modded) console.log(`  modded ${m}`);
   assert.deepStrictEqual(fails, []);
 });
+
+test('gbx: a string id of -2 (0xFFFFFFFE, some editors\' unassigned) reads as empty, as -1 does', () => {
+  const ids = Buffer.alloc(16);
+  ids.writeUInt32LE(3, 0);               // the lookback version
+  ids.writeUInt32LE(0xFFFFFFFE, 4);
+  ids.writeUInt32LE(0xFFFFFFFF, 8);
+  ids.writeUInt32LE(0xFFFFFFFE, 12);
+  const s = new gbx.Stream(ids);
+  assert.deepStrictEqual([s.lookback(), s.lookback(), s.lookback()], ['', '', '']);
+  assert.strictEqual(s.error || '', '');
+});
