@@ -111,11 +111,15 @@ const RAMP_THIN := 20.5
 const RAMP_STRUT := [Vector3(10.38, 6.77, 3.87), Vector3(15.52, -0.3, 16.0)]
 const RAMP_STRUT_W := 1.1
 const RAMP_STRUT_T := 0.205
-## Turbo booster pods (measured): the outline (z, radius) about the axis at y TURBO_POD_Y (x 2
-## and 30), closed on the axis; the fins over them (z, y), TURBO_FIN_HALF either side of the axis.
+## Turbo booster pods (measured): the outline (z, radius, key of the segment from it) about the axis
+## at y TURBO_POD_Y (x 2 and 30), closed on the axis; as TMNF's jet turbines, a fan in the intake
+## (grey disc, dark blades), the cowl light, the body dark; the fins over them (z, y),
+## TURBO_FIN_HALF either side of the axis.
 const TURBO_POD_Y := 4.854
-const TURBO_POD := [[7.633, 0.0], [7.633, 1.53], [7.723, 1.78], [8.569, 1.946], [10.152, 1.97], [10.666, 1.72],
-	[14.21, 1.72], [14.299, 1.822], [14.403, 1.97], [17.446, 1.97], [17.656, 1.70], [17.656, 0.0]]
+const TURBO_POD := [[7.633, 0.0, "road_grid"], [7.633, 1.53, "road_under"], [7.723, 1.78, "road_under"],
+	[8.569, 1.946, "road_under"], [10.152, 1.97, "platform_tray"], [10.666, 1.72, "platform_tray"],
+	[14.21, 1.72, "platform_tray"], [14.299, 1.822, "platform_tray"], [14.403, 1.97, "road_metal"],
+	[17.446, 1.97, "platform_tray"], [17.656, 1.70, "road_metal"], [17.656, 0.0, "road_metal"]]
 ## The tray over each pod: its line (z, y), TURBO_FIN_HALF either side of the pod's axis; the side
 ## panels reach this far below and above it.
 const TURBO_FIN_HALF := 0.802
@@ -258,6 +262,8 @@ var _green_shoulders := false      ## the shoulders the border's green band in t
 var _road_surf := S_ROAD
 var _gate_kind := "cp"            ## the gate's kind for this shape (TmGateDress.kind_of)
 var _curb_mat := "curb_face"      ## the curbs' face towards the road (a gate block's: its word)
+## The curb face's atlas rows, top to bottom (HALF_TOP), where a turbo's TURBO sign is spread.
+const CURB_ROWS := Vector2(216.1, 300.0)
 var _gates: Array[float] = []     ## where this shape's gates stand (z), dressed after building
 
 
@@ -356,6 +362,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_curve(geo, k, ground)
 	elif rest.begins_with("Turbo/") or rest.begins_with("FreeWheeling/"):
 		_road_mat = "turbo" if rest.begins_with("Turbo/") else "freewheel"
+		if rest.begins_with("Turbo/"):
+			_curb_mat = "turbo_rim"
 		_road_surf = S_TURBO if rest.begins_with("Turbo/") else S_FREEWHEEL
 		# Up/Down/Left/Right: the flat pad sheared like the checkpoint of that slope or tilt
 		# (measured: the pad's plane), the air section on the ground too
@@ -422,6 +430,10 @@ func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
 	if key == "curb_face":
 		if _curb_mat == "curb_face":
 			key = "border_black"
+		elif _curb_mat == "turbo_rim":
+			# TMNF's TURBO sign down the curb's face (its rows spread over the face's)
+			key = "turbo_rim"
+			rows = (rows - Vector2(CURB_ROWS.x, CURB_ROWS.x)) * (512.0 / (CURB_ROWS.y - CURB_ROWS.x))
 		else:
 			key = _curb_mat
 			rows = Vector2(-1, -1)
@@ -1106,16 +1118,18 @@ func _turbo_gate(geo: TmGeo) -> void:
 
 
 ## The turbo gate's sides, over each curb: a booster pod (a collar round the fan, a slimmer body
-## through the frame, a cap behind it) and on it a grid tray between two thin translucent panels,
+## through the frame, a cap behind it) and on it a grid tray between two thin dark see-through
+## panels (TMNF's railing),
 ## level over the pod and the frame, then down to the curb. On a road sheared by (kx, kz, dy) each
 ## side keeps its shape: lifted with the road at its axis, sheared only along the slope, the tray's
 ## level part never dipping toward the front (measured on the sloped and tilted pads).
 func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
-	var pod := TURBO_POD.map(func(q: Array) -> Array: return [q[0], q[1], "structure", 22])
+	var pod := TURBO_POD.map(func(q: Array) -> Array: return [q[0], q[1], q[2], 22])
 	for x: float in [2.0, 30.0]:
 		var side := TmGeo.new()
 		var lift := kx * x + dy
 		side.revolve_z(pod, Vector2(x, TURBO_POD_Y + lift), 0.0, 360.0, 36, false)
+		side.fan(Vector3(x, TURBO_POD_Y + lift, float(TURBO_POD[0][0]) - 0.03), 0.35, 1.45, 0.3, "platform_tray")
 		var tray := []
 		for q: Vector2 in TURBO_TRAY:
 			tray.append(Vector2(q.x, q.y + lift))
@@ -1130,13 +1144,13 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 			side.quad(Vector3(x0, a.y, a.x), Vector3(x0, b.y, b.x), Vector3(x1, b.y, b.x), Vector3(x1, a.y, a.x), "grid", S_METAL)
 			for px: float in [x0, x1]:
 				side.quad(Vector3(px, a.y - lo, a.x), Vector3(px, b.y - lo, b.x), Vector3(px, b.y + hi, b.x),
-					Vector3(px, a.y + hi, a.x), "glass", S_METAL)
+					Vector3(px, a.y + hi, a.x), "glass_dark", S_METAL)
 		var f: Vector2 = tray[0]
 		var e: Vector2 = tray[tray.size() - 1]
 		side.quad(Vector3(x0, f.y - lo, f.x), Vector3(x0, f.y + hi, f.x), Vector3(x1, f.y + hi, f.x),
-			Vector3(x1, f.y - lo, f.x), "glass", S_METAL)
+			Vector3(x1, f.y - lo, f.x), "glass_dark", S_METAL)
 		side.quad(Vector3(x0, e.y - lo, e.x), Vector3(x0, e.y, e.x), Vector3(x1, e.y, e.x), Vector3(x1, e.y - lo, e.x),
-			"glass", S_METAL)
+			"glass_dark", S_METAL)
 		side.shear_y(0.0, kz, 0.0)
 		geo.merge(side)
 

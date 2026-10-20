@@ -477,17 +477,7 @@ func _turbine(geo: TmGeo, c: Vector3) -> void:
 	geo.revolve_z(sec, Vector2(c.x, c.y), 0.0, 360.0, 16, false)
 	var hub := [[c.z - 0.45, 0.0, "road_metal", S_METAL], [c.z - 0.02, 0.45, "road_metal", S_METAL], [c.z - 0.02, 0.0, "road_metal", S_METAL]]
 	geo.revolve_z(hub, Vector2(c.x, c.y), 0.0, 360.0, 12, false)
-	for k in 4:
-		var a := deg_to_rad(45.0 + 90.0 * k)
-		var r := Vector3(cos(a), sin(a), 0.0)
-		var t := Vector3(-sin(a), cos(a), 0.0) * 0.32
-		var p0 := c + r * 0.4 + Vector3(0, 0, -0.03)
-		var p1 := c + r * 1.5 + Vector3(0, 0, -0.03)
-		var q := [p0 - t, p1 - t, p1 + t, p0 + t]
-		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).z > 0.0:
-			geo.quad(q[0], q[3], q[2], q[1], "platform_tray", TmGeo.NO_COLLISION)
-		else:
-			geo.quad(q[0], q[1], q[2], q[3], "platform_tray", TmGeo.NO_COLLISION)
+	geo.fan(c + Vector3(0, 0, -0.03), 0.4, 1.5, 0.32, "platform_tray")
 
 
 ## The grid wall's plan (x across, depth) swept round an arc in the y-z plane about c = (y, z) from

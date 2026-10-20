@@ -2544,3 +2544,8 @@ on every real contact the full impulse would land at the contact point and kick 
   smooth across a surface and sharp at its edges (`sculpt.gd SMOOTH_DEG`; they showed every
   facet), and the plinth's double curbs are TMNF's border atlas bands (rows measured), not white
   rubber. Side by side with TMNF's blocks.
+- (M11-2) **The road turbo's gantry as TMNF's.** Its booster pods are TMNF's jet turbines now (a
+  fan of four dark blades in the intake, the cowl light, the body dark; `TmGeo.fan`, shared with
+  the platform turbo's), the walkway's side panels dark see-through (TMNF's railing; ours were
+  light-blue glass), and the curbs' face carries TMNF's TURBO sign (our turbo_rim spread over the
+  face's rows; `road.gd CURB_ROWS`). Side by side with TMNF's block.

@@ -90,6 +90,21 @@ func quad_uv(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surfac
 	tri(a, c, d, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
 
 
+## A fan's blades in a disc facing -z at c (TMNF's turbines): `blades` flat blades from radius r0
+## to r1, half_w wide, the first at 45 degrees; visual only.
+func fan(c: Vector3, r0: float, r1: float, half_w: float, mat: String, blades := 4) -> void:
+	for k in blades:
+		var a := deg_to_rad(45.0 + 360.0 * k / blades)
+		var r := Vector3(cos(a), sin(a), 0.0)
+		var t := Vector3(-sin(a), cos(a), 0.0) * half_w
+		var p0 := c + r * r0
+		var p1 := c + r * r1
+		var q := [p0 - t, p1 - t, p1 + t, p0 + t]
+		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).z > 0.0:
+			quad(q[0], q[3], q[2], q[1], mat, NO_COLLISION)
+		else:
+			quad(q[0], q[1], q[2], q[3], mat, NO_COLLISION)
+
 ## Re-maps the UVs of every face of a material made so far: f(p) -> UV, p in TMNF block-local
 ## coordinates (for textures laid out across a whole piece, e.g. the turbo pads').
 func remap_uv(mat: String, f: Callable) -> void:
