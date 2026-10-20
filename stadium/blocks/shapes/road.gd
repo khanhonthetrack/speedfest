@@ -1339,6 +1339,133 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 		geo.merge(side)
 
 
+## TMNF's keel under a junction in the air: in each quarter of the block the road's keel section
+## (HALF_AIR and its mirror across the centre line: the plates, the dark middle strip, the far
+## plates rising again; the step up to the shoulder at SHOULDER) by the distance from the quarter's
+## corner, revolved round it, where both its sides are open (between four such corners the middle
+## a diamond with hollow sides); where one is closed, by the distance from that side, straight. A
+## dark face closes the step where a straight quarter meets a revolved one. Facing down.
+func _junction_keel(geo: TmGeo, closed: Array) -> void:
+	var ribs: Vector2 = HALF_AIR[0][4]          # the middle strip's rows, at its middle to its edge
+	var x_plate := float(HALF_AIR[1][0])         # the strip's edge (14.339)
+	var x_mid := float(HALF_AIR[2][0])
+	# the profile out from the shoulder: [distance, y, key of the segment from it, rows]
+	var prof := [[SHOULDER, float(HALF_AIR[3][1]), "road_under"], [x_mid, float(HALF_AIR[2][1]), "road_under"],
+		[x_plate, 0.0, "border_ribs", Vector2(ribs.y, ribs.x)], [16.0, 0.0, "border_ribs", ribs],
+		[32.0 - x_plate, 0.0, "road_under"], [32.0 - x_mid, float(HALF_AIR[2][1]), "road_under"], [32.0 - SHOULDER, float(HALF_AIR[3][1]), ""]]
+	var y_at := func(r: float) -> float:
+		for e in prof.size() - 1:
+			var a: Array = prof[e]
+			var b: Array = prof[e + 1]
+			if r <= float(b[0]) or e == prof.size() - 2:
+				return lerpf(float(a[1]), float(b[1]), clampf((r - float(a[0])) / (float(b[0]) - float(a[0])), 0.0, 1.0))
+		return 0.0
+	var step_rows: Vector2 = HALF_AIR[3][4]
+	# (which way a quad faces from its diagonals: a clipped ring's quads may be triangles)
+	var face := func(a: Vector3, b: Vector3, c: Vector3, d: Vector3, key: String, uv: Array, out: Vector3) -> void:
+		if (c - a).cross(d - b).dot(out) >= 0.0:
+			geo.quad_uv(a, b, c, d, key, S_METAL, uv[0], uv[1], uv[2], uv[3])
+		else:
+			geo.quad_uv(a, d, c, b, key, S_METAL, uv[0], uv[3], uv[2], uv[1])
+	# a segment's UVs at (along, distance) corners: the plates 8 x 4 m a tile, the strip the atlas
+	var seg_uv := func(e: int, s0: float, s1: float, r0: float, r1: float) -> Array:
+		var seg: Array = prof[e]
+		if String(seg[2]) == "border_ribs":
+			var rows: Vector2 = seg[3]
+			var span := float(prof[e + 1][0]) - float(seg[0])
+			var v0 := lerpf(rows.x, rows.y, (r0 - float(seg[0])) / span) / 512.0
+			var v1 := lerpf(rows.x, rows.y, (r1 - float(seg[0])) / span) / 512.0
+			return [Vector2(s0 / 16.0, v0), Vector2(s1 / 16.0, v0), Vector2(s1 / 16.0, v1), Vector2(s0 / 16.0, v1)]
+		return [Vector2(s0 / 8.0, (16.0 - r0) / 4.0), Vector2(s1 / 8.0, (16.0 - r0) / 4.0), Vector2(s1 / 8.0, (16.0 - r1) / 4.0),
+			Vector2(s0 / 8.0, (16.0 - r1) / 4.0)]
+	var step_uv := func(s0: float, s1: float) -> Array:
+		return [Vector2(s0 / 16.0, step_rows.x / 512.0), Vector2(s1 / 16.0, step_rows.x / 512.0),
+			Vector2(s1 / 16.0, step_rows.y / 512.0), Vector2(s0 / 16.0, step_rows.y / 512.0)]
+	var top := 1.243                             # the shoulder's underside (HALF_AIR)
+	# the quarters: corner, its sides (SIDES indices: the one at the corner's x, the one at its z)
+	for q: Array in [[Vector2(0, 0), 1, 2], [Vector2(32, 0), 3, 2], [Vector2(32, 32), 3, 0], [Vector2(0, 32), 1, 0]]:
+		var cq: Vector2 = q[0]
+		var sx := 1.0 if cq.x == 0.0 else -1.0
+		var sz := 1.0 if cq.y == 0.0 else -1.0
+		var x_closed: bool = closed[q[1]]
+		var z_closed: bool = closed[q[2]]
+		if x_closed and z_closed:
+			continue
+		var at := func(d: Vector2) -> Vector3:
+			var p := cq + Vector2(sx * d.x, sz * d.y)
+			return Vector3(p.x, 0.0, p.y)
+		if not x_closed and not z_closed:
+			# revolved round the corner, each ring clipped to the quarter (x and z 16 from it)
+			var n := 16
+			for k in n:
+				var t0 := PI * 0.5 * k / n
+				var t1 := PI * 0.5 * (k + 1) / n
+				var d0 := Vector2(cos(t0), sin(t0))
+				var d1 := Vector2(cos(t1), sin(t1))
+				var lim0 := 16.0 / maxf(d0.x, d0.y)
+				var lim1 := 16.0 / maxf(d1.x, d1.y)
+				for e in prof.size() - 1:
+					var ra := float(prof[e][0])
+					var rb := float(prof[e + 1][0])
+					var a0 := minf(ra, lim0)
+					var b0 := minf(rb, lim0)
+					var a1 := minf(ra, lim1)
+					var b1 := minf(rb, lim1)
+					if b0 - a0 < 1e-4 and b1 - a1 < 1e-4:
+						continue
+					var p0: Vector3 = at.call(d0 * a0)
+					var p1: Vector3 = at.call(d1 * a1)
+					var p2: Vector3 = at.call(d1 * b1)
+					var p3: Vector3 = at.call(d0 * b0)
+					p0.y = y_at.call(a0)
+					p1.y = y_at.call(a1)
+					p2.y = y_at.call(b1)
+					p3.y = y_at.call(b0)
+					var uv: Array = seg_uv.call(e, ra * t0, ra * t1, ra, rb)
+					face.call(p0, p1, p2, p3, String(prof[e][2]), uv, Vector3.DOWN)
+				# the step up to the shoulder's underside, facing the corner
+				var s0: Vector3 = at.call(d0 * SHOULDER)
+				var s1: Vector3 = at.call(d1 * SHOULDER)
+				var yk := float(prof[0][1])
+				face.call(Vector3(s0.x, yk, s0.z), Vector3(s1.x, yk, s1.z), Vector3(s1.x, top, s1.z), Vector3(s0.x, top, s0.z),
+					"border_ribs", step_uv.call(SHOULDER * t0, SHOULDER * t1), Vector3(cq.x, 0, cq.y) - (s0 + s1) * 0.5)
+			continue
+		# straight from the closed side: d across the quarter from it, l along it (0..16)
+		var pt := func(d: float, l: float) -> Vector3: return at.call(Vector2(d, l) if x_closed else Vector2(l, d))
+		var away := Vector3(sx, 0, 0) if x_closed else Vector3(0, 0, sz)
+		for e in 3:
+			var ra := float(prof[e][0])
+			var rb := float(prof[e + 1][0])
+			var ya := float(prof[e][1])
+			var yb := float(prof[e + 1][1])
+			var p := [pt.call(ra, 0.0), pt.call(ra, 16.0), pt.call(rb, 16.0), pt.call(rb, 0.0)]
+			p[0].y = ya
+			p[1].y = ya
+			p[2].y = yb
+			p[3].y = yb
+			face.call(p[0], p[1], p[2], p[3], String(prof[e][2]), seg_uv.call(e, 0.0, 16.0, ra, rb), Vector3.DOWN)
+		var s0: Vector3 = pt.call(SHOULDER, 0.0)
+		var s1: Vector3 = pt.call(SHOULDER, 16.0)
+		var yk := float(prof[0][1])
+		face.call(Vector3(s0.x, yk, s0.z), Vector3(s1.x, yk, s1.z), Vector3(s1.x, top, s1.z), Vector3(s0.x, top, s0.z),
+			"border_ribs", step_uv.call(0.0, 16.0), -away)
+		# where it meets the revolved quarter beyond its middle (d 16): the dark face up to that
+		# quarter's keel, facing it
+		var other := cq + (Vector2(32.0 * sx, 0.0) if x_closed else Vector2(0.0, 32.0 * sz))
+		var steps := 16
+		for k in steps:
+			var l0 := 16.0 * k / steps
+			var l1 := 16.0 * (k + 1) / steps
+			var e0: Vector3 = pt.call(16.0, l0)
+			var e1: Vector3 = pt.call(16.0, l1)
+			var h0: float = y_at.call(Vector2(e0.x, e0.z).distance_to(other))
+			var h1: float = y_at.call(Vector2(e1.x, e1.z).distance_to(other))
+			if h0 < 1e-3 and h1 < 1e-3:
+				continue
+			face.call(e0, e1, Vector3(e1.x, h1, e1.z), Vector3(e0.x, h0, e0.z), "road_metal",
+				[Vector2.ZERO, Vector2(0.01, 0), Vector2(0.01, 0.01), Vector2(0, 0.01)], away)
+
+
 ## A ring of eight bolts round a boss on a turbine's back cap at c (the x-y plane, facing +z):
 ## light flat rims (radii boss, bolt; the bolts `at` out), visual only.
 static func bolt_rings(geo: TmGeo, c: Vector3, boss: Array, bolt: Array, at: float) -> void:
@@ -1363,18 +1490,21 @@ func _cross(geo: TmGeo, arms: Array, ground: bool) -> void:
 	var inset := func(i: int) -> float: return SHOULDER if closed[i] else 0.0
 	var lo := Vector3(inset.call(1), 1.0 if ground else 0.0, inset.call(2))
 	var hi := Vector3(32.0 - inset.call(3), TOP, 32.0 - inset.call(0))
-	# the deck: the road on top, TMNF's light keel plates underneath (on the ground the terrain
-	# hides them), its dark border metal on the closed sides under the curbs; the open sides meet
-	# the next road's section (collision only)
+	# the deck: the road on top; underneath on the ground a flat floor (the terrain hides it), in
+	# the air TMNF's keel (_junction_keel); the open sides meet the next road's section (collision
+	# only)
 	geo.quad(Vector3(lo.x, TOP, lo.z), Vector3(lo.x, TOP, hi.z), Vector3(hi.x, TOP, hi.z), Vector3(hi.x, TOP, lo.z), _road_mat, _road_surf)
-	geo.quad(Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
-		"" if ground else "road_under", S_METAL)
+	if ground:
+		geo.quad(Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z), "", S_METAL)
+	else:
+		_junction_keel(geo, closed)
 	var corners := [Vector3(hi.x, 0, hi.z), Vector3(lo.x, 0, hi.z), Vector3(lo.x, 0, lo.z), Vector3(hi.x, 0, lo.z)]
 	for i in 4:
-		# side i (SIDES: +z, -x, -z, +x) from corner i to corner i + 1, facing out
+		# side i (SIDES: +z, -x, -z, +x) from corner i to corner i + 1, facing out (on the ground
+		# the closed sides' dark border metal under the curbs; in the air the keel's step)
 		var a: Vector3 = corners[i]
 		var b: Vector3 = corners[(i + 1) % 4]
-		var mat := "road_metal" if closed[i] else ""
+		var mat := "road_metal" if closed[i] and ground else ""
 		geo.quad(Vector3(b.x, lo.y, b.z), Vector3(a.x, lo.y, a.z), Vector3(a.x, TOP, a.z), Vector3(b.x, TOP, b.z), mat, S_METAL)
 	var curb := _curb_section(ground)
 	for i in 4:

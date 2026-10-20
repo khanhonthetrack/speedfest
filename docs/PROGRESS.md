@@ -2789,3 +2789,12 @@ on every real contact the full impulse would land at the contact point and kick 
   bolt_rings`). The platform turbo deck's turbines get the road turbo's nine dark blades over a
   dark inside, and both kinds of turbine TMNF's exhaust cap: a ring of eight bolts round a boss
   (light rims on the dark cap; we had a plain cap).
+- (M11-2) **The road junctions' keel as TMNF's** (`road.gd _junction_keel`). Under a crossing or
+  T in the air ours was a flat light plate; TMNF's is the straight road's whole keel section (the
+  plates, the dark middle strip, the far plates rising again) revolved round each corner between
+  two open arms, straight along a closed side: concentric plates and dark rings round the corners,
+  a hollow-sided diamond in the middle (measured: TMNF's height there follows the section by the
+  distance from the nearest corner). Built per quarter of the block (its nearest corner is its
+  own), each ring clipped to the quarter, the step up to the shoulder, and a dark face where a
+  straight quarter meets a revolved one. (The survey listed road blocks by their base form, so
+  the junction forms our tracks use had not been in it.)
