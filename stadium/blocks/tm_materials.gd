@@ -59,6 +59,8 @@ const COLORS := {
 	"truss": [Color8(40, 40, 41), 0.55, 0.3],
 	"screen_dark": [Color(0.015, 0.018, 0.022), 0.2, 0.0],     # the circuit walls' screens: off, as TMNF's
 	"control_panel": [Color8(222, 223, 221), 0.55, 0.0],
+	"pub_facade": [Color8(212, 212, 210), 0.6, 0.0],    # the camera pub's sides (texgen/booth.py pub_facade)
+	"pub_end": [Color8(40, 41, 43), 0.6, 0.0],         # its ends
 	"glass_dark": [Color(0.09, 0.11, 0.13, 0.72), 0.05, 0.3],     # the control booths' smoked windows
 	"glass_booth": [Color(0.42, 0.44, 0.45, 0.55), 0.05, 0.3],    # the glass booths' grey glass (TMNF's)
 	"logo": [Color(0.12, 0.30, 0.72), 0.6, 0.0],
@@ -203,6 +205,8 @@ const TEXTURED := {
 	"circuit_floor": ["circuit_kerb", Vector2(16.0, 16.0), true],     # the lane-level blue strip
 	"circuit_bumper": ["circuit_bumper", Vector2(16.0, 2.0), false],  # the lane side's rubber, our name on it
 	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
+	"pub_facade": ["pub_facade", Vector2(2.0, 1.0), false],     # the camera pub's sides (rows: control.gd PUB)
+	"pub_end": ["pub_end", Vector2(8.0, 8.0), true],    # its ends: a dark curtain wall (texgen/booth.py)
 	"booth_wall": ["booth_wall", Vector2(0.5, 1.0), false],    # their room's wall (texgen/booth.py; 8 m, rows)
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],

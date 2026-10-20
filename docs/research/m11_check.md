@@ -86,6 +86,11 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   struts (TMNF's are lattice beams).
 - Control: the glass booths (grey glass, a room, the roof), the pubs (2:1 boards, the base's kiosk,
   frame, plinth), the camera lights (dark centre, floodlight bars), the camera galleries' rail.
+- The pub base and the camera pub are TMNF's (20 Oct): the kiosk's boards flush in a border frame,
+  the plinths' railing and light rim; the camera pub's facade (`texgen/booth.py pub_facade`,
+  windows, lamp strip), light roof edges, dark curtain-wall ends, framed boards between posts, the
+  advert band, the walkway railing. Left: the other pub forms (corner, T, cross, dead end: TMNF's
+  dark wall with a board and a logo panel on the outer sides), the small logo signs.
 - Others: sculptures (concrete panels, smooth shading, atlas curbs), the grandstands' white truss
   lattice, the airship's livery (our names in TMNF's layout).
 - The airship is TMNF's (20 Oct): its lofts had lost the gondola and the fins, built now from

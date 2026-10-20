@@ -103,19 +103,40 @@ const LIGHT_HALF := [[16.0, 0.0, "stands_dark", S_METAL], [24.0, 0.0, "control_u
 	[28.0, 1.0, "stands_top", S_METAL], [24.0, 1.0, "stands_dark", S_METAL], [24.0, 7.0, "control_under", S_METAL],
 	[28.243, 7.0, "lamp", S_METAL], [28.121, 7.5, "stands_dark", S_METAL], [28.0, 8.0, "stands_top", S_METAL],
 	[24.0, 8.0, "stands_dark", S_METAL], [16.0, 8.0, "stands_dark", S_METAL]]
-## The camera pub (Control/CameraPub): a block with rounded top edges along z, a screen on each
-## side (x0, x1 of the left one, y0, y1, z0, z1); on the ground it stands on a low plinth (measured).
-const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
-	[28.851, 7.396, "structure", S_METAL], [28.669, 7.729, "structure", S_METAL], [28.285, 7.965, "structure", S_METAL],
-	[28.0, 8.0, "glass_dark", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
-	[3.331, 7.729, "structure", S_METAL], [3.149, 7.396, "structure", S_METAL], [3.111, 7.207, "structure", S_METAL]]
-const PUB_GROUND := [[0.0, 1.0, "structure", S_METAL], [32.0, 1.0, "structure", S_METAL], [32.0, 1.5, "structure", S_METAL],
-	[31.06, 2.0, "structure", S_METAL], [28.887, 2.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
-	[28.851, 7.396, "structure", S_METAL], [28.669, 7.729, "structure", S_METAL], [28.285, 7.965, "structure", S_METAL],
-	[28.0, 8.0, "glass_dark", S_METAL], [4.0, 8.0, "structure", S_METAL], [3.715, 7.965, "structure", S_METAL],
-	[3.331, 7.729, "structure", S_METAL], [3.149, 7.396, "structure", S_METAL], [3.111, 7.207, "structure", S_METAL],
-	[3.113, 2.0, "structure", S_METAL], [0.942, 2.0, "structure", S_METAL], [0.0, 1.5, "structure", S_METAL]]
+## The camera pub (Control/CameraPub): a block with rounded top edges along z (measured); on the
+## ground it stands on a low plinth with a walkway along each side. TMNF's look: the long sides
+## its facade (our drawing, texgen/booth.py pub_facade: rows of 512 from the facade's foot, 512,
+## split 3.2 m up above the windows, 260.6, its top, 103, up the rounded edge to the roof, 0), the
+## roof light along its edges (x 4..8, 24..28) and dark between, the ends dark panels; a screen on each
+## side (PUB_SCREEN: x0, x1 of the left one, y0, y1, z0, z1) in a dark frame (PUB_SCREEN_FRAME:
+## x0, x1, y0, y1, z0, z1) between two dark posts (PUB_POSTS: x0, x1, their z spans), an advert
+## band under one end's windows on the ground (PUB_BAND: y0, y1, z0, z1), the walkway's railing
+## (PUB_WALK_RAIL: x, y0, y1; a cut-out card). All given for the -x side; the +x side's turned
+## round (x -> 32 - x, z -> 32 - z).
+const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "stands_dark", S_METAL],
+	[28.887, 1.0, "pub_facade", S_METAL, Vector2(512, 260.6)], [28.888, 4.2, "pub_facade", S_METAL, Vector2(260.6, 103)],
+	[28.889, 7.207, "pub_facade", S_METAL, Vector2(103, 87.85)], [28.851, 7.396, "pub_facade", S_METAL, Vector2(87.85, 58.04)],
+	[28.669, 7.729, "pub_facade", S_METAL, Vector2(58.04, 22.63)], [28.285, 7.965, "pub_facade", S_METAL, Vector2(22.63, 0)],
+	[28.0, 8.0, "control_panel", S_METAL], [24.0, 8.0, "stands_dark", S_METAL], [8.0, 8.0, "control_panel", S_METAL],
+	[4.0, 8.0, "pub_facade", S_METAL, Vector2(0, 22.63)], [3.715, 7.965, "pub_facade", S_METAL, Vector2(22.63, 58.04)],
+	[3.331, 7.729, "pub_facade", S_METAL, Vector2(58.04, 87.85)], [3.149, 7.396, "pub_facade", S_METAL, Vector2(87.85, 103)],
+	[3.111, 7.207, "pub_facade", S_METAL, Vector2(103, 260.6)], [3.112, 4.2, "pub_facade", S_METAL, Vector2(260.6, 512)],
+	[3.113, 1.0, "stands_dark", S_METAL]]
+const PUB_GROUND := [[0.0, 1.0, "structure", S_METAL], [32.0, 1.0, "stands_top", S_METAL], [32.0, 1.5, "stands_top", S_METAL],
+	[31.06, 2.0, "stands_top", S_METAL], [28.887, 2.0, "pub_facade", S_METAL, Vector2(512, 260.6)],
+	[28.888, 5.2, "pub_facade", S_METAL, Vector2(260.6, 103)], [28.889, 7.207, "pub_facade", S_METAL, Vector2(103, 87.85)],
+	[28.851, 7.396, "pub_facade", S_METAL, Vector2(87.85, 58.04)], [28.669, 7.729, "pub_facade", S_METAL, Vector2(58.04, 22.63)],
+	[28.285, 7.965, "pub_facade", S_METAL, Vector2(22.63, 0)], [28.0, 8.0, "control_panel", S_METAL],
+	[24.0, 8.0, "stands_dark", S_METAL], [8.0, 8.0, "control_panel", S_METAL], [4.0, 8.0, "pub_facade", S_METAL, Vector2(0, 22.63)],
+	[3.715, 7.965, "pub_facade", S_METAL, Vector2(22.63, 58.04)], [3.331, 7.729, "pub_facade", S_METAL, Vector2(58.04, 87.85)],
+	[3.149, 7.396, "pub_facade", S_METAL, Vector2(87.85, 103)], [3.111, 7.207, "pub_facade", S_METAL, Vector2(103, 260.6)],
+	[3.112, 5.2, "pub_facade", S_METAL, Vector2(260.6, 512)], [3.113, 2.0, "stands_top", S_METAL],
+	[0.942, 2.0, "stands_top", S_METAL], [0.0, 1.5, "stands_top", S_METAL]]
 const PUB_SCREEN := [2.67, 3.113, 2.47, 6.81, 11.36, 20.64]
+const PUB_SCREEN_FRAME := [2.72, 3.11, 1.99, 7.17, 11.07, 20.93]
+const PUB_POSTS := [2.66, 3.12, [Vector2(9.26, 9.72), Vector2(22.41, 22.87)]]
+const PUB_BAND := [2.0, 3.56, 0.25, 8.36]
+const PUB_WALK_RAIL := [0.94, 2.0, 3.0]
 
 
 func handles(shape: String) -> bool:
@@ -169,9 +190,9 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 func _camera_piece(shape: String) -> Node3D:
 	var geo := TmGeo.new()
 	var along := func(table: Array) -> void:
-		var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
+		var sec := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]] + q.slice(4))
 		geo.wall_sweep(sec, [Vector3(0, 0, 0), Vector3(0, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], true,
-			"stands_dark" if table == LIGHT else "structure", S_METAL)
+			"stands_dark" if table == LIGHT else "pub_end", S_METAL)
 	match shape:
 		"Control/CameraLight/StraightAir":
 			along.call(LIGHT)
@@ -199,12 +220,41 @@ func _camera_piece(shape: String) -> Node3D:
 				outs.append(Vector3(cos(a), 0, sin(a)))
 			geo.wall_sweep(sec, path, outs, false)
 		"Control/CameraPub/StraightAir", "Control/CameraPub/StraightGround":
-			along.call(PUB_GROUND if shape.ends_with("Ground") else PUB)
+			var ground := shape.ends_with("Ground")
+			along.call(PUB_GROUND if ground else PUB)
 			var s: Array = PUB_SCREEN
 			for i in 2:
 				var x0: float = [s[0], 32.0 - s[1]][i]
 				geo.screen_box(Vector3(x0, s[2], s[4]), Vector3(x0 + s[1] - s[0], s[3], s[5]), "screen", S_METAL, 0.03, i)
+			_camera_pub_dress(geo, ground)
 	return geo.build()
+
+
+## The camera pub's frames, posts, advert band and railing (PUB_*), on both sides.
+func _camera_pub_dress(geo: TmGeo, ground: bool) -> void:
+	var y0 := 2.0 if ground else 0.0
+	for side in 2:
+		var turn := func(p: Vector3) -> Vector3: return Vector3(32.0 - p.x, p.y, 32.0 - p.z) if side == 1 else p
+		var bx := func(a: Vector3, b: Vector3) -> void:
+			var p: Vector3 = turn.call(a)
+			var q: Vector3 = turn.call(b)
+			geo.box(Vector3(minf(p.x, q.x), p.y, minf(p.z, q.z)), Vector3(maxf(p.x, q.x), q.y, maxf(p.z, q.z)), "stands_dark", S_METAL)
+		var f: Array = PUB_SCREEN_FRAME
+		bx.call(Vector3(f[0], f[2], f[4]), Vector3(f[1], f[3], f[5]))
+		for z: Vector2 in PUB_POSTS[2]:
+			bx.call(Vector3(PUB_POSTS[0], y0, z.x), Vector3(PUB_POSTS[1], 8.0, z.y))
+		if not ground:
+			continue
+		var b: Array = PUB_BAND
+		var x := 3.113 - 0.01
+		geo.screen_rect(turn.call(Vector3(x, b[0], b[2])), turn.call(Vector3(x, b[0], b[3])), turn.call(Vector3(x, b[1], b[3])),
+			turn.call(Vector3(x, b[1], b[2])), "screen", TmGeo.NO_COLLISION, 2 + side, Vector3(-1, 0, 0) if side == 0 else Vector3(1, 0, 0),
+			1.0)
+		var r: Array = PUB_WALK_RAIL
+		var p: Vector3 = turn.call(Vector3(r[0], r[1], 0.0))
+		var q: Vector3 = turn.call(Vector3(r[0], r[1], 32.0))
+		geo.quad_uv(p, q, q + Vector3(0, r[2] - r[1], 0), p + Vector3(0, r[2] - r[1], 0), "railing", TmGeo.NO_COLLISION,
+			Vector2(0, 1), Vector2(4, 1), Vector2(4, 0), Vector2(0, 0))
 
 
 ## The closed section (d = x - 16, y); ground variants rest on the terrain.
@@ -422,18 +472,25 @@ func _junction(geo: TmGeo, arms: Array) -> void:
 ## block, with advertising screens on each side of it; on the ground, a plinth under it all. As
 ## TMNF's (measured): the screens 2:1 boards PUB_BOARD_W long and PUB_BOARD_Y high, two side by side
 ## along a straight (PUB_GAP apart), one on each face of the lone base's kiosk (PUB_KIOSK either side
-## of the centre); the block and the kiosk its dark Stands2; the plinth (PUB_PLINTH either side of
-## the run) grey with a dark rubber top, a light strip down its middle (PUB_STRIP) and a railing's
-## top bar along each edge (PUB_RAIL); the base's plinth runs along z (PUB_BASE_RUN either way);
-## a straight's boards sit in a dark frame, under a dark portal at each end on the ground.
+## of the centre, flush in a dark border frame, PUB_KIOSK_FRAME: its margins below, above and at
+## the sides, the kiosk's dark box set back PUB_KIOSK_SET behind them, a lip over the gap); the
+## block and the kiosk its dark Stands2; the plinth (PUB_PLINTH either side of the run) grey with
+## a dark rubber top, a light strip down its middle (PUB_STRIP) and a railing (a cut-out card under
+## its top bar, PUB_RAIL_H high) along each edge; the base's plinth runs along z (PUB_BASE_RUN
+## either way), its railing round all four sides (PUB_BASE_RAIL in from its ends); a straight's
+## boards sit in a dark frame, under a dark portal at each end on the ground.
 const PUB_BOARD_W := 12.2
 const PUB_GAP := 0.76
 const PUB_BOARD_Y := {"ground": Vector2(1.92, 7.48), "air": Vector2(1.21, 6.92)}
 const PUB_KIOSK := 6.48
+const PUB_KIOSK_FRAME := [0.63, 0.47, 0.38]
+const PUB_KIOSK_SET := 0.6
 const PUB_PLINTH := 8.0
 const PUB_STRIP := 4.9
 const PUB_RAIL := 7.07
 const PUB_BASE_RUN := 13.19
+const PUB_BASE_RAIL := 0.93
+const PUB_RAIL_H := 1.0
 const PUB_FRAME := 0.25         ## the dark frame's margin round a straight's boards
 
 
@@ -447,20 +504,40 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 	var first := 0
 	if arms.is_empty():
 		# the lone base: a dark kiosk with a screen on each face, on a plinth along z
-		var k0 := 16.0 - PUB_KIOSK
-		var k1 := 16.0 + PUB_KIOSK
-		geo.box(Vector3(k0, maxf(top, _floor), k0), Vector3(k1, ROOF, k1), "stands_dark", S_CONCRETE, "", -2, 0.05)
+		var kin := PUB_KIOSK - PUB_KIOSK_SET
+		geo.box(Vector3(16.0 - kin, maxf(top, _floor), 16.0 - kin), Vector3(16.0 + kin, ROOF, 16.0 + kin), "stands_dark",
+			S_CONCRETE, "", -2, 0.05)
 		var hw := PUB_BOARD_W * 0.5
+		var fr: Array = PUB_KIOSK_FRAME
+		var y_lo: float = by.x - float(fr[0])
+		var y_hi: float = by.y + float(fr[1])
+		var face := func(o: Vector3, d0: float, d1: float, t0: float, t1: float, y0: float, y1: float, key: String,
+				board := 0) -> void:
+			# a box on the kiosk's face toward o: d0..d1 out from the centre, t0..t1 along the face
+			var t := Vector3(o.z, 0.0, -o.x)
+			var a := Vector3(16, y0, 16) + o * d0 + t * t0
+			var b := Vector3(16, y1, 16) + o * d1 + t * t1
+			var lo := Vector3(minf(a.x, b.x), y0, minf(a.z, b.z))
+			var hi := Vector3(maxf(a.x, b.x), y1, maxf(a.z, b.z))
+			if key == "screen":
+				geo.screen_box(lo, hi, key, S_METAL, 0.03, board)
+			else:
+				geo.box(lo, hi, key, S_METAL)
 		for i in 4:
 			var o: Vector3 = SIDES[i]
-			var t := Vector3(o.z, 0.0, -o.x)
-			var a := Vector3(16, by.x, 16) + o * PUB_KIOSK - t * hw
-			var b := Vector3(16, by.y, 16) + o * (PUB_KIOSK + 0.3) + t * hw
-			geo.screen_box(Vector3(minf(a.x, b.x), by.x, minf(a.z, b.z)), Vector3(maxf(a.x, b.x), by.y, maxf(a.z, b.z)),
-				"screen", S_METAL, 0.03, first)
+			var k := PUB_KIOSK
+			face.call(o, k - 0.08, k, -hw, hw, by.x, by.y, "screen", first)
 			first += 1
+			face.call(o, k - 0.1, k, -k, k, y_lo, by.x, "stands_dark")
+			face.call(o, k - 0.1, k, -k, k, by.y, y_hi, "stands_dark")
+			for e: float in [-1.0, 1.0]:
+				face.call(o, k - 0.1, k, e * hw, e * k, by.x, by.y, "stands_dark")
+			# the lip on the frame, over the gap to the box (its corners on the x faces')
+			var w := k if absf(o.x) > 0.5 else kin
+			face.call(o, kin, k, -w, w, y_hi, y_hi + 0.05, "stands_dark")
 		if _floor > 0.0:
-			_pub_plinth(geo, Vector3(16, 0, 16 - PUB_BASE_RUN), Vector3(16, 0, 16 + PUB_BASE_RUN), Vector3(1, 0, 0))
+			_pub_plinth(geo, Vector3(16, 0, 16 - PUB_BASE_RUN), Vector3(16, 0, 16 + PUB_BASE_RUN), Vector3(1, 0, 0),
+				PUB_BASE_RAIL)
 		return
 	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "stands_dark", S_CONCRETE, "", -2, 0.05)
 	var straight := arms.size() == 2 and arms.has(0) and arms.has(2)
@@ -502,18 +579,41 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 
 
 ## The pub's plinth along a -> b (side: across it), from the ground to 1.81 m: grey sides, a dark
-## rubber top with a light strip down its middle, the railing's top bar along each edge.
-func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3) -> void:
-	var box := func(w0: float, w1: float, y0: float, y1: float, key: String, top_key: String, surface: int) -> void:
-		var p0 := a + side * w0
-		var p1 := b + side * w1
-		geo.box(Vector3(minf(p0.x, p1.x), y0, minf(p0.z, p1.z)), Vector3(maxf(p0.x, p1.x), y1, maxf(p0.z, p1.z)),
-			key, surface, top_key, surface)
-	box.call(-PUB_PLINTH, PUB_PLINTH, _floor, 1.81, "stands_top", "rubber_dark", S_ROAD)
-	var s0 := a - side * PUB_STRIP
-	var s1 := b + side * PUB_STRIP
+## rubber top inside the railing (a light rim outside it) with a light strip down its middle, the
+## railing along each edge (inset > 0: from that far in from a and b, and across both ends).
+func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3, inset := 0.0) -> void:
+	var run := (b - a).normalized()
+	var ra := a + run * inset
+	var rb := b - run * inset
+	var box := func(p: Vector3, q: Vector3, w0: float, w1: float, top_key: String) -> void:
+		var p0 := p + side * w0
+		var p1 := q + side * w1
+		geo.box(Vector3(minf(p0.x, p1.x), _floor, minf(p0.z, p1.z)), Vector3(maxf(p0.x, p1.x), 1.81, maxf(p0.z, p1.z)),
+			"stands_top", S_ROAD, top_key, S_ROAD)
+	# the rubber top inside the railing, TMNF's light rim outside it
+	box.call(ra, rb, -PUB_RAIL, PUB_RAIL, "rubber_dark")
+	for k: float in [-1.0, 1.0]:
+		box.call(a, b, k * PUB_RAIL, k * PUB_PLINTH, "stands_top")
+	if inset > 0.0:
+		box.call(a, ra, -PUB_RAIL, PUB_RAIL, "stands_top")
+		box.call(rb, b, -PUB_RAIL, PUB_RAIL, "stands_top")
+	var s0 := ra - side * PUB_STRIP
+	var s1 := rb + side * PUB_STRIP
 	var lo := Vector3(minf(s0.x, s1.x), 1.812, minf(s0.z, s1.z))
 	var hi := Vector3(maxf(s0.x, s1.x), 1.812, maxf(s0.z, s1.z))
 	geo.quad(lo, Vector3(lo.x, lo.y, hi.z), hi, Vector3(hi.x, lo.y, lo.z), "control_panel", TmGeo.NO_COLLISION)
-	for k: float in [-1.0, 1.0]:
-		box.call(k * PUB_RAIL - 0.05, k * PUB_RAIL + 0.05, 2.71, 2.81, "structure", "", S_METAL)
+	var edges := [[ra + side * PUB_RAIL, rb + side * PUB_RAIL], [ra - side * PUB_RAIL, rb - side * PUB_RAIL]]
+	if inset > 0.0:
+		edges.append([ra - side * PUB_RAIL, ra + side * PUB_RAIL])
+		edges.append([rb - side * PUB_RAIL, rb + side * PUB_RAIL])
+	var y0 := 1.81
+	var y1 := y0 + PUB_RAIL_H
+	for e: Array in edges:
+		var p: Vector3 = e[0]
+		var q: Vector3 = e[1]
+		var across := Vector3(absf((q - p).z), 0.0, absf((q - p).x)).normalized() * 0.05
+		geo.box(Vector3(minf(p.x, q.x), y1 - 0.1, minf(p.z, q.z)) - across,
+			Vector3(maxf(p.x, q.x), y1, maxf(p.z, q.z)) + across, "structure", S_METAL)
+		var du := p.distance_to(q) / 8.0
+		geo.quad_uv(Vector3(p.x, y0, p.z), Vector3(q.x, y0, q.z), Vector3(q.x, y1 - 0.1, q.z), Vector3(p.x, y1 - 0.1, p.z),
+			"railing", TmGeo.NO_COLLISION, Vector2(0, 1), Vector2(du, 1), Vector2(du, 0.1), Vector2(0, 0.1))

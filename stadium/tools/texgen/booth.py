@@ -1,7 +1,8 @@
 """The control booths' windows, our own drawing in the Stadium's style: one module (2.2 m wide, the
 glass's height), laid round the booths (UV-mapped by blocks/shapes/control.gd): dark posts at its
 sides, a mullion, two transoms, a dark head with a warm light strip, tinted see-through panes
-(alpha: the glass blends, the frame is solid).
+(alpha: the glass blends, the frame is solid). Also the room behind them and the camera pub's
+facade.
 usage: python3 stadium/tools/texgen/booth.py"""
 import numpy as np
 from texlib import *
@@ -70,6 +71,88 @@ def booth_wall(name='booth_wall', w=1024, h=512, seed=513):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def pub_facade(name='pub_facade', w=1024, h=256, seed=517):
+    """The camera pub's long sides (blocks/shapes/control.gd PUB_ROWS), TMNF's layout in our
+    drawing: 32 m (u, the block's length; mirror-symmetric, so either way round reads the same)
+    by the section from the roof's edge (v 0) down its rounded top and the facade to its foot
+    (rows of 512: 0..58 the rounded edge, 58..103 the lamp strip, 103..512 the facade, 5.207 m):
+    light panels with faint joints every 4 m, a lamp housing every 9 m on the strip, a row of six
+    dark windows at each end (z 0.25..8.36, 1.56..2.79 m above the foot), grime toward the foot."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    zm = (xx + 0.5) / w * 32.0                    # metres along
+    r = (yy + 0.5) / h * 512.0                    # rows of 512
+    ym = 2.0 + (512.0 - r) / (512.0 - 103.0) * 5.207      # height on the ground pub's facade
+    fine = fbm(w, h, seed, beta=1.0, lo=20.0)
+    mott = fbm(w, h, seed + 1, beta=2.2, lo=2.0, hi=24.0)
+    col = srgb((219, 219, 217))[None, None, :] * (1.0 + 0.02 * fine + 0.02 * mott)[..., None]
+    hgt = np.zeros((h, w), np.float32)
+    face = (r >= 103).astype(np.float32)
+    joints = np.zeros((h, w), np.float32)
+    for k in range(9):
+        joints = np.maximum(joints, 1 - smoothstep(0.0, 0.03, np.abs(zm - 4.0 * k)))
+    col = lerp(col, srgb((150, 150, 148))[None, None, :] * np.ones((h, w, 1)), (joints * face * 0.5)[..., None])
+    hgt -= joints * face
+    # the rounded edge: light, a darker line at the roof; the lamp strip under it with housings
+    edge = (r < 58).astype(np.float32)
+    col = lerp(col, srgb((224, 224, 222))[None, None, :] * (1.0 + 0.02 * fine)[..., None], edge[..., None])
+    col = lerp(col, srgb((60, 60, 62))[None, None, :] * np.ones((h, w, 1)), ((r < 6) * 1.0)[..., None])
+    strip = ((r >= 58) & (r < 103)).astype(np.float32)
+    col = lerp(col, srgb((185, 185, 185))[None, None, :] * (1.0 + 0.03 * fine)[..., None], strip[..., None])
+    rail = strip * (1 - smoothstep(0.0, 4.0, np.abs(r - 70.0)))
+    col = lerp(col, srgb((96, 96, 98))[None, None, :] * np.ones((h, w, 1)), rail[..., None])
+    for zc in (2.5, 11.5, 20.5, 29.5):
+        hous = strip * (1 - smoothstep(0.55, 0.6, np.abs(zm - zc))) * smoothstep(74.0, 78.0, r) * (1 - smoothstep(96.0, 100.0, r))
+        lens = hous * (1 - smoothstep(0.38, 0.42, np.abs(zm - zc))) * smoothstep(84.0, 86.0, r)
+        col = lerp(col, srgb((70, 70, 72))[None, None, :] * np.ones((h, w, 1)), hous[..., None])
+        col = lerp(col, srgb((250, 246, 232))[None, None, :] * np.ones((h, w, 1)), lens[..., None])
+        hgt += 0.8 * hous
+    # the windows: six dark panes a row at each end, dark gaps between them
+    win = np.zeros((h, w), np.float32)
+    pane = np.zeros((h, w), np.float32)
+    for z0 in (0.25, 23.64):
+        for k in range(6):
+            a = z0 + k * 8.11 / 6.0
+            b = a + 8.11 / 6.0
+            win = np.maximum(win, rect_mask(w, h, a / 32.0 * w, 0, b / 32.0 * w, h, 0.6) *
+                             smoothstep(3.55, 3.57, ym) * (1 - smoothstep(4.78, 4.80, ym)) * face)
+            pane = np.maximum(pane, rect_mask(w, h, (a + 0.05) / 32.0 * w, 0, (b - 0.05) / 32.0 * w, h, 0.6) *
+                              smoothstep(3.6, 3.62, ym) * (1 - smoothstep(4.73, 4.75, ym)) * face)
+    sheen = 1.0 + 0.25 * np.clip((ym - 3.56) / 1.23, 0, 1)
+    col = lerp(col, srgb((23, 23, 23))[None, None, :] * np.ones((h, w, 1)), win[..., None])
+    col = lerp(col, srgb((44, 44, 46))[None, None, :] * sheen[..., None], pane[..., None])
+    hgt -= 1.2 * win
+    grime_ = grime(w, h, seed + 2, 0.6, 2.0) * np.clip((2.8 - ym) / 0.8, 0, 1) * face
+    col = lerp(col, srgb((120, 116, 108))[None, None, :] * np.ones((h, w, 1)), (grime_ * 0.35)[..., None])
+    nrm = normal_from_height(hgt, 0.5)
+    rough = 0.6 + 0.1 * mott - 0.45 * pane + 0.1 * grime_
+    orm = np.stack([np.ones((h, w), np.float32), np.clip(rough, 0.1, 1.0), 0.3 * pane], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
+def pub_end(name='pub_end', s=512, seed=519):
+    """The camera pub's ends: a dark curtain wall 8 m square (world-mapped), panes 1.6 m wide and
+    1.33 m high between lighter mullions, each pane a little different, lighter toward its top."""
+    yy, xx = np.mgrid[0:s, 0:s].astype(np.float32)
+    um = xx / s * 8.0
+    vm = yy / s * 8.0
+    fine = fbm(s, s, seed, beta=1.0, lo=20.0)
+    cu = um / 1.6
+    cv = vm / (8.0 / 6.0)
+    r = rng(seed)
+    shade = r.uniform(0.85, 1.15, (6, 5)).astype(np.float32)
+    pane_shade = shade[np.clip(cv.astype(int), 0, 5), np.clip(cu.astype(int), 0, 4)]
+    up = 1.0 + 0.35 * (1.0 - (cv % 1.0))
+    col = srgb((30, 32, 36))[None, None, :] * (pane_shade * up * (1.0 + 0.03 * fine))[..., None]
+    mull = np.maximum(1 - smoothstep(0.03, 0.05, np.minimum(cu % 1.0, 1 - cu % 1.0) * 1.6),
+                      1 - smoothstep(0.03, 0.05, np.minimum(cv % 1.0, 1 - cv % 1.0) * (8.0 / 6.0)))
+    col = lerp(col, srgb((84, 86, 90))[None, None, :] * np.ones((s, s, 1)), mull[..., None])
+    nrm = normal_from_height(1.0 * mull, 0.5)
+    orm = np.stack([np.ones((s, s), np.float32), 0.15 + 0.45 * mull, 0.3 * (1 - mull)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 if __name__ == '__main__':
     booth_window()
     booth_wall()
+    pub_facade()
+    pub_end()

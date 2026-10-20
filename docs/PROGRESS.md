@@ -2649,3 +2649,18 @@ on every real contact the full impulse would land at the contact point and kick 
   coloured lights fore and aft, our name and emblem projected flat on each side (reading upright
   from outside), the gores' seams by angle (they zig-zagged where the rings twist), smoother vinyl.
   Side by side with TMNF's block.
+- (M11-2) **The pub base and the camera pub as TMNF's** (`control.gd`, `texgen/booth.py`; 48 and
+  51 uses on our tracks). The pub base's kiosk is TMNF's: its boards flush in a dark border frame
+  with a lip over the gap to the dark box set back 0.6 m behind them (ours stuck out of a solid
+  box); the pub plinths get TMNF's cut-out railing under the top bar (round all four sides of the
+  base's) and the light rim outside it. The camera pub was a grey rounded block; now TMNF's look
+  in our drawing: its long sides a facade (`pub_facade`: light panels, a lamp strip on the rounded
+  edge, six dark windows at each end; mapped by rows down the section, split above the windows so
+  the air version's taller facade keeps them at TMNF's height), the roof light along its edges and
+  dark between, the ends a dark curtain wall (`pub_end`), each side's board in a dark frame
+  between two dark posts, an advert band under one end's windows (our adverts), the walkway's
+  railing. Missing surface: pub base 409 -> 13 m2, camera pub 190 -> 10 m2. Side by side with
+  TMNF's blocks, Forward+ and Compatibility. Left: the other pub forms' layout (TMNF's corner has
+  a dark wall with a board and a logo panel on its outer sides; not on our tracks), the camera
+  pub's small logo sign and the boards' brackets.
+
