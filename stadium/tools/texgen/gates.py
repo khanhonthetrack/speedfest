@@ -13,6 +13,8 @@ KINDS = {
     'start': ('START', (52, 168, 64), (228, 226, 222), [((0.07, 0.12), (52, 168, 64))]),
     'cp': ('CHECKPOINT', (44, 96, 214), (34, 34, 37), [((0.15, 0.19), (44, 96, 214)), ((0.86, 0.90), (44, 96, 214))]),
     'finish': ('FINISH', (242, 240, 236), (196, 28, 22), [((0.15, 0.18), (242, 240, 236)), ((0.89, 0.92), (242, 240, 236))]),
+    # MULTILAP yellow on dark under a yellow line, over a chequered strip
+    'lap': ('MULTILAP', (226, 200, 34), (34, 34, 37), [((0.12, 0.16), (226, 200, 34))], (0.80, 0.94)),
 }
 
 
@@ -26,19 +28,29 @@ def rubber(w, h, seed, base):
     return srgb(base)[None, None, :] * tone[..., None], ribs, n2
 
 
-def band(kind, name, ppm=128, length=8.0, height=1.25, seed=51, word_h=0.62, repeats=1):
+def band(kind, name, ppm=128, length=8.0, height=1.25, seed=51, word_h=0.62, repeats=1, fit=1.0, joints=False):
     """A band `length` m long (u) and `height` m tall (v): the word in the kind's ink on its
-    backing, the kind's lines along it, scuffs. Text runs along u."""
-    word, ink, back, lines = KINDS[kind]
+    backing (`repeats` times, each condensed to at most `fit` of its slot's width, as TMNF's
+    long words), the kind's lines along it (and its chequered strip), scuffs; with `joints` a
+    raised joint between the slots (TMNF's sign panels). Text runs along u."""
+    word, ink, back, lines = KINDS[kind][:4]
     w = int(length * ppm)
     h = int(height * ppm)
     col, ribs, n2 = rubber(w, h, seed, back)
+    tracking = int(0.015 * ppm)
     fnt = font('orbitron-latin-900-normal', int(word_h * height * ppm))
+    probe = ImageDraw.Draw(Image.new('L', (8, 8)))
+    wide = probe.textlength(word, font=fnt) + tracking * (len(word) - 1)
+    pad = h
+    one = text_mask(int(wide) + 2 * pad, h, word, fnt, (wide / 2 + pad, h * 0.53), 'mm', italic=0.22, tracking=tracking)
+    squeeze = min(1.0, fit * w / repeats / wide)
+    one = np.asarray(Image.fromarray(to8(one)).resize((int(one.shape[1] * squeeze), h), Image.LANCZOS),
+                     np.float32) / 255.0
     txt = np.zeros((h, w), np.float32)
     for r in range(repeats):
-        cx = (r + 0.5) * w / repeats
-        m = text_mask(w, h, word, fnt, (cx, h * 0.53), 'mm', italic=0.22, tracking=int(0.015 * ppm))
-        txt = np.maximum(txt, m)
+        x0 = int((r + 0.5) * w / repeats - one.shape[1] / 2)
+        a, b = max(x0, 0), min(x0 + one.shape[1], w)
+        txt[:, a:b] = np.maximum(txt[:, a:b], one[:, a - x0:b - x0])
     # a dark outline round light-backed words (reads from afar), none on dark backs
     light_back = sum(back) > 400
     if light_back:
@@ -51,11 +63,30 @@ def band(kind, name, ppm=128, length=8.0, height=1.25, seed=51, word_h=0.62, rep
         m = rect_mask(w, h, -10, y0 * h, w + 10, y1 * h, 1.0)
         col = lerp(col, srgb(c)[None, None, :], m * (1.0 - worn))
         stripes = np.maximum(stripes, m)
+    if len(KINDS[kind]) > 4:
+        # two rows of black and white squares
+        y0, y1 = KINDS[kind][4]
+        sq = (y1 - y0) * h / 2.0
+        yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+        white = (np.floor(xx / sq) + np.floor((yy - y0 * h) / sq)) % 2 == 0
+        m = rect_mask(w, h, -10, y0 * h, w + 10, y1 * h, 0.8)
+        sqc = np.where(white[..., None], srgb((222, 222, 218))[None, None, :], srgb((20, 20, 22))[None, None, :])
+        col = lerp(col, sqc, m * (1.0 - 0.6 * worn))
+        stripes = np.maximum(stripes, m)
     scuff = grime(w, h, seed + 3, 0.7, 2.0)
     col = lerp(col, srgb((70, 68, 64))[None, None, :], scuff * 0.25)
-    hgt = 0.6 * ribs + 0.3 * n2 + 1.2 * txt + 0.8 * stripes
+    joint = np.zeros((h, w), np.float32)
+    if joints:
+        # a light metal strip 4 cm wide, a dark seam either side
+        for r in range(repeats + 1):
+            x = r * w / repeats
+            joint = np.maximum(joint, rect_mask(w, h, x - 0.02 * ppm, -10, x + 0.02 * ppm, h + 10, 0.8))
+            seam = rect_mask(w, h, x - 0.035 * ppm, -10, x + 0.035 * ppm, h + 10, 0.8) - joint
+            col = lerp(col, srgb((14, 14, 16))[None, None, :], np.clip(seam, 0, 1) * 0.8)
+        col = lerp(col, srgb((150, 152, 156))[None, None, :] * (1.0 + 0.08 * n2)[..., None], joint)
+    hgt = 0.6 * ribs + 0.3 * n2 + 1.2 * txt + 0.8 * stripes + 1.5 * joint
     nrm = normal_from_height(hgt, 0.5)
-    rough = 0.72 - 0.15 * txt
+    rough = 0.72 - 0.15 * txt - 0.3 * joint
     orm = np.stack([np.ones_like(rough), rough, np.zeros_like(rough)], -1)
     save(name, np.clip(col, 0, 1), nrm, orm, size=(w // 2, h // 2))
 
@@ -152,8 +183,10 @@ if __name__ == '__main__':
     for k in KINDS:
         # the arch's faces: the word along the arch (8 m), the arch 1.25 m deep at its faces
         band(k, 'gate_%s' % k, length=8.0, height=1.25, repeats=1)
-        # the gate block's curb faces: as the road's curb face (8 m x 1.25 m)
-        band(k, 'curb_%s' % k, length=8.0, height=1.25, seed=57, word_h=0.5, repeats=1)
+        # the gate block's curb faces (both: towards the road and outside), as TMNF's RaceSigns:
+        # the word every 4 m on its panel (16 m a tile, UV-mapped as the border atlas: road.gd
+        # _entry), the band across the face (1.15 m)
+        band(k, 'curb_%s' % k, length=16.0, height=1.15, seed=57, word_h=0.6, repeats=4, fit=0.9, joints=True)
     race_road('start', 'race_start')
     race_road('finish', 'race_finish')
     lamp_panel()

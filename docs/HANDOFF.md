@@ -35,7 +35,8 @@
   RoadRace layout, `TmGeo.split_mat`), the pipe pillars and tubes (TMNF's light StadiumPillar),
   the platform decks' undersides (plate, hub, column beams), slopes' frames, the turbo deck
   (floor, turbines, TURBO rim), checkpoint arch / ring, the gates' word bands (FINISH white on
-  red), ToRoad, glass booths, pub blocks, camera lights. Side-by-side renders:
+  red), ToRoad, glass booths, pub blocks, camera lights, the gates' feet (owner: the "block
+  rectangle" between arch and curb) and the gate blocks' curb signs. Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail`. Next by our tracks'
   use: sculptures, dirt road furniture, the road turbo gantry, junction undersides, the

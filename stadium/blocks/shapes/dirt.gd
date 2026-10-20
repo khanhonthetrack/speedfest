@@ -18,11 +18,17 @@ const CLASSES := {"g": ["grass", S_GRASS], "d": ["dirt_road", S_DIRT], "r": ["as
 const PATH := "res://blocks/data/dirt_heights.json"
 const QUAD := 1.0               ## render/collision quad size (m)
 const GRASS_EPS := 0.05         ## how far off the grass level (1 m) a corner still counts as on it
-## Checkpoints: the terrain they stand on, and how far the Road/Main gate is raised for them.
+## Checkpoints: the terrain they stand on, and the Road/Main gate resized for them as TMNF's
+## (measured): how far it is raised, its width's scale about the centre line; along z all alike
+## (GATE_Z_SCALE about the block's centre, then GATE_Z_MOVE further); the clamps' straps lower
+## (GATE_STRAP_DY: on the bumpers).
 const CHECKPOINTS := {
-	"Road/Dirt/RoadDirtCheckpoint/Ground": ["Road/Dirt/StraightGround", 1.0],
-	"Road/DirtHigh/RoadDirtCheckpointHigh/Ground": ["Road/DirtHigh/StraightGround", 5.8],
+	"Road/Dirt/RoadDirtCheckpoint/Ground": ["Road/Dirt/StraightGround", 1.07, 1.045],
+	"Road/DirtHigh/RoadDirtCheckpointHigh/Ground": ["Road/DirtHigh/StraightGround", 5.78, 0.891],
 }
+const GATE_Z_SCALE := 0.963
+const GATE_Z_MOVE := 0.119
+const GATE_STRAP_DY := -1.345
 
 ## Where a dirt road meets Road/Main (TMNF's RoadDirtToRoad, measured): the road's ground curbs
 ## along both sides, full up to TO_ROAD_FULL, then a narrower, lower curb running into the dirt's
@@ -35,15 +41,18 @@ const TO_ROAD_H := 0.8
 const TO_ROAD_SINK := 0.3
 
 ## The dirt checkpoint's bumpers (TMNF's, measured): along each side (z GATE_BUMPER_Z) a rounded
-## dark rubber bumper the arch's feet stand on; its section (x from the block edge, y, key, the
-## border atlas' rows from the point to the next) round to its buried bottom.
+## dark rubber bumper the arch's feet stand on, a ribbed top; its section (x from the block edge,
+## y, key, the atlas' rows from the point to the next) round to its buried bottom. Its rounded
+## faces carry the CHECKPOINT sign as TMNF's (bumper_cp: the road gates' curbs' sign, its word
+## every 5 m; its rows spread over each face by its length, the top row at the top; mirrored on
+## the outer face).
 const GATE_BUMPER_Z := Vector2(1.04, 30.93)
 const GATE_BUMPER := [
-	[0.56, 0.82, "road_metal", Vector2(-1, -1)], [0.56, 1.21, "border_black", Vector2(300.0, 283.0)],
-	[0.71, 1.7, "border_black", Vector2(283.0, 266.0)], [0.81, 2.02, "border_black", Vector2(266.0, 245.0)],
-	[0.97, 2.19, "border_black", Vector2(245.0, 230.0)], [1.22, 2.31, "border_ribs", Vector2(160.0, 200.0)],
-	[3.56, 2.33, "border_black", Vector2(230.0, 245.0)], [3.81, 2.19, "border_black", Vector2(245.0, 266.0)],
-	[3.96, 2.02, "border_black", Vector2(266.0, 283.0)], [4.06, 1.7, "border_black", Vector2(283.0, 300.0)],
+	[0.56, 0.82, "road_metal", Vector2(-1, -1)], [0.56, 1.21, "bumper_cp_out", Vector2(512.0, 318.8)],
+	[0.71, 1.7, "bumper_cp_out", Vector2(318.8, 192.4)], [0.81, 2.02, "bumper_cp_out", Vector2(192.4, 104.6)],
+	[0.97, 2.19, "bumper_cp_out", Vector2(104.6, 0.0)], [1.22, 2.31, "border_ribs", Vector2(160.0, 200.0)],
+	[3.56, 2.33, "bumper_cp", Vector2(0.0, 107.8)], [3.81, 2.19, "bumper_cp", Vector2(107.8, 193.1)],
+	[3.96, 2.02, "bumper_cp", Vector2(193.1, 319.2)], [4.06, 1.7, "bumper_cp", Vector2(319.2, 512.0)],
 	[4.21, 1.21, "road_metal", Vector2(-1, -1)], [4.21, 0.82, "", Vector2(-1, -1)],
 ]
 
@@ -70,10 +79,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		var c: Array = CHECKPOINTS[shape]
 		_surface(geo, shapes()[c[0]])
 		var gate := TmGeo.new()
-		RoadShapes.new()._gate(gate, 16.0)
-		gate.shear_y(0.0, 0.0, float(c[1]))
+		RoadShapes.new()._gate(gate, 16.0, GATE_STRAP_DY)
+		gate.scale_move(Vector3(16, 0, 16), Vector3(float(c[2]), 1.0, GATE_Z_SCALE), Vector3(0.0, float(c[1]), GATE_Z_MOVE))
 		geo.merge(gate)
-		if is_equal_approx(float(c[1]), 1.0):
+		if shape.begins_with("Road/Dirt/"):
 			_gate_bumpers(geo)
 	elif shapes().has(shape):
 		_surface(geo, shapes()[shape])
@@ -83,7 +92,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		return null
 	var node := geo.build()
 	if CHECKPOINTS.has(shape):
-		TmGateDress.crown(node, "cp", 16.0, Vector3(0.0, 0.0, float(CHECKPOINTS[shape][1])), true)
+		TmGateDress.crown(node, "cp", 16.0 + GATE_Z_MOVE, Vector3(0.0, 0.0, float(CHECKPOINTS[shape][1])), true)
 	return node
 
 

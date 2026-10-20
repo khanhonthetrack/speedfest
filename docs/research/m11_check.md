@@ -71,7 +71,11 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
 - Roads: FreeWheeling pads, the start / finish roads (RoadRace's layout) and the gate line (the
   blue band; `TmGeo.split_mat`), the gates' word bands (FINISH white on red), the turbo gantry
   (turbines, railing, TURBO curbs), the tubes and pipe pillars (StadiumPillar), the dirt roads'
-  curbs at the road and the dirt checkpoint's bumpers.
+  curbs at the road and the dirt checkpoint's bumpers; the gates' feet (clamps with straps,
+  eight-sided struts, lattice, light rigs; the dirt gates the road gate resized as TMNF's) and
+  every gate block's curb signs (both faces, the word every 4 m on panels, mirrored outside;
+  MULTILAP on the multilap). Left out with the sign boards (option B): the checkpoint's clamp at
+  z 5.8 and its brace up to the boards.
 - Control: the glass booths (grey glass, a room, the roof), the pubs (2:1 boards, the base's kiosk,
   frame, plinth), the camera lights (dark centre, floodlight bars), the camera galleries' rail.
 - Others: sculptures (concrete panels, smooth shading, atlas curbs), the grandstands' white truss

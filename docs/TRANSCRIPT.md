@@ -939,3 +939,21 @@ I'll check the disassembly to confirm what the flag really represents."* — wit
 ### User (verbatim, session 13, 19 Oct, after a worker restart during M11)
 
 > Continue
+
+### User (verbatim, session 13, 20 Oct, after a worker restart during M11)
+
+> The checkpoints and start/finish: there is a simple block rectangle connecting the arch and the barriers. It looks stupid. Compare this with proper Tmnf.
+
+### User (verbatim, session 13, 20 Oct)
+
+> Yo
+
+### Claude
+
+- The box between each arch end and the curb is gone. Each foot is TMNF's now, measured from its
+  blocks: two dark clamps round the curb (the outer flange thicker, a strap over the curb's top),
+  an eight-sided strut from each up to the arch's end, a dark see-through lattice between them
+  with two light rigs aimed at the road. The dirt checkpoints use TMNF's resized road gate, clamps
+  on the bumpers. The gate blocks' curbs carry the gate's word on both faces every 4 m as TMNF's
+  (mirrored outside, as TMNF's reads), MultiLap its own yellow MULTILAP sign. TMNF's brace from a
+  clamp at z 5.8 up to the sign boards stays out with the boards (option B).

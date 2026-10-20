@@ -73,6 +73,7 @@ const COLORS := {
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
 	"freewheel": [Color8(176, 14, 12), 0.5, 0.0],
 	"turbo_rim": [Color8(40, 38, 34), 0.7, 0.0],         # the turbo deck's rim (TMNF's TURBO sign)
+	"turbo_rim_out": [Color8(40, 38, 34), 0.7, 0.0],
 	"race_start": [Color8(37, 135, 60), 0.75, 0.0],      # TMNF's start / finish roads (its texture's paint)
 	"race_finish": [Color8(152, 35, 35), 0.75, 0.0],
 	"gate_line": [Color8(62, 133, 254), 0.5, 0.0],       # the line across the road at a gate
@@ -118,6 +119,14 @@ const COLORS := {
 	"curb_start": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
 	"curb_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"curb_finish": [Color8(196, 28, 22), 0.7, 0.0],
+	"gate_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"curb_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"curb_start_out": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
+	"curb_cp_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"curb_finish_out": [Color8(196, 28, 22), 0.7, 0.0],
+	"curb_lap_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"bumper_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
+	"bumper_cp_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
@@ -193,9 +202,22 @@ const TEXTURED := {
 	"gate_start": ["gate_start", Vector2(8.0, 1.25), false],
 	"gate_cp": ["gate_cp", Vector2(8.0, 1.25), false],
 	"gate_finish": ["gate_finish", Vector2(8.0, 1.25), false],
-	"curb_start": ["curb_start", Vector2(8.0, 1.25), false],
-	"curb_cp": ["curb_cp", Vector2(8.0, 1.25), false],
-	"curb_finish": ["curb_finish", Vector2(8.0, 1.25), false],
+	"gate_lap": ["gate_lap", Vector2(8.0, 1.25), false],
+	# the gate block's curbs, both faces (texgen/gates.py: the word every 4 m; UV-mapped as the
+	# border atlas, the face's rows spread over the texture: road.gd _entry)
+	"curb_start": ["curb_start", Vector2(1.0, 1.0), false],
+	"curb_cp": ["curb_cp", Vector2(1.0, 1.0), false],
+	"curb_finish": ["curb_finish", Vector2(1.0, 1.0), false],
+	"curb_lap": ["curb_lap", Vector2(1.0, 1.0), false],
+	# the same on the curbs' outer faces, mirrored as TMNF's (its words read backwards from outside)
+	"curb_start_out": ["curb_start", Vector2(-1.0, 1.0), false],
+	"curb_cp_out": ["curb_cp", Vector2(-1.0, 1.0), false],
+	"curb_finish_out": ["curb_finish", Vector2(-1.0, 1.0), false],
+	"curb_lap_out": ["curb_lap", Vector2(-1.0, 1.0), false],
+	"turbo_rim_out": ["turbo_rim", Vector2(-1.0, 1.0), false],
+	# the dirt checkpoint's bumpers (dirt.gd GATE_BUMPER): the sign's word every 5 m, as TMNF's
+	"bumper_cp": ["curb_cp", Vector2(1.25, 1.0), false],
+	"bumper_cp_out": ["curb_cp", Vector2(-1.25, 1.0), false],
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],

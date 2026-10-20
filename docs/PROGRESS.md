@@ -2568,3 +2568,23 @@ on every real contact the full impulse would land at the contact point and kick 
   along each upper flank, SPEEDFEST in black on each side with our emblem in red toward the nose
   (TMNF's has its maker's name there), lettered to read upright from outside on both sides; the
   tail fins red, the gondola white (it was all one beige). Side by side with TMNF's block.
+- (M11-2) **Gate feet as TMNF's** (owner: "there is a simple block rectangle connecting the arch
+  and the barriers. It looks stupid"). The box between each arch end and the curb is gone; each
+  foot is TMNF's now (measured; `road.gd _gate_feet`): two dark clamps round the curb (their outer
+  flange thicker, a strap over the curb's top), from each an eight-sided strut up to the arch's
+  end, between them a dark see-through lattice with two light rigs aimed at the road. TMNF's
+  checkpoints also have a clamp at z 5.8 with a brace up to the sign boards; with the boards
+  (option B) they stay out. The dirt checkpoints' gates are TMNF's: the road gate (clamps and all)
+  widened 4.5% (the high one narrowed to 0.891) and raised 1.07 m (5.78), 0.963 along z and moved
+  0.12 m (`dirt.gd CHECKPOINTS`, `TmGeo.scale_move`), the clamps' straps down on the bumpers; ours
+  had a lowered strut and no clamps.
+- (M11-2) **Gate blocks' curb signs as TMNF's.** Every gate block (checkpoint, also its slope and
+  tilt variants, start, finish, multilap, turbo) carries its sign on both faces of each curb, the
+  word every 4 m on a panel with a joint between (TMNF's RaceSigns; ours had the word every 8 m,
+  the inner face only, the outer showing our SPEEDFEST band); on the outer face it reads mirrored,
+  as TMNF's does. The textures are UV-mapped as the border atlas now (`texgen/gates.py` curb_*,
+  16 m a tile, rows spread over the face; `road.gd _entry`, `HALF_GROUND_GATE`). MultiLap says
+  MULTILAP in yellow over a chequered strip as TMNF's (arch faces and curbs; it said FINISH; the
+  crown screen still shows FINISH, where our lap races end). The dirt bumpers carry the sign the
+  same way, the word every 5 m (`bumper_cp`). Side by side with TMNF's blocks: Checkpoint,
+  Finish, Start, MultiLap, dirt checkpoint.

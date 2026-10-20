@@ -842,6 +842,22 @@ func shear_y(kx: float, kz: float, dy: float) -> void:
 		_col[k] = Vector3(v.x, v.y - kx * v.x + kz * v.z + dy, v.z)
 
 
+## Scales everything added so far about `about` by k per axis, then moves it by `offset` (TMNF
+## coords; k positive); normals follow (inverse transpose). For a piece another of its kind is a
+## resized copy of (the dirt roads' gates).
+func scale_move(about: Vector3, k: Vector3, offset := Vector3.ZERO) -> void:
+	# stored points are Godot's (x negated): TMNF x = -v.x
+	var f := func(v: Vector3) -> Vector3:
+		return TmGeo.g(about + (TmGeo.g(v) - about) * k + offset)
+	for key in _vis:
+		var grp: Group = _vis[key]
+		for i in grp.v.size():
+			grp.v[i] = f.call(grp.v[i])
+			grp.n[i] = (grp.n[i] / k).normalized()
+	for i in _col.size():
+		_col[i] = f.call(_col[i])
+
+
 ## Turns everything added so far by quarters x 90 deg about the vertical axis through (c.x, c.y)
 ## (TMNF x, z), from +x toward +z. A rotation keeps the winding, so faces stay outward.
 func turn_y(quarters: int, c: Vector2) -> void:

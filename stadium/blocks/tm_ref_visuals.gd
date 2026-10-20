@@ -92,7 +92,8 @@ static func material(name: String) -> Material:
 	var d := _tex(String(roles.get("D", name)))
 	if d != null:
 		m.albedo_texture = d
-		if name.contains("Alpha") or name.contains("Glass") or name.contains("Fan"):
+		# alpha-cut materials (TMNF's names; its StructureGeneric girders are lattice cards too)
+		if name.contains("Alpha") or name.contains("Glass") or name.contains("Fan") or name.contains("StructureGeneric"):
 			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 			m.alpha_scissor_threshold = 0.5
 	else:
