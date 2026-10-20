@@ -2527,3 +2527,10 @@ on every real contact the full impulse would land at the contact point and kick 
   edge and dark beyond; the ground plinths' rail an open railing's top bar (TMNF's railing is
   see-through), on the camera galleries too. Material check (BaseGround): colour differs 756 ->
   184 m2, TMNF surface we lacked 842 -> 396 m2.
+- (M11-2) **The pub blocks (Control/RoadPub) as TMNF's.** A straight's screens are two 2:1 boards
+  a side (12.2 m each, 0.76 m apart; ours one 26 m board), in a dark frame, under a dark portal at
+  each end on the ground; the lone base is TMNF's dark kiosk with a board on each face (it had no
+  screens); the plinth TMNF's (16 m wide, grey sides, a dark rubber top with a light strip down
+  its middle, a railing's top bar along each edge), the base's running along z as TMNF's; the
+  support block its dark Stands2 (`control.gd _pub`, `_pub_plinth`). Material check: TMNF
+  surface we lacked 402 -> 218 m2 (straight), 1280 -> 411 m2 (base).

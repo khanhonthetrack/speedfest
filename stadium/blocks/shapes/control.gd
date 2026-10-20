@@ -318,25 +318,58 @@ func _junction(geo: TmGeo, arms: Array) -> void:
 
 
 ## RoadPub: a pipe along each arm (radius 1.422 at 4 m, like the tubes) over a central 8 m support
-## block, with an advertising screen on each side of it (26 m along a straight); on the ground, a
-## plinth under it all.
+## block, with advertising screens on each side of it; on the ground, a plinth under it all. As
+## TMNF's (measured): the screens 2:1 boards PUB_BOARD_W long and PUB_BOARD_Y high, two side by side
+## along a straight (PUB_GAP apart), one on each face of the lone base's kiosk (PUB_KIOSK either side
+## of the centre); the block and the kiosk its dark Stands2; the plinth (PUB_PLINTH either side of
+## the run) grey with a dark rubber top, a light strip down its middle (PUB_STRIP) and a railing's
+## top bar along each edge (PUB_RAIL); the base's plinth runs along z (PUB_BASE_RUN either way);
+## a straight's boards sit in a dark frame, under a dark portal at each end on the ground.
+const PUB_BOARD_W := 12.2
+const PUB_GAP := 0.76
+const PUB_BOARD_Y := {"ground": Vector2(1.92, 7.48), "air": Vector2(1.21, 6.92)}
+const PUB_KIOSK := 6.48
+const PUB_PLINTH := 8.0
+const PUB_STRIP := 4.9
+const PUB_RAIL := 7.07
+const PUB_BASE_RUN := 13.19
+const PUB_FRAME := 0.25         ## the dark frame's margin round a straight's boards
+
+
 func _pub(geo: TmGeo, arms: Array) -> void:
 	var c := Vector3(16, 4, 16)
 	var dirs := arms.map(func(i: int) -> Vector3: return SIDES[i])
 	for d: Vector3 in dirs:
 		geo.pipe(c, c + d * 16.0, 1.422, 12, "pillar", S_PIPE)
 	var top := 1.81 if _floor > 0.0 else 0.0
-	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "wall_dark", S_CONCRETE, "", -2, 0.05)
+	var by: Vector2 = PUB_BOARD_Y["ground" if _floor > 0.0 else "air"]
+	var first := 0
+	if arms.is_empty():
+		# the lone base: a dark kiosk with a screen on each face, on a plinth along z
+		var k0 := 16.0 - PUB_KIOSK
+		var k1 := 16.0 + PUB_KIOSK
+		geo.box(Vector3(k0, maxf(top, _floor), k0), Vector3(k1, ROOF, k1), "stands_dark", S_CONCRETE, "", -2, 0.05)
+		var hw := PUB_BOARD_W * 0.5
+		for i in 4:
+			var o: Vector3 = SIDES[i]
+			var t := Vector3(o.z, 0.0, -o.x)
+			var a := Vector3(16, by.x, 16) + o * PUB_KIOSK - t * hw
+			var b := Vector3(16, by.y, 16) + o * (PUB_KIOSK + 0.3) + t * hw
+			geo.screen_box(Vector3(minf(a.x, b.x), by.x, minf(a.z, b.z)), Vector3(maxf(a.x, b.x), by.y, maxf(a.z, b.z)),
+				"screen", S_METAL, 0.03, first)
+			first += 1
+		if _floor > 0.0:
+			_pub_plinth(geo, Vector3(16, 0, 16 - PUB_BASE_RUN), Vector3(16, 0, 16 + PUB_BASE_RUN), Vector3(1, 0, 0))
+		return
+	geo.box(Vector3(12, maxf(top, _floor), 12), Vector3(20, ROOF, 20), "stands_dark", S_CONCRETE, "", -2, 0.05)
 	var straight := arms.size() == 2 and arms.has(0) and arms.has(2)
 	var runs := []          # [direction, t0, t1]: screens along the arms (t from the centre)
 	if straight:
-		runs.append([Vector3(0, 0, 1), -12.96, 12.96])
+		runs.append([Vector3(0, 0, 1), -PUB_GAP * 0.5 - PUB_BOARD_W, -PUB_GAP * 0.5])
+		runs.append([Vector3(0, 0, 1), PUB_GAP * 0.5, PUB_GAP * 0.5 + PUB_BOARD_W])
 	else:
 		for d: Vector3 in dirs:
 			runs.append([d, 4.0, 12.96])
-	var y0 := 1.29 if _floor > 0.0 else 0.58
-	var y1 := 7.95 if _floor > 0.0 else 7.39
-	var first := 0
 	for r in runs:
 		var d: Vector3 = r[0]
 		var side := Vector3(d.z, 0.0, -d.x)
@@ -344,14 +377,42 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 		var b := Vector3(16, 0, 16) + d * float(r[2])
 		for k in [-1.0, 1.0]:
 			var off: Vector3 = side * float(k) * 5.7
-			var lo := Vector3(minf(a.x, b.x) + off.x - absf(side.x) * 0.3, y0, minf(a.z, b.z) + off.z - absf(side.z) * 0.3)
-			var hi := Vector3(maxf(a.x, b.x) + off.x + absf(side.x) * 0.3, y1, maxf(a.z, b.z) + off.z + absf(side.z) * 0.3)
+			var lo := Vector3(minf(a.x, b.x) + off.x - absf(side.x) * 0.3, by.x, minf(a.z, b.z) + off.z - absf(side.z) * 0.3)
+			var hi := Vector3(maxf(a.x, b.x) + off.x + absf(side.x) * 0.3, by.y, maxf(a.z, b.z) + off.z + absf(side.z) * 0.3)
 			geo.screen_box(lo, hi, "screen", S_METAL, 0.03, first)
 			first += 1
+	if straight:
+		# TMNF's dark frame round each side's boards; on the ground, a portal over each end
+		var z0 := 16.0 - PUB_GAP * 0.5 - PUB_BOARD_W - PUB_FRAME
+		var z1 := 16.0 + PUB_GAP * 0.5 + PUB_BOARD_W + PUB_FRAME
+		for x: float in [10.1, 21.5]:
+			geo.box(Vector3(x, by.x - PUB_FRAME, z0), Vector3(x + 0.4, by.y + PUB_FRAME, z1), "stands_dark", S_METAL)
 		if _floor > 0.0:
-			# the plinth under the screens and the pipe
-			var w := side * 7.07
-			var p0 := a - w
-			var p1 := b + w
-			geo.box(Vector3(minf(p0.x, p1.x), _floor, minf(p0.z, p1.z)), Vector3(maxf(p0.x, p1.x), 1.81, maxf(p0.z, p1.z)),
-				"structure", S_CONCRETE, "structure", S_ROAD)
+			for z: float in [0.0, 31.6]:
+				for x: Vector2 in [Vector2(8.0, 10.5), Vector2(21.5, 24.0)]:
+					geo.box(Vector3(x.x, 1.81, z), Vector3(x.y, ROOF, z + 0.4), "stands_dark", S_METAL)
+				geo.box(Vector3(10.5, ROOF - 0.4, z), Vector3(21.5, ROOF, z + 0.4), "stands_dark", S_METAL)
+	if _floor > 0.0:
+		if straight:
+			_pub_plinth(geo, Vector3(16, 0, 0), Vector3(16, 0, 32), Vector3(1, 0, 0))
+		else:
+			for d: Vector3 in dirs:
+				_pub_plinth(geo, Vector3(16, 0, 16) + d * 4.0, Vector3(16, 0, 16) + d * 16.0, Vector3(d.z, 0.0, -d.x))
+
+
+## The pub's plinth along a -> b (side: across it), from the ground to 1.81 m: grey sides, a dark
+## rubber top with a light strip down its middle, the railing's top bar along each edge.
+func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3) -> void:
+	var box := func(w0: float, w1: float, y0: float, y1: float, key: String, top_key: String, surface: int) -> void:
+		var p0 := a + side * w0
+		var p1 := b + side * w1
+		geo.box(Vector3(minf(p0.x, p1.x), y0, minf(p0.z, p1.z)), Vector3(maxf(p0.x, p1.x), y1, maxf(p0.z, p1.z)),
+			key, surface, top_key, surface)
+	box.call(-PUB_PLINTH, PUB_PLINTH, _floor, 1.81, "stands_top", "rubber_dark", S_ROAD)
+	var s0 := a - side * PUB_STRIP
+	var s1 := b + side * PUB_STRIP
+	var lo := Vector3(minf(s0.x, s1.x), 1.812, minf(s0.z, s1.z))
+	var hi := Vector3(maxf(s0.x, s1.x), 1.812, maxf(s0.z, s1.z))
+	geo.quad(lo, Vector3(lo.x, lo.y, hi.z), hi, Vector3(hi.x, lo.y, lo.z), "control_panel", TmGeo.NO_COLLISION)
+	for k: float in [-1.0, 1.0]:
+		box.call(k * PUB_RAIL - 0.05, k * PUB_RAIL + 0.05, 2.71, 2.81, "structure", "", S_METAL)
