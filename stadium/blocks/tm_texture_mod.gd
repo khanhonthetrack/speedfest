@@ -101,7 +101,8 @@ static func decode(bytes: PackedByteArray, ext: String) -> Texture2D:
 func _open(hint: String) -> void:
 	_zip = ZIPReader.new()
 	if _zip.open(path) != OK:
-		error = "not a zip"
+		var head := FileAccess.get_file_as_bytes(path).slice(0, 8).get_string_from_ascii()
+		error = "a ManiaPlanet pack (.Pack.Gbx, Nadeo's encrypted format), not a zip" if head == "NadeoPak" else "not a zip"
 		_zip = null
 		return
 	var files := _zip.get_files()
@@ -130,7 +131,8 @@ func _open(hint: String) -> void:
 			if base in GENERIC[env]:
 				votes[env] = int(votes.get(env, 0)) + 3
 	if images.is_empty():
-		error = "no textures"
+		var video := others.filter(func(f: String) -> bool: return f.get_extension().to_lower() in ["webm", "ogv", "bik"])
+		error = "only video textures (%s), which the game can't play" % String(video[0]).get_extension().to_upper() if not video.is_empty() else "no textures"
 		return
 	var best := ""
 	for env: String in votes:

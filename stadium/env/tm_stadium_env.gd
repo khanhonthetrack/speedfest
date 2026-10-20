@@ -69,6 +69,10 @@ static func add(parent: Node) -> WorldEnvironment:
 	ct.generate_mipmaps = true
 	ct.noise = cn
 	sky_mat.set_shader_parameter("cloud_noise", ct)
+	# a worn texture mod's own cloud layer (TMNF's Moods/StadiumFXClouds: a tiling grey pattern)
+	var clouds: Texture2D = TmMaterials.mod.texture("StadiumFXClouds") if TmMaterials.mod != null else null
+	if clouds != null:
+		sky_mat.set_shader_parameter("cloud_noise", clouds)
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.radiance_size = Sky.RADIANCE_SIZE_256

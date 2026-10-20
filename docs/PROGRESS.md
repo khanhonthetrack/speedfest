@@ -2544,3 +2544,21 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   time (download, test, record, delete; or keep: the owner's private copy), results in
   `tools/compat/results/maniapark_<kind>.tsv` (ids, names, authors, checksums, outcomes; the
   files themselves never in the repo).
+- **The whole catalogue, run** (`compat_run.py mods`, 890 mods; results in
+  `stadium/tools/compat/results/maniapark_mods.tsv`): **810 open completely** (every texture
+  decodes): TMNF/TMUF 276 Stadium, 99 Coast, 60 Desert, 51 Rally, 44 Snow, 36 Island, 29 Bay;
+  ManiaPlanet 68 Stadium, 45 Storm, 27 Valley, 22 Canyon, 9 Lagoon, 36 whose names don't tell
+  (Canyon/Valley/Storm mods with generic names). **336 of the 344 Stadium mods are worn** by our
+  blocks (12.4 of the 16 MOD_MAP keys on average; the 8 others retexture only what we don't map:
+  stands, screens). Not opened (80): 71 ManiaPlanet `.Pack.Gbx` packs (NadeoPak v10-18, flags 6:
+  the data is encrypted with a key Nadeo's servers give the game; not circumvented), 8 ManiaPark
+  serves no file for (404), 1 with only WebM video textures (Godot plays Theora, not WebM).
+- Fixes the run found (`car/tm_car_pack.gd`, shared with car packs): uncompressed RGB(A) chains
+  one level short, a DXT1 stating 7 levels and holding 1, sides that aren't whole blocks
+  (1010 x 1002, 955 x 610, 1031 x 1031: the top level padded and cropped), headers missing the
+  required flags or with the header size 24, `RXGB` (DXT5 under another name), ManiaPlanet's
+  R11G11B10-float ambient cube maps (decoded by hand: six faces side by side). An empty (0-byte)
+  texture in a mod is skipped, as TMNF does.
+- A worn mod's `Moods/StadiumFXClouds` becomes the sky's cloud layer (`env/tm_stadium_env.gd`).
+- Downloads four at a time from ManiaPark, two from TMX (`compat_run.py`); 404s and Nadeo packs
+  are recorded with their reason.

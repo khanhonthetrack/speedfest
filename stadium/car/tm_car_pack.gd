@@ -171,9 +171,9 @@ static func _texture(bytes: PackedByteArray, ext: String) -> Texture2D:
 		"dds":
 			var l := _dds_layout(bytes)
 			var odd := not l.is_empty() and int(l[4]) > 0 and (int(l[0]) % 4 != 0 or int(l[1]) % 4 != 0)
-			err = img.load_dds_from_buffer(_dds_fixed(bytes)) if not odd else ERR_FILE_UNRECOGNIZED
+			err = img.load_dds_from_buffer(_dds_fixed(bytes)) if not odd and not _dds_r11g11b10(bytes, true) else ERR_FILE_UNRECOGNIZED
 			if err != OK or img.is_empty():
-				img = _dds_top_level(bytes)
+				img = _dds_r11g11b10(bytes) if _dds_r11g11b10(bytes, true) else _dds_top_level(bytes)
 				err = OK if img != null else ERR_FILE_CORRUPT
 		"tga": err = img.load_tga_from_buffer(bytes)
 		"png": err = img.load_png_from_buffer(bytes)
@@ -205,7 +205,7 @@ static func _dds_layout(b: PackedByteArray) -> Array:
 		var dxgi := b.decode_u32(128)
 		block = 8 if dxgi in [70, 71, 72, 79, 80, 81] else (16 if dxgi in [73, 74, 75, 76, 77, 78, 82, 83, 84, 94, 95, 96, 97, 98, 99] else 0)
 	elif (b.decode_u32(80) & 0x4) != 0:
-		block = 8 if fourcc in ["DXT1", "ATI1", "BC4U", "BC4S"] else (16 if fourcc in ["DXT2", "DXT3", "DXT4", "DXT5", "ATI2", "BC5U", "BC5S"] else 0)
+		block = 8 if fourcc in ["DXT1", "ATI1", "BC4U", "BC4S"] else (16 if fourcc in ["DXT2", "DXT3", "DXT4", "DXT5", "ATI2", "BC5U", "BC5S", "RXGB"] else 0)
 	elif (b.decode_u32(80) & (0x40 | 0x20000 | 0x2)) != 0 and b.decode_u32(88) in [8, 16, 24, 32]:
 		bpp = b.decode_u32(88) / 8        # uncompressed RGB(A), luminance, alpha
 	if (block == 0 and bpp == 0) or w == 0 or h == 0:
@@ -223,16 +223,23 @@ static func _dds_level_size(l: Array, i: int) -> int:
 
 ## Old DDS exporters (Photoshop's NVIDIA plugin, the TMNF modders' tools) store a wrong pitch /
 ## linear size, stop the mipmap chain before 1 x 1, or state more levels than they wrote, all of
-## which Godot's loader refuses: drop those header flags (the size follows from the format and
-## dimensions), keep the levels that are there and complete the chain with blank levels (block-
+## which Godot's loader refuses (some also leave out the flags every DDS must set): drop those header
+## flags (the size follows from the format and dimensions), keep the levels that are there and complete the chain with blank levels (block-
 ## compressed DXT1-5, BC4/BC5 normal maps, DX10 headers, and uncompressed RGB(A)).
 static func _dds_fixed(bytes: PackedByteArray) -> PackedByteArray:
 	var l := _dds_layout(bytes)
 	if l.is_empty():
 		return bytes
 	var out := bytes.duplicate()
-	out.encode_u32(8, out.decode_u32(8) & ~0x80008)   # DDSD_LINEARSIZE, DDSD_PITCH
+	# drop DDSD_LINEARSIZE, DDSD_PITCH; set the flags every DDS must have (CAPS, HEIGHT, WIDTH,
+	# PIXELFORMAT: some exporters leave them out)
+	out.encode_u32(8, (out.decode_u32(8) & ~0x80008) | 0x1007)
+	out.encode_u32(4, 124)            # the header's size (one exporter writes 24)
+	out.encode_u32(76, 32)            # the pixel format's
 	out.encode_u32(20, 0)
+	if out.slice(84, 88).get_string_from_ascii() == "RXGB":   # DXT5 with a normal map's red in alpha
+		out[87] = 53      # "DXT5"
+		out[84] = 68; out[85] = 88; out[86] = 84
 	var data: int = l[3]
 	var full := 1
 	while (int(l[0]) >> (full - 1)) > 1 or (int(l[1]) >> (full - 1)) > 1:
@@ -259,6 +266,49 @@ static func _dds_fixed(bytes: PackedByteArray) -> PackedByteArray:
 	out.encode_u32(28, full)
 	out.encode_u32(108, out.decode_u32(108) | 0x400008)      # DDSCAPS_MIPMAP | COMPLEX
 	return out
+
+
+## ManiaPlanet's ambient light cubes (Moods/*/AmbCubeP.dds): a DX10 DDS of packed floats
+## (R11G11B10, which Godot's loader doesn't read), six faces: their top levels side by side as one
+## HDR image. probe: only whether the file is one.
+static func _dds_r11g11b10(bytes: PackedByteArray, probe := false):
+	if bytes.size() < 148 or bytes.slice(0, 4).get_string_from_ascii() != "DDS " or bytes.slice(84, 88).get_string_from_ascii() != "DX10" \
+			or bytes.decode_u32(128) != 26:
+		return false if probe else null
+	if probe:
+		return true
+	var h := bytes.decode_u32(12)
+	var w := bytes.decode_u32(16)
+	var mips := maxi(1, bytes.decode_u32(28))
+	var faces := 6 if (bytes.decode_u32(112) & 0x200) != 0 or (bytes.decode_u32(136) & 4) != 0 else 1
+	var stride := 0                 # a face: its whole mip chain
+	for i in mips:
+		stride += maxi(1, w >> i) * maxi(1, h >> i) * 4
+	if w == 0 or h == 0 or bytes.size() < 148 + stride * faces or w * h * faces > 4096 * 4096:
+		return null
+	var px := PackedFloat32Array()
+	px.resize(w * faces * h * 3)
+	for f in faces:
+		for y in h:
+			for x in w:
+				var v := bytes.decode_u32(148 + f * stride + (y * w + x) * 4)
+				var o := ((y * w * faces) + f * w + x) * 3
+				px[o] = _f11(v & 0x7FF)
+				px[o + 1] = _f11((v >> 11) & 0x7FF)
+				px[o + 2] = _f10((v >> 22) & 0x3FF)
+	return Image.create_from_data(w * faces, h, false, Image.FORMAT_RGBF, px.to_byte_array())
+
+
+static func _f11(v: int) -> float:       # 5-bit exponent, 6-bit mantissa, no sign
+	var e := v >> 6
+	var m := v & 0x3F
+	return (m / 64.0) * pow(2.0, -14.0) if e == 0 else (1.0 + m / 64.0) * pow(2.0, e - 15)
+
+
+static func _f10(v: int) -> float:       # 5-bit exponent, 5-bit mantissa
+	var e := v >> 5
+	var m := v & 0x1F
+	return (m / 32.0) * pow(2.0, -14.0) if e == 0 else (1.0 + m / 32.0) * pow(2.0, e - 15)
 
 
 ## A block-compressed DDS whose sides aren't multiples of 4 (1010 x 1002; Godot's loader wants
