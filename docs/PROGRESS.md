@@ -2534,3 +2534,8 @@ on every real contact the full impulse would land at the contact point and kick 
   its middle, a railing's top bar along each edge), the base's running along z as TMNF's; the
   support block its dark Stands2 (`control.gd _pub`, `_pub_plinth`). Material check: TMNF
   surface we lacked 402 -> 218 m2 (straight), 1280 -> 411 m2 (base).
+- (M11-2) **Camera lights as TMNF's, take two.** The block between the feet is dark on top and
+  underneath (TMNF's Stands2; ours was grey and light: 1,024 m2 a block), the top bar's underside
+  light on both sides with the lit strip on its outer bevel (ours had the strip on the left
+  underside), and along each outer side TMNF's four floodlight bars at mid height (measured;
+  `control.gd LIGHT_BARS`). Side by side with TMNF's block.

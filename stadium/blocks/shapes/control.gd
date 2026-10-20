@@ -76,17 +76,21 @@ var _floor := 0.0
 ## The camera light rig (Control/CameraLight): its section (x, y), measured: a block 16 m wide and
 ## 8 m tall with feet, under a 1 m top bar reaching out to the spotlights; the straight piece is
 ## this section along z, the base its right half revolved about (16, 16). In TMNF's colours: dark
-## (its Stands2) with grey tops (Stands) and light undersides (Auvent).
+## (its Stands2), the feet and the top bar with grey tops (Stands) and light undersides (Auvent),
+## the block between the feet dark top and bottom, the top bar's outer bevel its lit strip; along
+## each outer side, four floodlight bars (LIGHT_BARS: x0, x1, y0, y1 of the left ones; z runs).
+const LIGHT_BARS := [1.04, 2.03, 2.88, 3.77]
+const LIGHT_BAR_Z := [Vector2(0.51, 7.07), Vector2(9.0, 15.56), Vector2(16.44, 23.0), Vector2(24.93, 31.49)]
 const LIGHT := [[28.243, 7.0, "control_under", S_METAL], [24.0, 7.0, "stands_dark", S_METAL], [24.0, 1.0, "stands_top", S_METAL],
-	[28.0, 1.0, "stands_dark", S_METAL], [28.0, 0.0, "control_under", S_METAL], [24.0, 0.0, "control_under", S_METAL],
+	[28.0, 1.0, "stands_dark", S_METAL], [28.0, 0.0, "control_under", S_METAL], [24.0, 0.0, "stands_dark", S_METAL],
 	[8.0, 0.0, "control_under", S_METAL], [4.0, 0.0, "stands_dark", S_METAL], [4.0, 1.0, "stands_top", S_METAL],
-	[8.0, 1.0, "stands_dark", S_METAL], [8.0, 7.0, "lamp", S_METAL], [3.757, 7.0, "stands_dark", S_METAL],
-	[3.879, 7.5, "stands_dark", S_METAL], [4.0, 8.0, "stands_top", S_METAL], [8.0, 8.0, "stands_top", S_METAL],
+	[8.0, 1.0, "stands_dark", S_METAL], [8.0, 7.0, "control_under", S_METAL], [3.757, 7.0, "lamp", S_METAL],
+	[3.879, 7.5, "stands_dark", S_METAL], [4.0, 8.0, "stands_top", S_METAL], [8.0, 8.0, "stands_dark", S_METAL],
 	[24.0, 8.0, "stands_top", S_METAL], [28.0, 8.0, "stands_dark", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
-const LIGHT_HALF := [[16.0, 0.0, "control_under", S_METAL], [24.0, 0.0, "control_under", S_METAL], [28.0, 0.0, "stands_dark", S_METAL],
-	[28.0, 1.0, "stands_top", S_METAL], [24.0, 1.0, "stands_dark", S_METAL], [24.0, 7.0, "lamp", S_METAL],
-	[28.243, 7.0, "stands_dark", S_METAL], [28.121, 7.5, "stands_dark", S_METAL], [28.0, 8.0, "stands_top", S_METAL],
-	[24.0, 8.0, "stands_top", S_METAL], [16.0, 8.0, "stands_dark", S_METAL]]
+const LIGHT_HALF := [[16.0, 0.0, "stands_dark", S_METAL], [24.0, 0.0, "control_under", S_METAL], [28.0, 0.0, "stands_dark", S_METAL],
+	[28.0, 1.0, "stands_top", S_METAL], [24.0, 1.0, "stands_dark", S_METAL], [24.0, 7.0, "control_under", S_METAL],
+	[28.243, 7.0, "lamp", S_METAL], [28.121, 7.5, "stands_dark", S_METAL], [28.0, 8.0, "stands_top", S_METAL],
+	[24.0, 8.0, "stands_dark", S_METAL], [16.0, 8.0, "stands_dark", S_METAL]]
 ## The camera pub (Control/CameraPub): a block with rounded top edges along z, a screen on each
 ## side (x0, x1 of the left one, y0, y1, z0, z1); on the ground it stands on a low plinth (measured).
 const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "structure", S_METAL], [28.889, 7.207, "structure", S_METAL],
@@ -156,6 +160,20 @@ func _camera_piece(shape: String) -> Node3D:
 	match shape:
 		"Control/CameraLight/StraightAir":
 			along.call(LIGHT)
+			var b: Array = LIGHT_BARS
+			for z: Vector2 in LIGHT_BAR_Z:
+				for right in [false, true]:
+					var x0: float = 32.0 - float(b[1]) if right else float(b[0])
+					var x1: float = 32.0 - float(b[0]) if right else float(b[1])
+					geo.box(Vector3(x0, b[2], z.x), Vector3(x1, b[3], z.y), "stands_dark", S_METAL)
+					# the lamps' face, outward
+					var xf: float = x1 + 0.01 if right else x0 - 0.01
+					var q := [Vector3(xf, float(b[2]) + 0.12, z.x + 0.15), Vector3(xf, float(b[3]) - 0.12, z.x + 0.15),
+						Vector3(xf, float(b[3]) - 0.12, z.y - 0.15), Vector3(xf, float(b[2]) + 0.12, z.y - 0.15)]
+					if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).x * (1.0 if right else -1.0) < 0.0:
+						geo.quad(q[0], q[3], q[2], q[1], "lamp", TmGeo.NO_COLLISION)
+					else:
+						geo.quad(q[0], q[1], q[2], q[3], "lamp", TmGeo.NO_COLLISION)
 		"Control/CameraLight/BaseAir":
 			var sec := LIGHT_HALF.map(func(q: Array) -> Array: return [Vector2(float(q[0]) - 16.0, q[1]), q[2], q[3]])
 			var path := []

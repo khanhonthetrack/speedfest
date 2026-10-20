@@ -212,8 +212,10 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       turbo pads, the circuit (sides, undersides, end caps, slope bases), roads (atlas bands, keel,
       grid, pillars, ground slopes, FreeWheeling pads, start / finish roads, the gate line),
       platform decks, grandstands' and camera booths' colours, dirt outlines, sculpture pads, the
-      pipe pillars and tubes; next: platform checkpoints / turbo / ToRoad, camera lights, the
-      road turbo gantry, junction undersides, dirt road furniture
+      pipe pillars and tubes, platform undersides (plate, hub, beams), slopes' frames, the turbo
+      deck (floor, turbines, TURBO rim), checkpoint arch and ring, gate word bands, ToRoad, glass
+      booths, pub blocks, camera lights; next: sculptures, dirt road furniture, the road turbo
+      gantry, junction undersides, the grandstands' trusses
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
       bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)
