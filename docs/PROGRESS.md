@@ -2549,3 +2549,7 @@ on every real contact the full impulse would land at the contact point and kick 
   the platform turbo's), the walkway's side panels dark see-through (TMNF's railing; ours were
   light-blue glass), and the curbs' face carries TMNF's TURBO sign (our turbo_rim spread over the
   face's rows; `road.gd CURB_ROWS`). Side by side with TMNF's block.
+- (M11-2) **Where a dirt road meets the road (Road/Dirt/RoadDirtToRoad), TMNF's curbs.** Ours was
+  terrain only; TMNF runs the ground road's curbs along both sides, full up to 17 m, then a
+  narrower, lower curb into the dirt's berm (measured; `dirt.gd _to_road_curbs`). Side by side
+  with TMNF's block.

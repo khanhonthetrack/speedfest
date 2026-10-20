@@ -4,7 +4,8 @@ extends RefCounted
 ## hand-sculpted terrain, so each is our own bicubic surface through measured control heights 2 m
 ## apart over its footprint, grass, dirt or asphalt per 2 m cell (blocks/data/dirt_heights.json, from
 ## tools/research/tmnf/terrain_heights.py). The checkpoints are the straight's terrain under a
-## gate. Fences, signs and awnings on some pieces are not recreated yet.
+## gate; where a dirt road meets the road, TMNF's curbs (_to_road_curbs). Fences, signs and awnings
+## on some pieces are not recreated yet.
 
 const RoadShapes := preload("res://blocks/shapes/road.gd")
 
@@ -22,6 +23,16 @@ const CHECKPOINTS := {
 	"Road/Dirt/RoadDirtCheckpoint/Ground": ["Road/Dirt/StraightGround", 1.0],
 	"Road/DirtHigh/RoadDirtCheckpointHigh/Ground": ["Road/DirtHigh/StraightGround", 5.8],
 }
+
+## Where a dirt road meets Road/Main (TMNF's RoadDirtToRoad, measured): the road's ground curbs
+## along both sides, full up to TO_ROAD_FULL, then a narrower, lower curb running into the dirt's
+## berm (the section's d mapped to TO_ROAD_D.x + (d - 1) * TO_ROAD_D.y, its height above 1 m scaled
+## by TO_ROAD_H, sinking TO_ROAD_SINK more by the block's end).
+const TO_ROAD := ["Road/Dirt/RoadDirtToRoad/Ground"]
+const TO_ROAD_FULL := 17.0
+const TO_ROAD_D := Vector2(1.97, 0.476)
+const TO_ROAD_H := 0.8
+const TO_ROAD_SINK := 0.3
 
 static var _shapes: Dictionary = {}
 
@@ -51,6 +62,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		geo.merge(gate)
 	elif shapes().has(shape):
 		_surface(geo, shapes()[shape])
+		if shape in TO_ROAD:
+			_to_road_curbs(geo)
 	else:
 		return null
 	var node := geo.build()
@@ -147,3 +160,20 @@ static func _bicubic(g: Array, step: float, x: float, z: float) -> float:
 	for k in [-1, 0, 1, 2]:
 		rows.append(_cr(at.call(j + k, i - 1), at.call(j + k, i), at.call(j + k, i + 1), at.call(j + k, i + 2), fx - i))
 	return _cr(rows[0], rows[1], rows[2], rows[3], fz - j)
+
+
+## TMNF's curbs where the dirt meets the road (TO_ROAD_*): both sides, the full curb then the narrow
+## one sinking into the berm.
+func _to_road_curbs(geo: TmGeo) -> void:
+	var curb: Array = RoadShapes.new()._curb_section(true)
+	var lat := [Vector3(1, 0, 0), Vector3(1, 0, 0)]
+	for side: float in [1.0, -1.0]:
+		var full := curb.map(func(q: Array) -> Array:
+			var p: Vector2 = q[0]
+			return [Vector2((p.x - 16.0) * side, p.y), q[1], q[2]] + q.slice(3))
+		geo.wall_sweep(full, [Vector3(16, 0, 0), Vector3(16, 0, TO_ROAD_FULL)], lat, true, "road_metal", 4)
+		var narrow := curb.map(func(q: Array) -> Array:
+			var p: Vector2 = q[0]
+			var d := TO_ROAD_D.x + (p.x - 1.0) * TO_ROAD_D.y
+			return [Vector2((d - 16.0) * side, 1.0 + (p.y - 1.0) * TO_ROAD_H), q[1], q[2]] + q.slice(3))
+		geo.wall_sweep(narrow, [Vector3(16, 0, TO_ROAD_FULL), Vector3(16, -TO_ROAD_SINK, 32.0)], lat, true, "road_metal", 4)
