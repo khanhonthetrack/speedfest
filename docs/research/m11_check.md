@@ -88,12 +88,21 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   frame, plinth), the camera lights (dark centre, floodlight bars), the camera galleries' rail.
 - Others: sculptures (concrete panels, smooth shading, atlas curbs), the grandstands' white truss
   lattice, the airship's livery (our names in TMNF's layout).
+- The airship is TMNF's (20 Oct): its lofts had lost the gondola and the fins, built now from
+  TMNF's measured outlines (`sculpt.gd _airship`): the fins and rudders (top and sides red, the
+  bottom one white with yellow along its leading edge and foot), the gondola (hull, three windows
+  between white pillars, the red stripe, the dark frame), the engine pods with fans and stub
+  wings, the keel girders fore and aft, the four mooring arms and their cables, the tail rounded.
+  Its livery is laid out as TMNF's in the world (`texgen/stadium.py airship_skin`, mapped through
+  the envelope's rings): the yellow band round it at y 29.6-44.2 (which makes the nose and the
+  tail yellow), white round the side fins' roots, four lights fore and aft, the gores by angle.
+  Ours keeps its name readable on both sides (TMNF's reads mirrored on one) and leaves out TMNF's
+  small names and spots. Left: the frame's hangers and logo panel, the windows' interior.
 - The checker reads alpha-cut textures (trusses, railings) by their visible texels now.
 
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,472 m2: colour differs
 13.5%, missing 11.8%. Left, by area times our tracks' use: the grandstands' (Fabric) lattice and
 girders (StructureAlpha / StructureGeneric / AuventAlpha alpha cards: their catwalks, the main
-spine, the raised deck's lattice legs; missing 1,100-4,600 m2 a piece), the airship's gondola
-frame, the snow and palm trees (organic), the circuit border's blue shade, the camera lights'
+spine, the raised deck's lattice legs; missing 1,100-4,600 m2 a piece), the snow and palm trees (organic), the circuit border's blue shade, the camera lights'
 truss supports, the road gates' sign boards (left out: the owner's option B), the loops.

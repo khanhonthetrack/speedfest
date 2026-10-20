@@ -142,50 +142,82 @@ def inflatable_skin(name='inflatable_skin', ppm=64, size_m=4.0, seed=141):
 
 def airship_skin(name='airship_skin', w=1024, h=512, seed=151):
     """The airship's envelope, UV-mapped (blocks/shapes/sculpt.gd: u along it, nose 0 -> tail 1;
-    v round it from the top: 0.25 the -x side, 0.5 the bottom, 0.75 the +x side), laid out as
-    TMNF's: white vinyl in gores, a yellow nose cap, a yellow band along each upper flank, our
-    name in black on each side with our emblem in red toward the nose. Our own art and names; each
-    side's lettering drawn so it reads upright from outside (the +x side's rows run upward, the -x
-    side's u toward the nose)."""
+    v round it from the top, ring point i of n), laid out as TMNF's, measured in the world and
+    mapped to the texture through the envelope's rings (blocks/data/sculpt_lofts.json): white vinyl
+    in gores, a yellow band round it at a constant height (y 29.6..44.2, so the nose and the tail,
+    narrower than it, are all yellow), white round the side fins' roots (from a slanted edge to
+    z 170.5, below y 39.5), four coloured lights under the band fore and aft; our name in black in
+    the band on each side, our emblem in red toward the nose, both projected flat from the side so
+    they read upright from outside (the -x side's viewer has the nose on the right). Our own art
+    and names."""
+    import json
+    import os
     from road import emblem
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'blocks', 'data', 'sculpt_lofts.json')
+    rings = json.load(open(path))['shapes']['Other/Airship'][0]['rings']
+    zs = np.array([float(r[0]) for r in rings])
+    pts = np.array([r[1] for r in rings], np.float32).reshape(len(rings), -1, 2)
+    n = pts.shape[1]
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    u = xx / w
-    v = yy / h
+    # each texel's place on the envelope (as sculpt.gd maps it): X, Y, Z
+    zz = zs[0] + (xx + 0.5) / w * (zs[-1] - zs[0])
+    kf = np.interp(zz, zs, np.arange(len(zs), dtype=np.float32))
+    k0 = np.clip(np.floor(kf).astype(int), 0, len(zs) - 2)
+    fk = kf - k0
+    fi = (yy + 0.5) / h * n
+    i0 = np.floor(fi).astype(int) % n
+    i1 = (i0 + 1) % n
+    fi = fi - np.floor(fi)
+
+    def at(c):
+        a = pts[k0, i0, c] * (1 - fi) + pts[k0, i1, c] * fi
+        b = pts[k0 + 1, i0, c] * (1 - fi) + pts[k0 + 1, i1, c] * fi
+        return a * (1 - fk) + b * fk
+    xw, yw = at(0), at(1)
     n1 = fbm(w, h, seed, beta=2.2, lo=1.0)
     wr = blur(fbm(w, h, seed + 1, beta=1.4, lo=6.0), 1.0)
-    gore = np.clip(1 - smoothstep(0.0, 0.004, np.minimum(v % (1 / 16), 1 / 16 - v % (1 / 16))), 0, 1)
-    col = srgb((238, 238, 236))[None, None, :] * ((1.0 + 0.02 * n1 + 0.02 * wr) * (1 - 0.08 * gore))[..., None]
-    yellow = srgb((236, 214, 22))[None, None, :] * (1.0 + 0.03 * n1)[..., None]
-    # the nose cap, its edge a little further back on the flanks than on top and bottom
-    nose = 1 - smoothstep(0.0, 0.006, u - (0.100 + 0.018 * np.abs(np.sin(2 * math.pi * v))))
-    # the band along each upper flank, from near the top down to above the lettering (-x side:
-    # v 0.03..0.165; +x side: v 0.835..0.97), thinning aft
-    taper = np.clip(1.0 - (u - 0.10) / 0.85, 0.3, 1.0)
-    band = np.zeros((h, w), np.float32)
-    for c in (0.0975, 0.9025):
-        half = 0.0675 * taper
-        band = np.maximum(band, (1 - smoothstep(half - 0.002, half + 0.002, np.abs(v - c))) *
-                          smoothstep(0.095, 0.105, u) * (1 - smoothstep(0.86, 0.88, u)))
-    col = lerp(col, yellow, np.clip(nose + band, 0, 1))
-    # the lettering and the emblem per side, drawn as its viewer sees it, then turned to the texture
-    side_h = h // 2
-    fnt = font('orbitron-latin-900-normal', int(0.11 * h))
+    # the gores' seams: 16 round it, by angle about its axis (the rings' points twist a little)
+    g = (np.arctan2(yw - 37.0, xw - 16.04) / (2 * math.pi) * 16) % 1.0
+    gore = np.clip(1 - smoothstep(0.0, 0.064, np.minimum(g, 1 - g)), 0, 1)
+    col = srgb((244, 242, 240))[None, None, :] * ((1.0 + 0.015 * n1 + 0.01 * wr) * (1 - 0.06 * gore))[..., None]
+    yellow = srgb((250, 238, 76))[None, None, :] * (1.0 + 0.02 * n1)[..., None]
+    band = smoothstep(29.45, 29.75, yw) * (1 - smoothstep(44.05, 44.35, yw))
+    patch = (1 - smoothstep(39.35, 39.65, yw)) * smoothstep(-0.25, 0.25, zz - 124.0 - 2.0 * (yw - 30.0)) * \
+        (1 - smoothstep(170.3, 170.7, zz))
+    col = lerp(col, yellow, band * (1 - patch))
+    # the lights: green to red toward the tail, fore and aft
+    lights = [(46, 160, 60), (250, 220, 40), (240, 130, 20), (210, 20, 16)]
+    for z0 in (21.2, 115.6):
+        for k, c in enumerate(lights):
+            za = z0 + 2.8 * k
+            m = smoothstep(za - 0.1, za + 0.1, zz) * (1 - smoothstep(za + 2.3, za + 2.5, zz)) * \
+                smoothstep(26.5, 26.7, yw) * (1 - smoothstep(27.9, 28.1, yw))
+            col = lerp(col, srgb(c)[None, None, :] * np.ones((h, w, 1)), m)
+    # the lettering and the emblem, drawn per side as its viewer sees it (ppm px per metre, the
+    # image's top at y 56), then sampled at each texel's (Z, Y)
+    ppm = 8
+    sw, sh = int(186 * ppm), int(46 * ppm)
+    fnt = font('orbitron-latin-900-normal', int(10.6 * ppm))
 
     def side(nose_left):
-        word_x = (0.52 if nose_left else 0.48) * w
-        em_x = (0.2 if nose_left else 0.8) * w
-        txt = text_mask(w, side_h, 'SPEEDFEST', fnt, (word_x, 0.44 * side_h), 'mm', italic=0.18, tracking=int(0.004 * w))
-        em = emblem(w, side_h, em_x, 0.44 * side_h, 0.05 * h)
+        zx = (lambda z: z * ppm) if nose_left else (lambda z: (186 - z) * ppm)
+        txt = text_mask(sw, sh, 'SPEEDFEST', fnt, (zx(85.0), (56 - 38.8) * ppm), 'mm', italic=0.18, tracking=int(0.5 * ppm))
+        em = emblem(sw, sh, zx(24.0), (56 - 34.2) * ppm, 6.6 * ppm)
         return txt, em
-    t_a, e_a = side(True)            # the +x side's viewer: the nose on the left
-    t_b, e_b = side(False)           # the -x side's: the nose on the right
-    txt = np.concatenate([t_b[:, ::-1], t_a[::-1, :]], 0)
-    em = np.concatenate([e_b[:, ::-1], e_a[::-1, :]], 0)
+    row = np.clip(((56 - yw) * ppm).astype(int), 0, sh - 1)
+    txt = np.zeros((h, w), np.float32)
+    em = np.zeros((h, w), np.float32)
+    for nose_left in (True, False):
+        t, e = side(nose_left)
+        cc = np.clip(((zz if nose_left else 186 - zz) * ppm).astype(int), 0, sw - 1)
+        on = (xw > 16.04) if nose_left else (xw <= 16.04)
+        txt = np.where(on, t[row, cc], txt)
+        em = np.where(on, e[row, cc], em)
     col = lerp(col, srgb((22, 22, 24))[None, None, :] * np.ones((h, w, 1)), txt)
-    col = lerp(col, srgb((206, 24, 22))[None, None, :] * np.ones((h, w, 1)), em)
+    col = lerp(col, srgb((206, 16, 14))[None, None, :] * np.ones((h, w, 1)), em)
     dust = grime(w, h, seed + 3, 0.5, 2.0)
-    col = lerp(col, srgb((200, 196, 186))[None, None, :] * np.ones((h, w, 1)), dust * 0.12)
-    nrm = normal_from_height(0.6 * wr - 0.8 * gore, 0.4)
-    rough = 0.3 + 0.15 * dust + 0.1 * gore
+    col = lerp(col, srgb((200, 196, 186))[None, None, :] * np.ones((h, w, 1)), dust * 0.08)
+    nrm = normal_from_height(0.08 * wr - 0.6 * gore, 0.4)
+    rough = 0.3 + 0.12 * dust + 0.1 * gore
     orm = np.stack([np.ones((h, w), np.float32), rough, np.zeros((h, w), np.float32)], -1)
     save(name, np.clip(col, 0, 1), nrm, orm)

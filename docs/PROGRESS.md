@@ -2636,3 +2636,16 @@ on every real contact the full impulse would land at the contact point and kick 
   were narrow solid boxes); the turbo deck has TMNF's advert band under its plate along each x
   side (our adverts; `TmGeo.screen_rect` takes a lower `min_h` for such bands). Side by side with
   TMNF's blocks.
+- (M11-2) **The airship as TMNF's** (`sculpt.gd`, `texgen/stadium.py airship_skin`). Its lofts
+  had lost the gondola (one tube left at its back) and the fins (2 m slivers); all built now from
+  TMNF's measured outlines: the fins and rudders as slabs (TMNF's colours: top and sides red, the
+  bottom fin white with yellow along its leading edge and foot), the gondola's hull lofted through
+  14 stations with three windows between white pillars and the red stripe high along it, the dark
+  frame up to the envelope, the engine pods (duct, hub, five-blade fan, stub wing), the keel
+  girders fore and aft and the four mooring arms (dark cut-out truss cards) with their cables to
+  the ground, the tail rounded by one more ring. The livery is laid out as TMNF's in world space
+  (each texel placed on the envelope through its rings): the yellow band round it at y 29.6-44.2
+  (so the nose and the tail are yellow, as TMNF's), white round the side fins' roots, four
+  coloured lights fore and aft, our name and emblem projected flat on each side (reading upright
+  from outside), the gores' seams by angle (they zig-zagged where the rings twist), smoother vinyl.
+  Side by side with TMNF's block.
