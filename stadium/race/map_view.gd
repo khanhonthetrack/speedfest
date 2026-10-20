@@ -19,6 +19,7 @@ func _ready() -> void:
 		push_error("map_view: %s" % ch.error)
 		TestHooks.finish()
 		return
+	TmMaterials.use_mod(TmCommunity.my_mod())
 	builder = TmMapBuilder.build(ch)
 	_path = ch.path
 	add_child(builder.root)

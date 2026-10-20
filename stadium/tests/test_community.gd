@@ -3,12 +3,16 @@ extends Node
 ## /api/community pass-through serving local fixtures in place of TrackMania Exchange and
 ## ManiaPark (--community-fixtures): the car and track lists show their previews, a car is
 ## downloaded (checked: it loads; it turns in the detail panel), driven (a race uses it), a track is
-## downloaded and played, a modded one is kept but can't be raced, MY CARS lists the library.
+## downloaded and played, a modded one is kept but can't be raced, MY CARS lists the library; a
+## Stadium texture mod is downloaded and worn (a race's asphalt takes its texture), a Canyon mod
+## opens and says the game has the Stadium only.
 
 const PORT := 18095
 const CAR_ID := "TestCarAsset01"
 const TRACK_ID := "4242"
 const MODDED_ID := "4343"
+const MOD_ID := "TestModStadium1"
+const CANYON_ID := "TestModCanyon01"
 
 var _pid := -1
 
@@ -97,6 +101,30 @@ func _ready() -> void:
 		menu.comm_download(MODDED_ID)
 		var refused := await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("Can't be raced"), 15000)
 		TestHooks.check(refused and not _has_button(menu._comm_detail, "Play"), "community_modded_track_not_raced", _label_text(menu._comm_detail))
+	# texture mods: a Stadium one is worn, a Canyon one opens but can't be
+	menu.comm_tab = "mods"
+	menu.show_page("community")
+	listed = await _wait(func() -> bool: return menu.comm_cards.has("mod_" + MOD_ID) and menu.comm_cards.has("mod_" + CANYON_ID), 8000)
+	TestHooks.check(listed, "community_mods_listed", str(menu.comm_cards.keys()))
+	if listed:
+		card = menu.comm_cards["mod_" + MOD_ID]
+		shown = await _wait(func() -> bool: return (card.find_child("Preview", true, false) as TextureRect).texture != null, 8000)
+		TestHooks.check(shown, "community_mod_preview_shown")
+		menu.comm_select("mod_" + MOD_ID)
+		menu.comm_download("mod_" + MOD_ID)
+		got = await _wait(func() -> bool: return _has_button(menu._comm_detail, "Wear this mod"), 15000)
+		var me: Dictionary = (menu.community.library["mods"] as Dictionary).get("mod_" + MOD_ID, {})
+		var grid := menu._comm_detail.find_child("ModTextures", true, false)
+		TestHooks.check(got and String(me.get("environment", "")) == "Stadium" and grid != null and grid.get_child_count() >= 2,
+			"community_mod_downloaded", "%s %s" % [me, grid.get_child_count() if grid else -1])
+		_press(menu._comm_detail, "Wear this mod")
+		await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("The Stadium wears this mod"), 3000)
+		TestHooks.check(String(TmUi.setting("community_mod")) == String(me.get("path", "")) and TmCommunity.my_mod() != null
+			and _label_text(menu._comm_detail).contains("The Stadium wears this mod"), "community_mod_worn")
+		menu.comm_select("mod_" + CANYON_ID)
+		menu.comm_download("mod_" + CANYON_ID)
+		var other := await _wait(func() -> bool: return _label_text(menu._comm_detail).contains("Canyon environment"), 15000)
+		TestHooks.check(other and not _has_button(menu._comm_detail, "Wear this mod"), "community_mod_other_environment", _label_text(menu._comm_detail))
 	menu.queue_free()
 	# a race drives the community car
 	TestHooks.args["track"] = "SF01"
@@ -108,9 +136,16 @@ func _ready() -> void:
 		if c is TmCarVisual:
 			look = c
 	TestHooks.check(look != null and look.pack != null and look.pack == TmCommunity.my_car_pack(), "community_car_raced")
+	# ... and its Stadium wears the mod: the asphalt is the mod's StadiumRoadD
+	var asphalt := TmMaterials.get_material("asphalt") as ShaderMaterial
+	var worn := TmMaterials.mod
+	TestHooks.check(worn != null and asphalt != null and asphalt.get_shader_parameter("albedo_tex") == worn.texture("StadiumRoadD"),
+		"community_mod_raced", "%s" % [worn])
 	scene.queue_free()
 	TestHooks.args.erase("track")
 	TmCommunity.drive("")
+	TmCommunity.wear("")
+	TmMaterials.use_mod(null)
 	_end()
 
 
@@ -134,6 +169,12 @@ func _fixtures(node: String, fx: String) -> void:
 	_write(fx.path_join("mp_search_1.json"), JSON.stringify({"More": false, "Results": [
 		{"AssetId": CAR_ID, "Name": "Test Car", "User": {"Name": "maker"}, "DownloadCount": 5, "AssetType": 1, "Images": [{"Id": "TestImg01"}]}]}))
 	_write(fx.path_join("mp_search_2.json"), JSON.stringify({"More": false, "Results": []}))
+	# texture mods (asset 0): one for the Stadium (a road and a grass texture), one for Canyon
+	_write(fx.path_join("mp_search_0.json"), JSON.stringify({"More": false, "Results": [
+		{"AssetId": MOD_ID, "Name": "Test Stadium Mod", "User": {"Name": "modder"}, "DownloadCount": 7, "AssetType": 0, "Images": [{"Id": "TestImg01"}]},
+		{"AssetId": CANYON_ID, "Name": "Test Canyon Mod", "User": {"Name": "modder"}, "DownloadCount": 3, "AssetType": 0, "Images": [{"Id": "TestImg01"}]}]}))
+	_mod_zip(fx.path_join("mp_%s.zip" % MOD_ID), {"Image/StadiumRoadD.png": Color(0.6, 0.2, 0.2), "Image/StadiumGrass1.png": Color(0.1, 0.5, 0.1)})
+	_mod_zip(fx.path_join("mp_%s.zip" % CANYON_ID), {"Image/CanyonRoadD.png": Color(0.5, 0.4, 0.3), "Image/CanyonGrass.png": Color(0.3, 0.5, 0.2)})
 	TmTestCar.write_pack(fx.path_join("mp_%s.zip" % CAR_ID))
 	var lib := ProjectSettings.globalize_path("res://server/lib/gbx.js").replace("\\", "/")
 	var js := "const fs=require('fs');const g=require('%s');const b=(name,z,flags)=>({name,dir:0,coord:[10,1,z],flags});" % lib \
@@ -142,6 +183,19 @@ func _fixtures(node: String, fx: String) -> void:
 		+ "w('%s','CommunityModded0000000000000',[b('StadiumRoadMainStartLine',10,0x1000),b('Minecraft_Wood16',11,0x1000),b('StadiumRoadMainFinishLine',12,0x1000)]);" % fx.path_join("tmx_%s.Challenge.Gbx" % MODDED_ID).replace("\\", "/")
 	var out := []
 	OS.execute(node, ["-e", js], out, true)
+
+
+## A texture mod: a zip of PNG textures under the game's names.
+func _mod_zip(path: String, textures: Dictionary) -> void:
+	var z := ZIPPacker.new()
+	z.open(path)
+	for name: String in textures:
+		var img := Image.create(32, 32, false, Image.FORMAT_RGB8)
+		img.fill(textures[name])
+		z.start_file(name)
+		z.write_file(img.save_png_to_buffer())
+		z.close_file()
+	z.close()
 
 
 func _write(path: String, text: String) -> void:

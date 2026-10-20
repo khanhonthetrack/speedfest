@@ -80,6 +80,10 @@ Updated 2026-10-19 (session 15: v0.5 merged with the community work, on `stadium
   tracks stay refused with the reason (owner: "Ignore those"). The menu's Community page (19 Oct):
   `net/tm_community.gd` + `ui/tm_menu.gd` `_page_community` in v0.5's TMNF frame (TMX / ManiaPark by
   their previews, download, drive, play; a downloaded car turns in its own little viewport; the web build through `server/lib/community.js`; `tests/test_community`).
+  Texture mods (20 Oct): `blocks/tm_texture_mod.gd` opens any TMNF/TMUF or ManiaPlanet mod;
+  Stadium mods are worn through `TmMaterials.MOD_MAP` (each key's region of a TMNF atlas and its
+  metres, measured from TMNF's blocks with `ref_visuals.py`) and `use_mod()`; Community → Texture
+  Mods; `tools/compat/compat_run.py` checks ManiaPark's whole catalogue in batches (results TSVs).
 - **`stadium-v0.5` (19 Oct) is `stadium` + M10** (PLAN.md M10, merged from
   `claude/tmnf-replica-graphics-nb1kcg`, which now equals `stadium`; continue on `stadium`):
   dark circuit screens, tyre marks, surfaces and jumps measured against TMNF's own runs, contacts

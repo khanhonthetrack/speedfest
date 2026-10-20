@@ -13,6 +13,11 @@
   `test_menu`, docs (both sides kept, `stadium`'s first). Milestones: v0.5's M10 is TMNF's look
   and physics; session 15's community work is **M11** in PLAN.md.
 - Continue on `stadium`.
+- 20 Oct: **texture mods** (owner: ManiaPark's TMNF/TMUF and ManiaPlanet mods must open):
+  `blocks/tm_texture_mod.gd`, `TmMaterials.MOD_MAP` / `use_mod`, the Community page's Texture Mods,
+  `tests/test_texture_mod` (gate), `tools/compat/compat_run.py` (the whole catalogue in batches;
+  PROGRESS 20 Oct). Next: the run's results, then the same runner over all 10,400 TMNF/TMUF cars
+  (`compat_run.py cars`), then a large TMX Stadium track sample (owner: "Large Stadium sample").
 
 ## Earlier (18-19 Oct, session 15, cloud): community tracks and cars on admins' servers, the Community page
 - Owner: "make sure that all the community tracks and car models can be uploaded and put on a

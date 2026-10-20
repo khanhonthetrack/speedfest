@@ -139,6 +139,13 @@ executable (no installer needed: unzip and run) with `PLAYING.txt` and the credi
   car turns beside its preview, as the game draws it) or **Play** a track. Downloads are kept in
   `user://community` (My Cars, My Tracks); a modded track is kept but says why it can't be raced.
   The web build goes through its server (`/api/community`, `stadium/server/README.md`).
+- **Texture mods** (Community → Texture Mods: ManiaPark's for TMNF/TMUF and for ManiaPlanet): any
+  mod opens (`blocks/tm_texture_mod.gd`: every texture decodes, the game and environment are
+  read from its names); a **Stadium** mod (TMNF's or ManiaPlanet's) can be worn: **Wear this mod**,
+  and the next race's Stadium takes its textures (`TmMaterials.use_mod`, the measured `MOD_MAP`:
+  which region of which TMNF texture each of our materials repeats, and over how many metres).
+  Mods for environments the game doesn't have (Canyon, Valley, Lagoon, Storm; Island, Bay, Coast,
+  Desert, Rally, Snow) open and show their textures, and say so. `--mod=<zip>` wears one for a run.
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with

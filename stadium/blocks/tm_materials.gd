@@ -11,6 +11,8 @@ extends RefCounted
 static var _cache := {}
 static var _noise_fine: NoiseTexture2D
 static var _noise_coarse: NoiseTexture2D
+## The texture mod the Stadium wears (TmTextureMod, a Stadium one; null: our own look). use_mod().
+static var mod: TmTextureMod
 
 const COLORS := {
 	"asphalt": [Color8(165, 164, 161), 0.85, 0.0],
@@ -136,6 +138,40 @@ const TEXTURED := {
 	"pipe": ["pillar_steel", Vector2(8.0, 8.0), true],
 }
 
+## A texture mod's maps for our keys, measured from TMNF's own blocks (their texture coordinates
+## against their vertices, tools/research/tmnf/ref_visuals.py; our numbers): [diffuse names (TMNF's,
+## then ManiaPlanet's), normal names, specular names, the region of the image the surface repeats
+## (TMNF's textures are atlases; x, y, width, height, y down), metres that region covers (along u,
+## v), world (planar world mapping) or the mesh's UVs (in metres), and optionally "block": mapped in
+## the block's own frame with u along its z (TMNF's road textures run along the road; a lane
+## marking painted in one must too)]. Keys the mod has no texture for keep ours.
+const MOD_MAP := {
+	# the road's asphalt: StadiumRoadD below its billboards and flags, without the edge lines, 17 x 9.2 m
+	# (16 m along: two repeats per 32 m block, so it runs on from block to block)
+	"asphalt": [["StadiumRoadD"], ["StadiumRoadN"], ["StadiumRoadS"], Rect2(0.0, 0.38, 1.0, 0.575), Vector2(16.0, 9.2), true, "block"],
+	"road_dark": [["StadiumRoadD"], ["StadiumRoadN"], ["StadiumRoadS"], Rect2(0.0, 0.38, 1.0, 0.575), Vector2(16.0, 9.2), true, "block"],
+	"platform": [["StadiumPlatformD", "StadiumPlatform_D"], ["StadiumPlatformN", "StadiumPlatform_N"],
+		["StadiumPlatformS", "StadiumPlatform_S"], Rect2(0.0, 0.0, 1.0, 1.0), Vector2(16.0, 16.0), true],
+	"grass": [["StadiumGrass1", "StadiumGrass_D", "StadiumGrass2"], ["StadiumGrass_N"], [], Rect2(0.0, 0.0, 1.0, 1.0),
+		Vector2(33.5, 33.5), true],
+	"dirt": [["StadiumDirt1", "StadiumDirt_D", "StadiumDirt2"], ["StadiumDirt_N"], [], Rect2(0.0, 0.0, 1.0, 1.0),
+		Vector2(34.0, 34.0), true],
+	# the curbs: StadiumRoadBorderD's rubber band (sides), metal (tops), border (shoulders)
+	"curb_face": [["StadiumRoadBorderD"], ["StadiumRoadBorderN"], ["StadiumRoadBorderS"], Rect2(0.0, 0.422, 1.0, 0.34), Vector2(14.9, 2.7), false],
+	"curb_outer": [["StadiumRoadBorderD"], ["StadiumRoadBorderN"], ["StadiumRoadBorderS"], Rect2(0.0, 0.422, 1.0, 0.34), Vector2(14.9, 2.7), false],
+	"curb_top": [["StadiumRoadBorderD"], ["StadiumRoadBorderN"], ["StadiumRoadBorderS"], Rect2(0.0, 0.0, 1.0, 0.24), Vector2(16.0, 1.9), false],
+	"road_lip": [["StadiumRoadBorderD"], ["StadiumRoadBorderN"], ["StadiumRoadBorderS"], Rect2(0.0, 0.0, 1.0, 0.24), Vector2(16.0, 1.9), false],
+	"shoulder": [["StadiumRoadBorderD"], ["StadiumRoadBorderN"], ["StadiumRoadBorderS"], Rect2(0.0, 0.762, 1.0, 0.238), Vector2(12.6, 1.8), false],
+	# the circuit walls and the control booths: StadiumCircuitD is the whole wall, 20.7 x 11.4 m
+	"circuit_panel": [["StadiumCircuitD"], ["StadiumCircuitN"], ["StadiumCircuitS"], Rect2(0.0, 0.0, 1.0, 1.0), Vector2(20.7, 11.4), false],
+	"control_panel": [["StadiumCircuitD"], ["StadiumCircuitN"], ["StadiumCircuitS"], Rect2(0.0, 0.0, 1.0, 1.0), Vector2(20.7, 11.4), false],
+	"structure": [["StadiumStructureGenericD"], ["StadiumStructureGenericN"], ["StadiumStructureGenericS"], Rect2(0.0, 0.0, 1.0, 1.0),
+		Vector2(8.75, 9.6), true],
+	"pipe": [["StadiumPillarD"], ["StadiumPillarN"], ["StadiumPillarS"], Rect2(0.0, 0.0, 1.0, 1.0), Vector2(2.2, 8.0), true],
+	"fabric": [["StadiumFabricD"], ["StadiumFabricN"], ["StadiumFabricS"], Rect2(0.0, 0.0, 1.0, 1.0), Vector2(13.9, 9.2), false],
+	"inflatable": [["StadiumInflatableD"], ["StadiumInflatableN"], ["StadiumInflatableS"], Rect2(0.0, 0.0, 1.0, 1.0), Vector2(11.2, 13.3), true],
+}
+
 ## Detail maps over a textured key (tm_textured.gdshader): [map name (assets/tex/<name>_detail),
 ## metres one detail tile covers, strength].
 const DETAIL := {
@@ -200,6 +236,48 @@ static func clear_cache() -> void:
 	_cache.clear()
 
 
+## Wears a texture mod from now on (a Stadium mod; anything else, or null: our own look). Call it
+## before a map is built: the materials are made anew.
+static func use_mod(m: TmTextureMod) -> void:
+	var next: TmTextureMod = m if m != null and m.is_stadium() else null
+	if next != mod:
+		mod = next
+		clear_cache()
+
+
+## A key's material from the mod's textures (MOD_MAP), or null when the mod hasn't its diffuse.
+static func _modded(key: String) -> ShaderMaterial:
+	var e: Array = MOD_MAP[key]
+	var d := mod.texture(mod.first(e[0]))
+	if d == null:
+		return null
+	var metres: Vector2 = e[4]
+	var region: Rect2 = e[3]
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://blocks/tm_textured.gdshader")
+	m.set_shader_parameter("albedo_tex", d)
+	var n := mod.texture(mod.first(e[1])) if not (e[1] as Array).is_empty() else null
+	if n != null:
+		m.set_shader_parameter("normal_tex", n)
+	var sp := mod.texture(mod.first(e[2])) if not (e[2] as Array).is_empty() else null
+	if sp != null:
+		m.set_shader_parameter("orm_tex", sp)
+		m.set_shader_parameter("spec_map", true)
+	var spec: Array = COLORS.get(key, [Color.WHITE, 0.8, 0.0])
+	m.set_shader_parameter("roughness", float(spec[1]) if sp == null else 1.0)
+	m.set_shader_parameter("atlas", Vector4(region.position.x, region.position.y, region.size.x, region.size.y))
+	m.set_shader_parameter("uv_scale", Vector2(1.0 / metres.x, 1.0 / metres.y))
+	m.set_shader_parameter("world", bool(e[5]))
+	m.set_shader_parameter("world_scale", 1.0 / metres.x)
+	m.set_shader_parameter("world_aspect", Vector2(1.0, metres.x / metres.y))
+	if e.size() > 6 and String(e[6]) == "block":
+		m.set_shader_parameter("local_map", true)
+		m.set_shader_parameter("swap_uv", true)
+	if TRANSLUCENT.has(key):
+		m.set_shader_parameter("translucent", float(TRANSLUCENT[key]))
+	return m
+
+
 ## A material made elsewhere, under a key (the stadium's ground with its own class map).
 static func register(key: String, m: Material) -> void:
 	_cache[key] = m
@@ -233,8 +311,10 @@ static func get_material(key: String) -> Material:
 	if _cache.has(key):
 		return _cache[key]
 	var spec: Array = COLORS.get(key, [Color(1, 0, 1), 0.5, 0.0])
-	var m: Material
-	if hd() and TEXTURED.has(key):
+	var m: Material = _modded(key) if mod != null and MOD_MAP.has(key) else null
+	if m != null:
+		pass
+	elif hd() and TEXTURED.has(key):
 		m = _textured(TEXTURED[key], DETAIL.get(key, []))
 	elif hd() and SURFACES.has(key):
 		m = _surface(key, spec)

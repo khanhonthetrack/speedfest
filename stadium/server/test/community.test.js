@@ -20,6 +20,8 @@ test('community: only the listed paths pass, to the right site', () => {
     'https://maniapark.com/image/LeaDexiKm06i9B8eeZSVhw?hq=false');
   assert.strictEqual(Community.upstream('/api/community/maniapark/skin/EmhLo4LKW0CRNFjOvMCJxg/download', ''),
     'https://maniapark.com/skin/EmhLo4LKW0CRNFjOvMCJxg/download');
+  assert.strictEqual(Community.upstream('/api/community/maniapark/mod/KCipnn62S0SFZDW07TWSkA/download', ''),
+    'https://maniapark.com/mod/KCipnn62S0SFZDW07TWSkA/download');
   for (const p of ['/api/community/tmx/api/users', '/api/community/tmx/trackgbx/12/../../x', '/api/community/evil/api/tracks',
     '/api/community/maniapark/account/login', '/api/community/tmx/trackshow/1/image/5']) {
     assert.strictEqual(Community.upstream(p, ''), '', p);

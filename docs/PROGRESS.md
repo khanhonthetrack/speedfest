@@ -2502,3 +2502,45 @@ didn't have this branch), then "Yes, do both - dont release yet" (TRANSCRIPT).
   campaign, not SF01). A crashed test leaves its node server holding the gate's output pipe (the
   gate then waits): kill leftover `server.js` processes if the gate stalls.
 - Then `stadium` fast-forwarded to the merge (owner's go-ahead). No tag: the owner releases later.
+
+## 2026-10-20 — Session 15: texture mods (owner: "look at texture mods ... make sure they open in the game")
+Owner (TRANSCRIPT): "now, make sure that all textures from maniapark (compatible with TMNF or TMUF)
+can be loaded in our games ..." then "look at texture mods from
+https://maniapark.com/search/mods?q=game%3Amaniaplanet Can you open or make sure they open in the
+game? (which may not be stadium!)". ManiaPark's asset types: 0 texture mods, 1 car models, 2 car
+skins, 3 map types, 4 game modes, 5 object packs; games: 0 TrackMania (TMNF/TMUF), 1 ManiaPlanet.
+It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car models, 9083 skins).
+- **What a mod is**: a zip of an environment's textures under the game's own names
+  (`Image/StadiumRoadD.dds` diffuse, `...N` normal, `...S` specular; `Moods/<mood>/...` skies);
+  TMNF and ManiaPlanet Stadium mods share most names (ManiaPlanet adds `_D`/`_N`/`_X2` ones:
+  `StadiumGrass_D`). TMNF/TMUF's other environments prefix theirs (`Coast...`, `Bay...`,
+  `Island...`); ManiaPlanet's Canyon, Valley and Storm use generic names (`Decals3D_D`, `Forest_D`,
+  `Tech_D`) and ship EXR skies.
+- `blocks/tm_texture_mod.gd` (`TmTextureMod`): opens any mod, decodes its textures on demand
+  (DDS/TGA/PNG/JPG/BMP/EXR), tells the game and the environment (prefix votes, ManiaPlanet's known
+  generic names, else the mod's name, ManiaPlanet's words first: "Desert Valley" is Valley).
+- **DDS repairs** (`car/tm_car_pack.gd`, shared with car packs): the modders' tools leave chains
+  that stop before 1 x 1 also for BC4/BC5 normal maps, DX10 headers and uncompressed RGB(A) skies,
+  state more levels than they wrote (7 for 1), or use sides that aren't whole 4 x 4 blocks
+  (1010 x 1002): completed, trimmed, or the top level decoded padded and cropped back.
+- **Wearing a Stadium mod**: TMNF's textures are atlases (StadiumRoadD: billboards and flags above
+  the asphalt; StadiumCircuitD: the whole wall). TMNF's own blocks, read locally
+  (`ref_visuals.py`), give each material's region and scale (texture coordinates against
+  vertices): e.g. StadiumRoad repeats y 0.38-0.955 of StadiumRoadD over 16 x 9.2 m (the edge
+  lines left out), StadiumPlatform the whole of its texture every 16 m, grass ~33.5 m, dirt 34 m
+  (its second UV set), the curbs bands of StadiumRoadBorderD. `TmMaterials.MOD_MAP` (16 keys)
+  holds those numbers; `blocks/tm_textured.gdshader` repeats an atlas region (with gradients, no
+  mip seams), maps the road along each block (`local_map`, `swap_uv`: a mod's lane markings run
+  along the road) and reads TMNF's specular map as roughness. `TmMaterials.use_mod()` before a
+  map builds (race, map_view); the setting `community_mod`, `--mod=<zip>`.
+- Community page: Cars / Tracks / Texture Mods down the column, each tab's lists as pills over the
+  cards (TMNF / TMUF, ManiaPlanet, My Mods); a downloaded mod shows four of its textures beside
+  its preview; Wear this mod / Our own look; another environment's mod says it opens and that the
+  game has the Stadium only. The server's pass-through allows `/mod/<id>/download` (200 MB cap).
+- Tests: `tests/test_texture_mod` (13, in the gate: games and environments, a BC5 short chain,
+  the asphalt and grass worn, our look back), `tests/test_community` (21: + a Stadium mod worn in a
+  race, a Canyon mod), `tests/test_compat_mods` (any folder of mods; per-mod results).
+- `tools/compat/compat_run.py mods|cars WORK [--keep=DIR]`: ManiaPark's whole catalogue a batch at a
+  time (download, test, record, delete; or keep: the owner's private copy), results in
+  `tools/compat/results/maniapark_<kind>.tsv` (ids, names, authors, checksums, outcomes; the
+  files themselves never in the repo).

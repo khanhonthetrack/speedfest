@@ -254,6 +254,10 @@ outside the repo (`stadium/tools/compat/`).
       the previews"): TMX tracks and ManiaPark cars by their previews, downloaded (`user://community`),
       a car driven offline and online, a track played (`net/tm_community.gd`, `ui/tm_menu.gd`,
       server `lib/community.js` for browsers; `tests/test_community`)
+- [x] 7. Texture mods (owner, 20 Oct): every ManiaPark mod opens (TMNF/TMUF and ManiaPlanet, any
+      environment); Stadium mods are worn by our blocks (`blocks/tm_texture_mod.gd`, MOD_MAP)
+- [ ] 8. The whole catalogue checked: mods (`compat_run.py mods`), TMNF/TMUF cars and skins
+      (`compat_run.py cars`); a large TMX Stadium sample (TMNF-X + TMUF-X)
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
