@@ -40,7 +40,8 @@
   grandstands' steel (cut-out lattice cards, `TmMaterials.CUTOUT`), the road-side booths, the
   platform truss columns (slotted plates outside), the airship (gondola, fins, moorings, livery),
   the pub base and the camera pub, the camera lights' steel and spotlights, the ground
-  grandstands' orange strips, the dirt roads' furniture, the loops' backs. Side-by-side renders:
+  grandstands' orange strips, the dirt roads' furniture, the loops' backs, the stand roofs' glass
+  band (M11-8). Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail`. Next by our tracks'
   use: sculptures, the road turbo gantry, junction undersides, the other pub forms,

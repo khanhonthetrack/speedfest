@@ -228,7 +228,8 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
 - [ ] 6. TMNF's padlocks on the campaign
 - [ ] 7. The engine's pitch curves (measured from TMNF's sound, not its files) and the tyre smoke
       side by side
-- [ ] 8. The stadium's surroundings (outer roads, forecourts, parking, roof light panels)
+- [x] 8. The stadium's surroundings (outer roads, forecourts, parking: session 12; the roofs' glass
+      band as TMNF's: 20 Oct)
 
 ### After v0.5 — the owner's remarks, for the next release (session 13, 2026-10-19)
 On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (owner).

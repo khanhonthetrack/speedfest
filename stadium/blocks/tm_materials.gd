@@ -134,6 +134,7 @@ const COLORS := {
 	"girder_plate": [Color(0.2, 0.21, 0.22), 0.6, 0.4],
 	"grate": [Color(0.18, 0.18, 0.2), 0.7, 0.4],
 	"booth_glass": [Color(0.3, 0.33, 0.36), 0.2, 0.3],
+	"roof_glass": [Color(0.28, 0.33, 0.35), 0.2, 0.3],
 	"booth_wall": [Color(0.6, 0.6, 0.59), 0.8, 0.0],
 	"curb_lap": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"curb_start_out": [Color(0.88, 0.90, 0.88), 0.7, 0.0],
@@ -281,6 +282,7 @@ const DETAIL := {
 const CUTOUT := {
 	# the booths' windows (texgen/booth.py): a 2.2 m module, u 16 m a tile along the sweep (rows)
 	"booth_glass": ["booth_window", Color(0.3, 0.33, 0.36), Vector2(16.0 / 2.2, 1.0), true],
+	"roof_glass": ["roof_glass", Color(0.28, 0.33, 0.35), Vector2(0.25, 0.25), true],   # the stand roofs' glass band (auto UVs: 8 m)
 	"lattice_x": ["lattice_xbrace", Color(0.91, 0.92, 0.93)],
 	"railing": ["lattice_railing", Color(0.2, 0.21, 0.23)],
 	"girder_dark": ["lattice_girder", Color(0.23, 0.24, 0.25)],

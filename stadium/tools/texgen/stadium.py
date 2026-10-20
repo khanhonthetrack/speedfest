@@ -256,3 +256,29 @@ def dirt_bumper(name='dirt_bumper', w=1024, h=256, seed=161):
     orm = np.stack([np.ones((h, w), np.float32), 0.35 + 0.15 * dust, np.zeros((h, w), np.float32)], -1)
     save(name, np.clip(col, 0, 1), nrm, orm)
 
+
+def roof_glass(name='roof_glass', s=512, seed=171):
+    """The grandstand roofs' glass band (env/tm_stadium_build.gd, its front over the field): 32 m
+    square, world-mapped from above; dark steel frames every 16 m, mullions and transoms every 4 m,
+    grey-teal panes, partly see-through (alpha), a soft sky sheen varying pane to pane."""
+    yy, xx = np.mgrid[0:s, 0:s].astype(np.float32)
+    u = xx / s * 32.0
+    v = yy / s * 32.0
+    fine = fbm(s, s, seed, beta=1.0, lo=20.0)
+    def lines(c, step, half):
+        d = np.abs(((c + step / 2) % step) - step / 2)
+        return 1 - smoothstep(half, half + 0.05, d)
+    main = np.maximum(lines(u, 16.0, 0.3), lines(v, 16.0, 0.3))
+    mull = np.maximum(lines(u, 4.0, 0.08), lines(v, 4.0, 0.08))
+    frame = np.maximum(main, mull)
+    r = rng(seed)
+    pane = r.uniform(0.85, 1.15, (8, 8)).astype(np.float32)[np.clip((v / 4).astype(int), 0, 7), np.clip((u / 4).astype(int), 0, 7)]
+    glass = srgb((72, 86, 90))[None, None, :] * (pane * (1.0 + 0.04 * fine))[..., None]
+    steel = srgb((40, 44, 48))[None, None, :] * (1.0 + 0.05 * fine)[..., None]
+    col = lerp(glass, steel, frame[..., None])
+    alpha = np.clip(0.62 + 0.38 * frame, 0, 1)
+    rgba = np.concatenate([np.clip(col, 0, 1), alpha[..., None]], -1)
+    nrm = normal_from_height(1.2 * main + 0.5 * mull, 0.5)
+    orm = np.stack([np.ones((s, s), np.float32), 0.15 + 0.45 * frame, 0.3 + 0.3 * frame], -1)
+    save(name, rgba, nrm, orm)
+

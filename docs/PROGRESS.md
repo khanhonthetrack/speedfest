@@ -2705,4 +2705,12 @@ on every real contact the full impulse would land at the contact point and kick 
   white tube either side of the spine with dark blocks at its ends and middle; `_obox`, an
   oriented box). The mirrored half of the loop's underside took its neighbour segment's material
   (harmless while all were one); fixed. Side by side with TMNF's block.
+- (M11-8) **The grandstand roofs' glass band as TMNF's** (`env/tm_stadium_build.gd`,
+  `texgen/stadium.py roof_glass`). Probing TMNF's surround (vertical rays through its roof,
+  locally) shows its roof glass from ~20 m to ~110 m beyond the field's edge, top and underside,
+  the white membrane only behind; ours was membrane all over. The visor and the band up to the
+  main roof are now glass (our drawing: dark steel frames every 16 m, mullions every 4 m,
+  grey-teal panes, partly see-through; `TmMaterials.CUTOUT` roof_glass, blended): from the field
+  the roof's front reads as framed glass against the sky, from above the stands show through.
+  The surround's other parts (outer roads, forecourts, parking) were done in session 12; M11-8 done.
 
