@@ -2750,3 +2750,12 @@ on every real contact the full impulse would land at the contact point and kick 
   in TMNF's layout (its tile 16 m along the block by 10.4 m round the roof): faint stitched seams,
   a bolted rib band across the tile's edges, the membrane between two ribs as a shallow pillow in
   the normal map, a satin sheen; the other fabric (skirts, the circuit wall's top) keeps its own.
+- (M11-2) **Where a dirt road meets the road, as TMNF's** (`dirt.gd` TO_ROAD_*, `_sign`;
+  `texgen/surfaces.py road_to_dirt`, `texgen/booth.py sign_arrow`; `dirt_furniture.py` signs). TMNF
+  lays one image over the transition's asphalt: clean at the road's end, dirt carried on by tyres
+  thickening toward the dirt in streaks; ours was clean asphalt. Our own image in that layout (u
+  along the piece to the dirt, v from the centre line to the road's edge, mirrored). TMNF also
+  stands LED signs on several dirt pieces (it runs arrow videos on them, an advert slot): a display
+  on one face (back to back on the waves), a white housing 0.7 m deep, two legs; the research tool
+  now records them with the way they face (13 pieces), and ours builds them: our amber LED chevrons
+  pointing toward the piece's middle, the white housing, legs down to the terrain.

@@ -69,6 +69,35 @@ def dirt_road(name='dirt_road', ppm=64, size_m=16.0, seed=215, base=(122, 109, 9
     save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
 
 
+def road_to_dirt(name='road_to_dirt', w=1024, h=512, seed=217, road=(165, 164, 161), dirt=(112, 99, 80)):
+    """Where a dirt road meets the road (blocks/shapes/dirt.gd TO_ROAD), the asphalt half as TMNF
+    lays it: one image over the piece (u along it, 0 at the road's end to 1 at the dirt, 15.2 m;
+    v across, 0 on the centre line to 1 at the road's edge, 10.8 m; mirrored about the centre):
+    clean light asphalt at the road's end, dirt carried onto it by tyres thickening toward the
+    dirt, in streaks along the road and a few darker tracks."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    u = (xx + 0.5) / w
+    v = (yy + 0.5) / h
+    fine = fbm(w, h, seed, beta=0.8, lo=64.0)
+    mott = fbm(w, h, seed + 1, beta=2.4, lo=2.0, hi=24.0)
+    streak = blur_xy(fbm(w, h, seed + 2, beta=0.6, lo=32.0), 60.0, 3.0)
+    streak /= streak.std() + 1e-6
+    tracks = blur_xy(fbm(w, h, seed + 3, beta=1.6, lo=4.0, hi=60.0), 120.0, 3.0)
+    tracks = smoothstep(0.5, 1.6, tracks / (tracks.std() + 1e-6))
+    # how much dirt: none at the road's end, all of it by the dirt, in streaks and patches
+    amount = smoothstep(0.05, 1.0, u) ** 1.2
+    amount = np.clip(amount * (0.85 + 0.12 * streak + 0.2 * mott) + 0.15 * tracks * smoothstep(0.3, 0.9, u), 0, 1)
+    gravel = speckles(w, h, seed + 4, 0.0012, 0.6, 1.6) * smoothstep(0.2, 0.8, u)
+    road_c = srgb(road)[None, None, :] * (1.0 + 0.05 * fine + 0.03 * mott)[..., None]
+    dirt_c = srgb(dirt)[None, None, :] * (1.0 + 0.06 * fine + 0.03 * streak - 0.06 * tracks)[..., None]
+    col = lerp(road_c, dirt_c, amount[..., None])
+    col = col * (1 + 0.2 * gravel[..., None])
+    height = 0.3 * fine + 0.4 * amount * (0.5 + 0.3 * streak) + 1.0 * gravel
+    nrm = normal_from_height(height, 0.35)
+    orm = np.stack([1.0 - 0.1 * amount, 0.85 + 0.05 * amount + 0.03 * fine, np.zeros_like(fine)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 def blur_xy(a, sx, sy):
     """Tileable Gaussian blur with its own sigma (pixels) along x and y (streaks)."""
     h, w = a.shape
@@ -132,5 +161,6 @@ if __name__ == '__main__':
     grass()
     dirt()
     dirt_road()
+    road_to_dirt()
     steel()
     wall_panels()

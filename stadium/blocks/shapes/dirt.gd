@@ -41,6 +41,10 @@ const TO_ROAD := ["Road/Dirt/RoadDirtToRoad/Ground"]
 const TO_ROAD_FULL := 17.0
 const TO_ROAD_D := Vector2(1.97, 0.476)
 const TO_ROAD_H := 0.8
+## Its asphalt as TMNF's: one image (road_to_dirt) over the piece, u along it from the road's end
+## to TO_ROAD_DIRT_Z, v across from the centre line to TO_ROAD_HALF either side (the road's edge).
+const TO_ROAD_DIRT_Z := 15.21
+const TO_ROAD_HALF := 10.82
 ## The furniture: placements (FURNITURE_PATH: per shape, boards [kind, four corners], bumpers
 ## [kind, width, height, centre line], kiosks' legs [kind, corners (x, z), y0, y1]); the boards'
 ## white frame (FRAME_MARGIN round them, FRAME_T thick), their props (PROP_BACK behind them, from
@@ -52,6 +56,8 @@ const FRAME_T := 0.08
 const PROP_BACK := 1.3
 const PROP_UP := 0.8
 const BUMPER_SIDES := 10
+const SIGN_DEPTH := 0.7         ## a sign's housing behind its display (TMNF's)
+const SIGN_LEG := 0.07          ## its legs' radius
 const S_METAL := 4
 const S_RUBBER := 9
 const TO_ROAD_SINK := 0.3
@@ -100,8 +106,12 @@ func handles(shape: String) -> bool:
 	return shapes().has(shape) or CHECKPOINTS.has(shape)
 
 
+var _to_road := false        ## building a TO_ROAD piece (its asphalt: road_to_dirt)
+
+
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var geo := TmGeo.new()
+	_to_road = shape in TO_ROAD
 	if CHECKPOINTS.has(shape):
 		var c: Array = CHECKPOINTS[shape]
 		_surface(geo, shapes()[c[0]])
@@ -119,7 +129,10 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		return null
 	if shapes().has(shape) and furniture().has(shape):
 		var sd: Dictionary = shapes()[shape]
-		_furniture(geo, furniture()[shape], Vector2(float(sd["w"]), float(sd["d"])))
+		var g: Array = sd["g"]
+		var step := float(sd["step"])
+		_furniture(geo, furniture()[shape], Vector2(float(sd["w"]), float(sd["d"])),
+			func(x: float, z: float) -> float: return _bicubic(g, step, x, z))
 	var node := geo.build()
 	if CHECKPOINTS.has(shape):
 		var c: Array = CHECKPOINTS[shape]
@@ -158,6 +171,11 @@ func _surface(geo: TmGeo, s: Dictionary) -> void:
 				_split_tri(geo, q[0], q[2], q[3], cls, step)
 				continue
 			var m: Array = CLASSES.get(c, CLASSES["d"])
+			if _to_road and c == "r":
+				var uv := q.map(func(p: Vector3) -> Vector2: return Vector2(clampf(p.z / TO_ROAD_DIRT_Z, 0.0, 1.0),
+					clampf(absf(p.x - 16.0) / TO_ROAD_HALF, 0.0, 1.0)))
+				geo.quad_uv(q[0], q[1], q[2], q[3], "road_to_dirt", m[1], uv[0], uv[1], uv[2], uv[3])
+				continue
 			geo.quad(q[0], q[1], q[2], q[3], m[0], m[1])
 
 
@@ -271,10 +289,11 @@ func _gate_bumpers(geo: TmGeo) -> void:
 ## adverts on both faces, a white frame, props toward the piece's middle), kiosks (four advert faces
 ## round a white box over a ring of white X-braced leg cards), bumpers (our logo vinyl; their
 ## rubber parts dark). What TMNF lets overhang the next block (the clip pieces') is left out.
-func _furniture(geo: TmGeo, f: Dictionary, size: Vector2) -> void:
+func _furniture(geo: TmGeo, f: Dictionary, size: Vector2, ground := Callable()) -> void:
 	var mid := Vector3(size.x * 0.5, 0.0, size.y * 0.5)
 	var ad := 0
 	var kiosk := []
+	var signs := []
 	for b: Array in f.get("boards", []):
 		if not _on_footprint(b[1], size):
 			continue
@@ -282,8 +301,13 @@ func _furniture(geo: TmGeo, f: Dictionary, size: Vector2) -> void:
 		if String(b[0]) == "kiosk":
 			kiosk.append(p)
 			continue
+		if String(b[0]) == "sign":
+			signs.append([p, Vector3(float(b[2][0]), 0.0, float(b[2][1]))])
+			continue
 		_board(geo, p, mid, ad)
 		ad += 2
+	for sg: Array in signs:
+		_sign(geo, sg, signs, mid, ground)
 	# the kiosks: faces near one another make one
 	var groups := []
 	for p: Array in kiosk:
@@ -355,6 +379,39 @@ func _board(geo: TmGeo, p: Array, mid: Vector3, ad: int) -> void:
 		var top: Vector3 = (p[e] as Vector3).lerp(p[3 - e], PROP_UP)
 		var ground := foot + back * PROP_BACK - Vector3(0, m + 0.3, 0)
 		geo.pipe(top + back * FRAME_T, ground, 0.06, 6, "control_panel", TmGeo.NO_COLLISION)
+
+
+## A sign (TMNF runs arrow videos on them; ours: LED arrows pointing toward the piece's middle):
+## [its corners as a board's, the way it shows]. Its display on that side, a white housing
+## SIGN_DEPTH behind (back to back with another sign: to halfway), two legs down to the ground
+## (ground: func(x, z) -> y; else the grass's level).
+func _sign(geo: TmGeo, sg: Array, signs: Array, mid: Vector3, ground: Callable) -> void:
+	var p: Array = sg[0]
+	var n: Vector3 = sg[1]
+	var depth := SIGN_DEPTH
+	for other: Array in signs:
+		var d := ((other[0][0] as Vector3) + (other[0][2] as Vector3)) * 0.5 - ((p[0] as Vector3) + (p[2] as Vector3)) * 0.5
+		if other != sg and (other[1] as Vector3).dot(n) < -0.9 and d.length() < 2.0 * SIGN_DEPTH:
+			depth = absf(d.dot(n)) * 0.5
+	# the display: u from its outer end toward the middle (the arrows' way), v down
+	var inner := 1 if ((p[1] as Vector3) - mid).length() < ((p[0] as Vector3) - mid).length() else 0
+	var c: Array = ([p[0], p[1], p[2], p[3]] if inner == 1 else [p[1], p[0], p[3], p[2]]).map(
+		func(v: Vector3) -> Vector3: return v + n * 0.01)
+	var uv := [Vector2(0, 1), Vector2(1, 1), Vector2(1, 0), Vector2(0, 0)]
+	if ((c[1] as Vector3) - c[0]).cross((c[2] as Vector3) - c[0]).dot(n) >= 0.0:
+		geo.quad_uv(c[0], c[1], c[2], c[3], "sign_arrow", TmGeo.NO_COLLISION, uv[0], uv[1], uv[2], uv[3])
+	else:
+		geo.quad_uv(c[0], c[3], c[2], c[1], "sign_arrow", TmGeo.NO_COLLISION, uv[0], uv[3], uv[2], uv[1])
+	var along := ((p[1] as Vector3) - (p[0] as Vector3)).normalized()
+	var m := FRAME_MARGIN
+	var q := [p[0] - along * m - Vector3.UP * m, p[1] + along * m - Vector3.UP * m, p[2] + along * m + Vector3.UP * m,
+		p[3] - along * m + Vector3.UP * m]
+	SculptShapes._slab(geo, q, q.map(func(v: Vector3) -> Vector3: return v - n * depth), "control_panel", S_METAL)
+	for e in 2:
+		var top: Vector3 = (p[0] as Vector3).lerp(p[1], 0.2 if e == 0 else 0.8) - n * depth * 0.5 - Vector3.UP * m
+		var y := float(ground.call(top.x, top.z)) if ground.is_valid() else 1.0
+		if top.y > y + 0.05:
+			geo.pipe(top, Vector3(top.x, y - 0.2, top.z), SIGN_LEG, 8, "structure", S_METAL)
 
 
 ## A kiosk: its faces (our adverts, facing out), a white box closed over and under them.

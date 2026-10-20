@@ -205,9 +205,44 @@ def camera_spots():
     spots('spots_bank', 6.56, 0.9, bank, 0.34, 1024, 140, 523)
 
 
+def sign_arrow(name='sign_arrow', w=512, h=512, seed=527):
+    """The dirt roads' small LED signs (blocks/shapes/dirt.gd: where TMNF runs its arrow videos):
+    our drawing, a dark dotted panel in a grey bezel with three amber chevrons pointing along +u
+    (the sign's u runs toward the piece's middle), lit (the emission map)."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    u = (xx + 0.5) / w
+    v = (yy + 0.5) / h
+    fine = fbm(w, h, seed, beta=1.0, lo=20.0)
+    col = srgb((18, 20, 26))[None, None, :] * (1.0 + 0.08 * fine)[..., None]
+    # the LED grid: dots every 1/48
+    gu = np.mod(u * 48.0, 1.0) - 0.5
+    gv = np.mod(v * 48.0, 1.0) - 0.5
+    dot = 1 - smoothstep(0.28, 0.38, np.sqrt(gu ** 2 + gv ** 2))
+    col = lerp(col, srgb((34, 36, 44))[None, None, :] * np.ones((h, w, 1)), dot * 0.6)
+    chev = np.zeros((h, w), np.float32)
+    for c in (0.3, 0.5, 0.7):
+        # a '>' with its tip at (c + 0.08, 0.5): two strokes 0.07 thick
+        d = np.abs(u - (c + 0.08 - 0.32 * np.abs(v - 0.5)))
+        inside = (np.abs(v - 0.5) < 0.24).astype(np.float32)
+        chev = np.maximum(chev, (1 - smoothstep(0.035, 0.045, d)) * inside)
+    lit = chev * dot
+    col = lerp(col, srgb((255, 190, 40))[None, None, :] * np.ones((h, w, 1)), np.clip(chev * 0.55 + lit * 0.45, 0, 1))
+    edge = np.minimum(np.minimum(u, 1 - u), np.minimum(v, 1 - v))
+    bezel = 1 - smoothstep(0.035, 0.045, edge)
+    col = lerp(col, srgb((120, 122, 126))[None, None, :] * np.ones((h, w, 1)), bezel)
+    nrm = normal_from_height(1.5 * bezel + 0.3 * dot, 0.4)
+    orm = np.stack([np.ones((h, w), np.float32), 0.45 + 0.2 * bezel, 0.3 * bezel], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+    em = np.stack([np.clip(chev * (0.55 + 0.45 * dot), 0, 1) * k for k in (1.0, 0.75, 0.16)], -1)
+    from PIL import Image
+    Image.fromarray(to8(em), 'RGB').save(os.path.join(OUT, name + '_emission.jpg'), quality=90)
+    write_import(os.path.join(OUT, name + '_emission.jpg'), False)
+
+
 if __name__ == '__main__':
     booth_window()
     booth_wall()
     pub_facade()
     pub_end()
     camera_spots()
+    sign_arrow()

@@ -1,13 +1,19 @@
 """The dirt roads' furniture (TMNF's Road/Dirt* and Road/DirtHigh* pieces: advert boards, low advert
 bands, kiosks on legs, inflatable logo bumpers with rubber ends), measured from the local reference
 visuals (ref_visuals.py: vis/<shape>.json) as placements for the remake to build its own furniture
-at: each board's four corners, each bumper's centre line (a point every ~2 m) with its width and
-height, each kiosk's legs (the ring of cut-out cards round them: its corners x, z and height). Only these numbers are written; no mesh, texture or UV data.
+at: each board's four corners (a sign's also the way it faces), each bumper's centre line (a point
+every ~2 m) with its width and height, each kiosk's legs (the ring of cut-out cards round them: its
+corners x, z and height). Only these numbers are written; no mesh, texture or UV data.
 usage: dirt_furniture.py REF_DIR OUT.json"""
 import glob, json, math, os, sys
 
-BOARDS = {'StadiumDirtPub2x1': 'board', 'StadiumDirtRacePub8x1A': 'board8x1', 'StadiumDirtPubNvidiaWorldcup': 'band'}
-BUMPERS = {'StadiumDirtLogos': 'logo', 'StadiumDirtRaceSignsRubber': 'rubber'}
+BOARDS = {'StadiumDirtPub2x1': 'board', 'StadiumDirtRacePub8x1A': 'board8x1', 'StadiumDirtPubNvidiaWorldcup': 'band',
+          'StadiumScreenArrow2x1': 'sign'}
+BUMPERS = {'StadiumDirtLogos': 'logo', 'StadiumDirtRaceSignsRubber': 'rubber', 'StadiumRaceSignsRubber': 'rubber'}
+# the border atlas' tubes (orange, or dark): only parts shaped as one (TUBE_LEN long, TUBE_W thick)
+TUBES = {'StadiumDirtRoadBorder': 'border'}
+TUBE_LEN = 3.0
+TUBE_W = (0.8, 2.0)
 CARDS = {'StadiumDirtStructureGeneric': 'legs'}
 KIOSK_Y = 3.5          # a band this high up is a kiosk's face
 
@@ -59,6 +65,20 @@ def quad_corners(pts):
     if hd(b0, t0) + hd(b1, t1) > hd(b0, t1) + hd(b1, t0):
         t0, t1 = t1, t0
     return [rnd(b0), rnd(b1), rnd(t1), rnd(t0)]
+
+
+def facing(verts, tris, part):
+    """The unit normal of the first triangle lying on a part (its vertices among the part's)."""
+    on = {(round(v[0], 3), round(v[1], 3), round(v[2], 3)) for v in part}
+    for t in tris:
+        a, b, c = (verts[i] for i in t)
+        if all((round(q[0], 3), round(q[1], 3), round(q[2], 3)) in on for q in (a, b, c)):
+            u = [b[k] - a[k] for k in range(3)]
+            w = [c[k] - a[k] for k in range(3)]
+            n = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]]
+            ln = math.sqrt(sum(x * x for x in n)) or 1.0
+            return [x / ln for x in n]
+    return [0.0, 0.0, 0.0]
 
 
 def axis_of(pts):
@@ -131,14 +151,33 @@ def main():
                     if kind == 'band' and min(q[1] for q in c) > KIOSK_Y:
                         kind = 'kiosk'
                     # the same panel's other face (TMNF draws both): kept once
-                    if any(k == kind and all(min(math.dist(a, b) for b in cc) < 0.3 for a in c) for k, cc in boards):
+                    if any(b[0] == kind and all(min(math.dist(a, q) for q in b[1]) < 0.3 for a in c) for b in boards):
                         continue
-                    boards.append([kind, c])
+                    if kind == 'sign':
+                        # a sign shows one way: its face's normal (x, z) from a triangle on it
+                        n = facing(m['verts'], m['tris'], p)
+                        boards.append([kind, c, [round(n[0], 2), round(n[2], 2)]])
+                    else:
+                        boards.append([kind, c])
             elif mat in BUMPERS:
                 for p in parts(m['verts'], m['tris']):
                     if len(p) < 8:
                         continue
                     bumpers.append([BUMPERS[mat]] + bumper(p))
+            elif mat in TUBES:
+                # with the atlas rows they show (5th and 95th percentile; TMNF's v runs up)
+                rows = {}
+                for v, uv in zip(m['verts'], m['uvs'][0]):
+                    rows.setdefault((round(v[0], 3), round(v[1], 3), round(v[2], 3)), []).append((1.0 - uv[1]) * 512.0)
+                for p in parts(m['verts'], m['tris']):
+                    if len(p) < 8:
+                        continue
+                    b = bumper(p)
+                    ln = math.dist(b[2][0], b[2][-1])
+                    if ln < TUBE_LEN or not (TUBE_W[0] <= b[0] <= TUBE_W[1] and TUBE_W[0] <= b[1] <= TUBE_W[1]):
+                        continue
+                    r = sorted(x for q in p for x in rows.get((round(q[0], 3), round(q[1], 3), round(q[2], 3)), []))
+                    bumpers.append([TUBES[mat]] + b + [[round(r[len(r) // 20]), round(r[len(r) * 19 // 20])]])
         if boards or bumpers or cards:
             res[shape] = {'boards': boards, 'bumpers': bumpers, 'cards': cards}
     json.dump({'about': __doc__.split('\n')[0], 'shapes': res}, open(out, 'w'), separators=(',', ':'))

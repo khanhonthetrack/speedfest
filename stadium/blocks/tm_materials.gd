@@ -72,6 +72,7 @@ const COLORS := {
 	"grass": [Color8(66, 98, 48), 0.95, 0.0],
 	"dirt": [Color8(84, 74, 58), 0.95, 0.0],
 	"dirt_road": [Color8(122, 109, 92), 0.9, 0.0],     # the dirt roads' packed track (HD: _dirt_road)
+	"road_to_dirt": [Color8(147, 143, 134), 0.85, 0.0],  # the asphalt where a dirt road meets the road
 	"water": [Color(0.06, 0.22, 0.32, 0.86), 0.04, 0.0],
 	"glass": [Color(0.70, 0.85, 0.95, 0.35), 0.05, 0.0],
 	"turbo": [Color(0.95, 0.65, 0.10), 0.5, 0.0],
@@ -148,6 +149,7 @@ const COLORS := {
 	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
 	"spots_nose": [Color(0.2, 0.2, 0.21), 0.5, 0.2, 2.0],
 	"spots_bank": [Color(0.3, 0.3, 0.31), 0.5, 0.2, 2.0],
+	"sign_arrow": [Color8(56, 52, 45), 0.5, 0.0, 2.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
 	"facade": [Color(0.70, 0.71, 0.72), 0.7, 0.1],
@@ -169,6 +171,7 @@ const COLORS := {
 ## optional tint (times the albedo), optional macro variation (0..0.3, large surfaces)].
 const TEXTURED := {
 	"asphalt": ["road_concrete", Vector2(16.0, 16.0), true, Color.WHITE, 0.10],
+	"road_to_dirt": ["road_to_dirt", Vector2(1.0, 1.0), false],     # one image over the piece (dirt.gd TO_ROAD)
 	# the field, dirt roads, platforms, structures and walls (texgen/surfaces.py)
 	"grass": ["stadium_grass", Vector2(32.0, 32.0), true, Color.WHITE, 0.16],
 	"dirt": ["stadium_dirt", Vector2(8.0, 8.0), true, Color.WHITE, 0.14],
@@ -244,6 +247,7 @@ const TEXTURED := {
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
 	"spots_nose": ["spots_nose", Vector2(2.0, 1.0), false],     # the camera lights' top bar nose (rows; texgen/booth.py)
 	"spots_bank": ["spots_bank", Vector2(1.0, 1.0), false],     # their floodlight banks' faces
+	"sign_arrow": ["sign_arrow", Vector2(1.0, 1.0), false],     # the dirt roads' LED arrow signs (dirt.gd)
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
 	"fabric_roof": ["fabric_roof", Vector2(16.0, 10.4), false],     # the wave roofs' outside (TMNF's layout)
@@ -301,6 +305,7 @@ const TRANSLUCENT := {"fabric": 1.0, "fabric_roof": 1.0, "fabric_under": 1.0, "r
 ## Patterns: see blocks/tm_surface.gdshader.
 const SURFACES := {
 	"asphalt": [1, Color(0.3, 0.3, 0.3), 0.0, 0.10, 0.015],
+	"road_to_dirt": [1, Color(0.3, 0.3, 0.3), 0.0, 0.10, 0.015],
 	"platform": [1, Color(0.3, 0.3, 0.3), 8.0, 0.08, 0.015],
 	"sculpt": [1, Color(0.3, 0.3, 0.3), 4.0, 0.06, 0.012],
 	"concrete": [1, Color(0.3, 0.3, 0.3), 6.0, 0.08, 0.015],
@@ -382,7 +387,7 @@ static func _noise(freq: float, seed_value: int, octaves: int) -> NoiseTexture2D
 
 ## Textured keys whose emission map alone glows (its lenses), times this energy; the others with a
 ## map glow all over (colour + map).
-const LENS_GLOW := {"spots_nose": 2.5, "spots_bank": 2.5}
+const LENS_GLOW := {"spots_nose": 2.5, "spots_bank": 2.5, "sign_arrow": 2.5}
 
 
 static func get_material(key: String) -> Material:
