@@ -2521,3 +2521,9 @@ on every real contact the full impulse would land at the contact point and kick 
   continues (and nothing is built next to it) its body's end is TMNF's dark Stands2, not light
   metal; the road ramp off a platform (Platform/ToRoad/ToRoadMainAir) has the ground road's green
   shoulders (TMNF's), not the grid (`road.gd _green_shoulders`). Side by side with TMNF's block.
+- (M11-2) **The glass booths (Control/RoadGlass) as TMNF's.** The plinth grey, the walkway and the
+  wall under the windows white, a dark sill under TMNF's grey glass (`glass_booth`, not our smoked
+  black), a room behind it (its back wall, ceiling and floor, measured), the roof grey along its
+  edge and dark beyond; the ground plinths' rail an open railing's top bar (TMNF's railing is
+  see-through), on the camera galleries too. Material check (BaseGround): colour differs 756 ->
+  184 m2, TMNF surface we lacked 842 -> 396 m2.

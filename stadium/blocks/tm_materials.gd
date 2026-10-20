@@ -60,6 +60,7 @@ const COLORS := {
 	"screen_dark": [Color(0.015, 0.018, 0.022), 0.2, 0.0],     # the circuit walls' screens: off, as TMNF's
 	"control_panel": [Color8(222, 223, 221), 0.55, 0.0],
 	"glass_dark": [Color(0.09, 0.11, 0.13, 0.72), 0.05, 0.3],     # the control booths' smoked windows
+	"glass_booth": [Color(0.42, 0.44, 0.45, 0.55), 0.05, 0.3],    # the glass booths' grey glass (TMNF's)
 	"logo": [Color(0.12, 0.30, 0.72), 0.6, 0.0],
 	"screen": [Color(0.12, 0.22, 0.48), 0.3, 0.0, 0.7],     # lit displays, as in TMNF
 	"stands": [Color(0.17, 0.29, 0.58), 0.8, 0.0],                  # seats (pattern 7: sectors, rows)

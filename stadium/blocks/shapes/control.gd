@@ -27,12 +27,14 @@ const CAMERA_HALF := [
 	[4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_HALF := [
-	[16.0, 0.0, "structure", S_CONCRETE], [4.0, 0.0, "control_panel", S_METAL], [4.0, 1.0, "glass_dark", S_ICE],
-	[3.36, 2.54, "glass_dark", S_ICE], [1.42, 7.17, "control_panel", S_METAL], [2.07, 7.38, "control_panel", S_METAL],
-	[4.0, 8.0, "truss", S_CONCRETE],
+	[16.0, 0.0, "structure", S_CONCRETE], [4.0, 0.0, "control_panel", S_METAL], [4.0, 1.0, "glass_booth", S_ICE],
+	[3.36, 2.54, "glass_booth", S_ICE], [1.42, 7.17, "control_panel", S_METAL], [2.07, 7.38, "control_panel", S_METAL],
+	[4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "stands_dark", S_CONCRETE],
 ]
 ## Ground variants: a plinth over the whole cell (1 -> 2 m), the walls rising from it (the glass
-## leaning inward), a low rail at the plinth's edge.
+## leaning inward), a low rail at the plinth's edge. As TMNF's glass booth: the plinth grey, the
+## walkway and walls white, a dark sill under the grey glass, the roof grey along its edge (to 8 m
+## in) and dark beyond, and a room behind the glass (GLASS_ROOM).
 const CAMERA_GROUND_HALF := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
 	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "stands_top", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
@@ -41,16 +43,22 @@ const CAMERA_GROUND_HALF := [
 	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_GROUND_HALF := [
-	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "structure", S_CONCRETE], [0.0, 1.5, "structure", S_CONCRETE],
-	[0.49, 1.76, "structure", S_CONCRETE], [0.94, 2.0, "structure", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
-	[3.11, 3.36, "control_panel", S_METAL], [3.22, 3.58, "control_panel", S_METAL], [3.71, 3.7, "glass_dark", S_ICE],
+	[16.0, 1.0, "", TmGeo.NO_COLLISION], [0.0, 1.0, "stands_top", S_CONCRETE], [0.0, 1.5, "stands_top", S_CONCRETE],
+	[0.49, 1.76, "stands_top", S_CONCRETE], [0.94, 2.0, "control_panel", S_ROAD], [3.11, 2.0, "control_panel", S_METAL],
+	[3.11, 3.36, "control_panel", S_METAL], [3.22, 3.58, "stands_dark", S_METAL], [3.71, 3.7, "glass_booth", S_ICE],
 	[3.11, 7.21, "control_panel", S_METAL], [3.15, 7.40, "control_panel", S_METAL], [3.33, 7.73, "control_panel", S_METAL],
-	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "truss", S_CONCRETE],
+	[3.71, 7.96, "control_panel", S_METAL], [4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "stands_dark", S_CONCRETE],
 ]
-## The ledge along the walls (x0, x1, y0, y1); on the ground, the plinth's rail.
+## The glass booth's room (measured, TMNF's ControlInterior): its back wall, ceiling and floor as
+## blocks (x0, x1 from the block edge, y0, y1, key) behind the glass.
+const GLASS_ROOM := [
+	[7.34, 8.0, 2.0, 6.0, "stands_top"], [3.3, 7.34, 6.0, 7.2, "control_under"], [3.6, 7.34, 1.9, 2.0, "control_panel"],
+]
+## The ledge along the walls (x0, x1, y0, y1); on the ground, the plinth's rail (TMNF's is an
+## open railing 1 m high: its top bar).
 const CAMERA_LEDGE := [2.0, 3.11, 0.99, 1.99]
 const GLASS_LEDGE := [2.0, 4.0, 1.0, 2.0]
-const GROUND_RAIL := [0.94, 1.04, 2.0, 3.0]
+const GROUND_RAIL := [0.94, 1.04, 2.9, 3.0]
 const ROOF := 8.0
 const WALL_ZONE := 6.0          ## the part of the section revolved round junction corners (x < this)
 
@@ -60,6 +68,7 @@ const ARMS := {
 const SIDES := [Vector3(0, 0, 1), Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(1, 0, 0)]
 
 var _half: Array = CAMERA_HALF
+var _glass := false                 ## a glass booth (RoadGlass): its room behind the glass
 var _ledge: Array = CAMERA_LEDGE
 var _floor := 0.0
 
@@ -114,6 +123,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_pub(geo, ARMS[form])
 		return geo.build()
 	var glass := parts[1] == "RoadGlass"
+	_glass = glass
 	if ground:
 		_half = GLASS_GROUND_HALF if glass else CAMERA_GROUND_HALF
 		_ledge = GROUND_RAIL
@@ -169,11 +179,26 @@ func _section() -> Array:
 	var out := []
 	for q in _half:
 		out.append([Vector2(float(q[0]) - 16.0, maxf(float(q[1]), _floor)), String(q[2]), int(q[3])])
-	out.append([Vector2(0.0, ROOF), "truss", S_CONCRETE])
+	out.append([Vector2(0.0, ROOF), String(_half[_half.size() - 1][2]), S_CONCRETE])
 	for i in range(_half.size() - 1, 0, -1):
 		var q: Array = _half[i]
 		var prev: Array = _half[i - 1]
 		out.append([Vector2(16.0 - float(q[0]), maxf(float(q[1]), _floor)), String(prev[2]), int(prev[3])])
+	return out
+
+
+## The glass booth's room blocks (GLASS_ROOM) as sections like the ledge's (none for the camera
+## galleries).
+func _rooms(mirror: bool) -> Array:
+	var out := []
+	if not _glass:
+		return out
+	for r: Array in GLASS_ROOM:
+		var sec := []
+		for p in [[r[0], r[2]], [r[1], r[2]], [r[1], r[3]], [r[0], r[3]]]:
+			sec.append([Vector2((16.0 - float(p[0])) if mirror else (float(p[0]) - 16.0), maxf(float(p[1]), _floor)),
+				String(r[4]), TmGeo.NO_COLLISION])
+		out.append(sec)
 	return out
 
 
@@ -205,6 +230,8 @@ func _along(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "control_panel", S_METAL)
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), [a, b], [lat, lat], true, "structure", S_METAL)
+		for room: Array in _rooms(mirror):
+			geo.wall_sweep(room, [a, b], [lat, lat], true, String(room[0][1]), TmGeo.NO_COLLISION)
 
 
 ## Around the footprint corner (0, 32): the section on a quarter circle of radius 16.
@@ -219,6 +246,8 @@ func _corner(geo: TmGeo) -> void:
 	geo.wall_sweep(_section(), path, lat, true, "control_panel", S_METAL)
 	for mirror in [false, true]:
 		geo.wall_sweep(_ledge_section(mirror), path, lat, true, "structure", S_METAL)
+		for room: Array in _rooms(mirror):
+			geo.wall_sweep(room, path, lat, true, String(room[0][1]), TmGeo.NO_COLLISION)
 
 
 ## The section's half (wall side outward) revolved about c from angle a0 to a1 (radians, from +x
@@ -239,6 +268,11 @@ func _revolve(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int) -> void:
 		lat.append(Vector3(cos(ang), 0.0, sin(ang)))
 	geo.wall_sweep(sec, path, lat, false)
 	geo.wall_sweep(led, path, lat, false)
+	for r: Array in (GLASS_ROOM if _glass else []):
+		var room := []
+		for p in [[r[0], r[2]], [r[1], r[2]], [r[1], r[3]], [r[0], r[3]]]:
+			room.append([Vector2(16.0 - float(p[0]), maxf(float(p[1]), _floor)), String(r[4]), TmGeo.NO_COLLISION])
+		geo.wall_sweep(room, path, lat, false)
 
 
 ## T and cross: the solid block (its plan inset on the closed sides, with a quarter disc cut out at
