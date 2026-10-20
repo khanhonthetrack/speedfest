@@ -2766,3 +2766,7 @@ on every real contact the full impulse would land at the contact point and kick 
   didn't know (StadiumRaceSignsRubber, on 21 pieces). The tool now measures both (tubes only where
   the part is tube-shaped, 3-12 m long and 0.8-2 m thick; longer runs are curbs' faces), with the
   atlas rows a tube shows; ours builds the tubes in the border atlas round from underneath.
+- (M11-2) **The ramp off a platform: the curb's outer underside orange** (`road.gd _entry`). On
+  Platform/ToRoad/ToRoadMainAir (38 uses on our tracks) TMNF skins the curb's slanted outer
+  underside with the border atlas' orange band and blue line (rows 300-367) where its air roads
+  show the black band (ours had the black band there too). Side by side with TMNF's piece.

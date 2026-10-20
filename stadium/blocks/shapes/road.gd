@@ -455,7 +455,8 @@ func _section(ground: bool) -> Array:
 
 ## A table point (HALF_*) as a section entry at p ([p, key, surface] and its atlas rows, reversed
 ## for the mirrored half's twin): the curb's face is the border's black band, the shoulder the grid
-## (on the ground the border's green band). A gate block's curbs carry its sign on both faces, as
+## (on the ground the border's green band; on a ramp off a platform both, and the curb's outer
+## underside the orange band). A gate block's curbs carry its sign on both faces, as
 ## TMNF's (its word every 4 m, the face's rows spread over the sign: texgen/gates.py, turbo.py; on
 ## the outer face mirrored, as TMNF's read from outside: the "_out" materials).
 func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
@@ -469,6 +470,10 @@ func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
 	elif key == "shoulder" and (ground or _green_shoulders):
 		key = "border_green"
 		rows = Vector2(392.7, 511.0)
+	elif key == "border_black" and _green_shoulders and not ground:
+		# the ramp off a platform: the curb's outer underside the orange band and blue line (TMNF's)
+		key = "border_orange"
+		rows = Vector2(367.0, 367.0) - (rows - Vector2(216.1, 216.1)) * (67.0 / (299.8 - 216.1))
 	elif key == "shoulder":
 		key = "road_grid"
 	if rows.x < 0.0:
