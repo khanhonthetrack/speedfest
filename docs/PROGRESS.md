@@ -877,3 +877,18 @@ Branch `wip/m6-cars` (session 6, untested) finished and merged into `main`:
   cycles all 34 tracks.
 - Note for session 9: `tmnf-physics` still lacks bd65cbc (puddles; its defs have 0 puddle markers vs
   3 on `m7-maps`). Merging `main` into `tmnf-physics` now brings it in.
+
+## 2026-10-20 — TMUF feasibility probe (cloud, branch `claude/stoic-planck-cjsw08`)
+
+- Owner asked whether TMUF can be recreated the way `stadium` recreated TMNF. Probe, not a start:
+  `docs/research/tmuf_feasibility.md` (numbers only; the installer, packs and exe stayed in a
+  scratch directory).
+- Works unchanged on TMUF: `nadeopak.py` (all 7 environment packs + Game/Resource/patch1), `pak_emulate.py`
+  + `tuning_parse.py` (all 7 cars' tunings), `ghost_dump.py` (StarTrack replays).
+- Physics: tuning field [0x354] picks the force model (`ComputeForces` dispatch read in TMNF's
+  exe): Stadium, Island, Bay, Coast -> Model6 (ported); Desert, Rally, Snow -> Model3 (to port).
+- Scale: 1,254 new block types (Speed/Rally/Alpine in TM Original's TMED format), 3,867 solids,
+  Puzzle/Platform/Stunts modes, 147 United Race tracks with replays. TMUF needs a CD key to run
+  (screenshots under Wine), not to read its packs.
+- Waiting for the owner's go. Suggested order: data-driven `TmTuning` + Model6 cars, Model3, then
+  one environment per release on `stadium`.

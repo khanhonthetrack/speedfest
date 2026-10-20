@@ -1,5 +1,14 @@
 # HANDOFF: start here
 
+## Latest (20 Oct, cloud, branch `claude/stoic-planck-cjsw08`): TMUF feasibility probe (no code)
+
+- Owner asked whether TrackMania United Forever can be recreated the way `stadium` recreated TMNF.
+  Findings in `docs/research/tmuf_feasibility.md`: the `stadium` research scripts open every TMUF
+  pack, car tuning and replay unchanged. Island, Bay and Coast cars run the already-ported Model6;
+  Desert, Rally and Snow need Model3. The bulk is six block libraries (1,254 types).
+- Nothing started: waiting for the owner's go. If it comes, branch from `stadium` (that's where
+  the remake, its docs and `tools/research/tmnf/` live), not from `main`.
+
 ## Latest (~22:30 UTC 16 Oct, session 8 on the Pi): RTX build for friends on branch `rtx-build`
 
 - Owner asked for the RTX exe for friends. **`rtx-build`** = `m7-rtx` + `main`, plus

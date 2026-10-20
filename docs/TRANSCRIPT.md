@@ -508,3 +508,20 @@ Later replies from the owner: "Yes" (approving Pi hosting via Tailscale Funnel) 
   game exported with 4.7.2, smoke-tested on Windows. Download: artifact SpeedFest-windows-rtx of run
   38965547516. The NVIDIA DLLs aren't in it (licence; a public download was blocked):
   `add_nvidia_dlss.bat` in the folder adds them.
+
+## 2026-10-20 — cloud session (branch `claude/stoic-planck-cjsw08`)
+
+### User (verbatim, 20 Oct)
+
+> do you think you can recreate trackmania united forever? by downloading TMUF (e.g. http://files.trackmaniaforever.com/tmunitedforever_setup.exe) and proceeding similarly as in the stadium branch?
+
+### Claude
+
+- Answered with a probe rather than a guess (`docs/research/tmuf_feasibility.md`): downloaded and
+  unpacked the installer in a scratch directory and ran the `stadium` branch's research scripts on
+  it unchanged. All seven environment packs open (keys from `packlist.dat`, no CD key). All seven
+  car tunings decrypt and parse. TMUF's replays read with `ghost_dump.py`. Island, Bay and Coast
+  cars use the force model already ported for Stadium (Model6). Desert, Rally and Snow use one other
+  function (Model3). The new work is mainly six block libraries (1,254 block types, 4x Stadium's)
+  and their looks. Suggested going physics first, then one environment per release on `stadium`.
+  Waiting for the owner's go before starting.
