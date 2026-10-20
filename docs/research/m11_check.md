@@ -105,9 +105,17 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   small names and spots. Left: the frame's hangers and logo panel, the windows' interior.
 - The checker reads alpha-cut textures (trusses, railings) by their visible texels now.
 
+- The camera light's steel and spotlights are TMNF's (20 Oct): W-truss panels over the floodlight
+  bars, the trusses holding them out, the grating walkway with its railing, round spotlights
+  (`texgen/booth.py camera_spots`, lenses alone glowing). The platform columns' outer and inner
+  faces TMNF's slotted plates (`texgen/lattice.py plate`). The dump read cut-out materials as white
+  (fixed in `tests/block_dump.gd`): their "colour differs" before then was the tool's.
+
 ## Our tracks' blocks now (20 Oct)
-The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,472 m2: colour differs
-13.5%, missing 11.8%. Left, by area times our tracks' use: the grandstands' (Fabric) lattice and
-girders (StructureAlpha / StructureGeneric / AuventAlpha alpha cards: their catwalks, the main
-spine, the raised deck's lattice legs; missing 1,100-4,600 m2 a piece), the snow and palm trees (organic), the circuit border's blue shade, the camera lights'
-truss supports, the road gates' sign boards (left out: the owner's option B), the loops.
+The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
+10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the
+grandstands' (Fabric) lattice TMNF draws as flat cards (missing 1,500-1,900 m2 on each straight;
+ours are tubes there), the platform road's underside details (road_under against TMNF's detail
+atlas, 214 m2), the airship's livery (its name and logos are ours), the ground pillar's orange end
+strips, the snow and palm trees (organic), the circuit border's blue shade, the turbo deck, the
+road gates' sign boards (left out: the owner's option B), the loops.

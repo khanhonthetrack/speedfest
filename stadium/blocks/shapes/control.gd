@@ -89,19 +89,32 @@ var _floor := 0.0
 ## 8 m tall with feet, under a 1 m top bar reaching out to the spotlights; the straight piece is
 ## this section along z, the base its right half revolved about (16, 16). In TMNF's colours: dark
 ## (its Stands2), the feet and the top bar with grey tops (Stands) and light undersides (Auvent),
-## the block between the feet dark top and bottom, the top bar's outer bevel its lit strip; along
-## each outer side, four floodlight bars (LIGHT_BARS: x0, x1, y0, y1 of the left ones; z runs).
+## the block between the feet dark top and bottom, the top bar's outer bevel its spotlights (our
+## drawing, texgen/booth.py spots_nose: groups of four); along each outer side, four floodlight
+## bars (LIGHT_BARS: x0, x1, y0, y1 of the left ones; z runs; their faces six pairs of lamps,
+## spots_bank). The straight piece's steel as TMNF's (dark cut-out cards; the left side's, the
+## right's mirrored): a W-truss panel over each bar (LIGHT_PANEL: x, y0, y1, z runs) under a rail
+## (LIGHT_RAIL: x0, x1, y0, y1), held out by two trusses under the top bar (LIGHT_TRUSS: x0, x1,
+## y0, y1, z runs) and one across each end (LIGHT_END_TRUSS: x0, y0, y1, z); a grating along the
+## foot (LIGHT_WALK: x0, x1, y) with a railing at its edge (LIGHT_WALK_RAIL: x, y0, y1) and a
+## lattice down from it to the foot's bottom.
 const LIGHT_BARS := [1.04, 2.03, 2.88, 3.77]
 const LIGHT_BAR_Z := [Vector2(0.51, 7.07), Vector2(9.0, 15.56), Vector2(16.44, 23.0), Vector2(24.93, 31.49)]
+const LIGHT_PANEL := [1.55, 2.88, 6.0, [Vector2(0.13, 7.46), Vector2(8.62, 15.94), Vector2(16.06, 23.38), Vector2(24.55, 31.87)]]
+const LIGHT_RAIL := [1.51, 1.66, 5.97, 6.14]
+const LIGHT_TRUSS := [0.0, 8.0, 5.39, 7.0, [Vector2(7.49, 8.51), Vector2(23.49, 24.51)]]
+const LIGHT_END_TRUSS := [1.51, 5.47, 6.11, 0.17]
+const LIGHT_WALK := [2.0, 4.0, 1.0]
+const LIGHT_WALK_RAIL := [2.0, 1.0, 2.0]
 const LIGHT := [[28.243, 7.0, "control_under", S_METAL], [24.0, 7.0, "stands_dark", S_METAL], [24.0, 1.0, "stands_top", S_METAL],
 	[28.0, 1.0, "stands_dark", S_METAL], [28.0, 0.0, "control_under", S_METAL], [24.0, 0.0, "stands_dark", S_METAL],
 	[8.0, 0.0, "control_under", S_METAL], [4.0, 0.0, "stands_dark", S_METAL], [4.0, 1.0, "stands_top", S_METAL],
-	[8.0, 1.0, "stands_dark", S_METAL], [8.0, 7.0, "control_under", S_METAL], [3.757, 7.0, "lamp", S_METAL],
+	[8.0, 1.0, "stands_dark", S_METAL], [8.0, 7.0, "control_under", S_METAL], [3.757, 7.0, "spots_nose", S_METAL, Vector2(512, 0)],
 	[3.879, 7.5, "stands_dark", S_METAL], [4.0, 8.0, "stands_top", S_METAL], [8.0, 8.0, "stands_dark", S_METAL],
-	[24.0, 8.0, "stands_top", S_METAL], [28.0, 8.0, "stands_dark", S_METAL], [28.121, 7.5, "lamp", S_METAL]]
+	[24.0, 8.0, "stands_top", S_METAL], [28.0, 8.0, "stands_dark", S_METAL], [28.121, 7.5, "spots_nose", S_METAL, Vector2(0, 512)]]
 const LIGHT_HALF := [[16.0, 0.0, "stands_dark", S_METAL], [24.0, 0.0, "control_under", S_METAL], [28.0, 0.0, "stands_dark", S_METAL],
 	[28.0, 1.0, "stands_top", S_METAL], [24.0, 1.0, "stands_dark", S_METAL], [24.0, 7.0, "control_under", S_METAL],
-	[28.243, 7.0, "lamp", S_METAL], [28.121, 7.5, "stands_dark", S_METAL], [28.0, 8.0, "stands_top", S_METAL],
+	[28.243, 7.0, "spots_nose", S_METAL, Vector2(512, 0)], [28.121, 7.5, "stands_dark", S_METAL], [28.0, 8.0, "stands_top", S_METAL],
 	[24.0, 8.0, "stands_dark", S_METAL], [16.0, 8.0, "stands_dark", S_METAL]]
 ## The camera pub (Control/CameraPub): a block with rounded top edges along z (measured); on the
 ## ground it stands on a low plinth with a walkway along each side. TMNF's look: the long sides
@@ -202,14 +215,16 @@ func _camera_piece(shape: String) -> Node3D:
 					var x0: float = 32.0 - float(b[1]) if right else float(b[0])
 					var x1: float = 32.0 - float(b[0]) if right else float(b[1])
 					geo.box(Vector3(x0, b[2], z.x), Vector3(x1, b[3], z.y), "stands_dark", S_METAL)
-					# the lamps' face, outward
+					# the lamps' face, outward (u along the bar, v down it)
 					var xf: float = x1 + 0.01 if right else x0 - 0.01
-					var q := [Vector3(xf, float(b[2]) + 0.12, z.x + 0.15), Vector3(xf, float(b[3]) - 0.12, z.x + 0.15),
-						Vector3(xf, float(b[3]) - 0.12, z.y - 0.15), Vector3(xf, float(b[2]) + 0.12, z.y - 0.15)]
+					var q := [Vector3(xf, float(b[2]), z.x), Vector3(xf, float(b[3]), z.x), Vector3(xf, float(b[3]), z.y),
+						Vector3(xf, float(b[2]), z.y)]
+					var uv := [Vector2(0, 1), Vector2(0, 0), Vector2(1, 0), Vector2(1, 1)]
 					if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).x * (1.0 if right else -1.0) < 0.0:
-						geo.quad(q[0], q[3], q[2], q[1], "lamp", TmGeo.NO_COLLISION)
+						geo.quad_uv(q[0], q[3], q[2], q[1], "spots_bank", TmGeo.NO_COLLISION, uv[0], uv[3], uv[2], uv[1])
 					else:
-						geo.quad(q[0], q[1], q[2], q[3], "lamp", TmGeo.NO_COLLISION)
+						geo.quad_uv(q[0], q[1], q[2], q[3], "spots_bank", TmGeo.NO_COLLISION, uv[0], uv[1], uv[2], uv[3])
+			_light_steel(geo)
 		"Control/CameraLight/BaseAir":
 			var sec := LIGHT_HALF.map(func(q: Array) -> Array: return [Vector2(float(q[0]) - 16.0, q[1]), q[2], q[3]])
 			var path := []
@@ -228,6 +243,44 @@ func _camera_piece(shape: String) -> Node3D:
 				geo.screen_box(Vector3(x0, s[2], s[4]), Vector3(x0 + s[1] - s[0], s[3], s[5]), "screen", S_METAL, 0.03, i)
 			_camera_pub_dress(geo, ground)
 	return geo.build()
+
+
+## The camera light's steel (LIGHT_PANEL ... LIGHT_WALK_RAIL), on both sides: dark cut-out cards.
+func _light_steel(geo: TmGeo) -> void:
+	var nz := TmGeo.NO_COLLISION
+	for side in 2:
+		var mx := func(x: float) -> float: return 32.0 - x if side == 1 else x
+		var card := func(a: Vector3, b: Vector3, h: Vector3, key: String, u: float) -> void:
+			# a card from the edge a -> b up (or across) by h: u along a -> b, v 0 at its far edge
+			geo.quad_uv(a, b, b + h, a + h, key, nz, Vector2(0, 1), Vector2(u, 1), Vector2(u, 0), Vector2(0, 0))
+		var pn: Array = LIGHT_PANEL
+		var px: float = mx.call(pn[0])
+		for z: Vector2 in pn[3]:
+			card.call(Vector3(px, pn[1], z.x), Vector3(px, pn[1], z.y), Vector3(0, float(pn[2]) - float(pn[1]), 0), "railing",
+				(z.y - z.x) / 8.0)
+		var r: Array = LIGHT_RAIL
+		geo.box(Vector3(minf(mx.call(r[0]), mx.call(r[1])), r[2], 0.0), Vector3(maxf(mx.call(r[0]), mx.call(r[1])), r[3], 32.0),
+			"stands_dark", nz)
+		var t: Array = LIGHT_TRUSS
+		var x0: float = mx.call(t[0])
+		var x1: float = mx.call(t[1])
+		for z: Vector2 in t[4]:
+			for zz: float in [z.x, z.y]:
+				card.call(Vector3(x0, t[2], zz), Vector3(x1, t[2], zz), Vector3(0, float(t[3]) - float(t[2]), 0), "girder_dark",
+					absf(x1 - x0) / 8.0)
+			card.call(Vector3(x0, t[2], z.x), Vector3(x1, t[2], z.x), Vector3(0, 0, z.y - z.x), "grate", absf(x1 - x0))
+		var e: Array = LIGHT_END_TRUSS
+		for zz: float in [float(e[3]), 32.0 - float(e[3])]:
+			card.call(Vector3(mx.call(e[0]), e[1], zz), Vector3(mx.call(8.0), e[1], zz), Vector3(0, float(e[2]) - float(e[1]), 0),
+				"girder_dark", (8.0 - float(e[0])) / 8.0)
+		var w: Array = LIGHT_WALK
+		var wa: float = mx.call(w[0])
+		var wb: float = mx.call(w[1])
+		card.call(Vector3(wa, w[2], 0.0), Vector3(wa, w[2], 32.0), Vector3(wb - wa, 0, 0), "grate", 32.0)
+		card.call(Vector3(wb, 0.0, 0.0), Vector3(wb, 0.0, 32.0), Vector3(wa - wb, float(w[2]), 0), "girder_dark", 4.0)
+		var wr: Array = LIGHT_WALK_RAIL
+		var rx: float = mx.call(wr[0])
+		card.call(Vector3(rx, wr[1], 0.0), Vector3(rx, wr[1], 32.0), Vector3(0, float(wr[2]) - float(wr[1]), 0), "railing", 4.0)
 
 
 ## The camera pub's frames, posts, advert band and railing (PUB_*), on both sides.

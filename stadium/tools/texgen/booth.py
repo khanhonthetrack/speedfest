@@ -1,9 +1,10 @@
 """The control booths' windows, our own drawing in the Stadium's style: one module (2.2 m wide, the
 glass's height), laid round the booths (UV-mapped by blocks/shapes/control.gd): dark posts at its
 sides, a mullion, two transoms, a dark head with a warm light strip, tinted see-through panes
-(alpha: the glass blends, the frame is solid). Also the room behind them and the camera pub's
-facade.
+(alpha: the glass blends, the frame is solid). Also the room behind them, the camera pub's
+facade and the camera lights' spotlights.
 usage: python3 stadium/tools/texgen/booth.py"""
+import os
 import numpy as np
 from texlib import *
 
@@ -151,8 +152,54 @@ def pub_end(name='pub_end', s=512, seed=519):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def spots(name, length_m, height_m, centres, d_m, w, h, seed):
+    """A strip of round spotlights (the camera lights', TMNF's layout): a dark housing with panel
+    joints every 2 m, a lens (d_m across, silvery, lit: the emission map) at each centre (metres
+    along; across, the strip's middle)."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    um = (xx + 0.5) / w * length_m
+    vm = (yy + 0.5) / h * height_m
+    fine = fbm(w, h, seed, beta=1.0, lo=8.0)
+    col = srgb((30, 31, 34))[None, None, :] * (1.0 + 0.06 * fine)[..., None]
+    joint = 1 - smoothstep(0.0, 0.03, np.abs(((um + 1.0) % 2.0) - 1.0))
+    col = lerp(col, srgb((14, 14, 16))[None, None, :] * np.ones((h, w, 1)), joint[..., None])
+    lens = np.zeros((h, w), np.float32)
+    rim = np.zeros((h, w), np.float32)
+    hot = np.zeros((h, w), np.float32)
+    r = 0.5 * d_m
+    for c in centres:
+        d = np.sqrt((um - c) ** 2 + (vm - 0.5 * height_m) ** 2) / r
+        lens = np.maximum(lens, 1 - smoothstep(0.82, 0.9, d))
+        rim = np.maximum(rim, (1 - smoothstep(0.98, 1.06, d)) * smoothstep(0.82, 0.9, d))
+        hot = np.maximum(hot, np.clip(1.0 - d, 0, 1))
+    col = lerp(col, srgb((70, 72, 76))[None, None, :] * np.ones((h, w, 1)), rim[..., None])
+    col = lerp(col, srgb((236, 236, 230))[None, None, :] * (0.7 + 0.3 * hot)[..., None], lens[..., None])
+    nrm = normal_from_height(2.0 * lens + 1.0 * rim - 0.5 * joint, 0.3)
+    orm = np.stack([np.ones((h, w), np.float32), 0.6 - 0.45 * lens, 0.3 + 0.4 * rim], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+    em = np.stack([lens * (0.6 + 0.4 * hot)] * 3, -1)
+    from PIL import Image
+    Image.fromarray(to8(em), 'RGB').save(os.path.join(OUT, name + '_emission.jpg'), quality=90)
+    write_import(os.path.join(OUT, name + '_emission.jpg'), False)
+
+
+def camera_spots():
+    """The camera lights' top bar nose (32 m, 0.5 m high: four lamps in a group, a group every ~10 m,
+    mirror-symmetric) and a floodlight bank's face (6.56 m by 0.9 m: six pairs of lamps)."""
+    nose = []
+    for g in (1.05, 10.95, 21.05, 30.95):
+        nose += [g + o for o in (-0.645, -0.215, 0.215, 0.645)]
+    spots('spots_nose', 32.0, 0.5, nose, 0.36, 2048, 32, 521)
+    bank = []
+    for k in range(6):
+        c = (k + 0.5) * 6.56 / 6
+        bank += [c - 0.2, c + 0.2]
+    spots('spots_bank', 6.56, 0.9, bank, 0.34, 1024, 140, 523)
+
+
 if __name__ == '__main__':
     booth_window()
     booth_wall()
     pub_facade()
     pub_end()
+    camera_spots()

@@ -1,6 +1,7 @@
 """Cut-out lattice cards (alpha: the holes), our own drawings in the Stadium's style, for the steel
 TMNF draws as alpha cards: a white X-braced panel (girders, the grandstands' spine), a dark railing,
-a dark truss girder (catwalks' sides), a dark grating (catwalk floors).
+a dark truss girder (catwalks' sides), a dark grating (catwalk floors), a dark slotted plate (the
+platform columns' faces).
 usage: python3 stadium/tools/texgen/lattice.py"""
 import math
 import numpy as np
@@ -109,8 +110,32 @@ def grate(name='lattice_grate', s=256):
     card(name, s, s, bars, (46, 47, 50), 307, rough=0.7, metal=0.1)
 
 
+def plate(name='lattice_plate', w=1024, h=128):
+    """A dark girder plate 8 m long (u) and 1 m across (v): solid edges, a panel every 1.1 m (solid
+    joints between), each with a close grille along its middle between two long slots (cut out)."""
+    t = 0.14 * h
+    bars = [(0, t / 2, w, t / 2, t), (0, h - t / 2, w, h - t / 2, t)]
+    plates = []
+    pw = 1.1 / 8.0 * w
+    k = 0
+    while k * pw < w:
+        x = k * pw
+        bars.append((x, 0, x, h, 0.06 / 8.0 * w * 1.0))
+        k += 1
+    # the grille: a close mesh (solid but for its shading) between two rails
+    g0, g1 = 0.32 * h, 0.68 * h
+    bars += [(0, g0, w, g0, 0.04 * h), (0, g1, w, g1, 0.04 * h)]
+    plates.append([(0, g0), (w, g0), (w, g1), (0, g1)])
+    x = 0.0
+    while x < w:
+        bars.append((x, g0, x, g1, 2.0))
+        x += 5.0
+    card(name, w, h, bars, (52, 54, 56), 309, plates=plates, rough=0.6, metal=0.1)
+
+
 if __name__ == '__main__':
     xbrace()
     railing()
     girder()
     grate()
+    plate()

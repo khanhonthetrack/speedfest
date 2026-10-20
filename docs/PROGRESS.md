@@ -2663,4 +2663,19 @@ on every real contact the full impulse would land at the contact point and kick 
   TMNF's blocks, Forward+ and Compatibility. Left: the other pub forms' layout (TMNF's corner has
   a dark wall with a board and a logo panel on its outer sides; not on our tracks), the camera
   pub's small logo sign and the boards' brackets.
+- (M11-2) **The camera lights' steel and spotlights, the platform columns' plates as TMNF's**
+  (`control.gd`, `platform.gd`, `texgen/booth.py`, `texgen/lattice.py`). The camera light (87 uses)
+  gets TMNF's steel as dark cut-out cards: a W-truss panel over each floodlight bar under a rail,
+  two trusses holding them out under the top bar and one across each end, a grating along the
+  foot with a railing and a lattice down to the foot; its lamps TMNF's round spotlights (our
+  drawing, `spots_nose`: groups of four along the top bar's nose; `spots_bank`: six pairs on each
+  bar's face), their lenses alone glowing (`TmMaterials.LENS_GLOW`) where the strips glowed
+  white all over. Missing surface 1,304 -> 422 m2 (214 of it TMNF's additive glow cards, left
+  out). The platform truss columns' outer and inner faces are TMNF's slotted plates
+  (`lattice_plate`: a close grille between two long slots), the open frame only at their sides.
+  Look check tool: `tests/block_dump.gd` read every cut-out material as white (it only looked at
+  StandardMaterial3D; ours are ORMMaterial3D) and now takes their visible texels' mean; with it the
+  76 shapes' colour differences are 10.5% of TMNF's area (13.5% before this round), missing 7.5%
+  (11.8%). Side by side with TMNF's blocks, Forward+ and Compatibility. Left: the round base's
+  railing ring and panels (not on our tracks).
 

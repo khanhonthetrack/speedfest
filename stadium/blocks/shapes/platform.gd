@@ -40,7 +40,7 @@ const LIP := [
 ## column lines (COLUMNS, both ways): from each column of a closed side in to the square the
 ## lines make (its outer end BEAM_END, (d, y)), and along each side of that square whose block
 ## edge is open. On each closed side two truss columns (centred COLUMNS along it, COLUMN_W wide;
-## TMNF's dark open frames, cut-out truss cards)
+## TMNF's: dark cut-out cards, slotted plates outside and in, open frames at the sides)
 ## slant from the beam's end up under the rim.
 const PLATE_IN := 2.802
 const HUB := [10.0, 12.0]
@@ -387,9 +387,10 @@ func _underside(geo: TmGeo, closed: Array) -> void:
 			for q: Vector2 in COLUMN_FOOT + COLUMN_HEAD:
 				for s: float in [-0.5, 0.5]:
 					pts.append(edge - o * q.x + Vector3(0, q.y, 0) + along + t * s * COLUMN_W)
-			# pts: foot (outer, inner) x (-, +), head (outer, inner) x (-, +); each face TMNF's open
-			# frame (a dark truss card, its diagonals up the column: u along it, v across)
-			var face := func(a: int, b: int, cc: int, d: int) -> void:
+			# pts: foot (outer, inner) x (-, +), head (outer, inner) x (-, +); the outer and inner
+			# faces TMNF's slotted plate, the sides its open frame (dark cut-out cards: u along the
+			# column, v across)
+			var face := func(a: int, b: int, cc: int, d: int, key: String, u: float) -> void:
 				var pa: Vector3 = pts[a]
 				var pb: Vector3 = pts[b]
 				var pc: Vector3 = pts[cc]
@@ -398,16 +399,16 @@ func _underside(geo: TmGeo, closed: Array) -> void:
 				var cen := Vector3.ZERO
 				for p: Vector3 in pts:
 					cen += p / 8.0
-				var u := COLUMN_PANELS / 8.0
 				if (pb - pa).cross(pc - pa).dot(mid - cen) < 0.0:
-					geo.quad_uv(pa, pd, pc, pb, "girder_dark", S_METAL, Vector2(0, 0), Vector2(u, 0), Vector2(u, 1), Vector2(0, 1))
+					geo.quad_uv(pa, pd, pc, pb, key, S_METAL, Vector2(0, 0), Vector2(u, 0), Vector2(u, 1), Vector2(0, 1))
 				else:
-					geo.quad_uv(pa, pb, pc, pd, "girder_dark", S_METAL, Vector2(0, 0), Vector2(0, 1), Vector2(u, 1), Vector2(u, 0))
-			face.call(0, 1, 5, 4)      # outer face
-			face.call(2, 3, 7, 6)      # inner face
-			face.call(0, 2, 6, 4)      # one side
-			face.call(1, 3, 7, 5)      # the other
-			face.call(0, 1, 3, 2)      # foot
+					geo.quad_uv(pa, pb, pc, pd, key, S_METAL, Vector2(0, 0), Vector2(0, 1), Vector2(u, 1), Vector2(u, 0))
+			var length: float = (pts[0] as Vector3).distance_to(pts[4]) / 8.0
+			face.call(0, 1, 5, 4, "girder_plate", length)      # outer face
+			face.call(2, 3, 7, 6, "girder_plate", length)      # inner face
+			face.call(0, 2, 6, 4, "girder_dark", COLUMN_PANELS / 8.0)      # one side
+			face.call(1, 3, 7, 5, "girder_dark", COLUMN_PANELS / 8.0)      # the other
+			face.call(0, 1, 3, 2, "girder_dark", COLUMN_PANELS / 8.0)      # foot
 
 
 ## A beam under the deck: the profile (d, y) points round its section, swept along s0..s1

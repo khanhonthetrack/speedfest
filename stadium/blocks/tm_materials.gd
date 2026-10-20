@@ -129,6 +129,7 @@ const COLORS := {
 	"lattice_x": [Color(0.91, 0.92, 0.93), 0.45, 0.2],
 	"railing": [Color(0.2, 0.21, 0.23), 0.6, 0.4],
 	"girder_dark": [Color(0.23, 0.24, 0.25), 0.6, 0.4],
+	"girder_plate": [Color(0.2, 0.21, 0.22), 0.6, 0.4],
 	"grate": [Color(0.18, 0.18, 0.2), 0.7, 0.4],
 	"booth_glass": [Color(0.3, 0.33, 0.36), 0.2, 0.3],
 	"booth_wall": [Color(0.6, 0.6, 0.59), 0.8, 0.0],
@@ -140,6 +141,8 @@ const COLORS := {
 	"bumper_cp": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"bumper_cp_out": [Color(0.12, 0.12, 0.14), 0.7, 0.0],
 	"gate_lamps": [Color(0.95, 0.93, 0.85), 0.5, 0.0, 3.0],
+	"spots_nose": [Color(0.2, 0.2, 0.21), 0.5, 0.2, 2.0],
+	"spots_bank": [Color(0.3, 0.3, 0.31), 0.5, 0.2, 2.0],
 	# the Stadium around the map (env/tm_stadium_build.gd)
 	"concrete": [Color(0.78, 0.78, 0.76), 0.9, 0.0],
 	"facade": [Color(0.70, 0.71, 0.72), 0.7, 0.1],
@@ -234,6 +237,8 @@ const TEXTURED := {
 	"bumper_cp": ["curb_cp", Vector2(1.25, 1.0), false],
 	"bumper_cp_out": ["curb_cp", Vector2(-1.25, 1.0), false],
 	"gate_lamps": ["gate_lamps", Vector2(2.0, 1.0), false],
+	"spots_nose": ["spots_nose", Vector2(2.0, 1.0), false],     # the camera lights' top bar nose (rows; texgen/booth.py)
+	"spots_bank": ["spots_bank", Vector2(1.0, 1.0), false],     # their floodlight banks' faces
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
 	"fabric_under": ["fabric_under", Vector2(16.0, 8.0), false],     # its ribs on the truss arches
@@ -276,6 +281,7 @@ const CUTOUT := {
 	"lattice_x": ["lattice_xbrace", Color(0.91, 0.92, 0.93)],
 	"railing": ["lattice_railing", Color(0.2, 0.21, 0.23)],
 	"girder_dark": ["lattice_girder", Color(0.23, 0.24, 0.25)],
+	"girder_plate": ["lattice_plate", Color(0.2, 0.21, 0.22)],
 	"grate": ["lattice_grate", Color(0.18, 0.18, 0.2)],
 }
 
@@ -365,6 +371,11 @@ static func _noise(freq: float, seed_value: int, octaves: int) -> NoiseTexture2D
 	return t
 
 
+## Textured keys whose emission map alone glows (its lenses), times this energy; the others with a
+## map glow all over (colour + map).
+const LENS_GLOW := {"spots_nose": 2.5, "spots_bank": 2.5}
+
+
 static func get_material(key: String) -> Material:
 	if _cache.has(key):
 		return _cache[key]
@@ -374,6 +385,9 @@ static func get_material(key: String) -> Material:
 		m = _cutout(CUTOUT[key])
 	elif hd() and TEXTURED.has(key):
 		m = _textured(TEXTURED[key], DETAIL.get(key, []))
+		if m != null and LENS_GLOW.has(key):
+			(m as ShaderMaterial).set_shader_parameter("emission_colour", Color.BLACK)
+			(m as ShaderMaterial).set_shader_parameter("emission_energy", float(LENS_GLOW[key]))
 	elif hd() and SURFACES.has(key):
 		m = _surface(key, spec)
 	elif hd() and key == "water":

@@ -38,8 +38,8 @@
   red), ToRoad, glass booths, pub blocks, camera lights, the gates' feet (owner: the "block
   rectangle" between arch and curb), the gate blocks' curb signs, the platform checkpoint, the
   grandstands' steel (cut-out lattice cards, `TmMaterials.CUTOUT`), the road-side booths, the
-  platform truss columns, the airship (gondola, fins, moorings, livery), the pub base and the
-  camera pub. Side-by-side renders:
+  platform truss columns (slotted plates outside), the airship (gondola, fins, moorings, livery),
+  the pub base and the camera pub, the camera lights' steel and spotlights. Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail`. Next by our tracks'
   use: sculptures, dirt road furniture, the road turbo gantry, junction undersides, the loops,
