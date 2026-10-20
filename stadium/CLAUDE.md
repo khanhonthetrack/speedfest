@@ -77,6 +77,9 @@ Updated 2026-10-20 (session 15: v0.5 merged with the community work, on `stadium
   cameras see `TmSkyline.FAR` (9 km); `tests/test_skyline`. Night (20 Oct): `TmStadiumEnv.mood_of`
   (maps' decoration, specs' `mood`, `--mood=night`), the towers lit (`tm_night`). The campaign's
   sixth series **City** (F01-F05, `"scenery": "city"`): towers around the road (`TmSkyline.field`).
+  The owner's Blend Swap buildings (CC0 / CC BY, `assets/city/`, `CREDITS.md`; owner-chosen
+  third-party assets are allowed there, with a licence): `tools/assets/blend_to_glb.py`,
+  `env/tm_city_assets.gd`; Street/Traffic Lights blends wait for their licence.
 - **Community content (session 15, PLAN M11; in `stadium` since 19 Oct, after v0.5, not released yet):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a

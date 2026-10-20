@@ -1003,3 +1003,9 @@ the web build / Compatibility renderer is no longer a constraint. Started with t
 (Read as: a new campaign series named City, five tracks whose scenery is towers around the road,
 next to the colour series (White, Green, Blue, ...) rather than replacing them; the towers lit at
 night, with a night mood for the Stadium to show it.)
+
+> can i be honest? the buildings suck. you could easily make better ones. put more effort, i even gave you blender assets here 5/10. The second half is coming right after
+
+(Attached: Blade_runner_style_Cityscapes.blend; Skyscraper_2.zip, Skyscraper.zip, Hotel.zip
+(Blend Swap, CC0); 12_Buildings.zip (Blend Swap, "raytrace", CC-BY 3.0: credit required). The
+Blade Runner file came without a licence; asked where it is from before shipping anything of it.)

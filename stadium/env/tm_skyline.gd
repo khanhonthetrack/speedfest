@@ -17,6 +17,7 @@ const STREET := 26.0            ## m, kerb to kerb
 const RADIUS := 5200.0          ## m, the city's rim
 const SECTORS := 12             ## the merged blocks, cut by angle (so whole sectors are culled)
 const LAYER := 2                ## the city's render layer (lit by the moon, not the floodlights)
+const ASSET_SHARE := 0.6        ## of the towers, this share are the owner's buildings when one fits
 const SEED := 20261020
 const HALF := (PITCH - STREET) * 0.5 - 4.5     ## a block's half width inside its pavements (m)
 ## The skyscraper districts: centre (x, z), radius (m), strength (0..1: how tall).
@@ -200,6 +201,14 @@ static func field(builder: TmMapBuilder) -> Node3D:
 			spec["shadows"] = true
 			spec["podium"] = rng.randf_range(8.0, 12.0)
 			var turn := absi(int(spec["seed"])) % 4
+			var asset := TmCityAssets.pick(rng, Vector2(room, room), h) if rng.randf() < ASSET_SHARE else {}
+			if not asset.is_empty():
+				var sz: Vector3 = asset["size"]
+				_asset(towers, asset, at, String(spec["glass"]), int(spec["seed"]), true)
+				var ae := Vector2(sz.x, sz.z) * 0.45                       # a little inside its outline
+				_collide(body, Rect2(at - ae, ae * 2.0), sz.y)
+				count += 1
+				continue
 			_tower(towers, spec, at, turn)
 			var e := Vector2(float(spec["w"]) * 0.59, float(spec["d"]) * 0.625)
 			if turn % 2 == 1:
@@ -350,6 +359,13 @@ static func _tower_spec(rng: RandomNumberGenerator, t: float, seed: int) -> Dict
 		"seed": seed, "shadows": false, "podium": rng.randf_range(10.0, 16.0)}
 
 
+## One of the owner's buildings (TmCityAssets.pick) standing at `at` (its foot's centre).
+static func _asset(parent: Node3D, choice: Dictionary, at: Vector2, glass: String, seed: int, shadows: bool) -> void:
+	var n := TmCityAssets.building(choice, glass, absi(seed) % 8, shadows)
+	n.position = Vector3(at.x, 0.4, at.y)
+	parent.add_child(n)
+
+
 static func _tower(parent: Node3D, spec: Dictionary, at: Vector2, turn := 0) -> void:
 	var t := TmTower.build(spec)
 	t.position = Vector3(at.x, 0.4, at.y)
@@ -378,9 +394,18 @@ static func _tower_block(towers: Node3D, blocks: Dictionary, roofs: TmTower.Buil
 	var e := Vector2(float(spec["w"]) * 0.59, float(spec["d"]) * 0.625)   # the podium's half extents
 	if turn % 2 == 1:
 		e = Vector2(e.y, e.x)
+	# one of the owner's buildings when one fits (TmCityAssets), else ours
+	var asset := TmCityAssets.pick(rng, Vector2(HALF, HALF) * 2.0 - Vector2(8.0, 8.0), float(spec["height"])) \
+		if rng.randf() < ASSET_SHARE else {}
+	if not asset.is_empty():
+		var sz: Vector3 = asset["size"]
+		e = Vector2(sz.x, sz.z) * 0.5
 	var room := Vector2(maxf(HALF - e.x, 0.0), maxf(HALF - e.y, 0.0))
 	var at := c + Vector2(rng.randf_range(-room.x, room.x), rng.randf_range(-room.y, room.y)) * 0.8
-	_tower(towers, spec, at, turn)
+	if asset.is_empty():
+		_tower(towers, spec, at, turn)
+	else:
+		_asset(towers, asset, at, String(spec["glass"]), int(spec["seed"]), bool(spec.get("shadows", false)))
 	# the wings: west and east strips the block's depth, north and south ones between them
 	var gap := 6.0
 	var lo := c - Vector2(HALF, HALF)

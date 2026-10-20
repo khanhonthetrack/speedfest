@@ -7,6 +7,9 @@ Godot. ManiaPlanet parts are out of scope.
 Owner decisions (2026-10-16):
 - **Assets: recreate only.** Every model, texture and sound here is our own, made in the TMNF style.
   No Nadeo files (meshes, textures, sounds, packs, decompiled code) are ever committed or shipped.
+  One exception the owner chose (20 Oct 2026): city buildings from Blend Swap under open licences
+  (CC0, CC BY 3.0), converted by `tools/assets/blend_to_glb.py` into `assets/city/` with their
+  credits (`assets/city/CREDITS.md`); anything without a licence stays out.
 - **Tracks:** the game is **standalone** (owner, 2026-10-17): its campaign is our own tracks
   (`tracks/*.json`, built from the recreated blocks; no TMNF needed): 65 in TMNF's five series,
   White A01-A15, Green B01-B15, Blue C01-C15, Red D01-D15, Black E01-E05 (owner, session 13:

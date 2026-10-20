@@ -30,6 +30,8 @@ uniform float lobby = 0.0;              // 1: the podium (one tall storey of cle
 uniform float pane_tilt = 0.018;        // the panes' small tilts (reflections break at them)
 uniform float fin_every = 0.0;          // a deeper vertical fin every this many bays (0: none)
 uniform float fin_w = 0.45;             // m
+uniform float world_map = 0.0;          // 1: windows from the world position (models without our
+                                        // metre UVs: each planar wall's horizontal run, metres up)
 uniform float frame_metal = 1.0;        // the frames: aluminium (1) or stone and concrete (0)
 uniform float frame_rough = 0.32;
 uniform float span_metal = 0.45;        // the spandrels: enamelled glass (0.45) or masonry (0)
@@ -83,10 +85,24 @@ vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp) {
 	return col * light;
 }
 
+varying vec3 wpos;
+varying vec3 wnrm;
+
+void vertex() {
+	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	wnrm = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+}
+
 void fragment() {
 	float fh = floor_h;
 	vec2 cs = vec2(bay_w, fh);
 	vec2 m = UV;
+	if (world_map > 0.5) {
+		// along a planar wall: its run over the axis it faces least, divided by that (metres along it)
+		vec3 n = normalize(wnrm);
+		m = abs(n.x) > abs(n.z) ? vec2(wpos.z * sign(n.x) / max(abs(n.x), 0.3), wpos.y)
+			: vec2(-wpos.x * sign(n.z) / max(abs(n.z), 0.3), wpos.y);
+	}
 	vec2 c = floor(m / cs);
 	vec2 f = m - c * cs;
 	vec2 fw = fwidth(m);
@@ -157,6 +173,6 @@ void fragment() {
 	float crown = 1.0 - step(0.75, COLOR.a);
 	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;
 	// the street's shade at a building's foot (the city casts no shadows: too far for them)
-	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, UV.y));
+	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, world_map > 0.5 ? wpos.y - NODE_POSITION_WORLD.y : UV.y));
 	AO_LIGHT_AFFECT = 0.6;
 }

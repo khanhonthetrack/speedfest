@@ -24,6 +24,21 @@
   stands, cameras and curve walls there). Read as a new series next to the colour ones, not
   instead of White and Blue. Medals by the bot (`test_tracks --write_medals`); card pictures by
   `tools/icons/thumbs.sh F01 ..`; the amber series flag from `tools/texgen/menu_icons.py`.
+- Owner: "the buildings suck ... put more effort, i even gave you blender assets here 5/10", with
+  ten files (uploads, not in the repo). Licences: Skyscraper, Skyscraper 2, Hotel, OpenGL High
+  Rise Pack, Facade Glass, Family House Collection: CC0 (Blend Swap); 12 Buildings: CC BY 3.0
+  (credit "raytrace"); Blade Runner Cityscapes: its note says "you can use this in your any
+  project"; **Street_Lights.blend and Traffic_Lights.blend: no licence: asked the owner where they
+  are from; don't commit anything of them until they answer.** Done: `tools/assets/blend_to_glb.py`
+  (Blender 4.0: `apt-get install blender python3-numpy`; `-Y` keeps the files' scripts off) splits
+  a scene into buildings (footprints that touch), joins and decimates each (60k triangles), exports
+  .glb without images and a manifest; 38 buildings (sky, sky2, hotel, rt sets) in `assets/city/`
+  with `CREDITS.md`; `env/tm_city_assets.gd` dresses them by material name (glass -> our curtain
+  wall with `world_map`, rooms and night lights), picks one that fits a lot; `TmSkyline` uses them
+  for 60% of the towers where one fits. `env/asset_lab.tscn --glb=/abs.glb` or `--dir=/abs`
+  previews models in our light. Next: better procedural mid-rises (the street views of the City
+  tracks are mostly ours), lights along the City tracks, the High Rise Pack (its baked textures
+  need their materials rebuilt) and the houses.
 - Owner (20 Oct, not answered yet): "I want to be able to load all canyon/lagoon maps somehow."
   Their block lists already read; the blocks' geometry doesn't exist. Options put to the owner:
   approximate them from our pieces, recreate from the owner's own TM2 install locally, or a

@@ -1,0 +1,259 @@
+{
+ "source": "Raytrace-12Buildings.blend",
+ "licence": "CC-BY 3.0, raytrace, Blend Swap #69593",
+ "scale": 100.0,
+ "buildings": [
+  {
+   "name": "rt_01",
+   "size": [
+    45.97,
+    222.49,
+    45.97
+   ],
+   "triangles": 12372,
+   "parts": 1,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_02",
+   "size": [
+    38.3,
+    185.41,
+    38.3
+   ],
+   "triangles": 12372,
+   "parts": 11,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_03",
+   "size": [
+    38.3,
+    185.44,
+    38.3
+   ],
+   "triangles": 26763,
+   "parts": 30,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_04",
+   "size": [
+    35.59,
+    159.14,
+    84.06
+   ],
+   "triangles": 3077,
+   "parts": 1,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_05",
+   "size": [
+    34.8,
+    131.62,
+    29.63
+   ],
+   "triangles": 14370,
+   "parts": 28,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_06",
+   "size": [
+    34.33,
+    131.62,
+    34.33
+   ],
+   "triangles": 14598,
+   "parts": 1,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_07",
+   "size": [
+    33.49,
+    125.98,
+    33.49
+   ],
+   "triangles": 6744,
+   "parts": 24,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_08",
+   "size": [
+    39.64,
+    125.94,
+    39.64
+   ],
+   "triangles": 1920,
+   "parts": 7,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_09",
+   "size": [
+    39.64,
+    125.94,
+    39.64
+   ],
+   "triangles": 11112,
+   "parts": 21,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_10",
+   "size": [
+    33.49,
+    125.57,
+    33.49
+   ],
+   "triangles": 11558,
+   "parts": 1,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_11",
+   "size": [
+    27.2,
+    122.83,
+    47.73
+   ],
+   "triangles": 11446,
+   "parts": 33,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_12",
+   "size": [
+    35.42,
+    122.83,
+    39.14
+   ],
+   "triangles": 11446,
+   "parts": 33,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_13",
+   "size": [
+    37.47,
+    122.83,
+    37.93
+   ],
+   "triangles": 11446,
+   "parts": 33,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_14",
+   "size": [
+    35.42,
+    122.83,
+    39.14
+   ],
+   "triangles": 11266,
+   "parts": 1,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_15",
+   "size": [
+    40.09,
+    113.56,
+    40.09
+   ],
+   "triangles": 10730,
+   "parts": 26,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_16",
+   "size": [
+    33.49,
+    98.57,
+    33.49
+   ],
+   "triangles": 9192,
+   "parts": 25,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_17",
+   "size": [
+    34.8,
+    93.8,
+    19.73
+   ],
+   "triangles": 10466,
+   "parts": 27,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_18",
+   "size": [
+    34.8,
+    93.8,
+    34.8
+   ],
+   "triangles": 21178,
+   "parts": 28,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_19",
+   "size": [
+    19.73,
+    93.8,
+    34.8
+   ],
+   "triangles": 10314,
+   "parts": 4,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_20",
+   "size": [
+    33.49,
+    80.37,
+    33.49
+   ],
+   "triangles": 8040,
+   "parts": 1,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  },
+  {
+   "name": "rt_21",
+   "size": [
+    36.56,
+    61.16,
+    33.12
+   ],
+   "triangles": 14391,
+   "parts": 19,
+   "source": "Raytrace-12Buildings.blend",
+   "licence": "CC-BY 3.0, raytrace, Blend Swap #69593"
+  }
+ ]
+}

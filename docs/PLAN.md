@@ -277,7 +277,14 @@ graphics card": new assets of our own (not TMNF's), for Forward+ on a strong PC 
       sixth series, City F01-F05 (`"scenery": "city"`: `TmSkyline.field`, buildings on the free
       cells around the road with collision, a paved field; F02, F04, F05 at night); in the gate
       (`test_skyline`, `test_tracks` drives F01)
-- [ ] 5. The owner's look at it; then maybe a setting to turn the city off on weaker PCs
+- [x] 5. The owner's Blender buildings (owner: "the buildings suck ... i even gave you blender
+      assets here 5/10"): 38 buildings from four Blend Swap sets (CC0, one CC BY) converted
+      (`tools/assets/blend_to_glb.py`) into `assets/city/`, dressed in our materials
+      (`env/tm_city_assets.gd`), 60% of the towers where one fits (districts, City fields)
+- [ ] 6. Better procedural buildings (window depth, cornices, shopfronts, roofs) for the blocks
+      the owner's buildings don't cover; street and traffic lights along the City tracks (their
+      files came without a licence: asked the owner where they are from)
+- [ ] 7. The owner's look at it; then maybe a setting to turn the city off on weaker PCs
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

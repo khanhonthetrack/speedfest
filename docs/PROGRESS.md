@@ -2653,3 +2653,33 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
 - `tests/test_skyline` (+5): the City series, F01's field city (towers, buildings), nothing on a
   track cell nor within 6 m of the car's line, the field paved. The gate's `test_tracks` drives
   F01 (each series' first track).
+
+## 2026-10-20 — session 15 (cloud): the owner's Blender buildings in the city (M12)
+
+- Owner: "can i be honest? the buildings suck. you could easily make better ones. put more effort,
+  i even gave you blender assets here 5/10", with Blend Swap files (TRANSCRIPT; licences in
+  HANDOFF). Blender 4.0.2 from Ubuntu (+ python3-numpy for its glTF exporter); every file opened
+  with `-Y` (its own scripts off), inspected, exported, previewed in our renderer.
+- Their Cycles materials don't survive glTF (they came out white), so we keep the geometry and
+  dress it ourselves: `env/tm_city_assets.gd` maps material names (Italian and English: vetro,
+  specchio, glass, window -> our curtain wall; acciaio, steel, chrome -> brushed steel; cemento,
+  concrete -> our concrete; luce -> lit panels; black, white, paint, leaves, trunk) to our
+  materials. Glass is TmTower's shader with `world_map` (new): windows laid along each planar
+  wall from the world position (its run over the axis it faces least, divided by that), metres
+  up, the room tracing and night lights as on our towers; the foot's shade from the model's origin.
+- `tools/assets/blend_to_glb.py`: a scene -> one .glb per building (objects whose footprints
+  touch; slabs and plazas don't join them), cameras/lights/ground/trees/people out, joined into
+  one mesh, at its foot's centre, in metres (`--scale`), decimated over 60k triangles,
+  `--unique` drops repeats, a manifest per set (sizes, triangles, source, licence).
+- `assets/city/`: 38 buildings, 32 MB: sky_01..11 (Skyscraper: towers, twin cylinders, a
+  corkscrew tower, a mall, apartment slabs), sky2_01..05 (Skyscraper 2: a finned tower, a bullet,
+  a sail, twin round towers, a bubble tower), hotel_01, rt_01..21 (12 Buildings by raytrace,
+  CC BY 3.0, x 100). `CREDITS.md`. Imported with Godot's LODs.
+- `TmCityAssets.pick(rng, room, height)`: a building that fits a lot and a height (scaled 0.8 to
+  1.6, turned to fit); `building()`: placed and dressed. `TmSkyline`: 60% of the district towers
+  and of the City tracks' 2 x 2 lots are the owner's buildings when one fits (collision boxes a
+  little inside their outline). The city: ~160 towers, ~630k triangles at full detail, ~1.3 s.
+- `env/asset_lab.tscn`: any .glb from disk (`--glb=`) or a directory side by side (`--dir=`) in
+  our light, dressed (`--dress=false`: as exported). Screenshots at Ultra: `--set_quality=2`.
+- `tests/test_skyline` (+5): the catalogue (licences), picks that fit and none that don't,
+  dressing, material kinds.
