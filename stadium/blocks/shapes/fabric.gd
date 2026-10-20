@@ -40,13 +40,13 @@ const SHELL := [[59.8, 1.0, "fabric_under", S_ROAD], [59.42, 4.35, "fabric_under
 	[41.47, 35.09, "fabric_under", S_ROAD], [37.64, 37.89, "fabric_under", S_ROAD], [33.59, 40.37, "fabric_under", S_ROAD],
 	[29.34, 42.51, "fabric_under", S_ROAD], [24.91, 44.28, "fabric_under", S_ROAD], [20.27, 45.7, "fabric_under", S_ROAD],
 	[15.4, 46.78, "fabric_under", S_ROAD], [10.34, 47.38, "fabric_under", S_ROAD], [5.13, 47.69, "fabric_under", S_ROAD],
-	[0.0, 47.69, "structure", S_METAL], [0.0, 48.04, "fabric", S_ROAD], [5.15, 48.1, "fabric", S_ROAD],
-	[10.37, 47.78, "fabric", S_ROAD], [15.46, 47.18, "fabric", S_ROAD], [20.37, 46.09, "fabric", S_ROAD],
-	[25.04, 44.66, "fabric", S_ROAD], [29.5, 42.88, "fabric", S_ROAD], [33.78, 40.73, "fabric", S_ROAD],
-	[37.86, 38.23, "fabric", S_ROAD], [41.72, 35.41, "fabric", S_ROAD], [45.32, 32.28, "fabric", S_ROAD],
-	[48.63, 28.88, "fabric", S_ROAD], [51.59, 25.23, "fabric", S_ROAD], [54.14, 21.36, "fabric", S_ROAD],
-	[56.26, 17.3, "fabric", S_ROAD], [57.93, 13.1, "fabric", S_ROAD], [59.09, 8.78, "fabric", S_ROAD],
-	[59.82, 4.41, "fabric", S_ROAD], [60.04, 1.85, "fabric_under", S_ROAD]]
+	[0.0, 47.69, "structure", S_METAL], [0.0, 48.04, "fabric_roof", S_ROAD], [5.15, 48.1, "fabric_roof", S_ROAD],
+	[10.37, 47.78, "fabric_roof", S_ROAD], [15.46, 47.18, "fabric_roof", S_ROAD], [20.37, 46.09, "fabric_roof", S_ROAD],
+	[25.04, 44.66, "fabric_roof", S_ROAD], [29.5, 42.88, "fabric_roof", S_ROAD], [33.78, 40.73, "fabric_roof", S_ROAD],
+	[37.86, 38.23, "fabric_roof", S_ROAD], [41.72, 35.41, "fabric_roof", S_ROAD], [45.32, 32.28, "fabric_roof", S_ROAD],
+	[48.63, 28.88, "fabric_roof", S_ROAD], [51.59, 25.23, "fabric_roof", S_ROAD], [54.14, 21.36, "fabric_roof", S_ROAD],
+	[56.26, 17.3, "fabric_roof", S_ROAD], [57.93, 13.1, "fabric_roof", S_ROAD], [59.09, 8.78, "fabric_roof", S_ROAD],
+	[59.82, 4.41, "fabric_roof", S_ROAD], [60.04, 1.85, "fabric_under", S_ROAD]]
 ## The stands: the quarter-pipe from the floor up to the seats, the seats' top, the back down to
 ## the ground (measured).
 const STANDS := [[45.88, 1.0, "stands_front", S_ROAD], [47.08, 1.2, "stands_front", S_ROAD], [48.23, 1.56, "stands_front", S_ROAD],
@@ -66,12 +66,12 @@ const LIP := [[59.706, 1.0, "rubber", S_RUBBER], [59.706, 1.841, "fabric_orange"
 ## The raised grandstand (FabricStraight1x1Air): its own, shorter shell standing on a deck at 8 m
 ## (top surface down from the foot, then the underside), the deck (x, y0, y1) and the one wall
 ## holding it up along the block (x0, x1), measured.
-const SHELL_AIR := [[55.77, 7.99, "fabric", S_ROAD], [54.62, 12.83, "fabric", S_ROAD], [53.04, 17.04, "fabric", S_ROAD],
-	[51.04, 21.09, "fabric", S_ROAD], [48.64, 24.96, "fabric", S_ROAD], [45.85, 28.61, "fabric", S_ROAD],
-	[42.73, 32.01, "fabric", S_ROAD], [39.33, 35.14, "fabric", S_ROAD], [35.7, 37.96, "fabric", S_ROAD],
-	[31.85, 40.46, "fabric", S_ROAD], [27.81, 42.61, "fabric", S_ROAD], [23.61, 44.4, "fabric", S_ROAD],
-	[19.21, 45.83, "fabric", S_ROAD], [14.58, 46.91, "fabric", S_ROAD], [9.78, 47.51, "fabric", S_ROAD],
-	[4.85, 47.81, "fabric", S_ROAD], [0.0, 47.98, "structure", S_METAL], [0.0, 47.63, "fabric_under", S_ROAD],
+const SHELL_AIR := [[55.77, 7.99, "fabric_roof", S_ROAD], [54.62, 12.83, "fabric_roof", S_ROAD], [53.04, 17.04, "fabric_roof", S_ROAD],
+	[51.04, 21.09, "fabric_roof", S_ROAD], [48.64, 24.96, "fabric_roof", S_ROAD], [45.85, 28.61, "fabric_roof", S_ROAD],
+	[42.73, 32.01, "fabric_roof", S_ROAD], [39.33, 35.14, "fabric_roof", S_ROAD], [35.7, 37.96, "fabric_roof", S_ROAD],
+	[31.85, 40.46, "fabric_roof", S_ROAD], [27.81, 42.61, "fabric_roof", S_ROAD], [23.61, 44.4, "fabric_roof", S_ROAD],
+	[19.21, 45.83, "fabric_roof", S_ROAD], [14.58, 46.91, "fabric_roof", S_ROAD], [9.78, 47.51, "fabric_roof", S_ROAD],
+	[4.85, 47.81, "fabric_roof", S_ROAD], [0.0, 47.98, "structure", S_METAL], [0.0, 47.63, "fabric_under", S_ROAD],
 	[9.75, 47.11, "fabric_under", S_ROAD], [14.52, 46.51, "fabric_under", S_ROAD], [19.11, 45.43, "fabric_under", S_ROAD],
 	[23.48, 44.01, "fabric_under", S_ROAD], [27.66, 42.24, "fabric_under", S_ROAD], [31.67, 40.1, "fabric_under", S_ROAD],
 	[35.49, 37.62, "fabric_under", S_ROAD], [39.1, 34.82, "fabric_under", S_ROAD], [42.47, 31.71, "fabric_under", S_ROAD],
@@ -157,12 +157,12 @@ const ROOF_TOP_AIR := [47.63, 47.98]
 ## The raised In corner has a shell of its own reaching down to 1.5 m (top surface up from the
 ## foot, then the underside down; radius from (0, 0)), on a low deck and its base (radius r0..r1,
 ## y0..y1), measured.
-const SHELL_IN_AIR := [[56.56, 1.54, "fabric", S_ROAD], [56.33, 3.73, "fabric", S_ROAD], [55.65, 8.14, "fabric", S_ROAD],
-	[54.58, 12.41, "fabric", S_ROAD], [53.02, 16.64, "fabric", S_ROAD], [51.04, 20.73, "fabric", S_ROAD],
-	[48.66, 24.63, "fabric", S_ROAD], [45.89, 28.31, "fabric", S_ROAD], [42.78, 31.74, "fabric", S_ROAD],
-	[39.36, 34.91, "fabric", S_ROAD], [35.71, 37.76, "fabric", S_ROAD], [31.86, 40.28, "fabric", S_ROAD],
-	[27.83, 42.45, "fabric", S_ROAD], [23.64, 44.25, "fabric", S_ROAD], [19.25, 45.7, "fabric", S_ROAD],
-	[14.6, 46.81, "fabric", S_ROAD], [9.77, 47.42, "fabric", S_ROAD], [4.69, 47.68, "fabric", S_ROAD],
+const SHELL_IN_AIR := [[56.56, 1.54, "fabric_roof", S_ROAD], [56.33, 3.73, "fabric_roof", S_ROAD], [55.65, 8.14, "fabric_roof", S_ROAD],
+	[54.58, 12.41, "fabric_roof", S_ROAD], [53.02, 16.64, "fabric_roof", S_ROAD], [51.04, 20.73, "fabric_roof", S_ROAD],
+	[48.66, 24.63, "fabric_roof", S_ROAD], [45.89, 28.31, "fabric_roof", S_ROAD], [42.78, 31.74, "fabric_roof", S_ROAD],
+	[39.36, 34.91, "fabric_roof", S_ROAD], [35.71, 37.76, "fabric_roof", S_ROAD], [31.86, 40.28, "fabric_roof", S_ROAD],
+	[27.83, 42.45, "fabric_roof", S_ROAD], [23.64, 44.25, "fabric_roof", S_ROAD], [19.25, 45.7, "fabric_roof", S_ROAD],
+	[14.6, 46.81, "fabric_roof", S_ROAD], [9.77, 47.42, "fabric_roof", S_ROAD], [4.69, 47.68, "fabric_roof", S_ROAD],
 	[0.4, 47.68, "structure", S_METAL], [0.4, 47.57, "fabric_under", S_ROAD], [4.67, 47.57, "fabric_under", S_ROAD],
 	[9.63, 47.32, "fabric_under", S_ROAD], [14.44, 46.72, "fabric_under", S_ROAD], [19.09, 45.62, "fabric_under", S_ROAD],
 	[23.46, 44.19, "fabric_under", S_ROAD], [27.56, 42.44, "fabric_under", S_ROAD], [31.63, 40.26, "fabric_under", S_ROAD],

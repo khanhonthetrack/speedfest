@@ -104,6 +104,7 @@ const COLORS := {
 	"infl_ink": [Color8(40, 44, 40), 0.35, 0.0],
 	"infl_rope_red": [Color8(231, 8, 8), 0.5, 0.0],
 	"fabric": [Color(0.93, 0.93, 0.94), 0.8, 0.0],
+	"fabric_roof": [Color(0.94, 0.94, 0.95), 0.8, 0.0],
 	"fabric_under": [Color(0.80, 0.82, 0.86), 0.85, 0.0],     # the Fabric roofs' underside, in their shade
 	"pipe": [Color(0.82, 0.84, 0.88), 0.35, 0.55],
 	"rubber_dark": [Color(0.10, 0.10, 0.11), 0.9, 0.0],
@@ -245,6 +246,7 @@ const TEXTURED := {
 	"spots_bank": ["spots_bank", Vector2(1.0, 1.0), false],     # their floodlight banks' faces
 	# the grandstands' wave roofs (fabric.gd), the platforms' skirts
 	"fabric": ["fabric_top", Vector2(8.0, 8.0), false],
+	"fabric_roof": ["fabric_roof", Vector2(16.0, 10.4), false],     # the wave roofs' outside (TMNF's layout)
 	"fabric_under": ["fabric_under", Vector2(16.0, 8.0), false],     # its ribs on the truss arches
 	# the Stadium around the field (env/tm_stadium_build.gd): world-mapped
 	"facade": ["stadium_facade", Vector2(16.0, 16.0), true],
@@ -293,7 +295,7 @@ const CUTOUT := {
 
 ## Fabric (the grandstands' and the stadium's roofs): how much sunlight shows through underneath
 ## (shader "translucent"; the glow is on with SDFGI, TmRtx: tm_membrane).
-const TRANSLUCENT := {"fabric": 1.0, "fabric_under": 1.0, "roof": 1.0, "roof_under": 0.6}
+const TRANSLUCENT := {"fabric": 1.0, "fabric_roof": 1.0, "fabric_under": 1.0, "roof": 1.0, "roof_under": 0.6}
 
 ## The surface shader per key: [pattern, second colour, pattern size (m), variation, bump].
 ## Patterns: see blocks/tm_surface.gdshader.
@@ -317,6 +319,7 @@ const SURFACES := {
 	"led": [8, Color(0.02, 0.05, 0.14), 1.0, 0.0, 0.0],
 	"screen_on": [8, Color(0.05, 0.10, 0.30), 1.0, 0.0, 0.0],
 	"fabric": [9, Color(0.3, 0.3, 0.3), 8.0, 0.05, 0.01],
+	"fabric_roof": [9, Color(0.3, 0.3, 0.3), 8.0, 0.05, 0.01],
 	"fabric_under": [9, Color(0.3, 0.3, 0.3), 8.0, 0.05, 0.01],
 	"roof": [9, Color(0.3, 0.3, 0.3), 15.0, 0.05, 0.01],
 	"roof_under": [10, Color(0.30, 0.32, 0.36), 0.6, 0.0, 0.01],

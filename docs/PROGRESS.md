@@ -2743,3 +2743,10 @@ on every real contact the full impulse would land at the contact point and kick 
   concrete), the camera booth's walkway white like the glass booth's (ours grey), and a gallery's
   section ends dark where the piece stops (ours white; hidden against the next piece). Colour
   differs: camera booth 127 -> 73 m2, camera gallery straight 392 -> 64, glass straight 650 -> 320.
+- (M11-2) **The grandstands' wave roofs' membrane as TMNF's** (`texgen/fabric.py fabric_roof`,
+  `TmMaterials` fabric_roof, `fabric.gd` SHELL, SHELL_AIR, SHELL_IN_AIR). From outside, TMNF's roof
+  reads as white panels pulled taut between clamped ribs (a band every two of its facets, 10.4 m,
+  faint seams every 5.3 m along the block); ours read as plain grey concrete. A texture of our own
+  in TMNF's layout (its tile 16 m along the block by 10.4 m round the roof): faint stitched seams,
+  a bolted rib band across the tile's edges, the membrane between two ribs as a shallow pillow in
+  the normal map, a satin sheen; the other fabric (skirts, the circuit wall's top) keeps its own.
