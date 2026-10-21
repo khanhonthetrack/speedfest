@@ -49,7 +49,8 @@
   the turbines' exhaust caps, the road junctions' keel, the platform plates' inner corners (the
   lip turned round a notch) and truss undersides, the platform checkpoint's floodlight banks, the gate arches' word every 3.08 m, the inflatable
   billboard walls (banner cushions), the camera pubs' ends and roof strips, the road pubs' boards (ads outward only), the
-  platform lip's atlas rows (and the ramp piece's orange bevel).
+  platform lip's atlas rows (and the ramp piece's orange bevel), the gate arches' top and underside
+  (TMNF's atlas strips), the sculptures' curb tops.
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

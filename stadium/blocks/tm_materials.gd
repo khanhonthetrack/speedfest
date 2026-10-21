@@ -114,10 +114,6 @@ const COLORS := {
 	"sculpt": [Color8(195, 196, 195), 0.7, 0.0],          # the sculptures (TMNF's light concrete panels)
 	# gates (blocks/tm_gate_dress.gd): the painted arch, its lit inner face per kind, the banner
 	"gate": [Color(0.86, 0.87, 0.90), 0.35, 0.55],
-	"gate_glow_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.6],
-	"gate_glow_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.6],
-	"gate_glow_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.6],
-	"gate_glow_lap": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.6],
 	"gate_lamp_start": [Color(0.30, 1.00, 0.45), 0.4, 0.0, 2.2],
 	"gate_lamp_finish": [Color(1.00, 0.22, 0.18), 0.4, 0.0, 2.2],
 	"gate_lamp_cp": [Color(0.25, 0.82, 1.00), 0.4, 0.0, 2.2],

@@ -2852,4 +2852,16 @@ on every real contact the full impulse would land at the contact point and kick 
   down the rim), so its bevel showed the ribbed band where TMNF's shows the black band with its
   light line over the blue one. Now TMNF's rows; the ramp-up piece (ToRoadMainAir) takes TMNF's
   orange band on its bevel (rows 299.2 to 366.8), as TMNF's.
+- (M11-2) **An atlas-row audit and the gate arches' surfaces as TMNF's** (`road.gd _gate_shell`,
+  `GATE_TOP`, `GATE_UNDER`; `sculpt.gd A_CURB`; `platform.gd CP_NOTCH`; `road.gd _entry`). A scratch
+  check (block_dump's per-triangle UVs against TMNF's at the same spot) compares the border-atlas
+  row wherever both use the atlas, and lists what ours has where TMNF uses it. Found and fixed:
+  the ramp off a platform had its orange rows upside down (TMNF's run 300 at the top to 367 at the
+  bottom); the sculptures' plinth curbs' tops are the atlas' light panel (ours ribs); the platform
+  checkpoint's notch bevel rows; and every gate arch (road, platform, dirt): TMNF lays the atlas
+  across the arch's depth, its top dark with ribbed edges, its underside the light panel between
+  ribbed edges, where ours was a flat dark shell with glowing strips in the gate's colour (an
+  early addition, before the owner asked for TMNF's look; the gates are told apart by TMNF's word
+  bands, and the crown screen stays: option B). Left: the loops' road_metal backs and a 12 m2
+  strip (rare pieces), the circuit borders' rubber bands (flat keys where TMNF uses the atlas).
 

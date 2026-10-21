@@ -167,6 +167,11 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   the coplanar case).
 - The platform lip's rows (21 Oct): ours were a segment behind TMNF's (ribs on the bevel where
   TMNF has the black band); fixed on the decks and slopes, the ramp-up piece's bevel orange.
+- Atlas rows (21 Oct): `rowcheck.py` (scratch: TMNF's border-atlas triangles' centroids, ours at the
+  same spot, the row there) found the platform lip, slopes, dead end, the ramp's orange band, the
+  sculptures' curb tops, the checkpoint notch; and TMNF's atlas on the gate arches' top and
+  underside where ours had a flat shell (fixed). Worth keeping: a row shift hides from the colour
+  check when both rows are dark.
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a

@@ -131,7 +131,7 @@ const CP_NOTCH_Z := Vector2(12.0, 20.0)
 const CP_NOTCH := [
 	[INSET, TOP, "platform", S_DECK], [2.16, TOP, "border_orange", S_METAL, Vector2(298.0, 366.0)],
 	[2.0, TOP, "platform_tray", S_DECK], [0.49, TOP, "border_ribs", S_METAL, Vector2(161.0, 192.0)],
-	[0.49, 7.9, "border_ribs", S_METAL, Vector2(192.0, 216.0)], [1.22, UNDER, "platform_tray", S_METAL],
+	[0.49, 7.9, "border_ribs", S_METAL, Vector2(150.3, 216.2)], [1.22, UNDER, "platform_tray", S_METAL],
 ]
 const CP_RIM_ROWS := [Vector2(0.0, 157.0), Vector2(157.0, 367.5), Vector2(367.5, 512.0)]
 ## Its floodlight banks (TMNF's, measured; the +x side's, mirrored for -x): CP_SPOT_SIZE boxes

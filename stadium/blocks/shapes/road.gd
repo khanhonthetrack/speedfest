@@ -170,6 +170,15 @@ const GATE_WORD := 3.08
 const LINE_HALF := 0.181
 const LINE_ROWS := Vector2(367.1, 390.4)
 const RACE_TILE := 6.0
+## The arch's top and underside (TMNF's, measured at the crown): strips across its depth [z from the
+## gate's centre at the strip's start, at its end, the atlas rows there, key]: ribbed edges either
+## side, between them the top dark and the underside the light panel.
+const GATE_TOP := [[-2.1, -1.234, Vector2(207.0, 151.9), "border_ribs"], [-1.234, 1.234, Vector2(151.9, 151.9), "border_ribs"],
+	[1.234, 2.1, Vector2(151.9, 207.0), "border_ribs"]]
+const GATE_UNDER := [[-2.1, -1.234, Vector2(207.0, 150.7), "border_ribs"], [-1.234, 1.234, Vector2(150.7, 0.0), "border_panel"],
+	[1.234, 2.1, Vector2(151.9, 207.0), "border_ribs"]]
+const GATE_ARCH_ENDS := [8, 25]                 ## GATE_ARCH's segments at the feet (the arch's ends)
+const GATE_ARCH_CENTRE := Vector2(16.0, -9.0)   ## about the centre of the arch's circle
 ## Checkpoint / finish / multilap gate: the arch band (x, y), 4.2 m along z.
 const GATE_ARCH := [
 	[16.000, 8.806, "structure", 22], [14.407, 8.743, "structure", 22], [12.824, 8.552, "structure", 22],
@@ -480,9 +489,10 @@ func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
 		key = "border_green"
 		rows = Vector2(392.7, 511.0)
 	elif key == "border_black" and _green_shoulders and not ground:
-		# the ramp off a platform: the curb's outer underside the orange band and blue line (TMNF's)
+		# the ramp off a platform: the curb's outer underside the orange band, its blue line at the
+		# bottom (TMNF's rows run 300 at the top to 367 at the bottom)
 		key = "border_orange"
-		rows = Vector2(367.0, 367.0) - (rows - Vector2(216.1, 216.1)) * (67.0 / (299.8 - 216.1))
+		rows = Vector2(300.0, 300.0) + (rows - Vector2(216.1, 216.1)) * (67.0 / (299.8 - 216.1))
 	elif key == "shoulder":
 		key = "road_grid"
 	if rows.x < 0.0:
@@ -1032,11 +1042,16 @@ func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN -
 func _gate(geo: TmGeo, zc: float, strap_dy := 0.0) -> void:
 	_gates.append(zc)
 	_gate_line(geo, zc)
-	var sec := GATE_ARCH.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), "gate_shell", q[3]])
+	# the arch's band swept for its collision and its ends at the feet; its top and underside
+	# TMNF's atlas strips (_gate_shell), its faces the word band (_gate_faces)
+	var sec := []
+	for k in GATE_ARCH.size():
+		var q: Array = GATE_ARCH[k]
+		sec.append([Vector2(q[0], q[1]), "gate_shell" if GATE_ARCH_ENDS.has(k) else "", q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, zc - 2.1), Vector3(0, 0, zc + 2.1)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
 		false, "gate_shell", S_METAL)
+	_gate_shell(geo, zc)
 	_gate_faces(geo, zc)
-	_gate_strips(geo, zc)
 	_gate_feet(geo, zc, strap_dy)
 	_gate_lights(geo, zc)
 
@@ -1153,28 +1168,33 @@ func _extrude(geo: TmGeo, ring0: Array, ring1: Array, key: String, surface: int,
 				geo.tri(c, a, b, key, surface)
 
 
-## Lit strips along the arch's underside at its front and back edges, in the gate's colour.
-func _gate_strips(geo: TmGeo, zc: float) -> void:
-	var inner: Array = _arch_lines()[1]
-	var key := "gate_glow_" + _gate_kind
-	for zz: Array in [[zc - 2.1, zc - 1.92], [zc + 1.92, zc + 2.1]]:
-		for i in inner.size() - 1:
-			var p: Vector2 = inner[i]
-			var q: Vector2 = inner[i + 1]
-			var d := (q - p).normalized()
-			var n := Vector2(-d.y, d.x)
-			if n.dot(Vector2(16.0, 0.0) - p) < 0.0:
-				n = -n
-			var o := n * 0.006
-			var a := Vector3(p.x + o.x, p.y + o.y, float(zz[0]))
-			var b := Vector3(q.x + o.x, q.y + o.y, float(zz[0]))
-			var c := Vector3(q.x + o.x, q.y + o.y, float(zz[1]))
-			var e := Vector3(p.x + o.x, p.y + o.y, float(zz[1]))
-			var nrm := Vector3(n.x, n.y, 0.0)
-			if (b - a).cross(c - a).dot(nrm) < 0.0:
-				geo.quad(a, e, c, b, key, TmGeo.NO_COLLISION)
-			else:
-				geo.quad(a, b, c, e, key, TmGeo.NO_COLLISION)
+## The arch's top and underside as TMNF's: its border atlas in strips across the arch's depth
+## (GATE_TOP, GATE_UNDER), u along the arch (16 m a tile), each facing away from (top) or toward
+## (underside) about the arch's centre.
+func _gate_shell(geo: TmGeo, zc: float) -> void:
+	var lines := _arch_lines()
+	for w in 2:
+		var line: Array = lines[w]
+		var strips: Array = GATE_TOP if w == 0 else GATE_UNDER
+		var s := 0.0
+		for i in line.size() - 1:
+			var a: Vector2 = line[i]
+			var b: Vector2 = line[i + 1]
+			var ds := a.distance_to(b)
+			var o2 := ((a + b) * 0.5 - GATE_ARCH_CENTRE) * (1.0 if w == 0 else -1.0)
+			var out := Vector3(o2.x, o2.y, 0.0)
+			for st: Array in strips:
+				var z0 := zc + float(st[0])
+				var z1 := zc + float(st[1])
+				var r: Vector2 = st[2]
+				var p := [Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1)]
+				var uv := [Vector2(s / 16.0, r.x / 512.0), Vector2((s + ds) / 16.0, r.x / 512.0),
+					Vector2((s + ds) / 16.0, r.y / 512.0), Vector2(s / 16.0, r.y / 512.0)]
+				if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+					geo.quad_uv(p[0], p[3], p[2], p[1], String(st[3]), TmGeo.NO_COLLISION, uv[0], uv[3], uv[2], uv[1])
+				else:
+					geo.quad_uv(p[0], p[1], p[2], p[3], String(st[3]), TmGeo.NO_COLLISION, uv[0], uv[1], uv[2], uv[3])
+			s += ds
 
 
 ## The arch's outer and inner lines (x, y), from the left foot to the right one (GATE_ARCH: the

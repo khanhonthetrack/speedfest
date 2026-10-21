@@ -20,10 +20,10 @@ const A_CURB_X := [4.47, 27.52]
 const A_CURB_Z := [8.472, 23.472]
 ## As TMNF's, the curbs are its border atlas (key, rows from the segment's start to its end).
 const A_CURB := [[-1.729, 1.0, "border_black", Vector2(287.0, 221.2)], [-1.604, 1.5, "border_black", Vector2(221.2, 214.6)],
-	[-1.554, 1.55, "border_ribs", Vector2(150.4, 181.2)], [-0.813, 1.55, "border_ribs", Vector2(181.2, 192.2)],
+	[-1.554, 1.55, "border_panel", Vector2(150.4, 0.0)], [-0.813, 1.55, "border_ribs", Vector2(181.2, 192.2)],
 	[-0.763, 1.5, "border_ribs", Vector2(192.2, 214.8)], [-0.763, 1.05, "border_ribs", Vector2(159.3, 192.3)],
 	[0.763, 1.05, "border_ribs", Vector2(214.8, 192.2)], [0.763, 1.5, "border_ribs", Vector2(192.2, 181.2)],
-	[0.813, 1.55, "border_ribs", Vector2(181.2, 150.4)], [1.554, 1.55, "border_black", Vector2(214.6, 221.2)],
+	[0.813, 1.55, "border_panel", Vector2(0.0, 150.4)], [1.554, 1.55, "border_black", Vector2(214.6, 221.2)],
 	[1.604, 1.5, "border_black", Vector2(221.2, 287.0)], [1.729, 1.0, "", Vector2(-1, -1)]]
 
 const SMOOTH_DEG := 30.0      ## faces turning less than this from their neighbours shade smooth
