@@ -166,8 +166,12 @@ func _city_track() -> void:
 	for mmi: MultiMeshInstance3D in field.get_node("Street/Trees").get_children():
 		trees += mmi.multimesh.instance_count
 	var lamps := (field.get_node("Street/StreetLights").get_child(0) as MultiMeshInstance3D).multimesh.instance_count
-	print("FIELD_STREET %d trees, %d street lights" % [trees, lamps])
-	TestHooks.check(trees >= 50 and lamps >= 10, "city_field_street", "%d trees, %d lamps" % [trees, lamps])
+	var signals := field.get_node("Street/TrafficLights").get_child_count()
+	var boards := field.get_node("Billboards").get_child_count()
+	var neon := field.get_node("NeonSigns").get_child_count()
+	print("FIELD_STREET %d trees, %d street lights, %d traffic lights, %d billboards, %d neon signs" % [trees, lamps, signals, boards, neon])
+	TestHooks.check(boards >= 3 and neon >= 5, "city_field_signs", "%d billboards, %d neon signs" % [boards, neon])
+	TestHooks.check(trees >= 50 and lamps >= 10 and signals >= 2, "city_field_street", "%d trees, %d lamps, %d traffic lights" % [trees, lamps, signals])
 	var terrain := builder.root.get_node("Terrain")
 	var paved := false
 	for c in terrain.get_children():

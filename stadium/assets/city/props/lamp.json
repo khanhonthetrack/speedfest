@@ -1,0 +1,79 @@
+{
+ "source": "6fffa7d4-Street_Lights.blend",
+ "licence": "CC0 (given by the owner, 21 Oct 2026)",
+ "scale": 1.0,
+ "buildings": [
+  {
+   "name": "lamp_01",
+   "size": [
+    0.99,
+    5.33,
+    0.4
+   ],
+   "triangles": 4000,
+   "parts": 9,
+   "source": "6fffa7d4-Street_Lights.blend",
+   "licence": "CC0 (given by the owner, 21 Oct 2026)"
+  },
+  {
+   "name": "lamp_02",
+   "size": [
+    0.99,
+    5.22,
+    0.32
+   ],
+   "triangles": 3999,
+   "parts": 9,
+   "source": "6fffa7d4-Street_Lights.blend",
+   "licence": "CC0 (given by the owner, 21 Oct 2026)"
+  },
+  {
+   "name": "lamp_03",
+   "size": [
+    0.7,
+    5.17,
+    0.34
+   ],
+   "triangles": 4000,
+   "parts": 8,
+   "source": "6fffa7d4-Street_Lights.blend",
+   "licence": "CC0 (given by the owner, 21 Oct 2026)"
+  },
+  {
+   "name": "lamp_04",
+   "size": [
+    1.24,
+    5.16,
+    0.32
+   ],
+   "triangles": 3999,
+   "parts": 8,
+   "source": "6fffa7d4-Street_Lights.blend",
+   "licence": "CC0 (given by the owner, 21 Oct 2026)"
+  },
+  {
+   "name": "lamp_05",
+   "size": [
+    1.19,
+    5.16,
+    0.32
+   ],
+   "triangles": 4000,
+   "parts": 7,
+   "source": "6fffa7d4-Street_Lights.blend",
+   "licence": "CC0 (given by the owner, 21 Oct 2026)"
+  },
+  {
+   "name": "lamp_06",
+   "size": [
+    1.18,
+    5.14,
+    0.32
+   ],
+   "triangles": 3999,
+   "parts": 11,
+   "source": "6fffa7d4-Street_Lights.blend",
+   "licence": "CC0 (given by the owner, 21 Oct 2026)"
+  }
+ ]
+}

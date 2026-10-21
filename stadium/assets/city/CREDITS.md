@@ -15,3 +15,13 @@ the game dresses them in its own materials, `env/tm_city_assets.gd`). Each set's
 
 "12 Buildings" by raytrace is licensed under Creative Commons Attribution 3.0
 (creativecommons.org/licenses/by/3.0/); scaled to metres (x 100), one of each design kept.
+
+## Props (`props/`)
+
+| Set | Files | Source | Licence |
+|-----|-------|--------|---------|
+| lamp | `lamp_01..06.glb` | Street_Lights.blend, given by the owner (21 Oct 2026) | CC0 (the owner) |
+| traffic | `traffic_01..02.glb` | Traffic_Lights.blend, given by the owner (21 Oct 2026) | CC0 (the owner) |
+
+Converted with `blend_to_glb.py --realize --pad 0.05 --images --max-image 512` (4000 and 8000
+triangles); Godot's import extracts their textures next to them.

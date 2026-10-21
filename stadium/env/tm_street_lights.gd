@@ -1,12 +1,20 @@
 class_name TmStreetLights
 extends RefCounted
-## Street lights for the city tracks (our own, in code): a tapering steel pole 9 m tall, an arm
-## curving out over the road and a flat LED head, its underside lit. All of a track's lamps are one
-## MultiMesh; at night each carries a spot light pooling on the road below it (no shadows), and the
-## heads glow (the global tm_night).
+## Street lights and traffic lights for the city tracks. The lamps are the owner's (CC0, given 21
+## Oct 2026; assets/city/props/lamp_01..06.glb, six designs, converted by blend_to_glb.py): one
+## design per track, scaled to LAMP_SCALE, in our paint with lit lenses; without them, our own
+## (a tapering pole, an arm over the road, a flat LED head). All of a track's lamps are one
+## MultiMesh; at night each carries a spot light pooling on the road below its head (no shadows).
+## Traffic lights (the owner's traffic_01..02.glb) stand where the track turns.
 
 const HEIGHT := 9.0
 const REACH := 2.6                   ## how far the arm reaches out over the road (m)
+const PROPS := "res://assets/city/props"
+const LAMP_SCALE := 1.7              ## the owner's lamps are 5 m: street lamps for a road this wide
+const LAMPS := 6
+const TRAFFIC_SCALE := 1.15
+
+static var _assets := {}             ## design -> [ArrayMesh, head (Vector3, local, scaled)]
 
 static var _mesh: ArrayMesh
 static var _steel: StandardMaterial3D
@@ -98,14 +106,58 @@ void fragment() {
 	return _lamp
 
 
-## Lamps at `feet` (each foot's basis turns its arm towards the road: -z); at night a spot light
-## under each head lights the road (shadowless; `lights`: only so many, the nearest the start first).
-static func row(feet: Array, night: bool, lights := 120) -> Node3D:
+## The owner's lamp `design` (1..LAMPS) as one mesh in our materials, scaled, its arm turned to
+## -z like ours, and where its head is; [] without the file.
+static func asset_lamp(design: int) -> Array:
+	if _assets.has(design):
+		return _assets[design]
+	var path := PROPS.path_join("lamp_%02d.glb" % design)
+	var out := []
+	if ResourceLoader.exists(path):
+		var n := (load(path) as PackedScene).instantiate()
+		var mis := n.find_children("*", "MeshInstance3D", true, false)
+		if not mis.is_empty():
+			var src := (mis[0] as MeshInstance3D).mesh
+			# the arm reaches along +x in the file: turned a quarter so it reaches along -z
+			var xf := Transform3D(Basis(Vector3.UP, PI * 0.5).scaled(Vector3.ONE * LAMP_SCALE), Vector3.ZERO)
+			var m := ArrayMesh.new()
+			for i in src.get_surface_count():
+				var arr := src.surface_get_arrays(i)
+				var vs: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+				var ns: PackedVector3Array = arr[Mesh.ARRAY_NORMAL]
+				for k in vs.size():
+					vs[k] = xf * vs[k]
+					ns[k] = (xf.basis * ns[k]).normalized()
+				arr[Mesh.ARRAY_VERTEX] = vs
+				arr[Mesh.ARRAY_NORMAL] = ns
+				arr[Mesh.ARRAY_TANGENT] = null
+				m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+				var mat := src.surface_get_material(i)
+				if not (mat is BaseMaterial3D and (mat as BaseMaterial3D).albedo_texture != null):
+					var kind := TmCityAssets.kind_of(mat.resource_name if mat != null else "")
+					mat = TmCityAssets.material(kind if kind in ["lit", "steel", "dark"] else "paint")
+				m.surface_set_material(i, mat)
+			var box := m.get_aabb()
+			out = [m, Vector3(0.0, box.end.y - 0.25, box.position.z + 0.35)]
+		n.free()
+	_assets[design] = out
+	return out
+
+
+## Lamps at `feet` (each foot's basis turns its arm towards the road: -z), the owner's `design`
+## (0: ours); at night a spot light under each head lights the road (shadowless; `lights`: only
+## so many).
+static func row(feet: Array, night: bool, design := 0, lights := 120) -> Node3D:
 	var root := Node3D.new()
 	root.name = "StreetLights"
+	var head := Vector3(0.0, HEIGHT - 0.2, -REACH - 0.35)
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = mesh()
+	var lamp := asset_lamp(design) if design > 0 else []
+	if not lamp.is_empty():
+		mm.mesh = lamp[0]
+		head = lamp[1]
 	mm.instance_count = feet.size()
 	for i in feet.size():
 		mm.set_instance_transform(i, feet[i])
@@ -117,7 +169,7 @@ static func row(feet: Array, night: bool, lights := 120) -> Node3D:
 		for i in mini(feet.size(), lights):
 			var xf: Transform3D = feet[i]
 			var spot := SpotLight3D.new()
-			spot.position = xf * Vector3(0.0, HEIGHT - 0.2, -REACH - 0.35)
+			spot.position = xf * head
 			spot.rotation = Vector3(-PI * 0.5, 0.0, 0.0)          # straight down
 			spot.light_color = Color(1.0, 0.86, 0.66)
 			spot.light_energy = 6.0
@@ -129,4 +181,20 @@ static func row(feet: Array, night: bool, lights := 120) -> Node3D:
 			spot.distance_fade_begin = 350.0
 			spot.distance_fade_length = 100.0
 			root.add_child(spot)
+	return root
+
+
+## The owner's traffic lights at `feet` (their signal faces turned to +z, towards the road).
+static func traffic(feet: Array, design := 1) -> Node3D:
+	var root := Node3D.new()
+	root.name = "TrafficLights"
+	var path := PROPS.path_join("traffic_%02d.glb" % design)
+	if not ResourceLoader.exists(path):
+		return root
+	var scene := load(path) as PackedScene
+	for xf: Transform3D in feet:
+		var n := scene.instantiate() as Node3D
+		n.transform = xf.scaled_local(Vector3.ONE * TRAFFIC_SCALE)
+		TmCityAssets.dress(n, "blue", 1, 3.8, true)
+		root.add_child(n)
 	return root

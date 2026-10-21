@@ -11,7 +11,9 @@ usage (Blender 4.x, scripts in the file not run):
   blender -b -Y SOURCE.blend --python stadium/tools/assets/blend_to_glb.py -- \
       --out stadium/assets/city --prefix sky --licence "CC0 1.0, Blend Swap #81908" \
       [--scale 1.0] [--min-height 20] [--images] [--skip leaf,trunk,tree] [--scene NAME] [--unique]
-      [--max-tris 60000]
+      [--max-tris 60000] [--realize] [--pad 0.5] [--max-image 512]
+--realize makes collection instances real objects (scenes that place one model with empties);
+--pad: how close (m) two objects' footprints may come and still be one building.
 Each building is joined into one mesh (one draw per material) and, over --max-tris, decimated
 (edges collapsed) to that budget.
 --unique keeps one of each design (scenes that repeat their buildings in rows): the same triangle
@@ -50,6 +52,20 @@ def mesh_name_hit(o):
     names = [o.name.lower()] + [(s.material.name.lower() if s.material else "") for s in getattr(o, "material_slots", [])]
     return any(k in n for k in SKIP for n in names)
 
+
+# collection instances (one model placed by empties) made real objects where they stand; the
+# originals and anything else outside the view layer (hidden variants, excluded collections) out
+if opt("realize", flag=True):
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in scene.objects:
+        if o.instance_type == "COLLECTION" and o.instance_collection and o.name in bpy.context.view_layer.objects:
+            o.select_set(True)
+            bpy.context.view_layer.objects.active = o
+    if bpy.context.selected_objects:
+        bpy.ops.object.duplicates_make_real(use_base_parent=False, use_hierarchy=False)
+for o in list(scene.objects):
+    if o.name not in bpy.context.view_layer.objects:
+        bpy.data.objects.remove(o, do_unlink=True)
 
 # what isn't a building: cameras, lights, volumes, ground planes, trees and people
 for o in list(scene.objects):
@@ -94,7 +110,7 @@ def find(a):
         a = parent[a]
     return a
 
-pad = 0.5 / SCALE
+pad = float(opt("pad", "0.5")) / SCALE
 names = [o.name for o in objs if not slab(bb[o.name])]
 for i, a in enumerate(names):
     A = bb[a]
@@ -105,6 +121,16 @@ for i, a in enumerate(names):
 groups = {}
 for n in names:
     groups.setdefault(find(n), []).append(n)
+
+# images over --max-image px scaled down (props don't need 2048 px textures)
+mi_px = int(opt("max-image", "0"))
+if mi_px > 0:
+    for im in bpy.data.images:
+        if im.size[0] > mi_px or im.size[1] > mi_px:
+            f = mi_px / max(im.size[0], im.size[1])
+            im.scale(max(1, int(im.size[0] * f)), max(1, int(im.size[1] * f)))
+            if im.packed_file:
+                im.pack()
 
 manifest = []
 k = 0

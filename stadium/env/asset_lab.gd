@@ -23,7 +23,7 @@ func _ready() -> void:
 			var b := _bounds(one)
 			one.position = Vector3(x - b.position.x, 0.0, 0.0)
 			model.add_child(one)
-			x += b.size.x + 25.0
+			x += b.size.x + float(TestHooks.arg("gap", 25.0))
 		path = dir
 	else:
 		model = _load(path)

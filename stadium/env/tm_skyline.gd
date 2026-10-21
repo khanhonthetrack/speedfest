@@ -18,7 +18,7 @@ const RADIUS := 5200.0          ## m, the city's rim
 const SECTORS := 12             ## the merged blocks, cut by angle (so whole sectors are culled)
 const LAYER := 2                ## the city's render layer (lit by the moon, not the floodlights)
 const ASSET_SHARE := 0.6        ## of the towers, this share are the owner's buildings when one fits
-const STOREFRONT := 5.2         ## m: the lower buildings' shop floor (from the plaza, 0.4 m up)
+const STOREFRONT := 5.6         ## m: the lower buildings' shop floor (from the plaza, 0.4 m up)
 const SEED := 20261020
 const HALF := (PITCH - STREET) * 0.5 - 4.5     ## a block's half width inside its pavements (m)
 ## The skyscraper districts: centre (x, z), radius (m), strength (0..1: how tall).
@@ -175,6 +175,9 @@ static func _add_blocks(root: Node3D, blocks: Dictionary, shadows: bool) -> void
 			var mat := TmTower.masonry(style, style.hash() % 997, 3.4, 3.0) if style in MASONRY_STYLES \
 				else TmTower.material(style, style.hash() % 997, 3.8, 3.0)
 			mat.set_shader_parameter("storefront", STOREFRONT)      # shops at the foot of the lower buildings
+			mat.set_shader_parameter("ads", Adverts.texture())       # their brands
+			mat.set_shader_parameter("ads_fill", Adverts.fill_texture())
+			mat.set_shader_parameter("has_ads", 1.0)
 			shared[style] = mat
 		TmTower.add_mesh(root, blocks[key], shared[style], "Blocks_" + key.replace(":", "_"), shadows)
 
@@ -220,6 +223,8 @@ static func field(builder: TmMapBuilder) -> Node3D:
 	var roofs := TmTower.Builder.new()
 	var used := {}
 	var plazas: Array[Vector2i] = []
+	var boards := []
+	var blades := []
 	var count := 0
 	for c in cells:
 		if used.has(c):
@@ -274,11 +279,28 @@ static func field(builder: TmMapBuilder) -> Node3D:
 		var z1 := (c.y + 1) * 32.0 - FIELD_INSET - rng.randf_range(0.0, 3.0)
 		var r := Rect2(x0, z0, x1 - x0, z1 - z0)
 		var bh := rng.randf_range(16.0, 45.0) if d <= 1 else rng.randf_range(20.0, 90.0)
-		_box(blocks, roofs, 0, r, bh, 0.5, rng)
+		_box(blocks, roofs, 0, r, bh, 0.5, rng, true)
 		_collide(body, r, bh)
+		# beside the road: a billboard on the roof facing it, or a neon sign out from the facade
+		var way := _road_way(c, busy)
+		if d == 1 and way != Vector2.ZERO:
+			var mid := r.get_center()
+			var along_x := absf(way.x) > 0.5
+			var half := (r.size.x if along_x else r.size.y) * 0.5
+			var side := (r.size.y if along_x else r.size.x) * 0.5
+			var roll := rng.randf()
+			if roll < 0.25 and side * 2.0 > TmCitySigns.BOARD.x + 1.0:
+				boards.append([Vector3(mid.x, 0.4 + bh, mid.y) + Vector3(way.x, 0.0, way.y) * (half - 1.5), way])
+			elif roll < 0.65 and bh > STOREFRONT + 9.0:
+				var t := Vector2(-way.y, way.x) * (side - 1.6) * (1.0 if rng.randf() < 0.5 else -1.0)
+				var h := rng.randf_range(4.0, minf(8.0, bh - STOREFRONT - 3.0))
+				var foot := mid + way * half + t
+				blades.append([Vector3(foot.x, 0.4 + STOREFRONT + 1.0 + h, foot.y), way, h])
 	_add_blocks(root, blocks, true)
 	TmTower.add_mesh(root, roofs, TmTower.shared("roof"), "Roofs", true)
 	root.add_child(_street_trees(ch, cells, busy, plazas, body, rng))
+	root.add_child(TmCitySigns.billboards(boards))
+	root.add_child(TmCitySigns.blades(blades, rng))
 	_layer(root)          # the city's light: the moon and the street lights, not the floodlights
 	return root
 
@@ -312,7 +334,7 @@ static func _street_trees(ch: TmChallenge, cells: Array[Vector2i], busy: Diction
 			var mid := (cc + nc) * 0.5 + inward * 2.2
 			for k: float in [-10.0, 0.0, 10.0]:
 				spots.append(mid + along * (k + rng.randf_range(-1.5, 1.5)))
-			lamp_spots.append([(cc + nc) * 0.5 + inward * 1.2 + along * 5.0, -inward])
+			lamp_spots.append([(cc + nc) * 0.5 + inward * 1.2 + along * 5.0, -inward, c + dir])
 	for c in plazas:
 		var cc := Vector2(-(c.x + 0.5) * 32.0, (c.y + 0.5) * 32.0)
 		for q: Vector2 in [Vector2(-8, -8), Vector2(8, -8), Vector2(8, 8), Vector2(-8, 8)]:
@@ -341,8 +363,16 @@ static func _street_trees(ch: TmChallenge, cells: Array[Vector2i], busy: Diction
 	var root := Node3D.new()
 	root.name = "Street"
 	root.add_child(TmTrees.planting(feet, rng, true, 1200.0))
+	# where the track turns (its line's radius under 100 m): traffic lights there, not street lights
+	var turns := {}
+	for pt: Dictionary in ch.path:
+		var r := float(pt.get("r", 0.0))
+		if r > 0.0 and r < 100.0:
+			var p: Vector3 = pt["p"]
+			turns[Vector2i(floori(-p.x / 32.0), floori(p.z / 32.0))] = true
 	# street lights between the trees, their arms over the road, 7 m clear of the car's line
 	var lamps := []
+	var signals := []
 	for ls: Array in lamp_spots:
 		var p: Vector2 = ls[0]
 		var to_road: Vector2 = ls[1]
@@ -356,10 +386,25 @@ static func _street_trees(ch: TmChallenge, cells: Array[Vector2i], busy: Diction
 				ok = false
 				break
 		if ok:
-			lamps.append(Transform3D(Basis.looking_at(Vector3(to_road.x, 0.0, to_road.y)), Vector3(p.x, 0.02, p.y)))
+			var at := Vector3(p.x, 0.02, p.y)
+			if turns.has(ls[2]) and signals.size() < 24:
+				# facing the road: its faces (+z) towards it
+				signals.append(Transform3D(Basis.looking_at(-Vector3(to_road.x, 0.0, to_road.y)), at))
+			else:
+				lamps.append(Transform3D(Basis.looking_at(Vector3(to_road.x, 0.0, to_road.y)), at))
 			_collide(body, Rect2(p - Vector2(0.15, 0.15), Vector2(0.3, 0.3)), TmStreetLights.HEIGHT)
-	root.add_child(TmStreetLights.row(lamps, TmStadiumEnv.night))
+	root.add_child(TmStreetLights.row(lamps, TmStadiumEnv.night, 1 + absi(hash(ch.uid)) % TmStreetLights.LAMPS))
+	root.add_child(TmStreetLights.traffic(signals))
 	return root
+
+
+## The way (Godot x, z; a unit along an axis) from cell c to a neighbouring cell of the track's,
+## or zero when none touches it along a side.
+static func _road_way(c: Vector2i, busy: Dictionary) -> Vector2:
+	for dir: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+		if busy.has(c + dir):
+			return Vector2(-dir.x, dir.y)            # TMNF x is Godot -x
+	return Vector2.ZERO
 
 
 ## The map cells (TMNF x, z) a track takes: every cell its blocks' meshes cover (their bounds) and
@@ -562,10 +607,13 @@ static func _tower_block(towers: Node3D, blocks: Dictionary, roofs: TmTower.Buil
 
 ## One lower building: a box on a rectangle (with a parapet and, taller, maybe a setback), its
 ## style from its height and the district (glass where it is taller, masonry where it is low).
-static func _box(blocks: Dictionary, roofs: TmTower.Builder, sector: int, r: Rect2, h: float, t: float, rng: RandomNumberGenerator) -> void:
-	var glass := h > 45.0 and rng.randf() < 0.35 + 0.6 * t
+static func _box(blocks: Dictionary, roofs: TmTower.Builder, sector: int, r: Rect2, h: float, t: float, rng: RandomNumberGenerator,
+		modern := false) -> void:
+	var glass := (h > 45.0 and rng.randf() < 0.35 + 0.6 * t) or (modern and rng.randf() < 0.4)
 	var style: String = (GLASS_STYLES[rng.randi() % GLASS_STYLES.size()] if glass
 		else MASONRY_STYLES[rng.randi() % MASONRY_STYLES.size()])
+	if modern and style in ["brick", "stone"] and rng.randf() < 0.7:
+		style = ["concrete", "white"][rng.randi() % 2]      # a modern street: mostly panels and glass
 	var key := "%s:%d" % [style, sector]
 	if not blocks.has(key):
 		blocks[key] = TmTower.Builder.new()

@@ -16,7 +16,7 @@ const MAX_SCALE := 1.6
 ## Keyword (lower case, in the material's name) -> our kind; the first that matches wins.
 const RULES := [
 	[["glass", "vetro", "specchio", "window", "glaz", "mirror", "reflect"], "glass"],
-	[["luce", "glow", "emiss", "lamp", "bulb", "light"], "lit"],
+	[["luce", "glow", "emiss", "bulb", "lamphead_lamp", "lampplane", "lens", "light"], "lit"],
 	[["acciaio", "steel", "chrome", "metal", "alumin", "metl"], "steel"],
 	[["cemento", "concrete", "cement", "pav"], "concrete"],
 	[["black", "dark", "nero"], "dark"],
@@ -100,13 +100,18 @@ static func kind_of(material_name: String) -> String:
 
 
 ## Replaces every surface's material under `root` with ours (glass: the palette, rooms by seed).
-static func dress(root: Node, glass := "blue", seed := 1, floor_h := 3.8) -> void:
+## keep_textured: surfaces whose own material has a texture keep it (props' baked faces).
+static func dress(root: Node, glass := "blue", seed := 1, floor_h := 3.8, keep_textured := false) -> void:
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
 		if mi.mesh == null:
 			continue
 		for s in mi.mesh.get_surface_count():
 			var src := mi.mesh.surface_get_material(s)
+			if keep_textured and src is BaseMaterial3D and (src as BaseMaterial3D).albedo_texture != null:
+				continue
 			var kind := kind_of(src.resource_name if src != null else "")
+			if keep_textured and kind in ["cladding", "white", "concrete"]:
+				kind = "paint"                  # a prop's painted steel
 			mi.set_surface_override_material(s, material(kind, glass, seed, floor_h))
 
 
@@ -147,6 +152,10 @@ static func material(kind: String, glass := "blue", seed := 1, floor_h := 3.8) -
 				"white":
 					s.albedo_color = Color(0.82, 0.82, 0.80)
 					s.roughness = 0.55
+				"paint":
+					s.albedo_color = Color(0.20, 0.21, 0.22)
+					s.metallic = 0.6
+					s.roughness = 0.45
 				_:
 					s.albedo_color = Color(0.66, 0.66, 0.64)
 					s.roughness = 0.7

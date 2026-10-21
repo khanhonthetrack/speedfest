@@ -32,6 +32,9 @@ uniform float fin_every = 0.0;          // a deeper vertical fin every this many
 uniform float fin_w = 0.45;             // m
 uniform float reveal = 0.0;             // m: the glass set back in its opening (masonry; 0: flush)
 uniform float storefront = 0.0;         // m: a shop floor this tall at the foot (0: none)
+uniform sampler2D ads : source_color, filter_linear_mipmap_anisotropic, repeat_enable;   // the adverts
+uniform sampler2D ads_fill : source_color, filter_linear, repeat_disable;             // their backgrounds
+uniform float has_ads = 0.0;            // 1: the shops carry the adverts' brands
 uniform float brick = 0.0;              // 1: the wall laid in brick courses
 uniform float panels = 0.0;             // 1: precast panels (joints at each floor and every two bays)
 uniform float grime = 0.0;              // dirt washed down from the sills (0..1)
@@ -228,59 +231,103 @@ void fragment() {
 	// a crown's floodlights wash up its frames at night
 	float crown = step(0.4, COLOR.a) * (1.0 - step(0.75, COLOR.a));      // 0.4..0.75 (under 0.4: plain)
 	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;
-	// a shop floor at the foot: wide panes in dark frames over a low riser, the shop lit behind
-	// them (by day and night), a fascia above with its sign, lit at night
+	// a shop floor at the foot, as modern shops are: floor-to-ceiling glass in slim black frames
+	// with a door, a fascia above carrying the shop's brand (the adverts: its logo on its own
+	// background colour, backlit at night), behind the glass a bright shop in the brand's colour
 	if (storefront > 0.0 && UV.y < storefront && world_map < 0.5 && lobby < 0.5 && plain < 0.5) {
 		float sw = 6.0;
 		float sc = floor(m.x / sw);
-		float sx = m.x - sc * sw;
+		float sx = sw - (m.x - sc * sw);        // left to right as one in front of the wall sees it (u runs the other way)
 		float sy = UV.y;
-		float fascia = step(storefront - 0.9, sy);
-		float riser = step(sy, 0.85);
-		float sframe = 1.0 - smoothstep(0.09 - fw.x, 0.09 + fw.x, min(sx, sw - sx));
-		sframe = max(sframe, 1.0 - smoothstep(0.06 - fw.y, 0.06 + fw.y, abs(sy - 0.85)));
-		float spane = (1.0 - fascia) * (1.0 - riser) * (1.0 - sframe);
-		vec3 shop_lamp = mix(vec3(1.1, 0.95, 0.75), vec3(0.95, 1.0, 1.1), step(0.5, hash(vec2(sc, 7.0), 40.0)));
-		// the shop: lamp-lit, darker than the street by day; shelves of goods down its sides and back
+		float ad = floor(hash(vec2(sc, 9.0), 50.0) * 15.999);
+		float f0 = storefront - 1.0;                      // the fascia's foot
+		float fascia = step(f0, sy);
+		vec3 brand = has_ads > 0.5 ? texture(ads_fill, vec2((ad + 0.5) / 16.0, 0.5)).rgb : vec3(0.1, 0.3, 0.6);
+		// the fascia: the logo (2:1) centred, the ad's background out to the shop's ends
+		vec3 fascia_col = brand;
+		if (has_ads > 0.5) {
+			float lv = clamp(1.0 - (sy - f0) / 0.9, 0.0, 1.0);
+			float lu = (sx - (sw - 1.8) * 0.5) / 1.8;
+			fascia_col = texture(ads_fill, vec2((ad + 0.5) / 16.0, lv)).rgb;
+			if (lu > 0.0 && lu < 1.0 && sy < storefront - 0.1) {
+				fascia_col = texture(ads, vec2((ad + clamp(lu, 0.002, 0.998)) / 16.0, lv)).rgb;
+			}
+		}
+		fascia_col = mix(fascia_col, vec3(0.05), step(storefront - 0.1, sy));      // its dark cap
+		// the glazing: mullions every 2 m, a door in the middle, a slim plinth
+		float gx = mod(sx, 2.0);
+		float mull = 1.0 - smoothstep(0.03 - fw.x, 0.03 + fw.x, min(gx, 2.0 - gx));
+		mull = max(mull, 1.0 - smoothstep(0.05 - fw.x, 0.05 + fw.x, min(sx, sw - sx)));
+		float door = step(abs(sx - sw * 0.5), 0.95) * step(sy, 2.4);
+		float door_frame = door * (1.0 - smoothstep(0.03, 0.03 + fw.x, min(abs(abs(sx - sw * 0.5) - 0.95), abs(sy - 2.4))));
+		door_frame = max(door_frame, step(abs(sx - sw * 0.5), 0.95) * (1.0 - smoothstep(0.03 - fw.y, 0.03 + fw.y, abs(sy - 2.4))));
+		float plinth = step(sy, 0.15);
+		float sframe = max(max(mull, door_frame), plinth) * (1.0 - fascia);
+		float spane = (1.0 - fascia) * (1.0 - sframe);
+		// the shop: a box 9 m deep; white walls, a light polished floor, a ceiling of spotlights,
+		// the back wall in the brand's colour with its logo, shelves down the sides
+		vec3 so = vec3(sx, sy - 0.15, 0.0);
 		vec3 sd = -tv;
-		vec3 so = vec3(sx, sy - 0.85, 0.0);
-		vec3 shop = room(vec2(sc, 99.0), so, sd, 1.0, day * 0.25, shop_lamp * 0.8, vec3(sw, storefront - 1.75, 9.0));
-		vec3 sdd = vec3(abs(sd.x) < 1e-4 ? 1e-4 : sd.x, sd.y, min(sd.z, -1e-4));
+		sd.x = -sd.x;                                     // the shop's x runs as sx does (flipped)
+		vec3 sdd = vec3(abs(sd.x) < 1e-4 ? 1e-4 : sd.x, abs(sd.y) < 1e-4 ? 1e-4 : sd.y, min(sd.z, -1e-4));
+		float hh = f0 - 0.15;
 		float stx = sdd.x > 0.0 ? (sw - so.x) / sdd.x : -so.x / sdd.x;
+		float sty = sdd.y > 0.0 ? (hh - so.y) / sdd.y : -so.y / sdd.y;
 		float stz = (-9.0 - so.z) / sdd.z;
-		vec3 sp = so + sdd * min(stx, stz);
-		float shelf_y = sp.y;
-		float goods = step(0.2, shelf_y) * step(shelf_y, 2.0) * step(0.25, fract(shelf_y / 0.45))
-			* step(0.15, fract((sp.x + sp.z) / 0.35 + 0.3 * hash(vec2(floor(shelf_y / 0.45), sc), 43.0)));
-		vec2 gk = floor(sp.xz / 0.35) + floor(shelf_y / 0.45) * 3.1;
-		vec3 goods_col = mix(vec3(0.5), vec3(hash(gk, 44.0), hash(gk, 45.0), hash(gk, 46.0)), 0.55);
-		// far off, the shelves are a tone (their pattern would shimmer)
-		float goods_near = 1.0 - smoothstep(0.02, 0.06, max(fw.x, fw.y));
-		shop = mix(shop * 0.55, mix(vec3(0.42, 0.40, 0.38), goods_col, goods_near) * shop_lamp * (0.3 + 0.25 * tm_night),
-			mix(0.35, goods * 0.8, goods_near));
-		// the sign: the shop's colour, its name in block letters (a word of four to nine letters)
-		vec3 sign_col = vec3(hash(vec2(sc, 1.0), 41.0), hash(vec2(sc, 2.0), 41.0), hash(vec2(sc, 3.0), 41.0));
-		sign_col = normalize(sign_col + 0.15) * 0.9;
-		float nl = 4.0 + floor(hash(vec2(sc, 5.0), 47.0) * 6.0);
-		float lw = 0.42;
-		float x0 = (sw - nl * lw) * 0.5;
-		float li = floor((sx - x0) / lw);
-		float lf = (sx - x0) / lw - li;
-		float ly = (sy - (storefront - 0.72)) / 0.5;
-		vec2 gcell = floor(vec2(lf * 3.0, ly * 5.0));
-		float glyph = step(0.42, hash(gcell + vec2(li * 3.0, sc * 5.0), 48.0)) + step(gcell.x, 0.5) * step(0.5, hash(vec2(li, sc), 49.0));
-		float letters = step(0.0, li) * step(li, nl - 1.0) * step(0.12, lf) * step(lf, 0.88) * step(0.0, ly) * step(ly, 1.0)
-			* clamp(glyph, 0.0, 1.0) * (1.0 - smoothstep(0.02, 0.06, fw.x));
-		vec3 fascia_col = mix(vec3(0.12), sign_col * 0.6, step(0.3, hash(vec2(sc, 4.0), 42.0)));
-		vec3 alb = mix(mix(glass_tint * 0.15, vec3(0.08, 0.08, 0.09), max(sframe, riser)), fascia_col, fascia);
-		alb = mix(alb, vec3(0.9), letters * fascia);
+		float st = min(min(stx, sty), stz);
+		vec3 sp = so + sdd * st;
+		// each shop its own: a dark boutique or a bright store, warm or cool light, clothes rails
+		// or shelves of goods
+		float kind = hash(vec2(sc, 3.0), 54.0);
+		bool dark = kind < 0.45;
+		bool rails = hash(vec2(sc, 4.0), 55.0) < 0.5;
+		vec3 light = mix(vec3(1.0, 0.82, 0.6), vec3(0.92, 0.97, 1.05), step(0.7, hash(vec2(sc, 5.0), 56.0)));
+		vec3 wall = dark ? vec3(0.06, 0.055, 0.05) + brand * 0.05 : vec3(0.58, 0.57, 0.55);
+		vec3 shop;
+		vec2 spots = fract(sp.xz / vec2(1.5, 1.5)) - 0.5;
+		if (st == sty && sdd.y > 0.0) {
+			float spot = 1.0 - smoothstep(0.05, 0.1, length(spots));
+			shop = mix(wall * 0.8, light * 4.0, spot);
+		} else if (st == sty) {
+			// a polished floor, a pool of light under each spot
+			float pool = exp(-dot(spots, spots) * 9.0);
+			shop = (dark ? vec3(0.05) : vec3(0.32, 0.3, 0.28)) * (0.5 + 1.3 * pool) * light;
+		} else if (st == stz) {
+			shop = mix(wall, brand * 0.7, 0.75);
+			if (has_ads > 0.5) {
+				float bu = (sp.x - (sw - 2.4) * 0.5) / 2.4;
+				float bv = 1.0 - (sp.y - 1.4) / 1.2;
+				if (bu > 0.0 && bu < 1.0 && bv > 0.0 && bv < 1.0) {
+					shop = texture(ads, vec2((ad + bu) / 16.0, bv)).rgb * 1.2;
+				}
+			}
+		} else {
+			shop = wall;
+			float near_px = 1.0 - smoothstep(0.02, 0.08, max(fw.x, fw.y));
+			if (rails) {
+				// clothes on a rail: hanging strips of colour from 0.6 to 1.7 m
+				float strip = floor(-sp.z / 0.09);
+				vec3 cloth = mix(vec3(0.15), vec3(hash(vec2(strip, sc), 57.0), hash(vec2(strip, sc), 58.0), hash(vec2(strip, sc), 59.0)), 0.6);
+				float hang = step(0.6 + 0.3 * hash(vec2(strip, sc), 60.0), sp.y) * step(sp.y, 1.7);
+				shop = mix(shop, mix(vec3(0.3), cloth, near_px), hang);
+			} else {
+				float shelf = step(0.3, sp.y) * step(sp.y, 2.1);
+				float item = step(0.12, fract(-sp.z / 0.5)) * step(fract(sp.y / 0.45), 0.7) * step(0.12, fract(sp.y / 0.45));
+				vec3 goods = mix(vec3(0.6), vec3(hash(floor(vec2(sp.z / 0.5, sp.y / 0.45)), 52.0), hash(floor(vec2(sp.z / 0.5, sp.y / 0.45)), 53.0), 0.6), 0.5);
+				shop = mix(shop, mix(vec3(0.4), goods, near_px), shelf * item);
+			}
+			shop *= light;
+		}
+		shop *= 1.0 - 0.35 * clamp(-sp.z / 9.0, 0.0, 1.0);
+		vec3 alb = mix(mix(vec3(0.02), vec3(0.03, 0.03, 0.035), sframe), fascia_col * 0.85, fascia);
 		ALBEDO = alb;
-		METALLIC = mix(0.1, 0.6, max(sframe, fascia * 0.0));
-		ROUGHNESS = mix(0.07, 0.45, max(sframe, max(riser, fascia)));
-		SPECULAR = mix(0.35, 0.5, sframe);
+		METALLIC = mix(0.2, 0.7, sframe) * (1.0 - fascia);
+		ROUGHNESS = mix(0.05, 0.35, max(sframe, fascia));
+		SPECULAR = 0.5;
 		NORMAL = N;
-		EMISSION = shop * spane * mix(0.3, 1.3, tm_night) * (1.0 - far * 0.5)
-			+ (sign_col * 2.2 * letters * fascia + sign_col * 0.25 * fascia) * tm_night;
+		float fres_s = 0.06 + 0.94 * pow(1.0 - ndv, 5.0);
+		EMISSION = shop * spane * (1.0 - fres_s) * mix(0.55, 0.9, tm_night) + fascia_col * fascia * mix(0.25, 1.4, tm_night)
+			* (1.0 - step(storefront - 0.1, sy));
 	}
 	// the street's shade at a building's foot (the city casts no shadows: too far for them)
 	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, world_map > 0.5 ? wpos.y - NODE_POSITION_WORLD.y : UV.y));
