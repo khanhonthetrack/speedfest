@@ -1,7 +1,8 @@
 extends Node
 ## Sounds (no TMNF install needed): every stream (the recordings in audio/sfx) exists and isn't
 ## silent, the loops loop, the virtual rpm climbs through each gear and drops at the shifts, the engine
-## follows the throttle and the speed, a landing thumps, and the countdown beeps then the crowd roars.
+## follows the throttle and the speed, a landing thumps, the countdown beeps then the crowd roars,
+## and after the finish the car's sound fades away (until the race restarts).
 
 
 func _ready() -> void:
@@ -9,6 +10,7 @@ func _ready() -> void:
 	_rpm()
 	await _engine()
 	await _countdown()
+	await _finish_fade()
 	TestHooks.finish()
 
 
@@ -118,5 +120,50 @@ func _countdown() -> void:
 		if race.time_ms > 500:
 			break
 	TestHooks.check(heard.has("go") and heard.size() >= 3, "countdown_beeps_then_go", str(heard))
+	audio.queue_free()
+	car.queue_free()
+
+
+## The car's loops (engine layers, skid, wind) at their loudest, in dB.
+static func _loudest(audio: TmCarAudio) -> float:
+	var db := -80.0
+	for p: AudioStreamPlayer in audio._layers + [audio._skid, audio._wind]:
+		db = maxf(db, p.volume_db)
+	return db
+
+
+func _finish_fade() -> void:
+	var car := TmCar.new()
+	add_child(car)
+	car.set_physics_process(false)
+	var race := TmRace.new(0, 1)
+	var audio := TmCarAudio.new()
+	audio.car = car
+	audio.race = race
+	add_child(audio)
+	race.restart()
+	while race.state == TmRace.State.COUNTDOWN:
+		race.tick()
+	car.gas = 1.0
+	car.lin_vel = car.global_transform.basis.z * 40.0
+	for i in 30:
+		await get_tree().process_frame
+	var racing_db := _loudest(audio)
+	race.cross(0, TmBlockCatalogue.Waypoint.FINISH)
+	for i in 20:                           # the car still drives on just after the line (it brakes)
+		await get_tree().process_frame
+	var fading_db := _loudest(audio)
+	var frames := int(TmCarAudio.FINISH_FADE_S * 100.0) + 10    # 100 frames a second (tools/run.sh)
+	for i in frames:
+		await get_tree().process_frame
+	var after_db := _loudest(audio)
+	TestHooks.check(race.state == TmRace.State.FINISHED and racing_db > -30.0 and fading_db < racing_db
+		and after_db <= -79.0, "engine_fades_after_finish",
+		"racing %.1f dB, 20 frames after the line %.1f dB, %d frames later %.1f dB" % [racing_db, fading_db,
+			frames, after_db])
+	race.restart()
+	for i in 5:
+		await get_tree().process_frame
+	TestHooks.check(_loudest(audio) > -30.0, "engine_back_after_restart", "%.1f dB" % _loudest(audio))
 	audio.queue_free()
 	car.queue_free()

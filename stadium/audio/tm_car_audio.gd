@@ -5,7 +5,8 @@ extends Node
 ## over its rpm band, the throttle crossfading load and coast; a dip and a clunk at each upshift,
 ## the rev limiter's flutter, free revs in the air), tyre skid while wheels slide, wind with speed,
 ## and the cues: the countdown's beeps and go, checkpoints and laps, wall hits, turbo; the race
-## calls cue() for the finish, records and respawns.
+## calls cue() for the finish, records and respawns. After the finish the engine, skid and wind
+## fade away (FINISH_FADE_S) and stay silent until the race restarts.
 
 var car: TmCar
 var race: TmRace
@@ -23,6 +24,7 @@ const LAYERS := [
 ]
 const RPM_RISE := 26000.0          ## rpm/s the engine can climb (and fall) between ticks
 const SHIFT_DIP_MS := 70           ## the load layers dip at an upshift (TMNF cuts drive 25 ms)
+const FINISH_FADE_S := 1.5         ## the car's loops fade out over this after the finish
 
 var _layers: Array[AudioStreamPlayer] = []
 var _skid: AudioStreamPlayer
@@ -41,6 +43,7 @@ var engine_rpm := TmSounds.RPM_IDLE   ## the engine's rpm now
 var engine_gear := 1                 ## its gear (0: reverse)
 var engine_mix := 0.0                ## the load layers' share (0 coast .. 1 load)
 var _shift_until := 0
+var _level := 1.0                  ## the car's loops' level: 1, fading to 0 once the race is finished
 
 
 func _loop(name: String) -> AudioStreamPlayer:
@@ -122,15 +125,19 @@ func _process(delta: float) -> void:
 	if car == null:
 		return
 	var kmh := car.speed_kmh()
+	if race and race.state == TmRace.State.FINISHED:
+		_level = move_toward(_level, 0.0, delta / FINISH_FADE_S)
+	else:
+		_level = 1.0
 	_landing(delta)
 	var k := 1.0 - exp(-delta * 8.0)
 	_throttle += (clampf(car.gas, 0.0, 1.0) - _throttle) * k
 	_engine(kmh, delta)
 	var sliding := car.model.any_sliding and car.model.grounded and absf(kmh) > 25.0
 	_skid_level += ((0.55 if sliding else 0.0) - _skid_level) * (1.0 - exp(-delta * 12.0))
-	_skid.volume_db = _db(_skid_level)
+	_skid.volume_db = _db(_skid_level * _level)
 	_skid.pitch_scale = clampf(0.85 + absf(kmh) / 900.0, 0.85, 1.3)
-	_wind.volume_db = _db(clampf(absf(kmh) / 450.0, 0.0, 1.0) * 0.45)
+	_wind.volume_db = _db(clampf(absf(kmh) / 450.0, 0.0, 1.0) * 0.45 * _level)
 	_wind.pitch_scale = 0.8 + clampf(absf(kmh) / 600.0, 0.0, 0.6)
 	if race:
 		if race.state == TmRace.State.COUNTDOWN:
@@ -191,5 +198,5 @@ func _engine(kmh: float, delta: float) -> void:
 		if float(fout[1]) > float(fout[0]) and float(fout[0]) < 1e8:
 			w *= 1.0 - smoothstep(float(fout[0]), float(fout[1]), engine_rpm)
 		w *= (_throttle * dip) if bool(l[5]) else (1.0 - _throttle) * 0.85
-		p.volume_db = _db(w * 0.8)
+		p.volume_db = _db(w * 0.8 * _level)
 		p.pitch_scale = clampf(engine_rpm / float(l[1]), 0.25, 3.0)
