@@ -156,11 +156,15 @@ const WET := {"asphalt": 1.0, "platform": 1.0, "shoulder": 0.9, "road_grid": 0.8
 	"border_ribs": 0.6, "border_black": 0.6, "curb_face": 0.6, "road_metal": 0.5}
 
 
-## A City map's look (M14, owner: "Improve it for RTX ... I want to see the ray tracing"): at night
-## the roads wet (tm_wet: SSR mirrors the neon and the towers in them on Ultra), a darker ambient,
-## AgX tonemapping (neon cores burn white, their halos keep the colour), a wider glow, a deeper
-## haze; on Ultra denser volumetric fog the lights glow in, more of the neon's bounce (SDFGI) and
-## longer reflection traces. By day: as any map, dry.
+## A City map's look (M14, owner: "Improve it for RTX ... I want to see the ray tracing"; then
+## "Logically, what's the source of light?"): at night the light comes from what is there: the
+## street lights, the neon, the lit windows, a faint moon. So the moon is down to a glimmer that
+## shows the towers' outlines, the ambient a near-black blue (not the sky's), SDFGI (Ultra) bounces
+## only the lights and emitters (not the sky); the roads wet (tm_wet: SSR mirrors the neon and the
+## towers in them on Ultra); AgX tonemapping (neon cores burn white, their halos keep the colour), a
+## wider glow, a dark haze, on Ultra thin volumetric fog the lights glow in, longer reflection
+## traces. Measured (light_diag, F02): the moon, the Stadium's floodlights and SDFGI's sky light
+## had the far towers at a flat blue-grey. By day: as any map, dry.
 static func city(we: WorldEnvironment, night_city: bool) -> void:
 	for key: String in WET:
 		var m := TmMaterials.get_material(key) as ShaderMaterial
@@ -170,8 +174,13 @@ static func city(we: WorldEnvironment, night_city: bool) -> void:
 		return
 	RenderingServer.global_shader_parameter_set(&"tm_wet", 1.0)
 	var env := we.environment
-	env.ambient_light_energy = 0.22
-	env.ambient_light_sky_contribution = 0.45
+	var moon := we.get_parent().get_node_or_null("Moon") as DirectionalLight3D
+	if moon != null:
+		moon.light_energy = 0.04
+		moon.shadow_enabled = false
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.03, 0.035, 0.055)
+	env.ambient_light_energy = 1.0
 	env.tonemap_mode = Environment.TONE_MAPPER_AGX
 	env.tonemap_exposure = 0.95
 	env.adjustment_saturation = 1.18
@@ -200,8 +209,9 @@ static func city(we: WorldEnvironment, night_city: bool) -> void:
 		env.volumetric_fog_detail_spread = 1.6
 		env.volumetric_fog_ambient_inject = 0.0
 	if env.sdfgi_enabled:
-		env.sdfgi_energy = 1.25
-		env.sdfgi_bounce_feedback = 0.6
+		env.sdfgi_read_sky_light = false
+		env.sdfgi_energy = 1.2
+		env.sdfgi_bounce_feedback = 0.55
 	if env.ssr_enabled:
 		env.ssr_max_steps = 160
 		env.ssr_depth_tolerance = 0.4

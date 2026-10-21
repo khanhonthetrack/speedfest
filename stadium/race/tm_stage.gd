@@ -79,7 +79,7 @@ static func load_from_args() -> TmChallenge:
 
 ## The Stadium's four floodlight heads at night (TmStadiumBuild.TOWER_HEAD), each lighting the
 ## field from its corner: spot lights without falloff over the field (their range's edge beyond it).
-static func _floodlights(parent: Node, energy := 0.55) -> void:
+static func _floodlights(parent: Node) -> void:
 	var c := TmGeo.g(TmStadiumBuild.CENTRE)
 	var h := TmStadiumBuild.TOWER_HEAD
 	for sx: float in [-1.0, 1.0]:
@@ -89,7 +89,7 @@ static func _floodlights(parent: Node, energy := 0.55) -> void:
 			var at := c + Vector3(sx * h.x, h.y, sz * absf(h.z))
 			spot.transform = Transform3D(Basis.looking_at(c + Vector3(-sx * 120.0, 0.0, -sz * 80.0) - at, Vector3.UP), at)
 			spot.light_color = Color(0.95, 0.97, 1.0)
-			spot.light_energy = energy
+			spot.light_energy = 0.55
 			spot.spot_range = 1800.0
 			spot.spot_angle = 48.0
 			spot.spot_attenuation = 0.0
@@ -140,26 +140,27 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 				ref.position = Vector3(0.0, TmStadiumBuild.FIELD_Y, 0.0)
 				parent.add_child(ref)
 				return
-		parent.add_child(TmStadiumBuild.build())
 		if city_map:
-			parent.add_child(TmStadiumBuild.neon(TmStadiumEnv.night))
+			# a City map has no Stadium (owner: "remove the stadium around"): the city reaches the
+			# field's edge, at its level; the airship and the searchlights over it; no floodlights
+			parent.add_child(TmSkyline.field(builder))
+			parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
 			var ship := TmAirshipOrbit.make(TmStadiumEnv.night)
 			if ship != null:
 				parent.add_child(ship)
 			if TmStadiumEnv.night:
 				parent.add_child(TmSearchlights.make())
-		if TmStadiumEnv.night:
-			_floodlights(parent, 0.14 if city_map else 0.55)     # a City night is the neon's and the street lights'
-		if city_map:
-			parent.add_child(TmSkyline.field(builder))
-			parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
+		else:
+			parent.add_child(TmStadiumBuild.build())
+			if TmStadiumEnv.night:
+				_floodlights(parent)
 		if String(TestHooks.arg("city", "true")) != "false":
 			# built on a worker thread: the race doesn't wait for it (TmSkyline.build_async)
 			var city := Node3D.new()
 			city.name = "City"
-			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, TmStadiumBuild.BOTTOM, 0.0)
+			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, TmSkyline.FIELD_LEVEL if city_map else TmStadiumBuild.BOTTOM, 0.0)
 			parent.add_child(city)
-			TmSkyline.build_async(city)
+			TmSkyline.build_async(city, city_map)
 		return
 	var w := float(builder.challenge.size.x) * 32.0
 	var d := float(builder.challenge.size.z) * 32.0

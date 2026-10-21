@@ -1193,3 +1193,10 @@ path tracing on the City next.)
 
 > Not yet. I'll play the City maps first and tell you what to change.
 
+### User (verbatim, after launching the game from the checkout: "run for me")
+
+> 1. I still find the buildings far away very gray and bright. Why? Why can't you make it dark?
+> 2. The game feels bright? Logically, what's the source of light? For now it's just neon lights. Then why is it so bright? Maybe put street lights?
+> 3. For the "City maps", remove the stadium around. It doesn't make sense to have buildings inside the stadium.
+> Did you use the other assets (you have permission to all of them)
+

@@ -4,7 +4,8 @@ extends RefCounted
 ## Oct 2026; assets/city/props/lamp_01..06.glb, six designs, converted by blend_to_glb.py): one
 ## design per track, scaled to LAMP_SCALE, in our paint with lit lenses; without them, our own
 ## (a tapering pole, an arm over the road, a flat LED head). All of a track's lamps are one
-## MultiMesh; at night each carries a spot light pooling on the road below its head (no shadows).
+## MultiMesh; at night each carries a spot light angled out over the road (the City night's main
+## light: M14), the nearest ones with shadows.
 ## Traffic lights (the owner's traffic_01..02.glb) stand where the track turns.
 
 const HEIGHT := 9.0
@@ -13,6 +14,8 @@ const PROPS := "res://assets/city/props"
 const LAMP_SCALE := 1.7              ## the owner's lamps are 5 m: street lamps for a road this wide
 const LAMPS := 6
 const TRAFFIC_SCALE := 1.15
+const LEAN := 0.45                   ## rad: the lamps' light leans out over the road
+const SHADOW_TO := 90.0              ## m: lamps nearer the camera cast shadows
 
 static var _assets := {}             ## design -> [ArrayMesh, head (Vector3, local, scaled)]
 
@@ -145,8 +148,8 @@ static func asset_lamp(design: int) -> Array:
 
 
 ## Lamps at `feet` (each foot's basis turns its arm towards the road: -z), the owner's `design`
-## (0: ours); at night a spot light under each head lights the road (shadowless; `lights`: only
-## so many).
+## (0: ours); at night a spot light under each head, leaning out over the road, lights it (warm
+## white LED; shadows within SHADOW_TO m; `lights`: only so many).
 static func row(feet: Array, night: bool, design := 0, lights := 120) -> Node3D:
 	var root := Node3D.new()
 	root.name = "StreetLights"
@@ -170,13 +173,18 @@ static func row(feet: Array, night: bool, design := 0, lights := 120) -> Node3D:
 			var xf: Transform3D = feet[i]
 			var spot := SpotLight3D.new()
 			spot.position = xf * head
-			spot.rotation = Vector3(-PI * 0.5, 0.0, 0.0)          # straight down
-			spot.light_color = Color(1.0, 0.86, 0.66)
-			spot.light_energy = 6.0
-			spot.spot_range = 22.0
-			spot.spot_angle = 62.0
-			spot.spot_attenuation = 1.2
-			spot.shadow_enabled = false
+			# down, leaning out towards the road (the arm reaches along the lamp's -z)
+			spot.basis = xf.basis * Basis(Vector3.RIGHT, -PI * 0.5 + LEAN)
+			spot.light_color = Color(1.0, 0.91, 0.80)
+			spot.light_energy = 9.0
+			spot.spot_range = 34.0
+			spot.spot_angle = 68.0
+			spot.spot_attenuation = 1.0
+			spot.light_specular = 0.7
+			spot.light_volumetric_fog_energy = 0.8
+			spot.shadow_enabled = true
+			spot.shadow_bias = 0.05
+			spot.distance_fade_shadow = SHADOW_TO
 			spot.distance_fade_enabled = true
 			spot.distance_fade_begin = 350.0
 			spot.distance_fade_length = 100.0

@@ -7,7 +7,9 @@ extends RefCounted
 ## lower glass and masonry buildings in between, thinning out to the city's rim.
 ##
 ## Coordinates: the Stadium's (Godot axes centred on the field), y up from the plain (TmStadiumBuild
-## BOTTOM). TmStage places it under the Stadium on 32 x 32 maps. The layout is fixed (one seed), so
+## BOTTOM). TmStage places it under the Stadium on 32 x 32 maps; on City maps (no Stadium: the
+## owner's "remove the stadium around") at the field's level, its blocks up to the map's edge and
+## its ground out to the far plane (build(true)). The layout is fixed (one seed), so
 ## every player sees the same city. The lower blocks are merged per style and sector (a few dozen
 ## draws); the towers are their own nodes (podium, facade, roof, plant, mast, light).
 
@@ -55,6 +57,11 @@ const GLASS_STYLES := ["blue", "green", "silver", "dark", "bronze"]
 const MASONRY_STYLES := ["stone", "brick", "concrete", "white"]
 
 const FIELD_TOWERS := 40         ## a city track's towers on the field, at most
+## A City map (no Stadium): the city's plain this far below the field's ground (its ground under the
+## map's own), its blocks from FIELD_MARGIN past the map's edge
+const FIELD_LEVEL := -0.45
+const FIELD_HALF := 512.0
+const FIELD_MARGIN := 40.0
 const FIELD_INSET := 4.0         ## a field building's pavement inside its cells (m)
 
 static var _ground_mat: ShaderMaterial
@@ -67,7 +74,7 @@ static var _task := -1
 ## Builds the city on a worker thread and adds it under `holder` when it is done (a race loads
 ## without waiting for it; it appears a moment later). The materials every building shares are
 ## made here first, on the main thread; leaving the scene waits for a build still running.
-static func build_async(holder: Node3D) -> void:
+static func build_async(holder: Node3D, around_field := false) -> void:
 	TmTower.shared("roof")
 	TmTower.shared("plant")
 	TmTower.shared("steel")
@@ -80,11 +87,11 @@ static func build_async(holder: Node3D) -> void:
 		TmNeon.material(c, TmStadiumEnv.night)
 	wait()
 	if TestHooks.has_arg("shot"):
-		holder.add_child(build())          # a screenshot shows the city whatever the frame count
+		holder.add_child(build(around_field))          # a screenshot shows the city whatever the frame count
 		return
 	var ref: WeakRef = weakref(holder)
 	_task = WorkerThreadPool.add_task(func() -> void:
-		var city := build()
+		var city := build(around_field)
 		_attach.call_deferred(ref, city), false, "city")
 	holder.tree_exiting.connect(wait)
 
@@ -106,10 +113,11 @@ static func wait() -> void:
 
 
 ## The whole city as one node (its origin at the plain under the field's centre).
-static func build() -> Node3D:
+## around_field: a City map's city (no Stadium): up to the map's edge, at the field's level.
+static func build(around_field := false) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Skyline"
-	_ground(root)
+	_ground(root, FAR if around_field else RADIUS + 400.0)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = SEED
 	var taken := {}           # cells a landmark stands on
@@ -143,7 +151,7 @@ static func build() -> Node3D:
 	for ix in range(-n, n + 1):
 		for iz in range(-n, n + 1):
 			var c := Vector2(ix * PITCH, iz * PITCH)
-			if _inside(c) or c.length() > RADIUS - PITCH * 0.5:
+			if _inside(c, around_field) or c.length() > RADIUS - PITCH * 0.5:
 				continue
 			var key := Vector2i(ix, iz)
 			var t := _tall(c) * (0.85 + rng.randf() * 0.3)
@@ -506,8 +514,8 @@ static func _cell_of(p: Vector2) -> Vector2i:
 
 
 ## The block at c touches the Stadium (its edge and a street's margin).
-static func _inside(c: Vector2) -> bool:
-	var e := TmStadiumBuild.EDGE + Vector2(60.0, 60.0)
+static func _inside(c: Vector2, around_field := false) -> bool:
+	var e := Vector2.ONE * (FIELD_HALF + FIELD_MARGIN) if around_field else TmStadiumBuild.EDGE + Vector2(60.0, 60.0)
 	return absf(c.x) - PITCH * 0.5 < e.x and absf(c.y) - PITCH * 0.5 < e.y
 
 
@@ -798,7 +806,7 @@ static func _grass() -> Material:
 
 
 ## The ground: one disc with the street grid (tm_city_ground), a little above the plain.
-static func _ground(root: Node3D) -> void:
+static func _ground(root: Node3D, rim := RADIUS + 400.0) -> void:
 	if _ground_mat == null:
 		_ground_mat = ShaderMaterial.new()
 		_ground_mat.shader = preload("res://env/tm_city_ground.gdshader")
@@ -806,7 +814,6 @@ static func _ground(root: Node3D) -> void:
 		_ground_mat.set_shader_parameter("street", STREET)
 		_ground_mat.set_shader_parameter("radius", RADIUS)
 	var b := TmTower.Builder.new()
-	var rim := RADIUS + 400.0
 	var poly := PackedVector2Array()
 	for k in 48:
 		var a := k * TAU / 48.0
