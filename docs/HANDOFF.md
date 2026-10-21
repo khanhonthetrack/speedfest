@@ -22,7 +22,12 @@
   view; `--view=at:-512,520,-500,-512,120,900` the Stadium and the city from above).
 - Gate on this PC from the worktree `C:\dev\sf-gate` (detached at the commit under test; copy
   `stadium/.godot` there first): the gate tests the working tree it runs in.
-- Frame rate (RTX 2060, 1080p, F02 at night): Ultra 56.5 fps, High 76.6 (v0.7: 57.1, 74.7).
+- Frame rate (RTX 2060, 1080p, F02 at night): Ultra 56.0 fps, High 74.2 (v0.7: 57.1, 74.7).
+- After the owner played (TRANSCRIPT, session 16): City maps have no Stadium (the city reaches the
+  field's edge at its level); City nights are lit only by street lights (over the road, shadows
+  within 90 m), neon, windows and a glimmer of moon (the moon, the floodlights and SDFGI's sky
+  light had made the far towers grey: measured, PROGRESS); the owner's Blade Runner Cityscapes
+  towers are in (`assets/city/blade_*`).
 - Next: the owner's look at it; the RTX fork's path tracing on the City (PLAN M14-6); maybe more
   of the city by day.
 

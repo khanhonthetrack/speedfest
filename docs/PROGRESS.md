@@ -3609,3 +3609,23 @@ one after a clean `user://` ~10 min).
   at night, 25 s sampled after the city is in): Ultra 56.5 fps (17.7 ms, 95th percentile 18.0 ms),
   High 76.6 fps (13.0 ms). v0.7 on the same run: Ultra 57.1, High 74.7: the neon City costs
   nothing measurable. Gate: STADIUM_TESTS PASS on c8acd4c (21 suites, test_tracks 160), pushed.
+- (M14, the owner after playing: "buildings far away very gray and bright. Why? ... what's the source
+  of light? ... Maybe put street lights? ... remove the stadium around") **Measured, then lit by
+  what is there.** A diagnostic (a SceneTree script on map_view that switches named sources off and
+  averages the frame's regions; F02 at night, Ultra): the far towers at 53 of 255; the moon,
+  floodlights, ambient, sky reflections and SDFGI all off: 41 (the road 61 -> 16); the ambient alone
+  changed nothing (SDFGI supplies it, from the sky); SDFGI off -8; fog -11; glow -7. So on City
+  nights: the moon at 0.04 (no shadows), the ambient a near-black blue colour (not the sky's), SDFGI
+  without the sky's light (only lights and emitters bounce), no floodlights; the street lights
+  (`TmStreetLights.row`) lean out over the road (0.45 rad), warm white LED, 9 energy, 34 m, 68 deg,
+  with shadows within 90 m (the trees' shadows lie across the road). Far towers now 37, the sky 12.
+- **No Stadium on City maps** (`TmStage.add_environment`): no TmStadiumBuild, floodlights or
+  Stadium neon; the city at the field's level (`TmSkyline.FIELD_LEVEL`, its ground 15 cm under the
+  map's), its blocks from 40 m past the map's edge (`build(true)`, `_inside(c, true)`), its ground
+  out to the far plane; the airship and the searchlights stay over it.
+- **The owner's Blade Runner Cityscapes** (missed before: the one file never converted; its note:
+  free for any project): its 19 highrise models (the scene's particle towers) converted x 80
+  (`blend_to_glb.py --scale 80 --pad 0.02 --skip group,ground,base,volume --min-height 60`):
+  17 towers 108-310 m, 776 KB, `assets/city/blade_*.glb`, CREDITS.md; TmCityAssets dresses them
+  in our windowed walls and picks them where they fit (the skyline's towers, the field's).
+- Frame rate (RTX 2060, 1080p, F02 at night, the bot driving): Ultra 56.0 fps, High 74.2 (as before).

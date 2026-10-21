@@ -338,6 +338,9 @@ pushed after each; screenshots on the owner's PC (RTX 2060, Ultra).
       Procedural Clouds CC0 (owner), Trees & Bushes CC BY 3.0, Mountain Range CC BY-NC-SA (not
       used). The earlier Blend Swap towers now get windowed walls (they were grey cladding)
 - [x] 5. Frame rate on the owner's RTX 2060: Ultra 56.5 fps, High 76.6 at 1080p (v0.7: 57.1, 74.7)
+- [x] 5b. (owner, after playing) City nights lit by what is there (street lights over the road with
+      shadows, neon, windows, a glimmer of moon: measured what made the far towers grey); no
+      Stadium on City maps (the city up to the field's edge); the Blade Runner towers in the city
 - [ ] 6. The RTX fork's path tracing (stadium/RTX.md) checked on the City (a photo mode on a 2060)
 
 ### M13 — Our own city around the Stadium (owner, session 15, 2026-10-20; called M12 on its branch, where M12 was the community work) ☐

@@ -76,7 +76,8 @@ Updated 2026-10-21 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 +
   `blocks/tm_textured.gdshader`) and lights along them, tubes on buildings and the Stadium
   (`env/tm_neon.gd`), an airship, searchlights, LED screens; City nights wet (`tm_wet`) with AgX,
   glow, fog, SDFGI/SSR tuned (`TmStadiumEnv.city`); no shops on ground floors; far towers dark with
-  lit floors. The owner's `assets/` folder at the repo root is untracked source material (759 MB):
+  lit floors. No Stadium on City maps (the city reaches the field, `TmSkyline.build(true)`); City
+  nights lit by street lights (shadows), neon, windows, a faint moon (no sky light in SDFGI). The owner's `assets/` folder at the repo root is untracked source material (759 MB):
   never commit it. Gate this PC from a separate worktree (HANDOFF).
 - **PC only (owner, 20 Oct: "I dont do browser anymore. Only pc with high graphics card"):** new
   work targets Forward+ on a strong graphics card; the web build is no longer a constraint.
