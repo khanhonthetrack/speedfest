@@ -1,21 +1,25 @@
 class_name TmTrees
 extends RefCounted
-## Street trees for the city (our own, in code): a tapering trunk, three boughs and a crown of
-## lumpy leaf blobs (env/tm_foliage.gdshader: clumps, a silhouette the sky breaks through, light
-## through the leaves, a sway in the wind). A planting is one MultiMesh (one draw for its trunks,
-## one for its crowns), each tree turned, sized and coloured its own way.
+## Street trees for the city (in code, with Poly Haven's jacaranda textures, CC0:
+## assets/tex/trees): a trunk and limbs in bark, the crown a few hundred cards each showing a
+## photographed frond (env/tm_leaves.gdshader: alpha-cut, lit as a volume, light through the leaves,
+## a sway in the wind). A planting is one MultiMesh per variant (each tree turned, sized and its own
+## green in the instance data).
 ##
 ##   var trees := TmTrees.planting([Transform3D(...), ...], rng)   # feet at the transforms
 
-const VARIANTS := 3                 ## crown shapes (each planting draws from them)
+const VARIANTS := 3                 ## tree shapes (each planting draws from them)
+const TEX := "res://assets/tex/trees"
+## The fronds in the leaf atlas: [u0, v0, u1, v1, the stem at u0 (else at u1)].
+const FRONDS := [[0.16, 0.02, 0.99, 0.473, true], [0.0, 0.324, 0.43, 0.695, true], [0.242, 0.59, 1.0, 0.996, false]]
 
 static var _meshes: Array[ArrayMesh] = []
 static var _bark: StandardMaterial3D
 static var _leaves: ShaderMaterial
 
 
-## One tree of a variant: its trunk (surface 0) and crown (surface 1); about 9 m tall, its foot at
-## the origin.
+## One tree of a variant: its trunk and limbs (surface 0) and leaves (surface 1); about 10 m tall,
+## its foot at the origin.
 static func mesh(variant := 0) -> ArrayMesh:
 	if _meshes.is_empty():
 		for k in VARIANTS:
@@ -26,25 +30,33 @@ static func mesh(variant := 0) -> ArrayMesh:
 static func _build(variant: int) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7001 + variant * 13
-	var trunk := TmTower.Builder.new()
-	_limb(trunk, Vector3.ZERO, Vector3(0.0, 4.2, 0.0), 0.22, 0.14)
-	var crown_at := Vector3(0.0, 5.6, 0.0)
-	for k in 3:
-		var a := TAU * (k / 3.0 + rng.randf() * 0.2)
-		var tip := Vector3(cos(a) * 1.6, 5.8 + rng.randf() * 0.8, sin(a) * 1.6)
-		_limb(trunk, Vector3(0.0, 3.6 + k * 0.3, 0.0), tip, 0.12, 0.05)
-	var crown := TmTower.Builder.new()
-	var blobs := 6 + variant
-	for k in blobs:
-		var a := TAU * k / blobs + rng.randf() * 0.6
-		var r := 1.0 + rng.randf() * 1.0
-		var c := crown_at + Vector3(cos(a) * r, rng.randf_range(-0.6, 1.6), sin(a) * r)
-		_blob(crown, c, rng.randf_range(1.5, 2.2), rng)
-	_blob(crown, crown_at + Vector3(0.0, 1.5, 0.0), 2.0, rng)
+	var wood := TmTower.Builder.new()
+	var leaves := TmTower.Builder.new()
+	var crown := Vector3(0.0, 6.2 + variant * 0.4, 0.0)
+	var top := Vector3(rng.randf_range(-0.2, 0.2), 3.0, rng.randf_range(-0.2, 0.2))
+	_limb(wood, Vector3.ZERO, top, 0.2, 0.15)
+	_limb(wood, top, Vector3(0.0, 7.0 + variant * 0.5, 0.0), 0.13, 0.04)
+	_fronds(leaves, top.lerp(Vector3(0.0, 7.0 + variant * 0.5, 0.0), 0.5), Vector3(0.0, 7.0 + variant * 0.5, 0.0), crown, 6, rng)
+	var limbs := 6 + variant
+	for k in limbs:
+		var az := TAU * k / limbs + rng.randf_range(-0.3, 0.3)
+		var el := deg_to_rad(rng.randf_range(30.0, 58.0))
+		var dir := Vector3(cos(az) * cos(el), sin(el), sin(az) * cos(el))
+		var root := top + Vector3(0.0, rng.randf_range(-0.3, 0.5), 0.0)
+		var tip := root + dir * rng.randf_range(3.0, 4.2)
+		_limb(wood, root, tip, 0.11, 0.035)
+		_fronds(leaves, root.lerp(tip, 0.35), tip, crown, 9, rng)
+		for j in 2:
+			var at := root.lerp(tip, rng.randf_range(0.45, 0.75))
+			var az2 := az + rng.randf_range(-0.9, 0.9)
+			var d2 := Vector3(cos(az2), rng.randf_range(-0.15, 0.45), sin(az2)).normalized()
+			var tip2 := at + d2 * rng.randf_range(1.4, 2.2)
+			_limb(wood, at, tip2, 0.05, 0.02)
+			_fronds(leaves, at.lerp(tip2, 0.2), tip2, crown, 6, rng)
 	var arr := []
 	arr.resize(Mesh.ARRAY_MAX)
 	var m := ArrayMesh.new()
-	for b: TmTower.Builder in [trunk, crown]:
+	for b: TmTower.Builder in [wood, leaves]:
 		arr[Mesh.ARRAY_VERTEX] = b.v
 		arr[Mesh.ARRAY_NORMAL] = b.n
 		arr[Mesh.ARRAY_TEX_UV] = b.uv
@@ -54,69 +66,59 @@ static func _build(variant: int) -> ArrayMesh:
 	return m
 
 
-## A tapering six-sided limb from a to b.
+## A tapering eight-sided limb from a to e (bark UV: u around, v along, about a metre a repeat).
 static func _limb(b: TmTower.Builder, a: Vector3, e: Vector3, r0: float, r1: float) -> void:
 	var axis := (e - a).normalized()
 	var side := axis.cross(Vector3.FORWARD if absf(axis.y) > 0.9 else Vector3.UP).normalized()
 	var up := side.cross(axis)
-	for i in 6:
-		var t0 := TAU * i / 6.0
-		var t1 := TAU * (i + 1) / 6.0
+	var len := a.distance_to(e)
+	for i in 8:
+		var t0 := TAU * i / 8.0
+		var t1 := TAU * (i + 1) / 8.0
 		var n0 := side * cos(t0) + up * sin(t0)
 		var n1 := side * cos(t1) + up * sin(t1)
-		var p0 := a + n0 * r0
-		var p1 := a + n1 * r0
-		var q0 := e + n0 * r1
-		var q1 := e + n1 * r1
-		b.tri3(p0, q1, p1, n0, n1, n1, Vector2(i, 0), Vector2(i + 1, 1), Vector2(i + 1, 0))
-		b.tri3(p0, q0, q1, n0, n0, n1, Vector2(i, 0), Vector2(i, 1), Vector2(i + 1, 1))
+		var u0 := i / 8.0
+		var u1 := (i + 1) / 8.0
+		b.tri3(a + n0 * r0, e + n1 * r1, a + n1 * r0, n0, n1, n1, Vector2(u0, 0.0), Vector2(u1, len), Vector2(u1, 0.0))
+		b.tri3(a + n0 * r0, e + n0 * r1, e + n1 * r1, n0, n0, n1, Vector2(u0, 0.0), Vector2(u0, len), Vector2(u1, len))
 
 
-## A lumpy ball of leaves: an icosahedron split once, its points pushed in and out.
-static func _blob(b: TmTower.Builder, c: Vector3, r: float, rng: RandomNumberGenerator) -> void:
-	var t := (1.0 + sqrt(5.0)) / 2.0
-	var vs: Array[Vector3] = [Vector3(-1, t, 0), Vector3(1, t, 0), Vector3(-1, -t, 0), Vector3(1, -t, 0),
-		Vector3(0, -1, t), Vector3(0, 1, t), Vector3(0, -1, -t), Vector3(0, 1, -t),
-		Vector3(t, 0, -1), Vector3(t, 0, 1), Vector3(-t, 0, -1), Vector3(-t, 0, 1)]
-	var fs := [[0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11], [1, 5, 9], [5, 11, 4], [11, 10, 2],
-		[10, 7, 6], [7, 1, 8], [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9], [4, 9, 5], [2, 4, 11],
-		[6, 2, 10], [8, 6, 7], [9, 8, 1]]
-	for i in vs.size():
-		vs[i] = vs[i].normalized()
-	# split each face in four (the midpoints shared)
-	var mids := {}
-	var faces := []
-	for f: Array in fs:
-		var m := []
-		for k in 3:
-			var a: int = f[k]
-			var e: int = f[(k + 1) % 3]
-			var key := Vector2i(mini(a, e), maxi(a, e))
-			if not mids.has(key):
-				mids[key] = vs.size()
-				vs.append(((vs[a] + vs[e]) * 0.5).normalized())
-			m.append(mids[key])
-		faces.append([f[0], m[0], m[2]])
-		faces.append([f[1], m[1], m[0]])
-		faces.append([f[2], m[2], m[1]])
-		faces.append([m[0], m[1], m[2]])
-	var lumps: Array[float] = []
-	for i in vs.size():
-		lumps.append(r * (0.78 + rng.randf() * 0.4) * (0.8 if vs[i].y < -0.3 else 1.0))
-	for f: Array in faces:
-		var p := []
-		var n := []
-		for k: int in [0, 2, 1]:                     # clockwise from outside
-			var d: Vector3 = vs[f[k]]
-			p.append(c + d * lumps[f[k]])
-			n.append(d)
-		b.tri3(p[0], p[1], p[2], n[0], n[1], n[2], Vector2.ZERO, Vector2.ZERO, Vector2.ZERO)
+## Frond cards along a limb from a to e: each a quad showing one frond, its stem on the limb,
+## reaching out and drooping; normals out from the crown's middle (a volume's shading).
+static func _fronds(b: TmTower.Builder, a: Vector3, e: Vector3, crown: Vector3, count: int, rng: RandomNumberGenerator) -> void:
+	var axis := (e - a).normalized()
+	for k in count:
+		var at := a.lerp(e, (k + rng.randf()) / count)
+		var f: Array = FRONDS[rng.randi() % FRONDS.size()]
+		var uv0 := Vector2(f[0], f[1])
+		var uv1 := Vector2(f[2], f[3])
+		var aspect := (uv1.x - uv0.x) / (uv1.y - uv0.y)
+		var length := rng.randf_range(1.1, 1.6)
+		var width := length / aspect
+		# along the limb, turned about it and out, drooping a little
+		var out := (at - crown)
+		out.y = 0.0
+		out = (out.normalized() if out.length() > 0.1 else Vector3.RIGHT)
+		var dir := (axis * 0.5 + out * rng.randf_range(0.3, 0.9) + Vector3(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.45, 0.1), rng.randf_range(-0.5, 0.5))).normalized()
+		var side := dir.cross(Vector3.UP).normalized().rotated(dir, rng.randf_range(-1.2, 1.2))
+		var p0 := at - side * width * 0.5
+		var p1 := at + side * width * 0.5
+		var p2 := p1 + dir * length
+		var p3 := p0 + dir * length
+		var stem_u := uv0.x if bool(f[4]) else uv1.x
+		var tip_u := uv1.x if bool(f[4]) else uv0.x
+		var n := [(p0 - crown).normalized(), (p1 - crown).normalized(), (p2 - crown).normalized(), (p3 - crown).normalized()]
+		var t := [Vector2(stem_u, uv0.y), Vector2(stem_u, uv1.y), Vector2(tip_u, uv1.y), Vector2(tip_u, uv0.y)]
+		b.tri3(p0, p1, p2, n[0], n[1], n[2], t[0], t[1], t[2])
+		b.tri3(p0, p2, p3, n[0], n[2], n[3], t[0], t[2], t[3])
 
 
 static func _bark_material() -> StandardMaterial3D:
 	if _bark == null:
 		_bark = StandardMaterial3D.new()
-		_bark.albedo_color = Color(0.22, 0.18, 0.14)
+		_bark.albedo_texture = load(TEX.path_join("jacaranda_bark.jpg"))
+		_bark.albedo_color = Color(0.8, 0.78, 0.75)
+		_bark.uv1_scale = Vector3(1.0, 1.0, 1.0)
 		_bark.roughness = 0.95
 		_bark.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return _bark
@@ -125,7 +127,8 @@ static func _bark_material() -> StandardMaterial3D:
 static func _leaf_material() -> ShaderMaterial:
 	if _leaves == null:
 		_leaves = ShaderMaterial.new()
-		_leaves.shader = preload("res://env/tm_foliage.gdshader")
+		_leaves.shader = preload("res://env/tm_leaves.gdshader")
+		_leaves.set_shader_parameter("leaves", load(TEX.path_join("jacaranda_leaves.png")))
 	return _leaves
 
 

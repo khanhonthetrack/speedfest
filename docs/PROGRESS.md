@@ -3505,3 +3505,36 @@ with new assets, to have 0.7 ready".
   carries `SpeedFestStadium-windows.zip` (106.5 MB) and `SpeedFestStadium-linux.zip` (97.3 MB).
 - Next: PLAN M11-5..7, the owner's look at the city, the Street/Traffic Lights licence, the
   canyon/lagoon question, and whether to start TMUF at all.
+
+## 2026-10-21 — session 15 (cloud): the owner's lights, brands, neon, billboards, photographed trees (M13)
+
+- Owner: "Street and traffic lights - cc0 / Score - 6/10 ... The shops kinda looks lame. Also,
+  add some neon taste, some billboards. It should feel modern, not 90s. Trees look kinda lame."
+- The owner's street and traffic lights (CC0): `blend_to_glb.py --realize` (the lamp scene places
+  one pole and six heads with collection instances: made real where they stand; objects outside
+  the view layer dropped), `--pad` (how close two objects may be and still be one building),
+  `--max-image` (props' textures scaled down); `assets/city/props/lamp_01..06.glb` (4000
+  triangles each), `traffic_01..02.glb` (8000). `TmStreetLights.asset_lamp(design)`: one design
+  per track, x 1.7 (8.5 m), turned so its arm reaches over the road, our paint and lit lenses
+  (`TmCityAssets.dress(.., keep_textured)` keeps textured faces, e.g. the signal lamps);
+  `TmStreetLights.traffic()`: traffic lights where the track turns (its line's radius under 100 m).
+- Modern shops (`env/tm_tower.gdshader`): each shop a brand from our adverts (env/tm_adverts.gd:
+  its logo on the fascia over the ad's own background colour, backlit at night), floor-to-ceiling
+  glass in slim black frames with a door, a bright shop behind (white walls, recessed spotlights, a
+  polished floor, tidy shelves, the back wall in the brand's colour with its logo). Shop signs now
+  read the right way round (a wall's u runs right to left for one facing it).
+- `env/tm_city_signs.gd` (`TmCitySigns`): LED billboards on roofs beside the road, facing it (a
+  steel frame on two legs, a 14 x 7 m screen: `env/tm_led_screen.gdshader`, the adverts, each board
+  its own, sliding to the next every 10 s, the LED pixels showing up close); neon blade signs out
+  from the facades beside the road (`env/tm_neon.gdshader`: a word in glowing tubes, letters on a
+  9-segment grid, a tube round the edge; pink, cyan, violet, amber, green, red). A City track's
+  field: ~20 billboards, ~45 neon signs; its lower buildings mostly glass and panels (fewer brick
+  and stone fronts: `_box(.., modern)`).
+- Trees (`env/tm_trees.gd`, `env/tm_leaves.gdshader`): a trunk and limbs in bark, the crown ~180
+  cards each showing a photographed jacaranda frond (Poly Haven, CC0: `assets/tex/trees`,
+  `CREDITS.md`), lit as a volume, light through the leaves, swaying.
+- `tests/test_skyline` (+1): billboards and neon signs, traffic lights.
+- Neon more present: blade signs 1.6 m wide and 6-11 m tall, on most buildings beside the road
+  that carry no billboard; a neon tube under many shops' fascias (pink, cyan, violet, amber). A
+  City track's paved field is darker, and wet at night (glossy, puddles that mirror the lights:
+  SSR on Ultra).

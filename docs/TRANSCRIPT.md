@@ -1009,6 +1009,22 @@ night, with a night mood for the Stadium to show it.)
 (Attached: Blade_runner_style_Cityscapes.blend; Skyscraper_2.zip, Skyscraper.zip, Hotel.zip
 (Blend Swap, CC0); 12_Buildings.zip (Blend Swap, "raytrace", CC-BY 3.0: credit required). The
 Blade Runner file came without a licence; asked where it is from before shipping anything of it.)
+
+> Street and traffic lights - cc0
+> Score - 6/10. It's def not unreal engine. The shops kinda looks lame. Also, add some neon taste, some billboards. It should feel modern, not 90s. Trees look kinda lame.
+>
+> Do you want me to find more assets?
+
+(Answered: yes: realistic game-ready street trees, modern storefront/facade kits, street props,
+neon/LED billboard models, CC0 or CC-BY. Working on: the owner's street and traffic lights in the
+game, neon and billboards, modern shops, better trees.)
+
+> i have assets on my pc but they are too large (mroe than 30MB)
+
+(Answered: split them into 25 MB 7-Zip volumes and upload the parts, or a share link
+(Drive/Dropbox/OneDrive, anyone with the link), or shrink them first with our converter
+(stadium/tools/assets/blend_to_glb.py in Blender); with each asset's licence or source page.)
+
 ## Session 13 continued — 2026-10-19 (cloud; after v0.5, branch `claude/tmnf-replica-graphics-nb1kcg`)
 
 ### User (verbatim, session 13, 19 Oct, after v0.5; with a screenshot of A01 from the raised level: a wide blue floor behind the circuit walls)
