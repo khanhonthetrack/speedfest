@@ -27,14 +27,17 @@ const NOTCH_TOP := 7.9          ## the rim's underside (an inner corner's notch 
 ## the ribbed edge, the black underside with the blue line), the flat underside and the foot
 ## ledge TMNF's light plates, the skirt its white fabric.
 const LIP := [
-	[INSET, TOP, "platform", S_DECK], [0.0, TOP, "border_ribs", S_METAL, Vector2(150.0, 162.4)],
-	[0.0, 7.9, "border_ribs", S_METAL, Vector2(162.4, 177.5)], [0.122, 7.9, "border_ribs", S_METAL, Vector2(177.5, 216.7)],
-	[0.249, 7.611, "border_black", S_METAL, Vector2(216.7, 256.1)], [0.505, 7.423, "border_black", S_METAL, Vector2(256.1, 300.0)],
+	[INSET, TOP, "platform", S_DECK], [0.0, TOP, "border_ribs", S_METAL, Vector2(161.5, 191.9)],
+	[0.0, 7.9, "border_ribs", S_METAL, Vector2(191.9, 217.4)], [0.122, 7.9, "border_black", S_METAL, Vector2(217.4, 244.0)],
+	[0.249, 7.611, "border_black", S_METAL, Vector2(244.0, 277.6)], [0.505, 7.423, "border_black", S_METAL, Vector2(277.6, 300.2)],
 	[0.847, UNDER, "road_under", S_METAL], [3.085, UNDER, "fabric", S_SLIDING], [2.835, 7.15, "fabric", S_SLIDING],
 	[2.695, 6.795, "fabric", S_SLIDING], [2.635, 4.298, "fabric", S_SLIDING], [2.695, 1.836, "fabric", S_SLIDING],
 	[2.835, 1.444, "fabric", S_SLIDING], [3.133, 1.207, "road_under", S_METAL], [2.802, 1.207, "road_under", S_METAL],
 	[2.802, BOTTOM, "road_under", S_METAL], [INSET, BOTTOM, "", TmGeo.NO_COLLISION],
 ]
+## The ramp-up piece's (ToRoadMainAir) sides: the lip with the atlas' orange band on its bevel, as
+## TMNF's (rows measured; the rest as LIP).
+const LIP_ORANGE_ROWS := [Vector2(191.9, 299.2), Vector2(299.2, 320.9), Vector2(320.9, 348.3), Vector2(348.3, 366.8)]
 ## Under the deck (measured): TMNF's dark truss plate (Stands2: stands_dark) at the floor (PLATE_IN in from each closed
 ## side, to the edge on open ones), a hub hanging from its centre (in HUB[0] from the block's edges
 ## at the floor, HUB[1] at the level's ground), and beams 1 m deep, BEAM_HALF either side of the
@@ -178,13 +181,13 @@ const TO_ROAD_MAIN := [8.0, 8.008, 8.017, 8.071, 8.125, 8.248, 8.372, 8.522, 8.6
 ## (rows as LIP's; the right half walked back, its rows reversed), the underside's ledges its light
 ## plates, the panel between them its dark Stands2.
 const SLOPE_PLATE := [
-	[0.0, TOP, "border_ribs", S_METAL, Vector2(150.0, 162.4)], [0.0, 7.9, "border_ribs", S_METAL, Vector2(162.4, 177.5)],
-	[0.122, 7.9, "border_ribs", S_METAL, Vector2(177.5, 216.7)], [0.249, 7.611, "border_black", S_METAL, Vector2(216.7, 256.1)],
-	[0.505, 7.423, "border_black", S_METAL, Vector2(256.1, 300.0)], [0.847, UNDER, "road_under", S_METAL],
+	[0.0, TOP, "border_ribs", S_METAL, Vector2(161.5, 191.9)], [0.0, 7.9, "border_ribs", S_METAL, Vector2(191.9, 217.4)],
+	[0.122, 7.9, "border_black", S_METAL, Vector2(217.4, 244.0)], [0.249, 7.611, "border_black", S_METAL, Vector2(244.0, 277.6)],
+	[0.505, 7.423, "border_black", S_METAL, Vector2(277.6, 300.2)], [0.847, UNDER, "road_under", S_METAL],
 	[3.08, UNDER, "road_under", S_METAL], [3.08, 7.12, "platform_tray", S_METAL], [28.92, 7.12, "road_under", S_METAL],
-	[28.92, UNDER, "road_under", S_METAL], [31.153, UNDER, "border_black", S_METAL, Vector2(300.0, 256.1)],
-	[31.495, 7.423, "border_black", S_METAL, Vector2(256.1, 216.7)], [31.751, 7.611, "border_ribs", S_METAL, Vector2(216.7, 177.5)],
-	[31.878, 7.9, "border_ribs", S_METAL, Vector2(177.5, 162.4)], [32.0, 7.9, "border_ribs", S_METAL, Vector2(162.4, 150.0)],
+	[28.92, UNDER, "road_under", S_METAL], [31.153, UNDER, "border_black", S_METAL, Vector2(300.2, 277.6)],
+	[31.495, 7.423, "border_black", S_METAL, Vector2(277.6, 244.0)], [31.751, 7.611, "border_black", S_METAL, Vector2(244.0, 217.4)],
+	[31.878, 7.9, "border_ribs", S_METAL, Vector2(217.4, 191.9)], [32.0, 7.9, "border_ribs", S_METAL, Vector2(191.9, 161.5)],
 	[32.0, TOP, "platform", S_DECK],
 ]
 ## Under a slope (measured, TMNF's Stands2 and its trusses): a round post (SLOPE_POST: radius,
@@ -296,7 +299,11 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			var form := parts[2]
 			if form == "ToRoadMainAir":
 				# the deck, and the road rising off it to the Road/Main block above (one level up)
-				_deck(geo, _closed([0, 2]))
+				var lip := LIP.duplicate(true)
+				for k in 4:
+					var q: Array = lip[2 + k]
+					lip[2 + k] = [q[0], q[1], "border_ribs" if k == 0 else "border_orange", q[3], LIP_ORANGE_ROWS[k]]
+				_deck(geo, _closed([0, 2]), lip)
 				RoadShapes.new().ramp(geo, TO_ROAD_MAIN, TOP, "platform")
 			elif form in ["Air", "Ground", "2Air", "2Ground", "2MirrorAir", "2MirrorGround"]:
 				RoadShapes.new().to_platform(geo, 2 if form.begins_with("2") else 1, form.ends_with("Ground"),
@@ -332,10 +339,10 @@ static func _closed(arms: Array) -> Array:
 
 ## The deck slab: a lip along every closed side (mitred where two meet, square to the block edge
 ## where the next side continues), the body behind them from the floor (1 m) to the top (8 m).
-func _deck(geo: TmGeo, closed: Array) -> void:
+func _deck(geo: TmGeo, closed: Array, lip: Array = LIP) -> void:
 	for i in 4:
 		if closed[i]:
-			_edge_sweep(geo, LIP, i, closed)
+			_edge_sweep(geo, lip, i, closed)
 	_deck_body(geo, closed)
 
 

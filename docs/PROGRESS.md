@@ -2846,4 +2846,10 @@ on every real contact the full impulse would land at the contact point and kick 
   `out`). TMNF's road pub shows its adverts on the boards' outer faces; their inner faces (toward
   the support block and the pipe) are its dark steel panels. Ours showed an ad on both faces.
   `screen_box` takes the face to show the ad on (`out`), the other face back_mat.
+- (M11-2) **The platform decks' lip in TMNF's atlas rows** (`platform.gd LIP`, `SLOPE_PLATE`,
+  `LIP_ORANGE_ROWS`; every platform plate's and slope's closed side). Our lip's rows ran one
+  segment behind TMNF's (measured on every platform piece: 161.5, 191.9, 217.4, 244.0, 277.6, 300.2
+  down the rim), so its bevel showed the ribbed band where TMNF's shows the black band with its
+  light line over the blue one. Now TMNF's rows; the ramp-up piece (ToRoadMainAir) takes TMNF's
+  orange band on its bevel (rows 299.2 to 366.8), as TMNF's.
 
