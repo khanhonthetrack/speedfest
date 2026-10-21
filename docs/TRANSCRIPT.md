@@ -1102,3 +1102,30 @@ tagged `stadium-v0.6`. Left out as not stadium branches (all from `main`):
 `claude/speedfest-stadium-overhaul-dvdcal` (session 11's neon-city game, which moves `stadium/` to
 `game/` and replaces the TMNF look), `ccr-be8add6f-thdbey` (story mode, docs only) and
 `claude/loving-fermi-79nbzc` (BlendSwap trial).
+
+## Release v0.7 — 2026-10-21 (owner's Windows PC, branch `stadium`)
+
+### User (verbatim)
+
+> merge all the progress from branches (including your graphics updates) and the city maps with new assets, to have 0.7 ready
+
+### Claude
+
+Both stadium branches merged into `stadium` and gated:
+`claude/tmnf-replica-graphics-nb1kcg` (70 commits after v0.6: the look work, PLAN M11-2..4 and
+M11-8) and `ccr-1ce252fc-wl7p3m` (11 commits: the city, the City series F01-F05 with the owner's
+Blend Swap buildings, street trees and lights, and texture mods). STADIUM_TESTS PASS after each
+merge (21 suites; `test_tracks` 160 with the five City tracks).
+
+Both branches had called their milestone M12: the community work keeps **M12** (as renumbered for
+v0.6), the city is **M13**.
+
+Left out, as for v0.6, being the pre-remake `main` lineage and not stadium work (merging any of
+them would bring `game/` back and undo the TMNF look): `main` itself, `m7-*`, `rtx-build`,
+`tmnf-physics`, `claude/speedfest-stadium-overhaul-dvdcal` (the neon-city game),
+`ccr-be8add6f-thdbey` (story mode docs), `claude/loving-fermi-79nbzc` (BlendSwap trial),
+`claude/sleepy-albattani-o7ygr1` (its find is already in). Brought across from
+`claude/stoic-planck-cjsw08` on its own: `docs/research/tmuf_feasibility.md` (the TMUF probe),
+which stands alone and touches no code.
+
+Not done, for the owner to say: tagging `stadium-v0.7` (the tag is what makes the GitHub Release).

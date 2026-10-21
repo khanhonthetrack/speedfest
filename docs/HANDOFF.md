@@ -1,6 +1,37 @@
 # HANDOFF: start here
 
-## Latest (20 Oct, session 15, cloud): a city around the Stadium (M13); the Stadium game is PC-only
+## Latest (21 Oct, owner's Windows PC): **v0.7 is ready on `stadium`** (not tagged yet)
+- Owner: "merge all the progress from branches (including your graphics updates) and the city maps
+  with new assets, to have 0.7 ready".
+- **Both stadium branches are merged into `stadium`** (gated separately, STADIUM_TESTS PASS each
+  time): `claude/tmnf-replica-graphics-nb1kcg` (70 commits after v0.6: the look work, PLAN M11-2..4
+  and M11-8) and `ccr-1ce252fc-wl7p3m` (11 commits: the city **M13**, the City series F01-F05 with
+  the owner's Blend Swap buildings, street trees and lights, and texture mods). Both branches are
+  now contained in `stadium`; **continue on `stadium`**.
+- **The tag is the only thing left.** `stadium-v0.7` on `stadium` makes the GitHub Release (CI
+  "Stadium builds" attaches the Windows and Linux zips). From this PC:
+  `git fetch origin && git tag -a stadium-v0.7 origin/stadium -m "SpeedFest Stadium v0.7" && git push origin stadium-v0.7`
+  (cloud sessions can't push tags: HTTP 403). The owner releases.
+- Conflicts worth knowing about (full notes in PROGRESS, 21 Oct, and in the merge commits):
+  `circuit.gd` (M11-4's TMNF base variants stand; the TMX loop/kicker/turbo pieces are built
+  through them, `_plate` takes the top material for the turbo pad), `control.gd` (the look branch
+  had dropped the camera light's Ground shapes the community work added: both kept),
+  `fabric.gd` (the screen tower now stands on M11's pillar), `tm_materials.gd` (a worn texture mod
+  first, then `CUTOUT`, then our own looks).
+- **Milestone numbering:** both branches called their work M12. The community work keeps **M12**,
+  the city is **M13**.
+- Not merged, as for v0.6 (all from the pre-remake `main` lineage; any of them would bring `game/`
+  back and undo the TMNF look): `main`, `m7-look/maps/pc/probes/rtx`, `rtx-build`, `tmnf-physics`,
+  `claude/speedfest-stadium-overhaul-dvdcal`, `ccr-be8add6f-thdbey`, `claude/loving-fermi-79nbzc`,
+  `claude/sleepy-albattani-o7ygr1`. Taken across on its own:
+  `docs/research/tmuf_feasibility.md` from `claude/stoic-planck-cjsw08` (the TMUF probe: its packs
+  and car tunings open with our tools, Desert/Rally/Snow need a Model3 port, TMUF needs a paid key
+  to run but not to read). **Open, for the owner:** whether to start TMUF at all.
+- Next after the tag: PLAN M11-5..7 (the look check's remaining families), the owner's look at the
+  city, the Street/Traffic Lights licence, and the owner's open question about loading
+  canyon/lagoon maps.
+
+## Earlier (20 Oct, session 15, cloud): a city around the Stadium (M13); the Stadium game is PC-only
 - Owner: "I dont do browser anymore. Only pc with high graphics card": the Stadium game targets
   Forward+ on a strong PC; the web build and the Compatibility renderer are no longer constraints
   for new work (old code paths for them stay until someone removes them on purpose).

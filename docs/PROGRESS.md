@@ -3406,7 +3406,7 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
 - `tests/test_skyline` (+5): the catalogue (licences), picks that fit and none that don't,
   dressing, material kinds.
 
-## 2026-10-20 — session 15 (cloud): our own buildings, more detail (M12)
+## 2026-10-20 — session 15 (cloud): our own buildings, more detail (M13)
 
 - The owner's 5/10 was mostly about our own blocks, which make most of the City tracks' street
   views. `env/tm_tower.gdshader` (shared by every building of ours):
@@ -3455,3 +3455,50 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   lights light both. Fixed: plain walls (alpha < 0.4) were taken for crowns and floodlit at night
   (crowns are 0.4-0.75 now); the shops' shelves fade to a tone far off and are less saturated (at
   night they had shimmered in rainbow colours).
+
+## 2026-10-21 — v0.7 ready (owner's Windows PC): `stadium` + the look work + the city
+Owner: "merge all the progress from branches (including your graphics updates) and the city maps
+with new assets, to have 0.7 ready".
+- The stadium branches, both merged into `stadium` and gated separately:
+  - `claude/tmnf-replica-graphics-nb1kcg` (70 commits after v0.6, PLAN M11-2..4 and M11-8): the
+    circuit walls' panels, ledges and bumpers, the platform decks' plate, lip and inner corners,
+    roads' keel plates and junctions, gate arches, grandstands and their wave roofs, the glass
+    booths and camera pubs, camera lights, loops' backs, turbines, sculptures' plinths, dirt
+    pieces and where dirt meets the road, inflatables and castles, the tube light system, terrain
+    zones on a 1 m survey, and the fabric pillars' corners: each measured against TMNF's blocks.
+  - `ccr-1ce252fc-wl7p3m` (11 commits, M13 + the rest of session 15): the city around the Stadium
+    and its night, the City series F01-F05, the owner's 38 Blend Swap buildings (CC0 / CC BY 3.0),
+    our buildings in detail, street trees and street lights, the threaded city build, and texture
+    mods (every ManiaPark TMNF/TMUF and ManiaPlanet mod opens; Stadium mods are worn).
+- Conflicts and how they went (details in each merge commit):
+  - `blocks/shapes/circuit.gd`: the textual merge left two `_plate`s and three duplicate tables
+    (`BUMP_R`, `HOLE`, `PILLARS`), which would not compile. M11-4's base variants (TMNF's dome,
+    hole and pillars) stand; the TMX pieces (loop start, kickers, turbo plate and slopes) are
+    built through them, and `_plate` now takes the top material so the turbo pad keeps its look
+    (`_map_turbo` remaps by world position, so it does not need the deck split in two).
+  - `blocks/shapes/control.gd`: the look branch had dropped the camera light's Ground shapes that
+    the community work added; both are kept (M11's air pieces, the ground ones as they were), and
+    the `along` lambda now reads the ground light as a light, not as a pub.
+  - `blocks/shapes/fabric.gd`: the community screen tower stood on a `PILLAR_POST` the look branch
+    had deleted; it stands on M11's `_pillar_air` pillar now.
+  - `blocks/tm_materials.gd`: a worn texture mod comes first in `get_material`, then `CUTOUT`,
+    then our own looks; both sides' colour keys kept.
+  - Milestones: both branches called their work M12. The community work keeps M12; the city is
+    **M13** (PLAN.md, HANDOFF, PROGRESS, `stadium/CLAUDE.md`).
+- STADIUM_TESTS PASS at both merges (Windows, `APPDATA=<scratch>` for a clean `user://`,
+  `TMNF_DIR` set): 21 suites, `test_tracks` 160 (the five City tracks), `test_community` 21,
+  `test_texture_mod` 13, `test_skyline` 24, plus the server tests.
+- Licences: no `.blend` files and nothing of Street_Lights / Traffic_Lights is committed (they
+  still have no licence); the street lights in the game are our own. `assets/city/CREDITS.md`
+  credits the CC0 sets and raytrace's CC BY 3.0 "12 Buildings".
+- Brought across on its own from `claude/stoic-planck-cjsw08` (a `main`-lineage branch, so not
+  merged): `docs/research/tmuf_feasibility.md`, the TMUF probe (all 7 environment packs and car
+  tunings open with the existing tools; tuning field [0x354] picks the force model: Stadium,
+  Island, Bay and Coast use the ported Model6, Desert/Rally/Snow a Model3 still to port; 1,254 new
+  block types; TMUF needs a paid key to run, not to read). Waiting on the owner.
+- Not merged, as for v0.6 (the pre-remake `main` lineage; merging any would bring `game/` back and
+  undo the TMNF look): `main`, `m7-look/maps/pc/probes/rtx`, `rtx-build`, `tmnf-physics`,
+  `claude/speedfest-stadium-overhaul-dvdcal`, `ccr-be8add6f-thdbey`, `claude/loving-fermi-79nbzc`,
+  `claude/sleepy-albattani-o7ygr1`.
+- **Open: the tag.** `stadium-v0.7` on `stadium` is what makes the GitHub Release (CI "Stadium
+  builds" attaches the Windows and Linux zips). The owner releases.

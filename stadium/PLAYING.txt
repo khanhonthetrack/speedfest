@@ -4,8 +4,9 @@ SPEEDFEST STADIUM - how to play
 1. Unzip this folder anywhere and run SpeedFestStadium.exe (Linux: SpeedFestStadium.x86_64).
    Nothing else to install. Windows may warn "Windows protected your PC" because the game
    isn't signed: click "More info" -> "Run anyway".
-2. SOLO -> CAMPAIGN races SpeedFest's own campaign: 65 tracks in five series (White, Green,
-   Blue, Red, Black), each with author, gold, silver and bronze times. Your best times and the
+2. SOLO -> CAMPAIGN races SpeedFest's own campaign: 70 tracks in six series (White, Green,
+   Blue, Red, Black and City, the last five raced through a city of skyscrapers, three of them
+   at night), each with author, gold, silver and bronze times. Your best times and the
    ghost of your best run are saved. SOLO -> REPLAYS plays back the runs you saved. Before
    your first run on a track (or Escape -> SELECT OPPONENTS) pick the ghost you race against: a
    gold, silver or bronze medal run, or your personal best.
@@ -17,7 +18,8 @@ SPEEDFEST STADIUM - how to play
    and car colour.
 5. COMMUNITY: TrackMania players' cars (ManiaPark) and tracks (TrackMania Exchange), shown by
    their pictures. Download a car and pick "Drive this car" to race with it (online too), or
-   download a track and Play it. What you download stays under My Cars and My Tracks.
+   download a track and Play it. TEXTURE MODS re-skins the Stadium with a mod made for
+   TrackMania. What you download stays under My Cars and My Tracks.
 
 TrackMania tracks too: SOLO -> OPEN A TRACK FILE races any TrackMania Nations Forever track file
 (.Challenge.Gbx), yours or downloaded.

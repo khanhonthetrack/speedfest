@@ -211,7 +211,8 @@ Work sequentially, push after every step. Research notes go to `docs/research/m9
   all from `main`
 
 ### M11 — Everything left that differs from TMNF (owner: "yes do the systematic check and fix everything", 2026-10-19)
-On `claude/tmnf-replica-graphics-nb1kcg` (steps 1-3 so far in `stadium-v0.6`; continue on `stadium`). One step at a time, each committed
+Steps 1, 4 and 8 done; 2 and 3 have families left (below). Its branch is merged into `stadium`
+(everything up to 21 Oct is in v0.7); **continue on `stadium`**. One step at a time, each committed
 and pushed, gated; TMNF data only locally (never in the repo). The deliberate differences stay
 (our tracks, car, textures, logos, music: no Nadeo content).
 - [x] 1. A block-by-block material check (`tools/research/tmnf/material_check.py` + a dump of our
@@ -253,6 +254,8 @@ On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (
 - [x] Tyre smoke never black (its own shader); road smoke whiter
 - [x] The circuit borders' blue as TMNF's on every shape (ground strips, slope walls, surfaces)
 - [x] Next release: merged into `stadium` (it had moved on: M12) and tagged `stadium-v0.6` (from the PC)
+- [x] v0.7 (21 Oct): the look work after v0.6 (M11-2..4, M11-8) and the city (M13) merged into
+      `stadium`, gated; the tag `stadium-v0.7` is the owner's to push
 
 ### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
 Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.
@@ -338,6 +341,8 @@ graphics card": new assets of our own (not TMNF's), for Forward+ on a strong PC 
       the owner's buildings don't cover; street trees and our own street lights along the City
       tracks (the owner's Street/Traffic Lights files came without a licence: asked)
 - [ ] 7. The owner's look at it; then maybe a setting to turn the city off on weaker PCs
+- [x] 8. Merged into `stadium` for v0.7 (21 Oct), gated; the Street/Traffic Lights licence is
+      still open, so nothing of those files is committed
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time
