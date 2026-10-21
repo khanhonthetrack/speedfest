@@ -57,7 +57,8 @@
   and their pillars' truss, arms and bearing plate (94%), the camera light base's octagon dress, the
   terrain zones on a 1 m survey (hills 95-99.9%), the air inflatable structures (TMNF's pillows and
   roof, 96.6-100%), the loops' back brackets, the road pubs' boards, beams and walkways (98% on our
-  tracks). Left: the glass booths' corner (TMNF's chamfered with a square inner corner; ours round).
+  tracks), the road start's pad (the car starts on it as in TMNF) and the gates' rounded faces.
+  Left: the glass booths' corner (TMNF's chamfered with a square inner corner; ours round).
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

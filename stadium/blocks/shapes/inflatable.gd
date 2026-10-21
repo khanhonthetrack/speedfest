@@ -285,7 +285,7 @@ func _pillows(geo: TmGeo, length: float, n: int, at: Callable, support: bool) ->
 			pts.append(row)
 			uvs.append(urow)
 		# columns along the wall, rows up: (along) x (up) faces back, so turned round
-		Castles._grid(geo, pts, uvs, "inflatable_pillow", S_RUBBER, true)
+		geo.grid(pts, uvs, "inflatable_pillow", S_RUBBER, true)
 	if not support:
 		return
 	var segs := maxi(1, n * 4)

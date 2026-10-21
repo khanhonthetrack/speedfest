@@ -2957,4 +2957,13 @@ on every real contact the full impulse would land at the contact point and kick 
   boards along every arm. Fidelity: StraightGround 91.8 -> 98.3%, DeadendGround 76.6 -> 98.5% (both
   on our tracks), StraightAir 77.6 -> 86.8%, DeadendAir 82.3 -> 91.3%, the junctions +1-9 points
   (TMNF's junction walkways run narrower strips along their railings: not built).
+- (M11-3) **The road start's pad and the road gates' rounded faces as TMNF's** (`road.gd _start_pad`,
+  `START_*`, `GATE_FACE_BULGE`; `TmGeo.grid`, moved from castle.gd). TMNF's start (our tracks: 55
+  of them) has the car standing on a pad: a thin plate 0.65 m over the road (the catalogue's spawn,
+  2.21 m, sits on it), flat 4 m wide with sloping sides, then a ramp down to the road at the line;
+  leaning boards printed with the start's word along its sides, a rail and a start light at each
+  end of them. Ours was flat road (the car was placed on it, 0.65 m lower than TMNF's). And the
+  arch's printed band on every road gate is a rubber bulge 0.54 m proud of each face (TMNF's
+  measured profile); ours was flat. Fidelity: Start/Ground 79.8 -> 90.7%, Checkpoint 89.9 ->
+  93.2%, MultiLap 90.2 -> 93.5%, Finish/Air 89.1 -> 92.4%.
 

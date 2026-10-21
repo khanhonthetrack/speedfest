@@ -780,6 +780,47 @@ func disc(c: Vector2, n: int, r: float, y: Callable, mat: String, surface: int) 
 		tri(m, Vector3(p0.x, y.call(p0), p0.y), Vector3(p1.x, y.call(p1), p1.y), mat, surface)
 
 
+## A grid of quads (rows of points, all rows as long, with their UVs) shaded round: each point's
+## normal the mean of its quads'. Front = (next point along the row - this) x (the next row's -
+## this), turned round when flip.
+func grid(pts: Array, uvs: Array, key: String, surface: int, flip := false) -> void:
+	var nr := pts.size()
+	var nc := (pts[0] as Array).size()
+	var acc := []
+	for i in nr:
+		var row := []
+		row.resize(nc)
+		row.fill(Vector3.ZERO)
+		acc.append(row)
+	for i in nr - 1:
+		for j in nc - 1:
+			var n := ((pts[i + 1][j + 1] as Vector3) - (pts[i][j] as Vector3)).cross((pts[i + 1][j] as Vector3) - (pts[i][j + 1] as Vector3))
+			# (c - a) x (d - b) points the way the quad's front (b - a) x (d - a) does
+			n *= -1.0 if flip else 1.0
+			for q: Vector2i in [Vector2i(i, j), Vector2i(i, j + 1), Vector2i(i + 1, j), Vector2i(i + 1, j + 1)]:
+				acc[q.x][q.y] = (acc[q.x][q.y] as Vector3) + n
+	for i in nr - 1:
+		for j in nc - 1:
+			var a: Vector3 = pts[i][j]
+			var b: Vector3 = pts[i][j + 1]
+			var c: Vector3 = pts[i + 1][j + 1]
+			var d: Vector3 = pts[i + 1][j]
+			var na: Vector3 = (acc[i][j] as Vector3).normalized()
+			var nb: Vector3 = (acc[i][j + 1] as Vector3).normalized()
+			var nc_: Vector3 = (acc[i + 1][j + 1] as Vector3).normalized()
+			var nd: Vector3 = (acc[i + 1][j] as Vector3).normalized()
+			var ua: Vector2 = uvs[i][j]
+			var ub: Vector2 = uvs[i][j + 1]
+			var uc: Vector2 = uvs[i + 1][j + 1]
+			var ud: Vector2 = uvs[i + 1][j]
+			if flip:
+				tri(a, c, b, key, surface, na, nc_, nb, ua, uc, ub)
+				tri(a, d, c, key, surface, na, nd, nc_, ua, ud, uc)
+			else:
+				tri(a, b, c, key, surface, na, nb, nc_, ua, ub, uc)
+				tri(a, c, d, key, surface, na, nc_, nd, ua, uc, ud)
+
+
 ## Horizontal polygon (TMNF x, z points) at height y, facing up (or down if down).
 func flat_polygon(poly: PackedVector2Array, y: float, mat: String, surface: int, down := false) -> void:
 	var idx := Geometry2D.triangulate_polygon(poly)

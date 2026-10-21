@@ -165,6 +165,11 @@ const GATE_SPOT_Z := Vector2(-1.39, 1.45)
 ## band, measured: 3.08 m a word; the gate block's curbs every 4 m); the arch's length is fitted to
 ## a whole number of words.
 const GATE_WORD := 3.08
+## Each face is a rubber bulge across the band (TMNF's, measured at the crown): [share of the way
+## from the outer line to the inner, out of the face's plane GATE_FACE_Z from the gate's centre].
+const GATE_FACE_Z := 2.09
+const GATE_FACE_BULGE := [Vector2(0.0, 0.0), Vector2(0.07, 0.04), Vector2(0.29, 0.43), Vector2(0.5, 0.54), Vector2(0.71, 0.43),
+	Vector2(0.93, 0.04), Vector2(1.0, 0.0)]
 ## A gate's line across the road (TMNF's: the border atlas' blue band, rows LINE_ROWS, LINE_HALF
 ## either side of the gate's centre) and the start / finish roads' texture tile along z (m).
 const LINE_HALF := 0.181
@@ -442,6 +447,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_straight(geo, 8.0, 32.0, ground)
 		_nose(geo, 8.0, -1.0, ground, TOP - 0.04)
 		_gate(geo, 28.0)
+		_start_pad(geo)
 		_race_road(geo, "race_start", 7.0, 28.0 - LINE_HALF)
 	else:
 		return null
@@ -1073,6 +1079,91 @@ func _race_road(geo: TmGeo, key: String, z0: float, z1: float) -> void:
 		return Vector2(p.z / RACE_TILE, 1.0 - absf(p.x - 16.0) / (16.0 - ROAD_EDGE)))
 
 
+## The start's pad (TMNF's, measured): the car's spawn stands on a thin plate START_PAD_Y up between
+## z START_PAD_Z, then a ramp down to the road at the line (START_RAMP_END), flat between
+## START_PAD_TOP (x) and sloping down to the road at START_PAD_FOOT, 5 cm thick, on two see-through
+## legs under its top's edges; along each side
+## a board leaning out (START_BOARD: foot, top (x, y); printed with the start's word inside) with a
+## rail along its top (START_RAIL: x, y, radius), and a start light at each end of the rail
+## (START_LIGHTS: x, y0, y1, half width, the z of their faces). All given for the left side.
+const START_PAD_Y := 2.0
+const START_PAD_Z := Vector2(8.0, 16.0)
+const START_RAMP_END := 27.82
+const START_PAD_TOP := 14.0
+const START_PAD_FOOT := 12.0
+const START_BOARD := [Vector2(13.87, 2.1), Vector2(13.46, 2.89)]
+const START_RAIL := Vector3(13.31, 2.955, 0.06)
+const START_LIGHTS := [13.02, 3.06, 3.84, 0.28, [11.57, 15.56]]
+
+
+func _start_pad(geo: TmGeo) -> void:
+	var z0 := START_PAD_Z.x
+	var z1 := START_PAD_Z.y
+	var y := START_PAD_Y
+	var t := 0.05
+	# the top: flat in the middle (the start road), its slopes dark; underneath and the ends dark
+	var xs := [START_PAD_FOOT, START_PAD_TOP, 32.0 - START_PAD_TOP, 32.0 - START_PAD_FOOT]
+	var zs := [z0, z1, START_RAMP_END]
+	var hs := [y, y, TOP]
+	for j in 2:
+		for i in 3:
+			# the side slopes keep their angle: on the ramp their foot comes in with the height
+			var pt := func(k: int, jj: int, dy: float) -> Vector3:
+				var h := float(hs[jj])
+				var x := float(xs[k])
+				if k == 0 or k == 3:
+					var inset := (START_PAD_TOP - START_PAD_FOOT) * (1.0 - (h - TOP) / (y - TOP))
+					x += inset if k == 0 else -inset
+				return Vector3(x, (TOP if k == 0 or k == 3 else h) - dy, zs[jj])
+			var key := "race_start" if i == 1 else "stands_dark"
+			geo.quad(pt.call(i, j, 0.0), pt.call(i, j + 1, 0.0), pt.call(i + 1, j + 1, 0.0), pt.call(i + 1, j, 0.0), key, _road_surf)
+			geo.quad(pt.call(i, j, t), pt.call(i + 1, j, t), pt.call(i + 1, j + 1, t), pt.call(i, j + 1, t), "stands_dark",
+				TmGeo.NO_COLLISION)
+	# the back end's thin edge
+	for i in 3:
+		var a := Vector3(xs[i], TOP if i == 0 else y, z0)
+		var b := Vector3(xs[i + 1], TOP if i == 2 else y, z0)
+		geo.quad(a, b, b - Vector3(0, t, 0), a - Vector3(0, t, 0), "road_metal", S_METAL)
+	for side in 2:
+		var mx := func(x: float) -> float: return 32.0 - x if side == 1 else x
+		# the legs under the top's edges: see-through cards from the road up
+		var lx: float = mx.call(START_PAD_TOP)
+		geo.quad_uv(Vector3(lx, TOP, z0 + 1.0), Vector3(lx, TOP, z1), Vector3(lx, y - t, z1), Vector3(lx, y - t, z0 + 1.0),
+			"girder_dark", TmGeo.NO_COLLISION, Vector2(0, 1), Vector2((z1 - z0 - 1.0) / 8.0, 1), Vector2((z1 - z0 - 1.0) / 8.0, 0.9),
+			Vector2(0, 0.9))
+		# the board, printed inside (u along it, v down its face), dark outside; its rail
+		var f: Vector2 = START_BOARD[0]
+		var g: Vector2 = START_BOARD[1]
+		var p := [Vector3(mx.call(f.x), f.y, z0), Vector3(mx.call(f.x), f.y, z1), Vector3(mx.call(g.x), g.y, z1), Vector3(mx.call(g.x), g.y, z0)]
+		var inward := Vector3(1.0 if side == 0 else -1.0, 0.6, 0.0)
+		# the word reads left to right from the pad (TmGeo's view is TMNF's mirrored: along +z on the left)
+		var u0 := 0.0 if side == 0 else z1 - z0
+		var u1 := z1 - z0 - u0
+		var uv := [Vector2(u0, 1.25), Vector2(u1, 1.25), Vector2(u1, 0.0), Vector2(u0, 0.0)]
+		if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(inward) < 0.0:
+			geo.quad_uv(p[0], p[3], p[2], p[1], "gate_start", S_METAL, uv[0], uv[3], uv[2], uv[1])
+			geo.quad(p[0], p[1], p[2], p[3], "stands_dark", TmGeo.NO_COLLISION)
+		else:
+			geo.quad_uv(p[0], p[1], p[2], p[3], "gate_start", S_METAL, uv[0], uv[1], uv[2], uv[3])
+			geo.quad(p[0], p[3], p[2], p[1], "stands_dark", TmGeo.NO_COLLISION)
+		geo.pipe(Vector3(mx.call(START_RAIL.x), START_RAIL.y, z0), Vector3(mx.call(START_RAIL.x), START_RAIL.y, z1), START_RAIL.z, 6,
+			"structure", TmGeo.NO_COLLISION)
+		# a start light on each end of the rail, facing along the road
+		var l: Array = START_LIGHTS
+		var cx: float = mx.call(float(l[0]))
+		var hw := float(l[3])
+		for zf: float in l[4]:
+			var dz := -1.0 if zf < 12.0 else 1.0
+			var zb := zf - dz * 0.3
+			geo.box(Vector3(cx - hw, l[1], minf(zf, zb)), Vector3(cx + hw, l[2], maxf(zf, zb)), "stands_dark", TmGeo.NO_COLLISION)
+			var q := [Vector3(cx - hw + 0.06, float(l[1]) + 0.06, zf + dz * 0.01), Vector3(cx + hw - 0.06, float(l[1]) + 0.06, zf + dz * 0.01),
+				Vector3(cx + hw - 0.06, float(l[2]) - 0.06, zf + dz * 0.01), Vector3(cx - hw + 0.06, float(l[2]) - 0.06, zf + dz * 0.01)]
+			if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).z * dz < 0.0:
+				geo.quad(q[0], q[3], q[2], q[1], "gate_lamp_start", TmGeo.NO_COLLISION)
+			else:
+				geo.quad(q[0], q[1], q[2], q[3], "gate_lamp_start", TmGeo.NO_COLLISION)
+
+
 ## The arch's feet (TMNF's, measured), each end alike (the right one mirrored): at GATE_FOOT_Z from
 ## the gate's centre a dark clamp round the curb (GATE_CLAMP, its outer flange the thickest) with
 ## a strap over the curb's top (GATE_STRAP, strap_dy higher: a dirt gate's on its bumper), from it
@@ -1244,33 +1335,27 @@ func _gate_faces(geo: TmGeo, zc: float) -> void:
 	var fit := maxf(1.0, roundf(length / GATE_WORD)) * GATE_WORD / length
 	var key := "gate_" + _gate_kind
 	for face: float in [-1.0, 1.0]:
-		var z := zc + face * 2.1
-		var u := 0.0
-		for i in n - 1:
-			var o0: Vector2 = outer[i]
-			var o1: Vector2 = outer[i + 1]
-			var i0: Vector2 = inner[i]
-			var i1: Vector2 = inner[i + 1]
-			var du := (((o1 + i1) - (o0 + i0)) * 0.5).length() * fit
-			# from the front (face -1, seen from -z) u runs with TMNF x; the back face mirrors it
-			var ua := u * -face
-			var ub := (u + du) * -face
-			var a := Vector3(o0.x, o0.y, z)
-			var b := Vector3(o1.x, o1.y, z)
-			var c := Vector3(i1.x, i1.y, z)
-			var d := Vector3(i0.x, i0.y, z)
-			var uva := Vector2(ua, 0.0)
-			var uvb := Vector2(ub, 0.0)
-			var uvc := Vector2(ub, 1.25)
-			var uvd := Vector2(ua, 1.25)
-			var nrm := Vector3(0, 0, face)
-			if (b - a).cross(c - a).dot(nrm) < 0.0:
-				geo.tri(a, c, b, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvc, uvb)
-				geo.tri(a, d, c, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvd, uvc)
-			else:
-				geo.tri(a, b, c, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvb, uvc)
-				geo.tri(a, c, d, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvc, uvd)
-			u += du
+		# rows across the face from the outer line to the inner, each GATE_FACE_BULGE out of it
+		var pts := []
+		var uvs := []
+		for r: Vector2 in GATE_FACE_BULGE:
+			var row := []
+			var urow := []
+			var u := 0.0
+			for i in n:
+				var p: Vector2 = (outer[i] as Vector2).lerp(inner[i], r.x)
+				if i > 0:
+					var q0: Vector2 = ((outer[i - 1] as Vector2) + (inner[i - 1] as Vector2)) * 0.5
+					var q1: Vector2 = ((outer[i] as Vector2) + (inner[i] as Vector2)) * 0.5
+					u += (q1 - q0).length() * fit
+				row.append(Vector3(p.x, p.y, zc + face * (GATE_FACE_Z + r.y)))
+				# from the front (face -1, seen from -z) u runs with TMNF x; the back face mirrors it
+				urow.append(Vector2(u * -face + (1e-4 if i == 0 else 0.0), r.x * 1.25))
+			pts.append(row)
+			uvs.append(urow)
+		var a: Vector3 = pts[0][0]
+		var nrm := ((pts[0][1] as Vector3) - a).cross((pts[1][0] as Vector3) - a)
+		geo.grid(pts, uvs, key, S_METAL, nrm.z * face < 0.0)
 
 
 ## Light rigs on the arch's shoulders, front and back: a housing with a face of lamps tilted

@@ -266,7 +266,7 @@ static func _tower(geo: TmGeo, c0: Vector2, c1: Vector2, y0: float, top: float, 
 					urow.append(Vector2(lerpf(TOWER_U.y, TOWER_U.x, float(k) / (TOWER_SIDES / 2)), float(q[2]) / 512.0))
 				pts.append(row)
 				uvs.append(urow)
-			_grid(geo, pts, uvs, KEY, S_RUBBER, false)
+			geo.grid(pts, uvs, KEY, S_RUBBER, false)
 	for d: Vector2 in ropes:
 		var c: Vector2 = axis.call(ROPE_Y)
 		var a := c + d * rs
@@ -300,7 +300,7 @@ static func _wall(geo: TmGeo, a: Vector2, b: Vector2, out: Vector2, y0: float, t
 			pts.append(row)
 			uvs.append(urow)
 		var d := b - a
-		_grid(geo, pts, uvs, KEY, S_RUBBER, -d.y * out.x + d.x * out.y < 0.0)
+		geo.grid(pts, uvs, KEY, S_RUBBER, -d.y * out.x + d.x * out.y < 0.0)
 
 
 ## A roof (or a floor): the outline's points (x, y, z), quilted tiles ROOF_TILE m, facing up.
@@ -374,8 +374,8 @@ static func _cushion(geo: TmGeo, seams: Array, top: float) -> void:
 			skirt.append(row)
 			skirt_uv.append(urow)
 		var flip := -d.y * out.x + d.x * out.y < 0.0
-		_grid(geo, pts, uvs, KEY, S_RUBBER, flip)
-		_grid(geo, skirt, skirt_uv, ROOF_KEY, S_RUBBER, flip)
+		geo.grid(pts, uvs, KEY, S_RUBBER, flip)
+		geo.grid(skirt, skirt_uv, ROOF_KEY, S_RUBBER, flip)
 
 
 ## A battlement: a block MERLON rounded at its corners and over its top, centred at c, its length
@@ -414,7 +414,7 @@ static func _merlon(geo: TmGeo, c: Vector3, along_x: bool) -> void:
 		pts.append(row)
 		uvs.append(urow)
 	# the loop runs anticlockwise seen from above when along x (clockwise along z: mirrored)
-	_grid(geo, pts, uvs, KEY, S_RUBBER, along_x)
+	geo.grid(pts, uvs, KEY, S_RUBBER, along_x)
 	var lid := PackedVector2Array()
 	var last: Array = pts[pts.size() - 1]
 	for i in last.size() - 1:
@@ -467,7 +467,7 @@ static func _beam(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 			var probe := (pts[0][4] as Vector3) - (pts[0][3] as Vector3)
 			var fwd := (pts[1][3] as Vector3) - (pts[0][3] as Vector3)
 			var nrm := fwd.cross(probe)
-			_grid(geo, pts, uvs, KEY, S_RUBBER, nrm.dot(Vector3(side.x * sgn, 0, side.y * sgn)) > 0.0)
+			geo.grid(pts, uvs, KEY, S_RUBBER, nrm.dot(Vector3(side.x * sgn, 0, side.y * sgn)) > 0.0)
 
 
 ## The door's bridge over the road between the keeps' tall towers: its two faces (stone legs and
@@ -541,7 +541,7 @@ static func _bridge(geo: TmGeo) -> void:
 				urow.append(Vector2(float(k) / steps * 2.0, float(r[2]) / 512.0))
 			pts.append(row)
 			uvs.append(urow)
-		_grid(geo, pts, uvs, KEY, S_RUBBER, side == 0)
+		geo.grid(pts, uvs, KEY, S_RUBBER, side == 0)
 	# the tunnel under the arch, facing into the opening
 	var tpts := []
 	var tuvs := []
@@ -559,7 +559,7 @@ static func _bridge(geo: TmGeo) -> void:
 			urow.append(uv)
 		tpts.append(row)
 		tuvs.append(urow)
-	_grid(geo, tpts, tuvs, KEY, S_RUBBER, false)
+	geo.grid(tpts, tuvs, KEY, S_RUBBER, false)
 	# the roof, sagging with the top, from step wall to step wall
 	var roof := []
 	var ruv := []
@@ -574,7 +574,7 @@ static func _bridge(geo: TmGeo) -> void:
 			urow.append(Vector2((BRIDGE_X + dx) / ROOF_TILE, zz / ROOF_TILE))
 		roof.append(row)
 		ruv.append(urow)
-	_grid(geo, roof, ruv, ROOF_KEY, S_RUBBER, false)
+	geo.grid(roof, ruv, ROOF_KEY, S_RUBBER, false)
 	for q: Array in BRIDGE_MERLONS:
 		for z: float in [BRIDGE_MERLON_Z, 2.0 * BRIDGE_Z - BRIDGE_MERLON_Z]:
 			_merlon(geo, Vector3(BRIDGE_X + float(q[0]), float(q[1]), z), true)
@@ -623,44 +623,3 @@ static func _tri_out(geo: TmGeo, t: Array, uv: Array, out: Vector3) -> void:
 static func _quad_out(geo: TmGeo, p: Array, uv: Array, out: Vector3) -> void:
 	_tri_out(geo, [p[0], p[1], p[2]], [uv[0], uv[1], uv[2]], out)
 	_tri_out(geo, [p[0], p[2], p[3]], [uv[0], uv[2], uv[3]], out)
-
-
-## A grid of quads (rows of points, all rows as long, with their UVs) shaded round: each point's
-## normal the mean of its quads'. Front = (next point along the row - this) x (the next row's -
-## this), turned round when flip.
-static func _grid(geo: TmGeo, pts: Array, uvs: Array, key: String, surface: int, flip: bool) -> void:
-	var nr := pts.size()
-	var nc := (pts[0] as Array).size()
-	var acc := []
-	for i in nr:
-		var row := []
-		row.resize(nc)
-		row.fill(Vector3.ZERO)
-		acc.append(row)
-	for i in nr - 1:
-		for j in nc - 1:
-			var n := ((pts[i + 1][j + 1] as Vector3) - (pts[i][j] as Vector3)).cross((pts[i + 1][j] as Vector3) - (pts[i][j + 1] as Vector3))
-			# (c - a) x (d - b) points the way the quad's front (b - a) x (d - a) does
-			n *= -1.0 if flip else 1.0
-			for q: Vector2i in [Vector2i(i, j), Vector2i(i, j + 1), Vector2i(i + 1, j), Vector2i(i + 1, j + 1)]:
-				acc[q.x][q.y] = (acc[q.x][q.y] as Vector3) + n
-	for i in nr - 1:
-		for j in nc - 1:
-			var a: Vector3 = pts[i][j]
-			var b: Vector3 = pts[i][j + 1]
-			var c: Vector3 = pts[i + 1][j + 1]
-			var d: Vector3 = pts[i + 1][j]
-			var na: Vector3 = (acc[i][j] as Vector3).normalized()
-			var nb: Vector3 = (acc[i][j + 1] as Vector3).normalized()
-			var nc_: Vector3 = (acc[i + 1][j + 1] as Vector3).normalized()
-			var nd: Vector3 = (acc[i + 1][j] as Vector3).normalized()
-			var ua: Vector2 = uvs[i][j]
-			var ub: Vector2 = uvs[i][j + 1]
-			var uc: Vector2 = uvs[i + 1][j + 1]
-			var ud: Vector2 = uvs[i + 1][j]
-			if flip:
-				geo.tri(a, c, b, key, surface, na, nc_, nb, ua, uc, ub)
-				geo.tri(a, d, c, key, surface, na, nd, nc_, ua, ud, uc)
-			else:
-				geo.tri(a, b, c, key, surface, na, nb, nc_, ua, ub, uc)
-				geo.tri(a, c, d, key, surface, na, nc_, nd, ua, uc, ud)
