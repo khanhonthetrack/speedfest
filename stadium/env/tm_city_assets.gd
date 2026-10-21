@@ -4,10 +4,14 @@ extends RefCounted
 ## tools/assets/blend_to_glb.py; their Cycles materials don't survive glTF) in our materials, each
 ## surface by its original material's name: glass of any kind is our curtain wall (TmTower's
 ## shader, windows mapped from the world position, rooms behind them, lit at night), steel is
-## brushed steel, concrete our concrete, black glossy dark glass, white or painted cladding a
-## painted panel, lights lit panels, leaves and trunks a tree's. Unknown names: light cladding.
+## brushed steel, concrete our concrete, black glossy dark glass, lights lit panels, leaves and
+## trunks a tree's; white panels and unknown names (most of a tower's facade) our concrete or white
+## wall with punched windows mapped from the world position (lit floors at night; M14: plain grey
+## cladding had the skyline's towers grey and windowless).
 ## The buildings: res://assets/city/<set>_NN.glb with a manifest per set (<set>.json: sizes,
 ## triangles, licence; CREDITS.md); pick() finds one that fits a lot, building() places it dressed.
+## A set whose manifest says "own_materials" (converted with its textures: the owner's City Street,
+## brick and lit windows) keeps its own materials; by day its windows glow a third as bright.
 
 const DIR := "res://assets/city"
 const MIN_SCALE := 0.8              ## a building is scaled to the height asked within these
@@ -43,16 +47,20 @@ static func catalogue() -> Array:
 				var sz: Array = b["size"]
 				if ResourceLoader.exists(DIR.path_join(String(b["name"]) + ".glb")):
 					_catalogue.append({"name": String(b["name"]), "size": Vector3(sz[0], sz[1], sz[2]),
-						"triangles": int(b.get("triangles", 0)), "licence": String(m.get("licence", ""))})
+						"triangles": int(b.get("triangles", 0)), "licence": String(m.get("licence", "")),
+						"set": f.get_basename(), "own": bool(m.get("own_materials", false))})
 		_catalogue.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["name"] < b["name"])
 	return _catalogue
 
 
 ## A building for a lot `room` (m, x and z) about `height` tall: {name, scale, size (scaled), turn
-## (quarter turns so it fits)}, or {} when none fits.
-static func pick(rng: RandomNumberGenerator, room: Vector2, height: float) -> Dictionary:
+## (quarter turns so it fits)}, or {} when none fits. `only`: that set's buildings; else all but
+## the sets that keep their own materials (the street's low brick ones: picked by name).
+static func pick(rng: RandomNumberGenerator, room: Vector2, height: float, only := "") -> Dictionary:
 	var fits := []
 	for b: Dictionary in catalogue():
+		if (only.is_empty() and bool(b["own"])) or (not only.is_empty() and String(b["set"]) != only):
+			continue
 		var sz: Vector3 = b["size"]
 		var k := clampf(height / sz.y, MIN_SCALE, MAX_SCALE)
 		if absf(sz.y * k - height) > height * 0.3:
@@ -62,7 +70,7 @@ static func pick(rng: RandomNumberGenerator, room: Vector2, height: float) -> Di
 			if sz.z * k > room.x or sz.x * k > room.y:
 				continue
 			turn = 1
-		fits.append({"name": b["name"], "scale": k, "turn": turn,
+		fits.append({"name": b["name"], "scale": k, "turn": turn, "own": b["own"],
 			"size": Vector3(sz.z, sz.y, sz.x) * k if turn == 1 else sz * k})
 	if fits.is_empty():
 		return {}
@@ -82,11 +90,29 @@ static func building(choice: Dictionary, glass := "blue", seed := 1, shadows := 
 	var n := (_scenes[name] as PackedScene).instantiate() as Node3D
 	n.scale = Vector3.ONE * float(choice.get("scale", 1.0))
 	n.rotation.y = int(choice.get("turn", 0)) * PI * 0.5
-	dress(n, glass, seed)
+	if bool(choice.get("own", false)):
+		_own_glow(n)
+	else:
+		dress(n, glass, seed)
 	if not shadows:
 		for mi: MeshInstance3D in n.find_children("*", "MeshInstance3D", true, false):
 			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return n
+
+
+## A set that keeps its own materials: their glow (lit windows, signs) full at night, a third by
+## day (the materials are the scene's, shared: set from the value they came with).
+static func _own_glow(root: Node) -> void:
+	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null:
+			continue
+		for s in mi.mesh.get_surface_count():
+			var m := mi.mesh.surface_get_material(s) as BaseMaterial3D
+			if m == null or not m.emission_enabled:
+				continue
+			if not m.has_meta("glow"):
+				m.set_meta("glow", m.emission_energy_multiplier)
+			m.emission_energy_multiplier = float(m.get_meta("glow")) * (1.0 if TmStadiumEnv.night else 0.33)
 
 
 ## Our kind for a material name ("cladding" when nothing matches).
@@ -127,6 +153,12 @@ static func material(kind: String, glass := "blue", seed := 1, floor_h := 3.8) -
 			m = g
 		"concrete":
 			m = TmMaterials.get_material("concrete")
+		"cladding", "white":
+			# the facades the names don't tell (most of a tower): our wall with punched windows
+			# mapped from the world position, rooms behind them, dark with lit floors at night
+			var w := TmTower.masonry("white" if kind == "white" else "concrete", seed, floor_h, 3.4)
+			w.set_shader_parameter("world_map", 1.0)
+			m = w
 		_:
 			var s := StandardMaterial3D.new()
 			match kind:

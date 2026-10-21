@@ -100,6 +100,64 @@ static func build() -> Node3D:
 	return root
 
 
+## The Stadium's neon on City maps (M14, owner: "around the stadium"), from the same tables as its
+## geometry: the grandstands' inner wall tops (cyan) and their rakes' tops (magenta), the roof
+## visors' front edges (violet), the terraces' wall tops (cyan) and raised decks' edges (magenta),
+## a strip up each mast to a ring at its top (ice). Placed like build()'s node.
+static func neon(night: bool) -> Node3D:
+	var t := TmNeon.Tubes.new()
+	t.night = night
+	var r := 0.55
+	var g := func(x: float, y: float, z: float) -> Vector3: return Vector3(-x, y, z)     # TMNF -> Godot
+	for sz: float in [-1.0, 1.0]:
+		var path := _lens_path(sz)
+		var m := _normals(path, Vector2(0.0, -sz * LENS_MID_Z))
+		var wall := PackedVector3Array()
+		var rake := PackedVector3Array()
+		for i in path.size():
+			var p: Vector2 = path[i]
+			var n: Vector2 = m[i]
+			wall.append(g.call(p.x - n.x * 0.4, 20.5, p.y - n.y * 0.4))
+			rake.append(g.call(p.x + n.x * 57.6, 46.3, p.y + n.y * 57.6))
+		t.add(wall, r, TmNeon.CYAN)
+		t.add(rake, r, TmNeon.MAGENTA)
+		var visor := PackedVector3Array()
+		var x_end := float(ROOF[ROOF.size() - 1][0])
+		var x := -x_end
+		while x <= x_end + 0.1:
+			var v: Vector2 = _roof_section(x)[0]
+			visor.append(g.call(x, v.y - 0.7, -sz * v.x - sz * 0.4))
+			x += 25.0
+		t.add(visor, r * 1.2, TmNeon.VIOLET)
+		var mid := -sz * LENS_MID_Z
+		for mx0: float in MASTS:
+			for s: float in ([1.0] if mx0 == 0.0 else [-1.0, 1.0]):
+				var mx := mx0 * s
+				var face := -sz * 4.3      # on the mast's field side
+				t.add(PackedVector3Array([g.call(mx, 24.0, mid + face), g.call(mx, 180.0, mid + face)]), 0.6, TmNeon.ICE)
+				t.add(PackedVector3Array([g.call(mx, 180.0, mid + face * 0.62), g.call(mx, MAST_TOP - 4.0, mid + face * 0.62)]), 0.5, TmNeon.ICE)
+				var ring := PackedVector3Array()
+				for k in 12:
+					var a := TAU * k / 12.0
+					ring.append(g.call(mx + cos(a) * 3.4, MAST_TOP - 6.0, mid + sin(a) * 3.4))
+				t.add(ring, 0.45, TmNeon.ICE, true)
+	for sx: float in [-1.0, 1.0]:
+		var path := _terrace_path(sx)
+		var m := _normals(path, Vector2(sx * 5000.0, 0.0))
+		var wall := PackedVector3Array()
+		var deck := PackedVector3Array()
+		for i in path.size():
+			var p: Vector2 = path[i]
+			var n: Vector2 = m[i]
+			wall.append(g.call(p.x - n.x * 0.4, 21.3, p.y - n.y * 0.4))
+			deck.append(g.call(p.x + n.x * 46.1, 34.7, p.y + n.y * 46.1))
+		t.add(wall, r, TmNeon.CYAN)
+		t.add(deck, r, TmNeon.MAGENTA)
+	var root := t.build("StadiumNeon")
+	root.position = TmGeo.g(CENTRE)
+	return root
+
+
 ## A quad whose front faces `out`.
 static func _quad(geo: TmGeo, a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, out: Vector3) -> void:
 	if (b - a).cross(c - a).dot(out) >= 0.0:

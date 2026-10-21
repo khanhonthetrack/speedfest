@@ -152,7 +152,8 @@ static func build(spec: Dictionary) -> Node3D:
 		TmNeon.ring(tubes, pod, podium, col, r, 0.3)
 		for k in tops.size():
 			var top_y := float(tops[k][1])
-			var down := minf((top_y - (float(tops[k - 1][1]) if k > 0 else podium)) * 0.4, 70.0) if k == tops.size() - 1 else 0.0
+			var span := top_y - (float(tops[k - 1][1]) if k > 0 else podium)
+			var down := (span if bool(spec.get("neon_full", false)) else minf(span * 0.4, 70.0)) if k == tops.size() - 1 else 0.0
 			TmNeon.ring(tubes, tops[k][0], top_y - 0.4, col, r, 0.3, down)
 		root.add_child(tubes.build())
 	return root

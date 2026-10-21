@@ -8,7 +8,7 @@ extends Node3D
 ## looks at them (yaw in degrees around the car, 0 = from the front-left, dist in m); --car_ahead=M
 ## moves them M metres down the road from the start. --view=path:<frac>[:back[:up]]: our tracks:
 ## a driver's view at that fraction (0-1) of the bot's line, back metres behind it, up above it
-## (--yaw=deg turns it left, negative right; --fov= its field of view, default 70).
+## (--yaw=deg turns it left, negative right; --pitch=deg tilts it up; --fov= its field of view, default 70).
 
 var builder: TmMapBuilder
 var _path: Array = []
@@ -153,6 +153,7 @@ func _camera() -> void:
 		cam.look_at(ahead + Vector3.UP * 1.0 if ahead.distance_to(p) > 1.0 else p + d * 40.0)
 		# --yaw=deg turns the camera to the left (positive) or right from the line; --fov= narrows it
 		cam.rotate_y(deg_to_rad(float(TestHooks.arg("yaw", 0.0))))
+		cam.rotate_object_local(Vector3.RIGHT, deg_to_rad(float(TestHooks.arg("pitch", 0.0))))
 		cam.fov = float(TestHooks.arg("fov", 70.0))
 	elif view == "start" and builder.has_start:
 		var s := builder.start

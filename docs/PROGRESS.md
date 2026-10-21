@@ -3553,3 +3553,34 @@ one after a clean `user://` ~10 min).
   (the adverts no longer reach the blocks' material). The building's hash comes from a `flat`
   varying: hashed from the interpolated vertex colour it flickered per pixel (speckled entrances).
   `map_view`'s path view takes `--yaw=` and `--fov=` (a closer look from the driver's spot).
+- (M14-2) **Real neon** (`env/tm_neon.gd`, owner: "real neon lights, around the track, near
+  barriers, on the buildings, on the freaking balloon ... around the stadium"), City maps only
+  (`TmNeon.setup`: the global `tm_neon`, 1 at night, 0.3 by day, 0 elsewhere; `TmStadiumEnv.add`
+  resets it for every scene):
+  - the barriers: in `blocks/tm_textured.gdshader` a band of the mesh UV's v (`neon_rows`) glows:
+    the curb's top (the border atlas' rows 9-19.4, magenta) and the road edge's blue strip (rows
+    364-393, cyan, with bright pulses running along it, `neon_chase`): every road shape at once
+    (straights, corners, slopes, gates), the blocks' geometry untouched;
+  - real light: coloured omni lights along both barriers every 32 m (staggered, cyan left,
+    magenta right; none over jumps or round loops: the line's BLIND/LOOP/WALL points), no
+    shadows, fading out past 260 m (`TmNeon.track_lights`, from `challenge.path`);
+  - tubes (`TmNeon.Tubes`: polylines merged per colour, emissive, GI static): towers (spec
+    `neon`: rings round the podium, every setback and the top, tubes down the top tier's
+    corners; `TmTower.build`), lower buildings (`TmSkyline._box_neon`: a ring under the crown,
+    corner tubes or bands every 12 m), chosen by a hash of their place or seed, so the city's
+    layout didn't move; the City field's every tower and 75% of the buildings by the road
+    (thin), the city round the Stadium 60% of its towers, 20% of its taller blocks within 1.8 km
+    (crowns only, thick, 4 sides), the eight landmarks thick rings;
+  - the Stadium (`TmStadiumBuild.neon`): the grandstands' inner wall tops (cyan) and rake tops
+    (magenta), the roof visors' front edges (violet), the terraces' wall tops and decks, a strip
+    up each mast to a ring at its top (ice);
+  - the airship (`env/tm_airship_orbit.gd`): City maps had none; TMNF's airship now circles the
+    Stadium 235 m up (640 m out, a lap in 260 s), a cyan neon line along its belly (the
+    "airship" material's v 0.47-0.53), a light under its gondola, no collision.
+- (M14-3) **The City night** (`TmStadiumEnv.city`): wet roads (`tm_wet`: a damp film, darker and
+  glossy, puddles where the large noise dips, mirror-flat: `TmStadiumEnv.WET` lists the surfaces),
+  a darker ambient, AgX tonemapping, a wider glow (levels 1-6), a deeper haze, on Ultra thin
+  volumetric fog the lights glow in, more SDFGI bounce (the neon lights what is round it) and
+  longer SSR traces (the neon and towers in the road); the floodlights at a quarter (0.14).
+  Night windows: 30% of rooms lit (was 45%), dimmer, 14% of them in colour (violet, blue, pink).
+

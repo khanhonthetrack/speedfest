@@ -139,6 +139,10 @@ void fragment() {
 	float span = lobby > 0.5 ? 0.0 : 1.0 - smoothstep(span_top - fw.y, span_top + fw.y, f.y);
 	// a plain wall (cornices, parapets: the vertex colour's alpha under 0.4) has no windows
 	float plain = 1.0 - step(0.4, COLOR.a);
+	// a model's flat faces (roofs, ledges: world-mapped) are plain wall too
+	if (world_map > 0.5 && abs(normalize(wnrm).y) > 0.6) {
+		plain = 1.0;
+	}
 	frame = max(frame, plain);
 	// averages far off
 	float frame_avg = clamp(mullion / bay_w + transom * 2.0 / fh + (fin_every > 0.5 ? fin_w / (bay_w * fin_every) : 0.0), 0.0, 1.0);
@@ -180,7 +184,20 @@ void fragment() {
 		rev = max(max(lo.x, hi.x), max(lo.y, hi.y)) * (1.0 - far);
 		rev_light = lo.y > 0.5 ? 1.0 : (hi.y > 0.5 ? 0.42 : 0.68);
 	}
-	vec3 inside = inside_avg;
+	// far off at night: not the windows' average (a grey glow) but lit strips, four bays of a
+	// floor at a time, warm, cool or now and then coloured, as offices are; only at a great
+	// distance (a strip under a pixel or two) the average
+	vec3 far_room = inside_avg;
+	if (tm_night > 0.0) {
+		vec2 strip = vec2(floor(c.x / 4.0), c.y);
+		float lit_s = step(hash(strip, 21.0), litf * 1.15);
+		float hue_s = hash(strip, 22.0);
+		vec3 lamp_s = hue_s < 0.5 ? vec3(1.0, 0.82, 0.58) : (hue_s < 0.85 ? vec3(0.82, 0.92, 1.05)
+			: (hue_s < 0.93 ? vec3(0.55, 0.32, 1.0) : vec3(0.25, 0.55, 1.05)));
+		float vfar = clamp(max(fw.x / (bay_w * 4.0), fw.y / fh) * 1.5 - 0.5, 0.0, 1.0);
+		far_room = mix(mix(inside_avg, lamp_s * lit_s * 0.8, tm_night), inside_avg, vfar);
+	}
+	vec3 inside = far_room;
 	if (far < 0.99) {
 		inside = room(c, vec3(g.x, g.y, 0.0), -tv, lit, day, lamp, vec3(bay_w, fh, room_depth));
 		// blinds: some rooms have them down part way (right behind the glass)
@@ -188,7 +205,7 @@ void fragment() {
 		float win_y = (f.y - span_top) / max(fh - span_top, 0.1);
 		float blind = lobby > 0.5 ? 0.0 : step(1.0 - blind_frac, win_y);
 		vec3 blind_col = vec3(0.78, 0.76, 0.70) * (day * 0.55 + lit * 0.7);
-		inside = mix(mix(inside, blind_col, blind), inside_avg, far);
+		inside = mix(mix(inside, blind_col, blind), far_room, far);
 	}
 	// the glass: a coating that reflects most, more at grazing angles; through it, the room
 	float ndv = clamp(dot(N, V), 0.0, 1.0);
@@ -224,6 +241,10 @@ void fragment() {
 	wall_tone *= (1.0 + 0.3 * sill) * (1.0 - 0.35 * streak) * (0.9 + 0.2 * vnoise(m / 9.0 + seed));
 	frame_alb *= wall_tone;
 	span_alb *= mix(vec3(1.0), wall_tone, step(0.5, brick + panels));
+	// at night the walls in the dark (the moon and the sky's little light): the lit windows and
+	// the neon carry the towers
+	frame_alb *= mix(1.0, 0.42, tm_night);
+	span_alb *= mix(1.0, 0.42, tm_night);
 	float glass_eff = glassm * (1.0 - rev);
 	float rev_m = glassm * rev;
 	float wsum = max(frame + span + glassm, 1e-4);

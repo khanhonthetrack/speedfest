@@ -18,6 +18,13 @@ Each building is joined into one mesh (one draw per material) and, over --max-tr
 (edges collapsed) to that budget.
 --unique keeps one of each design (scenes that repeat their buildings in rows): the same triangle
 count and size (to the metre) is a copy.
+--by-collection buld,bulid: one building per collection whose name starts so (scenes of buildings
+that touch, a street of terraced houses), not footprints that touch.
+--image-format JPEG [--image-quality 85]: the textures as JPEG (--images; default: as they are).
+--drop-image coffee: objects whose materials use an image whose name holds that are left out (a
+stock image the scene's licence doesn't cover).
+--own-materials: the manifest says the set keeps its own materials in the game (with --images:
+TmCityAssets doesn't dress it in ours).
 """
 import bpy
 import json
@@ -66,6 +73,34 @@ if opt("realize", flag=True):
 for o in list(scene.objects):
     if o.name not in bpy.context.view_layer.objects:
         bpy.data.objects.remove(o, do_unlink=True)
+
+# objects whose materials use an image left out (--drop-image)
+DROP = [s.lower() for s in opt("drop-image", "").split(",") if s]
+def uses_dropped(o):
+    for slot in getattr(o, "material_slots", []):
+        m = slot.material
+        if m and m.use_nodes:
+            for nd in m.node_tree.nodes:
+                if nd.type == "TEX_IMAGE" and nd.image and any(k in nd.image.name.lower() for k in DROP):
+                    return True
+    return False
+if DROP:
+    for o in list(scene.objects):
+        if o.type == "MESH" and uses_dropped(o):
+            print("DROPPED", o.name)
+            bpy.data.objects.remove(o, do_unlink=True)
+# each object's collection (--by-collection), before anything is unparented
+BYC = [s.lower() for s in opt("by-collection", "").split(",") if s]
+coll_of = {}
+if BYC:
+    def walk(c, top):
+        for o in c.objects:
+            coll_of.setdefault(o.name, top)
+        for ch in c.children:
+            walk(ch, top)
+    for c in bpy.data.collections:
+        if any(c.name.lower().startswith(k) for k in BYC):
+            walk(c, c.name)
 
 # what isn't a building: cameras, lights, volumes, ground planes, trees and people
 for o in list(scene.objects):
@@ -121,6 +156,11 @@ for i, a in enumerate(names):
 groups = {}
 for n in names:
     groups.setdefault(find(n), []).append(n)
+if BYC:
+    groups = {}
+    for o in objs:
+        if o.name in coll_of:
+            groups.setdefault(coll_of[o.name], []).append(o.name)
 
 # images over --max-image px scaled down (props don't need 2048 px textures)
 mi_px = int(opt("max-image", "0"))
@@ -182,7 +222,8 @@ for members in sorted(groups.values(), key=lambda m: -max(bb[n][5] for n in m)):
     path = os.path.join(OUT, name + ".glb")
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
         export_yup=True, export_cameras=False, export_lights=False,
-        export_image_format="AUTO" if opt("images", flag=True) else "NONE")
+        export_image_format=(opt("image-format", "AUTO") if opt("images", flag=True) else "NONE"),
+        export_image_quality=int(opt("image-quality", "85")))
     bpy.data.objects.remove(b, do_unlink=True)
     size = [(hi[0] - lo[0]) * SCALE, (hi[2] - lo[2]) * SCALE, (hi[1] - lo[1]) * SCALE]   # Godot x, y (up), z
     manifest.append({"name": name, "size": [round(v, 2) for v in size], "triangles": tris, "parts": len(members),
@@ -190,5 +231,6 @@ for members in sorted(groups.values(), key=lambda m: -max(bb[n][5] for n in m)):
     print("BUILDING %s %.0f x %.0f x %.0f m, %d triangles, %d parts" % (name, size[0], size[1], size[2], tris, len(members)))
 
 mpath = os.path.join(OUT, PREFIX + ".json")
-json.dump({"source": SOURCE, "licence": LICENCE, "scale": SCALE, "buildings": manifest}, open(mpath, "w"), indent=1)
+json.dump({"source": SOURCE, "licence": LICENCE, "scale": SCALE, "own_materials": opt("own-materials", flag=True),
+    "buildings": manifest}, open(mpath, "w"), indent=1)
 print("MANIFEST", mpath, len(manifest))

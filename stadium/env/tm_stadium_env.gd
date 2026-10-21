@@ -185,8 +185,11 @@ static func city(we: WorldEnvironment, night_city: bool) -> void:
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
 	for i in 7:
 		env.set_glow_level(i, [0.0, 0.6, 1.0, 1.0, 0.8, 0.6, 0.3][i])
-	env.fog_light_color = Color(0.09, 0.08, 0.14)
-	env.fog_density = 0.00028
+	# a dark haze (a light one lifted the far towers to a flat lavender grey): they stay dark,
+	# their lit floors and neon show through it
+	env.fog_light_color = Color(0.028, 0.022, 0.05)
+	env.fog_density = 0.00022
+	env.fog_aerial_perspective = 0.15
 	if env.volumetric_fog_enabled:
 		env.volumetric_fog_density = 0.0022
 		env.volumetric_fog_albedo = Color(0.7, 0.74, 0.85)
