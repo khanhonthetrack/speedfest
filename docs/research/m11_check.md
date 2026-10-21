@@ -143,6 +143,11 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   the window modules as the ground's (posts radial round the pavilions: TmGeo.UPRIGHT_ROWS), the
   wall under the walkway dark, the underside white 4 m in from each side. Ours had a solid
   ledge, plain glass, a white wall. Fidelity: 98.6-100% on all six.
+- The dark steel (21 Oct): every TMNF Stands2 material (Control, Platform, Fabric, Turbo, Warp)
+  draws StadiumWarpStands2D: dark (mean 35, 30-41) ribbed panels, posts, a heavy girder across the
+  middle, faint braces (K toward the middle double post, opening from a post on the right), mapped
+  8-14 m a tile (rotated on the booths' end caps). Our steel_truss drew bold light X's on a grid:
+  redrawn in its layout (texgen decks.py), mean 34.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).

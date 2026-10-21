@@ -60,8 +60,9 @@
   tracks), the road start's pad (the car starts on it as in TMNF) and the gates' rounded faces,
   the glass booths' corner (TMNF's: chamfered outside, a white chamfer inside; 98-99.7%), the air
   glass booths' walkway (grating at 1 m, railing, stairs down at open ends, ad boards under it),
-  window-module glass and dark/white underside. Next: the dark Stands2 texture (TMNF's ribbed
-  panels and faint K-braces; our steel_truss draws bold X's).
+  window-module glass and dark/white underside, the dark steel texture (steel_truss: TMNF's
+  Stands2 layout, ribbed panels and faint braces, not bold X's). TMNF lays Stands2 rotated on the
+  booths' end caps and along the sweep on their roofs (ours world-mapped): not done.
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

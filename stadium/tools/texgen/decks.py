@@ -232,30 +232,66 @@ def circuit_band(name='circuit_band', ppm=64, size_u=16.0, size_v=3.5, seed=291)
     save(name, turn(np.clip(col, 0, 1)), nrm, turn(orm))
 
 
-def steel_truss(name='steel_truss', ppm=64, size_m=8.0, seed=301, base=(40, 40, 41)):
-    """The dark steel behind the circuit's screens and under its ledges: posts every 4 m, rails
-    every 2 m, X braces between, on a dark panel (world-mapped)."""
-    w = h = int(size_m * ppm)
-    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32) / ppm
-    def bar(d, half):
-        return 1.0 - smoothstep(half, half + 0.02, d)
-    post = bar(np.minimum(xx % 4.0, 4.0 - xx % 4.0), 0.12)
-    rail = bar(np.minimum(yy % 2.0, 2.0 - yy % 2.0), 0.07)
-    lx, ly = xx % 4.0, yy % 2.0
-    brace = np.maximum(bar(np.abs(ly - lx * 0.5) / 1.118, 0.04), bar(np.abs(ly - (2.0 - lx * 0.5)) / 1.118, 0.04))
-    frame = np.clip(np.maximum(np.maximum(post, rail), brace), 0, 1)
+def steel_truss(name='steel_truss', w=512, h=512, seed=301, base=(34, 35, 36)):
+    """The dark steel facade (TMNF's Stands2 layout; world-mapped, 8 m a tile): bays between posts
+    and a heavy girder across the middle and the tile's edge. From the left: a plain panel with a
+    rod and a few ribs, a post, a bay with two braces closing toward the double post in the middle
+    (its slot black), a bay with a post near its left and two braces opening from it to the right
+    post, a dark edge; rails across the bays. Faint: TMNF's steel reads as dark ribbed panels, its
+    braces a little lighter."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    hh = yy % 256.0                      # the two halves alike
+    def band(a, lo, hi, soft=1.0):
+        return smoothstep(lo - soft, lo + soft, a) * (1.0 - smoothstep(hi - soft, hi + soft, a))
+    def seg(x0, y0, x1, y1, half_w):
+        # a brace from (x0, y0) to (x1, y1) in each half (pixels)
+        dx, dy = x1 - x0, y1 - y0
+        L = math.hypot(dx, dy)
+        t = np.clip(((xx - x0) * dx + (hh - y0) * dy) / (L * L), 0.0, 1.0)
+        d = np.hypot(xx - (x0 + t * dx), hh - (y0 + t * dy))
+        return 1.0 - smoothstep(half_w - 0.8, half_w + 0.8, d)
+    frame = np.zeros((h, w), np.float32)      # raised steel (lighter)
+    dark = np.zeros((h, w), np.float32)       # gaps and slots (darker)
+    # posts (x ranges) and the heavy girders (rows in each half)
+    for x0, x1 in ((128, 141), (240, 247), (265, 272), (305, 317), (468, 489)):
+        frame = np.maximum(frame, band(xx, x0, x1))
+    dark = np.maximum(dark, band(xx, 247, 265) * 0.9)
+    dark = np.maximum(dark, band(xx, 0, 9) * 0.6 + band(xx, 490, 512) * 0.5)
+    girder = np.maximum(band(hh, 0, 7), band(hh, 249, 256))
+    frame = np.maximum(frame, girder)
+    # rails across the bays (not the plain panel)
+    bays = band(xx, 141, 240) + band(xx, 272, 468)
+    for r in (28, 78, 120, 170, 222):
+        frame = np.maximum(frame, band(hh, r - 1.5, r + 1.5) * bays * 0.8)
+    # the plain panel's seams, rod and ribs
+    panel = band(xx, 9, 128)
+    for r in (45, 125, 165, 205):
+        dark = np.maximum(dark, band(hh, r - 1.0, r + 1.0) * panel * 0.5)
+    frame = np.maximum(frame, band(xx, 77, 80) * panel * 0.7)
+    for x in (60, 64, 68, 72):
+        frame = np.maximum(frame, band(xx, x - 0.8, x + 0.8) * band(hh, 12, 60) * 0.5)
+    # braces: closing toward the middle post (left bay), opening from the post to the right
+    braces = np.maximum.reduce([seg(146, 36, 236, 84, 2.6), seg(146, 218, 236, 170, 2.6),
+                                seg(320, 126, 464, 26, 2.6), seg(320, 130, 464, 228, 2.6)])
+    frame = np.maximum(frame, braces * 0.9)
+    # the middle slot's rungs
+    rung = band(xx, 249, 263) * np.maximum(band(hh % 42.0, 0, 3), 0.0)
+    frame = np.maximum(frame, rung * 0.6)
     n = fbm(w, h, seed, beta=2.2, lo=1.0)
-    bolts = np.zeros_like(xx)
-    for cx in np.arange(0.0, size_m + 0.01, 4.0):
-        for cy in np.arange(0.0, size_m + 0.01, 2.0):
-            for ox, oy in ((0.08, 0.05), (-0.08, 0.05), (0.08, -0.05), (-0.08, -0.05)):
-                r = np.hypot(xx - cx - ox, yy - cy - oy)
-                bolts = np.maximum(bolts, 1.0 - smoothstep(0.012, 0.022, r))
-    tone = (1.0 + 0.05 * n) * (0.72 + 0.28 * frame) * (1.0 + 0.4 * bolts)
+    fine = fbm(w, h, seed + 1, beta=0.8, lo=40.0)
+    gr = grime(w, h, seed + 2, amount=0.6)
+    bolts = np.zeros((h, w), np.float32)
+    for cx in (134, 243, 269, 311, 478):
+        for cy in range(14, 512, 64):
+            r = np.hypot(xx - cx, yy - cy)
+            bolts = np.maximum(bolts, 1.0 - smoothstep(1.2, 2.2, r))
+    tone = (1.0 + 0.05 * n + 0.03 * fine) * (0.94 + 0.30 * frame) * (1.0 - 0.45 * dark) * (1.0 + 0.25 * bolts)
+    tone *= (1.0 - 0.08 * gr)
     col = srgb(base)[None, None, :] * tone[..., None]
-    nrm = normal_from_height(2.5 * frame + 1.5 * bolts, 0.5)
-    orm = np.stack([0.7 + 0.3 * frame, 0.55 - 0.1 * frame, 0.3 + 0.4 * frame], -1)
-    save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
+    hgt = 2.0 * frame - 1.5 * dark + 1.0 * bolts + 0.15 * fine
+    nrm = normal_from_height(hgt, 0.5)
+    orm = np.stack([0.75 + 0.25 * frame - 0.2 * dark, 0.55 - 0.08 * frame + 0.05 * gr, 0.35 + 0.35 * frame], -1)
+    save(name, np.clip(col, 0, 1), nrm, np.clip(orm, 0, 1), size=(512, 512))
 
 
 def circuit_kerb(name='circuit_kerb', ppm=64, size_m=16.0, seed=311, base=(26, 84, 170)):

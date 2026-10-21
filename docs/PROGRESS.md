@@ -2982,3 +2982,8 @@ on every real contact the full impulse would land at the contact point and kick 
   its edges. Ours had a solid ledge box, plain grey glass and a white wall. The window posts stand
   radial round the pavilions (a sweep's atlas run can now keep one u per frame). Fidelity: all six
   air pieces 98.6-100%.
+- (M11-3) **The dark steel texture in TMNF's Stands2 layout** (`texgen/decks.py steel_truss`;
+  keys stands_dark, truss). All of TMNF's Stands2 materials (booths, pubs, camera lights, platform
+  and circuit backs) draw one texture: dark ribbed panels between posts, a girder across the middle,
+  faint braces. Ours drew bold light X's on a 4 x 2 m grid, which read as a lattice on the booths'
+  roofs and ends. Redrawn (our own drawing in its layout, same tone).
