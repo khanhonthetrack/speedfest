@@ -1152,3 +1152,31 @@ which stands alone and touches no code.
 
 `stadium-v0.7` tagged on 3286fa8 and pushed. CI "Stadium builds" green; the GitHub Release has
 `SpeedFestStadium-windows.zip` (106.5 MB) and `SpeedFestStadium-linux.zip` (97.3 MB).
+
+## Session 16 — 2026-10-21 (owner's Windows PC, branch `stadium`): the neon city (M14)
+
+### User (verbatim)
+
+> Pull from speedfest, everything, in particular the new city maps just pulled.
+> I find the new city maps still  look cheap.
+>
+> * building still look a bit cheap, empty, remove shops from the ground floor they look stupid.
+> * introduce real neon lights, around the track, near barriers, on the buildings, on the freaking balloon if there is one.  around the stadium. it should be futuristic and alive.
+> * Use the assets from asset folder i just added. There are many things from blender, you may want to use it. like buildings, like city view.
+> * Improve it for RTX, like my pc. I want to see the ray tracing. Improve the graphics. now it looks like 2005 game.
+
+### User (verbatim, while the first screenshots rendered)
+
+> is it stuck?
+
+(Answered: no, the first screenshot compiles the shader cache, about 10 minutes; the next ones
+took about 20 s each.)
+
+### User (verbatim, after the licences were asked)
+
+> City Street, drone City, and Procedural Clouds are cc0
+
+(Noted: City Street embeds `coffee-neon-signboard_150317-27.jpg`, a stock-image name (Freepik's
+pattern) that may carry its own licence: that one sign texture stays out. Trees & Bushes pack is CC
+BY 3.0 (Painkiller5555, credit); Mountain Range With Trees is CC BY-NC-SA 3.0: not used. `lgt.pdf`
+in the folder is a university tutorial, not an asset: left alone, never committed.)

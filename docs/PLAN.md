@@ -316,6 +316,24 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M14 — A neon city, alive, for RTX (owner, 21 Oct, after the City maps' modern street) ☐
+"building still look a bit cheap, empty, remove shops from the ground floor they look stupid /
+introduce real neon lights, around the track, near barriers, on the buildings, on the freaking
+balloon if there is one. around the stadium. it should be futuristic and alive / Use the assets
+from asset folder i just added ... / Improve it for RTX, like my pc. I want to see the ray
+tracing. Improve the graphics. now it looks like 2005 game." On `stadium`, step by step, gated,
+pushed after each; screenshots on the owner's PC (RTX 2060, Ultra).
+- [ ] 1. No shops on the ground floors (field city and the lower blocks): a clean base instead
+- [ ] 2. Real neon: emissive tubes and real coloured lights along the barriers, on the buildings
+      (corners, crowns, floor bands, roof signs), round the Stadium and on the airship
+- [ ] 3. The City look on Ultra ("ray tracing"): wet roads that mirror the neon (SSR), neon
+      lighting its surroundings (SDFGI), fog the lights glow in, HDR tonemapping and bloom
+- [ ] 4. The owner's new Blender files (`assets/` at the repo root, not committed): City Street's
+      buildings by the road, Trees & Bushes (CC BY 3.0, Painkiller5555); City Street, drone City,
+      Procedural Clouds: CC0 (owner; City Street's stock coffee sign image left out); Mountain
+      Range With Trees is CC BY-NC-SA (not used)
+- [ ] 5. Frame rate on the owner's RTX 2060 at Ultra, the path-tracing fork checked on the city
+
 ### M13 — Our own city around the Stadium (owner, session 15, 2026-10-20; called M12 on its branch, where M12 was the community work) ☐
 "Can you create new assets to the game? Not recreating anymore but actually put tall,
 ultrarealistic buildings (godot or blender)?" and "I dont do browser anymore. Only pc with high
