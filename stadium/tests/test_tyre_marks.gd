@@ -3,7 +3,8 @@ extends Node
 ## the road, grooves in dirt, torn turf on grass, none on ice), one segment per SEG metres, joined
 ## end to end; a wheel that grips or leaves the ground lays none; a jump (respawn) starts a new
 ## mark; the oldest are reused once a kind's capacity is down; clear() wipes them. In a race the bot
-## lays none while it pulls away and some by the finish (it brakes hard into corners).
+## lays none while it pulls away and some by the finish (it brakes hard into corners). The smoke: a
+## sliding wheel's puffs come from the stretch it just covered (one plume, not a trail of dots).
 
 const T := preload("res://core/tm_tuning.gd")
 
@@ -11,6 +12,7 @@ const T := preload("res://core/tm_tuning.gd")
 func _ready() -> void:
 	_kinds()
 	_lays()
+	_smoke()
 	await _race()
 	TestHooks.finish()
 
@@ -73,6 +75,39 @@ func _lays() -> void:
 		"%d visible, %d laid" % [g.visible_instance_count, marks.laid("grass")])
 	marks.clear()
 	TestHooks.check(g.visible_instance_count == 0 and marks.laid("grass") == 0, "marks_clear")
+	marks.queue_free()
+	car.queue_free()
+
+
+## The smoke's emitter: on while a wheel slides, its box along the wheel's last two ticks of travel
+## (puffs spread over the road it covered at any speed), off once the wheel grips.
+func _smoke() -> void:
+	var car := TmCar.new()
+	car.set_physics_process(false)
+	add_child(car)
+	var marks := TmTyreMarks.new()
+	marks.car = car
+	add_child(marks)
+	marks.set_physics_process(false)
+	var b := car.body
+	b.lin_vel = Vector3(0, 0, 40)
+	var drive := func(ticks: int, sliding: bool, z0: float) -> void:
+		for t in ticks:
+			for i in 4:
+				b.wheel_contact[i] = true
+				car.model.sliding[i] = sliding
+				b.wheel_surface[i] = T.Surface.ASPHALT
+				b.wheel_hit_n[i] = Vector3.UP
+				b.wheel_hit_pos[i] = Vector3(float(i) - 1.5, 0, z0 + 0.4 * t)
+			marks._physics_process(0.01)
+	drive.call(10, true, 0.0)                  # 40 m/s: 0.4 m a tick, the last contact at z 3.6
+	var pf: CPUParticles3D = marks._puffs[0]
+	var at := pf.global_position
+	TestHooks.check(pf.emitting and absf(pf.emission_box_extents.z - 0.4) < 0.01 and absf(at.z - 3.2) < 0.01
+		and absf(at.y - TmTyreMarks.PUFF_RISE) < 0.01, "smoke_spread_along_the_slide",
+		"emitting %s, extents %s, at %s" % [pf.emitting, pf.emission_box_extents, at])
+	drive.call(1, false, 4.0)
+	TestHooks.check(not pf.emitting, "smoke_stops_when_gripping")
 	marks.queue_free()
 	car.queue_free()
 

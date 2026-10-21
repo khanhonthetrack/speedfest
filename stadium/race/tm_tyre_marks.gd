@@ -15,12 +15,13 @@ const WIDTH := 0.3               ## a mark's width (the tyre's contact patch)
 const LIFT := 0.025              ## above the surface (no z-fighting)
 const MIN_SPEED := 3.0           ## m/s the wheel must slide over the ground to mark it
 const JUMP := 3.0                ## a wheel moving further in a tick was respawned: the mark ends
-## kind: [texture, segments kept, roughness, smoke colour]
+## kind: [texture, segments kept, roughness, smoke colour (its alpha: one puff's; they overlap)]
 const KINDS := {
-	"rubber": ["mark_asphalt", 3000, 0.65, Color(0.9, 0.9, 0.92, 0.55)],
-	"dirt": ["mark_dirt", 1500, 0.95, Color(0.5, 0.43, 0.33, 0.45)],
-	"grass": ["mark_grass", 1500, 0.95, Color(0.33, 0.38, 0.24, 0.28)],
+	"rubber": ["mark_asphalt", 3000, 0.65, Color(0.9, 0.9, 0.92, 0.5)],
+	"dirt": ["mark_dirt", 1500, 0.95, Color(0.5, 0.43, 0.33, 0.42)],
+	"grass": ["mark_grass", 1500, 0.95, Color(0.33, 0.38, 0.24, 0.26)],
 }
+const PUFF_RISE := 0.2           ## puffs start this far over the wheel's contact (m)
 
 var car: TmCar
 var smoke := true                ## puffs off sliding wheels
@@ -30,6 +31,7 @@ var _mat := {}                   ## kind -> ShaderMaterial
 var _laid := {}                  ## kind -> segments laid so far (the next one's serial)
 var _last: Array = [{}, {}, {}, {}]      ## per wheel: {p, m (metres along), kind} of the open mark
 var _puffs: Array[CPUParticles3D] = []
+var _puff_at: Array = [null, null, null, null]   ## per wheel: its contact at the last tick (Vector3), or null
 var recent: Array = []           ## the last segments laid: [wheel, kind, metres at start, at end]
 
 
@@ -88,29 +90,39 @@ static func _quad() -> ArrayMesh:
 	return st.commit()
 
 
+## A wheel's smoke: soft puffs, many and overlapping so they blend into one plume (few small ones
+## read as a trail of dots), each fading in as it leaves the tyre, growing, turning slowly and
+## fading out. Each tick's puffs are spread along the stretch the wheel just covered (the
+## emission box, _smoke), so the plume stays whole at any speed.
 func _puff() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.emitting = false
-	p.amount = 28
-	p.lifetime = 1.3
+	p.amount = 110
+	p.lifetime = 1.6
 	p.local_coords = false
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	p.emission_box_extents = Vector3(0.12, 0.05, 0.1)
 	p.direction = Vector3.UP
-	p.spread = 35.0
-	p.initial_velocity_min = 0.4
-	p.initial_velocity_max = 1.4
+	p.spread = 60.0
+	p.initial_velocity_min = 0.5
+	p.initial_velocity_max = 1.6
 	p.gravity = Vector3(0, 0.25, 0)
 	p.damping_min = 0.6
 	p.damping_max = 1.2
-	p.scale_amount_min = 0.6
-	p.scale_amount_max = 1.0
+	p.angle_min = 0.0
+	p.angle_max = 360.0
+	p.angular_velocity_min = -25.0
+	p.angular_velocity_max = 25.0
+	p.scale_amount_min = 0.9
+	p.scale_amount_max = 1.3
 	var grow := Curve.new()
 	grow.max_value = 3.0                # (a Curve's range is 0..1 unless widened first)
-	grow.add_point(Vector2(0.0, 0.5))
-	grow.add_point(Vector2(1.0, 2.6))
+	grow.add_point(Vector2(0.0, 0.55))
+	grow.add_point(Vector2(1.0, 3.0))
 	p.scale_amount_curve = grow
 	var fade := Gradient.new()
-	fade.set_color(0, Color(1, 1, 1, 1))
-	fade.set_color(1, Color(1, 1, 1, 0))
+	fade.offsets = PackedFloat32Array([0.0, 0.08, 0.4, 1.0])
+	fade.colors = PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 0.6), Color(1, 1, 1, 0)])
 	p.color_ramp = fade
 	var quad := QuadMesh.new()
 	quad.size = Vector2(1.0, 1.0)
@@ -208,8 +220,20 @@ func _smoke(i: int, kind: String, p: Vector3, n: Vector3) -> void:
 		return
 	var pf := _puffs[i]
 	var on := not kind.is_empty()
+	var last: Variant = _puff_at[i]
+	_puff_at[i] = p if on else null
 	if on:
-		pf.global_position = p + n * 0.15
+		# the emission box along the last two ticks of the wheel's travel (a frame can span two)
+		var d: Vector3 = (p - (last as Vector3)) if last != null else Vector3.ZERO
+		d -= n * d.dot(n)
+		var step := d.length()
+		if step > JUMP or step < 0.01:
+			d = Vector3.ZERO
+			step = 0.0
+		var along := d / step if step > 0.0 else n.cross(Vector3.RIGHT if absf(n.x) < 0.9 else Vector3.FORWARD).normalized()
+		var side := n.cross(along).normalized()
+		pf.global_transform = Transform3D(Basis(side, n, n.cross(side)), p - d + n * PUFF_RISE)
+		pf.emission_box_extents = Vector3(0.12, 0.05, maxf(0.1, step))
 		(pf.material_override as ShaderMaterial).set_shader_parameter("tint", KINDS[kind][3])
 	if pf.emitting != on:
 		pf.emitting = on

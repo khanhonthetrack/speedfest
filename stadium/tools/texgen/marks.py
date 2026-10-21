@@ -59,12 +59,14 @@ def mark_grass(name='mark_grass', w=128, h=256, seed=421):
 
 
 def puff(name='smoke_puff', n=128, seed=431):
-    """A soft round puff, lumpy at its edge (tinted per surface by the particles' colour)."""
+    """A soft puff of smoke (tinted per surface by the particles' colour): dense in the middle,
+    thinning smoothly to nothing at its edge, gently billowed. Only broad billows: fine lumps and
+    speckle made each puff read as a dot, and many overlapping puffs have to blend into one plume."""
     yy, xx = np.mgrid[0:n, 0:n].astype(np.float32)
     r = np.hypot(xx - n / 2 + 0.5, yy - n / 2 + 0.5) / (n / 2)
-    lump = fbm(n, n, seed, beta=1.8, lo=2.0, hi=24.0)
-    a = smoothstep(1.0, 0.25, r + 0.12 * lump) * (0.85 + 0.15 * lump)
-    rgba = np.concatenate([np.ones((n, n, 3), np.float32) * (0.92 + 0.08 * lump)[..., None], np.clip(a, 0, 1)[..., None]], -1)
+    billow = fbm(n, n, seed, beta=2.4, lo=1.0, hi=4.0)
+    a = np.exp(-3.2 * (r + 0.06 * billow) ** 2) * smoothstep(1.0, 0.8, r) * (0.92 + 0.08 * billow)
+    rgba = np.concatenate([np.ones((n, n, 3), np.float32) * (0.95 + 0.05 * billow)[..., None], np.clip(a, 0, 1)[..., None]], -1)
     save(name, np.clip(rgba, 0, 1))
 
 

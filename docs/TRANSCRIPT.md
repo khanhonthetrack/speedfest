@@ -1233,3 +1233,13 @@ site's server, TLS, no internet, a timeout), and whole downloads get 15 minutes 
 2: our one-lap tracks end on TMNF's through start/finish block so the car has road to stop on, and
 it carried TMNF's MULTILAP gate and the green start road. On our tracks it is dressed as the finish
 now. 3: the engine, skid and wind fade out over 1.5 s after the finish.)
+
+### User (verbatim)
+
+> also, when braking there are white thingies out of the wheel, they should be smooth animations, not some "dots"
+
+(The tyre smoke: about 21 small, fully opaque puffs a second per wheel, made from a speckled
+texture and cut off by the road, so at speed they landed 1-2 m apart as separate blotches. Now there
+are many more soft puffs that fade in, grow and turn, each tick's puffs are spread along the stretch
+the wheel just covered, and they fade softly into the road. Seen in the new lab
+`race/smoke_lab.tscn`.)

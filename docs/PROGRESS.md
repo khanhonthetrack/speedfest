@@ -3680,3 +3680,22 @@ the finish is not finish but multilap", "when you finish ... i could still hear 
   system certs first, the built-in Mozilla bundle only when there are none), which Windows fills
   on demand. If a player ever sees "a secure connection ... (TLS)", ship a CA bundle and retry with
   `TLSOptions.client()` on `RESULT_TLS_HANDSHAKE_ERROR`. Both sites use Let's Encrypt today.
+- Gate: STADIUM_TESTS PASS on 8881361 (21 suites, test_tracks 230, test_community 22, test_online 42,
+  server npm test), run from a separate worktree with the import cache and `node_modules` copied in.
+- **Tyre smoke as a plume, not dots** (owner: "when braking there are white thingies out of the
+  wheel, they should be smooth animations, not some \"dots\""). Before: each wheel's CPUParticles3D
+  emitted 28 puffs per 1.3 s (about 21 a second), 0.3-0.5 m wide at birth and fully opaque, from a
+  mottled, speckled texture (`fbm` up to 24 cycles), at the contact point, and each puff was cut off
+  by the road in a hard line. At 140 km/h they landed 1-2 m apart: a trail of blotches. Now
+  (`race/tm_tyre_marks.gd` `_puff`, `_smoke`; `race/tm_tyre_smoke.gdshader`;
+  `tools/texgen/marks.py` `puff`, regenerated `assets/tex/smoke_puff_albedo.png`): a soft gaussian
+  puff with only broad billows; 110 puffs per 1.6 s per wheel, 0.5-0.7 m at birth, growing to about
+  3-4 m, at random angles and turning slowly, fading in over the first 8% of their life and out
+  after; each tick's puffs come from an emission box along the wheel's last two ticks of travel
+  (`emission_box_extents`), so the plume stays whole at any speed; soft particles (the depth
+  texture, as BaseMaterial3D's proximity fade over 0.4 m), so a puff fades into the road and the
+  car. Each puff's own opacity is lower (rubber 0.5, dirt 0.42, grass 0.26) because they overlap.
+  The look lab `race/smoke_lab.tscn` (a car braking with its wheels locked on a straight road:
+  `--view=chase|side --kmh= --decel= --surface=asphalt|dirt|grass --shots=/abs.png@150`, about
+  2 min a shot in the container) shows it. `tests/test_tyre_marks`: `smoke_spread_along_the_slide`,
+  `smoke_stops_when_gripping`.

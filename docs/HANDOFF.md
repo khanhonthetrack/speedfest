@@ -1,7 +1,7 @@
 # HANDOFF: start here
 
-## Latest (21 Oct, session 17, cloud): three bug fixes after v0.8, on `claude/tender-faraday-m39his`
-- Branch `claude/tender-faraday-m39his` = `stadium` (4e3b8e1, the City probe fix) + three fixes for
+## Latest (21 Oct, session 17, cloud): four bug fixes after v0.8, on `claude/tender-faraday-m39his`
+- Branch `claude/tender-faraday-m39his` = `stadium` (4e3b8e1, the City probe fix) + four fixes for
   the owner's report (TRANSCRIPT, session 17; PROGRESS has the details). It fast-forwards
   `stadium`: merge it there, then tag a release from the PC as usual.
   1. **The car's sound after the finish** fades out over 1.5 s (`TmCarAudio.FINISH_FADE_S`).
@@ -14,7 +14,10 @@
      and whole downloads get 900 s instead of 30 s. If downloads still fail later, check the site
      first (`curl -sI https://maniapark.com/skin/<id>/download`). If a player sees the new "(TLS)"
      message, see PROGRESS (Windows root store; ship a CA bundle).
-- Gate: STADIUM_TESTS PASS on each commit here (see PROGRESS).
+  4. **Tyre smoke** (owner: white "dots" when braking): soft, dense puffs spread along each
+     wheel's travel, fading into the road (soft particles); look at it with
+     `stadium/tools/run.sh res://race/smoke_lab.tscn -- --view=chase|side --shots=/abs.png@150`.
+- Gate: STADIUM_TESTS PASS on 8881361 (fixes 1-3) and on the smoke commit (see PROGRESS).
 
 ## Latest (21 Oct, session 16, owner's Windows PC): **`stadium-v0.8`** = `stadium` + the neon City (M14)
 - Owner: "ship to new version". `claude/tmnf-replica-graphics-nb1kcg` and `ccr-1ce252fc-wl7p3m`
