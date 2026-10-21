@@ -2943,4 +2943,8 @@ on every real contact the full impulse would land at the contact point and kick 
   match that within 2 cm). Fidelity: TShapedAir 85.4 -> 97.6%, CornerAir 84.5 -> 97.5%,
   CornerPillarAir 91.3 -> 99.8%, TShapedPillarAir 94.9 -> 100%, AdvertTShapedPillarAir 91.6 ->
   96.6%, TubeTShapedPillarAir 94.6 -> 98.3%.
+- (M11-3) **The platform loops' back brackets** (`platform.gd LOOP_BRACKETS`). TMNF sets blocks on
+  a loop's back every 15 degrees (five across: four 1 m fins and a 7.2 m one in the middle,
+  tapering from radius 31 to 32 m); ours had none. Fidelity: EndAir 83.7 -> 92.0%, StartAir 91.4
+  -> 91.7%.
 

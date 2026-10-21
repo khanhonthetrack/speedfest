@@ -241,6 +241,12 @@ const RING_PANEL := [[13.35, 16.39, "screen", S_METAL], [14.52, 14.365, "screen"
 ## Loops: the riding surface's radius, and the plan's depth outside it (the fins).
 const LOOP_R := 30.705
 const LOOP_OUT := 32.05
+## The brackets on a loop's back (TMNF's, measured): six across each quarter (every 15 degrees from
+## 7.5), each a block tapering from radius LOOP_BRACKET_R.x to .y: [x0, x1 at the foot, x0, x1 at
+## the top, half its length along the loop].
+const LOOP_BRACKETS := [[0.0, 1.0, 0.418, 0.606, 0.45], [8.0, 9.0, 8.418, 8.606, 0.45], [12.416, 19.584, 12.983, 19.017, 1.02],
+	[23.0, 24.0, 23.394, 23.582, 0.45], [31.0, 32.0, 31.394, 31.582, 0.45]]
+const LOOP_BRACKET_R := Vector2(31.0, 32.0)
 
 
 func handles(shape: String) -> bool:
@@ -645,6 +651,29 @@ func _loop(geo: TmGeo, c: Vector2, a0: float, a1: float) -> void:
 				geo.quad(a, d, cc, b, q0[2], q0[3])
 			else:
 				geo.quad(a, b, cc, d, q0[2], q0[3])
+	for k in 6:
+		var am := lerpf(a0, a1, (k + 0.5) / 6.0)
+		for br: Array in LOOP_BRACKETS:
+			var p := func(x: float, r: float, s: float) -> Vector3:
+				var a := am + s / r
+				return Vector3(x, c.x + r * sin(a), c.y + r * cos(a))
+			var h := float(br[4])
+			var r0 := LOOP_BRACKET_R.x
+			var r1 := LOOP_BRACKET_R.y
+			var mid: Vector3 = p.call((float(br[0]) + float(br[1])) * 0.5, (r0 + r1) * 0.5, 0.0)
+			var faces := [
+				[p.call(br[2], r1, -h), p.call(br[3], r1, -h), p.call(br[3], r1, h), p.call(br[2], r1, h)],
+				[p.call(br[0], r0, -h), p.call(br[1], r0, -h), p.call(br[3], r1, -h), p.call(br[2], r1, -h)],
+				[p.call(br[0], r0, h), p.call(br[1], r0, h), p.call(br[3], r1, h), p.call(br[2], r1, h)],
+				[p.call(br[0], r0, -h), p.call(br[0], r0, h), p.call(br[2], r1, h), p.call(br[2], r1, -h)],
+				[p.call(br[1], r0, -h), p.call(br[1], r0, h), p.call(br[3], r1, h), p.call(br[3], r1, -h)],
+			]
+			for f: Array in faces:
+				var o: Vector3 = (f[0] + f[1] + f[2] + f[3]) * 0.25 - mid
+				if ((f[1] - f[0]) as Vector3).cross(f[2] - f[0]).dot(o) < 0.0:
+					geo.quad(f[0], f[3], f[2], f[1], "structure", S_METAL)
+				else:
+					geo.quad(f[0], f[1], f[2], f[3], "structure", S_METAL)
 
 
 ## A platform slope through surface heights h (every 32 / (n - 1) m along z): the lipped plate
