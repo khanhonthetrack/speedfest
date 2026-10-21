@@ -55,7 +55,8 @@
   walls' back panel and straight ledges; M11-3: the inflatable castles (`castle.gd`, a kit from
   measured numbers, our atlas in TMNF's layout; fidelity 85-96%), the Sculpt bridges' white fabric
   and their pillars' truss, arms and bearing plate (94%), the camera light base's octagon dress, the
-  terrain zones on a 1 m survey (hills 95-99.9%).
+  terrain zones on a 1 m survey (hills 95-99.9%), the air inflatable structures (TMNF's pillows and
+  roof, 96.6-100%).
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

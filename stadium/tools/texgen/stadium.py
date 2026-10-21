@@ -425,3 +425,36 @@ def inflatable_roof(name='inflatable_roof', s=512, seed=191):
     nrm = normal_from_height(pad * (1 - border) + 0.6 * border + 0.8 * corner, 0.5)
     orm = np.stack([np.ones((s, s), np.float32) - 0.2 * (1 - pad), 0.5 - 0.1 * corner + 0.05 * n2, 0.2 * corner], -1)
     save(name, np.clip(col, 0, 1), nrm, orm)
+
+
+def inflatable_pillow(name='inflatable_pillow', w=512, h=1024, seed=201):
+    """The air inflatable structures' pillows (TMNF's layout; blocks/shapes/inflatable.gd maps it:
+    u across a pillow, v from its foot at the top of the image round over its top to its back at
+    the bottom): glossy red vinyl with welded seams at its sides, a white banner printed near the
+    back (rows 728-950, 8.6% in from each side: seen on the pillows' tops) with our emblem and
+    SPEEDFEST where TMNF prints its logo."""
+    from road import emblem
+    from livery import fit_font
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    u = (xx + 0.5) / w
+    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
+    n2 = fbm(w, h, seed + 1, beta=1.0, lo=24.0)
+    col = srgb((196, 28, 30))[None, None, :] * (1.0 + 0.04 * n1 + 0.02 * n2)[..., None]
+    x0, x1, y0, y1 = 44, 466, 728, 950
+    banner = rect_mask(w, h, x0, y0, x1, y1, 2.0)
+    col = lerp(col, srgb((236, 236, 232))[None, None, :] * (1.0 + 0.02 * n2)[..., None], banner)
+    key = np.clip(rect_mask(w, h, x0 + 6, y0 + 6, x1 - 6, y1 - 6, 1.0) - rect_mask(w, h, x0 + 9, y0 + 9, x1 - 9, y1 - 9, 1.0), 0, 1)
+    col = lerp(col, srgb((150, 150, 150))[None, None, :], key * 0.6)
+    bh = y1 - y0
+    word = text_mask(w, h, 'SPEEDFEST', fit_font('orbitron-latin-900-normal', 'SPEEDFEST', int(0.54 * (x1 - x0)), int(0.24 * bh)),
+                     (x0 + 0.64 * (x1 - x0), y0 + 0.5 * bh), 'mm', italic=0.22)
+    mark = emblem(w, h, x0 + 0.2 * (x1 - x0), y0 + 0.5 * bh, 0.2 * bh)
+    col = lerp(col, srgb((24, 24, 28))[None, None, :], word)
+    col = lerp(col, srgb((196, 28, 30))[None, None, :], mark)
+    seam = np.clip(1 - smoothstep(0.0, 0.012, np.minimum(u, 1.0 - u)), 0, 1)
+    col *= (1.0 - 0.35 * seam)[..., None]
+    wr = blur(fbm(w, h, seed + 3, beta=1.6, lo=4.0), 1.5)
+    nrm = normal_from_height(-2.0 * seam + 0.5 * wr + 0.3 * banner, 0.5)
+    rough = 0.32 + 0.1 * n2 + 0.2 * seam + 0.25 * banner
+    orm = np.stack([1.0 - 0.4 * seam, rough, np.zeros_like(rough)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)

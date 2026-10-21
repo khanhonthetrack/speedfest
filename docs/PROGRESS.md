@@ -2931,4 +2931,16 @@ on every real contact the full impulse would land at the contact point and kick 
   measurement holds their glow cards only, had been surveyed flat and built as flat ground; they
   now take the plain dead end's hill. Pools stay low in the sweep (18-74%) because TMNF's water
   surface collides (our water has no physics yet: the owner's call, PLAN M11-5).
+- (M11-3) **The inflatable cushion structures (air) as TMNF's** (`inflatable.gd _pillows`,
+  `PILLOW_LINE`, `SUPPORT_SECTION`, `SUPPORT_TRIM`, `_roof`; `texgen/stadium.py inflatable_pillow`;
+  TmMaterials "inflatable_pillow", "infl_roof" (the castles' roof key renamed)). TMNF's most used
+  inflatables (its campaign builds thousands of their units): our levels were extruded bulges in
+  striped red vinyl under a red roof. TMNF's pillows follow a measured outline (six segments
+  each), the levels below upright in plain red, the top level's pillows rounded over their tops
+  back 7.3 m to a rubber strip, a grey edge and a white awning plate, the roof its grey quilted
+  vinyl in 8 m tiles, a white banner printed on each pillow's top. The top pillows are the mix of
+  TMNF's seam section and middle section by the outline's bulge (TMNF's own in-between columns
+  match that within 2 cm). Fidelity: TShapedAir 85.4 -> 97.6%, CornerAir 84.5 -> 97.5%,
+  CornerPillarAir 91.3 -> 99.8%, TShapedPillarAir 94.9 -> 100%, AdvertTShapedPillarAir 91.6 ->
+  96.6%, TubeTShapedPillarAir 94.6 -> 98.3%.
 

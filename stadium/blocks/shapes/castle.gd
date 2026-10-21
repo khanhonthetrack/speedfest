@@ -13,7 +13,7 @@ extends RefCounted
 
 const S_RUBBER := 9
 const KEY := "castle"
-const ROOF_KEY := "castle_roof"
+const ROOF_KEY := "infl_roof"
 const ROPE_KEY := "infl_rope_red"
 
 ## Atlas rows: a tower from its foot up: [r (of the shaft's / crown's radius), height (above its
