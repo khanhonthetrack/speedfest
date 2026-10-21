@@ -2987,3 +2987,8 @@ on every real contact the full impulse would land at the contact point and kick 
   and circuit backs) draw one texture: dark ribbed panels between posts, a girder across the middle,
   faint braces. Ours drew bold light X's on a 4 x 2 m grid, which read as a lattice on the booths'
   roofs and ends. Redrawn (our own drawing in its layout, same tone).
+- (M11-3) **The tube light system as TMNF's** (`tube.gd _light_system`, `_light_bar`,
+  `_light_frame`, `LIGHT_*`). TMNF's RoadLightSystem hangs three lamp bars either side of the pipe
+  along each arm (12 m, 6 m facing another arm, 30 m along a straight), held by a frame of two
+  collars and plates, round a 4 m column at the junction; the lone base has no pipe, its bars up
+  the column. Ours was a box, a dark sleeve and cubes in rings. Fidelity: 83-93% -> 95.8-99.0%.

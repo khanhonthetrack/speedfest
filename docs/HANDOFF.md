@@ -62,7 +62,8 @@
   glass booths' walkway (grating at 1 m, railing, stairs down at open ends, ad boards under it),
   window-module glass and dark/white underside, the dark steel texture (steel_truss: TMNF's
   Stands2 layout, ribbed panels and faint braces, not bold X's). TMNF lays Stands2 rotated on the
-  booths' end caps and along the sweep on their roofs (ours world-mapped): not done.
+  booths' end caps and along the sweep on their roofs (ours world-mapped): not done. The tube
+  light system (RoadLightSystem: lamp bars, frames, the column; 96-99%).
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

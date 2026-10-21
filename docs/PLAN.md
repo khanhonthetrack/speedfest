@@ -226,7 +226,7 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       back panel and ledge, the glass booths' corner and the air booths' walkway, the dark steel
       (Stands2) texture; next: the grandstand pillar piece, the curved ledges, M11-3
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti, inflatable castles, the
-      Sculpt bridges' fabric and pillars, the camera light base, the terrain zones (1 m survey), the air inflatable structures, the loops' brackets, the road pubs, the road start's pad and the gates' rounded faces; left: bump, fabric pillar corners, trusses, screens, spotlights, bridge rails,
+      Sculpt bridges' fabric and pillars, the camera light base, the terrain zones (1 m survey), the air inflatable structures, the loops' brackets, the road pubs, the road start's pad and the gates' rounded faces, the glass booths, the tube light system; left: bump, fabric pillar corners, trusses, screens, the tube sound system, bridge rails,
       dirt fences and signs; fidelity test)
 - [x] 4. The circuit base variants (bump, hole, pillars; 20 Oct)
 - [ ] 5. Physics: flat-ground and landing wheelies, water, reverse switch, turbo pad direction,

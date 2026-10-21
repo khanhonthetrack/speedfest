@@ -148,6 +148,13 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   middle, faint braces (K toward the middle double post, opening from a post on the right), mapped
   8-14 m a tile (rotated on the booths' end caps). Our steel_truss drew bold light X's on a grid:
   redrawn in its layout (texgen decks.py), mean 34.
+- The tube light system (21 Oct; 144 campaign uses): TMNF's is three lamp bars (0.6 m square,
+  WarpSpots: lamps on the outer face, top and bottom, 3 m a tile) either side of the pipe along each
+  arm, 12 m beside an arm with nothing on that side, 6 m on a side facing another arm, 30 m along a
+  straight; a frame across each arm (two octagonal collars, plates out to the bars); a 4 m column
+  at the junction with strips up its closed faces; the base no pipe, four bars up two faces of the
+  column. Ours: a box, a dark sleeve, cubes in rings. Fidelity: Straight 83.5 -> 97.6%, Cross 82.7
+  -> 95.8%, T 84.1 -> 96.3%, Corner 87.8 -> 97.4%, Deadend 93.0 -> 98.4%, Base 92.7 -> 99.0%.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).
