@@ -2966,4 +2966,10 @@ on every real contact the full impulse would land at the contact point and kick 
   arch's printed band on every road gate is a rubber bulge 0.54 m proud of each face (TMNF's
   measured profile); ours was flat. Fidelity: Start/Ground 79.8 -> 90.7%, Checkpoint 89.9 ->
   93.2%, MultiLap 90.2 -> 93.5%, Finish/Air 89.1 -> 92.4%.
-
+- (M11-3) **The glass booths' corner as TMNF's** (`control.gd _glass_corner`, `_half_section`,
+  `CORNER_PIVOT`, `CORNER_ARC`, `CORNER_INNER`). TMNF's corner is not a quarter circle: the outer
+  side swings 35 degrees about a pivot near the arm (the glass on a 12.6 m radius) onto a
+  45-degree chamfer; the inner side is a small chamfer of the square corner, opaque white (no
+  glass, no room behind). Ours swept the section on a quarter circle. Now the section's halves run
+  along the two paths (the camera booth's corner stays round, as TMNF's). Fidelity: CornerAir 89.2
+  -> 98.3%, CornerGround 88.2 -> 99.7%.

@@ -518,8 +518,12 @@ func _along(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 			geo.wall_sweep(room, [a, b], [lat, lat], true, String(room[0][1]), TmGeo.NO_COLLISION)
 
 
-## Around the footprint corner (0, 32): the section on a quarter circle of radius 16.
+## Around the footprint corner (0, 32): the camera gallery's section on a quarter circle of radius
+## 16; the glass booth's as TMNF's (measured; _glass_corner).
 func _corner(geo: TmGeo) -> void:
+	if _glass:
+		_glass_corner(geo)
+		return
 	var path := []
 	var lat := []
 	for i in 13:
@@ -533,6 +537,69 @@ func _corner(geo: TmGeo) -> void:
 		geo.wall_sweep(_ledge_section(mirror), path, lat, true, "structure", S_METAL)
 		for room: Array in _rooms(mirror):
 			geo.wall_sweep(room, path, lat, true, String(room[0][1]), TmGeo.NO_COLLISION)
+
+
+## The glass booth's corner (TMNF's, measured): the section's halves along two paths. The outer half
+## swings for CORNER_ARC degrees about a pivot at each end (CORNER_PIVOT: x along the arm, and how
+## far it sits in from the centre line; the outer faces' radius is their distance out less that),
+## a 45-degree chamfer between; the inner half's path a chamfer of the square corner, from
+## CORNER_INNER along each arm's centre line, its faces opaque white (TMNF has no glass there, nor a
+## room behind). The halves meet at the pivot's distance out (an internal face; their roofs overlap
+## along the chamfer).
+const CORNER_PIVOT := Vector2(4.1, 0.75)
+const CORNER_ARC := 35.0
+const CORNER_INNER := 6.43
+const CORNER_ARC_STEPS := 5
+
+
+func _glass_corner(geo: TmGeo) -> void:
+	var k := CORNER_PIVOT.y
+	var radial := func(deg: float) -> Vector3: return Vector3(sin(deg_to_rad(deg)), 0.0, -cos(deg_to_rad(deg)))
+	var pivots := [Vector3(CORNER_PIVOT.x, 0, 16.0 - k), Vector3(16.0 + k, 0, 32.0 - CORNER_PIVOT.x)]
+	var out_path := [Vector3(0, 0, 16)]
+	var out_lat := [Vector3(0, 0, -1)]
+	for end in 2:
+		for i in CORNER_ARC_STEPS + 1:
+			var deg := CORNER_ARC * i / CORNER_ARC_STEPS + (90.0 - CORNER_ARC) * end
+			var r: Vector3 = radial.call(deg)
+			out_path.append((pivots[end] as Vector3) - r * k)
+			out_lat.append(r)
+	out_path.append(Vector3(16, 0, 32))
+	out_lat.append(Vector3(1, 0, 0))
+	var a := CORNER_INNER
+	var m := tan(PI / 8.0)        # the chamfer's mitres
+	var in_path := [Vector3(0, 0, 16), Vector3(a, 0, 16), Vector3(16, 0, 32.0 - a), Vector3(16, 0, 32)]
+	var in_lat := [Vector3(0, 0, -1), Vector3(m, 0, -1), Vector3(1, 0, -m), Vector3(1, 0, 0)]
+	geo.wall_sweep(_half_section(true, k), out_path, out_lat, true, "stands_dark", S_METAL)
+	geo.wall_sweep(_half_section(false, k), in_path, in_lat, true, "stands_dark", S_METAL)
+	var d := float(_ledge[0]) - 16.0
+	_rails(geo, in_path, in_lat, [d])
+	_rails(geo, out_path, out_lat, [-d])
+	geo.wall_sweep(_ledge_section(false), in_path, in_lat, true, "structure", S_METAL)
+	geo.wall_sweep(_ledge_section(true), out_path, out_lat, true, "structure", S_METAL)
+	for room: Array in _rooms(true):
+		geo.wall_sweep(room, out_path, out_lat, true, String(room[0][1]), TmGeo.NO_COLLISION)
+
+
+## One half of _section(): the outer (x >= seam) or the inner (x <= seam, its glass opaque white:
+## the glass corner's), closed along x = seam by an internal face.
+func _half_section(outer: bool, seam: float) -> Array:
+	var full := _section()
+	var n := _half.size()
+	var out := []
+	if outer:
+		out.append([Vector2(seam, ROOF)] + (full[n] as Array).slice(1))
+		out.append_array(full.slice(n + 1))
+		out.append([Vector2(seam, _floor), "", TmGeo.NO_COLLISION])
+		return out
+	for i in n:
+		var q: Array = full[i]
+		if String(q[1]) in ["glass_booth", "booth_glass"]:
+			q = [q[0], "control_panel", q[2]]
+		out.append(q)
+	out[0] = [Vector2(seam, (out[0][0] as Vector2).y)] + (out[0] as Array).slice(1)
+	out.append([Vector2(seam, ROOF), "", TmGeo.NO_COLLISION])
+	return out
 
 
 ## On the ground, the plinth's railing under its top bar (a cut-out card from the walkway up), along

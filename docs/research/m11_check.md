@@ -129,6 +129,15 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   wall dark (BaseGround missing 280 -> 1 m2). Sample TMNF's colours inside triangles, not at
   vertices: its ceiling's vertices sit on dark texels, its face is light (182).
 
+- The glass booth's corner (21 Oct): TMNF's is no quarter circle. Its outer side runs straight to
+  x 4.1, swings 35 degrees about a pivot 0.75 m in from the centre line (the glass's radius 12.6 m,
+  the wall's 11.1 m: their distance out less 0.75), kinks 10 degrees onto a 45-degree chamfer and
+  back; the inner side is a chamfer of the square corner (the centre line's from x 6.43), opaque
+  white (ControlInterior, no glass, no room). Fidelity: CornerAir 89.2 -> 98.3%, CornerGround
+  88.2 -> 99.7%. Seen on the way: the air booths' ledge is TMNF's grating walkway (AuventAlpha) at
+  1 m with a 1 m railing, stairs down to 0 at each open end (3 m on a straight, 2 m on the
+  corner), ad boards 0-1 m under its edge (straight: 4-16 and 22-28 each side), the inner
+  corners' grating at 0; their glass is the window modules (posts, transoms) as the ground's.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).

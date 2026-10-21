@@ -223,7 +223,8 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       arches (words every 3.08 m, top and underside), the inflatable billboard walls, the camera
       and road pubs, the border atlas (rows audited: atlas_rows.py; the rails' structure), the
       platform lip, the road keel's plates, the decks' 16 m tiles, the circuit walls' bumpers,
-      back panel and ledge; next: the grandstand pillar piece, the curved ledges, M11-3
+      back panel and ledge, the glass booths' corner; next: the air glass booths' walkway, the
+      Stands2 texture, the grandstand pillar piece, the curved ledges, M11-3
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti, inflatable castles, the
       Sculpt bridges' fabric and pillars, the camera light base, the terrain zones (1 m survey), the air inflatable structures, the loops' brackets, the road pubs, the road start's pad and the gates' rounded faces; left: bump, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)
