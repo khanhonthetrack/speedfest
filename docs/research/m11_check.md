@@ -162,6 +162,11 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   printed on the skin behind too, reading the right way). Fidelity: TShapedPillarGround 94.8 ->
   97.6%, CornerPillarGround 98.5%. Found on the way: the air walls' trim strips threw a script
   error (never built); fixed.
+- The dirt-to-road piece (21 Oct; 26 on our tracks): TMNF's curb keeps the road's section all
+  along, only moved: its shoulder dips toward the sunken asphalt (its lip 0.38 m down by z 17,
+  bending from x 3.9), then the curb alone sinks (0.11 m at z 17 to 0.64 m at the end) and slides
+  0.97 m in between z 20 and 26. Ours dropped at z 17 into a squeezed, scaled curb. Now tables
+  (dirt.gd TO_ROAD_DIP, TO_ROAD_SINK). Fidelity 92.5 -> 98.8%.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).

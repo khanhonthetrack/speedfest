@@ -2999,3 +2999,7 @@ on every real contact the full impulse would land at the contact point and kick 
   both sides of the wall (TMNF's shows through from behind). Fidelity: TShapedPillarGround (36 on
   our tracks) 94.8 -> 97.6%. Fixed: the air inflatable walls' trim strips threw a script error
   (an array read as a Vector2) and were never built.
+- (M11-3) **The dirt-to-road curbs as TMNF's** (`dirt.gd _to_road_curbs`, `TO_ROAD_DIP`,
+  `TO_ROAD_SINK`). TMNF moves the road's own curb section: its shoulder dips toward the asphalt
+  as the dirt starts, then the curb alone sinks and slides in toward the dirt's berm. Ours jumped
+  at z 17 to a narrower, squashed curb. Fidelity: RoadDirtToRoad (26 on our tracks) 92.5 -> 98.8%.

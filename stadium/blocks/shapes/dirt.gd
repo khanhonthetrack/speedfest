@@ -33,14 +33,18 @@ const GATE_Z_SCALE := 0.963
 const GATE_Z_MOVE := 0.119
 const GATE_STRAP_DY := -1.345
 
-## Where a dirt road meets Road/Main (TMNF's RoadDirtToRoad, measured): the road's ground curbs
-## along both sides, full up to TO_ROAD_FULL, then a narrower, lower curb running into the dirt's
-## berm (the section's d mapped to TO_ROAD_D.x + (d - 1) * TO_ROAD_D.y, its height above 1 m scaled
-## by TO_ROAD_H, sinking TO_ROAD_SINK more by the block's end).
+## Where a dirt road meets Road/Main (TMNF's RoadDirtToRoad, measured): the road's ground curb
+## along both sides, its section unchanged but moved. Up to TO_ROAD_FULL with its shoulder, which
+## dips toward the asphalt (TO_ROAD_DIP: [z, how far its outer end has dropped, the whole curb's
+## drop]; the shoulder bends down from TO_ROAD_BEND out to its lip at SHOULDER); then the curb
+## alone, sinking and moving in toward the dirt's berm (TO_ROAD_SINK: [z, drop, in]).
 const TO_ROAD := ["Road/Dirt/RoadDirtToRoad/Ground"]
 const TO_ROAD_FULL := 17.0
-const TO_ROAD_D := Vector2(1.97, 0.476)
-const TO_ROAD_H := 0.8
+const TO_ROAD_DIP := [[0.0, 0.0, 0.0], [4.0, 0.0, 0.0], [8.0, 0.08, 0.0], [12.0, 0.17, 0.0], [14.0, 0.22, 0.0],
+	[15.0, 0.24, 0.02], [16.0, 0.3, 0.05], [17.0, 0.38, 0.11]]
+const TO_ROAD_BEND := 3.9
+const TO_ROAD_SINK := [[17.0, 0.11, 0.0], [18.0, 0.17, 0.0], [20.0, 0.29, 0.0], [22.0, 0.36, 0.25], [24.0, 0.41, 0.65],
+	[26.0, 0.48, 0.97], [28.0, 0.54, 0.97], [30.0, 0.59, 0.97], [32.0, 0.64, 0.97]]
 ## Its asphalt as TMNF's: one image (road_to_dirt) over the piece, u along it from the road's end
 ## to TO_ROAD_DIRT_Z, v across from the centre line to TO_ROAD_HALF either side (the road's edge).
 const TO_ROAD_DIRT_Z := 15.21
@@ -60,7 +64,6 @@ const SIGN_DEPTH := 0.7         ## a sign's housing behind its display (TMNF's)
 const SIGN_LEG := 0.07          ## its legs' radius
 const S_METAL := 4
 const S_RUBBER := 9
-const TO_ROAD_SINK := 0.3
 
 ## The dirt checkpoint's bumpers (TMNF's, measured): along each side (z GATE_BUMPER_Z) a rounded
 ## dark rubber bumper the arch's feet stand on, a ribbed top; its section (x from the block edge,
@@ -254,21 +257,36 @@ static func _bicubic(g: Array, step: float, x: float, z: float) -> float:
 	return _cr(rows[0], rows[1], rows[2], rows[3], fz - j)
 
 
-## TMNF's curbs where the dirt meets the road (TO_ROAD_*): both sides, the full curb then the narrow
-## one sinking into the berm.
+## TMNF's curbs where the dirt meets the road (TO_ROAD_*): both sides, the full curb, its shoulder
+## dipping, then the curb alone (up to its rubber's foot) sinking and moving in.
 func _to_road_curbs(geo: TmGeo) -> void:
 	var curb: Array = RoadShapes.new()._curb_section(true)
-	var lat := [Vector3(1, 0, 0), Vector3(1, 0, 0)]
+	var foot := 0
+	while float(curb[foot][0].x) < 3.0 or float(curb[foot][0].y) > RoadShapes.TOP + 0.01:
+		foot += 1
+	var alone := curb.slice(0, foot + 1)
+	alone[foot] = [curb[foot][0], "", TmGeo.NO_COLLISION]
+	var shoulder_end: float = RoadShapes.SHOULDER
 	for side: float in [1.0, -1.0]:
-		var full := curb.map(func(q: Array) -> Array:
-			var p: Vector2 = q[0]
-			return [Vector2((p.x - 16.0) * side, p.y), q[1], q[2]] + q.slice(3))
-		geo.wall_sweep(full, [Vector3(16, 0, 0), Vector3(16, 0, TO_ROAD_FULL)], lat, true, "road_metal", 4)
-		var narrow := curb.map(func(q: Array) -> Array:
-			var p: Vector2 = q[0]
-			var d := TO_ROAD_D.x + (p.x - 1.0) * TO_ROAD_D.y
-			return [Vector2((d - 16.0) * side, 1.0 + (p.y - 1.0) * TO_ROAD_H), q[1], q[2]] + q.slice(3))
-		geo.wall_sweep(narrow, [Vector3(16, 0, TO_ROAD_FULL), Vector3(16, -TO_ROAD_SINK, 32.0)], lat, true, "road_metal", 4)
+		for part in 2:
+			var table: Array = TO_ROAD_DIP if part == 0 else TO_ROAD_SINK
+			var sec: Array = curb if part == 0 else alone
+			sec = sec.map(func(q: Array) -> Array:
+				var p: Vector2 = q[0]
+				return [Vector2((p.x - 16.0) * side, p.y), q[1], q[2]] + q.slice(3))
+			var path := []
+			var lat := []
+			for r: Array in table:
+				path.append(Vector3(16, 0, float(r[0])))
+				lat.append(Vector3(1, 0, 0))
+			var at := func(p: Vector2, i: int) -> Vector2:
+				var r: Array = table[i]
+				var x := 16.0 + p.x * side
+				if part == 0:
+					var bend := clampf((x - TO_ROAD_BEND) / (shoulder_end - TO_ROAD_BEND), 0.0, 1.0)
+					return Vector2(p.x, p.y - float(r[2]) - float(r[1]) * bend)
+				return Vector2(p.x + float(r[2]) * side, p.y - float(r[1]))
+			geo.wall_sweep(sec, path, lat, true, "road_metal", 4, Callable(), at)
 
 
 ## The dirt checkpoint's two bumpers (GATE_BUMPER) along the sides, the arch's feet on them.
