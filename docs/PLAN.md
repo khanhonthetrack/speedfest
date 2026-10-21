@@ -316,6 +316,25 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M16 — Our own road cars, NFS Most Wanted's Blacklist, with liveries (owner, 21 Oct) ☐
+"I want these cars recreated, obviously you can change a bit to avoid copyrights. I want all the
+cars in the carage, with 5 fancy, nice liveries, need for speed style. Avoid using fake sponsors
+(like orlan). Similarly, add 5 liveries options for that hypercar." (For the Stadium game.)
+- [ ] 1. A road-car generator in Blender (`tools/assets/roadcar.py`): lofted body from per-car
+      profile curves, greenhouse, cut wheel arches/intakes/grilles, lamps with depth under clear
+      lenses, glass and trim, panel gaps, mirrors, handles, exhausts, wings; each car's own wheels
+      (tyres, rim styles, brakes); a manifest of each car's wheel places and livery anchors
+- [ ] 2. The 16 cars (our names, no badges): Kobold SS (Cobalt SS), Ayame 300 (IS 300), Birdie GT
+      (Golf GTI), Nemesis GT (M3 GTR), Umbra GTS (Eclipse), Zenith TT (Supra), Stallion GT
+      (Mustang GT), Kaiten R (RX-8), Halberd VIII (Evo VIII), Gavial S (Cayman S), Argent 500
+      (CLK 500), Albion GT (DB9), Taipan V10 (Viper SRT-10), Corrida V10 (Gallardo), Frigate V8
+      (Corvette C6), Quicksilver (SLR McLaren)
+- [ ] 3. Liveries: NFS-style vinyls in the car shader (stripes, flames, tribal, tiger, shards,
+      halftone fade, sweeps, ...), 5 per car and 5 for the hypercar; no sponsors
+- [ ] 4. In the game: every car drawn on its own wheels, picked in a garage (car and livery),
+      carried by races, ghosts, replays and online
+- [ ] 5. `tests/test_car_models` covers every car and livery; screenshots for the owner
+
 ### M15 — Our own Le Mans hypercar (owner, 21 Oct) ☑
 "Can you look at the peugeot hypercar (that i used), and without using peugeot copyright, design
 a similar, generic hypercar model? Blender or Godot, whatever is easier for you". (The car they

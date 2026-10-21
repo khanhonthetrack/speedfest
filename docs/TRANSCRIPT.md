@@ -1233,3 +1233,20 @@ to ours.)
 ### User (verbatim, after the screenshots)
 
 > Looks good, commit and push it.
+
+## Session 17 — 2026-10-21 (cloud, branch `claude/nice-ride-q9yx1h` from `stadium`): road cars and liveries (M16)
+
+### User (verbatim, with a screenshot of NFS Most Wanted (2005)'s 16 Blacklist cars in its garage, and a Reddit link to the same picture)
+
+> After designing a hypercar, now, design again (blender or godot, but i want high quality) cars:
+> https://www.reddit.com/r/needforspeed/comments/iultws/need_for_speed_most_wanted_2005_all_blacklist/#lightbox
+>
+> I want these cars recreated, obviously you can change a bit to avoid copyrights. I want all the cars in the carage, with 5 fancy, nice liveries, need for speed style. Avoid using fake sponsors (like orlan). Similarly, add 5 liveries options for that hypercar.
+
+### User (verbatim, while the work was being set up)
+
+> I meant, for stadium of course.
+
+(The 16 cars in the picture: Cobalt SS, IS 300, Golf GTI, M3 GTR, Eclipse, Supra, Mustang GT,
+RX-8, Lancer Evolution VIII, Cayman S, CLK 500, DB9, Viper SRT-10, Gallardo, Corvette C6, SLR
+McLaren. Recreated as our own cars under our own names, without makers' badges or logos: PLAN M16.)
