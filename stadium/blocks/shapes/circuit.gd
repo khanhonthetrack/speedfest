@@ -28,12 +28,17 @@ const GROUND_PADS := {
 }
 const LEDGE_Y := 8.0
 const BUMPER_END_Y := 8.202     ## the ledge bumper's last point before it meets the ledge (WALL)
+## The ledge behind a straight wall, as TMNF's (texgen/decks.py circuit_ledge): its rows from the
+## bumper's foot to the seam (LEDGE_SEAM, d) and from there to the block's edge.
+const LEDGE_SEAM := 5.945
+const LEDGE_ROWS := [Vector2(0.0, 123.4), Vector2(123.4, 256.0)]
 const FLOOR_Y := 0.24
 
 ## Wall section: (d, y) points around the solid, d = offset from the inner face outward, with the
 ## material/surface of the segment starting at each point (and the border atlas' rows along it, as
-## TMNF's: the foot's and the ledge's bumpers its black band over the blue line). Rubber bumper at
-## the foot, light band,
+## TMNF's: the foot's and the ledge's bumpers its black band over the blue line; the panel over
+## the back's screen dark horizontal bands, as TMNF's stretched steel: the atlas' rails and
+## grating). Rubber bumper at the foot, light band,
 ## blue band, white cladding, blue top lip at 15-16 m, cap, truss and the dark screen on the lane's
 ## side above the lane-level ledge (8 m), down to the truss' foot (TMNF's colours: TmMaterials).
 const WALL := [
@@ -45,7 +50,8 @@ const WALL := [
 	[-0.135, 7.07, "circuit_panel", S_RUBBER], [-0.135, 14.86, "circuit_trim", S_RUBBER], [-0.065, 15.61, "circuit_trim", S_RUBBER],
 	[0.105, 15.83, "circuit_trim", S_RUBBER], [0.415, 15.96, "circuit_trim", S_RUBBER], [0.775, 16.0, "fabric", S_METAL],
 	[2.665, 16.0, "fabric", S_METAL], [2.835, 15.94, "fabric", S_METAL], [2.885, 15.77, "fabric", S_METAL],
-	[2.885, 15.28, "circuit_trim", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
+	[2.885, 15.28, "circuit_trim", S_METAL], [2.595, 15.06, "border_ribs", S_CONCRETE, Vector2(150.0, 193.0)],
+	[2.595, 12.66, "screen_dark", S_METAL],
 	[2.595, 9.63, "truss", S_CONCRETE], [2.604, 9.419, "border_panel", S_RUBBER, Vector2(18.8, 0.0)],
 	[2.709, 9.092, "border_ribs", S_RUBBER, Vector2(151.9, 207.0)], [3.569, 9.092, "border_ribs", S_RUBBER, Vector2(207.0, 213.9)],
 	[3.604, 8.99, "border_black", S_RUBBER, Vector2(216.2, 240.2)], [3.935, 8.813, "border_black", S_RUBBER, Vector2(240.2, 253.3)],
@@ -735,10 +741,11 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 		# ledge to the cell edge: top at 8 m, outer face, floor
 		var e := 32.0 - FACE
 		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - BUMPER_END_Y) < 0.01)[0])
-		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
-		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
-		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_CONCRETE])
-		sec.insert(at + 4, [Vector2(3.595, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_METAL])
+		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_ledge", S_RUBBER, LEDGE_ROWS[0]])
+		sec.insert(at + 2, [Vector2(LEDGE_SEAM, LEDGE_Y), "circuit_ledge", S_RUBBER, LEDGE_ROWS[1]])
+		sec.insert(at + 3, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
+		sec.insert(at + 4, [Vector2(e, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_CONCRETE])
+		sec.insert(at + 5, [Vector2(3.595, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_METAL])
 	geo.wall_sweep(sec, [a, b], [outward, outward], true, "circuit_cap", S_METAL)
 
 
@@ -906,10 +913,11 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float)
 		if (sec[i][0] as Vector2).x > 4.0 and absf((sec[i][0] as Vector2).y - BUMPER_END_Y) < 0.01:
 			at = i
 	var e := 32.0 - FACE
-	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
-	sec.insert(at + 2, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
-	sec.insert(at + 3, [Vector2(e, FLOOR_Y), "truss", S_CONCRETE])
-	sec.insert(at + 4, [Vector2(3.595, FLOOR_Y), "truss", S_METAL])
+	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_ledge", S_RUBBER, LEDGE_ROWS[0]])
+	sec.insert(at + 2, [Vector2(LEDGE_SEAM, LEDGE_Y), "circuit_ledge", S_RUBBER, LEDGE_ROWS[1]])
+	sec.insert(at + 3, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
+	sec.insert(at + 4, [Vector2(e, FLOOR_Y), "truss", S_CONCRETE])
+	sec.insert(at + 5, [Vector2(3.595, FLOOR_Y), "truss", S_METAL])
 	var y_at := Callable()
 	if dy > 0.0:
 		y_at = func(y: float, i: int) -> float: return maxf(y, dy - (path[i] as Vector3).y)

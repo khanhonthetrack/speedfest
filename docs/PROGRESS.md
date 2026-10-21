@@ -2887,4 +2887,11 @@ on every real contact the full impulse would land at the contact point and kick 
   (UVs 0-2 over a block, a dark seam at the texture's edge), so each block shows a seam across its
   middle both ways; ours tiled 32 m (seams only at the block edges). The plate is redrawn as a
   16 m tile (the same scratches and smears per m2).
+- (M11-2) **The circuit walls' back panel and ledge as TMNF's** (`circuit.gd WALL`, `LEDGE_SEAM`,
+  `LEDGE_ROWS`; `texgen/decks.py circuit_ledge`). Above the back's dark screen TMNF stretches a
+  slice of its steel texture into dark horizontal bands (ours an X truss): now the atlas' rails and
+  grating there. The 8 m ledge behind straight walls maps the top half of TMNF's circuit-border
+  texture across it (a dirty white line by the bumper, a bolted seam 1.87 m out, a darker strip at
+  the edge, bolted joints every 16 m); ours was a plain blue plate. Our drawing of that layout,
+  mapped by TMNF's rows (the curved walls' ledges keep the plain plate).
 

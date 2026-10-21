@@ -58,6 +58,7 @@ const COLORS := {
 	"circuit_band": [Color8(10, 72, 170), 0.45, 0.0],
 	"circuit_trim": [Color8(52, 96, 160), 0.5, 0.0],
 	"circuit_floor": [Color8(26, 84, 170), 0.5, 0.25],
+	"circuit_ledge": [Color8(26, 84, 170), 0.5, 0.25],
 	"circuit_bumper": [Color8(20, 20, 22), 0.85, 0.0],
 	"truss": [Color8(40, 40, 41), 0.55, 0.3],
 	"screen_dark": [Color(0.015, 0.018, 0.022), 0.2, 0.0],     # the circuit walls' screens: off, as TMNF's
@@ -214,6 +215,7 @@ const TEXTURED := {
 	"circuit_band": ["circuit_band", Vector2(16.0, 3.5), false],
 	"truss": ["steel_truss", Vector2(8.0, 8.0), true],
 	"circuit_floor": ["circuit_kerb", Vector2(16.0, 16.0), true],     # the lane-level blue strip
+	"circuit_ledge": ["circuit_ledge", Vector2(1.0, 1.0), false],     # behind straight walls (rows: circuit.gd LEDGE_ROWS)
 	"circuit_bumper": ["circuit_bumper", Vector2(16.0, 2.0), false],  # the lane side's rubber, our name on it
 	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
 	"pub_facade": ["pub_facade", Vector2(2.0, 1.0), false],     # the camera pub's sides (rows: control.gd PUB)

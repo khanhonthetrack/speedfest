@@ -282,6 +282,42 @@ def circuit_kerb(name='circuit_kerb', ppm=64, size_m=16.0, seed=311, base=(26, 8
     save(name, np.clip(col, 0, 1), nrm, orm, size=(512, 512))
 
 
+def circuit_ledge(name='circuit_ledge', w=512, h=512, seed=313, base=(26, 84, 170)):
+    """The ledge behind the circuit walls in TMNF's layout (UV-mapped: u along the wall, 16 m a
+    tile; v the rows of 512 from the bumper's foot, 0, to the block's edge, 256; the lower half
+    the same again): a dark edge, a blue painted panel with a dirty white line near the wall, a
+    dark bolted seam, a second blue panel, a darker blue strip at the edge; bolted dark joints at
+    the tile's ends."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    r = yy % 256.0
+    mott = fbm(w, h, seed, beta=2.4, lo=1.0, hi=10.0)
+    fine = fbm(w, h, seed + 1, beta=0.6, lo=64.0)
+    wear = smoothstep(1.0, 2.2, fbm(w, h, seed + 2, beta=1.4, lo=6.0))
+    dirt = np.clip(grime(w, h, seed + 3, amount=1.0), 0, 1)
+    col = srgb(base)[None, None, :] * (1.0 + 0.04 * mott + 0.03 * fine - 0.12 * dirt)[..., None]
+    white = rect_mask(w, h, -10, 14, w + 10, 25, 1.5) + rect_mask(w, h, -10, 270, w + 10, 281, 1.5)
+    col = lerp(col, srgb((214, 214, 208))[None, None, :] * (1.0 - 0.25 * dirt)[..., None], np.clip(white, 0, 1)[..., None])
+    col = lerp(col, srgb((150, 158, 170))[None, None, :], (wear * 0.3)[..., None])
+    def band(r0, r1):
+        return ((r >= r0) & (r < r1)).astype(np.float32)
+    dark = np.maximum(band(0, 6), band(118, 127))
+    ends = np.maximum((xx < 8).astype(np.float32), (xx >= w - 8).astype(np.float32))
+    joint = np.clip(dark + ends, 0, 1)
+    col = lerp(col, srgb((44, 46, 52))[None, None, :] * (1.0 + 0.1 * fine)[..., None], joint[..., None])
+    col = lerp(col, srgb((14, 52, 120))[None, None, :] * (1.0 + 0.05 * fine)[..., None], band(240, 256)[..., None])
+    bolt = np.zeros((h, w), np.float32)
+    for yc in (122.0, 378.0):
+        d = np.sqrt(((xx % 32.0) - 16.0) ** 2 + (yy - yc) ** 2)
+        bolt = np.maximum(bolt, 1.0 - smoothstep(1.5, 2.8, d))
+    for xc in (4.0, w - 4.0):
+        d = np.sqrt((xx - xc) ** 2 + ((yy % 32.0) - 16.0) ** 2)
+        bolt = np.maximum(bolt, 1.0 - smoothstep(1.5, 2.8, d))
+    col = lerp(col, srgb((100, 104, 110))[None, None, :], (0.8 * bolt)[..., None])
+    nrm = normal_from_height(0.2 * fine - 0.8 * joint + 0.5 * bolt, 0.45)
+    orm = np.stack([1.0 - 0.3 * joint, 0.6 + 0.05 * fine + 0.15 * wear, 0.25 + 0.4 * joint], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 def circuit_bumper(name='circuit_bumper', ppm=64, size_u=16.0, size_v=1.6, seed=321):
     """The black rubber bumper above the lane's blue strip (UV-mapped: u along the wall, v across the
     band): moulded rubber, a light grey line along each edge, our emblem in white every 16 m."""
@@ -315,4 +351,5 @@ if __name__ == '__main__':
     road_keel()
     steel_truss()
     circuit_kerb()
+    circuit_ledge()
     circuit_bumper()

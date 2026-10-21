@@ -51,7 +51,8 @@
   billboard walls (banner cushions), the camera pubs' ends and roof strips, the road pubs' boards (ads outward only), the
   platform lip's atlas rows (and the ramp piece's orange bevel), the gate arches' top and underside
   (TMNF's atlas strips), the sculptures' curb tops, the circuit walls' bumpers (atlas rows, outline), the road keel's plates,
-  the border atlas' rail rows (structure as TMNF's), the decks' 16 m plate tiles.
+  the border atlas' rail rows (structure as TMNF's), the decks' 16 m plate tiles, the circuit
+  walls' back panel and straight ledges.
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell
@@ -59,8 +60,7 @@
   TMNF's colours inside triangles, never at vertices). Rank what is left by our tracks' use
   (m11_check "Survey by use": every shape our tracks build, with counts, not the catalogue's base
   forms). Left: the grandstand straights' lattice (flat cards in TMNF), the grandstand pillar
-  piece, the snow / palm trees (organic), the circuit border's back (TMNF's Stands2 panels; ours
-  an X truss) and its ledge's stripes, TMNF's additive glow cards (ours: lit lamps), the loops'
+  piece, the snow / palm trees (organic), the curved circuit walls' ledges (plain plate), TMNF's additive glow cards (ours: lit lamps), the loops'
   backs, the hill pieces' fabric awnings; the gates' big sign panels stay out (owner's option B);
   then PLAN M11-3, 5..7. Tools: `material_check.py` (colours) and `atlas_rows.py` (atlas rows).
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
