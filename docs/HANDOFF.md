@@ -1,5 +1,21 @@
 # HANDOFF: start here
 
+## Latest (21 Oct, session 17, cloud): three bug fixes after v0.8, on `claude/tender-faraday-m39his`
+- Branch `claude/tender-faraday-m39his` = `stadium` (4e3b8e1, the City probe fix) + three fixes for
+  the owner's report (TRANSCRIPT, session 17; PROGRESS has the details). It fast-forwards
+  `stadium`: merge it there, then tag a release from the PC as usual.
+  1. **The car's sound after the finish** fades out over 1.5 s (`TmCarAudio.FINISH_FADE_S`).
+  2. **Our one-lap tracks' finish** was TMNF's start/finish block drawn as TMNF's MULTILAP gate
+     (yellow MULTILAP, green start road); the race did end there. It is now dressed as the
+     finish (FINISH, red finish road) on our tracks (`"finish"` mark -> `TmMapBuilder.AS_FINISH`
+     -> road.gd). TMNF maps and our lap races keep the MULTILAP gate.
+  3. **ManiaPark**: its downloads answer HTTP 500 to everyone (its own Download buttons too; search
+     and previews work). The game now says why a request failed instead of "can't be reached",
+     and whole downloads get 900 s instead of 30 s. If downloads still fail later, check the site
+     first (`curl -sI https://maniapark.com/skin/<id>/download`). If a player sees the new "(TLS)"
+     message, see PROGRESS (Windows root store; ship a CA bundle).
+- Gate: STADIUM_TESTS PASS on each commit here (see PROGRESS).
+
 ## Latest (21 Oct, session 16, owner's Windows PC): **`stadium-v0.8`** = `stadium` + the neon City (M14)
 - Owner: "ship to new version". `claude/tmnf-replica-graphics-nb1kcg` and `ccr-1ce252fc-wl7p3m`
   hold nothing `stadium` lacks; the gate passed on 78f5b9f (STADIUM_TESTS PASS, 21 suites) and only

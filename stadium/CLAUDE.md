@@ -73,6 +73,11 @@ Commit like this, so a failing gate never lands:
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-21 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **`stadium-v0.8` (21 Oct) is `stadium` + the neon City (PLAN M14)**; the zips carry `CREDITS-city.md`.
+- **After v0.8 (session 17, branch `claude/tender-faraday-m39his`, for `stadium`):** the car's
+  sound fades after the finish; our one-lap tracks' finish (TMNF's start/finish block, for the
+  run-off) is dressed as a finish, not TMNF's MULTILAP gate (`TmMapBuilder.AS_FINISH`); the
+  Community page says why a download failed (ManiaPark's downloads were answering HTTP 500) and
+  gives downloads 900 s.
 - **The neon City (PLAN M14, 21 Oct, session 16):** City maps only: neon barriers (`tm_neon`,
   `blocks/tm_textured.gdshader`) and lights along them, tubes on buildings and the Stadium
   (`env/tm_neon.gd`), an airship, searchlights, LED screens; City nights wet (`tm_wet`) with AgX,

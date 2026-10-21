@@ -3643,3 +3643,40 @@ them the CC BY credit for raytrace's "12 Buildings", missing from v0.7's zips). 
   0.62) the smudge and the orange sheen on the glass went; SDFGI and SSR off left them. On City
   nights there is no probe now (the Stadium it mirrored isn't there): reflections are SSR's (what is
   on screen), SDFGI's and the sky's.
+
+## 2026-10-21 — Session 17 (cloud, branch `claude/tender-faraday-m39his` = `stadium` + fixes): three bugs after v0.8
+Owner: "my friend downloaded the game and maniapark couldnt connect", "for many maps (city e.g.)
+the finish is not finish but multilap", "when you finish ... i could still hear the car going".
+- **The car's sound after the finish** (`audio/tm_car_audio.gd`): the engine layers, skid and wind
+  kept playing while the car auto-braked and idled behind the finish camera. They now fade out over
+  `FINISH_FADE_S` (1.5 s) once the race is finished (cues still play: the finish, a record) and come
+  back on restart. `tests/test_sound`: `engine_fades_after_finish` (fails on the old code: -2.9 dB
+  1.8 s after the line), `engine_back_after_restart`.
+- **The finish that looked like a multilap** (`race/tm_track_builder.gd` `_finish`,
+  `blocks/tm_map_builder.gd`, `blocks/shapes/road.gd`): since 9367fdd (17 Oct, the review's
+  run-off) our one-lap tracks end on TMNF's through start/finish block
+  (`StadiumRoadMainStartFinishLine`) with road after it, and the block was drawn as TMNF's: MULTILAP
+  in yellow on its arch and curbs (`gate_lap`, `curb_lap`) and the green start road
+  (`race_start`). The race did end there (TmRace: a start/finish line on a one-lap race is its
+  finish); it only looked like a lap line. TmTrackBuilder now marks that block `"finish": true`
+  (one-lap tracks only), TmMapBuilder adds `AS_FINISH` ("#finish") to its shape, and road.gd builds
+  it as the finish: FINISH on the arch and curbs, the red finish road (`race_finish`). Real TMNF
+  maps and our lap races (A08, B08, ...) keep TMNF's MULTILAP gate. `tests/test_tracks`:
+  `<id>_finish_looks_like_a_finish` on every one-lap track, `<id>_lap_line_looks_like_tmnf` on lap
+  races (by the materials on the built block).
+- **ManiaPark "couldn't connect"** (`net/tm_community.gd`): ManiaPark's downloads were failing on
+  ManiaPark's side. Every `/model|skin|mod/<id>/download`, including the links on its own model
+  pages, answered HTTP 500 with its "An error occurred while processing your request" page: from
+  curl, from a real Chromium clicking the site's Download button, and through a second network.
+  Search and previews worked. The game turned every failure into "ManiaPark can't be reached". Now
+  `_fetch` returns why (`TmCommunity.failure`): the site's server failed (HTTP 5xx: "a problem on its
+  side: try again later"), not found, refused, no internet (DNS), TLS, a timeout, too big. Searches
+  and downloads show it ("ManiaPark: the site's server failed (HTTP 500), ..."). Also, the whole
+  request had a 30 s limit (`HTTPRequest.timeout`), so a 40 MB car pack or a 200 MB mod on a slower
+  line could never finish. Downloads get `FILE_TIMEOUT` (900 s); searches and previews keep 30 s.
+  The fixture server (`server/lib/community.js` `fixtureFetch`) answers 500 for an asset with an
+  `mp_<id>.500` file; `tests/test_community`: `community_site_failure_said`.
+  Not changed: on Windows Godot trusts only the system ROOT store (`crypto_mbedtls.cpp`:
+  system certs first, the built-in Mozilla bundle only when there are none), which Windows fills
+  on demand. If a player ever sees "a secure connection ... (TLS)", ship a CA bundle and retry with
+  `TLSOptions.client()` on `RESULT_TLS_HANDSHAKE_ERROR`. Both sites use Let's Encrypt today.

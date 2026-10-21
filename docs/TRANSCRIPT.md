@@ -1217,3 +1217,19 @@ path tracing on the City next.)
 (Found by switching sources off at the same spot: the field's reflection probe, captured once from
 20 m over the field and not parallax-correct, mirrored the amber neon and the street lights onto the
 road where nothing is. No probe on City nights now.)
+
+## Session 17 — 2026-10-21 (cloud; branch `claude/tender-faraday-m39his` = `stadium` + fixes)
+
+### User (verbatim)
+
+> 1. my friend downloaded the game and maniapark couldnt connect. weird
+> 2. for many maps (city e.g.) the finish is not finish but multilap.
+> 3. when you finish, the sound of the car should either stop or fade away, there is a bug i could still hear the car going after i finished
+
+(1: ManiaPark's own downloads answer HTTP 500 to everyone right now: curl, a real Chromium clicking
+the site's Download button, and a second network all got the same error page, while its search and
+previews work. The game called that "ManiaPark can't be reached". It now says what failed (the
+site's server, TLS, no internet, a timeout), and whole downloads get 15 minutes instead of 30 s.
+2: our one-lap tracks end on TMNF's through start/finish block so the car has road to stop on, and
+it carried TMNF's MULTILAP gate and the green start road. On our tracks it is dressed as the finish
+now. 3: the engine, skid and wind fade out over 1.5 s after the finish.)
