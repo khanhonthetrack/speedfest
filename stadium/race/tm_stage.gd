@@ -79,7 +79,7 @@ static func load_from_args() -> TmChallenge:
 
 ## The Stadium's four floodlight heads at night (TmStadiumBuild.TOWER_HEAD), each lighting the
 ## field from its corner: spot lights without falloff over the field (their range's edge beyond it).
-static func _floodlights(parent: Node) -> void:
+static func _floodlights(parent: Node, energy := 0.55) -> void:
 	var c := TmGeo.g(TmStadiumBuild.CENTRE)
 	var h := TmStadiumBuild.TOWER_HEAD
 	for sx: float in [-1.0, 1.0]:
@@ -89,7 +89,7 @@ static func _floodlights(parent: Node) -> void:
 			var at := c + Vector3(sx * h.x, h.y, sz * absf(h.z))
 			spot.transform = Transform3D(Basis.looking_at(c + Vector3(-sx * 120.0, 0.0, -sz * 80.0) - at, Vector3.UP), at)
 			spot.light_color = Color(0.95, 0.97, 1.0)
-			spot.light_energy = 0.55
+			spot.light_energy = energy
 			spot.spot_range = 1800.0
 			spot.spot_angle = 48.0
 			spot.spot_attenuation = 0.0
@@ -125,7 +125,11 @@ static func field_probe(builder: TmMapBuilder) -> ReflectionProbe:
 ## sizes plain grass from the map's edge to the horizon (the map's own ground is built with it by
 ## TmMapBuilder).
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
-	TmStadiumEnv.add(parent, TmStadiumEnv.mood_of(builder.challenge))
+	var we := TmStadiumEnv.add(parent, TmStadiumEnv.mood_of(builder.challenge))
+	var city_map := builder.challenge.scenery == "city"
+	TmNeon.setup(city_map, TmStadiumEnv.night)
+	if city_map:
+		TmStadiumEnv.city(we, TmStadiumEnv.night)
 	TmOcclusion.add(parent, builder)
 	parent.add_child(field_probe(builder))
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
@@ -138,9 +142,10 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 				return
 		parent.add_child(TmStadiumBuild.build())
 		if TmStadiumEnv.night:
-			_floodlights(parent)
-		if builder.challenge.scenery == "city":
+			_floodlights(parent, 0.14 if city_map else 0.55)     # a City night is the neon's and the street lights'
+		if city_map:
 			parent.add_child(TmSkyline.field(builder))
+			parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
 		if String(TestHooks.arg("city", "true")) != "false":
 			# built on a worker thread: the race doesn't wait for it (TmSkyline.build_async)
 			var city := Node3D.new()

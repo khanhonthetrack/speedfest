@@ -34,6 +34,19 @@ uniform vec3 tint : source_color = vec3(1.0);   // times the albedo (one set, li
 uniform sampler2D macro_tex : filter_linear_mipmap, repeat_enable;
 uniform float macro = 0.0;
 uniform float translucent = 0.0;       // fabric: tm_membrane_glow
+// A neon line on City maps (global tm_neon, TmNeon): the mesh UV's v between neon_rows (the border
+// atlas' rows / 512: the barrier's top, the road edge's blue strip) glows neon_colour; with
+// neon_chase, bright pulses run along u (16 m a tile) as on a race track's LED rails.
+global uniform float tm_neon;
+uniform vec2 neon_rows = vec2(-1.0, -1.0);     // x < 0: none
+uniform vec3 neon_colour : source_color = vec3(0.1, 0.85, 1.0);
+uniform float neon_energy = 6.0;
+uniform float neon_chase = 0.0;
+// A wet map (global tm_wet, TmStadiumEnv.city: City nights): surfaces with wet_affect take a damp
+// film (darker, glossy) and puddles where the large noise dips (mirror-flat: SSR shows the neon in
+// them on Ultra, the field's probe elsewhere).
+global uniform float tm_wet;
+uniform float wet_affect = 0.0;
 // detail: red/green its normal's x/y, blue an albedo factor (0.5 = 1); detail_ratio textures per
 // main texture, detail_strength scales it
 uniform sampler2D detail_tex : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -144,8 +157,30 @@ void fragment() {
 	ALBEDO = alb * tint;
 	ROUGHNESS = orm.g * roughness;
 	METALLIC = orm.b * metallic;
+	if (wet_affect > 0.0 && tm_wet > 0.0) {
+		float wt = tm_wet * wet_affect;
+		float pn = texture(macro_tex, wpos.xz / 29.0).r * 0.7 + texture(macro_tex, wpos.xz / 7.3).r * 0.3;
+		float puddle = (1.0 - smoothstep(0.38, 0.46, pn)) * smoothstep(0.75, 0.95, n.y);
+		ALBEDO *= mix(1.0, 0.42, wt) * mix(1.0, 0.75, puddle * wt);
+		ROUGHNESS = mix(ROUGHNESS, mix(0.2, 0.025, puddle), wt);
+		SPECULAR = mix(0.5, 0.6, wt);
+		if (world) {
+			NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(n, 0.0)).xyz, puddle * wt));
+		} else {
+			NORMAL_MAP = mix(NORMAL_MAP, vec3(0.5, 0.5, 1.0), puddle * wt);
+		}
+	}
 	// ORMMaterial3D's emission: (colour + map) * energy ("add")
 	EMISSION = (has_emission ? (emission_colour + em) * emission_energy : vec3(0.0)) + tm_membrane_glow(ALBEDO, n, translucent);
 	AO = orm.r * tm_sky_visibility(wpos, n);
 	AO_LIGHT_AFFECT = 0.0;
+	if (neon_rows.x >= 0.0 && tm_neon > 0.0) {
+		float v = UV.y;
+		float fw = fwidth(v);
+		float band = smoothstep(neon_rows.x - fw, neon_rows.x + fw, v) * (1.0 - smoothstep(neon_rows.y - fw, neon_rows.y + fw, v));
+		float chase = neon_chase > 0.5 ? 0.75 + 2.5 * pow(max(sin(UV.x * 3.14159 - TIME * 9.0), 0.0), 28.0) : 1.0;
+		EMISSION += neon_colour * neon_energy * band * tm_neon * chase;
+		ALBEDO = mix(ALBEDO, neon_colour * 0.35 + vec3(0.55), band * tm_neon);
+		ROUGHNESS = mix(ROUGHNESS, 0.15, band * tm_neon);
+	}
 }

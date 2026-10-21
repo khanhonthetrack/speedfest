@@ -63,6 +63,9 @@ static func add(parent: Node, mood := "") -> WorldEnvironment:
 		mood = mood_of(null)
 	night = mood == "night"
 	RenderingServer.global_shader_parameter_set(&"tm_night", 1.0 if night else 0.0)
+	# a City map switches these on after (TmNeon.setup, TmStadiumEnv.city): off everywhere else
+	RenderingServer.global_shader_parameter_set(&"tm_neon", 0.0)
+	RenderingServer.global_shader_parameter_set(&"tm_wet", 0.0)
 	var sun := DirectionalLight3D.new()
 	sun.name = "Moon" if night else "Sun"
 	var to_sun := MOON.normalized() if night else sun_direction()
@@ -146,3 +149,58 @@ static func add(parent: Node, mood := "") -> WorldEnvironment:
 	we.environment = env
 	parent.add_child(we)
 	return we
+
+
+## The surfaces that get wet on a wet map (TmMaterials keys -> how much: blocks/tm_textured.gdshader).
+const WET := {"asphalt": 1.0, "platform": 1.0, "shoulder": 0.9, "road_grid": 0.8, "border_panel": 0.6,
+	"border_ribs": 0.6, "border_black": 0.6, "curb_face": 0.6, "road_metal": 0.5}
+
+
+## A City map's look (M14, owner: "Improve it for RTX ... I want to see the ray tracing"): at night
+## the roads wet (tm_wet: SSR mirrors the neon and the towers in them on Ultra), a darker ambient,
+## AgX tonemapping (neon cores burn white, their halos keep the colour), a wider glow, a deeper
+## haze; on Ultra denser volumetric fog the lights glow in, more of the neon's bounce (SDFGI) and
+## longer reflection traces. By day: as any map, dry.
+static func city(we: WorldEnvironment, night_city: bool) -> void:
+	for key: String in WET:
+		var m := TmMaterials.get_material(key) as ShaderMaterial
+		if m != null and m.shader != null and String(m.shader.resource_path).ends_with("tm_textured.gdshader"):
+			m.set_shader_parameter("wet_affect", float(WET[key]))
+	if not night_city:
+		return
+	RenderingServer.global_shader_parameter_set(&"tm_wet", 1.0)
+	var env := we.environment
+	env.ambient_light_energy = 0.22
+	env.ambient_light_sky_contribution = 0.45
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
+	env.tonemap_exposure = 0.95
+	env.adjustment_saturation = 1.18
+	env.adjustment_contrast = 1.08
+	env.glow_enabled = int(TmUi.setting("quality")) > 0
+	env.glow_intensity = 0.5
+	env.glow_strength = 1.0
+	env.glow_bloom = 0.02
+	env.glow_hdr_threshold = 1.3
+	env.glow_hdr_scale = 2.0
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
+	for i in 7:
+		env.set_glow_level(i, [0.0, 0.6, 1.0, 1.0, 0.8, 0.6, 0.3][i])
+	env.fog_light_color = Color(0.09, 0.08, 0.14)
+	env.fog_density = 0.00028
+	if env.volumetric_fog_enabled:
+		env.volumetric_fog_density = 0.0022
+		env.volumetric_fog_albedo = Color(0.7, 0.74, 0.85)
+		env.volumetric_fog_emission = Color(0.0, 0.0, 0.0)
+		env.volumetric_fog_emission_energy = 0.0
+		env.volumetric_fog_anisotropy = 0.45
+		env.volumetric_fog_length = 260.0
+		env.volumetric_fog_detail_spread = 1.6
+		env.volumetric_fog_ambient_inject = 0.0
+	if env.sdfgi_enabled:
+		env.sdfgi_energy = 1.25
+		env.sdfgi_bounce_feedback = 0.6
+	if env.ssr_enabled:
+		env.ssr_max_steps = 160
+		env.ssr_depth_tolerance = 0.4
+		env.ssr_fade_out = 2.0
+
