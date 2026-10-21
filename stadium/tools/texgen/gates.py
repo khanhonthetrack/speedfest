@@ -181,8 +181,9 @@ def lamp_panel(name='gate_lamps', ppm=256, w_m=2.0, h_m=1.0, seed=71):
 
 if __name__ == '__main__':
     for k in KINDS:
-        # the arch's faces: the word along the arch (8 m), the arch 1.25 m deep at its faces
-        band(k, 'gate_%s' % k, length=8.0, height=1.25, repeats=1)
+        # the arch's faces: the word along the arch every 3.08 m (TMNF's), condensed as TMNF's;
+        # the arch 1.25 m deep at its faces
+        band(k, 'gate_%s' % k, length=3.08, height=1.25, repeats=1, fit=0.94)
         # the gate block's curb faces (both: towards the road and outside), as TMNF's RaceSigns:
         # the word every 4 m on its panel (16 m a tile, UV-mapped as the border atlas: road.gd
         # _entry), the band across the face (1.15 m)

@@ -225,11 +225,12 @@ const TEXTURED := {
 	"shoulder": ["road_shoulder", Vector2(8.0, 2.0), false],
 	"curb_top": ["road_curb_top", Vector2(8.0, 1.5), false],
 	"road_lip": ["road_curb_top", Vector2(8.0, 1.5), false],
-	# gates (road.gd _gate): the arch's faces, the gate block's curb faces, the light rigs
-	"gate_start": ["gate_start", Vector2(8.0, 1.25), false],
-	"gate_cp": ["gate_cp", Vector2(8.0, 1.25), false],
-	"gate_finish": ["gate_finish", Vector2(8.0, 1.25), false],
-	"gate_lap": ["gate_lap", Vector2(8.0, 1.25), false],
+	# gates (road.gd _gate): the arch's faces (a word every road.gd GATE_WORD m), the gate block's
+	# curb faces, the light rigs
+	"gate_start": ["gate_start", Vector2(3.08, 1.25), false],
+	"gate_cp": ["gate_cp", Vector2(3.08, 1.25), false],
+	"gate_finish": ["gate_finish", Vector2(3.08, 1.25), false],
+	"gate_lap": ["gate_lap", Vector2(3.08, 1.25), false],
 	# the gate block's curbs, both faces (texgen/gates.py: the word every 4 m; UV-mapped as the
 	# border atlas, the face's rows spread over the texture: road.gd _entry)
 	"curb_start": ["curb_start", Vector2(1.0, 1.0), false],

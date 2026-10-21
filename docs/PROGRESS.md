@@ -2816,4 +2816,12 @@ on every real contact the full impulse would land at the contact point and kick 
   the measurement (centre, facing, long axis), dark boxes with the lamps on one face: our own tile
   of two blocks of two by two round lamps, lit (LENS_GLOW). TMNF's glow cards in front of them
   (additive sprites) stay out: our lamps glow themselves, as on the camera lights.
+- (M11-2) **The gate arches' word every 3.08 m as TMNF's** (`road.gd GATE_WORD`, `texgen/gates.py`;
+  every road, platform and dirt gate). TMNF's arch faces carry START / CHECKPOINT / FINISH /
+  MULTILAP every 3.08 m along the arch (its RaceSigns band, measured from the UVs; 3.34 m on the
+  platform checkpoint's larger arch, which ours gets by its scale; the gate curbs every 4 m as
+  ours already); ours had one word per 8 m, so a few big words where TMNF shows a row of small
+  ones. The texture is now one word a tile, condensed as TMNF's lettering, the arch's length
+  fitted to whole words; the ring checkpoint's band every 2.19 m as TMNF's. The crown screen
+  stays (owner's option B).
 

@@ -154,6 +154,8 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   missing 191 -> 10 m2, T 96 -> 12, corner 56 -> 12.
 - The platform checkpoint's floodlight banks (20 Oct, late): 18 banks (spots missing 54 -> 0 m2);
   TMNF's additive glow cards (WarpSpotsGlow, ~170 m2) stay "missing": our lamps are emissive.
+- The gate arches' words (20 Oct, late): TMNF repeats the word every 3.08 m along the arch (u per
+  metre of its RaceSigns faces); ours was 8 m. Now 3.08 (ring 2.19).
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a

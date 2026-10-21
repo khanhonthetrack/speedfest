@@ -161,6 +161,10 @@ const GATE_LATTICE_Z := Vector2(-2.13, 2.17)
 const GATE_SPOTS := [Vector2(3.195, 3.16), Vector2(3.835, 3.755)]
 const GATE_SPOT_SIDE := 0.6
 const GATE_SPOT_Z := Vector2(-1.39, 1.45)
+## The arch's faces carry the gate's word every GATE_WORD metres along the arch (TMNF's RaceSigns
+## band, measured: 3.08 m a word; the gate block's curbs every 4 m); the arch's length is fitted to
+## a whole number of words.
+const GATE_WORD := 3.08
 ## A gate's line across the road (TMNF's: the border atlas' blue band, rows LINE_ROWS, LINE_HALF
 ## either side of the gate's centre) and the start / finish roads' texture tile along z (m).
 const LINE_HALF := 0.181
@@ -1217,7 +1221,7 @@ func _gate_faces(geo: TmGeo, zc: float) -> void:
 	var length := 0.0
 	for i in range(1, n):
 		length += (((outer[i] as Vector2) + (inner[i] as Vector2)) * 0.5 - ((outer[i - 1] as Vector2) + (inner[i - 1] as Vector2)) * 0.5).length()
-	var fit := maxf(1.0, roundf(length / TmGeo.UV_TILE)) * TmGeo.UV_TILE / length
+	var fit := maxf(1.0, roundf(length / GATE_WORD)) * GATE_WORD / length
 	var key := "gate_" + _gate_kind
 	for face: float in [-1.0, 1.0]:
 		var z := zc + face * 2.1

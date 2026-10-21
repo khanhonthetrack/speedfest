@@ -47,7 +47,7 @@
   border tubes and rubber ends, the platform ramp's orange curb underside, the turbo pads'
   grating, the road turbo's railings and fans, the sculptures' plinth pads, the snow trees' snow,
   the turbines' exhaust caps, the road junctions' keel, the platform plates' inner corners (the
-  lip turned round a notch) and truss undersides, the platform checkpoint's floodlight banks.
+  lip turned round a notch) and truss undersides, the platform checkpoint's floodlight banks, the gate arches' word every 3.08 m.
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

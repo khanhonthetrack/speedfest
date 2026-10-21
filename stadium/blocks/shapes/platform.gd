@@ -230,6 +230,7 @@ const RING_SECTION := [
 const RING_ROWS := Vector2(140.0, 6.0)
 const RING_RIB_ROW := 210.0
 const RING_ARC := 38.0          ## each arc spans +-38 degrees about an axis direction
+const RING_WORD := 2.19         ## the band's word every RING_WORD m along the ring (TMNF's, measured)
 ## The billboard bands leaning out of the ring's front face over each diagonal (17-73 degrees).
 const RING_PANEL := [[13.35, 16.39, "screen", S_METAL], [14.52, 14.365, "screen", S_METAL],
 	[14.52, 14.125, "screen", S_METAL], [13.35, 16.15, "screen", S_METAL]]
@@ -792,7 +793,7 @@ func _ring_uv(part: TmGeo, sec: Array, centre: Vector2, mid: float) -> void:
 	part.remap_uv("gate_cp", func(p: Vector3) -> Vector2:
 		var r := Vector2(p.x - centre.x, p.y - centre.y).length()
 		var u := -float(along.call(p)) if p.z < zm else float(along.call(p))
-		return Vector2(u + 4.0, (r1 - r) * 1.25 / (r1 - r0)))
+		return Vector2((u / RING_WORD + 0.5) * RoadShapes.GATE_WORD, (r1 - r) * 1.25 / (r1 - r0)))
 
 
 ## The checkpoint's floodlight banks (CP_SPOTS, both sides): dark boxes, the lamps on one face.
