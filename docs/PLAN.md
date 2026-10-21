@@ -255,7 +255,7 @@ On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (
 - [x] The circuit borders' blue as TMNF's on every shape (ground strips, slope walls, surfaces)
 - [x] Next release: merged into `stadium` (it had moved on: M12) and tagged `stadium-v0.6` (from the PC)
 - [x] v0.7 (21 Oct): the look work after v0.6 (M11-2..4, M11-8) and the city (M13) merged into
-      `stadium`, gated; the tag `stadium-v0.7` is the owner's to push
+      `stadium`, gated, and tagged `stadium-v0.7` (from the PC; the Release has both zips)
 
 ### M10 — The owner's five requests after M9 (session 13, 2026-10-18) ☑ (owner decisions open, below)
 Owner's words in TRANSCRIPT (session 13, after M9). Same branch, same rules; in the owner's order.

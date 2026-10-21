@@ -1128,4 +1128,11 @@ them would bring `game/` back and undo the TMNF look): `main` itself, `m7-*`, `r
 `claude/stoic-planck-cjsw08` on its own: `docs/research/tmuf_feasibility.md` (the TMUF probe),
 which stands alone and touches no code.
 
-Not done, for the owner to say: tagging `stadium-v0.7` (the tag is what makes the GitHub Release).
+### User (verbatim, after the merges)
+
+> Yes, tag stadium-v0.7 and push it to publish the release.
+
+### Claude
+
+`stadium-v0.7` tagged on 3286fa8 and pushed. CI "Stadium builds" green; the GitHub Release has
+`SpeedFestStadium-windows.zip` (106.5 MB) and `SpeedFestStadium-linux.zip` (97.3 MB).

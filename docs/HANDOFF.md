@@ -1,6 +1,6 @@
 # HANDOFF: start here
 
-## Latest (21 Oct, owner's Windows PC): **v0.7 is ready on `stadium`** (not tagged yet)
+## Latest (21 Oct, owner's Windows PC): **`stadium-v0.7` released**
 - Owner: "merge all the progress from branches (including your graphics updates) and the city maps
   with new assets, to have 0.7 ready".
 - **Both stadium branches are merged into `stadium`** (gated separately, STADIUM_TESTS PASS each
@@ -8,10 +8,10 @@
   and M11-8) and `ccr-1ce252fc-wl7p3m` (11 commits: the city **M13**, the City series F01-F05 with
   the owner's Blend Swap buildings, street trees and lights, and texture mods). Both branches are
   now contained in `stadium`; **continue on `stadium`**.
-- **The tag is the only thing left.** `stadium-v0.7` on `stadium` makes the GitHub Release (CI
-  "Stadium builds" attaches the Windows and Linux zips). From this PC:
-  `git fetch origin && git tag -a stadium-v0.7 origin/stadium -m "SpeedFest Stadium v0.7" && git push origin stadium-v0.7`
-  (cloud sessions can't push tags: HTTP 403). The owner releases.
+- **Released** (owner: "Yes, tag stadium-v0.7 and push it to publish the release"): the tag
+  `stadium-v0.7` is on 3286fa8; CI "Stadium builds" went green and the GitHub Release carries
+  `SpeedFestStadium-windows.zip` (106.5 MB) and `SpeedFestStadium-linux.zip` (97.3 MB).
+  (Cloud sessions can't push tags: HTTP 403. Tag from the PC.)
 - Conflicts worth knowing about (full notes in PROGRESS, 21 Oct, and in the merge commits):
   `circuit.gd` (M11-4's TMNF base variants stand; the TMX loop/kicker/turbo pieces are built
   through them, `_plate` takes the top material for the turbo pad), `control.gd` (the look branch

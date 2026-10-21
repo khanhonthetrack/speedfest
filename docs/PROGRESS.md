@@ -3500,5 +3500,8 @@ with new assets, to have 0.7 ready".
   undo the TMNF look): `main`, `m7-look/maps/pc/probes/rtx`, `rtx-build`, `tmnf-physics`,
   `claude/speedfest-stadium-overhaul-dvdcal`, `ccr-be8add6f-thdbey`, `claude/loving-fermi-79nbzc`,
   `claude/sleepy-albattani-o7ygr1`.
-- **Open: the tag.** `stadium-v0.7` on `stadium` is what makes the GitHub Release (CI "Stadium
-  builds" attaches the Windows and Linux zips). The owner releases.
+- **Released.** Owner: "Yes, tag stadium-v0.7 and push it to publish the release". `stadium-v0.7`
+  tagged on 3286fa8 and pushed from the PC; CI "Stadium builds" green, and the GitHub Release
+  carries `SpeedFestStadium-windows.zip` (106.5 MB) and `SpeedFestStadium-linux.zip` (97.3 MB).
+- Next: PLAN M11-5..7, the owner's look at the city, the Street/Traffic Lights licence, the
+  canyon/lagoon question, and whether to start TMUF at all.
