@@ -25,6 +25,10 @@ extends Node3D
 ## (made by tools/assets/hypercar.py, in visual coordinates) dressed in our materials by their
 ## names, on these same wheels without the open-wheeler's guards; its livery in the paint shader
 ## (mode 3) and stickers (HYPER_STICKERS).
+## A road car's id as model (TmRoadCars: tools/assets/roadcar.py's assets/car/<id>.glb) draws that
+## car: its body in our materials by name, its paint in the livery `livery` (TmRoadCars.LIVERIES:
+## tm_car_surface.gdshader mode 4), on its own wheels at its own places (from its manifest), each
+## wheel spinning, steering and riding the suspension like ours, the brake behind it fixed.
 
 const T := preload("res://core/tm_tuning.gd")
 
@@ -86,7 +90,8 @@ var ghost_steer := 0.0
 var paint_colour := Color(0.85, 0.08, 0.06)
 var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online players: theirs)
 var pack: TmCarPack               ## a community car to draw instead of ours (null: ours)
-var model := ""                   ## ours: "" the open-wheeler, "hyper" the hypercar
+var model := ""                   ## ours: "" the open-wheeler, "hyper" the hypercar, or a road car (TmRoadCars)
+var livery := 0                   ## the road car's (or the hypercar's) livery (TmRoadCars.liveries)
 var _from_pack := true            ## drawn from the pack's model (false: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
 var _rest: Array[Vector3] = []    ## per wheel: the pivot's place at rest (node space)
@@ -257,6 +262,11 @@ func _ready() -> void:
 		if ghost:
 			ghost_tint = pack.colour
 	_from_pack = false
+	if TmRoadCars.is_road(model) and not TmRoadCars.meshes(model).is_empty():
+		_road_parts()
+		if not ghost:
+			add_child(contact_shadow())
+		return
 	_shared_meshes()
 	var hyper := model == "hyper" and _hyper_mesh() != null
 	if hyper:
@@ -511,6 +521,175 @@ func _instance(name: String, wheel := false) -> MeshInstance3D:
 	if wheel:
 		mi.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	return mi
+
+
+# --- road cars (TmRoadCars) ---------------------------------------------------------------------
+
+## The road car's materials by the names tools/assets/roadcar.py gives them -> ours.
+const ROAD_MATS := {"paint": "road_paint", "glass": "road_glass", "rim": "road_rim", "caliper": "road_caliper",
+	"tyre": "road_tyre", "grille": "road_grille", "plate": "road_plate"}
+
+
+func _road_parts() -> void:
+	var rc := TmRoadCars.meshes(model)
+	var man := TmRoadCars.manifest(model)
+	var body := MeshInstance3D.new()
+	body.name = "Body"
+	body.mesh = rc["Body"]
+	body.position = -VIS
+	_road_dress(body)
+	add_child(body)
+	var cs: Array = man["wheels"]
+	var radii: Array = man["tyre_r"]
+	for i in 4:
+		var axle := "F" if i < 2 else "R"
+		var c: Array = cs[i]
+		var pivot := Node3D.new()
+		pivot.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+		pivot.position = Vector3(float(c[0]), float(c[1]), float(c[2])) - VIS
+		add_child(pivot)
+		var spin := Node3D.new()
+		pivot.add_child(spin)
+		var right := float(c[0]) < 0.0
+		for part: String in ["Wheel", "Brake"]:
+			if not rc.has(part + axle):
+				continue
+			var mi := MeshInstance3D.new()
+			mi.mesh = rc[part + axle]
+			mi.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+			if right:
+				mi.scale = Vector3(-1.0, 1.0, 1.0)
+			_road_dress(mi)
+			(spin if part == "Wheel" else pivot).add_child(mi)
+		_wheels.append(pivot)
+		_spins.append(spin)
+		_rest.append(pivot.position)
+		_radius.append(float(radii[0 if i < 2 else 1]))
+
+
+func _road_dress(mi: MeshInstance3D) -> void:
+	var mesh := mi.mesh
+	for s in mesh.get_surface_count():
+		var src := mesh.surface_get_material(s)
+		var name: String = src.resource_name if src != null else mesh.surface_get_name(s)
+		mi.set_surface_override_material(s, _road_mat(String(ROAD_MATS.get(name, name))))
+	if ghost:
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+## The finishes a livery can have: metallic, roughness, clearcoat, pearl.
+const FINISHES := {"gloss": Vector4(0.05, 0.22, 1.0, 0.0), "metallic": Vector4(0.45, 0.3, 1.0, 0.0),
+	"pearl": Vector4(0.25, 0.26, 1.0, 0.55), "matte": Vector4(0.1, 0.62, 0.0, 0.0), "chrome": Vector4(1.0, 0.06, 0.6, 0.0)}
+
+
+func _road_mat(key: String) -> Material:
+	if _mats.has(key):
+		return _mats[key]
+	var lv := TmRoadCars.livery(model, livery)
+	var man := TmRoadCars.manifest(model)
+	var base: Color = lv.get("base", paint_colour)
+	if not ghost and TmMaterials.hd() and key in ["road_paint", "road_tyre", "road_grille", "carbon"]:
+		var sm: ShaderMaterial
+		match key:
+			"road_paint":
+				sm = _surface(4, base, 0.0)
+				sm.set_shader_parameter("livery", maxi(0, TmRoadCars.PATTERNS.find(String(lv.get("pattern", "plain")))))
+				sm.set_shader_parameter("liv_a", lv.get("a", Color.WHITE))
+				sm.set_shader_parameter("liv_b", lv.get("b", Color.BLACK))
+				sm.set_shader_parameter("liv_c", lv.get("c", Color.BLACK))
+				sm.set_shader_parameter("liv_p", lv.get("p", Vector4.ZERO))
+				sm.set_shader_parameter("finish", FINISHES.get(String(lv.get("finish", "metallic")), FINISHES["metallic"]))
+				sm.set_shader_parameter("liv_hood", ["", "carbon", "black"].find(String(lv.get("hood", ""))))
+				sm.set_shader_parameter("liv_roof", ["", "black"].find(String(lv.get("roof", ""))))
+				var an: Dictionary = man.get("anchors", {})
+				for k: String in ["top", "belt", "mid", "sill", "hw"]:
+					sm.set_shader_parameter("an_" + k, PackedFloat32Array(an.get(k, [])))
+				sm.set_shader_parameter("z_nose", float(man.get("z_nose", 2.5)))
+				sm.set_shader_parameter("z_tail", float(man.get("z_tail", -2.0)))
+				var cab: Array = man.get("cabin", [1.5, 3.5])
+				sm.set_shader_parameter("cabin", Vector2(float(cab[0]), float(cab[1])))
+				sm.set_shader_parameter("flakes", 1.0 if String(lv.get("finish", "metallic")) in ["metallic", "pearl"] else 0.0)
+			"road_tyre":
+				sm = _surface(2, Color.BLACK, 0.0)
+				var r: Array = man.get("tyre_r", [TYRE_R])
+				var hw: Array = man.get("tyre_hw", [TYRE_HW[0]])
+				sm.set_shader_parameter("tyre_radius", float(r[0]))
+				sm.set_shader_parameter("tyre_half_width", float(hw[0]))
+			"road_grille": sm = _surface(5, Color.BLACK, 0.0)
+			"carbon": sm = _surface(1, Color.BLACK, 0.0)
+		sm.set_shader_parameter("ground_y", 0.0)
+		_mats[key] = sm
+		return sm
+	var m := StandardMaterial3D.new()
+	match key:
+		"road_paint":
+			m.albedo_color = base if not ghost else ghost_tint
+			m.metallic = 0.3
+			m.roughness = 0.3
+			m.clearcoat_enabled = true
+		"trim":
+			m.albedo_color = Color(0.03, 0.03, 0.033)
+			m.roughness = 0.62
+		"gloss_black":
+			m.albedo_color = Color(0.01, 0.01, 0.012)
+			m.metallic = 0.1
+			m.roughness = 0.12
+			m.clearcoat_enabled = true
+		"chrome", "rim_lip":
+			m.albedo_color = Color(0.9, 0.9, 0.92)
+			m.metallic = 1.0
+			m.roughness = 0.06 if key == "chrome" else 0.12
+		"road_glass":
+			# tinted, mirrors the sky; the cabin behind it reads dark
+			m.albedo_color = Color(0.015, 0.018, 0.024)
+			m.metallic = 0.6
+			m.roughness = 0.03
+			m.clearcoat_enabled = true
+		"lens":
+			m.albedo_color = Color(0.85, 0.9, 0.95, 0.12)
+			m.metallic = 0.2
+			m.roughness = 0.02
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		"lens_red":
+			m.albedo_color = Color(0.6, 0.02, 0.02, 0.55)
+			m.roughness = 0.03
+			m.metallic = 0.2
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		"lamp":
+			m.albedo_color = Color(0.8, 0.81, 0.84)
+			m.metallic = 1.0
+			m.roughness = 0.12
+		"amber":
+			m.albedo_color = Color(1.0, 0.55, 0.08)
+			m.emission_enabled = true
+			m.emission = Color(1.0, 0.5, 0.05)
+			m.emission_energy_multiplier = 0.5
+			m.roughness = 0.3
+		"road_grille":
+			m.albedo_color = Color(0.02, 0.02, 0.022)
+			m.roughness = 0.7
+		"gap":
+			m.albedo_color = Color(0.004, 0.004, 0.005)
+			m.roughness = 0.9
+		"road_plate":
+			m.albedo_color = Color(0.9, 0.9, 0.88)
+			m.roughness = 0.45
+		"road_rim":
+			m.albedo_color = Color(lv.get("rim", Color(0.75, 0.76, 0.78)))
+			m.metallic = 0.9
+			m.roughness = 0.28
+		"road_caliper":
+			m.albedo_color = Color(lv.get("caliper", Color(0.82, 0.10, 0.06)))
+			m.metallic = 0.2
+			m.roughness = 0.35
+			m.clearcoat_enabled = true
+		"road_tyre":
+			m.albedo_color = Color(0.035, 0.035, 0.04)
+			m.roughness = 0.9
+		_:
+			return _mat(key)
+	_mats[key] = _ghostly(m)
+	return _mats[key]
 
 
 # --- suspension: arms from the tub to the upright, re-aimed every frame -----------------------

@@ -1,6 +1,6 @@
 extends Node3D
 ## Looks at one of our cars on a concrete plaza in our light (screenshots, a turntable):
-## --model=hyper ("" the open-wheeler) [--colour=0 (TmUi.CAR_COLOURS)] [--yaw=35 (0: from the
+## --model=hyper ("" the open-wheeler; a road car's id) [--livery=0] [--colour=0 (TmUi.CAR_COLOURS)] [--yaw=35 (0: from the
 ## front, 90: its left side)] [--pitch=12] [--dist=6.5 (m)] [--look=0,0.55,0 (the point looked at,
 ## visual coords)] [--fov=40] [--spin=0 (degrees the car turns each frame: a turntable with
 ## --shots=a.png@N,...)] [--mood=night] [--ghost] --frames=N --shot=/abs.png.
@@ -20,6 +20,7 @@ func _ready() -> void:
 	add_child(ground)
 	_car = TmCarVisual.new()
 	_car.model = String(TestHooks.arg("model", "hyper"))
+	_car.livery = int(TestHooks.arg("livery", 0))
 	_car.paint_colour = TmUi.CAR_COLOURS[clampi(int(TestHooks.arg("colour", 0)), 0, TmUi.CAR_COLOURS.size() - 1)]
 	_car.ghost = TestHooks.has_arg("ghost")
 	_car.position = TmCarVisual.VIS          # its ground on the plaza
