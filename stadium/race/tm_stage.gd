@@ -131,7 +131,11 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	if city_map:
 		TmStadiumEnv.city(we, TmStadiumEnv.night)
 	TmOcclusion.add(parent, builder)
-	parent.add_child(field_probe(builder))
+	# the field's probe (captured once, not parallax-correct) mirrored a City night's amber neon and
+	# street lights onto the wet road where nothing is (the owner: "some orange reflection"): there
+	# the reflections are SSR's, SDFGI's and the sky's
+	if not (city_map and TmStadiumEnv.night):
+		parent.add_child(field_probe(builder))
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
 		if TmRefVisuals.active():
 			# research (--ref): TMNF's own surround, from local files (TmRefVisuals)

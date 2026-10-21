@@ -1209,3 +1209,11 @@ path tracing on the City next.)
 > ship to new version
 
 (Released `stadium-v0.8`: `stadium` as it stands; both stadium branches were already in it.)
+
+### User (verbatim, with two screenshots of City 04 at night: orange smears on the wet road)
+
+> I think reflections are incorrect - some orange reflection - no idea where it comes from
+
+(Found by switching sources off at the same spot: the field's reflection probe, captured once from
+20 m over the field and not parallax-correct, mirrored the amber neon and the street lights onto the
+road where nothing is. No probe on City nights now.)

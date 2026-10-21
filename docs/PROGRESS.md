@@ -3637,3 +3637,9 @@ on 78f5b9f; after it only `PLAYING.txt` (the City series' neon nights; the Relea
 them the CC BY credit for raytrace's "12 Buildings", missing from v0.7's zips). Tagged
 `stadium-v0.8` (86096d6) and pushed; CI "Stadium builds" green: the Release carries
 `SpeedFestStadium-windows.zip` (118.5 MB) and `SpeedFestStadium-linux.zip` (108.8 MB).
+- (after v0.8, owner: "some orange reflection - no idea where it comes from") The orange smears on a
+  City night's wet road were the field's reflection probe (`TmStage.field_probe`: captured once from
+  20 m over the field, no box projection): with it switched off at the reproduced spot (F04, path
+  0.62) the smudge and the orange sheen on the glass went; SDFGI and SSR off left them. On City
+  nights there is no probe now (the Stadium it mirrored isn't there): reflections are SSR's (what is
+  on screen), SDFGI's and the sky's.
