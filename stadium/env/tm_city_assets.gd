@@ -10,8 +10,6 @@ extends RefCounted
 ## cladding had the skyline's towers grey and windowless).
 ## The buildings: res://assets/city/<set>_NN.glb with a manifest per set (<set>.json: sizes,
 ## triangles, licence; CREDITS.md); pick() finds one that fits a lot, building() places it dressed.
-## A set whose manifest says "own_materials" (converted with its textures: the owner's City Street,
-## brick and lit windows) keeps its own materials; by day its windows glow a third as bright.
 
 const DIR := "res://assets/city"
 const MIN_SCALE := 0.8              ## a building is scaled to the height asked within these
@@ -47,20 +45,16 @@ static func catalogue() -> Array:
 				var sz: Array = b["size"]
 				if ResourceLoader.exists(DIR.path_join(String(b["name"]) + ".glb")):
 					_catalogue.append({"name": String(b["name"]), "size": Vector3(sz[0], sz[1], sz[2]),
-						"triangles": int(b.get("triangles", 0)), "licence": String(m.get("licence", "")),
-						"set": f.get_basename(), "own": bool(m.get("own_materials", false))})
+						"triangles": int(b.get("triangles", 0)), "licence": String(m.get("licence", ""))})
 		_catalogue.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["name"] < b["name"])
 	return _catalogue
 
 
 ## A building for a lot `room` (m, x and z) about `height` tall: {name, scale, size (scaled), turn
-## (quarter turns so it fits)}, or {} when none fits. `only`: that set's buildings; else all but
-## the sets that keep their own materials (the street's low brick ones: picked by name).
-static func pick(rng: RandomNumberGenerator, room: Vector2, height: float, only := "") -> Dictionary:
+## (quarter turns so it fits)}, or {} when none fits.
+static func pick(rng: RandomNumberGenerator, room: Vector2, height: float) -> Dictionary:
 	var fits := []
 	for b: Dictionary in catalogue():
-		if (only.is_empty() and bool(b["own"])) or (not only.is_empty() and String(b["set"]) != only):
-			continue
 		var sz: Vector3 = b["size"]
 		var k := clampf(height / sz.y, MIN_SCALE, MAX_SCALE)
 		if absf(sz.y * k - height) > height * 0.3:
@@ -70,7 +64,7 @@ static func pick(rng: RandomNumberGenerator, room: Vector2, height: float, only 
 			if sz.z * k > room.x or sz.x * k > room.y:
 				continue
 			turn = 1
-		fits.append({"name": b["name"], "scale": k, "turn": turn, "own": b["own"],
+		fits.append({"name": b["name"], "scale": k, "turn": turn,
 			"size": Vector3(sz.z, sz.y, sz.x) * k if turn == 1 else sz * k})
 	if fits.is_empty():
 		return {}
@@ -90,29 +84,11 @@ static func building(choice: Dictionary, glass := "blue", seed := 1, shadows := 
 	var n := (_scenes[name] as PackedScene).instantiate() as Node3D
 	n.scale = Vector3.ONE * float(choice.get("scale", 1.0))
 	n.rotation.y = int(choice.get("turn", 0)) * PI * 0.5
-	if bool(choice.get("own", false)):
-		_own_glow(n)
-	else:
-		dress(n, glass, seed)
+	dress(n, glass, seed)
 	if not shadows:
 		for mi: MeshInstance3D in n.find_children("*", "MeshInstance3D", true, false):
 			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return n
-
-
-## A set that keeps its own materials: their glow (lit windows, signs) full at night, a third by
-## day (the materials are the scene's, shared: set from the value they came with).
-static func _own_glow(root: Node) -> void:
-	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
-		if mi.mesh == null:
-			continue
-		for s in mi.mesh.get_surface_count():
-			var m := mi.mesh.surface_get_material(s) as BaseMaterial3D
-			if m == null or not m.emission_enabled:
-				continue
-			if not m.has_meta("glow"):
-				m.set_meta("glow", m.emission_energy_multiplier)
-			m.emission_energy_multiplier = float(m.get_meta("glow")) * (1.0 if TmStadiumEnv.night else 0.33)
 
 
 ## Our kind for a material name ("cladding" when nothing matches).

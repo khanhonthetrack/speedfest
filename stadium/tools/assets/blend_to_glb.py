@@ -23,8 +23,6 @@ that touch, a street of terraced houses), not footprints that touch.
 --image-format JPEG [--image-quality 85]: the textures as JPEG (--images; default: as they are).
 --drop-image coffee: objects whose materials use an image whose name holds that are left out (a
 stock image the scene's licence doesn't cover).
---own-materials: the manifest says the set keeps its own materials in the game (with --images:
-TmCityAssets doesn't dress it in ours).
 """
 import bpy
 import json
@@ -231,6 +229,5 @@ for members in sorted(groups.values(), key=lambda m: -max(bb[n][5] for n in m)):
     print("BUILDING %s %.0f x %.0f x %.0f m, %d triangles, %d parts" % (name, size[0], size[1], size[2], tris, len(members)))
 
 mpath = os.path.join(OUT, PREFIX + ".json")
-json.dump({"source": SOURCE, "licence": LICENCE, "scale": SCALE, "own_materials": opt("own-materials", flag=True),
-    "buildings": manifest}, open(mpath, "w"), indent=1)
+json.dump({"source": SOURCE, "licence": LICENCE, "scale": SCALE, "buildings": manifest}, open(mpath, "w"), indent=1)
 print("MANIFEST", mpath, len(manifest))

@@ -290,19 +290,6 @@ static func field(builder: TmMapBuilder) -> Node3D:
 		var z1 := (c.y + 1) * 32.0 - FIELD_INSET - rng.randf_range(0.0, 3.0)
 		var r := Rect2(x0, z0, x1 - x0, z1 - z0)
 		var bh := rng.randf_range(16.0, 45.0) if d <= 1 else rng.randf_range(20.0, 90.0)
-		# by the road, a third of them one of the owner's City Street buildings (brick, lit windows,
-		# their own signs) when one fits the lot (picked by the cell's hash)
-		var hv := hash(c * 31 + Vector2i(7, 3))
-		if d <= 2 and absi(hv) % 100 < 35:
-			var prng := RandomNumberGenerator.new()
-			prng.seed = hv
-			var st := TmCityAssets.pick(prng, r.size, clampf(bh, 10.0, 34.0), "street")
-			if not st.is_empty():
-				var ssz: Vector3 = st["size"]
-				var sat := r.get_center()
-				_asset(towers, st, sat, "", 0, true)
-				_collide(body, Rect2(sat - Vector2(ssz.x, ssz.z) * 0.45, Vector2(ssz.x, ssz.z) * 0.9), ssz.y)
-				continue
 		_box(blocks, roofs, 0, r, bh, 0.5, rng, true, neon, d <= 2)
 		_collide(body, r, bh)
 		# beside the road: a billboard on the roof facing it, or a neon sign out from the facade
