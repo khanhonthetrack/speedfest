@@ -316,6 +316,19 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M16 — Our own menu look, panel-based (owner, 22 Oct) ☐
+"move away from this trackmania vibe and have our own vibe for UI. We'll start from the menu. I want
+something like this [RaceRoom's menus] (panel-based). Colours minimalistic, slight hint of red and
+blue/purple. Include the solo, multiplayer tabs. also include the "Story" panel, but this is locked
+as building a story mode is one of the next steps. Put good graphics in the panel". On `stadium`.
+- [ ] 1. The look: charcoal, a hint of red and violet, Montserrat; a header with our wordmark and
+      tabs (Home, Solo, Multiplayer, Story (locked), Community, Editor; profile, options, quit)
+- [ ] 2. Home: picture panels (Solo, Multiplayer large; Story locked, Community, Editor, Replays)
+- [ ] 3. The panels' pictures rendered from our own game (a generator scene and script in the repo)
+- [ ] 4. The other menu pages in the new look under the header
+- [ ] 5. Next (the owner's second picture): options as rows with a line of explanation each,
+      sub-tabs; then the race's menus and HUD; then Story mode itself
+
 ### M15 — Our own Le Mans hypercar (owner, 21 Oct) ☑
 "Can you look at the peugeot hypercar (that i used), and without using peugeot copyright, design
 a similar, generic hypercar model? Blender or Godot, whatever is easier for you". (The car they
