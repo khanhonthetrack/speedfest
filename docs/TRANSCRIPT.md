@@ -1180,3 +1180,16 @@ took about 20 s each.)
 pattern) that may carry its own licence: that one sign texture stays out. Trees & Bushes pack is CC
 BY 3.0 (Painkiller5555, credit); Mountain Range With Trees is CC BY-NC-SA 3.0: not used. `lgt.pdf`
 in the folder is a university tutorial, not an asset: left alone, never committed.)
+
+### User (verbatim, while the gate ran)
+
+> that's a long wait. Also, look at screenshots - arent building far away soul-less and gray?
+
+(Answered: yes; the far towers were lit by a pale haze and the owner's Blend Swap towers wore plain
+grey cladding: far windows now light in strips, walls dark at night, the haze darker, the Blend
+Swap towers' facades windowed, neon on most towers, LED screens, searchlights, glowing streets.
+Frame rate on the owner's RTX 2060 at Ultra 56.5 fps, as v0.7. Asked whether to try the RTX fork's
+path tracing on the City next.)
+
+> Not yet. I'll play the City maps first and tell you what to change.
+
