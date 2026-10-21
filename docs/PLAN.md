@@ -225,7 +225,7 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       platform lip, the road keel's plates, the decks' 16 m tiles, the circuit walls' bumpers,
       back panel and ledge; next: the grandstand pillar piece, the curved ledges, M11-3
 - [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti, inflatable castles, the
-      Sculpt bridges' fabric and pillars; left: camera light base, bump, fabric pillar corners, trusses, screens, spotlights, bridge rails,
+      Sculpt bridges' fabric and pillars, the camera light base; left: bump, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)
 - [x] 4. The circuit base variants (bump, hole, pillars; 20 Oct)
 - [ ] 5. Physics: flat-ground and landing wheelies, water, reverse switch, turbo pad direction,

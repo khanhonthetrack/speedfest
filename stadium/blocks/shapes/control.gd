@@ -247,6 +247,7 @@ func _camera_piece(shape: String) -> Node3D:
 				path.append(Vector3(16, 0, 16))
 				outs.append(Vector3(cos(a), 0, sin(a)))
 			geo.wall_sweep(sec, path, outs, false)
+			_light_base_dress(geo)
 		"Control/CameraPub/StraightAir", "Control/CameraPub/StraightGround":
 			var ground := shape.ends_with("Ground")
 			along.call(PUB_GROUND if ground else PUB)
@@ -309,6 +310,91 @@ func _light_steel(geo: TmGeo) -> void:
 		var wr: Array = LIGHT_WALK_RAIL
 		var rx: float = mx.call(wr[0])
 		card.call(Vector3(rx, wr[1], 0.0), Vector3(rx, wr[1], 32.0), Vector3(0, float(wr[2]) - float(wr[1]), 0), "railing", 4.0)
+
+
+## The light's base dressed as TMNF's: the straight piece's outer side (its floodlight bar, the
+## W-truss panel over it, the rail, the walkway's grating, lattice and railing; LIGHT_*) along
+## each side of an octagon round (16, 16) whose sides stand 16 - inset from its middle (inset: the
+## straight's x), the bar LIGHT_BASE_BAR and the panel LIGHT_BASE_PANEL long (m, centred on the
+## side); under the top bar four flat trusses out along the axes (LIGHT_BASE_FLAT: from, to (m
+## from the middle), y0, y1) and four trusses out along the diagonals (LIGHT_BASE_DIAG), measured.
+const LIGHT_BASE_BAR := 9.5
+const LIGHT_BASE_PANEL := 10.2
+const LIGHT_BASE_FLAT := [0.69, 14.49, 5.47, 6.11]
+const LIGHT_BASE_DIAG := [3.32, 16.08, 5.40, 7.01]
+
+
+func _light_base_dress(geo: TmGeo) -> void:
+	var nz := TmGeo.NO_COLLISION
+	var c := Vector2(16, 16)
+	var face := func(q: Array, out: Vector3, key: String, surface: int, uv: Array) -> void:
+		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).dot(out) < 0.0:
+			geo.quad_uv(q[0], q[3], q[2], q[1], key, surface, uv[0], uv[3], uv[2], uv[1])
+		else:
+			geo.quad_uv(q[0], q[1], q[2], q[3], key, surface, uv[0], uv[1], uv[2], uv[3])
+	var card := func(a: Vector3, b: Vector3, h: Vector3, key: String, u: float, surface := TmGeo.NO_COLLISION) -> void:
+		geo.quad_uv(a, b, b + h, a + h, key, surface, Vector2(0, 1), Vector2(u, 1), Vector2(u, 0), Vector2(0, 0))
+	var none := [Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO]
+	var dk := "stands_dark"
+	for k in 8:
+		var a := PI + PI / 8.0 + k * PI / 4.0
+		var n := Vector2(cos(a), sin(a))
+		var tg := Vector2(-n.y, n.x)
+		var out3 := Vector3(n.x, 0, n.y)
+		# s m along the side from its middle, d in from the outside (the straight's x), at height y
+		var at := func(s: float, d: float, y: float) -> Vector3:
+			var q := c + n * (16.0 - d) + tg * s
+			return Vector3(q.x, y, q.y)
+		var half := func(d: float) -> float: return (16.0 - d) * tan(PI / 8.0)
+		# the floodlight bar: a dark box, its outer face the lamps (u along, v down)
+		var b: Array = LIGHT_BARS
+		var s0 := -LIGHT_BASE_BAR * 0.5
+		var s1 := LIGHT_BASE_BAR * 0.5
+		var lo := float(b[2])
+		var hi := float(b[3])
+		var din := float(b[1])
+		var dout := float(b[0])
+		face.call([at.call(s0, din, hi), at.call(s1, din, hi), at.call(s1, dout, hi), at.call(s0, dout, hi)], Vector3.UP, dk, S_METAL, none)
+		face.call([at.call(s0, din, lo), at.call(s1, din, lo), at.call(s1, dout, lo), at.call(s0, dout, lo)], Vector3.DOWN, dk, S_METAL, none)
+		face.call([at.call(s0, din, lo), at.call(s1, din, lo), at.call(s1, din, hi), at.call(s0, din, hi)], -out3, dk, S_METAL, none)
+		face.call([at.call(s0, dout, lo), at.call(s1, dout, lo), at.call(s1, dout, hi), at.call(s0, dout, hi)], out3, dk, S_METAL, none)
+		for s: float in [s0, s1]:
+			var e := Vector3(tg.x, 0, tg.y) * signf(s)
+			face.call([at.call(s, din, lo), at.call(s, dout, lo), at.call(s, dout, hi), at.call(s, din, hi)], e, dk, S_METAL, none)
+		var lamps := [at.call(s0, dout - 0.01, lo), at.call(s0, dout - 0.01, hi), at.call(s1, dout - 0.01, hi), at.call(s1, dout - 0.01, lo)]
+		face.call(lamps, out3, "spots_bank", nz, [Vector2(0, 1), Vector2(0, 0), Vector2(1, 0), Vector2(1, 1)])
+		# the W-truss panel over it, the rail at its top
+		var pn: Array = LIGHT_PANEL
+		var pa: Vector3 = at.call(-LIGHT_BASE_PANEL * 0.5, pn[0], pn[1])
+		var pb: Vector3 = at.call(LIGHT_BASE_PANEL * 0.5, pn[0], pn[1])
+		card.call(pa, pb, Vector3(0, float(pn[2]) - float(pn[1]), 0), "railing", LIGHT_BASE_PANEL / 8.0, S_METAL)
+		var r: Array = LIGHT_RAIL
+		var hr: float = half.call(float(r[0]))
+		face.call([at.call(-hr, r[0], r[2]), at.call(hr, r[0], r[2]), at.call(hr, r[0], r[3]), at.call(-hr, r[0], r[3])], out3, dk, nz, none)
+		face.call([at.call(-hr, r[0], r[3]), at.call(hr, r[0], r[3]), at.call(hr, r[1], r[3]), at.call(-hr, r[1], r[3])], Vector3.UP, dk, nz, none)
+		# the walkway: its grating, the lattice down from it to the foot, the railing at its edge
+		var w: Array = LIGHT_WALK
+		var hw: float = half.call(float(w[0]))
+		var hw1: float = half.call(float(w[1]))
+		var wa: Vector3 = at.call(-hw, w[0], w[2])
+		var wb: Vector3 = at.call(hw, w[0], w[2])
+		var len := wa.distance_to(wb)
+		geo.quad_uv(wa, wb, at.call(hw1, w[1], w[2]), at.call(-hw1, w[1], w[2]), "grate", S_METAL, Vector2(0, 1), Vector2(len, 1),
+			Vector2(len, 0), Vector2(0, 0))
+		var fa: Vector3 = at.call(-hw1, w[1], 0.0)
+		var fb: Vector3 = at.call(hw1, w[1], 0.0)
+		geo.quad_uv(fa, fb, wb, wa, "girder_dark", nz, Vector2(0, 1), Vector2(len / 8.0, 1), Vector2(len / 8.0, 0), Vector2(0, 0))
+		var wr: Array = LIGHT_WALK_RAIL
+		card.call(at.call(-hw, wr[0], wr[1]), at.call(hw, wr[0], wr[1]), Vector3(0, float(wr[2]) - float(wr[1]), 0), "railing",
+			len / 8.0, S_METAL)
+	# the trusses under the top bar: flat ones along the axes, taller ones along the diagonals
+	for k in 8:
+		var a := k * PI / 4.0
+		var dir := Vector3(cos(a), 0, sin(a))
+		var t: Array = LIGHT_BASE_FLAT if k % 2 == 0 else LIGHT_BASE_DIAG
+		var p0 := Vector3(16, t[2], 16) + dir * float(t[0])
+		var p1 := Vector3(16, t[2], 16) + dir * float(t[1])
+		card.call(p0, p1, Vector3(0, float(t[3]) - float(t[2]), 0), "girder_dark", (float(t[1]) - float(t[0])) / 8.0, S_METAL)
 
 
 ## The camera pub's frames, posts, advert band and railing (PUB_*), on both sides.

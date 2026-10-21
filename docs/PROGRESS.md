@@ -2915,4 +2915,10 @@ on every real contact the full impulse would land at the contact point and kick 
   east truss and the arms: the column now stops at 48.19 m under its plate, a dark truss stands
   in the east notch (open at the top as TMNF's), two white arms with dark flanges reach west.
   Fidelity: the four pillars 80.7-81.7 -> 94.1%.
+- (M11-3) **The camera light's base dressed as TMNF's** (`control.gd _light_base_dress`). TMNF's
+  base (8 campaign uses) wears the straight rig's outer side round an octagon (its sides 16 m -
+  the straight's inset from the middle): eight floodlight bars with their lamps, the W-truss
+  panels and rail over them, the walkway's grating, lattice and railing, and under the top bar
+  four flat trusses along the axes and four along the diagonals; ours was the bare revolved
+  section. Fidelity 83.1 -> 83.8% (TMNF's bars tilt their lamps up; ours level).
 
