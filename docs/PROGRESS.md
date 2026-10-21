@@ -2871,4 +2871,15 @@ on every real contact the full impulse would land at the contact point and kick 
   the black band down its rounded nose to the blue line); ours were flat dark rubber keys on a
   coarser outline. Now TMNF's rows on both, the ledge bumper on TMNF's measured outline; the
   collision fidelity rose with it (diagonals 97.7 -> 100%, inner corners 98.1 -> 99.0%, curves +0.3-0.6).
+- (M11-2) **The road keel's plates and the border atlas' rails as TMNF's** (`texgen/decks.py
+  road_keel`, `road.gd HALF_AIR` and `_junction_keel`; `texgen/borders.py`). Under every elevated
+  road TMNF's keel shows rows 0-288 of its details texture across each half: a dark bolted strip,
+  three long light plates (16 m, joints only at the tile's ends), a dark bolted strip; ours was a
+  staggered grey plate pattern. Our own drawing of that layout now, mapped by TMNF's rows (the
+  junctions' revolved keel too). And the border atlas' rows 141-215, on curb sides, platform
+  lips, the keel's middle strip, the arches and the circuit bumpers, were one uniform rib pattern
+  where TMNF's has structure (measured row by row): a grey rail, a black line, a ribbed strip,
+  light rails, a perforated grating, a wide rail, two bands of slotted teeth 16 px apart. Redrawn
+  so (ours), and the panel band (the curbs' tops) gets TMNF's dark frame and its shading into
+  the rail.
 

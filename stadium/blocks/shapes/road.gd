@@ -28,8 +28,8 @@ const CROWN := 0.19             ## dead ends and the base sink this much toward 
 ## ("road_under"); curb_face (the curb's face towards the road, a gate block's own word there) and
 ## shoulder (the strip at road level; on the ground the border's green band) see _entry().
 const HALF_AIR := [
-	[16.0, 0.0, "border_ribs", S_METAL, Vector2(213.9, 152.1)], [14.339, 0.0, "road_under", S_METAL],
-	[9.758, 0.418, "road_under", S_METAL], [5.177, 0.836, "border_ribs", S_METAL, Vector2(215.0, 188.0)],
+	[16.0, 0.0, "border_ribs", S_METAL, Vector2(213.9, 152.1)], [14.339, 0.0, "road_keel", S_METAL, Vector2(288.0, 144.0)],
+	[9.758, 0.418, "road_keel", S_METAL, Vector2(144.0, 0.0)], [5.177, 0.836, "border_ribs", S_METAL, Vector2(215.0, 188.0)],
 	[5.177, 1.243, "road_grid", S_METAL], [3.212, 1.243, "border_ribs", S_METAL, Vector2(206.8, 152.1)],
 	[2.004, 1.243, "border_black", S_RUBBER, Vector2(299.8, 258.0)],
 	[1.712, 1.753, "border_black", S_RUBBER, Vector2(258.0, 216.1)],
@@ -1374,9 +1374,11 @@ func _junction_keel(geo: TmGeo, closed: Array) -> void:
 	var x_plate := float(HALF_AIR[1][0])         # the strip's edge (14.339)
 	var x_mid := float(HALF_AIR[2][0])
 	# the profile out from the shoulder: [distance, y, key of the segment from it, rows]
-	var prof := [[SHOULDER, float(HALF_AIR[3][1]), "road_under"], [x_mid, float(HALF_AIR[2][1]), "road_under"],
+	var prof := [[SHOULDER, float(HALF_AIR[3][1]), "road_keel", Vector2(0.0, 144.0)],
+		[x_mid, float(HALF_AIR[2][1]), "road_keel", Vector2(144.0, 288.0)],
 		[x_plate, 0.0, "border_ribs", Vector2(ribs.y, ribs.x)], [16.0, 0.0, "border_ribs", ribs],
-		[32.0 - x_plate, 0.0, "road_under"], [32.0 - x_mid, float(HALF_AIR[2][1]), "road_under"], [32.0 - SHOULDER, float(HALF_AIR[3][1]), ""]]
+		[32.0 - x_plate, 0.0, "road_keel", Vector2(288.0, 144.0)], [32.0 - x_mid, float(HALF_AIR[2][1]), "road_keel", Vector2(144.0, 0.0)],
+		[32.0 - SHOULDER, float(HALF_AIR[3][1]), ""]]
 	var y_at := func(r: float) -> float:
 		for e in prof.size() - 1:
 			var a: Array = prof[e]
@@ -1391,10 +1393,10 @@ func _junction_keel(geo: TmGeo, closed: Array) -> void:
 			geo.quad_uv(a, b, c, d, key, S_METAL, uv[0], uv[1], uv[2], uv[3])
 		else:
 			geo.quad_uv(a, d, c, b, key, S_METAL, uv[0], uv[3], uv[2], uv[1])
-	# a segment's UVs at (along, distance) corners: the plates 8 x 4 m a tile, the strip the atlas
+	# a segment's UVs at (along, distance) corners: its atlas rows (the keel's plates, the strip)
 	var seg_uv := func(e: int, s0: float, s1: float, r0: float, r1: float) -> Array:
 		var seg: Array = prof[e]
-		if String(seg[2]) == "border_ribs":
+		if seg.size() > 3:
 			var rows: Vector2 = seg[3]
 			var span := float(prof[e + 1][0]) - float(seg[0])
 			var v0 := lerpf(rows.x, rows.y, (r0 - float(seg[0])) / span) / 512.0

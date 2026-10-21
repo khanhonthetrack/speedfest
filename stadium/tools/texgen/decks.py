@@ -164,6 +164,40 @@ def road_under(name='road_under', ppm=64, size_u=8.0, size_v=4.0, seed=301, base
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def road_keel(name='road_keel', w=512, h=512, seed=307):
+    """The road keel's sloped underside in TMNF's layout (UV-mapped: u along the road, 16 m a tile;
+    v the rows of 512 from the keel's outer edge, 0, to the dark middle strip, 288): a dark
+    bolted strip, three long light steel plates (16 m, the joints at the tile's ends) with bolts
+    at their corners and middles and dirt streaks along them, a dark bolted strip; below 288
+    (unused) dark."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    mott = fbm(w, h, seed, beta=2.4, lo=1.0, hi=10.0)
+    fine = fbm(w, h, seed + 1, beta=0.7, lo=64.0)
+    streak = np.clip(fbm(w, h, seed + 2, beta=1.2, lo=2.0) * 0.6 + 0.4 * fbm(w, h, seed + 3, beta=2.0, lo=1.0), 0, 1)
+    streak = smoothstep(0.55, 0.95, blur(streak, 0.8))
+    plates = [(29.0, 103.0), (107.0, 181.0), (185.0, 259.5)]
+    plate = np.zeros((h, w), np.float32)
+    for r0, r1 in plates:
+        plate = np.maximum(plate, rect_mask(w, h, 3, r0 + 1, w - 3, r1 - 1, 1.5))
+    dark = srgb((42, 41, 40))[None, None, :] * (1.0 + 0.06 * mott)[..., None]
+    light = srgb((182, 174, 170))[None, None, :] * ((1.0 + 0.04 * mott + 0.03 * fine) * (1.0 - 0.18 * streak))[..., None]
+    col = lerp(dark, light, plate[..., None])
+    bolt = np.zeros((h, w), np.float32)
+    # the strips' bolts every 64 px, the plates' at their ends and middles, top and bottom
+    for yc in (13.0, 274.0):
+        d = np.sqrt(((xx % 64.0) - 32.0) ** 2 + (yy - yc) ** 2)
+        bolt = np.maximum(bolt, 1.0 - smoothstep(4.0, 6.0, d))
+    for r0, r1 in plates:
+        for yc in (r0 + 6.0, r1 - 6.0):
+            for xc in (10.0, 256.0, w - 10.0):
+                d = np.sqrt((xx - xc) ** 2 + (yy - yc) ** 2)
+                bolt = np.maximum(bolt, 1.0 - smoothstep(2.5, 4.0, d))
+    col = lerp(col, srgb((70, 70, 72))[None, None, :], (0.85 * bolt)[..., None])
+    nrm = normal_from_height(0.15 * fine + 1.2 * plate + 0.8 * bolt, 0.45)
+    orm = np.stack([1.0 - 0.3 * (1.0 - plate), 0.55 + 0.05 * fine + 0.15 * streak, 0.3 * plate], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 def circuit_band(name='circuit_band', ppm=64, size_u=16.0, size_v=3.5, seed=291):
     """The blue band along the circuit walls' outside (UV-mapped; 3.5 m high): deep blue lighter
     toward its lower edge, a field of small lit squares fading in from below, our name in the
@@ -275,6 +309,7 @@ if __name__ == '__main__':
     circuit_panel()
     circuit_band()
     road_under()
+    road_keel()
     steel_truss()
     circuit_kerb()
     circuit_bumper()

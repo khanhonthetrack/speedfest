@@ -41,6 +41,7 @@ const COLORS := {
 	"fabric_orange": [Color8(201, 108, 8), 0.6, 0.0],     # the grandstands' orange strips (TMNF's FabricBorderRubber)
 	"border_green": [Color8(58, 128, 66), 0.65, 0.0],
 	"road_under": [Color8(141, 136, 133), 0.6, 0.3],      # the road keel's underside (TMNF's light plates)
+	"road_keel": [Color8(141, 136, 133), 0.6, 0.3],       # the keel's sloped underside (TMNF's layout, rows)
 	"road_grid": [Color8(80, 79, 78), 0.5, 0.6],         # the road shoulder's grid (TMNF's RoadGrid)
 	"road_metal": [Color8(42, 40, 37), 0.7, 0.3],        # the road's dark border metal (curb ends, deck sides)
 	"platform_tray": [Color8(34, 34, 34), 0.8, 0.2],     # the dark tray under the decks (TMNF's Stands2)
@@ -202,6 +203,7 @@ const TEXTURED := {
 	"border_green": ["border_atlas", Vector2(1.0, 1.0), false],
 	# the road keel's underside (texgen/decks.py road_under; UV-mapped along and across)
 	"road_under": ["road_under", Vector2(8.0, 4.0), false],
+	"road_keel": ["road_keel", Vector2(1.0, 1.0), false],     # (texgen/decks.py; rows: road.gd HALF_AIR)
 	"stands_top": ["stadium_concrete", Vector2(8.0, 8.0), true, Color(0.83, 0.82, 0.84)],
 	"stands_front": ["platform_plate", Vector2(32.0, 32.0), true, Color(0.27, 0.27, 0.27)],
 	"stands_dark": ["steel_truss", Vector2(8.0, 8.0), true],

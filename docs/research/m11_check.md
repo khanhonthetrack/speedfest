@@ -175,6 +175,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
 - The circuit walls' bumpers (21 Oct): TMNF's atlas rows on the foot and ledge bumpers, the ledge
   bumper on TMNF's outline (atlas_rows: 0 rows off; "(none)" left where our outline still
   differs: the cap's trim and truss).
+- The road keel's plates (21 Oct; TMNF's details rows 0-288 across each half) and the border
+  atlas' rail rows 141-215 (TMNF's: rails, grating, slotted teeth; ours were uniform ribs), the
+  panel band's frame. Compare atlases region by region (same rows): a uniform band in ours where
+  TMNF's has structure won't show in mean colours.
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a
