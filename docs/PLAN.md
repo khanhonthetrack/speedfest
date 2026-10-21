@@ -337,7 +337,8 @@ pushed after each; screenshots on the owner's PC (RTX 2060, Ultra).
       Procedural Clouds is Cycles volumes: none shipped. Their licences: City Street, drone City,
       Procedural Clouds CC0 (owner), Trees & Bushes CC BY 3.0, Mountain Range CC BY-NC-SA (not
       used). The earlier Blend Swap towers now get windowed walls (they were grey cladding)
-- [ ] 5. Frame rate on the owner's RTX 2060 at Ultra, the path-tracing fork checked on the city
+- [x] 5. Frame rate on the owner's RTX 2060: Ultra 56.5 fps, High 76.6 at 1080p (v0.7: 57.1, 74.7)
+- [ ] 6. The RTX fork's path tracing (stadium/RTX.md) checked on the City (a photo mode on a 2060)
 
 ### M13 — Our own city around the Stadium (owner, session 15, 2026-10-20; called M12 on its branch, where M12 was the community work) ☐
 "Can you create new assets to the game? Not recreating anymore but actually put tall,

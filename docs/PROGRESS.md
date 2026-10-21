@@ -3605,3 +3605,7 @@ one after a clean `user://` ~10 min).
   the gate tests the working tree it runs in, and edits made while it runs had failed
   `test_online` (a class not imported yet); a fresh worktree needs the import cache first (copy
   `stadium/.godot` over, then `--import`: the gate's own 300 s import doesn't finish 1,396 assets).
+- (M14-5) **Frame rate on the owner's RTX 2060** (1920 x 1080, a real window, the bot driving F02
+  at night, 25 s sampled after the city is in): Ultra 56.5 fps (17.7 ms, 95th percentile 18.0 ms),
+  High 76.6 fps (13.0 ms). v0.7 on the same run: Ultra 57.1, High 74.7: the neon City costs
+  nothing measurable. Gate: STADIUM_TESTS PASS on c8acd4c (21 suites, test_tracks 160), pushed.

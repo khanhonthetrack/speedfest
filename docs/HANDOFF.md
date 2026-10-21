@@ -22,8 +22,9 @@
   view; `--view=at:-512,520,-500,-512,120,900` the Stadium and the city from above).
 - Gate on this PC from the worktree `C:\dev\sf-gate` (detached at the commit under test; copy
   `stadium/.godot` there first): the gate tests the working tree it runs in.
-- Next: the owner's look at it; frame rate at Ultra on the RTX 2060 (PLAN M14-5), the RTX fork's
-  path tracing on the City; maybe more of the city by day.
+- Frame rate (RTX 2060, 1080p, F02 at night): Ultra 56.5 fps, High 76.6 (v0.7: 57.1, 74.7).
+- Next: the owner's look at it; the RTX fork's path tracing on the City (PLAN M14-6); maybe more
+  of the city by day.
 
 ## Earlier (21 Oct, owner's Windows PC): **`stadium-v0.7` released**
 - Owner: "merge all the progress from branches (including your graphics updates) and the city maps
