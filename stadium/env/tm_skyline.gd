@@ -75,6 +75,9 @@ static func build_async(holder: Node3D) -> void:
 	_grass()
 	TmMaterials.get_material("concrete")
 	TmCityAssets.catalogue()
+	TmCitySigns._screen_material()
+	for c in TmNeon.COLOURS.size():
+		TmNeon.material(c, TmStadiumEnv.night)
 	wait()
 	if TestHooks.has_arg("shot"):
 		holder.add_child(build())          # a screenshot shows the city whatever the frame count
@@ -558,7 +561,10 @@ static func _tower_spec(rng: RandomNumberGenerator, t: float, seed: int) -> Dict
 ## their seed, thick enough to read from the field 1-3 km off; a third of those down their whole height.
 static func _tower_neon(seed: int) -> Dictionary:
 	var col := TmNeon.pick(hash(seed * 7 + 3), 0.75)
-	return {} if col < 0 else {"neon": col, "neon_r": 0.9, "neon_full": absi(hash(seed * 11 + 1)) % 3 == 0}
+	var out := {"screen": absi(hash(seed * 17 + 9)) % 100 < 22}
+	if col >= 0:
+		out.merge({"neon": col, "neon_r": 0.9, "neon_full": absi(hash(seed * 11 + 1)) % 3 == 0})
+	return out
 
 
 ## One of the owner's buildings (TmCityAssets.pick) standing at `at` (its foot's centre).
@@ -572,7 +578,40 @@ static func _tower(parent: Node3D, spec: Dictionary, at: Vector2, turn := 0) -> 
 	var t := TmTower.build(spec)
 	t.position = Vector3(at.x, 0.4, at.y)
 	t.rotation.y = turn * PI * 0.5
+	if bool(spec.get("screen", false)):
+		_tower_screen(t, spec, at, turn)
 	parent.add_child(t)
+
+
+## A big LED screen on a tower's face (M14: the skyline alive): on the face that looks most towards
+## the Stadium (the city's centre), up its first tier, as wide as 70% of the face (at most 64 m).
+static func _tower_screen(t: Node3D, spec: Dictionary, at: Vector2, turn: int) -> void:
+	var w := float(spec.get("w", 44.0))
+	var d := float(spec.get("d", 36.0))
+	var height := float(spec.get("height", 240.0))
+	var podium := float(spec.get("podium", 12.0))
+	var tiers: Array = spec.get("tiers", [[1.0, 1.0]])
+	var to_centre := Vector3(-at.x, 0.0, -at.y).normalized()
+	var rot := Basis(Vector3.UP, turn * PI * 0.5)
+	var best := Vector3.FORWARD
+	var dot := -2.0
+	for n: Vector3 in [Vector3.RIGHT, Vector3.LEFT, Vector3.BACK, Vector3.FORWARD]:
+		var k := (rot * n).dot(to_centre)
+		if k > dot:
+			dot = k
+			best = n
+	var half := (w if absf(best.x) > 0.5 else d) * 0.5
+	var across := d if absf(best.x) > 0.5 else w
+	if String(spec.get("shape", "rect")) in ["circle", "rounded", "octagon"]:
+		half *= 1.02
+	var top := podium + (height - podium) * float(tiers[0][0])
+	var size := minf(across * 0.7, 64.0)
+	var y := top - size * 0.25 - 10.0
+	if y - size * 0.25 < podium + 8.0:
+		return
+	var s := TmCitySigns.facade_screen(size, absi(int(spec.get("seed", 0))))
+	s.transform = Transform3D(Basis.looking_at(-best), best * (half + 0.8) + Vector3(0.0, y, 0.0)) * Transform3D().scaled(Vector3.ONE * size)
+	t.add_child(s)
 
 
 ## A block of lower buildings: four lots, each a building inset from the pavement, its height and

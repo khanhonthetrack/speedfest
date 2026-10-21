@@ -52,13 +52,17 @@ void fragment() {
 	col = mix(col, avg, far);
 	// the rim: the city gives way to the plain
 	col = mix(col, plain_colour, smoothstep(radius - 300.0, radius + 200.0, length(lp)));
-	// street lights: their pools of light at night (a dim warm glow on average, far off)
+	// street lights: their pools of light at night; far off the streets themselves glow (a grid of
+	// light, as a city at night from the air), a quarter of them neon avenues (cyan, magenta)
 	vec3 sodium = vec3(1.0, 0.70, 0.40);
 	float kerb = d - hs;
 	float al = (fract(runs / 30.0) - 0.5) * 30.0;
 	float pool = exp(-kerb * kerb / 18.0) * exp(-al * al / 50.0);
 	float rim = 1.0 - smoothstep(radius - 300.0, radius + 200.0, length(lp));
-	EMISSION = sodium * mix(pool * 0.9, 0.06, far) * tm_night * rim;
+	vec2 sid = vec2(along_x > 0.5 ? c.y : c.x, along_x);
+	float avenue = step(0.75, hash(sid * 3.7 + 1.3));
+	vec3 lamp = mix(sodium, hash(sid * 5.1 + 2.9) < 0.5 ? vec3(0.15, 0.8, 1.0) : vec3(1.0, 0.2, 0.65), avenue);
+	EMISSION = lamp * mix(pool * 0.9, road * 0.45 + 0.015, far) * tm_night * rim;
 	ALBEDO = col;
 	ROUGHNESS = mix(0.85, 0.95, road);
 	SPECULAR = 0.3;

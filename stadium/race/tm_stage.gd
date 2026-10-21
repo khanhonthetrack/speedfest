@@ -146,6 +146,8 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 			var ship := TmAirshipOrbit.make(TmStadiumEnv.night)
 			if ship != null:
 				parent.add_child(ship)
+			if TmStadiumEnv.night:
+				parent.add_child(TmSearchlights.make())
 		if TmStadiumEnv.night:
 			_floodlights(parent, 0.14 if city_map else 0.55)     # a City night is the neon's and the street lights'
 		if city_map:

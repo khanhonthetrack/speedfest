@@ -120,6 +120,28 @@ static func _frame_mesh() -> ArrayMesh:
 	return _frame_cache
 
 
+## A big LED screen flat on a tower's face (M14): `width` m wide (2:1), centred on the node, facing
+## +z, cycling the adverts as the billboards do (its own place in the cycle from k).
+static func facade_screen(width: float, k: int) -> MeshInstance3D:
+	if _unit_screen == null:
+		var b := TmTower.Builder.new()
+		var nz := Vector3(0, 0, 1)
+		b.tri3(Vector3(-0.5, 0.25, 0), Vector3(0.5, 0.25, 0), Vector3(0.5, -0.25, 0), nz, nz, nz, Vector2(0, 0), Vector2(1, 0), Vector2(1, 1))
+		b.tri3(Vector3(-0.5, 0.25, 0), Vector3(0.5, -0.25, 0), Vector3(-0.5, -0.25, 0), nz, nz, nz, Vector2(0, 0), Vector2(1, 1), Vector2(0, 1))
+		_unit_screen = b.mesh()
+	var mi := MeshInstance3D.new()
+	mi.name = "Screen"
+	mi.mesh = _unit_screen
+	mi.scale = Vector3.ONE * width
+	mi.material_override = _screen_material()
+	mi.set_instance_shader_parameter("board", fmod(k * 0.618 + 0.13, 1.0))
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi
+
+
+static var _unit_screen: ArrayMesh
+
+
 static func _screen_mesh() -> ArrayMesh:
 	if _screen_cache != null:
 		return _screen_cache
@@ -148,6 +170,7 @@ static func _frame_material() -> StandardMaterial3D:
 	return _frame
 
 
+## The screens' material (made on the main thread first: TmSkyline.build_async).
 static func _screen_material() -> ShaderMaterial:
 	if _screen == null:
 		_screen = ShaderMaterial.new()
