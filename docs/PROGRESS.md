@@ -2907,4 +2907,12 @@ on every real contact the full impulse would land at the contact point and kick 
   atlas in TMNF's layout (our name on the band, our emblem on the boards). Fidelity: Castle 22.1
   -> 96.0%, CastleBig 14.5 -> 90.2%, InflatableCastleDoor 22.1 -> 85.0% (left: the cushions'
   section on the big ones, the courtyard's curved edge, the keeps' roofs 0.2 m high).
+- (M11-3) **The Sculpt bridges in TMNF's white fabric, their pillars' parts** (`sculpt.gd MATERIAL`,
+  `_bridge_pillar`; TmMaterials "sculpt_fabric"). TMNF's bridge pieces (about 250 campaign uses)
+  are its near-white awning fabric (StadiumSculptAuvent2, mean 223); ours had the sculptures'
+  grey concrete panels. Now a plain white fabric colour, the struts TMNF's light grey (its truss
+  cards). The pillars' lofts had merged the bearing plate into the column's top and lost the
+  east truss and the arms: the column now stops at 48.19 m under its plate, a dark truss stands
+  in the east notch (open at the top as TMNF's), two white arms with dark flanges reach west.
+  Fidelity: the four pillars 80.7-81.7 -> 94.1%.
 

@@ -54,10 +54,12 @@ const MIRRORED := {"Sculpt/Bridge/BridgeSuspendSlope2Mirror": "Sculpt/Bridge/Bri
 	"Sculpt/ArchRing/EndGroundMirror": "Sculpt/ArchRing/EndGround"}
 ## The plane the x-mirror reflects across, if not the block's middle (x = 16): measured.
 const MIRROR_X := {"Sculpt/ArchRing/StartGroundMirror": 64.0, "Sculpt/ArchRing/EndGroundMirror": 64.0}
-## A piece's extra parts in the lofts (key suffix -> visual material).
-const PARTS := {"#struts": "structure", "#rail": "metal"}
-## Lofted pieces that are not white sculpture (shape -> visual material).
-const MATERIAL := {"Other/Airship": "airship"}
+## A piece's extra parts in the lofts (key suffix -> visual material; the struts are TMNF's light
+## grey truss cards).
+const PARTS := {"#struts": "pipe", "#rail": "metal"}
+## Lofted pieces that are not the sculptures' concrete panels (shape, or a prefix ending in "/",
+## -> visual material): the bridges are TMNF's white awning fabric (StadiumSculptAuvent2).
+const MATERIAL := {"Other/Airship": "airship", "Sculpt/Bridge/": "sculpt_fabric"}
 
 
 func handles(shape: String) -> bool:
@@ -73,10 +75,17 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_airship(geo)
 	else:
 		for tube: Dictionary in lofts()[src]:
-			_tube(geo, tube, String(MATERIAL.get(src, "sculpt")), S_METAL, msum)
+			if PILLAR_TOP.has(src):
+				# the column's top under its bearing plate (the loft merged the plate in)
+				tube = tube.duplicate()
+				tube["top_y"] = PILLAR_TOP[src]
+			_tube(geo, tube, _material(src), S_METAL, msum)
 	for part: String in PARTS:
 		for tube: Dictionary in lofts().get(src + part, []):
 			_tube(geo, tube, PARTS[part], S_METAL, msum)
+	match src:
+		"Sculpt/Bridge/BridgePillarGround", "Sculpt/Bridge/BridgePillarAir":
+			_bridge_pillar(geo, 1.0 if src.ends_with("Ground") else 0.0, msum)
 	match shape:
 		"Sculpt/A/Ground", "Sculpt/B/Ground", "Sculpt/C/Ground":
 			# the three sculptures share their plinth (measured: the same pads and curbs; the pads
@@ -91,6 +100,61 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 				geo.wall_sweep(sec, [Vector3(A_CURB_X[0], 0, 0), Vector3(A_CURB_X[1], 0, 0)], [Vector3(0, 0, 1), Vector3(0, 0, 1)],
 					true, "structure", S_METAL)
 	return geo.build()
+
+
+## The bridges' pillars, what their lofts lose (TMNF's, measured): on the east side, a dark truss
+## standing in the column's notch (PILLAR_TRUSS: its outline (x, z) from the notch round and back,
+## up to 48 m, open at the top; ours solid, TMNF's a see-through truss card before a dark panel),
+## the bearing plate on the column's top (PILLAR_PLATE), and the two arms
+## to the west (PILLAR_ARMS: y; along x from 1 to 5.6 m at z 16, radius PILLAR_ARM) with a flange
+## at each end (PILLAR_FLANGES: x0, x1, radius).
+const PILLAR_TRUSS := [Vector2(23.5, 13.705), Vector2(25.642, 15.223), Vector2(26.399, 14.898), Vector2(27.156, 15.223),
+	Vector2(27.47, 16.0), Vector2(27.156, 16.778), Vector2(26.399, 17.101), Vector2(25.642, 16.778), Vector2(23.5, 18.4)]
+const PILLAR_ARMS := [20.0, 44.0]
+const PILLAR_ARM := 1.42
+const PILLAR_FLANGES := [[0.0, 1.0, 1.73], [4.6, 5.6, 1.99]]
+## The column's top (the loft's flat top), the bearing plate on it (x, z square; its top y).
+const PILLAR_TOP := {"Sculpt/Bridge/BridgePillarGround": 48.19, "Sculpt/Bridge/BridgePillarAir": 48.19}
+const PILLAR_PLATE := [10.84, 21.16, 48.68]
+
+
+func _bridge_pillar(geo: TmGeo, y0: float, msum: float) -> void:
+	var mx := func(x: float) -> float: return msum - x if msum > 0.0 else x
+	var loop := []
+	for i in PILLAR_TRUSS.size():
+		var q: Vector2 = PILLAR_TRUSS[i]
+		# the closing side lies on the notch's back: collision only
+		loop.append([Vector2(mx.call(q.x), q.y), "" if i == PILLAR_TRUSS.size() - 1 else "stands_dark", S_METAL])
+	geo.extrude_y(loop, y0, 48.0)
+	var pl: Array = PILLAR_PLATE
+	geo.box(Vector3(pl[0], 48.19, pl[0]), Vector3(pl[1], pl[2], pl[1]), "structure", S_METAL)
+	for y: float in PILLAR_ARMS:
+		geo.pipe(Vector3(mx.call(1.0), y, 16.0), Vector3(mx.call(5.6), y, 16.0), PILLAR_ARM, 16, "pipe", S_METAL)
+		for f: Array in PILLAR_FLANGES:
+			var x0: float = mx.call(float(f[0]))
+			var x1: float = mx.call(float(f[1]))
+			var r := float(f[2])
+			geo.pipe(Vector3(x0, y, 16.0), Vector3(x1, y, 16.0), r, 16, "rubber_dark", S_METAL)
+			for x: float in [x0, x1]:
+				var out := Vector3(signf(x - (x0 + x1) * 0.5), 0, 0)
+				for k in 16:
+					var a0 := TAU * k / 16.0
+					var a1 := TAU * (k + 1) / 16.0
+					var p0 := Vector3(x, y + r * sin(a0), 16.0 + r * cos(a0))
+					var p1 := Vector3(x, y + r * sin(a1), 16.0 + r * cos(a1))
+					var c := Vector3(x, y, 16.0)
+					if (p0 - c).cross(p1 - c).dot(out) > 0.0:
+						geo.tri(c, p0, p1, "rubber_dark", TmGeo.NO_COLLISION)
+					else:
+						geo.tri(c, p1, p0, "rubber_dark", TmGeo.NO_COLLISION)
+
+
+## A lofted piece's visual material (MATERIAL; "sculpt" unless listed).
+static func _material(shape: String) -> String:
+	for k: String in MATERIAL:
+		if shape == k or (k.ends_with("/") and shape.begins_with(k)):
+			return MATERIAL[k]
+	return "sculpt"
 
 
 ## The airship (TMNF's layout, our livery: texgen/stadium.py airship_skin): the envelope lofted

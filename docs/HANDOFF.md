@@ -53,7 +53,8 @@
   (TMNF's atlas strips), the sculptures' curb tops, the circuit walls' bumpers (atlas rows, outline), the road keel's plates,
   the border atlas' rail rows (structure as TMNF's), the decks' 16 m plate tiles, the circuit
   walls' back panel and straight ledges; M11-3: the inflatable castles (`castle.gd`, a kit from
-  measured numbers, our atlas in TMNF's layout; fidelity 85-96%).
+  measured numbers, our atlas in TMNF's layout; fidelity 85-96%), the Sculpt bridges' white fabric
+  and their pillars' truss, arms and bearing plate (94%).
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell
@@ -63,7 +64,7 @@
   forms). Left: the grandstand straights' lattice (flat cards in TMNF), the grandstand pillar
   piece, the snow / palm trees (organic), the curved circuit walls' ledges (plain plate), TMNF's additive glow cards (ours: lit lamps), the loops'
   backs, the hill pieces' fabric awnings; the gates' big sign panels stay out (owner's option B);
-  then the rest of PLAN M11-3 (camera light base, bump, sculpt pillar heads, fabric pillar corners,
+  then the rest of PLAN M11-3 (camera light base, bump, fabric pillar corners,
   trusses, screens, spotlights, bridge rails, dirt fences), 5..7. Tools: `material_check.py` (colours) and `atlas_rows.py` (atlas rows).
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its

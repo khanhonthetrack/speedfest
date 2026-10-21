@@ -101,6 +101,7 @@ const COLORS := {
 	"infl_trunk_ring": [Color8(105, 62, 26), 0.35, 0.0],
 	"infl_sand": [Color8(215, 164, 37), 0.4, 0.0],
 	"infl_base": [Color8(125, 123, 116), 0.4, 0.0],
+	"sculpt_fabric": [Color8(223, 223, 221), 0.5, 0.0],   # the Sculpt bridges (TMNF's white awning fabric)
 	"dirt_bumper": [Color8(214, 216, 216), 0.4, 0.0],
 	"infl_cactus": [Color8(86, 107, 60), 0.35, 0.0],
 	"infl_tree": [Color8(25, 61, 51), 0.35, 0.0],
