@@ -2710,3 +2710,26 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   first on the main thread, the city added when done, leaving the scene waits for it; screenshots
   (`--shot`) build it at once). Field cities stay on the main thread (their collision is there at
   the start). `test_skyline` (+1: the call returns at once, the city arrives).
+
+## 2026-10-21 — session 15 (cloud): street trees and street lights on the City tracks (M12)
+
+- `env/tm_trees.gd` (`TmTrees`, our own): a tapering trunk with three boughs and a crown of lumpy
+  leaf blobs (icosahedra split once, pushed in and out), three variants; a planting is one
+  MultiMesh per variant (each tree turned, sized, its own green in the instance data).
+  `env/tm_foliage.gdshader`: leaf clumps and grain from noise, a silhouette the sky breaks
+  through (alpha scissor where the surface turns away), light through the leaves (backlight), a
+  sway in the wind.
+- `env/tm_street_lights.gd` (`TmStreetLights`, our own; the owner's Street_Lights.blend waits for
+  its licence): a tapering 9 m steel pole, an arm curving out 2.6 m over the road, a flat LED head
+  with a lit lens (pale by day, bright at night); one MultiMesh; at night a shadowless spot light
+  under each head pools on the road (fading out past 350 m).
+- `TmSkyline._street_trees`: on a City track's field, trees in a row along the pavement where a
+  cell meets the track's (2.2 m in, about every 10 m) and four to a plaza, a street light between
+  them every cell (1.2 m in, its arm over the road); none inside a building's outline (+1.5 m),
+  trees 8 m and lights 7 m clear of the car's line, trees 7 m apart; trunks and poles collide.
+- `tests/test_skyline` (+1): the field's trees and lights.
+- At night the field city is on the city's render layer (`TmSkyline._layer`): the Stadium's
+  floodlights light the track, not the buildings (they had the walls day-bright); the street
+  lights light both. Fixed: plain walls (alpha < 0.4) were taken for crowns and floodlit at night
+  (crowns are 0.4-0.75 now); the shops' shelves fade to a tone far off and are less saturated (at
+  night they had shimmered in rainbow colours).

@@ -161,6 +161,13 @@ func _city_track() -> void:
 			if b.grow(6.0).has_point(p):
 				in_way += 1
 	TestHooks.check(on_track == 0 and in_way == 0, "city_field_clear_of_track", "%d on track cells, %d line points in a building" % [on_track, in_way])
+	# its street: trees and street lights (their trunks and poles among the boxes checked above)
+	var trees := 0
+	for mmi: MultiMeshInstance3D in field.get_node("Street/Trees").get_children():
+		trees += mmi.multimesh.instance_count
+	var lamps := (field.get_node("Street/StreetLights").get_child(0) as MultiMeshInstance3D).multimesh.instance_count
+	print("FIELD_STREET %d trees, %d street lights" % [trees, lamps])
+	TestHooks.check(trees >= 50 and lamps >= 10, "city_field_street", "%d trees, %d lamps" % [trees, lamps])
 	var terrain := builder.root.get_node("Terrain")
 	var paved := false
 	for c in terrain.get_children():

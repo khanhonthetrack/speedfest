@@ -219,6 +219,7 @@ static func field(builder: TmMapBuilder) -> Node3D:
 	var blocks := {}
 	var roofs := TmTower.Builder.new()
 	var used := {}
+	var plazas: Array[Vector2i] = []
 	var count := 0
 	for c in cells:
 		if used.has(c):
@@ -226,6 +227,7 @@ static func field(builder: TmMapBuilder) -> Node3D:
 		var d := int(dist.get(c, 99))
 		if rng.randf() < (0.15 if d <= 2 else 0.3):
 			used[c] = true                             # a plaza
+			plazas.append(c)
 			continue
 		var lot := [c, c + Vector2i(1, 0), c + Vector2i(0, 1), c + Vector2i(1, 1)]
 		var fits := count < FIELD_TOWERS and rng.randf() < 0.5
@@ -276,6 +278,87 @@ static func field(builder: TmMapBuilder) -> Node3D:
 		_collide(body, r, bh)
 	_add_blocks(root, blocks, true)
 	TmTower.add_mesh(root, roofs, TmTower.shared("roof"), "Roofs", true)
+	root.add_child(_street_trees(ch, cells, busy, plazas, body, rng))
+	_layer(root)          # the city's light: the moon and the street lights, not the floodlights
+	return root
+
+
+## Street trees and lights on a city track's field: trees in a row along the pavement where a cell meets the
+## track's (2.2 m in from the edge, about every 10 m) and four to a plaza; none within a building
+## (and 1.5 m round it), within 8 m of the car's line, or nearer than 7 m to another. Each trunk
+## collides (a car that leaves the road can hit it). A street light (TmStreetLights) between them
+## every cell, 1.2 m from the edge, its arm over the road.
+static func _street_trees(ch: TmChallenge, cells: Array[Vector2i], busy: Dictionary, plazas: Array[Vector2i],
+		body: StaticBody3D, rng: RandomNumberGenerator) -> Node3D:
+	var boxes: Array[Rect2] = []
+	for cs in body.get_children():
+		var sz := ((cs as CollisionShape3D).shape as BoxShape3D).size
+		var at := (cs as Node3D).position
+		boxes.append(Rect2(at.x - sz.x * 0.5 - 1.5, at.z - sz.z * 0.5 - 1.5, sz.x + 3.0, sz.z + 3.0))
+	var line := PackedVector2Array()
+	for pt: Dictionary in ch.path:
+		var p: Vector3 = pt["p"]
+		line.append(Vector2(p.x, p.z))
+	var spots: Array[Vector2] = []
+	var lamp_spots := []                 # [foot, the way to the road]
+	for c in cells:
+		var cc := Vector2(-(c.x + 0.5) * 32.0, (c.y + 0.5) * 32.0)
+		for dir: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			if not busy.has(c + dir):
+				continue
+			var nc := Vector2(-(c.x + dir.x + 0.5) * 32.0, (c.y + dir.y + 0.5) * 32.0)
+			var inward := (cc - nc).normalized()
+			var along := Vector2(-inward.y, inward.x)
+			var mid := (cc + nc) * 0.5 + inward * 2.2
+			for k: float in [-10.0, 0.0, 10.0]:
+				spots.append(mid + along * (k + rng.randf_range(-1.5, 1.5)))
+			lamp_spots.append([(cc + nc) * 0.5 + inward * 1.2 + along * 5.0, -inward])
+	for c in plazas:
+		var cc := Vector2(-(c.x + 0.5) * 32.0, (c.y + 0.5) * 32.0)
+		for q: Vector2 in [Vector2(-8, -8), Vector2(8, -8), Vector2(8, 8), Vector2(-8, 8)]:
+			spots.append(cc + q + Vector2(rng.randf_range(-1.5, 1.5), rng.randf_range(-1.5, 1.5)))
+	var feet := []
+	var placed: Array[Vector2] = []
+	for p in spots:
+		var ok := true
+		for b in boxes:
+			if b.has_point(p):
+				ok = false
+				break
+		for q in line:
+			if not ok or p.distance_squared_to(q) < 64.0:
+				ok = false
+				break
+		for q in placed:
+			if not ok or p.distance_squared_to(q) < 49.0:
+				ok = false
+				break
+		if not ok:
+			continue
+		placed.append(p)
+		feet.append(Transform3D(Basis(), Vector3(p.x, 0.02, p.y)))
+		_collide(body, Rect2(p - Vector2(0.3, 0.3), Vector2(0.6, 0.6)), 4.0)
+	var root := Node3D.new()
+	root.name = "Street"
+	root.add_child(TmTrees.planting(feet, rng, true, 1200.0))
+	# street lights between the trees, their arms over the road, 7 m clear of the car's line
+	var lamps := []
+	for ls: Array in lamp_spots:
+		var p: Vector2 = ls[0]
+		var to_road: Vector2 = ls[1]
+		var ok := true
+		for b in boxes:
+			if b.has_point(p):
+				ok = false
+				break
+		for q in line:
+			if not ok or p.distance_squared_to(q) < 49.0:
+				ok = false
+				break
+		if ok:
+			lamps.append(Transform3D(Basis.looking_at(Vector3(to_road.x, 0.0, to_road.y)), Vector3(p.x, 0.02, p.y)))
+			_collide(body, Rect2(p - Vector2(0.15, 0.15), Vector2(0.3, 0.3)), TmStreetLights.HEIGHT)
+	root.add_child(TmStreetLights.row(lamps, TmStadiumEnv.night))
 	return root
 
 

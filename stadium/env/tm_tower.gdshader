@@ -226,7 +226,7 @@ void fragment() {
 	ROUGHNESS = (frame_rough * (frame + rev_m) + span_rough * span + (0.035 + 0.02 * hash(c, 13.0)) * glass_eff) / wsum;
 	EMISSION = inside * glass_eff * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.5, tm_night) * transmit;
 	// a crown's floodlights wash up its frames at night
-	float crown = 1.0 - step(0.75, COLOR.a);
+	float crown = step(0.4, COLOR.a) * (1.0 - step(0.75, COLOR.a));      // 0.4..0.75 (under 0.4: plain)
 	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;
 	// a shop floor at the foot: wide panes in dark frames over a low riser, the shop lit behind
 	// them (by day and night), a fascia above with its sign, lit at night
@@ -252,8 +252,12 @@ void fragment() {
 		float shelf_y = sp.y;
 		float goods = step(0.2, shelf_y) * step(shelf_y, 2.0) * step(0.25, fract(shelf_y / 0.45))
 			* step(0.15, fract((sp.x + sp.z) / 0.35 + 0.3 * hash(vec2(floor(shelf_y / 0.45), sc), 43.0)));
-		vec3 goods_col = vec3(hash(floor(sp.xz / 0.35) + shelf_y, 44.0), hash(floor(sp.xz / 0.35) + shelf_y, 45.0), hash(floor(sp.xz / 0.35) + shelf_y, 46.0));
-		shop = mix(shop * 0.55, goods_col * shop_lamp * (0.35 + 0.5 * tm_night), goods * 0.8);
+		vec2 gk = floor(sp.xz / 0.35) + floor(shelf_y / 0.45) * 3.1;
+		vec3 goods_col = mix(vec3(0.5), vec3(hash(gk, 44.0), hash(gk, 45.0), hash(gk, 46.0)), 0.55);
+		// far off, the shelves are a tone (their pattern would shimmer)
+		float goods_near = 1.0 - smoothstep(0.02, 0.06, max(fw.x, fw.y));
+		shop = mix(shop * 0.55, mix(vec3(0.42, 0.40, 0.38), goods_col, goods_near) * shop_lamp * (0.3 + 0.25 * tm_night),
+			mix(0.35, goods * 0.8, goods_near));
 		// the sign: the shop's colour, its name in block letters (a word of four to nine letters)
 		vec3 sign_col = vec3(hash(vec2(sc, 1.0), 41.0), hash(vec2(sc, 2.0), 41.0), hash(vec2(sc, 3.0), 41.0));
 		sign_col = normalize(sign_col + 0.15) * 0.9;
