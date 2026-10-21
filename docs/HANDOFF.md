@@ -1,6 +1,59 @@
 # HANDOFF: start here
 
-## Latest (19 Oct, owner's Windows PC): `stadium-v0.6` = `stadium` + the work after v0.5
+## Latest (20 Oct, session 15, cloud): a city around the Stadium (M13); the Stadium game is PC-only
+- Owner: "I dont do browser anymore. Only pc with high graphics card": the Stadium game targets
+  Forward+ on a strong PC; the web build and the Compatibility renderer are no longer constraints
+  for new work (old code paths for them stay until someone removes them on purpose).
+- Owner: "put tall, ultrarealistic buildings": **M13** (PLAN.md). `env/tm_tower.gd` builds a
+  skyscraper from a spec; `env/tm_skyline.gd` lays out a city on the plain below the Stadium's edge
+  (fixed seed: everyone sees the same city): supertall landmarks behind both grandstands (their
+  tops clear the roofs from the field), downtowns past the terraces, blocks of lower glass and
+  masonry buildings, a street grid in a shader. Added by `TmStage.add_environment` on 32 x 32 maps
+  (`--city=false` leaves it out); game cameras' far plane is `TmSkyline.FAR` (9 km). Builds in
+  ~0.5 s; ~140 towers, ~700 meshes, ~165k triangles; no shadows (too far for them).
+  Look: `stadium/tools/run.sh res://race/map_view.tscn -- --view=path:0.15 --frames=20 --shot=/abs.png`
+  (a driver's view on A01), `--view=at:900,160,900,1940,120,700` (a downtown from the air),
+  `res://env/tower_lab.tscn -- --view=street|mid|far|top` (five towers on a plaza).
+- Owner: "add night lights to the towers, add towers in tracks scenery (instead of white,blue,
+  create 5 tracks of name CITY)": **night** (`TmStadiumEnv.mood_of`: a map's decoration, our
+  specs' `"mood": "night"`, `--mood=night`; global shader value `tm_night`; floodlights on the
+  field, `TmStage._floodlights`; the city on its own render layer) and the campaign's sixth series
+  **City** (`tracks/F01..F05.json`, `"scenery": "city"`: `TmSkyline.field` puts towers and lower
+  buildings, with collision, on the cells around the road, none on the track, its line or around
+  the start; the field paved, `env/tm_city_paving.gdshader`; `TmTrackDecor` keeps only the
+  stands, cameras and curve walls there). Read as a new series next to the colour ones, not
+  instead of White and Blue. Medals by the bot (`test_tracks --write_medals`); card pictures by
+  `tools/icons/thumbs.sh F01 ..`; the amber series flag from `tools/texgen/menu_icons.py`.
+- Owner: "the buildings suck ... put more effort, i even gave you blender assets here 5/10", with
+  ten files (uploads, not in the repo). Licences: Skyscraper, Skyscraper 2, Hotel, OpenGL High
+  Rise Pack, Facade Glass, Family House Collection: CC0 (Blend Swap); 12 Buildings: CC BY 3.0
+  (credit "raytrace"); Blade Runner Cityscapes: its note says "you can use this in your any
+  project"; **Street_Lights.blend and Traffic_Lights.blend: no licence: asked the owner where they
+  are from; don't commit anything of them until they answer.** Done: `tools/assets/blend_to_glb.py`
+  (Blender 4.0: `apt-get install blender python3-numpy`; `-Y` keeps the files' scripts off) splits
+  a scene into buildings (footprints that touch), joins and decimates each (60k triangles), exports
+  .glb without images and a manifest; 38 buildings (sky, sky2, hotel, rt sets) in `assets/city/`
+  with `CREDITS.md`; `env/tm_city_assets.gd` dresses them by material name (glass -> our curtain
+  wall with `world_map`, rooms and night lights), picks one that fits a lot; `TmSkyline` uses them
+  for 60% of the towers where one fits. `env/asset_lab.tscn --glb=/abs.glb` or `--dir=/abs`
+  previews models in our light. Then (21 Oct): our own buildings in detail (windows set back in
+  their openings, sills, grime, brick/panel grain, shop floors with lit shops and signs, cornices,
+  parapets, roof plant, water tanks: `env/tm_tower.gdshader`, `TmSkyline._box`); street trees
+  (`env/tm_trees.gd`, `env/tm_foliage.gdshader`) and our own street lights
+  (`env/tm_street_lights.gd`, real lights at night) along the City tracks; the city built on a
+  worker thread (`TmSkyline.build_async`: online clients had started late while it built).
+  Screenshots here take 10-25 min each (software Vulkan); `--set_quality=2` for Ultra.
+  Open: the owner's look; Street/Traffic Lights licence (then their models could replace ours);
+  the High Rise Pack (baked textures: materials to rebuild) and the houses (outskirts).
+- Owner (20 Oct, not answered yet): "I want to be able to load all canyon/lagoon maps somehow."
+  Their block lists already read; the blocks' geometry doesn't exist. Options put to the owner:
+  approximate them from our pieces, recreate from the owner's own TM2 install locally, or a
+  preview only. Wait for the answer.
+- The TMX Stadium track run (`compat_run.py tracks`, 20,256 tracks; 18,000 done, 8 not ok, when
+  the cloud session's background limit stopped it) is resumable: rerun the same command; results
+  go to `stadium/tools/compat/results/tmx_tracks.tsv` when it finishes.
+
+## Earlier (19 Oct, owner's Windows PC): `stadium-v0.6` = `stadium` + the work after v0.5
 - Owner: "merge everything done so far in the stadium branches to release 0.6".
 - **`claude/tmnf-replica-graphics-nb1kcg` merged into `stadium`** (which already had v0.5 + session
   15's community work). In v0.6: the Community page and admins' TMX / ManiaPark uploads (M12), the
@@ -42,6 +95,11 @@
   `test_menu`, docs (both sides kept, `stadium`'s first). Milestones: v0.5's M10 is TMNF's look
   and physics; session 15's community work is **M11** in PLAN.md (**M12** since the v0.6 merge).
 - Continue on `stadium`.
+- 20 Oct: **texture mods** (owner: ManiaPark's TMNF/TMUF and ManiaPlanet mods must open):
+  `blocks/tm_texture_mod.gd`, `TmMaterials.MOD_MAP` / `use_mod`, the Community page's Texture Mods,
+  `tests/test_texture_mod` (gate), `tools/compat/compat_run.py` (the whole catalogue in batches;
+  PROGRESS 20 Oct). Next: the run's results, then the same runner over all 10,400 TMNF/TMUF cars
+  (`compat_run.py cars`), then a large TMX Stadium track sample (owner: "Large Stadium sample").
 
 ## Earlier (18-19 Oct, session 15, cloud): community tracks and cars on admins' servers, the Community page
 - Owner: "make sure that all the community tracks and car models can be uploaded and put on a

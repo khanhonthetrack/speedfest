@@ -9,14 +9,14 @@
 //   GET /api/community/tmx/trackgbx/<id>                   a track file
 //   GET /api/community/maniapark/api/search?...            ManiaPark search (JSON)
 //   GET /api/community/maniapark/image/<id>                a car's preview image
-//   GET /api/community/maniapark/(model|skin)/<id>/download   a car pack
+//   GET /api/community/maniapark/(model|skin|mod)/<id>/download   a car pack or a texture mod
 
 const SITES = {
   tmx: { host: 'https://tmnf.exchange', paths: [/^\/api\/tracks$/, /^\/trackshow\/\d{1,10}\/image\/[01]$/, /^\/trackgbx\/\d{1,10}$/] },
   maniapark: { host: 'https://maniapark.com',
-    paths: [/^\/api\/search$/, /^\/image\/[A-Za-z0-9_-]{1,40}$/, /^\/(?:model|skin)\/[A-Za-z0-9_-]{1,40}\/download$/] },
+    paths: [/^\/api\/search$/, /^\/image\/[A-Za-z0-9_-]{1,40}$/, /^\/(?:model|skin|mod)\/[A-Za-z0-9_-]{1,40}\/download$/] },
 };
-const MAX_BYTES = 40 * 1024 * 1024;
+const MAX_BYTES = 200 * 1024 * 1024;   // texture mods ship 4K textures (ManiaPark's run to ~150 MB)
 const UA = 'SpeedFestStadium-server/1.0 (+https://github.com/khanhonthetrack/speedfest)';
 const PASS_TYPES = /^(application\/json|image\/(jpeg|png|webp|gif)|application\/(zip|x-zip-compressed|octet-stream))/i;
 
@@ -102,7 +102,7 @@ function fixtureFetch(dir) {
     } else if (u.host === 'maniapark.com') {
       if (u.pathname === '/api/search') file = pick(`mp_search_${u.searchParams.get('asset')}.json`);
       else if ((m = u.pathname.match(/^\/image\/([\w-]+)$/))) file = pick(`mp_img_${m[1]}.webp`, `mp_img_${m[1]}.png`);
-      else if ((m = u.pathname.match(/^\/(?:model|skin)\/([\w-]+)\/download$/))) file = pick(`mp_${m[1]}.zip`);
+      else if ((m = u.pathname.match(/^\/(?:model|skin|mod)\/([\w-]+)\/download$/))) file = pick(`mp_${m[1]}.zip`);
     }
     const body = file ? fs.readFileSync(file) : null;
     const type = file ? (types[path.extname(file).toLowerCase()] || 'application/octet-stream') : 'text/html';

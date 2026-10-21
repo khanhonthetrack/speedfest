@@ -168,12 +168,18 @@ static func _texture(bytes: PackedByteArray, ext: String) -> Texture2D:
 	var img := Image.new()
 	var err := ERR_FILE_UNRECOGNIZED
 	match ext:
-		"dds": err = img.load_dds_from_buffer(_dds_fixed(bytes))
+		"dds":
+			var l := _dds_layout(bytes)
+			var odd := not l.is_empty() and int(l[4]) > 0 and (int(l[0]) % 4 != 0 or int(l[1]) % 4 != 0)
+			err = img.load_dds_from_buffer(_dds_fixed(bytes)) if not odd and not _dds_r11g11b10(bytes, true) else ERR_FILE_UNRECOGNIZED
+			if err != OK or img.is_empty():
+				img = _dds_r11g11b10(bytes) if _dds_r11g11b10(bytes, true) else _dds_top_level(bytes)
+				err = OK if img != null else ERR_FILE_CORRUPT
 		"tga": err = img.load_tga_from_buffer(bytes)
 		"png": err = img.load_png_from_buffer(bytes)
 		"jpg", "jpeg": err = img.load_jpg_from_buffer(bytes)
 		"bmp": err = img.load_bmp_from_buffer(bytes)
-	if err != OK or img.is_empty():
+	if err != OK or img == null or img.is_empty():
 		return null
 	if not img.has_mipmaps():
 		if img.is_compressed():
@@ -182,40 +188,157 @@ static func _texture(bytes: PackedByteArray, ext: String) -> Texture2D:
 	return ImageTexture.create_from_image(img)
 
 
-## Old DDS exporters (Photoshop's NVIDIA plugin) store a wrong pitch / linear size, or stop the
-## mipmap chain before 1 x 1, both of which Godot's loader refuses: drop those header flags (the
-## size follows from the format and dimensions) and complete a block-compressed chain with blank
-## blocks for its last tiny levels.
+## A DDS's sizes: [width, height, levels stated, data offset, bytes per 4 x 4 block (0: not
+## block-compressed), bytes per pixel (uncompressed)], or [] when it isn't a DDS we can size.
+static func _dds_layout(b: PackedByteArray) -> Array:
+	if b.size() < 128 or b.slice(0, 4).get_string_from_ascii() != "DDS ":
+		return []
+	var h := b.decode_u32(12)
+	var w := b.decode_u32(16)
+	var mips := maxi(1, b.decode_u32(28)) if (b.decode_u32(8) & 0x20000) != 0 else 1
+	var fourcc := b.slice(84, 88).get_string_from_ascii()
+	var data := 128
+	var block := 0
+	var bpp := 0
+	if fourcc == "DX10" and b.size() >= 148:      # the extended header: a DXGI format
+		data = 148
+		var dxgi := b.decode_u32(128)
+		block = 8 if dxgi in [70, 71, 72, 79, 80, 81] else (16 if dxgi in [73, 74, 75, 76, 77, 78, 82, 83, 84, 94, 95, 96, 97, 98, 99] else 0)
+	elif (b.decode_u32(80) & 0x4) != 0:
+		block = 8 if fourcc in ["DXT1", "ATI1", "BC4U", "BC4S"] else (16 if fourcc in ["DXT2", "DXT3", "DXT4", "DXT5", "ATI2", "BC5U", "BC5S", "RXGB"] else 0)
+	elif (b.decode_u32(80) & (0x40 | 0x20000 | 0x2)) != 0 and b.decode_u32(88) in [8, 16, 24, 32]:
+		bpp = b.decode_u32(88) / 8        # uncompressed RGB(A), luminance, alpha
+	if (block == 0 and bpp == 0) or w == 0 or h == 0:
+		return []
+	return [w, h, mips, data, block, bpp]
+
+
+static func _dds_level_size(l: Array, i: int) -> int:
+	var lw := maxi(1, int(l[0]) >> i)
+	var lh := maxi(1, int(l[1]) >> i)
+	if int(l[4]) > 0:
+		return maxi(1, (lw + 3) / 4) * maxi(1, (lh + 3) / 4) * int(l[4])
+	return lw * lh * int(l[5])
+
+
+## Old DDS exporters (Photoshop's NVIDIA plugin, the TMNF modders' tools) store a wrong pitch /
+## linear size, stop the mipmap chain before 1 x 1, or state more levels than they wrote, all of
+## which Godot's loader refuses (some also leave out the flags every DDS must set): drop those header
+## flags (the size follows from the format and dimensions), keep the levels that are there and complete the chain with blank levels (block-
+## compressed DXT1-5, BC4/BC5 normal maps, DX10 headers, and uncompressed RGB(A)).
 static func _dds_fixed(bytes: PackedByteArray) -> PackedByteArray:
-	if bytes.size() < 128 or bytes.slice(0, 4).get_string_from_ascii() != "DDS ":
+	var l := _dds_layout(bytes)
+	if l.is_empty():
 		return bytes
 	var out := bytes.duplicate()
-	out.encode_u32(8, out.decode_u32(8) & ~0x80008)   # DDSD_LINEARSIZE, DDSD_PITCH
+	# drop DDSD_LINEARSIZE, DDSD_PITCH; set the flags every DDS must have (CAPS, HEIGHT, WIDTH,
+	# PIXELFORMAT: some exporters leave them out)
+	out.encode_u32(8, (out.decode_u32(8) & ~0x80008) | 0x1007)
+	out.encode_u32(4, 124)            # the header's size (one exporter writes 24)
+	out.encode_u32(76, 32)            # the pixel format's
 	out.encode_u32(20, 0)
-	var h := out.decode_u32(12)
-	var w := out.decode_u32(16)
-	var mips := maxi(1, out.decode_u32(28))
-	var fourcc := out.slice(84, 88).get_string_from_ascii()
-	var block := 8 if fourcc == "DXT1" else (16 if fourcc in ["DXT2", "DXT3", "DXT4", "DXT5"] else 0)
-	if block == 0 or w == 0 or h == 0 or (out.decode_u32(8) & 0x20000) == 0:
-		return out
+	if out.slice(84, 88).get_string_from_ascii() == "RXGB":   # DXT5 with a normal map's red in alpha
+		out[87] = 53      # "DXT5"
+		out[84] = 68; out[85] = 88; out[86] = 84
+	var data: int = l[3]
 	var full := 1
-	while (w >> (full - 1)) > 1 or (h >> (full - 1)) > 1:
+	while (int(l[0]) >> (full - 1)) > 1 or (int(l[1]) >> (full - 1)) > 1:
 		full += 1
-	if mips >= full:
-		return out
+	# the levels that are really there (some files state 7 and hold 1)
+	var present := 0
 	var have := 0
-	for i in mips:
-		have += maxi(1, ((w >> i) + 3) / 4) * maxi(1, ((h >> i) + 3) / 4) * block
-	if out.size() < 128 + have:
+	for i in mini(int(l[2]), full):
+		var n := _dds_level_size(l, i)
+		if out.size() < data + have + n:
+			break
+		have += n
+		present += 1
+	if present == 0:
 		return out
-	out.resize(128 + have)
-	for i in range(mips, full):
+	if present == full and int(l[2]) == full:
+		return out
+	out.resize(data + have)
+	for i in range(present, full):
 		var extra := PackedByteArray()
-		extra.resize(maxi(1, ((w >> i) + 3) / 4) * maxi(1, ((h >> i) + 3) / 4) * block)
+		extra.resize(_dds_level_size(l, i))
 		out.append_array(extra)
+	out.encode_u32(8, out.decode_u32(8) | 0x20000)
 	out.encode_u32(28, full)
+	out.encode_u32(108, out.decode_u32(108) | 0x400008)      # DDSCAPS_MIPMAP | COMPLEX
 	return out
+
+
+## ManiaPlanet's ambient light cubes (Moods/*/AmbCubeP.dds): a DX10 DDS of packed floats
+## (R11G11B10, which Godot's loader doesn't read), six faces: their top levels side by side as one
+## HDR image. probe: only whether the file is one.
+static func _dds_r11g11b10(bytes: PackedByteArray, probe := false):
+	if bytes.size() < 148 or bytes.slice(0, 4).get_string_from_ascii() != "DDS " or bytes.slice(84, 88).get_string_from_ascii() != "DX10" \
+			or bytes.decode_u32(128) != 26:
+		return false if probe else null
+	if probe:
+		return true
+	var h := bytes.decode_u32(12)
+	var w := bytes.decode_u32(16)
+	var mips := maxi(1, bytes.decode_u32(28))
+	var faces := 6 if (bytes.decode_u32(112) & 0x200) != 0 or (bytes.decode_u32(136) & 4) != 0 else 1
+	var stride := 0                 # a face: its whole mip chain
+	for i in mips:
+		stride += maxi(1, w >> i) * maxi(1, h >> i) * 4
+	if w == 0 or h == 0 or bytes.size() < 148 + stride * faces or w * h * faces > 4096 * 4096:
+		return null
+	var px := PackedFloat32Array()
+	px.resize(w * faces * h * 3)
+	for f in faces:
+		for y in h:
+			for x in w:
+				var v := bytes.decode_u32(148 + f * stride + (y * w + x) * 4)
+				var o := ((y * w * faces) + f * w + x) * 3
+				px[o] = _f11(v & 0x7FF)
+				px[o + 1] = _f11((v >> 11) & 0x7FF)
+				px[o + 2] = _f10((v >> 22) & 0x3FF)
+	return Image.create_from_data(w * faces, h, false, Image.FORMAT_RGBF, px.to_byte_array())
+
+
+static func _f11(v: int) -> float:       # 5-bit exponent, 6-bit mantissa, no sign
+	var e := v >> 6
+	var m := v & 0x3F
+	return (m / 64.0) * pow(2.0, -14.0) if e == 0 else (1.0 + m / 64.0) * pow(2.0, e - 15)
+
+
+static func _f10(v: int) -> float:       # 5-bit exponent, 5-bit mantissa
+	var e := v >> 5
+	var m := v & 0x1F
+	return (m / 32.0) * pow(2.0, -14.0) if e == 0 else (1.0 + m / 32.0) * pow(2.0, e - 15)
+
+
+## A block-compressed DDS whose sides aren't multiples of 4 (1010 x 1002; Godot's loader wants
+## whole blocks): its top level alone, as a DDS rounded up to whole blocks, decoded and cropped
+## back. Null if that doesn't load either.
+static func _dds_top_level(bytes: PackedByteArray) -> Image:
+	var l := _dds_layout(bytes)
+	if l.is_empty() or int(l[4]) == 0:
+		return null
+	var w: int = l[0]
+	var h: int = l[1]
+	var n := _dds_level_size(l, 0)
+	if bytes.size() < int(l[3]) + n:
+		return null
+	var head := bytes.slice(0, int(l[3]))
+	head.encode_u32(8, (head.decode_u32(8) & ~0xA0008) | 0x1007)    # no mip count, pitch, linear size
+	head.encode_u32(12, (h + 3) / 4 * 4)
+	head.encode_u32(16, (w + 3) / 4 * 4)
+	head.encode_u32(20, 0)
+	head.encode_u32(28, 1)
+	head.encode_u32(108, 0x1000)
+	var dds := head + bytes.slice(int(l[3]), int(l[3]) + n)
+	var img := Image.new()
+	if img.load_dds_from_buffer(dds) != OK or img.is_empty():
+		return null
+	if img.is_compressed():
+		img.decompress()
+	if img.get_width() != w or img.get_height() != h:
+		img = img.get_region(Rect2i(0, 0, w, h))
+	return img
 
 
 static func _sound(bytes: PackedByteArray, ext: String) -> AudioStream:

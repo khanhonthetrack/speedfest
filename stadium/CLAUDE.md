@@ -71,13 +71,25 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-19 (`stadium-v0.6` released: v0.5 + the community work + the look work after v0.5). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
-- **`stadium-v0.6` (19 Oct) is `stadium` + the community work (PLAN M12) + `claude/tmnf-replica-graphics-nb1kcg`
-  after v0.5** (now contained in `stadium`; continue on `stadium`): the circuit ledges' blue and
-  borders as TMNF's, no black tyre smoke, and M11 (PLAN: the block-by-block look check against
-  TMNF, `docs/research/m11_check.md`; steps 1-3 so far: platform walls and decks, turbo pads, the
-  circuit's sides, undersides, end caps and slope bases, roads, inflatable trees and cacti). Next:
-  M11-2 on (the road, then grandstands, camera booths, sculptures, dirt roads, castles), M11-5..8.
+Updated 2026-10-21 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **PC only (owner, 20 Oct: "I dont do browser anymore. Only pc with high graphics card"):** new
+  work targets Forward+ on a strong graphics card; the web build is no longer a constraint.
+- **A city around the Stadium (PLAN M13, 20 Oct):** our own skyscrapers (`env/tm_tower.gd`: glass
+  with rooms behind the windows, masonry, crowns, lights) in a city on the plain below the
+  Stadium's edge (`env/tm_skyline.gd`, added on 32 x 32 maps, `--city=false` to leave it out);
+  cameras see `TmSkyline.FAR` (9 km); `tests/test_skyline`. Night (20 Oct): `TmStadiumEnv.mood_of`
+  (maps' decoration, specs' `mood`, `--mood=night`), the towers lit (`tm_night`). The campaign's
+  sixth series **City** (F01-F05, `"scenery": "city"`): towers around the road (`TmSkyline.field`).
+  The owner's Blend Swap buildings (CC0 / CC BY, `assets/city/`, `CREDITS.md`; owner-chosen
+  third-party assets are allowed there, with a licence): `tools/assets/blend_to_glb.py`,
+  `env/tm_city_assets.gd`; Street/Traffic Lights blends wait for their licence.
+- **The look work after v0.6 (PLAN M11-2..4, M11-8):** the circuit walls, platform decks and
+  plates, roads and junctions, gate arches, grandstands and their wave roofs, camera booths,
+  pubs and lights, loops, turbines, sculptures, dirt pieces, inflatables, castles, tube lights,
+  terrain zones and the fabric pillars, each measured against TMNF's own blocks
+  (`docs/research/m11_check.md`). Next: M11-5..7.
+- **`stadium-v0.6` (19 Oct) is `stadium` + the community work (PLAN M12) + the look work after
+  v0.5**: the circuit ledges' blue and borders as TMNF's, no black tyre smoke, and M11-1..3.
 - **Community content (session 15, PLAN M12; released in v0.6):** server admins
   upload TMX tracks and ManiaPark car packs (`server/lib/admin.js`, `/admin`); every block of a
   1113-track TMX sample is built (`tests/test_compat_tracks --dir= --build`); clients download a
@@ -89,6 +101,10 @@ Updated 2026-10-19 (`stadium-v0.6` released: v0.5 + the community work + the loo
   tracks stay refused with the reason (owner: "Ignore those"). The menu's Community page (19 Oct):
   `net/tm_community.gd` + `ui/tm_menu.gd` `_page_community` in v0.5's TMNF frame (TMX / ManiaPark by
   their previews, download, drive, play; a downloaded car turns in its own little viewport; the web build through `server/lib/community.js`; `tests/test_community`).
+  Texture mods (20 Oct): `blocks/tm_texture_mod.gd` opens any TMNF/TMUF or ManiaPlanet mod;
+  Stadium mods are worn through `TmMaterials.MOD_MAP` (each key's region of a TMNF atlas and its
+  metres, measured from TMNF's blocks with `ref_visuals.py`) and `use_mod()`; Community → Texture
+  Mods; `tools/compat/compat_run.py` checks ManiaPark's whole catalogue in batches (results TSVs).
 - **`stadium-v0.5` (19 Oct) is `stadium` + M10** (PLAN.md M10, merged from
   `claude/tmnf-replica-graphics-nb1kcg`, which now equals `stadium`; continue on `stadium`):
   dark circuit screens, tyre marks, surfaces and jumps measured against TMNF's own runs, contacts

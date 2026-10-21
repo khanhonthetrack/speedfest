@@ -7,10 +7,15 @@ Godot. ManiaPlanet parts are out of scope.
 Owner decisions (2026-10-16):
 - **Assets: recreate only.** Every model, texture and sound here is our own, made in the TMNF style.
   No Nadeo files (meshes, textures, sounds, packs, decompiled code) are ever committed or shipped.
+  One exception the owner chose (20 Oct 2026): city buildings from Blend Swap under open licences
+  (CC0, CC BY 3.0), converted by `tools/assets/blend_to_glb.py` into `assets/city/` with their
+  credits (`assets/city/CREDITS.md`); anything without a licence stays out.
 - **Tracks:** the game is **standalone** (owner, 2026-10-17): its campaign is our own tracks
   (`tracks/*.json`, built from the recreated blocks; no TMNF needed): 65 in TMNF's five series,
   White A01-A15, Green B01-B15, Blue C01-C15, Red D01-D15, Black E01-E05 (owner, session 13:
-  "Only our own A-E"; `docs/research/m9_campaign.md`). The first SpeedFest tracks (SF01-SF11)
+  "Only our own A-E"; `docs/research/m9_campaign.md`), and a sixth series of our own, **City**
+  F01-F05 (owner, 20 Oct: street circuits between towers on a paved field, three of them at night;
+  `"scenery": "city"`, `"mood": "night"` in their specs). The first SpeedFest tracks (SF01-SF11)
   stay raceable by id. TMNF's official campaign and
   any `.Challenge.Gbx` (TMX downloads) still load **at runtime** from files the player owns (their
   TMNF install, their downloads) and are drawn with our blocks. They are never committed.
@@ -139,6 +144,30 @@ executable (no installer needed: unzip and run) with `PLAYING.txt` and the credi
   car turns beside its preview, as the game draws it) or **Play** a track. Downloads are kept in
   `user://community` (My Cars, My Tracks); a modded track is kept but says why it can't be raced.
   The web build goes through its server (`/api/community`, `stadium/server/README.md`).
+- **Texture mods** (Community → Texture Mods: ManiaPark's for TMNF/TMUF and for ManiaPlanet): any
+  mod opens (`blocks/tm_texture_mod.gd`: every texture decodes, the game and environment are
+  read from its names); a **Stadium** mod (TMNF's or ManiaPlanet's) can be worn: **Wear this mod**,
+  and the next race's Stadium takes its textures (`TmMaterials.use_mod`, the measured `MOD_MAP`:
+  which region of which TMNF texture each of our materials repeats, and over how many metres).
+  Mods for environments the game doesn't have (Canyon, Valley, Lagoon, Storm; Island, Bay, Coast,
+  Desert, Rally, Snow) open and show their textures, and say so. `--mod=<zip>` wears one for a run.
+
+## Check ManiaPark and TrackMania Exchange (and keep your own copy)
+`tools/compat/compat_run.py` runs ManiaPark's whole catalogue and a large TrackMania Exchange sample
+through the game, a batch at a time: it downloads a batch, has the game open each item (the
+compatibility tests), records the outcome and deletes the files, so it never needs much disk. The
+outcomes are in `tools/compat/results/` (ids, names, authors, checksums, what the game made of each);
+the files themselves never go in this repository (they are their authors' works, and the cars
+alone are ~70 GB). To keep a copy for yourself, give `--keep=<a folder of yours>`: each tested
+batch is moved there instead of deleted. On the Windows PC (Git Bash, `export PATH=/c/dev/bin:$PATH`
+for Godot):
+
+    python -I stadium/tools/compat/compat_run.py mods   C:/dev/community/work --keep=C:/dev/community/mods
+    python -I stadium/tools/compat/compat_run.py cars   C:/dev/community/work --keep=C:/dev/community/cars
+    python -I stadium/tools/compat/compat_run.py tracks C:/dev/community/work --keep=C:/dev/community/tracks
+
+Re-running continues where it stopped (the work folder remembers what is done); the folders in
+`--keep` are plain zips and `.Challenge.Gbx` files the game opens (Community, OPEN A TRACK FILE).
 
 ## Continue the work
 Agents: read `stadium/CLAUDE.md`. The TMNF install and measurements are recreated locally with

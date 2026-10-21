@@ -1,0 +1,139 @@
+{
+ "source": "SkySwap.blend",
+ "licence": "CC0 1.0, Blend Swap #81908",
+ "scale": 1.0,
+ "buildings": [
+  {
+   "name": "sky_01",
+   "size": [
+    65.46,
+    302.0,
+    151.57
+   ],
+   "triangles": 18788,
+   "parts": 7,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_02",
+   "size": [
+    110.68,
+    326.48,
+    154.59
+   ],
+   "triangles": 60000,
+   "parts": 8,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_03",
+   "size": [
+    54.0,
+    258.49,
+    125.0
+   ],
+   "triangles": 96,
+   "parts": 8,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_04",
+   "size": [
+    96.24,
+    248.25,
+    93.56
+   ],
+   "triangles": 32028,
+   "parts": 33,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_05",
+   "size": [
+    60.48,
+    116.91,
+    66.56
+   ],
+   "triangles": 6865,
+   "parts": 20,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_06",
+   "size": [
+    149.4,
+    140.74,
+    149.4
+   ],
+   "triangles": 6664,
+   "parts": 41,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_07",
+   "size": [
+    50.85,
+    128.25,
+    43.97
+   ],
+   "triangles": 58528,
+   "parts": 1,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_08",
+   "size": [
+    153.0,
+    92.0,
+    48.0
+   ],
+   "triangles": 24394,
+   "parts": 26,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_09",
+   "size": [
+    48.0,
+    92.0,
+    153.0
+   ],
+   "triangles": 24274,
+   "parts": 18,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_10",
+   "size": [
+    133.0,
+    52.63,
+    132.0
+   ],
+   "triangles": 2158,
+   "parts": 96,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  },
+  {
+   "name": "sky_11",
+   "size": [
+    124.6,
+    30.0,
+    143.2
+   ],
+   "triangles": 30110,
+   "parts": 106,
+   "source": "SkySwap.blend",
+   "licence": "CC0 1.0, Blend Swap #81908"
+  }
+ ]
+}

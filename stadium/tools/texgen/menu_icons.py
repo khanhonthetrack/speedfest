@@ -2,7 +2,7 @@
 slightly raised symbols in strong colours with a soft drop shadow. A person (solo, profile), a
 person with a globe (online), a car (the welcome card), stacked cubes (editors), an exit door (quit), folders (browse), an
 arrow (back), a film strip (replays), a gear (options), and a waving checkered flag per campaign
-series. Each is a stack of shapes: a mask raised into a height field, lit (light from the upper
+series (City's amber, the colour of its lights). Each is a stack of shapes: a mask raised into a height field, lit (light from the upper
 left, a sharp highlight), drawn over the ones below. RGBA PNGs in stadium/assets/ui/icon_*.png.
 usage: python3 stadium/tools/texgen/menu_icons.py"""
 import math
@@ -200,7 +200,7 @@ def main():
 
     for name, a, b in (('white', (245, 245, 245), (150, 155, 160)), ('green', (60, 205, 60), (20, 110, 25)),
                        ('blue', (60, 120, 245), (20, 50, 150)), ('red', (235, 50, 40), (130, 20, 15)),
-                       ('black', (70, 70, 72), (235, 235, 235))):
+                       ('black', (70, 70, 72), (235, 235, 235)), ('city', (250, 175, 45), (125, 70, 15))):
         flag('flag_' + name, a, b)
 
 

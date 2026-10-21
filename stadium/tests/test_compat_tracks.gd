@@ -7,11 +7,13 @@ extends Node
 ## race's start and waypoints from the built map.
 ##
 ## Run: stadium/tools/run.sh res://tests/test_compat_tracks.tscn --headless --timeout 3000 -- \
-##          --dir=/abs/tmx [--build] [--limit=N] [--report=/abs/report.json] [--verbose]
+##          --dir=/abs/tmx [--build] [--limit=N] [--report=/abs/report.json] [--results=/abs/r.json] [--verbose]
+## results.json (tools/compat/compat_run.py): {file: {ok, why, name, environment, modded, built, raceable}}.
 ## Prints TEST_OK/TEST_FAIL per check and COMPAT lines (counts, failing tracks, missing shapes).
 
 var _lib: TmBlockLib
 var _failures: Array = []         ## [{file, name, why}]
+var _results := {}                ## file -> its outcome (--results)
 var _missing := {}                ## shape or ?block -> number of tracks that need it
 var _counts := {"tracks": 0, "read": 0, "stadium": 0, "modded": 0, "complete": 0, "built": 0, "raceable": 0}
 
@@ -39,6 +41,11 @@ func _ready() -> void:
 		print("COMPAT_MISSING %5d tracks  %s" % [_missing[k], k])
 	for fl: Dictionary in _failures.slice(0, int(TestHooks.arg("show", 80))):
 		print("COMPAT_FAIL %s (%s): %s" % [fl["file"], fl["name"], fl["why"]])
+	var rp := String(TestHooks.arg("results", ""))
+	if not rp.is_empty():
+		var ro := FileAccess.open(rp, FileAccess.WRITE)
+		if ro:
+			ro.store_string(JSON.stringify(_results, " "))
 	var report := String(TestHooks.arg("report", ""))
 	if not report.is_empty():
 		var out := FileAccess.open(report, FileAccess.WRITE)
@@ -70,6 +77,10 @@ func _files(dir: String) -> Array:
 
 func _fail(file: String, name: String, why: String) -> void:
 	_failures.append({"file": file.get_file(), "name": name, "why": why})
+	var r: Dictionary = _results.get(file.get_file(), {"name": name})
+	r["ok"] = false
+	r["why"] = why if String(r.get("why", "")).is_empty() else "%s; %s" % [r["why"], why]
+	_results[file.get_file()] = r
 	if TestHooks.has_arg("verbose"):
 		print("  FAIL %s: %s" % [file.get_file(), why])
 
@@ -77,12 +88,15 @@ func _fail(file: String, name: String, why: String) -> void:
 func _check(file: String, build: bool) -> void:
 	_counts["tracks"] += 1
 	var ch := TmChallenge.load_file(file)
+	_results[file.get_file()] = {"ok": true, "why": "", "name": ch.name, "environment": ch.environment, "modded": false,
+		"built": false, "raceable": false}
 	if not ch.ok():
 		_fail(file, ch.name, "read: " + ch.error)
 		return
 	_counts["read"] += 1
 	if not ch.environment.is_empty() and ch.environment != "Stadium":
 		print("COMPAT_SKIP %s: environment %s" % [file.get_file(), ch.environment])
+		_results[file.get_file()]["why"] = "not a Stadium track (%s)" % ch.environment
 		return
 	var report := TmTrackCheck.check(ch, _lib)
 	if report["modded"]:
@@ -90,6 +104,8 @@ func _check(file: String, build: bool) -> void:
 		# the mod; counted apart and listed
 		_counts["modded"] += 1
 		print("COMPAT_MODDED %s (%s): %s %s" % [file.get_file(), ch.name, report["why"], report["missing"].keys()])
+		_results[file.get_file()]["modded"] = true
+		_results[file.get_file()]["why"] = "modded: %s" % report["why"]
 		return
 	_counts["stadium"] += 1
 	for k: String in report["missing"]:
@@ -107,6 +123,7 @@ func _check(file: String, build: bool) -> void:
 		var ok: bool = b.stats["placeholder"] == 0 and b.stats["unknown"] == 0
 		if ok:
 			_counts["built"] += 1
+			_results[file.get_file()]["built"] = true
 		else:
 			for k: String in b.missing:
 				_missing["built: " + k] = int(_missing.get("built: " + k, 0)) + 1
@@ -115,6 +132,7 @@ func _check(file: String, build: bool) -> void:
 		if report["raceable"]:
 			if b.has_start and (not b.finishes.is_empty() or ch.lap_race or _has_multilap(b)):
 				_counts["raceable"] += 1
+				_results[file.get_file()]["raceable"] = true
 			else:
 				_fail(file, ch.name, "built map has no start or finish")
 		b.root.free()

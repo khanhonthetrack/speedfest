@@ -1,0 +1,19 @@
+{
+ "source": "HIlt2.blend",
+ "licence": "CC0 1.0, Blend Swap #82480",
+ "scale": 1.0,
+ "buildings": [
+  {
+   "name": "hotel_01",
+   "size": [
+    128.3,
+    80.17,
+    75.67
+   ],
+   "triangles": 59999,
+   "parts": 29,
+   "source": "HIlt2.blend",
+   "licence": "CC0 1.0, Blend Swap #82480"
+  }
+ ]
+}

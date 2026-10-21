@@ -1,0 +1,67 @@
+{
+ "source": "Building7swap (2).blend",
+ "licence": "CC0 1.0, Blend Swap #82048",
+ "scale": 1.0,
+ "buildings": [
+  {
+   "name": "sky2_01",
+   "size": [
+    114.54,
+    322.0,
+    114.49
+   ],
+   "triangles": 1102,
+   "parts": 8,
+   "source": "Building7swap (2).blend",
+   "licence": "CC0 1.0, Blend Swap #82048"
+  },
+  {
+   "name": "sky2_02",
+   "size": [
+    88.88,
+    285.74,
+    88.88
+   ],
+   "triangles": 7112,
+   "parts": 11,
+   "source": "Building7swap (2).blend",
+   "licence": "CC0 1.0, Blend Swap #82048"
+  },
+  {
+   "name": "sky2_03",
+   "size": [
+    221.0,
+    255.0,
+    51.0
+   ],
+   "triangles": 50700,
+   "parts": 21,
+   "source": "Building7swap (2).blend",
+   "licence": "CC0 1.0, Blend Swap #82048"
+  },
+  {
+   "name": "sky2_04",
+   "size": [
+    146.1,
+    205.22,
+    128.51
+   ],
+   "triangles": 11556,
+   "parts": 12,
+   "source": "Building7swap (2).blend",
+   "licence": "CC0 1.0, Blend Swap #82048"
+  },
+  {
+   "name": "sky2_05",
+   "size": [
+    69.69,
+    160.2,
+    69.73
+   ],
+   "triangles": 60000,
+   "parts": 30,
+   "source": "Building7swap (2).blend",
+   "licence": "CC0 1.0, Blend Swap #82048"
+  }
+ ]
+}

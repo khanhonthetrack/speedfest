@@ -6,6 +6,10 @@ extends RefCounted
 ## sun: 23 deg up in the south-west); the sun white at intensity 1 with shadows at 0.4; the ambient
 ## (94, 96, 108); the sky gradient below; clouds between (196, 209, 218) and (250, 251, 251).
 ## TMNF's north is +z and east +x (Godot: x negated).
+## Night (our own numbers, after TMNF's Night mood's look: a dark blue sky, stars, the field under
+## the floodlights): a track's mood (`mood` in our track specs, a .Challenge.Gbx's decoration) or
+## --mood=night. The moon is the directional light, dim and blue; the Stadium's four floodlight
+## heads light the field (TmStage); the global shader value tm_night lights the city (TmTower).
 
 const LATITUDE := 48.0
 const DAY_TIME := 0.65             ## of 24 h
@@ -20,6 +24,26 @@ const SKY := [Color8(62, 105, 159), Color8(65, 112, 171), Color8(69, 121, 181), 
 	Color8(101, 157, 203), Color8(109, 164, 208), Color8(117, 170, 211), Color8(128, 179, 215),
 	Color8(143, 189, 220), Color8(162, 200, 225), Color8(182, 212, 230), Color8(201, 222, 235),
 	Color8(213, 229, 240)]
+## Night: the sky from the zenith to the horizon (the city's glow low down), clouds, ambient, moon.
+const SKY_NIGHT := [Color8(3, 5, 12), Color8(4, 6, 14), Color8(4, 7, 16), Color8(5, 8, 18),
+	Color8(6, 9, 20), Color8(7, 10, 22), Color8(8, 12, 25), Color8(9, 13, 27), Color8(11, 15, 30),
+	Color8(13, 17, 33), Color8(15, 19, 36), Color8(18, 22, 39), Color8(22, 25, 42), Color8(28, 29, 45),
+	Color8(36, 34, 48), Color8(46, 40, 50), Color8(58, 47, 52)]
+const CLOUD_LO_NIGHT := Color8(10, 11, 16)
+const CLOUD_HI_NIGHT := Color8(38, 36, 44)
+const AMBIENT_NIGHT := Color8(30, 36, 56)
+const MOON := Vector3(0.35, 0.82, -0.45)   ## towards the moon (Godot axes)
+
+static var night := false          ## the mood of the last environment added
+
+
+## The mood of a map: "night" for night maps (a .Challenge.Gbx's decoration or our spec's mood),
+## else "day"; --mood= overrides.
+static func mood_of(challenge: TmChallenge) -> String:
+	var m := String(TestHooks.arg("mood", ""))
+	if m.is_empty() and challenge != null:
+		m = "night" if challenge.decoration.to_lower().contains("night") else "day"
+	return "night" if m.to_lower() == "night" else "day"
 
 
 ## The direction towards the sun (Godot axes) at the mood's day time: hour angle from noon, an
@@ -32,14 +56,19 @@ static func sun_direction(day_time := DAY_TIME, latitude := LATITUDE) -> Vector3
 	return Vector3(-sin(az) * cos(el), sin(el), cos(az) * cos(el))
 
 
-## Sun, sky, ambient light and haze under `parent`; returns the WorldEnvironment.
-static func add(parent: Node) -> WorldEnvironment:
+## Sun, sky, ambient light and haze under `parent` (mood "day" or "night"; "": --mood=, else day);
+## returns the WorldEnvironment.
+static func add(parent: Node, mood := "") -> WorldEnvironment:
+	if mood.is_empty():
+		mood = mood_of(null)
+	night = mood == "night"
+	RenderingServer.global_shader_parameter_set(&"tm_night", 1.0 if night else 0.0)
 	var sun := DirectionalLight3D.new()
-	sun.name = "Sun"
-	var to_sun := sun_direction()
+	sun.name = "Moon" if night else "Sun"
+	var to_sun := MOON.normalized() if night else sun_direction()
 	sun.basis = Basis.looking_at(-to_sun, Vector3.UP)
-	sun.light_color = Color.WHITE
-	sun.light_energy = 1.1
+	sun.light_color = Color(0.62, 0.72, 1.0) if night else Color.WHITE
+	sun.light_energy = 0.22 if night else 1.1
 	sun.shadow_enabled = bool(TmUi.setting("shadows"))
 	sun.shadow_opacity = float(TestHooks.arg("shadow", SHADOW_OPACITY))
 	sun.directional_shadow_max_distance = 700.0
@@ -49,12 +78,12 @@ static func add(parent: Node) -> WorldEnvironment:
 	var sky_mat := ShaderMaterial.new()
 	sky_mat.shader = preload("res://env/tm_sky.gdshader")
 	var stops := PackedVector3Array()
-	for c: Color in SKY:
+	for c: Color in (SKY_NIGHT if night else SKY):
 		var l := c.srgb_to_linear()
 		stops.append(Vector3(l.r, l.g, l.b))
 	sky_mat.set_shader_parameter("stops", stops)
-	var lo := CLOUD_LO.srgb_to_linear()
-	var hi := CLOUD_HI.srgb_to_linear()
+	var lo := (CLOUD_LO_NIGHT if night else CLOUD_LO).srgb_to_linear()
+	var hi := (CLOUD_HI_NIGHT if night else CLOUD_HI).srgb_to_linear()
 	sky_mat.set_shader_parameter("cloud_lo", Vector3(lo.r, lo.g, lo.b))
 	sky_mat.set_shader_parameter("cloud_hi", Vector3(hi.r, hi.g, hi.b))
 	var cn := FastNoiseLite.new()
@@ -69,6 +98,15 @@ static func add(parent: Node) -> WorldEnvironment:
 	ct.generate_mipmaps = true
 	ct.noise = cn
 	sky_mat.set_shader_parameter("cloud_noise", ct)
+	if night:
+		sky_mat.set_shader_parameter("stars", 1.0)
+		sky_mat.set_shader_parameter("sun_size", 0.99993)
+		sky_mat.set_shader_parameter("sun_glow", 0.06)
+		sky_mat.set_shader_parameter("disc_energy", 9.0)
+	# a worn texture mod's own cloud layer (TMNF's Moods/StadiumFXClouds: a tiling grey pattern)
+	var clouds: Texture2D = TmMaterials.mod.texture("StadiumFXClouds") if TmMaterials.mod != null else null
+	if clouds != null:
+		sky_mat.set_shader_parameter("cloud_noise", clouds)
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.radiance_size = Sky.RADIANCE_SIZE_256
@@ -79,8 +117,8 @@ static func add(parent: Node) -> WorldEnvironment:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_sky_contribution = 0.6
-	env.ambient_light_color = AMBIENT
-	env.ambient_light_energy = 0.75
+	env.ambient_light_color = AMBIENT_NIGHT if night else AMBIENT
+	env.ambient_light_energy = 0.5 if night else 0.75
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	env.tonemap_exposure = 0.85
@@ -91,17 +129,17 @@ static func add(parent: Node) -> WorldEnvironment:
 	env.adjustment_contrast = 1.12
 	env.fog_enabled = true
 	env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	env.fog_light_color = (SKY[SKY.size() - 1] as Color)
-	env.fog_density = 0.00007
+	env.fog_light_color = ((SKY_NIGHT if night else SKY)[SKY.size() - 1] as Color)
+	env.fog_density = 0.0001 if night else 0.00007
 	env.fog_aerial_perspective = 0.3
 	env.fog_sky_affect = 0.0
 	env.ssao_enabled = true
 	env.ssao_radius = 1.5
 	env.ssao_intensity = 1.2
 	env.glow_enabled = true
-	env.glow_intensity = 0.25
+	env.glow_intensity = 0.45 if night else 0.25
 	env.glow_bloom = 0.02
-	env.glow_hdr_threshold = 1.2
+	env.glow_hdr_threshold = 0.9 if night else 1.2
 	TmRtx.apply_environment(env, sun)
 	var we := WorldEnvironment.new()
 	we.name = "Environment"

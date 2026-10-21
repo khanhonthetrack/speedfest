@@ -5,6 +5,7 @@ extends Node
 
 func _ready() -> void:
 	_lzo_sample()
+	_unassigned_ids()
 	var root: String = TestHooks.arg("tmnf", "")
 	if root.is_empty():
 		print("TEST_SKIP campaign: pass --tmnf=/path/to/TMNF to read the official tracks")
@@ -55,3 +56,17 @@ func _campaign(dir: String) -> void:
 	TestHooks.check(failed == 0, "campaign_all_parse", "%d failed" % failed)
 	TestHooks.check(total_blocks == 41523, "campaign_block_count", "%d" % total_blocks)
 	TestHooks.check(names.size() == 242, "campaign_block_types", "%d" % names.size())
+
+
+## A string id of -2 (0xFFFFFFFE: some editors' unassigned, seen in TMX tracks' vehicle) reads as
+## empty, like -1.
+func _unassigned_ids() -> void:
+	var b := PackedByteArray()
+	b.resize(16)
+	b.encode_u32(0, 3)
+	b.encode_u32(4, 0xFFFFFFFE)
+	b.encode_u32(8, 0xFFFFFFFF)
+	b.encode_u32(12, 0xFFFFFFFE)
+	var r := GbxStream.new(b)
+	var id := r.ident()
+	TestHooks.check(id == PackedStringArray(["", "", ""]) and r.ok(), "gbx_unassigned_ids", "%s %s" % [id, r.error])

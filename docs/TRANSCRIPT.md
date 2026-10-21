@@ -969,6 +969,46 @@ the branch, then put it on `stadium` for a v0.6.)
 
 > Yes, do both - dont release yet
 
+Owner, later in session 15 (verbatim, 20 Oct):
+> now, make sure that all textures from maniapark (compatible with TMNF or TMUF) can be loaded in our games. Download all the textures and put it in a folder in git. Same with cars and maps.
+
+(Answered: not in this repo, which is public: the files are their authors' works, many cars copy
+commercial games' models, and ManiaPark's TMNF/TMUF cars alone are ~10,400 packs, ~70 GB. Asked
+two questions; the owner's answers: downloads "Also keep a private copy" (on storage the owner
+owns: GitHub can't hold it, so a folder on the owner's PC filled by the resumable script), tracks
+"Large Stadium sample".)
+
+Then, interrupting (verbatim):
+> look at texture mods from: https://maniapark.com/search/mods?q=game%3Amaniaplanet Can you open or make sure they open in the game? (which may not be stadium!)
+
+Owner, later in session 15 (verbatim, 20 Oct):
+> dont download cars. no need. I want to be able to load all canyon/lagoon maps somehow.
+
+(Car downloads stopped. Canyon/Lagoon maps already read (block lists); their blocks' geometry is
+missing; options offered: approximate from our pieces, recreate from the owner's TM2 install,
+or preview only. Not answered yet.)
+
+> Can you create new assets to the game? Not recreating anymore but actually put tall, ultrarealistic buildings (godot or blender)?
+
+(Answered yes: our own procedural towers, interior-mapped glass, reflections; asked where: a
+skyline around the Stadium, pieces in our tracks, or both; recommended the skyline first.)
+
+> I dont do browser anymore. Only pc with high graphics card
+
+(Owner decision: the Stadium game targets the PC with a strong graphics card only (Forward+);
+the web build / Compatibility renderer is no longer a constraint. Started with the skyline.)
+
+> add night lights to the towers, add towers in tracks scenery (instead of white,blue, create 5 tracks of name CITY)
+
+(Read as: a new campaign series named City, five tracks whose scenery is towers around the road,
+next to the colour series (White, Green, Blue, ...) rather than replacing them; the towers lit at
+night, with a night mood for the Stadium to show it.)
+
+> can i be honest? the buildings suck. you could easily make better ones. put more effort, i even gave you blender assets here 5/10. The second half is coming right after
+
+(Attached: Blade_runner_style_Cityscapes.blend; Skyscraper_2.zip, Skyscraper.zip, Hotel.zip
+(Blend Swap, CC0); 12_Buildings.zip (Blend Swap, "raytrace", CC-BY 3.0: credit required). The
+Blade Runner file came without a licence; asked where it is from before shipping anything of it.)
 ## Session 13 continued — 2026-10-19 (cloud; after v0.5, branch `claude/tmnf-replica-graphics-nb1kcg`)
 
 ### User (verbatim, session 13, 19 Oct, after v0.5; with a screenshot of A01 from the raised level: a wide blue floor behind the circuit walls)

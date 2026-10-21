@@ -3225,3 +3225,233 @@ Owner: "merge everything done so far in the stadium branches to release 0.6".
   runs its Time Attack server with 30 s rounds and its Rounds server with a 30 s lead
   (`TA_ROUND_MS`, `ROUNDS_LEAD_MS`), waiting as long as they need: every online check passes on
   this PC, and the first round's countdown is really held now.
+## 2026-10-20 — Session 15: texture mods (owner: "look at texture mods ... make sure they open in the game")
+Owner (TRANSCRIPT): "now, make sure that all textures from maniapark (compatible with TMNF or TMUF)
+can be loaded in our games ..." then "look at texture mods from
+https://maniapark.com/search/mods?q=game%3Amaniaplanet Can you open or make sure they open in the
+game? (which may not be stadium!)". ManiaPark's asset types: 0 texture mods, 1 car models, 2 car
+skins, 3 map types, 4 game modes, 5 object packs; games: 0 TrackMania (TMNF/TMUF), 1 ManiaPlanet.
+It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car models, 9083 skins).
+- **What a mod is**: a zip of an environment's textures under the game's own names
+  (`Image/StadiumRoadD.dds` diffuse, `...N` normal, `...S` specular; `Moods/<mood>/...` skies);
+  TMNF and ManiaPlanet Stadium mods share most names (ManiaPlanet adds `_D`/`_N`/`_X2` ones:
+  `StadiumGrass_D`). TMNF/TMUF's other environments prefix theirs (`Coast...`, `Bay...`,
+  `Island...`); ManiaPlanet's Canyon, Valley and Storm use generic names (`Decals3D_D`, `Forest_D`,
+  `Tech_D`) and ship EXR skies.
+- `blocks/tm_texture_mod.gd` (`TmTextureMod`): opens any mod, decodes its textures on demand
+  (DDS/TGA/PNG/JPG/BMP/EXR), tells the game and the environment (prefix votes, ManiaPlanet's known
+  generic names, else the mod's name, ManiaPlanet's words first: "Desert Valley" is Valley).
+- **DDS repairs** (`car/tm_car_pack.gd`, shared with car packs): the modders' tools leave chains
+  that stop before 1 x 1 also for BC4/BC5 normal maps, DX10 headers and uncompressed RGB(A) skies,
+  state more levels than they wrote (7 for 1), or use sides that aren't whole 4 x 4 blocks
+  (1010 x 1002): completed, trimmed, or the top level decoded padded and cropped back.
+- **Wearing a Stadium mod**: TMNF's textures are atlases (StadiumRoadD: billboards and flags above
+  the asphalt; StadiumCircuitD: the whole wall). TMNF's own blocks, read locally
+  (`ref_visuals.py`), give each material's region and scale (texture coordinates against
+  vertices): e.g. StadiumRoad repeats y 0.38-0.955 of StadiumRoadD over 16 x 9.2 m (the edge
+  lines left out), StadiumPlatform the whole of its texture every 16 m, grass ~33.5 m, dirt 34 m
+  (its second UV set), the curbs bands of StadiumRoadBorderD. `TmMaterials.MOD_MAP` (16 keys)
+  holds those numbers; `blocks/tm_textured.gdshader` repeats an atlas region (with gradients, no
+  mip seams), maps the road along each block (`local_map`, `swap_uv`: a mod's lane markings run
+  along the road) and reads TMNF's specular map as roughness. `TmMaterials.use_mod()` before a
+  map builds (race, map_view); the setting `community_mod`, `--mod=<zip>`.
+- Community page: Cars / Tracks / Texture Mods down the column, each tab's lists as pills over the
+  cards (TMNF / TMUF, ManiaPlanet, My Mods); a downloaded mod shows four of its textures beside
+  its preview; Wear this mod / Our own look; another environment's mod says it opens and that the
+  game has the Stadium only. The server's pass-through allows `/mod/<id>/download` (200 MB cap).
+- Tests: `tests/test_texture_mod` (13, in the gate: games and environments, a BC5 short chain,
+  the asphalt and grass worn, our look back), `tests/test_community` (21: + a Stadium mod worn in a
+  race, a Canyon mod), `tests/test_compat_mods` (any folder of mods; per-mod results).
+- `tools/compat/compat_run.py mods|cars WORK [--keep=DIR]`: ManiaPark's whole catalogue a batch at a
+  time (download, test, record, delete; or keep: the owner's private copy), results in
+  `tools/compat/results/maniapark_<kind>.tsv` (ids, names, authors, checksums, outcomes; the
+  files themselves never in the repo).
+- **The whole catalogue, run** (`compat_run.py mods`, 890 mods; results in
+  `stadium/tools/compat/results/maniapark_mods.tsv`): **810 open completely** (every texture
+  decodes): TMNF/TMUF 276 Stadium, 99 Coast, 60 Desert, 51 Rally, 44 Snow, 36 Island, 29 Bay;
+  ManiaPlanet 68 Stadium, 45 Storm, 27 Valley, 22 Canyon, 9 Lagoon, 36 whose names don't tell
+  (Canyon/Valley/Storm mods with generic names). **336 of the 344 Stadium mods are worn** by our
+  blocks (12.4 of the 16 MOD_MAP keys on average; the 8 others retexture only what we don't map:
+  stands, screens). Not opened (80): 71 ManiaPlanet `.Pack.Gbx` packs (NadeoPak v10-18, flags 6:
+  the data is encrypted with a key Nadeo's servers give the game; not circumvented), 8 ManiaPark
+  serves no file for (404), 1 with only WebM video textures (Godot plays Theora, not WebM).
+- Fixes the run found (`car/tm_car_pack.gd`, shared with car packs): uncompressed RGB(A) chains
+  one level short, a DXT1 stating 7 levels and holding 1, sides that aren't whole blocks
+  (1010 x 1002, 955 x 610, 1031 x 1031: the top level padded and cropped), headers missing the
+  required flags or with the header size 24, `RXGB` (DXT5 under another name), ManiaPlanet's
+  R11G11B10-float ambient cube maps (decoded by hand: six faces side by side). An empty (0-byte)
+  texture in a mod is skipped, as TMNF does.
+- A worn mod's `Moods/StadiumFXClouds` becomes the sky's cloud layer (`env/tm_stadium_env.gd`).
+- Downloads four at a time from ManiaPark, two from TMX (`compat_run.py`); 404s and Nadeo packs
+  are recorded with their reason.
+- The TMX run (20,256 Stadium tracks: TMNF-X's most awarded, downloaded, newest, oldest, each type
+  and tag; TMUF-X's Stadium ones, whose filter is `environment=6` for its Environment 7) found two
+  reader gaps, fixed in the game (`gbx/gbx_stream.gd`, `gbx/tm_challenge.gd`) and the server
+  (`lib/gbx.js`): a string id of -2 (0xFFFFFFFE, some editors' "unassigned", in the vehicle ident)
+  reads as empty like -1; TrackMania PowerUp's block list (chunk 0x03043013: no version, the
+  oldest block layout, 16-bit flags) is read like 0x0304301F. Tests: `test_gbx` (+1), the
+  server's content tests (+1).
+- The car run: a pack shipping an empty (0-byte) Diffuse.dds loads and paints the player's colour;
+  the car test no longer counts that file as one that doesn't decode.
+
+## 2026-10-20 — session 15 (cloud): a city around the Stadium (M13); PC only
+
+- Owner: "Can you create new assets to the game? Not recreating anymore but actually put tall,
+  ultrarealistic buildings (godot or blender)?" and "I dont do browser anymore. Only pc with high
+  graphics card". Built in Godot, in code (no binary assets), for Forward+.
+- `env/tm_tower.gd` (`TmTower`): a skyscraper from a spec: footprint (rect, chamfer, rounded,
+  octagon, circle), tiers set back as they rise, a podium with a lobby (granite piers, clear
+  glass), a crown (parapet, spire, slanted top, glass ring), roof plant, a mast and a blinking
+  aviation light. Meshes from plain arrays (`TmTower.Builder`); materials shared where they can be.
+- `env/tm_tower.gdshader`: the curtain wall: mullions, transoms, fins, spandrels, coated glass
+  (fresnel, panes tilting a hair so reflections break at them) and a room behind every window
+  traced into a box (interior mapping: back wall, doors, desks, carpet, ceiling panels lit in some
+  rooms, blinds part way down). Far off a cell fades to its average (no shimmer) and the room
+  isn't traced. Its frame comes from the normal and the view's up (no tangents needed). Masonry
+  (`TmTower.masonry`: stone, brick, concrete, white) is the same shader with wide non-metal
+  piers: punched or ribbon windows. A darker foot where buildings meet the street (AO).
+- `env/tm_skyline.gd` (`TmSkyline`): the city on the plain below the Stadium's edge (100 m under
+  the field), 5.2 km around, 150 m blocks and 26 m streets: eight districts (downtowns past both
+  terraces, clusters behind the grandstands and at the corners) whose towers are 6-8.5 times as
+  tall as wide; eight landmarks (540-820 m) snapped to blocks behind the grandstands and at the
+  downtowns' hearts, tall enough that their tops clear the grandstand roofs from the field; a
+  tower stands off its block's centre with lower wings on the block's free sides; other blocks
+  have four lots of glass or masonry buildings (parapets, setbacks), their height from the
+  district; a few parks. Lower buildings are merged per style and sector (12 sectors, so whole
+  sectors are culled), each building its own rooms (its walls' u offset) and shade (vertex
+  colour). One layout for everyone (fixed seed).
+- `env/tm_city_ground.gdshader`: the ground's street grid from the position: asphalt with dashed
+  centre lines, pavements, plazas; averaged far off; at the rim it gives way to the plain.
+- `race/tm_stage.gd` adds the city on 32 x 32 maps (`--city=false` leaves it out); the game's
+  cameras (`car/tm_camera.gd`, replay, spectator, map view, editor) see `TmSkyline.FAR` = 9 km.
+- Numbers: builds in ~0.5 s (headless); ~140 towers, ~700 meshes, ~165k triangles; no shadows
+  (the city is beyond the sun's shadow range from anywhere on the field).
+- `tests/test_skyline` (in the gate): the build and its budget, nothing on the Stadium (no wall
+  inside its edge), the landmarks clear the roofs from the field's far side, a tower's parts,
+  materials and height, masonry, the cameras' reach. `env/tower_lab.tscn`: five towers on a plaza
+  (`--view=street|mid|far|top`).
+
+## 2026-10-20 — session 15 (cloud): night, and the towers lit (M13)
+
+- Owner: "add night lights to the towers, add towers in tracks scenery (instead of white,blue,
+  create 5 tracks of name CITY)". First step: night.
+- A night mood (`env/tm_stadium_env.gd`, our own numbers after TMNF's Night look): a dark blue
+  gradient with the city's glow low down, stars and the moon's disc (`env/tm_sky.gdshader`), a dim
+  blue moon as the directional light, darker ambient, more haze, stronger glow. Chosen per map:
+  `TmStadiumEnv.mood_of(challenge)`: a .Challenge.Gbx's decoration with "Night" in it (TMNF's night
+  tracks are now raced at night), our track specs' `"mood": "night"`, or `--mood=night`.
+- At night the Stadium's four floodlight heads light the field (`TmStage._floodlights`: spot
+  lights from `TmStadiumBuild.TOWER_HEAD`, no falloff over the field); the city around sits on its
+  own render layer (`TmSkyline.LAYER`) so they don't light it.
+- The global shader value `tm_night` (project.godot) lights the city: more rooms lit, warm or cool
+  lamps, lit in patches (bands of floors and bays each with its own share), the coating letting
+  more through; each tower's crown floodlit in its own colour (`TmTower.CROWN_LIGHTS`; crown walls
+  marked by the vertex colour's alpha); aviation lights grow with distance so they stay a few
+  pixels wide, brighter at night; street lights along every kerb (`env/tm_city_ground.gdshader`).
+- `tests/test_skyline` (+3): maps' moods, the night and day environments.
+
+## 2026-10-20 — session 15 (cloud): the City series (M13)
+
+- Second step of the owner's "add towers in tracks scenery (instead of white,blue, create 5 tracks
+  of name CITY)": read as a sixth campaign series named City (TRANSCRIPT), next to the colour
+  series.
+- `tracks/F01..F05.json` ("City 01" .. "City 05"): street circuits on the ground with tight road
+  corners, GT curves, an overpass (F01, F05), a hill (F03), jumps over a street (F02, F05) and a
+  loop after a turbo (F04: without the turbo the bot came off the loop at 247 km/h); F02, F04,
+  F05 at night (`"mood": "night"`). `tracks/campaign.json`: the series "City". Medals by the bot
+  (`test_tracks --write_medals`): authors 31.76, 29.03, 29.76, 23.83, 35.55 s.
+- `"scenery": "city"` in a spec (`TmChallenge.scenery`): `TmSkyline.field(builder)` puts the city
+  on the field: 2 x 2-cell lots with a tower (at most 40), single cells with a lower glass or
+  masonry building, some plazas; never on a cell the track's meshes cover (`track_cells`: block
+  bounds, the line, a cell round jumps' flights, round the start and two cells behind it), walls
+  4 m inside their cells; collision boxes (a car that leaves the road hits them); shadows; lit at
+  night; one layout per track (seeded by its uid). Builds in ~60 ms.
+- The field of a city track is paved (`TmMapBuilder._terrain`: `env/tm_city_paving.gdshader`,
+  2 m concrete slabs, each cell's own tone, wear; concrete grip). `TmTrackDecor.decorate(city)`
+  keeps the stands, checkpoint cameras and curve walls; no rows, inflatables, sculptures, airship.
+- The menu: the City series in Play Solo with its own amber flag (`assets/ui/flag_city.png`,
+  `tools/texgen/menu_icons.py`) and the tracks' card pictures (`tools/icons/thumbs.sh F01 ..`).
+  The servers' rotation takes it from campaign.json as it is.
+- `tests/test_skyline` (+5): the City series, F01's field city (towers, buildings), nothing on a
+  track cell nor within 6 m of the car's line, the field paved. The gate's `test_tracks` drives
+  F01 (each series' first track).
+
+## 2026-10-20 — session 15 (cloud): the owner's Blender buildings in the city (M13)
+
+- Owner: "can i be honest? the buildings suck. you could easily make better ones. put more effort,
+  i even gave you blender assets here 5/10", with Blend Swap files (TRANSCRIPT; licences in
+  HANDOFF). Blender 4.0.2 from Ubuntu (+ python3-numpy for its glTF exporter); every file opened
+  with `-Y` (its own scripts off), inspected, exported, previewed in our renderer.
+- Their Cycles materials don't survive glTF (they came out white), so we keep the geometry and
+  dress it ourselves: `env/tm_city_assets.gd` maps material names (Italian and English: vetro,
+  specchio, glass, window -> our curtain wall; acciaio, steel, chrome -> brushed steel; cemento,
+  concrete -> our concrete; luce -> lit panels; black, white, paint, leaves, trunk) to our
+  materials. Glass is TmTower's shader with `world_map` (new): windows laid along each planar
+  wall from the world position (its run over the axis it faces least, divided by that), metres
+  up, the room tracing and night lights as on our towers; the foot's shade from the model's origin.
+- `tools/assets/blend_to_glb.py`: a scene -> one .glb per building (objects whose footprints
+  touch; slabs and plazas don't join them), cameras/lights/ground/trees/people out, joined into
+  one mesh, at its foot's centre, in metres (`--scale`), decimated over 60k triangles,
+  `--unique` drops repeats, a manifest per set (sizes, triangles, source, licence).
+- `assets/city/`: 38 buildings, 32 MB: sky_01..11 (Skyscraper: towers, twin cylinders, a
+  corkscrew tower, a mall, apartment slabs), sky2_01..05 (Skyscraper 2: a finned tower, a bullet,
+  a sail, twin round towers, a bubble tower), hotel_01, rt_01..21 (12 Buildings by raytrace,
+  CC BY 3.0, x 100). `CREDITS.md`. Imported with Godot's LODs.
+- `TmCityAssets.pick(rng, room, height)`: a building that fits a lot and a height (scaled 0.8 to
+  1.6, turned to fit); `building()`: placed and dressed. `TmSkyline`: 60% of the district towers
+  and of the City tracks' 2 x 2 lots are the owner's buildings when one fits (collision boxes a
+  little inside their outline). The city: ~160 towers, ~630k triangles at full detail, ~1.3 s.
+- `env/asset_lab.tscn`: any .glb from disk (`--glb=`) or a directory side by side (`--dir=`) in
+  our light, dressed (`--dress=false`: as exported). Screenshots at Ultra: `--set_quality=2`.
+- `tests/test_skyline` (+5): the catalogue (licences), picks that fit and none that don't,
+  dressing, material kinds.
+
+## 2026-10-20 — session 15 (cloud): our own buildings, more detail (M12)
+
+- The owner's 5/10 was mostly about our own blocks, which make most of the City tracks' street
+  views. `env/tm_tower.gdshader` (shared by every building of ours):
+  - masonry windows set back in their openings (`reveal`, 0.12-0.3 m): the eye's ray meets the
+    glass further along it or the opening's sides first (the sill lit from above, the head in
+    shade, the jambs between); the room is traced from where it meets the glass; a stone sill
+    under each opening; dirt washed down from the sills (`grime`);
+  - the wall's grain: brick courses (`brick`, fading out far off), precast panel joints at each
+    floor and every two bays (`panels`), large-scale weathering;
+  - a shop floor at the foot of the lower buildings (`storefront`, 5.2 m; TmSkyline.STOREFRONT):
+    6 m panes in dark frames over a riser, the shop traced behind them, lamp-lit, darker than the
+    street by day, shelves of goods down its sides and back; a fascia in the shop's colour with its
+    name in block letters, lit at night with the shop;
+  - plain walls (vertex colour alpha < 0.4) carry no windows: cornices and parapets.
+  `room()` takes the box's size (rooms and shops).
+- `TmSkyline._box`: masonry buildings get a cornice (a band 0.3-0.6 m proud, its underside and
+  top) and a parapet, glass ones a plain parapet; roofs get plant rooms and lift overruns, older
+  masonry blocks a timber water tank on steel legs. `TmTower.ring_cap(.., down)`.
+- `TmTower.MASONRY`: each style's reveal, grain and grime.
+- The city's build grew to 3.1 s (cornices, roof clutter) and the online test's clients started
+  their rounds late. Now: `TmTower.Builder.tri3` (no arrays per triangle), 8-sided tanks: 1.9 s;
+  and the race's city is built on a worker thread (`TmSkyline.build_async`: shared materials made
+  first on the main thread, the city added when done, leaving the scene waits for it; screenshots
+  (`--shot`) build it at once). Field cities stay on the main thread (their collision is there at
+  the start). `test_skyline` (+1: the call returns at once, the city arrives).
+
+## 2026-10-21 — session 15 (cloud): street trees and street lights on the City tracks (M13)
+
+- `env/tm_trees.gd` (`TmTrees`, our own): a tapering trunk with three boughs and a crown of lumpy
+  leaf blobs (icosahedra split once, pushed in and out), three variants; a planting is one
+  MultiMesh per variant (each tree turned, sized, its own green in the instance data).
+  `env/tm_foliage.gdshader`: leaf clumps and grain from noise, a silhouette the sky breaks
+  through (alpha scissor where the surface turns away), light through the leaves (backlight), a
+  sway in the wind.
+- `env/tm_street_lights.gd` (`TmStreetLights`, our own; the owner's Street_Lights.blend waits for
+  its licence): a tapering 9 m steel pole, an arm curving out 2.6 m over the road, a flat LED head
+  with a lit lens (pale by day, bright at night); one MultiMesh; at night a shadowless spot light
+  under each head pools on the road (fading out past 350 m).
+- `TmSkyline._street_trees`: on a City track's field, trees in a row along the pavement where a
+  cell meets the track's (2.2 m in, about every 10 m) and four to a plaza, a street light between
+  them every cell (1.2 m in, its arm over the road); none inside a building's outline (+1.5 m),
+  trees 8 m and lights 7 m clear of the car's line, trees 7 m apart; trunks and poles collide.
+- `tests/test_skyline` (+1): the field's trees and lights.
+- At night the field city is on the city's render layer (`TmSkyline._layer`): the Stadium's
+  floodlights light the track, not the buildings (they had the walls day-bright); the street
+  lights light both. Fixed: plain walls (alpha < 0.4) were taken for crowns and floodlit at night
+  (crowns are 0.4-0.75 now); the shops' shelves fade to a tone far off and are less saturated (at
+  night they had shimmered in rainbow colours).

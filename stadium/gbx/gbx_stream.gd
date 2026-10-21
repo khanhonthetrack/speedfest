@@ -115,7 +115,7 @@ func lookback() -> String:
 			return ""
 		_ids_started = true
 	var v := u32()
-	if v == 0xFFFFFFFF:
+	if v == 0xFFFFFFFF or v == 0xFFFFFFFE:     # unassigned (some editors write -2: TMX tracks' vehicle)
 		return ""
 	if (v & 0xC0000000) != 0 and (v & 0x3FFFFFFF) == 0:
 		var s := string()

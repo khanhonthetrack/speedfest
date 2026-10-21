@@ -42,7 +42,7 @@ func _ready() -> void:
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	fov = base_fov
 	near = 0.05
-	far = 4000.0
+	far = TmSkyline.FAR
 	process_priority = 100
 	view = chosen
 	if target:

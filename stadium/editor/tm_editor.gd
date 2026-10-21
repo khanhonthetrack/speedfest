@@ -85,7 +85,7 @@ func _ready() -> void:
 	_make_grid()
 	_cam = Camera3D.new()
 	_cam.fov = 55.0
-	_cam.far = 4000.0
+	_cam.far = TmSkyline.FAR
 	add_child(_cam)
 	_cam.current = true
 	_palette()

@@ -1,0 +1,10 @@
+{
+	"name": "City 02",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "city",
+	"start": [26, 1, 6, 1],
+	"medals": {"author": 29030, "gold": 30800, "silver": 35000, "bronze": 44000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 4], ["r"], ["s", 3], ["cp"], ["s", 3], ["l"], ["s", 3], ["jump", 2], ["s", 3], ["r"], ["s", 4], ["cp"], ["s", 2], ["gt", 3, "r"], ["s", 4], ["l"], ["s", 3], ["finish"]]
+}

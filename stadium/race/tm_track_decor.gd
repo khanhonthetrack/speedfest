@@ -9,7 +9,8 @@ extends RefCounted
 ## track, sculptures further out, and the airship over the field. Seeded by the track's id, so a
 ## track always looks the same; only on cells nothing else uses, with a free cell between them and
 ## the road (a car that runs wide or lands off the road can get back on), and nothing tall where
-## the track passes at any height.
+## the track passes at any height. A city track (spec "scenery": "city") keeps the stands, cameras
+## and curve walls only: its field is the city's.
 
 const ROWS := ["StadiumControlRoadGlass", "StadiumControlRoadPub", "StadiumControlRoadCamera"]
 const STANDS := "StadiumFabricStraight1x1"
@@ -28,7 +29,7 @@ const RUN_BLOCKS := ["StadiumRoadMain", "StadiumRoadMainTurbo", "StadiumRoadMain
 const G := TmTrackBuilder.GROUND_LEVEL
 
 
-static func decorate(b: TmTrackBuilder, seed_text: String) -> void:
+static func decorate(b: TmTrackBuilder, seed_text: String, city := false) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(seed_text)
 	var road := _road_cells(b)
@@ -36,6 +37,8 @@ static func decorate(b: TmTrackBuilder, seed_text: String) -> void:
 	_stands(b, road)
 	_checkpoint_cams(b, road)
 	_curve_walls(b, road, raised)
+	if city:
+		return            # a city track's field is the city's (TmSkyline.field): no rows, no inflatables
 	_rows(b, rng)
 	_scatter(b, rng, road, INFLATABLES, 18, 2, 4, 2)
 	_scatter(b, rng, road, SCULPTS, 2, 3, 8, 12)

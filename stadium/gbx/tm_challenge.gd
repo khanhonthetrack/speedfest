@@ -21,6 +21,7 @@ var name := ""
 var author := ""
 var environment := ""
 var decoration := ""
+var scenery := ""               ## our own tracks' extra scenery: "city" (towers around the road, TmSkyline)
 var bronze_ms := -1
 var silver_ms := -1
 var gold_ms := -1
@@ -170,7 +171,7 @@ func _node_body(b: GbxStream, node: Dictionary) -> void:
 			continue
 		if not _chunk(b, cid, node):
 			return
-		if cid == 0x0304301F:
+		if cid == 0x0304301F or cid == 0x03043013:
 			if not blocks.is_empty() and String(blocks[0]["name"]).contains("TMUnlimiter"):
 				unlimiter = true
 			return   # the rest of the body (media clips, ...) isn't needed
@@ -229,13 +230,15 @@ func _chunk(b: GbxStream, cid: int, node: Dictionary) -> bool:
 				node["order"] = b.u32()
 		0x0304301F:
 			_blocks(b)
+		0x03043013:     # TrackMania PowerUp's block list: no version, the oldest block layout
+			_blocks(b, true)
 		_:
 			b.fail("unknown chunk %08X" % cid)
 			return false
 	return true
 
 
-func _blocks(b: GbxStream) -> void:
+func _blocks(b: GbxStream, legacy := false) -> void:
 	var id := b.ident()
 	if uid.is_empty():
 		uid = id[0]
@@ -245,7 +248,7 @@ func _blocks(b: GbxStream) -> void:
 	b.ident()
 	size = Vector3i(b.u32(), b.u32(), b.u32())
 	b.u32()
-	var ver := b.u32()
+	var ver := 0 if legacy else b.u32()
 	b.u32()   # block count (free blocks are listed too)
 	while b.ok() and b.remaining() >= 4 and (b.peek_u32() & 0xC0000000) != 0:
 		var bname := b.lookback()

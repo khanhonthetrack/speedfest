@@ -100,7 +100,7 @@ func _ready() -> void:
 	_car_menu.visible = false
 	root.add_child(_car_menu)
 	_spec_cam = Camera3D.new()
-	_spec_cam.far = 4000.0
+	_spec_cam.far = TmSkyline.FAR
 	_spec_cam.fov = 72.0
 	_spec_cam.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	add_child(_spec_cam)

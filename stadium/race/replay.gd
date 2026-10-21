@@ -182,11 +182,11 @@ func _cameras() -> void:
 	_cockpit.transform = Transform3D(Basis(Vector3.UP, PI), TmCarVisual.HELMET - TmCarVisual.VIS + Vector3(0.0, 0.06, 0.08))
 	car.add_child(_cockpit)
 	_tv = Camera3D.new()
-	_tv.far = 4000.0
+	_tv.far = TmSkyline.FAR
 	_tv.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	add_child(_tv)
 	_free = Camera3D.new()
-	_free.far = 4000.0
+	_free.far = TmSkyline.FAR
 	_free.fov = 70.0
 	_free.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	add_child(_free)

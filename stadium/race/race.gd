@@ -73,6 +73,7 @@ func _ready() -> void:
 		else:
 			_message(challenge.error + "\n\nPress Escape for the menu")
 		return
+	TmMaterials.use_mod(TmCommunity.my_mod())   # the texture mod we wear (Community page), if any
 	builder = TmMapBuilder.build(challenge)
 	add_child(builder.root)
 	TmStage.add_environment(self, builder)

@@ -1351,11 +1351,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-# --- community: TrackMania Exchange's tracks and ManiaPark's cars ----------------------------------
+# --- community: TrackMania Exchange's tracks, ManiaPark's cars and texture mods ---------------------
 
 var community: TmCommunity          ## the page's source (made on the first visit)
-var comm_tab := "cars"              ## "cars" or "tracks"
-var comm_filter := {"cars": "model", "tracks": "awards"}   ## cars: model, skin, mine; tracks: awards, newest, downloads, mine
+var comm_tab := "cars"              ## "cars", "tracks" or "mods"
+## the list shown per tab: cars: model, skin, mine; tracks: awards, newest, downloads, mine;
+## mods: tm1 (TMNF/TMUF), maniaplanet, mine
+var comm_filter := {"cars": "model", "tracks": "awards", "mods": "tm1"}
 var comm_text := ""                 ## the search
 var comm_items: Array = []          ## the page's items (TmCommunity's)
 var comm_cards := {}                ## item key -> its card
@@ -1373,49 +1375,72 @@ var _comm_nav: HBoxContainer
 var _comm_state: Label              ## the selected item's state line (downloading, errors)
 var _comm_busy := {}                ## item keys being downloaded
 var _comm_pivot: Node3D             ## turns comm_car_look
-## The column's lists: tab, filter, row, icon.
-const COMM_LISTS := [["cars", "model", "Car Models", "icon_car"], ["cars", "skin", "Car Skins", "icon_car"],
-	["cars", "mine", "My Cars", "icon_browse"], ["tracks", "awards", "Top Tracks", "star"],
-	["tracks", "newest", "New Tracks", "flag_green"], ["tracks", "downloads", "Popular Tracks", "icon_online"],
-	["tracks", "mine", "My Tracks", "icon_browse"]]
+## The column's rows: tab, name, icon; each tab's lists (pills over its cards): filter, name.
+const COMM_TABS := [["cars", "Cars", "icon_car"], ["tracks", "Tracks", "flag_green"], ["mods", "Texture Mods", "icon_options"]]
+const COMM_LISTS := {"cars": [["model", "Car Models"], ["skin", "Car Skins"], ["mine", "My Cars"]],
+	"tracks": [["awards", "Top Tracks"], ["newest", "New Tracks"], ["downloads", "Popular Tracks"], ["mine", "My Tracks"]],
+	"mods": [["tm1", "TMNF / TMUF"], ["maniaplanet", "ManiaPlanet"], ["mine", "My Mods"]]}
+const COMM_SOURCES := {"cars": "ManiaPark", "tracks": "TrackMania Exchange", "mods": "ManiaPark"}
 const COMM_CARD := Vector2(220, 150)   ## a card: its preview above, its name on a strip (5 across)
-const COMM_PIC := Vector2(336, 189)    ## the selected one's preview (and its car, turning)
+const COMM_PIC := Vector2(336, 189)    ## the selected one's preview (and its car turning, or the mod's textures)
 
 
-## The Community page, in TMNF's frame: the lists down the column (ManiaPark's car models and skins,
-## TrackMania Exchange's tracks by awards, newest, downloads; the ones downloaded), the selected one
-## in the panel at the top (its big preview, a downloaded car turning beside it, what it is, Download,
-## Drive this car or Play), the list's previews as cards under it, a search. A car driven is ours
-## from then on (races, online, the profile's turntable); the downloads are kept (My Cars, My Tracks).
+## The Community page, in TMNF's frame: Cars, Tracks and Texture Mods down the column; the selected
+## one in the panel at the top (its big preview; a downloaded car turning beside it, a downloaded mod's
+## textures; what it is; Download, Drive this car, Play, Wear this mod); the tab's lists as pills
+## over the previews' cards (ManiaPark's car models and skins; TrackMania Exchange's tracks by awards,
+## newest, downloads; ManiaPark's texture mods for TMNF/TMUF and ManiaPlanet; the ones downloaded),
+## a search. A car driven is ours from then on (races, online, the profile's turntable), a Stadium
+## mod worn dresses the Stadium; the downloads are kept (My Cars, My Tracks, My Mods).
 func _page_community() -> void:
 	if community == null:
 		community = TmCommunity.new()
 		add_child(community)
-		comm_tab = "tracks" if String(TestHooks.arg("community_tab", comm_tab)) == "tracks" else "cars"
-	var root := _root("Community", "Download cars and tracks", "icon_browse")
+		var t := String(TestHooks.arg("community_tab", comm_tab))
+		comm_tab = t if COMM_LISTS.has(t) else "cars"
+	var root := _root("Community", "Cars, tracks and mods", "icon_browse")
 	var focus: Button = null
-	for i in COMM_LISTS.size():
-		var l: Array = COMM_LISTS[i]
-		if i == 3:
-			_gap(12)
-		var chosen: bool = comm_tab == l[0] and comm_filter[l[0]] == l[1]
-		var b := _row(String(l[2]), String(l[3]), func() -> void:
-			if comm_tab != l[0] or comm_filter[l[0]] != l[1]:
-				comm_tab = l[0]
-				comm_filter[comm_tab] = l[1]
+	for tab: Array in COMM_TABS:
+		var key := String(tab[0])
+		var b := _row(String(tab[1]), String(tab[2]), func() -> void:
+			if comm_tab != key:
+				comm_tab = key
 				comm_selected = ""
 				_comm_after = [""]
-				show_page("community"), false, chosen)
-		if chosen:
+				show_page("community"), false, comm_tab == key)
+		if comm_tab == key:
 			focus = b
 	_row("Back", "icon_back", back, true)
 	# the selected one
 	_comm_detail = _panel(root, "", Rect2(RIGHT.position.x, TOP, RIGHT.size.x, 0))
 	_comm_detail.custom_minimum_size.y = COMM_PIC.y
 	_comm_title = (_comm_detail.get_parent().get_parent().get_child(0) as PanelContainer).get_child(0) as Label
-	# the list: the search, then the cards
-	var list := _panel(root, String(COMM_LISTS.filter(func(l: Array) -> bool: return l[0] == comm_tab and l[1] == comm_filter[comm_tab])[0][2])
-		+ ("  ·  ManiaPark" if comm_tab == "cars" else "  ·  TrackMania Exchange"), Rect2(RIGHT.position.x, TOP + COMM_PIC.y + 96, RIGHT.size.x, 0))
+	# the list: its pills, the search, then the cards
+	var list := _panel(root, String(COMM_TABS.filter(func(t: Array) -> bool: return t[0] == comm_tab)[0][1]) + "  ·  " + String(COMM_SOURCES[comm_tab]),
+		Rect2(RIGHT.position.x, TOP + COMM_PIC.y + 96, RIGHT.size.x, 0))
+	var pills := HBoxContainer.new()
+	pills.add_theme_constant_override("separation", 10)
+	list.add_child(pills)
+	var group := ButtonGroup.new()
+	for l: Array in COMM_LISTS[comm_tab]:
+		var key := String(l[0])
+		var pill := TmUi.tm_button(String(l[1]), func() -> void:
+			if comm_filter[comm_tab] != key:
+				comm_filter[comm_tab] = key
+				comm_selected = ""
+				_comm_after = [""]
+				comm_load(), 180)
+		pill.toggle_mode = true
+		pill.button_group = group
+		pill.button_pressed = comm_filter[comm_tab] == key
+		pill.add_theme_stylebox_override("pressed", TmUi.glass("tm_button_focus"))
+		pills.add_child(pill)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pills.add_child(spacer)
+	_comm_nav = HBoxContainer.new()
+	_comm_nav.add_theme_constant_override("separation", 10)
+	pills.add_child(_comm_nav)
 	var bar := HBoxContainer.new()
 	bar.add_theme_constant_override("separation", 12)
 	list.add_child(bar)
@@ -1436,11 +1461,8 @@ func _page_community() -> void:
 	_comm_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_comm_status.add_theme_constant_override("outline_size", 0)
 	bar.add_child(_comm_status)
-	_comm_nav = HBoxContainer.new()
-	_comm_nav.add_theme_constant_override("separation", 10)
-	bar.add_child(_comm_nav)
 	_comm_scroll = ScrollContainer.new()
-	_comm_scroll.custom_minimum_size = Vector2(RIGHT.size.x - 24, 2 * COMM_CARD.y + 14 + 40)
+	_comm_scroll.custom_minimum_size = Vector2(RIGHT.size.x - 24, 2 * COMM_CARD.y + 14)
 	_comm_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_comm_scroll.follow_focus = true          # the pad's focus scrolls the list
 	list.add_child(_comm_scroll)
@@ -1472,7 +1494,7 @@ func comm_load() -> void:
 		for key: String in lib:
 			var e: Dictionary = (lib[key] as Dictionary).duplicate()
 			e["key"] = key
-			e["id"] = key.trim_prefix("model_").trim_prefix("skin_")
+			e["id"] = key.trim_prefix("model_").trim_prefix("skin_").trim_prefix("mod_")
 			if comm_text.is_empty() or String(e.get("name", "")).to_lower().contains(comm_text.to_lower()):
 				items.append(e)
 		r = {"items": items, "more": false, "error": ""}
@@ -1480,11 +1502,15 @@ func comm_load() -> void:
 	else:
 		_comm_status.text = "Loading ..."
 		var after: String = _comm_after.back()
-		r = await community.search_cars(filter, comm_text, after) if comm_tab == "cars" else await community.search_tracks(comm_text, filter, after)
+		if comm_tab == "cars":
+			r = await community.search_cars(filter, comm_text, after)
+		elif comm_tab == "mods":
+			r = await community.search_mods(filter, comm_text, after)
+		else:
+			r = await community.search_tracks(comm_text, filter, after)
 		if gen != _comm_gen or not is_instance_valid(_comm_grid):
 			return
-		_comm_status.text = "" if String(r.get("error", "")).is_empty() else ("%s: %s" % [
-			"ManiaPark" if comm_tab == "cars" else "TrackMania Exchange", String(r["error"])])
+		_comm_status.text = "" if String(r.get("error", "")).is_empty() else ("%s: %s" % [COMM_SOURCES[comm_tab], String(r["error"])])
 		if (r["items"] as Array).is_empty() and _comm_status.text.is_empty():
 			_comm_status.text = "Nothing found"
 		_comm_more = bool(r.get("more", false))
@@ -1575,13 +1601,14 @@ func _comm_card(item: Dictionary, gen: int) -> Button:
 	return card
 
 
-## A card's corner: a tick once downloaded, a star on the car we drive.
+## A card's corner: a tick once downloaded, a star on the car we drive or the mod we wear.
 func _comm_mark(card: Button, key: String) -> void:
 	var badge := card.get_node_or_null("Badge") as TextureRect
 	if badge == null:
 		return
 	var have: Dictionary = (community.library[comm_tab] as Dictionary).get(key, {})
-	var driving := comm_tab == "cars" and not have.is_empty() and String(have.get("path", "")) == String(TmUi.setting("community_car"))
+	var setting: String = {"cars": "community_car", "mods": "community_mod"}.get(comm_tab, "")
+	var driving: bool = not setting.is_empty() and not have.is_empty() and String(have.get("path", "")) == String(TmUi.setting(setting))
 	badge.visible = not have.is_empty()
 	badge.texture = TmUi.icon("star" if driving else "check_on")
 
@@ -1629,6 +1656,8 @@ func comm_select(key: String) -> void:
 	var have: Dictionary = lib.get(key, {})
 	if comm_tab == "cars" and not have.is_empty():
 		row.add_child(_comm_car_view(TmCarPack.load_zip(String(have.get("path", "")))))
+	elif comm_tab == "mods" and not have.is_empty():
+		row.add_child(_comm_mod_view(TmTextureMod.load_zip(String(have.get("path", "")), String(have.get("name", "")))))
 	var info := VBoxContainer.new()
 	info.add_theme_constant_override("separation", 8)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1646,6 +1675,17 @@ func comm_select(key: String) -> void:
 		if int(item.get("awards", 0)) > 0:
 			facts.append("%d awards" % int(item["awards"]))
 		facts.append("TrackMania Exchange")
+	elif comm_tab == "mods":
+		var game := String(have.get("game", item.get("game", "")))
+		facts.append("Texture mod")
+		facts.append("ManiaPlanet" if game == "maniaplanet" else "TMNF / TMUF")
+		if not String(have.get("environment", "")).is_empty():
+			facts.append(String(have["environment"]))
+		if int(have.get("textures", 0)) > 0:
+			facts.append("%d textures" % int(have["textures"]))
+		if int(item.get("downloads", 0)) > 0:
+			facts.append("%d downloads" % int(item["downloads"]))
+		facts.append("ManiaPark")
 	else:
 		facts.append("Car model" if String(item.get("kind", "")) == "model" else "Skin")
 		if int(item.get("downloads", 0)) > 0:
@@ -1674,6 +1714,20 @@ func comm_select(key: String) -> void:
 			actions.add_child(TmUi.tm_button("Drive this car", func() -> void: comm_drive(path), 300))
 		if not String(TmUi.setting("community_car")).is_empty():
 			actions.add_child(TmUi.tm_button("Drive our own car", func() -> void: comm_drive(""), 300))
+	elif comm_tab == "mods":
+		var path := String(have.get("path", ""))
+		var wearing := not path.is_empty() and path == String(TmUi.setting("community_mod"))
+		if have.is_empty():
+			actions.add_child(TmUi.tm_button("Download", func() -> void: comm_download(key), 300))
+		elif not bool(have.get("playable", false)):
+			state.text = "Opens fine (%d textures); %s." % [int(have.get("textures", 0)), String(have.get("why", ""))]
+		elif wearing:
+			state.text = "The Stadium wears this mod"
+			state.add_theme_color_override("font_color", TmUi.TM_GREEN.lightened(0.25))
+		else:
+			actions.add_child(TmUi.tm_button("Wear this mod", func() -> void: comm_wear(path), 300))
+		if not String(TmUi.setting("community_mod")).is_empty():
+			actions.add_child(TmUi.tm_button("Our own look", func() -> void: comm_wear(""), 300))
 	else:
 		if have.is_empty():
 			actions.add_child(TmUi.tm_button("Download", func() -> void: comm_download(key), 300))
@@ -1749,6 +1803,8 @@ func comm_download(key: String) -> void:
 	var r: Dictionary = {}
 	if comm_tab == "cars":
 		r = await community.download_car(item)
+	elif comm_tab == "mods":
+		r = await community.download_mod(item)
 	else:
 		r = await community.download_track(item)
 	_comm_busy.erase(key)
@@ -1771,3 +1827,46 @@ func comm_drive(path: String) -> void:
 	for k: String in comm_cards:
 		_comm_mark(comm_cards[k], k)
 	comm_select(comm_selected)
+
+
+## Wears a texture mod from now on ("" our own look): the next race's Stadium wears it.
+func comm_wear(path: String) -> void:
+	TmCommunity.wear(path)
+	for k: String in comm_cards:
+		_comm_mark(comm_cards[k], k)
+	comm_select(comm_selected)
+
+
+## A downloaded mod's textures beside its preview: the ones the Stadium takes first (road, grass,
+## platform, circuit) for a Stadium mod, else its first four (it opened: they decoded).
+func _comm_mod_view(mod: TmTextureMod) -> Control:
+	var grid := GridContainer.new()
+	grid.name = "ModTextures"
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	grid.custom_minimum_size = COMM_PIC
+	if not mod.ok():
+		return grid
+	var names: Array = []
+	for k: String in ["asphalt", "grass", "platform", "circuit_panel", "dirt", "fabric"]:
+		var n := mod.first(TmMaterials.MOD_MAP[k][0])
+		if not n.is_empty() and not names.has(n.to_lower()):
+			names.append(n.to_lower())
+	var all: Array = mod.images.keys()
+	all.sort()
+	for n: String in all:
+		if names.size() >= 4:
+			break
+		if not names.has(n) and not n.contains("/") and not n.ends_with("n") and not n.ends_with("_n") and not n.ends_with("s"):
+			names.append(n)
+	for n: String in names.slice(0, 4):
+		var t := TextureRect.new()
+		t.texture = mod.texture(n)
+		t.tooltip_text = String(mod.images.get(n, n)).get_file()
+		t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		t.clip_contents = true
+		t.custom_minimum_size = Vector2((COMM_PIC.x - 4) / 2.0, (COMM_PIC.y - 4) / 2.0)
+		grid.add_child(t)
+	return grid

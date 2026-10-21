@@ -307,6 +307,37 @@ outside the repo (`stadium/tools/compat/`).
       the previews"): TMX tracks and ManiaPark cars by their previews, downloaded (`user://community`),
       a car driven offline and online, a track played (`net/tm_community.gd`, `ui/tm_menu.gd`,
       server `lib/community.js` for browsers; `tests/test_community`)
+- [x] 7. Texture mods (owner, 20 Oct): every ManiaPark mod opens (TMNF/TMUF and ManiaPlanet, any
+      environment); Stadium mods are worn by our blocks (`blocks/tm_texture_mod.gd`, MOD_MAP)
+- [ ] 8. The whole catalogue checked: mods (`compat_run.py mods`: done, 890), TMNF/TMUF cars and
+      skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
+      Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
+
+### M13 — Our own city around the Stadium (owner, session 15, 2026-10-20; called M12 on its branch, where M12 was the community work) ☐
+"Can you create new assets to the game? Not recreating anymore but actually put tall,
+ultrarealistic buildings (godot or blender)?" and "I dont do browser anymore. Only pc with high
+graphics card": new assets of our own (not TMNF's), for Forward+ on a strong PC only.
+- [x] 1. Skyscrapers in code (`env/tm_tower.gd`, `env/tm_tower.gdshader`): footprints, setbacks,
+      podium lobbies, crowns, plant, masts, aviation lights; curtain-wall glass with rooms behind
+      every window (interior mapping), masonry walls with punched or ribbon windows
+- [x] 2. The city around the Stadium (`env/tm_skyline.gd`, `env/tm_city_ground.gdshader`): districts
+      of towers whose tops clear the stands, landmarks behind the grandstands, blocks of lower
+      buildings, a street grid; cameras see 9 km (`TmSkyline.FAR`); `tests/test_skyline` (gate)
+- [x] 3. Night (owner: "add night lights to the towers"): a night mood (maps' decoration, specs'
+      `mood`, --mood), stars, floodlights on the field; lit windows in patches, crown floodlights,
+      aviation lights, street lights
+- [x] 4. Towers in our tracks' scenery (owner: "create 5 tracks of name CITY"): the campaign's
+      sixth series, City F01-F05 (`"scenery": "city"`: `TmSkyline.field`, buildings on the free
+      cells around the road with collision, a paved field; F02, F04, F05 at night); in the gate
+      (`test_skyline`, `test_tracks` drives F01)
+- [x] 5. The owner's Blender buildings (owner: "the buildings suck ... i even gave you blender
+      assets here 5/10"): 38 buildings from four Blend Swap sets (CC0, one CC BY) converted
+      (`tools/assets/blend_to_glb.py`) into `assets/city/`, dressed in our materials
+      (`env/tm_city_assets.gd`), 60% of the towers where one fits (districts, City fields)
+- [x] 6. Better procedural buildings (window depth, cornices, shopfronts, roofs) for the blocks
+      the owner's buildings don't cover; street trees and our own street lights along the City
+      tracks (the owner's Street/Traffic Lights files came without a licence: asked)
+- [ ] 7. The owner's look at it; then maybe a setting to turn the city off on weaker PCs
 
 ### M6 — Owner requests, session 6 (2026-10-15 ~14:10 UTC; sequential, push after each step)
 Owner's words in TRANSCRIPT (session 6): "better graphics, server which rotates maps all the time

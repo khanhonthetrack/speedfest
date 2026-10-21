@@ -111,7 +111,8 @@ func _waypoint(id: String, entry: Dictionary, ground: bool, xf: Transform3D, bui
 			finishes.append(spawn_world)
 
 
-## The stadium ground: grass at 9 m (level 0) on every map cell without a terrain zone tile.
+## The stadium ground: grass at 9 m (level 0) on every map cell without a terrain zone tile (paved
+## on a city track: TmChallenge.scenery).
 func _terrain() -> void:
 	var geo := TmGeo.new()
 	var y := GROUND_Y
@@ -130,6 +131,14 @@ func _terrain() -> void:
 			geo.quad(Vector3(a.x, y, a.z), Vector3(a.x, y, b.z), Vector3(b.x, y, b.z), Vector3(b.x, y, a.z), "grass", S_GRASS)
 	var node := geo.build()
 	node.name = "Terrain"
+	if challenge.scenery == "city":
+		# a city track's field is paved (TmSkyline.field puts buildings on it)
+		for c in node.get_children():
+			if c is MeshInstance3D:
+				(c as MeshInstance3D).material_override = TmSkyline.paving()
+			elif c is StaticBody3D:
+				c.set_meta("surfaces", PackedInt32Array())
+				c.set_meta("surface", 0)
 	root.add_child(node)
 
 
