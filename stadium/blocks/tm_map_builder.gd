@@ -26,6 +26,9 @@ var _placeholder_mats := {}
 var _zone_cells := {}               ## Vector2i (x, z) -> true: cells with a terrain zone tile
 
 const S_GRASS := 2
+## A shape's suffix for a multilap block that is a one-lap track's finish (our own tracks: the
+## block's "finish" mark, TmTrackBuilder): its family dresses it as the finish (road.gd).
+const AS_FINISH := "#finish"
 const GROUND_Y := 9.0               ## level-0 ground (TMNF y)
 
 
@@ -59,6 +62,8 @@ func _build() -> void:
 		var flags := int(blk["flags"])
 		var shape := TmBlockCatalogue.shape_name(entry, ground, flags & 0x3F, (flags >> 6) & 0x3F)
 		var xf := TmBlockCatalogue.block_transform(entry, coord, dir, ground)
+		if not shape.is_empty() and bool(blk.get("finish", false)):
+			shape += AS_FINISH
 		var node: Node3D = null if shape.is_empty() else lib.make(shape, entry, ground)
 		_waypoint(id, entry, ground, xf, node != null or shape.is_empty())
 		if shape.is_empty():

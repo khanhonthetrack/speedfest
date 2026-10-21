@@ -544,8 +544,9 @@ func _dirt(p: Array) -> void:
 
 
 ## The finish with road to stop on: TMNF's through start/finish line block (it finishes a
-## one-lap race), up to RUN_OFF straights and a rounded dead end, as far as the cells ahead are
-## free; else the finish block that ends in its nose (the car flew off it into the grass).
+## one-lap race; marked "finish", so the map dresses it as the finish, not TMNF's MULTILAP gate),
+## up to RUN_OFF straights and a rounded dead end, as far as the cells ahead are free; else the
+## finish block that ends in its nose (the car flew off it into the grass).
 func _finish() -> void:
 	var free := 0
 	while free < RUN_OFF + 2:
@@ -559,8 +560,11 @@ func _finish() -> void:
 			return
 		_segment(a, heading, a + vec(heading) * 64.0, heading)
 		return
+	var line := blocks.size()
 	if not _through("StadiumRoadMainStartFinishLine", 1, 0):
 		return
+	if laps < 2:
+		blocks[line]["finish"] = true
 	for _i in mini(RUN_OFF, free - 2):
 		if not _through("StadiumRoadMain", 0, 1, 0.0, 3, [0, 2]):
 			return

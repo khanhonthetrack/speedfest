@@ -324,6 +324,7 @@ var _gates: Array[float] = []     ## where this shape's gates stand (z), dressed
 
 
 func handles(shape: String) -> bool:
+	shape = shape.trim_suffix(TmMapBuilder.AS_FINISH)
 	if shape == "Grass/Checkpoint/Ground" or shape in ["Ramp/Air", "Ramp/Ground", "Ramp/LowAir", "Ramp/LowGround"] \
 			or shape in ["Loop/LeftAir", "Loop/LeftGround", "Loop/RightAir", "Loop/RightGround"]:
 		return true
@@ -361,12 +362,16 @@ static func _form(rest: String) -> String:
 
 
 func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
+	# a multilap block that finishes a one-lap track (ours): FINISH on its arch and curbs, the
+	# finish road, instead of TMNF's MULTILAP gate on the start road
+	var as_finish := shape.ends_with(TmMapBuilder.AS_FINISH) and shape.contains("/MultiLap/")
+	shape = shape.trim_suffix(TmMapBuilder.AS_FINISH)
 	var rest := shape.trim_prefix("Road/Main/")
 	var ground := rest.contains("Ground")
 	var geo := TmGeo.new()
 	_road_mat = "asphalt"
 	_road_surf = S_ROAD
-	_gate_kind = TmGateDress.kind_of(rest)
+	_gate_kind = "finish" if as_finish else TmGateDress.kind_of(rest)
 	_curb_mat = "curb_face"
 	for g in ["Checkpoint", "MultiLap/", "Finish/", "Start/"]:
 		if rest.begins_with(g):
@@ -447,7 +452,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_straight(geo, 0.0, 32.0, ground)
 		_gate(geo, 16.0)
 		if rest.begins_with("MultiLap/"):
-			_race_road(geo, "race_start", 8.0, 24.0)
+			_race_road(geo, "race_finish" if as_finish else "race_start", 8.0, 24.0)
 	elif rest.begins_with("Finish/"):
 		# the road comes in from -z and ends past the line in a nose; all of it the finish road
 		_straight(geo, 0.0, 17.0, ground)

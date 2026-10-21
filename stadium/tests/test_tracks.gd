@@ -170,6 +170,14 @@ func _track(id: String, drive := true) -> int:
 	TestHooks.check(int(mb.stats["placeholder"]) == 0 and int(mb.stats["unknown"]) == 0 and mb.has_start
 		and mb.checkpoints.size() == b.checkpoints and finishes == 1, "%s_builds" % id,
 		"%s start %s cps %d/%d finishes %d" % [mb.stats, mb.has_start, mb.checkpoints.size(), b.checkpoints, finishes])
+	if not ch.lap_race:
+		# a one-lap track ends on TMNF's start/finish line block: dressed as the finish (its word,
+		# curbs and road), not as TMNF's MULTILAP gate on the start road
+		var looks := _finish_looks(mb.root)
+		TestHooks.check(looks.is_empty() or looks == ["finish"], "%s_finish_looks_like_a_finish" % id, str(looks))
+	else:
+		var looks := _finish_looks(mb.root)       # a lap race's line stays TMNF's MULTILAP gate
+		TestHooks.check(looks == ["multilap"], "%s_lap_line_looks_like_tmnf" % id, str(looks))
 	mb.root.free()
 	if not ch.ok() or not drive:
 		return -1
@@ -193,6 +201,25 @@ func _track(id: String, drive := true) -> int:
 	if ms > 0 and TestHooks.has_arg("write_medals"):
 		_write_medals(id, ms, best["grip"])
 	return ms
+
+
+## How the map's start/finish line blocks look: "finish" (FINISH and the finish road) or "multilap"
+## (TMNF's MULTILAP gate or the start road) for each.
+static func _finish_looks(root: Node) -> Array:
+	var lap := [TmMaterials.get_material("gate_lap"), TmMaterials.get_material("race_start")]
+	var fin := [TmMaterials.get_material("gate_finish"), TmMaterials.get_material("race_finish")]
+	var out := []
+	for blk: Node in root.get_node("Blocks").get_children():
+		if String(blk.get_meta("block", "")) != "StadiumRoadMainStartFinishLine":
+			continue
+		var seen := {}
+		for mi: Node in blk.find_children("*", "MeshInstance3D", true, false):
+			var mesh := (mi as MeshInstance3D).mesh
+			for i in mesh.get_surface_count() if mesh else 0:
+				seen[mesh.surface_get_material(i)] = true
+		var is_lap := lap.any(func(m: Material) -> bool: return seen.has(m))
+		out.append("finish" if fin.all(func(m: Material) -> bool: return seen.has(m)) and not is_lap else "multilap")
+	return out
 
 
 ## One run of the bot in the race scene: {ms (-1: no finish), taken, top, index, why}.
