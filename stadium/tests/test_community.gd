@@ -5,7 +5,7 @@ extends Node
 ## downloaded (checked: it loads; it turns in the detail panel), driven (a race uses it), a track is
 ## downloaded and played, a modded one is kept but can't be raced, MY CARS lists the library; a
 ## Stadium texture mod is downloaded and worn (a race's asphalt takes its texture), a Canyon mod
-## opens and says the game has the Stadium only.
+## opens and says the game has the Stadium only; a download the site itself fails (HTTP 500) says so.
 
 const PORT := 18095
 const CAR_ID := "TestCarAsset01"
@@ -13,6 +13,7 @@ const TRACK_ID := "4242"
 const MODDED_ID := "4343"
 const MOD_ID := "TestModStadium1"
 const CANYON_ID := "TestModCanyon01"
+const BROKEN_ID := "TestCarBroken01"     ## its download fails on the site's side (HTTP 500)
 
 var _pid := -1
 
@@ -67,6 +68,11 @@ func _ready() -> void:
 	TestHooks.check(got and FileAccess.file_exists(String(entry.get("path", ""))) and TmCarPack.load_zip(String(entry["path"])).ok(),
 		"community_car_downloaded", str(entry))
 	TestHooks.check(_turntable_pack(menu) != null, "community_car_on_the_turntable")
+	# ManiaPark's own failure (its downloads answered 500 to everyone on 21 Oct 2026): said so, not
+	# "can't be reached"
+	var broken: Dictionary = await menu.community.download_car({"id": BROKEN_ID, "kind": "model", "key": "model_" + BROKEN_ID})
+	TestHooks.check(String(broken.get("error", "")).begins_with("ManiaPark: ") and String(broken["error"]).contains("HTTP 500")
+		and not menu.community.library["cars"].has("model_" + BROKEN_ID), "community_site_failure_said", str(broken))
 	menu.comm_drive(String(entry.get("path", "")))
 	await _wait(func() -> bool: return menu.comm_cards.has("model_" + CAR_ID), 8000)
 	TestHooks.check(String(TmUi.setting("community_car")) == String(entry.get("path", "")) and TmCommunity.my_car_pack() != null,
@@ -176,6 +182,7 @@ func _fixtures(node: String, fx: String) -> void:
 	_mod_zip(fx.path_join("mp_%s.zip" % MOD_ID), {"Image/StadiumRoadD.png": Color(0.6, 0.2, 0.2), "Image/StadiumGrass1.png": Color(0.1, 0.5, 0.1)})
 	_mod_zip(fx.path_join("mp_%s.zip" % CANYON_ID), {"Image/CanyonRoadD.png": Color(0.5, 0.4, 0.3), "Image/CanyonGrass.png": Color(0.3, 0.5, 0.2)})
 	TmTestCar.write_pack(fx.path_join("mp_%s.zip" % CAR_ID))
+	_write(fx.path_join("mp_%s.500" % BROKEN_ID), "")
 	var lib := ProjectSettings.globalize_path("res://server/lib/gbx.js").replace("\\", "/")
 	var js := "const fs=require('fs');const g=require('%s');const b=(name,z,flags)=>({name,dir:0,coord:[10,1,z],flags});" % lib \
 		+ "const w=(f,uid,blocks)=>fs.writeFileSync(f,g.writeChallenge({uid,name:uid,author:'tester',compress:true,blocks}));" \

@@ -20,7 +20,8 @@ const MOD_GAMES := {"tm1": 0, "maniaplanet": 1}     ## ManiaPark's games: TrackM
 const KINDS := ["cars", "tracks", "mods"]
 const PAGE := 12
 const DIR := "user://community"    ## the library (tests: --community_dir)
-const TIMEOUT := 30.0
+const TIMEOUT := 30.0                    ## a search or a preview (s)
+const FILE_TIMEOUT := 900.0              ## a whole download: a 40 MB car or a 200 MB mod on a slow line
 const MAX_FILE := 40 * 1024 * 1024
 const MAX_MOD := 200 * 1024 * 1024        ## mods ship 4K textures (ManiaPark's run to ~150 MB)
 const UA := "SpeedFestStadium/1.0 (+https://github.com/khanhonthetrack/speedfest)"
@@ -241,9 +242,10 @@ func download_track(item: Dictionary) -> Dictionary:
 	var id := String(item.get("id", ""))
 	if not id.is_valid_int():
 		return {"error": "not a track"}
-	var bytes := await _bytes(await site_url("tmx", "/trackgbx/%s" % id), MAX_FILE)
+	var got := await _fetch(await site_url("tmx", "/trackgbx/%s" % id), MAX_FILE)
+	var bytes: PackedByteArray = got["bytes"]
 	if bytes.is_empty():
-		return {"error": "TrackMania Exchange can't be reached"}
+		return {"error": "TrackMania Exchange: " + String(got["error"])}
 	var ch := TmChallenge.new()
 	ch.parse(bytes)
 	if not ch.ok():
@@ -273,9 +275,10 @@ func download_car(item: Dictionary) -> Dictionary:
 	var kind := String(item.get("kind", "model"))
 	if not _is_asset_id(id) or not kind in ["model", "skin"]:
 		return {"error": "not a car"}
-	var bytes := await _bytes(await site_url("maniapark", "/%s/%s/download" % [kind, id]), MAX_FILE)
+	var got := await _fetch(await site_url("maniapark", "/%s/%s/download" % [kind, id]), MAX_FILE)
+	var bytes: PackedByteArray = got["bytes"]
 	if bytes.is_empty():
-		return {"error": "ManiaPark can't be reached"}
+		return {"error": "ManiaPark: " + String(got["error"])}
 	var path := _dir().path_join("cars").path_join("%s_%s.zip" % [kind, id])
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
 	var f := FileAccess.open(path, FileAccess.WRITE)
@@ -302,9 +305,10 @@ func download_mod(item: Dictionary) -> Dictionary:
 	var id := String(item.get("id", ""))
 	if not _is_asset_id(id):
 		return {"error": "not a mod"}
-	var bytes := await _bytes(await site_url("maniapark", "/mod/%s/download" % id), MAX_MOD)
+	var got := await _fetch(await site_url("maniapark", "/mod/%s/download" % id), MAX_MOD)
+	var bytes: PackedByteArray = got["bytes"]
 	if bytes.is_empty():
-		return {"error": "ManiaPark can't be reached"}
+		return {"error": "ManiaPark: " + String(got["error"])}
 	if bytes.slice(0, 2).get_string_from_ascii() != "PK":
 		return {"error": "the mod isn't a zip"}
 	var path := _dir().path_join("mods").path_join("mod_%s.zip" % id)
@@ -340,24 +344,55 @@ static func drive(path: String) -> void:
 # --- HTTP -------------------------------------------------------------------------------------------
 
 func _json(url: String) -> Dictionary:
-	var bytes := await _bytes(url, 4 * 1024 * 1024)
+	var got := await _fetch(url, 4 * 1024 * 1024)
+	var bytes: PackedByteArray = got["bytes"]
 	if bytes.is_empty():
-		return {"error": "the site can't be reached"}
+		return {"error": String(got["error"])}
 	var d: Variant = JSON.parse_string(bytes.get_string_from_utf8())
 	return d if d is Dictionary else {"error": "an unexpected answer"}
 
 
 func _bytes(url: String, limit: int) -> PackedByteArray:
+	return (await _fetch(url, limit))["bytes"]
+
+
+## A GET: {bytes (empty unless it worked), error (why not, for the player; "" when it worked)}.
+func _fetch(url: String, limit: int) -> Dictionary:
 	var req := HTTPRequest.new()
-	req.timeout = 0.0 if TestHooks.is_testing() else TIMEOUT
+	req.timeout = 0.0 if TestHooks.is_testing() else (FILE_TIMEOUT if limit >= MAX_FILE else TIMEOUT)
 	req.body_size_limit = limit
 	req.max_redirects = 4
 	add_child(req)
 	if req.request(url, PackedStringArray(["user-agent: " + UA])) != OK:
 		req.queue_free()
-		return PackedByteArray()
+		return {"bytes": PackedByteArray(), "error": "the request couldn't be made"}
 	var res: Array = await req.request_completed
 	req.queue_free()
-	if int(res[0]) != HTTPRequest.RESULT_SUCCESS or int(res[1]) != 200:
-		return PackedByteArray()
-	return res[3]
+	var why := failure(int(res[0]), int(res[1]))
+	return {"bytes": PackedByteArray() if not why.is_empty() else res[3], "error": why}
+
+
+## Why a request failed, for the player ("" if it didn't), from an HTTPRequest result and status:
+## a site's own failure (5xx; ManiaPark's downloads answered 500 to everyone on 21 Oct 2026) reads
+## apart from a connection the player's side can't make.
+static func failure(result: int, status: int) -> String:
+	match result:
+		HTTPRequest.RESULT_SUCCESS:
+			if status == 200:
+				return ""
+			if status >= 500:
+				return "the site's server failed (HTTP %d), a problem on its side: try again later" % status
+			if status == 404:
+				return "not there any more (HTTP 404)"
+			return "the site refused it (HTTP %d)" % status
+		HTTPRequest.RESULT_CANT_RESOLVE:
+			return "the site's address can't be found (no internet connection?)"
+		HTTPRequest.RESULT_TLS_HANDSHAKE_ERROR:
+			return "a secure connection to the site couldn't be made (TLS)"
+		HTTPRequest.RESULT_TIMEOUT:
+			return "the site took too long to answer"
+		HTTPRequest.RESULT_BODY_SIZE_LIMIT_EXCEEDED:
+			return "the file is too big"
+		HTTPRequest.RESULT_REDIRECT_LIMIT_REACHED:
+			return "the site redirected too many times"
+	return "the site can't be reached"

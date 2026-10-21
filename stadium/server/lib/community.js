@@ -84,7 +84,7 @@ class Community {
 
 /** A fetch over local files standing in for the two sites (the game's tests: --community-fixtures=dir):
  *  tmx_tracks.json, tmx_<id>.jpg|png (both images), tmx_<id>.Challenge.Gbx, mp_search_<asset>.json,
- *  mp_img_<id>.webp|png, mp_<id>.zip. */
+ *  mp_img_<id>.webp|png, mp_<id>.zip; mp_<id>.500: that download fails on the site's side (HTTP 500). */
 function fixtureFetch(dir) {
   const fs = require('fs');
   const path = require('path');
@@ -102,7 +102,12 @@ function fixtureFetch(dir) {
     } else if (u.host === 'maniapark.com') {
       if (u.pathname === '/api/search') file = pick(`mp_search_${u.searchParams.get('asset')}.json`);
       else if ((m = u.pathname.match(/^\/image\/([\w-]+)$/))) file = pick(`mp_img_${m[1]}.webp`, `mp_img_${m[1]}.png`);
-      else if ((m = u.pathname.match(/^\/(?:model|skin|mod)\/([\w-]+)\/download$/))) file = pick(`mp_${m[1]}.zip`);
+      else if ((m = u.pathname.match(/^\/(?:model|skin|mod)\/([\w-]+)\/download$/))) {
+        if (pick(`mp_${m[1]}.500`)) {
+          return { ok: false, status: 500, headers: new Map([['content-type', 'text/html']]), arrayBuffer: async () => new ArrayBuffer(0) };
+        }
+        file = pick(`mp_${m[1]}.zip`);
+      }
     }
     const body = file ? fs.readFileSync(file) : null;
     const type = file ? (types[path.extname(file).toLowerCase()] || 'application/octet-stream') : 'text/html';
