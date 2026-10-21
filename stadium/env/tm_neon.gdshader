@@ -27,11 +27,11 @@ void fragment() {
 	METALLIC = 0.5;
 	ROUGHNESS = 0.35;
 	if (COLOR.a > 0.5) {
-		float width = 1.2;
+		float width = 1.6;
 		vec2 p = vec2(UV.x * width, UV.y);              // metres on the face
-		float h = 1.0;                                  // a letter's height
+		float h = 1.25;                                 // a letter's height
 		float li = floor((p.y - 0.25) / h);
-		vec2 q = vec2((p.x - width * 0.5) / 0.55 + 0.5, (p.y - 0.25 - li * h) / 0.8);   // the glyph box 0..1
+		vec2 q = vec2((p.x - width * 0.5) / 0.8 + 0.5, (p.y - 0.25 - li * h) / 1.0);    // the glyph box 0..1
 		vec2 P[6] = vec2[](vec2(0.0, 0.0), vec2(1.0, 0.0), vec2(0.0, 0.5), vec2(1.0, 0.5), vec2(0.0, 1.0), vec2(1.0, 1.0));
 		float d = 9.0;
 		float letters = floor(hash(vec2(word, 0.0)) * 3.0) + 4.0;
@@ -54,13 +54,13 @@ void fragment() {
 				else { a = P[2]; b = P[5]; }
 				d = min(d, seg(q, a, b));
 			}
-			d *= 0.55;                                   // back to metres (roughly)
+			d *= 0.8;                                    // back to metres (roughly)
 		}
 		// the tube round the face's edge
 		float edge = min(min(p.x - 0.08, width - 0.08 - p.x), min(p.y - 0.08, UV2.x - 0.08 - p.y));
 		d = min(d, abs(edge));
 		float fw = fwidth(p.y);
-		float core = 1.0 - smoothstep(0.022, 0.022 + fw * 1.5, d);
+		float core = 1.0 - smoothstep(0.03, 0.03 + fw * 1.5, d);
 		float halo = exp(-d * 22.0);
 		ALBEDO = mix(ALBEDO, tube * 0.5 + 0.3, core);
 		EMISSION = tube * (core * mix(1.6, 7.0, tm_night) + halo * mix(0.15, 1.1, tm_night));

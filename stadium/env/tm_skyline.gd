@@ -291,11 +291,11 @@ static func field(builder: TmMapBuilder) -> Node3D:
 			var roll := rng.randf()
 			if roll < 0.25 and side * 2.0 > TmCitySigns.BOARD.x + 1.0:
 				boards.append([Vector3(mid.x, 0.4 + bh, mid.y) + Vector3(way.x, 0.0, way.y) * (half - 1.5), way])
-			elif roll < 0.65 and bh > STOREFRONT + 9.0:
+			elif roll < 0.85 and bh > STOREFRONT + 9.0:
 				var t := Vector2(-way.y, way.x) * (side - 1.6) * (1.0 if rng.randf() < 0.5 else -1.0)
-				var h := rng.randf_range(4.0, minf(8.0, bh - STOREFRONT - 3.0))
+				var h := rng.randf_range(6.0, minf(11.0, bh - STOREFRONT - 2.0))
 				var foot := mid + way * half + t
-				blades.append([Vector3(foot.x, 0.4 + STOREFRONT + 1.0 + h, foot.y), way, h])
+				blades.append([Vector3(foot.x, 0.4 + STOREFRONT + 0.6 + h, foot.y), way, h])
 	_add_blocks(root, blocks, true)
 	TmTower.add_mesh(root, roofs, TmTower.shared("roof"), "Roofs", true)
 	root.add_child(_street_trees(ch, cells, busy, plazas, body, rng))

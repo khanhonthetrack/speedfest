@@ -9,6 +9,7 @@ extends RefCounted
 const NEON := [Color(1.0, 0.18, 0.62), Color(0.15, 0.85, 1.0), Color(0.62, 0.25, 1.0), Color(1.0, 0.62, 0.12),
 	Color(0.3, 1.0, 0.45), Color(1.0, 0.25, 0.2)]
 const BOARD := Vector2(14.0, 7.0)
+const WIDTH := 1.6                  ## a blade sign's width out from the facade (m)
 
 static var _screen: ShaderMaterial
 static var _neon: ShaderMaterial
@@ -64,8 +65,8 @@ static func _blade_mesh(h: float, colour: Color) -> ArrayMesh:
 	var uv := PackedVector2Array()
 	var uv2 := PackedVector2Array()
 	var col := PackedColorArray()
-	var w := 1.2
-	var t := 0.18
+	var w := WIDTH
+	var t := 0.2
 	# corners: x 0..w out from the facade (0.1 gap), y -h..0, z -t..t
 	var faces := [
 		[Vector3(0.1, 0, t), Vector3(0.1 + w, 0, t), Vector3(0.1 + w, -h, t), Vector3(0.1, -h, t), Vector3(0, 0, 1), true],

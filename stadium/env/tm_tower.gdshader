@@ -328,6 +328,13 @@ void fragment() {
 		float fres_s = 0.06 + 0.94 * pow(1.0 - ndv, 5.0);
 		EMISSION = shop * spane * (1.0 - fres_s) * mix(0.55, 0.9, tm_night) + fascia_col * fascia * mix(0.25, 1.4, tm_night)
 			* (1.0 - step(storefront - 0.1, sy));
+		// a neon tube under the fascia on many shops (pink, cyan, violet, amber)
+		float tube_on = step(0.45, hash(vec2(sc, 6.0), 61.0));
+		vec3 tube_col = hash(vec2(sc, 7.0), 62.0) < 0.25 ? vec3(1.0, 0.2, 0.65) : (hash(vec2(sc, 7.0), 62.0) < 0.5 ? vec3(0.2, 0.9, 1.0)
+			: (hash(vec2(sc, 7.0), 62.0) < 0.75 ? vec3(0.65, 0.3, 1.0) : vec3(1.0, 0.65, 0.15)));
+		float tube = (1.0 - smoothstep(0.025, 0.025 + fw.y * 1.5, abs(sy - (f0 - 0.06)))) * step(0.15, sx) * step(sx, sw - 0.15) * tube_on;
+		EMISSION += tube_col * tube * mix(1.5, 8.0, tm_night) + tube_col * tube_on * exp(-abs(sy - (f0 - 0.06)) * 8.0) * 0.35 * tm_night * spane;
+		ALBEDO = mix(ALBEDO, tube_col * 0.6 + 0.3, tube);
 	}
 	// the street's shade at a building's foot (the city casts no shadows: too far for them)
 	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, world_map > 0.5 ? wpos.y - NODE_POSITION_WORLD.y : UV.y));

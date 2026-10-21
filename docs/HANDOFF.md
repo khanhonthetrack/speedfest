@@ -43,8 +43,15 @@
   (`env/tm_street_lights.gd`, real lights at night) along the City tracks; the city built on a
   worker thread (`TmSkyline.build_async`: online clients had started late while it built).
   Screenshots here take 10-25 min each (software Vulkan); `--set_quality=2` for Ultra.
-  Open: the owner's look; Street/Traffic Lights licence (then their models could replace ours);
-  the High Rise Pack (baked textures: materials to rebuild) and the houses (outskirts).
+  21 Oct, after the owner's 6/10 ("shops kinda looks lame ... add some neon taste, some
+  billboards. It should feel modern, not 90s. Trees look kinda lame"; street/traffic lights CC0):
+  the owner's lamps and traffic lights on the City tracks (`assets/city/props`,
+  `TmStreetLights`), brand shops (the adverts on their fascias, modern interiors), LED billboards
+  and neon blade signs (`env/tm_city_signs.gd`), fascia neon, wet paving at night, trees of
+  photographed fronds (Poly Haven CC0, `assets/tex/trees`). Poly Haven and ambientCG (CC0) are
+  reachable from the cloud container for more textures and props. The owner has more assets on
+  their PC (over 30 MB): asked for 7-Zip volumes, a share link, or our converter run there.
+  Open: the High Rise Pack (baked textures: materials to rebuild) and the houses (outskirts).
 - Owner (20 Oct, not answered yet): "I want to be able to load all canyon/lagoon maps somehow."
   Their block lists already read; the blocks' geometry doesn't exist. Options put to the owner:
   approximate them from our pieces, recreate from the owner's own TM2 install locally, or a

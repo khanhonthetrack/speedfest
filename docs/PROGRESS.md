@@ -2762,3 +2762,7 @@ It has 586 TMNF/TMUF mods and 304 ManiaPlanet mods (and 1315 TMNF/TMUF car model
   cards each showing a photographed jacaranda frond (Poly Haven, CC0: `assets/tex/trees`,
   `CREDITS.md`), lit as a volume, light through the leaves, swaying.
 - `tests/test_skyline` (+1): billboards and neon signs, traffic lights.
+- Neon more present: blade signs 1.6 m wide and 6-11 m tall, on most buildings beside the road
+  that carry no billboard; a neon tube under many shops' fascias (pink, cyan, violet, amber). A
+  City track's paved field is darker, and wet at night (glossy, puddles that mirror the lights:
+  SSR on Ultra).
