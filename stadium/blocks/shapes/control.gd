@@ -579,8 +579,9 @@ func _junction(geo: TmGeo, arms: Array) -> void:
 ## TMNF's (measured): the screens 2:1 boards PUB_BOARD_W long and PUB_BOARD_Y high, two side by side
 ## along a straight (PUB_GAP apart), one on each face of the lone base's kiosk (PUB_KIOSK either side
 ## of the centre, flush in a dark border frame, PUB_KIOSK_FRAME: its margins below, above and at
-## the sides, the kiosk's dark box set back PUB_KIOSK_SET behind them, a lip over the gap); the
-## block and the kiosk its dark Stands2; the plinth (PUB_PLINTH either side of the run) grey with
+## the sides, the kiosk's dark box set back PUB_KIOSK_SET behind them, a lip over the gap; the
+## arms' boards show their ad outward only, their inner faces dark); the block and the kiosk its
+## dark Stands2; the plinth (PUB_PLINTH either side of the run) grey with
 ## a dark rubber top, a light strip down its middle (PUB_STRIP) and a railing (a cut-out card under
 ## its top bar, PUB_RAIL_H high) along each edge; the base's plinth runs along z (PUB_BASE_RUN
 ## either way), its railing round all four sides (PUB_BASE_RAIL in from its ends); a straight's
@@ -663,7 +664,8 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 			var off: Vector3 = side * float(k) * 5.7
 			var lo := Vector3(minf(a.x, b.x) + off.x - absf(side.x) * 0.3, by.x, minf(a.z, b.z) + off.z - absf(side.z) * 0.3)
 			var hi := Vector3(maxf(a.x, b.x) + off.x + absf(side.x) * 0.3, by.y, maxf(a.z, b.z) + off.z + absf(side.z) * 0.3)
-			geo.screen_box(lo, hi, "screen", S_METAL, 0.03, first)
+			# the ad faces out (TMNF's inner face dark steel)
+			geo.screen_box(lo, hi, "screen", S_METAL, 0.03, first, "structure", off)
 			first += 1
 	if straight:
 		# TMNF's dark frame round each side's boards; on the ground, a portal over each end

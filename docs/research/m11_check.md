@@ -162,6 +162,9 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   ours reads from there (the track side).
 - The camera pub (21 Oct): its ends TMNF's turned steel panels (a 12 x 6 m tile from x 4) with a
   white strip up each corner, its roof strips grey concrete (ours were white: dE 31 on 250 m2).
+- The road pub (21 Oct): the boards' inner faces dark (TMNF's Stands2), the ad outward only. Its
+  floor's grey middle strip already sits 2 mm over the rubber (the checker's "rubber" there is
+  the coplanar case).
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a

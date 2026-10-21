@@ -301,9 +301,10 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 
 ## A board or billboard [lo, hi] (TMNF coords): its two wide vertical faces are the screen (mat,
 ## its ad laid out on each: SCREENS), the rest its frame (frame_mat; bevel:
-## chamfered as box() does).
+## chamfered as box() does). With `out` given, only the wide face toward it is a screen, the other
+## back_mat.
 func screen_box(lo: Vector3, hi: Vector3, mat: String, surface: int, bevel := 0.0, first := 0,
-		frame_mat := "structure") -> void:
+		frame_mat := "structure", out := Vector3.ZERO, back_mat := "stands_dark") -> void:
 	var r := minf(bevel, 0.45 * minf(hi.x - lo.x, minf(hi.y - lo.y, hi.z - lo.z)))
 	if r <= 0.002:
 		r = 0.0
@@ -329,14 +330,16 @@ func screen_box(lo: Vector3, hi: Vector3, mat: String, surface: int, bevel := 0.
 		for z: float in [lo.z, hi.z]:
 			var a := Vector3(lo.x + r, y0, z)
 			var b := Vector3(hi.x - r, y0, z)
-			screen_rect(a, b, Vector3(b.x, y1, z), Vector3(a.x, y1, z), mat, NO_COLLISION, first,
-				Vector3(0, 0, -1 if z == lo.z else 1))
+			var n := Vector3(0, 0, -1 if z == lo.z else 1)
+			screen_rect(a, b, Vector3(b.x, y1, z), Vector3(a.x, y1, z), mat if n.dot(out) >= 0.0 else back_mat,
+				NO_COLLISION, first, n)
 	else:
 		for x: float in [lo.x, hi.x]:
 			var a := Vector3(x, y0, lo.z + r)
 			var b := Vector3(x, y0, hi.z - r)
-			screen_rect(a, b, Vector3(x, y1, b.z), Vector3(x, y1, a.z), mat, NO_COLLISION, first,
-				Vector3(-1 if x == lo.x else 1, 0, 0))
+			var n := Vector3(-1 if x == lo.x else 1, 0, 0)
+			screen_rect(a, b, Vector3(x, y1, b.z), Vector3(x, y1, a.z), mat if n.dot(out) >= 0.0 else back_mat,
+				NO_COLLISION, first, n)
 
 
 ## A box's visual mesh with every edge chamfered by r: six inset faces, twelve 45-degree edge

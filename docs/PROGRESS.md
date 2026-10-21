@@ -2842,4 +2842,8 @@ on every real contact the full impulse would land at the contact point and kick 
   our own drawing of that layout (3 m bays, knee braces, an inverted V below the girder), mapped
   per block as TMNF's (a tile 12 m across from x 4, 6 m down from the roof), with the corner
   strips. The roof's edge strips are TMNF's grey concrete walkways (ours were white).
+- (M11-2) **The road pubs' boards outward only, as TMNF's** (`control.gd _pub`, `TmGeo.screen_box`
+  `out`). TMNF's road pub shows its adverts on the boards' outer faces; their inner faces (toward
+  the support block and the pipe) are its dark steel panels. Ours showed an ad on both faces.
+  `screen_box` takes the face to show the ad on (`out`), the other face back_mat.
 
