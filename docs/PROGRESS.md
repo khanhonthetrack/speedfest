@@ -2627,6 +2627,562 @@ didn't have this branch), then "Yes, do both - dont release yet" (TRANSCRIPT).
   and under the body TMNF's dark tray (chamfered, to the level's floor) with two slanted truss
   columns on every closed side, as TMNF's (measured; collision too). The airship's envelope takes
   TMNF's beige (its texture's mean), not the fabric white. Side by side with TMNF's block.
+- (M11-2) **Grandstands and camera booths in TMNF's colours.** TMNF's Fabric stands are not blue
+  seats: their top is the grey concrete band of its stands texture (149, 148, 147), the
+  quarter-pipe front its dark platform floor (43, 44, 43), the backs and ends its dark Stands2
+  (keys `stands_top`, `stands_front`, `stands_dark`; the big stadium's seating rake keeps its
+  seats). Camera lights: dark with grey tops and light undersides (TMNF's Stands2 / Stands / Auvent),
+  dark ends; camera galleries: a dark foot, TMNF's band of windows 1.56-2.79 m above the wall's
+  foot, the roof grey along its edge and dark beyond, the ground plinth light. Side by side with
+  TMNF's blocks.
+- (M11-2) **Dirt roads' outline and the sculptures' plinth as TMNF's.** The dirt follows the
+  ground's shape as TMNF's meshes do: next to the survey's dirt cells, the terrain off the grass
+  level (more than 5 cm) is dirt and on it grass, each triangle cut along that level
+  (`dirt.gd _split_tri`), so the dirt base's ring mound and the berms have smooth edges instead of
+  the survey's 2 m staircase. The sculptures' plinth pads are TMNF's light panel, not red rubber.
+  `tests/block_view.tscn` lays its grass under a ground block's own terrain.
+- (M11-2) **FreeWheeling pads in TMNF's layout.** TMNF's free-wheel road is red, not the turbo's
+  orange: our own texture (`texgen/turbo.py freewheel_pad`) is red ribbed panels on the turbo's
+  seam grid with two yellow chevrons per panel pointing at each other, as TMNF's (key `freewheel`,
+  Road/Main/FreeWheeling/*). Side by side with TMNF's block.
+- (M11-2) **Start / finish roads and the gate line as TMNF's.** TMNF paints no pads: its finish
+  block's road is red the whole way (z 0-17), its start block's green from the nose up to the line,
+  a start/finish line's (MultiLap) green 8 m either side of it, each with a chequered strip two
+  squares wide along both edges (RoadRace's layout and colours, measured; our own texture,
+  `texgen/gates.py race_road`, with our chevrons where TMNF has its mark). The line across the road
+  at every gate is TMNF's: 0.36 m of the border atlas' blue band (`road.gd _gate_line`, the road
+  top cut there: `TmGeo.split_mat`). Our 8 m pads with the word and the checkpoint's 1 m band
+  (`TmGateDress`, textures pad_start / pad_finish / line_cp) are gone; the grass checkpoint has
+  no line (TMNF's has none). Side by side with TMNF's blocks.
+- (M11-2) **Pipe pillars and tubes in TMNF's materials** (Tube/V/Pillar*: our tracks' most used
+  block, about 8,100 on our tracks): the pipes are TMNF's light StadiumPillar concrete (key `pillar`,
+  as the road's pillars) instead of our shiny steel, the junction collars and the cap's lid its dark
+  RoadDetails (`road_metal`), the ground foot and the cap's ring its border atlas band, once round
+  (the blue line low down, the black band with the white line above; `tube.gd RING_ROWS`). The
+  RoadPub pipes too. Side by side with TMNF's blocks.
+- (M11-2) **Platform decks' underside as TMNF's, take two.** The chamfered tray read TMNF's
+  bounding box, not its shape: TMNF hangs a flat dark plate at the body's floor (in to the lip's
+  foot on closed sides, to the edge on open ones), a hub in the middle (a frustum to the level's
+  ground) and beams 1 m deep on the column lines: from each column of a closed side in to the
+  square the lines make, and along each side of that square whose block edge is open (measured
+  on Base, Straight, Corner, Cross, Checkpoint; `platform.gd _underside`, `_beam`). Material check
+  on Platform/Road/BaseAir: TMNF surface we lacked 766 -> 125 m2, colour differs 291 -> 232 m2.
+- (M11-2) **Platform slopes as TMNF's underneath.** The rim takes the deck lip's atlas bands, the
+  ledges TMNF's light plates, the panel between them its dark Stands2 (not our blue seats), and
+  under it TMNF's frame (measured): a round post from the level's ground to the plate's middle, a
+  cross of struts slanting down away from it to 7.86 m out, and from each strut's end a truss up
+  to under the rim (`platform.gd _slope_frame`, `_strut`). Material check (2StraightAir, 92 uses):
+  colour differs 1211 -> 197 m2, TMNF surface we lacked 406 -> 50 m2; the BiSlopes alike.
+- (M11-2) **The platform turbo deck as TMNF's.** Ours was a plate over a fabric box; TMNF's thin
+  turbo plate rides over an open engine room: the deck's floor (light, the border atlas' orange
+  band round its edge) with the deck's underside and truss columns below it, the white fabric box
+  in the middle and four jet turbines either side of it hung from two cross beams under the plate
+  (measured: axes, intakes, the outline; a grey intake ring, a fan of four dark blades on a grey
+  disc). The rim's bevel is TMNF's TURBO sign (our own texture: `texgen/turbo.py turbo_rim`, the
+  word every 4 m), the plate's underside ring TMNF's light plates. Material check: TMNF surface we
+  lacked 2820 -> 814 m2, colour differs 838 -> 664 m2.
+- (M11-2) **Platform checkpoints' arch and ring as TMNF's.** Not white with blue edges: the outer and
+  inner faces the border atlas' light panel, the rounded front and back faces the CHECKPOINT band
+  (our gate_cp: TMNF's RaceSigns sign there), read along the arc from the front and the back
+  (`platform.gd _ring_uv`); the legs under the lips dark truss; the billboard over the arch curved
+  and falling with it as TMNF's (measured: its ends 2 m lower and 2.8 m nearer the front than its
+  middle). Material check (Checkpoint/Air): colour differs 828 -> 657 m2.
+- (M11-2) **The gates' word bands in TMNF's layout** (its RaceSigns, our own drawing and font):
+  FINISH white on red between two white lines (was red on white), START green on white under one
+  green line, CHECKPOINT blue on dark between two blue lines (`texgen/gates.py KINDS`: lines per
+  kind); on the road gates' arch faces and curbs and the platform checkpoints' arch. Side by side
+  with TMNF's blocks.
+- (M11-2) **Platform decks' open ends and the ramp onto the road as TMNF's.** Where a deck
+  continues (and nothing is built next to it) its body's end is TMNF's dark Stands2, not light
+  metal; the road ramp off a platform (Platform/ToRoad/ToRoadMainAir) has the ground road's green
+  shoulders (TMNF's), not the grid (`road.gd _green_shoulders`). Side by side with TMNF's block.
+- (M11-2) **The glass booths (Control/RoadGlass) as TMNF's.** The plinth grey, the walkway and the
+  wall under the windows white, a dark sill under TMNF's grey glass (`glass_booth`, not our smoked
+  black), a room behind it (its back wall, ceiling and floor, measured), the roof grey along its
+  edge and dark beyond; the ground plinths' rail an open railing's top bar (TMNF's railing is
+  see-through), on the camera galleries too. Material check (BaseGround): colour differs 756 ->
+  184 m2, TMNF surface we lacked 842 -> 396 m2.
+- (M11-2) **The pub blocks (Control/RoadPub) as TMNF's.** A straight's screens are two 2:1 boards
+  a side (12.2 m each, 0.76 m apart; ours one 26 m board), in a dark frame, under a dark portal at
+  each end on the ground; the lone base is TMNF's dark kiosk with a board on each face (it had no
+  screens); the plinth TMNF's (16 m wide, grey sides, a dark rubber top with a light strip down
+  its middle, a railing's top bar along each edge), the base's running along z as TMNF's; the
+  support block its dark Stands2 (`control.gd _pub`, `_pub_plinth`). Material check: TMNF
+  surface we lacked 402 -> 218 m2 (straight), 1280 -> 411 m2 (base).
+- (M11-2) **Camera lights as TMNF's, take two.** The block between the feet is dark on top and
+  underneath (TMNF's Stands2; ours was grey and light: 1,024 m2 a block), the top bar's underside
+  light on both sides with the lit strip on its outer bevel (ours had the strip on the left
+  underside), and along each outer side TMNF's four floodlight bars at mid height (measured;
+  `control.gd LIGHT_BARS`). Side by side with TMNF's block.
+- (M11-2) **Sculptures as TMNF's.** Their concrete is TMNF's light grey panels (`sculpt`: our
+  stadium concrete, 24 m a tile, (195, 196, 195) when flat; not our bluish tiles), the lofts shade
+  smooth across a surface and sharp at its edges (`sculpt.gd SMOOTH_DEG`; they showed every
+  facet), and the plinth's double curbs are TMNF's border atlas bands (rows measured), not white
+  rubber. Side by side with TMNF's blocks.
+- (M11-2) **The road turbo's gantry as TMNF's.** Its booster pods are TMNF's jet turbines now (a
+  fan of four dark blades in the intake, the cowl light, the body dark; `TmGeo.fan`, shared with
+  the platform turbo's), the walkway's side panels dark see-through (TMNF's railing; ours were
+  light-blue glass), and the curbs' face carries TMNF's TURBO sign (our turbo_rim spread over the
+  face's rows; `road.gd CURB_ROWS`). Side by side with TMNF's block.
+- (M11-2) **Where a dirt road meets the road (Road/Dirt/RoadDirtToRoad), TMNF's curbs.** Ours was
+  terrain only; TMNF runs the ground road's curbs along both sides, full up to 17 m, then a
+  narrower, lower curb into the dirt's berm (measured; `dirt.gd _to_road_curbs`). Side by side
+  with TMNF's block.
+- (M11-2) **The dirt checkpoint's bumpers as TMNF's.** Its gate stands on two rounded dark rubber
+  bumpers along the sides (the border atlas' black band with its blue line, a ribbed top;
+  measured section, z 1.04..30.93; `dirt.gd _gate_bumpers`); ours floated over the berms. Side by
+  side with TMNF's block.
+- (M11-2) **Grandstand roofs' trusses white as TMNF's.** The lattice between the truss arches'
+  chords is white (TMNF's StructureAlpha, its visible texels' mean 203), not dark; the raised
+  stands' deck is light underneath (TMNF's Auvent). `material_check.py` now reads TMNF's alpha-cut
+  textures (trusses, railings) as they show: the mean of their visible texels per region (it
+  counted their transparent black ones too, reading them dark). Side by side with TMNF's block.
+- (M11-2) **The airship in TMNF's livery layout, our own names.** Its envelope is UV-mapped now
+  (u along it from the nose, v round it; `sculpt.gd _airship`, `_tube`'s uv_of) with our own
+  texture (`texgen/stadium.py airship_skin`): white gores, a yellow nose cap and a yellow band
+  along each upper flank, SPEEDFEST in black on each side with our emblem in red toward the nose
+  (TMNF's has its maker's name there), lettered to read upright from outside on both sides; the
+  tail fins red, the gondola white (it was all one beige). Side by side with TMNF's block.
+- (M11-2) **Gate feet as TMNF's** (owner: "there is a simple block rectangle connecting the arch
+  and the barriers. It looks stupid"). The box between each arch end and the curb is gone; each
+  foot is TMNF's now (measured; `road.gd _gate_feet`): two dark clamps round the curb (their outer
+  flange thicker, a strap over the curb's top), from each an eight-sided strut up to the arch's
+  end, between them a dark see-through lattice with two light rigs aimed at the road. TMNF's
+  checkpoints also have a clamp at z 5.8 with a brace up to the sign boards; with the boards
+  (option B) they stay out. The dirt checkpoints' gates are TMNF's: the road gate (clamps and all)
+  widened 4.5% (the high one narrowed to 0.891) and raised 1.07 m (5.78), 0.963 along z and moved
+  0.12 m (`dirt.gd CHECKPOINTS`, `TmGeo.scale_move`), the clamps' straps down on the bumpers; ours
+  had a lowered strut and no clamps.
+- (M11-2) **Gate blocks' curb signs as TMNF's.** Every gate block (checkpoint, also its slope and
+  tilt variants, start, finish, multilap, turbo) carries its sign on both faces of each curb, the
+  word every 4 m on a panel with a joint between (TMNF's RaceSigns; ours had the word every 8 m,
+  the inner face only, the outer showing our SPEEDFEST band); on the outer face it reads mirrored,
+  as TMNF's does. The textures are UV-mapped as the border atlas now (`texgen/gates.py` curb_*,
+  16 m a tile, rows spread over the face; `road.gd _entry`, `HALF_GROUND_GATE`). MultiLap says
+  MULTILAP in yellow over a chequered strip as TMNF's (arch faces and curbs; it said FINISH; the
+  crown screen still shows FINISH, where our lap races end). The dirt bumpers carry the sign the
+  same way, the word every 5 m (`bumper_cp`). Side by side with TMNF's blocks: Checkpoint,
+  Finish, Start, MultiLap, dirt checkpoint.
+- (M11-2) **Review fixes for the gates** (a sequential read-only review of 867ec69, each finding
+  checked by a second agent): the dirt gates' crown screen is resized with the gate
+  (`TmGateDress.crown` `size`; it stood 0.1 m off the arch's faces, and on the high gate its ends
+  above the narrowed arch); the lattice is one face (the translucent material shows both sides;
+  two faces made it 92% opaque instead of 72%). The dirt gates' sizes re-measured on five points:
+  1.042 wide, 1.075 m up.
+- (M11-2) **The platform checkpoint as TMNF's.** TMNF's is the road's gate again, 8.9% wider and
+  5.52 m up on the deck (measured: arch, clamps, struts, lattice, light rigs all fit), so ours is
+  that now (`platform.gd _checkpoint_arch`; it was the ring's section revolved, light grey, no
+  feet). Under the feet each side's edge is set back as TMNF's (`CP_NOTCH`, z 12..20: a dark
+  strip along the top behind an orange band, a steeper bevel), elsewhere the rim's bevel carries
+  the CHECKPOINT sign, mirrored as TMNF's reads from outside (`_checkpoint_deck`); the billboard
+  and its struts stay. The turbo deck's TURBO rim reads mirrored as TMNF's too. Side by side with
+  TMNF's blocks. Left: the high dirt checkpoint's side rails and posts (TMNF's; not on our tracks),
+  the turbo deck's advert band under the rim, the platform billboard's struts as TMNF's lattice.
+- (M11-2) **Grandstands' steel as TMNF's** (owner: "Yes", continue the check; the Fabric pieces
+  were the biggest gap left on our tracks: 3,600-4,600 m2 of TMNF's surface missing per piece, 165-225
+  uses). TMNF draws its steel as alpha cards; ours now has cut-out cards too
+  (`TmMaterials.CUTOUT`: alpha-scissored, both sides, HD or not, both renderers) with our own
+  drawings (`texgen/lattice.py`: a white X-braced panel, a dark railing, a dark truss girder, a
+  dark grating). Measured from TMNF's blocks (`fabric.gd`): the raised straight's deck now stands
+  on TMNF's open base (white tube columns, a beam along the block, a tube ring under the deck with
+  posts, X-braced girder panels round the middle column and along the beam, two low catwalks,
+  dark floodlight bars on girder frames) instead of a solid wall; both straights get the roof's
+  spine (TMNF's V girder: X-braced panels from the light trusses' inner chords at z 12.5 / 19.5
+  down to the main truss's), two catwalks under the shell, the floodlight bars at its top edge,
+  the railings on the stands' or deck's top; the raised pillar is TMNF's (its wall's tower side
+  the framed X panels, the steel tower of seven columns and four X-braced panels, 24 m) instead of
+  a wall and a solid post. Missing surface on the four pieces 9,727 -> 4,874 m2 (the rest is
+  lattice TMNF draws as flat cards where ours are thin tubes: per-part coverage 80-100%). Side by
+  side with TMNF's blocks, Forward+ and Compatibility. Left: the corners' raised base (not on our
+  tracks), the ground pillar's orange end strips.
+- (M11-2) **Road-side booths as TMNF's** (`control.gd`; 814 and 1,116 uses on our tracks). The
+  plinth's open railing under its top bar (TMNF's ControlAuventAlpha: a cut-out card, `_rails`),
+  the glass booth's windows TMNF's modules (our drawing, `texgen/booth.py booth_window`: posts, a
+  mullion, two transoms, a lit head, see-through panes, 2.2 m each, 36 round the booth; blended,
+  `CUTOUT` booth_glass) and its room's wall facing them (`booth_wall`: concrete panels, a dark
+  opening into the back rooms), the round booths 32-sided as TMNF's; the round camera booth built
+  in arcs (`_camera_base`): TMNF's advert band under the windows either side of +-x (our adverts),
+  the light gaps in the window band at +-z, no railing at the entrances. Lattice cards' metal
+  lowered (they read light in the sun). Missing surface: camera booth 104 -> 1 m2, glass booth
+  389 -> 280 m2. Side by side with TMNF's blocks. Left: the pub block's plinth (85 uses).
+- (M11-2) **Platform truss columns and the turbo deck's advert band as TMNF's** (`platform.gd`).
+  The truss columns under every closed deck edge are TMNF's dark open frames now (cut-out truss
+  cards, TMNF's outline: 1.07 m deep at the foot on the beam's end, 0.55 m under the rim; ours
+  were narrow solid boxes); the turbo deck has TMNF's advert band under its plate along each x
+  side (our adverts; `TmGeo.screen_rect` takes a lower `min_h` for such bands). Side by side with
+  TMNF's blocks.
+- (M11-2) **The airship as TMNF's** (`sculpt.gd`, `texgen/stadium.py airship_skin`). Its lofts
+  had lost the gondola (one tube left at its back) and the fins (2 m slivers); all built now from
+  TMNF's measured outlines: the fins and rudders as slabs (TMNF's colours: top and sides red, the
+  bottom fin white with yellow along its leading edge and foot), the gondola's hull lofted through
+  14 stations with three windows between white pillars and the red stripe high along it, the dark
+  frame up to the envelope, the engine pods (duct, hub, five-blade fan, stub wing), the keel
+  girders fore and aft and the four mooring arms (dark cut-out truss cards) with their cables to
+  the ground, the tail rounded by one more ring. The livery is laid out as TMNF's in world space
+  (each texel placed on the envelope through its rings): the yellow band round it at y 29.6-44.2
+  (so the nose and the tail are yellow, as TMNF's), white round the side fins' roots, four
+  coloured lights fore and aft, our name and emblem projected flat on each side (reading upright
+  from outside), the gores' seams by angle (they zig-zagged where the rings twist), smoother vinyl.
+  Side by side with TMNF's block.
+- (M11-2) **The pub base and the camera pub as TMNF's** (`control.gd`, `texgen/booth.py`; 48 and
+  51 uses on our tracks). The pub base's kiosk is TMNF's: its boards flush in a dark border frame
+  with a lip over the gap to the dark box set back 0.6 m behind them (ours stuck out of a solid
+  box); the pub plinths get TMNF's cut-out railing under the top bar (round all four sides of the
+  base's) and the light rim outside it. The camera pub was a grey rounded block; now TMNF's look
+  in our drawing: its long sides a facade (`pub_facade`: light panels, a lamp strip on the rounded
+  edge, six dark windows at each end; mapped by rows down the section, split above the windows so
+  the air version's taller facade keeps them at TMNF's height), the roof light along its edges and
+  dark between, the ends a dark curtain wall (`pub_end`), each side's board in a dark frame
+  between two dark posts, an advert band under one end's windows (our adverts), the walkway's
+  railing. Missing surface: pub base 409 -> 13 m2, camera pub 190 -> 10 m2. Side by side with
+  TMNF's blocks, Forward+ and Compatibility. Left: the other pub forms' layout (TMNF's corner has
+  a dark wall with a board and a logo panel on its outer sides; not on our tracks), the camera
+  pub's small logo sign and the boards' brackets.
+- (M11-2) **The camera lights' steel and spotlights, the platform columns' plates as TMNF's**
+  (`control.gd`, `platform.gd`, `texgen/booth.py`, `texgen/lattice.py`). The camera light (87 uses)
+  gets TMNF's steel as dark cut-out cards: a W-truss panel over each floodlight bar under a rail,
+  two trusses holding them out under the top bar and one across each end, a grating along the
+  foot with a railing and a lattice down to the foot; its lamps TMNF's round spotlights (our
+  drawing, `spots_nose`: groups of four along the top bar's nose; `spots_bank`: six pairs on each
+  bar's face), their lenses alone glowing (`TmMaterials.LENS_GLOW`) where the strips glowed
+  white all over. Missing surface 1,304 -> 422 m2 (214 of it TMNF's additive glow cards, left
+  out). The platform truss columns' outer and inner faces are TMNF's slotted plates
+  (`lattice_plate`: a close grille between two long slots), the open frame only at their sides.
+  Look check tool: `tests/block_dump.gd` read every cut-out material as white (it only looked at
+  StandardMaterial3D; ours are ORMMaterial3D) and now takes their visible texels' mean; with it the
+  76 shapes' colour differences are 10.5% of TMNF's area (13.5% before this round), missing 7.5%
+  (11.8%). Side by side with TMNF's blocks, Forward+ and Compatibility. Left: the round base's
+  railing ring and panels (not on our tracks).
+- (M11-2) **The ground grandstands' orange strips and the pillar's back as TMNF's** (`fabric.gd`;
+  FabricStraight1x1 332 uses, FabricPillarGround 390). The quarter-pipe fronts get TMNF's orange
+  strips (0.4 m) at both ends and the straight's foot lip its orange top; the stands' ends are
+  dark (TMNF's Stands2); the pillar's back is TMNF's: a white wall, its big screen smaller and set
+  in a dark frame (ours filled the frame and stood out of the wall), its top edges and back foot
+  grey. (TMNF's "floor" in front of these pieces is grass, our terrain's.) Side by side with
+  TMNF's blocks.
+- (M11-2) **The dirt roads' furniture as TMNF's** (`dirt.gd`, `tools/research/tmnf/dirt_furniture.py`,
+  `blocks/data/dirt_furniture.json`, `texgen/stadium.py dirt_bumper`). TMNF's dirt pieces carry
+  advert boards on props, low advert bands, kiosks on legs and inflatable logo bumpers with rubber
+  ends along the road's edges; ours had none. The research tool measures their placements (board
+  corners, bumper centre lines and sizes, the kiosks' leg rings: numbers only) for the 30 furnished
+  pieces, and `dirt.gd` builds our own at them: our adverts on both faces of white-framed boards
+  with props toward the piece's middle, kiosks with advert faces round a white box over a ring of
+  white X-braced leg cards, bumpers as tubes in our logo vinyl (white, our name and emblem on
+  both sides) with dark rubber parts (solid, rubber); boards too small for an advert white; what
+  TMNF lets overhang the next block (the tilt clips') left out. On our tracks: the GT curves (24 uses; the
+  checkpoints keep their gates' own bumpers). The terrain's dirt now follows the survey's cells smoothly
+  where it lies level with the grass (they were drawn as grass there; the inner edges of TMNF's
+  curves). Side by side with TMNF's pieces.
+- (M11-2) **The loops' backs as TMNF's** (`road.gd`; Loop pieces 24 uses on our tracks). The loop's
+  section was TMNF's shape already (measured) but its back was plain "structure"; now TMNF's
+  materials (unwrapping TMNF's loop into its section frame: grates across the back, the dark spine
+  down the middle, a dark rail under each edge) and TMNF's clamps every 22.5 degrees round it (a
+  white tube either side of the spine with dark blocks at its ends and middle; `_obox`, an
+  oriented box). The mirrored half of the loop's underside took its neighbour segment's material
+  (harmless while all were one); fixed. Side by side with TMNF's block.
+- (M11-8) **The grandstand roofs' glass band as TMNF's** (`env/tm_stadium_build.gd`,
+  `texgen/stadium.py roof_glass`). Probing TMNF's surround (vertical rays through its roof,
+  locally) shows its roof glass from ~20 m to ~110 m beyond the field's edge, top and underside,
+  the white membrane only behind; ours was membrane all over. The visor and the band up to the
+  main roof are now glass (our drawing: dark steel frames every 16 m, mullions every 4 m,
+  grey-teal panes, partly see-through; `TmMaterials.CUTOUT` roof_glass, blended): from the field
+  the roof's front reads as framed glass against the sky, from above the stands show through.
+  The surround's other parts (outer roads, forecourts, parking) were done in session 12; M11-8 done.
+- (M11-4) **The circuit base variants as TMNF's** (`circuit.gd`: `_base`, `_bump`, `_hole`, `_pillar`;
+  editor pieces, none on our tracks). The bump, hole and pillar bases had no model (null). Built
+  from measured numbers (TMNF's local visuals and collision): BumpUp, a 15.5 m round dome rising
+  2 m (TMNF's profile, 64 sides, the dark floor) with an orange rubber rim and a blue line round it
+  (BumpUp2: the same in the middle of a 1x2 plate); Hole, a 12 x 26 m rounded shaft through the
+  plate (orange rim, a dark strip, the atlas' orange and blue band at the top of its walls, dark
+  stands below, the dark strip round its opening underneath; on the ground the terrain's grass at
+  its bottom, collision only); Pillar1/2/3/5/6/7, a dark rounded pad with the same rim and 1, 2, 3,
+  5, 6 or 7 round pillars at TMNF's places: a 24-sided light concrete column with an orange rubber
+  collar, a rounded black rubber cap (orange and blue edge), a dark lid with a ring of bolts round
+  a boss and two of our advert bands facing either way along x. Rounded corners follow TMNF's
+  (radius 1.81 m at the rim's outer edge, 0.8 m less per metre in). The border atlas' rows read as
+  TMNF's v runs (up). The 20 shapes agree 100% with TMNF's collision (`test_block_fidelity`);
+  colour differs on 4% (our adverts on the pillar bands, the parts hidden in the collar).
+- (M11-2) **The glass booth's room as TMNF's** (`control.gd` GLASS_ROOM, GLASS_PARTITIONS,
+  `_partitions`; `texgen/booth.py booth_wall`). The road-side glass pavilion is our tracks' most
+  used control piece (814). Seen through its glass, ours showed the room's ceiling as a 1.2 m
+  flat slab whose sunlit front read as a bright band, and a light concrete back wall; TMNF's
+  ceiling is a thin plate rising from the back wall's top (6 m) to the glass's top (7.21 m), its
+  back wall reads dark, and the ground pavilion's room is split by four light partitions (two
+  across x, a V at each z end). Ours now: the sloping ceiling (GLASS_ROOM takes [y at x0, y at
+  x1]), the partitions from TMNF's measured ends, the back wall redrawn dark (two openings into the
+  gloom between light columns every 4 m: gallery rails, consoles, our blue cabinet). The colour
+  check's missing area on the piece 280 -> 1 m2.
+- (M11-2) **The booths' plinth rims, walkways and gallery ends as TMNF's** (`control.gd`,
+  `TmMaterials` booth_rim). Sampling TMNF's colours inside its triangles (its vertices sit on
+  texel edges): the ground booths' plinth rim is a bluish grey (138 144 150; ours was the grey
+  concrete), the camera booth's walkway white like the glass booth's (ours grey), and a gallery's
+  section ends dark where the piece stops (ours white; hidden against the next piece). Colour
+  differs: camera booth 127 -> 73 m2, camera gallery straight 392 -> 64, glass straight 650 -> 320.
+- (M11-2) **The grandstands' wave roofs' membrane as TMNF's** (`texgen/fabric.py fabric_roof`,
+  `TmMaterials` fabric_roof, `fabric.gd` SHELL, SHELL_AIR, SHELL_IN_AIR). From outside, TMNF's roof
+  reads as white panels pulled taut between clamped ribs (a band every two of its facets, 10.4 m,
+  faint seams every 5.3 m along the block); ours read as plain grey concrete. A texture of our own
+  in TMNF's layout (its tile 16 m along the block by 10.4 m round the roof): faint stitched seams,
+  a bolted rib band across the tile's edges, the membrane between two ribs as a shallow pillow in
+  the normal map, a satin sheen; the other fabric (skirts, the circuit wall's top) keeps its own.
+- (M11-2) **Where a dirt road meets the road, as TMNF's** (`dirt.gd` TO_ROAD_*, `_sign`;
+  `texgen/surfaces.py road_to_dirt`, `texgen/booth.py sign_arrow`; `dirt_furniture.py` signs). TMNF
+  lays one image over the transition's asphalt: clean at the road's end, dirt carried on by tyres
+  thickening toward the dirt in streaks; ours was clean asphalt. Our own image in that layout (u
+  along the piece to the dirt, v from the centre line to the road's edge, mirrored). TMNF also
+  stands LED signs on several dirt pieces (it runs arrow videos on them, an advert slot): a display
+  on one face (back to back on the waves), a white housing 0.7 m deep, two legs; the research tool
+  now records them with the way they face (13 pieces), and ours builds them: our amber LED chevrons
+  pointing toward the piece's middle, the white housing, legs down to the terrain.
+- (M11-2) **The dirt pieces' border tubes and bumpers' rubber ends** (`dirt.gd _bumper`,
+  `dirt_furniture.py`). TMNF lines its dirt waves, diagonals, GT2 hill slopes and tilt-to-road
+  corners with short tubes in the border atlas (orange, its blue line underneath; 5-7.5 m, 41 of
+  them), and ends its logo bumpers with rubber segments under a second material name the tool
+  didn't know (StadiumRaceSignsRubber, on 21 pieces). The tool now measures both (tubes only where
+  the part is tube-shaped, 3-12 m long and 0.8-2 m thick; longer runs are curbs' faces), with the
+  atlas rows a tube shows; ours builds the tubes in the border atlas round from underneath.
+- (M11-2) **The ramp off a platform: the curb's outer underside orange** (`road.gd _entry`). On
+  Platform/ToRoad/ToRoadMainAir (38 uses on our tracks) TMNF skins the curb's slanted outer
+  underside with the border atlas' orange band and blue line (rows 300-367) where its air roads
+  show the black band (ours had the black band there too). Side by side with TMNF's piece.
+- (M11-2) **The turbo pads' grating and the road turbo's turbines as TMNF's** (`texgen/turbo.py
+  turbo_pad`, `road.gd _turbo_sides`; Road/Main/Turbo 145 uses on our tracks each way). Up close
+  TMNF's pad is a grating of dense round bars (~0.2 m apart, ~72 degrees to the road) with a flat
+  plate strip at each panel's start, all slanting together, thin grey seams with bolts, the
+  arrows painted over bars and plates; ours had sparse soft stripes and wide white seams. Redrawn
+  so (our drawing, the layout TMNF's): from the car it reads as TMNF's zigzag of plates between
+  the arrows. Its turbines' catwalks now have railings (our cut-out railing cards, solid to the
+  car) where we had dark glass panels, and their fans nine dark blades over a dark inside (we had
+  four light ones).
+- (M11-2) **The sculptures' plinth pads and the snow trees' snow as TMNF's** (`TmMaterials`
+  plinth_pad, `inflatable.gd` SNOW_TREE). The sculptures' corner pads are TMNF's white fabric
+  (ours were mid grey; their curbs already wear TMNF's rows: the lighter look in its renders is
+  its specular). Sampling TMNF's snow tree across its faces by height: the snow lies on each
+  tier's slope above its green rim (the first tier's from 1.95 to 2.7 m), not on the rim as ours
+  had it; moved there (four tiers, the top cone all snow as before).
+- (M11-2) **The turbines' fans and exhaust caps as TMNF's** (`platform.gd _turbine`, `road.gd
+  bolt_rings`). The platform turbo deck's turbines get the road turbo's nine dark blades over a
+  dark inside, and both kinds of turbine TMNF's exhaust cap: a ring of eight bolts round a boss
+  (light rims on the dark cap; we had a plain cap).
+- (M11-2) **The road junctions' keel as TMNF's** (`road.gd _junction_keel`). Under a crossing or
+  T in the air ours was a flat light plate; TMNF's is the straight road's whole keel section (the
+  plates, the dark middle strip, the far plates rising again) revolved round each corner between
+  two open arms, straight along a closed side: concentric plates and dark rings round the corners,
+  a hollow-sided diamond in the middle (measured: TMNF's height there follows the section by the
+  distance from the nearest corner). Built per quarter of the block (its nearest corner is its
+  own), each ring clipped to the quarter, the step up to the shoulder, and a dark face where a
+  straight quarter meets a revolved one. (The survey listed road blocks by their base form, so
+  the junction forms our tracks use had not been in it.)
+- (M11-2) **The platform plates' inner corners and undersides as TMNF's** (`platform.gd
+  _deck_body`, `_underside`; the plates our tracks lay most: Cross 421, T 492, Corner 272 uses).
+  TMNF's T, cross and corner plates are notched at every corner whose two sides both continue:
+  the corner square under the deck is open and the plate's lip (rim bevel, underside, white skirt,
+  foot) turns round it, so where a platform lane bends (about 300 such corners on our tracks) the
+  skirt runs on round the inner corner; ours closed it with a dark wall. Now swept the same way
+  (one point, the section's normal turning through the mitre), the bottom plate left open under
+  the notch as TMNF's, and the slab's open sides, bottom plate and hub TMNF's dark truss panels
+  (Stands2, our stands_dark) where ours were flat. Missing area: cross 191 -> 10 m2, T 96 -> 12,
+  corner 56 -> 12; fidelity of the three 99.3-99.8% -> 100%. (Found with a census of the shapes
+  our tracks build, weighted by their use: the survey's base forms had missed these.)
+- (M11-2) **The platform checkpoint's floodlight banks as TMNF's** (`platform.gd CP_SPOTS`,
+  `_checkpoint_spots`; `texgen/booth.py spots_grid`; Platform/Checkpoint 118 uses). TMNF's has
+  nine banks a side we didn't build: two back to back on each truss column under the deck aimed
+  out, two stacked by the gate's foot and three along the strut aimed at the road. Placed from
+  the measurement (centre, facing, long axis), dark boxes with the lamps on one face: our own tile
+  of two blocks of two by two round lamps, lit (LENS_GLOW). TMNF's glow cards in front of them
+  (additive sprites) stay out: our lamps glow themselves, as on the camera lights.
+- (M11-2) **The gate arches' word every 3.08 m as TMNF's** (`road.gd GATE_WORD`, `texgen/gates.py`;
+  every road, platform and dirt gate). TMNF's arch faces carry START / CHECKPOINT / FINISH /
+  MULTILAP every 3.08 m along the arch (its RaceSigns band, measured from the UVs; 3.34 m on the
+  platform checkpoint's larger arch, which ours gets by its scale; the gate curbs every 4 m as
+  ours already); ours had one word per 8 m, so a few big words where TMNF shows a row of small
+  ones. The texture is now one word a tile, condensed as TMNF's lettering, the arch's length
+  fitted to whole words; the ring checkpoint's band every 2.19 m as TMNF's. The crown screen
+  stays (owner's option B).
+- (M11-2) **The inflatable billboard walls as TMNF's** (`inflatable.gd _banner_wall`,
+  `texgen/stadium.py inflatable_banner`; the walls our tracks put outside curves: CornerPillar 72,
+  TShapedPillar 36 uses). TMNF's ground pillar pieces are a row of red cushions (four on the
+  corner's arc, ours had five) rising from y 2 with a rounded belly, each with a white banner
+  printed on it, over a low plinth and rubber strip, a white foot and a dark post at each seam;
+  ours were thick red pillow walls from the ground with a white stripe. Now built so from the
+  measurement (the belly's profile, the banner's height on the surface, the plinth, feet and
+  posts), the banner our emblem and SPEEDFEST where TMNF prints its own logo, reading from the
+  bulge side (toward the track; TMNF's logo reads mirrored from there), a plain red skin behind.
+  Collision fidelity T 92.1 -> 94.8%, corner 94.2 -> 96.9%. (The stacked pieces above ground,
+  not on our tracks, keep the plain cushion walls; the corner has four pillows as TMNF's.)
+- (M11-2) **The camera pubs' ends and roof as TMNF's** (`control.gd` PUB tables, `PUB_END_STRIPS`,
+  `texgen/booth.py pub_end`; Control/CameraPub 51 uses). TMNF lays its steel panel texture over
+  each end, turned so it reads as dark bays between columns, braces above and below a slotted
+  girder band, a white strip up each corner; ours were a curtain wall of light-framed panes. Now
+  our own drawing of that layout (3 m bays, knee braces, an inverted V below the girder), mapped
+  per block as TMNF's (a tile 12 m across from x 4, 6 m down from the roof), with the corner
+  strips. The roof's edge strips are TMNF's grey concrete walkways (ours were white).
+- (M11-2) **The road pubs' boards outward only, as TMNF's** (`control.gd _pub`, `TmGeo.screen_box`
+  `out`). TMNF's road pub shows its adverts on the boards' outer faces; their inner faces (toward
+  the support block and the pipe) are its dark steel panels. Ours showed an ad on both faces.
+  `screen_box` takes the face to show the ad on (`out`), the other face back_mat.
+- (M11-2) **The platform decks' lip in TMNF's atlas rows** (`platform.gd LIP`, `SLOPE_PLATE`,
+  `LIP_ORANGE_ROWS`; every platform plate's and slope's closed side). Our lip's rows ran one
+  segment behind TMNF's (measured on every platform piece: 161.5, 191.9, 217.4, 244.0, 277.6, 300.2
+  down the rim), so its bevel showed the ribbed band where TMNF's shows the black band with its
+  light line over the blue one. Now TMNF's rows; the ramp-up piece (ToRoadMainAir) takes TMNF's
+  orange band on its bevel (rows 299.2 to 366.8), as TMNF's.
+- (M11-2) **An atlas-row audit and the gate arches' surfaces as TMNF's** (`road.gd _gate_shell`,
+  `GATE_TOP`, `GATE_UNDER`; `sculpt.gd A_CURB`; `platform.gd CP_NOTCH`; `road.gd _entry`). A scratch
+  check (block_dump's per-triangle UVs against TMNF's at the same spot) compares the border-atlas
+  row wherever both use the atlas, and lists what ours has where TMNF uses it. Found and fixed:
+  the ramp off a platform had its orange rows upside down (TMNF's run 300 at the top to 367 at the
+  bottom); the sculptures' plinth curbs' tops are the atlas' light panel (ours ribs); the platform
+  checkpoint's notch bevel rows; and every gate arch (road, platform, dirt): TMNF lays the atlas
+  across the arch's depth, its top dark with ribbed edges, its underside the light panel between
+  ribbed edges, where ours was a flat dark shell with glowing strips in the gate's colour (an
+  early addition, before the owner asked for TMNF's look; the gates are told apart by TMNF's word
+  bands, and the crown screen stays: option B). Left: the loops' road_metal backs and a 12 m2
+  strip (rare pieces), the circuit borders' rubber bands (flat keys where TMNF uses the atlas).
+- (M11-2) **The circuit walls' bumpers in TMNF's atlas and outline** (`circuit.gd WALL`,
+  `BUMPER_END_Y`; every circuit border, slope wall and curve, 1185 straights on our tracks). TMNF
+  lays its border atlas on the wall's foot bumper (the black band over the blue line, rows 298 at
+  the foot to 214 at the top) and on the ledge bumper behind (a light bevel, a ribbed flat top,
+  the black band down its rounded nose to the blue line); ours were flat dark rubber keys on a
+  coarser outline. Now TMNF's rows on both, the ledge bumper on TMNF's measured outline; the
+  collision fidelity rose with it (diagonals 97.7 -> 100%, inner corners 98.1 -> 99.0%, curves +0.3-0.6).
+- (M11-2) **The road keel's plates and the border atlas' rails as TMNF's** (`texgen/decks.py
+  road_keel`, `road.gd HALF_AIR` and `_junction_keel`; `texgen/borders.py`). Under every elevated
+  road TMNF's keel shows rows 0-288 of its details texture across each half: a dark bolted strip,
+  three long light plates (16 m, joints only at the tile's ends), a dark bolted strip; ours was a
+  staggered grey plate pattern. Our own drawing of that layout now, mapped by TMNF's rows (the
+  junctions' revolved keel too). And the border atlas' rows 141-215, on curb sides, platform
+  lips, the keel's middle strip, the arches and the circuit bumpers, were one uniform rib pattern
+  where TMNF's has structure (measured row by row): a grey rail, a black line, a ribbed strip,
+  light rails, a perforated grating, a wide rail, two bands of slotted teeth 16 px apart. Redrawn
+  so (ours), and the panel band (the curbs' tops) gets TMNF's dark frame and its shading into
+  the rail.
+- (M11-2) **The decks' plate in 16 m tiles as TMNF's** (`texgen/decks.py platform_plate`,
+  `TmMaterials` "platform"; every platform and circuit deck). TMNF tiles its deck plate every 16 m
+  (UVs 0-2 over a block, a dark seam at the texture's edge), so each block shows a seam across its
+  middle both ways; ours tiled 32 m (seams only at the block edges). The plate is redrawn as a
+  16 m tile (the same scratches and smears per m2).
+- (M11-2) **The circuit walls' back panel and ledge as TMNF's** (`circuit.gd WALL`, `LEDGE_SEAM`,
+  `LEDGE_ROWS`; `texgen/decks.py circuit_ledge`). Above the back's dark screen TMNF stretches a
+  slice of its steel texture into dark horizontal bands (ours an X truss): now the atlas' rails and
+  grating there. The 8 m ledge behind straight walls maps the top half of TMNF's circuit-border
+  texture across it (a dirty white line by the bumper, a bolted seam 1.87 m out, a darker strip at
+  the edge, bolted joints every 16 m); ours was a plain blue plate. Our drawing of that layout,
+  mapped by TMNF's rows (the curved walls' ledges keep the plain plate).
+- (M11-3) **The inflatable castles as TMNF's** (`blocks/shapes/castle.gd`, new; `texgen/stadium.py
+  inflatable_castle`, `inflatable_roof`; TmMaterials "castle", "castle_roof"). Ours were a red box
+  with four red tubes; TMNF's (13 uses in its campaign) are stone castles: keeps of four towers
+  (shaft, a crown flaring out with a printed band, a slate cone; they lean a little) on a ring of
+  green cushion pillows (pinched at the seams, a board in each pillow's middle), stone walls
+  bulging out in their middle and rounded over at the top, grey quilted roofs, red tie ropes; the
+  big castle adds a hall with battlements and a courtyard closed by two beams to a second keep,
+  the door castle a bridge with an arch over the road between two keeps. Rebuilt as a kit from
+  measured numbers (every tower's axis and heights, every wall's foot line and top, the roofs'
+  outlines, the cushions' seams, the battlements, the bridge's arch and tunnel) with our own
+  atlas in TMNF's layout (our name on the band, our emblem on the boards). Fidelity: Castle 22.1
+  -> 96.0%, CastleBig 14.5 -> 90.2%, InflatableCastleDoor 22.1 -> 85.0% (left: the cushions'
+  section on the big ones, the courtyard's curved edge, the keeps' roofs 0.2 m high).
+- (M11-3) **The Sculpt bridges in TMNF's white fabric, their pillars' parts** (`sculpt.gd MATERIAL`,
+  `_bridge_pillar`; TmMaterials "sculpt_fabric"). TMNF's bridge pieces (about 250 campaign uses)
+  are its near-white awning fabric (StadiumSculptAuvent2, mean 223); ours had the sculptures'
+  grey concrete panels. Now a plain white fabric colour, the struts TMNF's light grey (its truss
+  cards). The pillars' lofts had merged the bearing plate into the column's top and lost the
+  east truss and the arms: the column now stops at 48.19 m under its plate, a dark truss stands
+  in the east notch (open at the top as TMNF's), two white arms with dark flanges reach west.
+  Fidelity: the four pillars 80.7-81.7 -> 94.1%.
+- (M11-3) **The camera light's base dressed as TMNF's** (`control.gd _light_base_dress`). TMNF's
+  base (8 campaign uses) wears the straight rig's outer side round an octagon (its sides 16 m -
+  the straight's inset from the middle): eight floodlight bars with their lamps, the W-truss
+  panels and rail over them, the walkway's grating, lattice and railing, and under the top bar
+  four flat trusses along the axes and four along the diagonals; ours was the bare revolved
+  section. Fidelity 83.1 -> 83.8% (TMNF's bars tilt their lamps up; ours level).
+- (M11-3) **The terrain zones on a 1 m survey** (`tools/research/tmnf/zone_heights.py`,
+  `blocks/data/zone_heights.json`, `zone.gd _surface`). TMNF's dirt hills, dirt borders and pool
+  basins are hand-sculpted meshes; ours were bicubic surfaces through a 4 m survey (9 x 9), which
+  rounded off their creases (the full fidelity sweep ranked them the biggest gap by campaign
+  use: hills 67-92%, border dead ends 68%). Now the survey is 33 x 33 points 1 m apart and the
+  surface a quad between each four, shaded round from the heights: hills 94.8-99.9%, border
+  dead ends 90.6-99.2%, corners 91-98%. The decorated dead ends (door, spotlight), whose
+  measurement holds their glow cards only, had been surveyed flat and built as flat ground; they
+  now take the plain dead end's hill. Pools stay low in the sweep (18-74%) because TMNF's water
+  surface collides (our water has no physics yet: the owner's call, PLAN M11-5).
+- (M11-3) **The inflatable cushion structures (air) as TMNF's** (`inflatable.gd _pillows`,
+  `PILLOW_LINE`, `SUPPORT_SECTION`, `SUPPORT_TRIM`, `_roof`; `texgen/stadium.py inflatable_pillow`;
+  TmMaterials "inflatable_pillow", "infl_roof" (the castles' roof key renamed)). TMNF's most used
+  inflatables (its campaign builds thousands of their units): our levels were extruded bulges in
+  striped red vinyl under a red roof. TMNF's pillows follow a measured outline (six segments
+  each), the levels below upright in plain red, the top level's pillows rounded over their tops
+  back 7.3 m to a rubber strip, a grey edge and a white awning plate, the roof its grey quilted
+  vinyl in 8 m tiles, a white banner printed on each pillow's top. The top pillows are the mix of
+  TMNF's seam section and middle section by the outline's bulge (TMNF's own in-between columns
+  match that within 2 cm). Fidelity: TShapedAir 85.4 -> 97.6%, CornerAir 84.5 -> 97.5%,
+  CornerPillarAir 91.3 -> 99.8%, TShapedPillarAir 94.9 -> 100%, AdvertTShapedPillarAir 91.6 ->
+  96.6%, TubeTShapedPillarAir 94.6 -> 98.3%.
+- (M11-3) **The platform loops' back brackets** (`platform.gd LOOP_BRACKETS`). TMNF sets blocks on
+  a loop's back every 15 degrees (five across: four 1 m fins and a 7.2 m one in the middle,
+  tapering from radius 31 to 32 m); ours had none. Fidelity: EndAir 83.7 -> 92.0%, StartAir 91.4
+  -> 91.7%.
+- (M11-3) **The road pubs' boards, beams and walkways as TMNF's** (`control.gd _pub_junction_boards`,
+  `_pub_board`, `_pub_beams`, `_pub_walk`, `PUB_SIDE` etc.). TMNF lays a junction's boards across
+  each closed side and diagonally across each inner corner between two arms; the dead end has one
+  along each side of its arm (from the box out), one across its closed end and two beams across,
+  its plinth running back past the box. The straights have no end portals (ours had invented them)
+  but two beams across each side of the box (the ground's high ones further out), taller frames,
+  and the air straights and dead ends a grating walkway with railings under the boards. Ours laid
+  boards along every arm. Fidelity: StraightGround 91.8 -> 98.3%, DeadendGround 76.6 -> 98.5% (both
+  on our tracks), StraightAir 77.6 -> 86.8%, DeadendAir 82.3 -> 91.3%, the junctions +1-9 points
+  (TMNF's junction walkways run narrower strips along their railings: not built).
+- (M11-3) **The road start's pad and the road gates' rounded faces as TMNF's** (`road.gd _start_pad`,
+  `START_*`, `GATE_FACE_BULGE`; `TmGeo.grid`, moved from castle.gd). TMNF's start (our tracks: 55
+  of them) has the car standing on a pad: a thin plate 0.65 m over the road (the catalogue's spawn,
+  2.21 m, sits on it), flat 4 m wide with sloping sides, then a ramp down to the road at the line;
+  leaning boards printed with the start's word along its sides, a rail and a start light at each
+  end of them. Ours was flat road (the car was placed on it, 0.65 m lower than TMNF's). And the
+  arch's printed band on every road gate is a rubber bulge 0.54 m proud of each face (TMNF's
+  measured profile); ours was flat. Fidelity: Start/Ground 79.8 -> 90.7%, Checkpoint 89.9 ->
+  93.2%, MultiLap 90.2 -> 93.5%, Finish/Air 89.1 -> 92.4%.
+- (M11-3) **The glass booths' corner as TMNF's** (`control.gd _glass_corner`, `_half_section`,
+  `CORNER_PIVOT`, `CORNER_ARC`, `CORNER_INNER`). TMNF's corner is not a quarter circle: the outer
+  side swings 35 degrees about a pivot near the arm (the glass on a 12.6 m radius) onto a
+  45-degree chamfer; the inner side is a small chamfer of the square corner, opaque white (no
+  glass, no room behind). Ours swept the section on a quarter circle. Now the section's halves run
+  along the two paths (the camera booth's corner stays round, as TMNF's). Fidelity: CornerAir 89.2
+  -> 98.3%, CornerGround 88.2 -> 99.7%.
+- (M11-3) **The air glass booths' walkway, glass and underside as TMNF's** (`control.gd
+  _glass_walk`, `_walk`, `_walk_board`, `_ground_grate`, `WALK_*`, `GLASS_HALF`;
+  `TmGeo.UPRIGHT_ROWS`). TMNF's booths in the air (814 campaign uses) have a grating walkway at
+  1 m with a railing, a landing and stair down to the ground at each open end, ad boards under its
+  edge, gratings on the ground at the inner corners, the glass in window modules (posts and
+  transoms, as the ground booths'), a dark wall under the walkway and the underside white along
+  its edges. Ours had a solid ledge box, plain grey glass and a white wall. The window posts stand
+  radial round the pavilions (a sweep's atlas run can now keep one u per frame). Fidelity: all six
+  air pieces 98.6-100%.
+- (M11-3) **The dark steel texture in TMNF's Stands2 layout** (`texgen/decks.py steel_truss`;
+  keys stands_dark, truss). All of TMNF's Stands2 materials (booths, pubs, camera lights, platform
+  and circuit backs) draw one texture: dark ribbed panels between posts, a girder across the middle,
+  faint braces. Ours drew bold light X's on a 4 x 2 m grid, which read as a lattice on the booths'
+  roofs and ends. Redrawn (our own drawing in its layout, same tone).
+- (M11-3) **The tube light system as TMNF's** (`tube.gd _light_system`, `_light_bar`,
+  `_light_frame`, `LIGHT_*`). TMNF's RoadLightSystem hangs three lamp bars either side of the pipe
+  along each arm (12 m, 6 m facing another arm, 30 m along a straight), held by a frame of two
+  collars and plates, round a 4 m column at the junction; the lone base has no pipe, its bars up
+  the column. Ours was a box, a dark sleeve and cubes in rings. Fidelity: 83-93% -> 95.8-99.0%.
+- (M11-3) **The inflatable ground pillar walls' pillows as TMNF's** (`inflatable.gd PILLOW_DEPTH`,
+  `PILLOW_HEIGHTS`, `PILLOW_ACROSS`, `PILLAR_BASE`). TMNF's pillow has a steep groove at each seam
+  and is flat low down, a crown up top; ours was one sine shape at every height (too thin near the
+  seams). Now TMNF's surface sampled on a grid; the plinth's face upright to 1.5 m; the banner on
+  both sides of the wall (TMNF's shows through from behind). Fidelity: TShapedPillarGround (36 on
+  our tracks) 94.8 -> 97.6%. Fixed: the air inflatable walls' trim strips threw a script error
+  (an array read as a Vector2) and were never built.
+- (M11-3) **The dirt-to-road curbs as TMNF's** (`dirt.gd _to_road_curbs`, `TO_ROAD_DIP`,
+  `TO_ROAD_SINK`). TMNF moves the road's own curb section: its shoulder dips toward the asphalt
+  as the dirt starts, then the curb alone sinks and slides in toward the dirt's berm. Ours jumped
+  at z 17 to a narrower, squashed curb. Fidelity: RoadDirtToRoad (26 on our tracks) 92.5 -> 98.8%.
+- (M11-3) **The fabric pillar corners' line as TMNF's** (`fabric.gd _arc_in`, `PILLAR_ARC`). TMNF's
+  In pillar corners run their sections on parallel lines of one curve, flatter near the block
+  edges than a circle; ours used arcs about (5.5, 5.5), up to 1.2 m off. Now the measured outer
+  wall line moved out along its normals. Fidelity: PillarCornerInGround 86.7 -> 91.0%, Air 93.4 ->
+  95.3%.
 
 ## 2026-10-19 — Release `stadium-v0.6` (owner's Windows PC): `stadium` + the work after v0.5
 Owner: "merge everything done so far in the stadium branches to release 0.6".

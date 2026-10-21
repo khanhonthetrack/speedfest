@@ -29,8 +29,8 @@ const CROWN := 0.19             ## dead ends and the base sink this much toward 
 ## ("road_under"); curb_face (the curb's face towards the road, a gate block's own word there) and
 ## shoulder (the strip at road level; on the ground the border's green band) see _entry().
 const HALF_AIR := [
-	[16.0, 0.0, "border_ribs", S_METAL, Vector2(213.9, 152.1)], [14.339, 0.0, "road_under", S_METAL],
-	[9.758, 0.418, "road_under", S_METAL], [5.177, 0.836, "border_ribs", S_METAL, Vector2(215.0, 188.0)],
+	[16.0, 0.0, "border_ribs", S_METAL, Vector2(213.9, 152.1)], [14.339, 0.0, "road_keel", S_METAL, Vector2(288.0, 144.0)],
+	[9.758, 0.418, "road_keel", S_METAL, Vector2(144.0, 0.0)], [5.177, 0.836, "border_ribs", S_METAL, Vector2(215.0, 188.0)],
 	[5.177, 1.243, "road_grid", S_METAL], [3.212, 1.243, "border_ribs", S_METAL, Vector2(206.8, 152.1)],
 	[2.004, 1.243, "border_black", S_RUBBER, Vector2(299.8, 258.0)],
 	[1.712, 1.753, "border_black", S_RUBBER, Vector2(258.0, 216.1)],
@@ -38,6 +38,12 @@ const HALF_AIR := [
 const HALF_GROUND := [
 	[16.0, 1.0, "", TmGeo.NO_COLLISION], [1.0, 1.0, "border_panel", S_METAL, Vector2(150.0, 92.4)],
 	[1.282, 1.851, "border_panel", S_METAL, Vector2(92.4, 34.8)],
+]
+## A gate block's on the ground: the curb's outer face its sign (as TMNF's: _entry), split where the
+## air curb's top starts (HALF_TOP_AIR follows), the face's rows spread as the air curb's.
+const HALF_GROUND_GATE := [
+	[16.0, 1.0, "", TmGeo.NO_COLLISION], [1.0, 1.0, "border_black", S_METAL, Vector2(300.0, 243.5)],
+	[1.282, 1.851, "border_black", S_METAL, Vector2(243.5, 216.1)],
 ]
 ## The curb and the road surface, shared by both (air starts at the curb's outer rubber face).
 const HALF_TOP_AIR := [[1.419, 2.263, "border_panel", S_METAL, Vector2(0.0, 17.4)],
@@ -91,8 +97,14 @@ const TURBO_FRAME := [
 const LOOP_FRAMES := 64
 const LOOP_ROAD_FRAMES := 4
 const LOOP_BASE_R := 44.0
-const LOOP_UNDER := [[3.212, 1.243, "structure", S_METAL], [5.163, 1.243, "structure", S_METAL],
-	[14.292, 0.656, "structure", S_METAL], [14.339, 0.0, "structure", S_METAL]]
+const LOOP_UNDER := [[3.212, 1.243, "road_metal", S_METAL], [3.3, 1.243, "road_grid", S_METAL],
+	[5.163, 1.243, "road_metal", S_METAL], [5.163, 0.84, "road_metal", S_METAL], [5.54, 0.84, "road_metal", S_METAL],
+	[5.54, 1.219, "road_grid", S_METAL], [14.292, 0.656, "road_metal", S_METAL], [14.339, 0.0, "road_metal", S_METAL]]
+## TMNF's clamps across the loop's back, every 22.5 degrees round it: a bar either side of the spine
+## (LOOP_CLAMP: from d0 to d1 across, h up from the spine's foot, the tube's radius) with dark blocks
+## at its ends and middle (LOOP_CLAMP_BLOCK: half sizes across, radially, along the loop).
+const LOOP_CLAMP := [2.85, 13.18, 0.45, 0.28]
+const LOOP_CLAMP_BLOCK := Vector3(0.3, 0.55, 0.4)
 ## Jump ramps (Ramp/, Ramp/Low): a thin plate over a dead-end road, rising from the road at z 24 to
 ## its lip at z 1.985 through TMNF's frames (z, top y; Low lifts half as much); its half-width grows
 ## linearly from RAMP_HALF[0] at the lip to RAMP_HALF[1] at the road, metal along the outer
@@ -112,16 +124,67 @@ const RAMP_THIN := 20.5
 const RAMP_STRUT := [Vector3(10.38, 6.77, 3.87), Vector3(15.52, -0.3, 16.0)]
 const RAMP_STRUT_W := 1.1
 const RAMP_STRUT_T := 0.205
-## Turbo booster pods (measured): the outline (z, radius) about the axis at y TURBO_POD_Y (x 2
-## and 30), closed on the axis; the fins over them (z, y), TURBO_FIN_HALF either side of the axis.
+## Turbo booster pods (measured): the outline (z, radius, key of the segment from it) about the axis
+## at y TURBO_POD_Y (x 2 and 30), closed on the axis; as TMNF's jet turbines, a fan in the intake
+## (grey disc, dark blades), the cowl light, the body dark; the fins over them (z, y),
+## TURBO_FIN_HALF either side of the axis.
 const TURBO_POD_Y := 4.854
-const TURBO_POD := [[7.633, 0.0], [7.633, 1.53], [7.723, 1.78], [8.569, 1.946], [10.152, 1.97], [10.666, 1.72],
-	[14.21, 1.72], [14.299, 1.822], [14.403, 1.97], [17.446, 1.97], [17.656, 1.70], [17.656, 0.0]]
+const TURBO_POD := [[7.633, 0.0, "road_grid"], [7.633, 1.53, "road_under"], [7.723, 1.78, "road_under"],
+	[8.569, 1.946, "road_under"], [10.152, 1.97, "platform_tray"], [10.666, 1.72, "platform_tray"],
+	[14.21, 1.72, "platform_tray"], [14.299, 1.822, "platform_tray"], [14.403, 1.97, "road_metal"],
+	[17.446, 1.97, "platform_tray"], [17.656, 1.70, "road_metal"], [17.656, 0.0, "road_metal"]]
+## Its back cap: eight bolt rings (radii TURBO_BOLT) TURBO_BOLT_AT out round a boss (TURBO_BOSS;
+## read off TMNF's look, as the platform turbines')
+const TURBO_BOLT := [0.13, 0.29]
+const TURBO_BOLT_AT := 1.12
+const TURBO_BOSS := [0.32, 0.56]
 ## The tray over each pod: its line (z, y), TURBO_FIN_HALF either side of the pod's axis; the side
 ## panels reach this far below and above it.
 const TURBO_FIN_HALF := 0.802
 const TURBO_TRAY := [Vector2(8.441, 7.01), Vector2(17.446, 7.01), Vector2(23.611, 2.972), Vector2(25.898, 2.972)]
 const TURBO_PANEL := [0.17, 0.916]
+## The arch's feet (measured; _gate_feet; x, y the left foot's): the clamp's outline round the
+## curb (x, y, half its thickness there), the strap over the curb's top (z from the foot, y; across
+## GATE_STRAP_X), the strut's axis (from the clamp to the arch's end) and its section (across,
+## along z), the lattice's lower and upper edge, the light rigs' centres, their z extents from the
+## gate's centre.
+const GATE_CLAMP := [Vector3(2.25, 0.59, 0.22), Vector3(3.34, 1.08, 0.185), Vector3(2.65, 2.89, 0.195),
+	Vector3(1.53, 2.89, 0.53), Vector3(1.32, 2.24, 0.54)]
+const GATE_STRAP := [Vector2(-0.89, 2.48), Vector2(-0.6, 2.79), Vector2(-0.19, 2.87), Vector2(0.19, 2.87),
+	Vector2(0.6, 2.79), Vector2(0.89, 2.48)]
+const GATE_STRAP_X := Vector2(2.13, 2.4)
+const GATE_FOOT_Z := [-2.161, 2.131]
+const GATE_STRUT := [Vector2(2.685, 2.59), Vector2(4.49, 4.30)]
+const GATE_STRUT_HEX := [Vector2(0.21, 0.0), Vector2(0.14, 0.09), Vector2(0.0, 0.14), Vector2(-0.14, 0.09),
+	Vector2(-0.21, 0.0), Vector2(-0.14, -0.09), Vector2(0.0, -0.14), Vector2(0.14, -0.09)]
+const GATE_LATTICE := [Vector2(2.75, 2.66), Vector2(4.44, 4.25)]
+const GATE_LATTICE_Z := Vector2(-2.13, 2.17)
+const GATE_SPOTS := [Vector2(3.195, 3.16), Vector2(3.835, 3.755)]
+const GATE_SPOT_SIDE := 0.6
+const GATE_SPOT_Z := Vector2(-1.39, 1.45)
+## The arch's faces carry the gate's word every GATE_WORD metres along the arch (TMNF's RaceSigns
+## band, measured: 3.08 m a word; the gate block's curbs every 4 m); the arch's length is fitted to
+## a whole number of words.
+const GATE_WORD := 3.08
+## Each face is a rubber bulge across the band (TMNF's, measured at the crown): [share of the way
+## from the outer line to the inner, out of the face's plane GATE_FACE_Z from the gate's centre].
+const GATE_FACE_Z := 2.09
+const GATE_FACE_BULGE := [Vector2(0.0, 0.0), Vector2(0.07, 0.04), Vector2(0.29, 0.43), Vector2(0.5, 0.54), Vector2(0.71, 0.43),
+	Vector2(0.93, 0.04), Vector2(1.0, 0.0)]
+## A gate's line across the road (TMNF's: the border atlas' blue band, rows LINE_ROWS, LINE_HALF
+## either side of the gate's centre) and the start / finish roads' texture tile along z (m).
+const LINE_HALF := 0.181
+const LINE_ROWS := Vector2(367.1, 390.4)
+const RACE_TILE := 6.0
+## The arch's top and underside (TMNF's, measured at the crown): strips across its depth [z from the
+## gate's centre at the strip's start, at its end, the atlas rows there, key]: ribbed edges either
+## side, between them the top dark and the underside the light panel.
+const GATE_TOP := [[-2.1, -1.234, Vector2(207.0, 151.9), "border_ribs"], [-1.234, 1.234, Vector2(151.9, 151.9), "border_ribs"],
+	[1.234, 2.1, Vector2(151.9, 207.0), "border_ribs"]]
+const GATE_UNDER := [[-2.1, -1.234, Vector2(207.0, 150.7), "border_ribs"], [-1.234, 1.234, Vector2(150.7, 0.0), "border_panel"],
+	[1.234, 2.1, Vector2(151.9, 207.0), "border_ribs"]]
+const GATE_ARCH_ENDS := [8, 25]                 ## GATE_ARCH's segments at the feet (the arch's ends)
+const GATE_ARCH_CENTRE := Vector2(16.0, -9.0)   ## about the centre of the arch's circle
 ## Checkpoint / finish / multilap gate: the arch band (x, y), 4.2 m along z.
 const GATE_ARCH := [
 	[16.000, 8.806, "structure", 22], [14.407, 8.743, "structure", 22], [12.824, 8.552, "structure", 22],
@@ -250,9 +313,13 @@ const HOLE_PILLARS := {
 static var _diag_cache := {}
 
 var _road_mat := "asphalt"
+var _green_shoulders := false      ## the shoulders the border's green band in the air too (ramp)
 var _road_surf := S_ROAD
 var _gate_kind := "cp"            ## the gate's kind for this shape (TmGateDress.kind_of)
-var _curb_mat := "curb_face"      ## the curbs' face towards the road (a gate block's: its word)
+var _curb_mat := "curb_face"      ## the curbs' face towards the road (a gate block's: its sign)
+## The curb face's atlas rows, top to bottom (HALF_TOP; the outer face's in the air the same), where
+## a gate block's sign is spread.
+const CURB_ROWS := Vector2(216.1, 300.0)
 var _gates: Array[float] = []     ## where this shape's gates stand (z), dressed after building
 
 
@@ -301,9 +368,9 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	_road_surf = S_ROAD
 	_gate_kind = TmGateDress.kind_of(rest)
 	_curb_mat = "curb_face"
-	for g in ["Checkpoint/", "MultiLap/", "Finish/", "Start/"]:
+	for g in ["Checkpoint", "MultiLap/", "Finish/", "Start/"]:
 		if rest.begins_with(g):
-			_curb_mat = "curb_" + _sign_kind()
+			_curb_mat = "curb_" + _gate_kind
 	_gates.clear()
 	var form := _form(rest)
 	var base := _form(shape).trim_suffix("/")
@@ -358,14 +425,20 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		_curve(geo, k, ground)
 	elif rest.begins_with("Turbo/") or rest.begins_with("TurboRoulette/") or rest.begins_with("FreeWheeling/"):
 		# the roulette gate is the turbo gate with its own pad (measured: the same 1820 faces)
-		_road_mat = "turbo_roulette" if rest.begins_with("TurboRoulette/") else "turbo"
+		if rest.begins_with("TurboRoulette/"):
+			_road_mat = "turbo_roulette"
+		elif rest.begins_with("Turbo/"):
+			_road_mat = "turbo"
+			_curb_mat = "turbo_rim"
+		else:
+			_road_mat = "freewheel"
 		_road_surf = S_TURBO if rest.begins_with("Turbo/") else (S_ROULETTE if rest.begins_with("TurboRoulette/") else S_FREEWHEEL)
 		# Up/Down/Left/Right: the flat pad sheared like the checkpoint of that slope or tilt
 		# (measured: the pad's plane), the air section on the ground too
 		var dir := _form(rest.get_slice("/", 1))
 		_straight(geo, 0.0, 32.0, ground and dir.is_empty())
 		# the pad's texture as TMNF lays it: 16 m a tile along z, mirrored about the centre line
-		geo.remap_uv("turbo", func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, absf(p.x - 16.0) / 10.46))
+		geo.remap_uv(_road_mat, func(p: Vector3) -> Vector2: return Vector2(p.z / 16.0, absf(p.x - 16.0) / 10.46))
 		_turbo_gate(geo)
 		var t: Array = TILT_PLANES.get("Road/Main/Checkpoint" + dir, ["", 0.0, 0.0, 0.0])
 		geo.shear_y(float(t[1]), float(t[2]), float(t[3]))
@@ -373,27 +446,33 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	elif rest.begins_with("Checkpoint/") or rest.begins_with("MultiLap/"):
 		_straight(geo, 0.0, 32.0, ground)
 		_gate(geo, 16.0)
+		if rest.begins_with("MultiLap/"):
+			_race_road(geo, "race_start", 8.0, 24.0)
 	elif rest.begins_with("Finish/"):
-		# the road comes in from -z and ends past the line in a nose
+		# the road comes in from -z and ends past the line in a nose; all of it the finish road
 		_straight(geo, 0.0, 17.0, ground)
 		_nose(geo, 17.0, 1.0, ground, TOP - 0.04)
 		_gate(geo, 12.0)
+		_race_road(geo, "race_finish", -1.0, 18.0)
 	elif rest.begins_with("Start/"):
-		# the road leaves to +z from a nose behind the spawn (z 11.2); the line near the far end
+		# the road leaves to +z from a nose behind the spawn (z 11.2); the line near the far end,
+		# the start road up to it
 		_straight(geo, 8.0, 32.0, ground)
 		_nose(geo, 8.0, -1.0, ground, TOP - 0.04)
 		_gate(geo, 28.0)
+		_start_pad(geo)
+		_race_road(geo, "race_start", 7.0, 28.0 - LINE_HALF)
 	else:
 		return null
 	var node := geo.build()
 	for zc: float in _gates:
-		TmGateDress.dress(node, _gate_kind, zc, TOP, geo.sheared)
+		TmGateDress.dress(node, _gate_kind, zc, geo.sheared)
 	return node
 
 
 ## The closed cross-section as wall_sweep points: (d = x - 16, y).
 func _section(ground: bool) -> Array:
-	var left: Array = (HALF_GROUND if ground else HALF_AIR + HALF_TOP_AIR) + HALF_TOP
+	var left := _outer_half(ground) + HALF_TOP
 	var out := []
 	for q in left:
 		out.append(_entry(q, Vector2(float(q[0]) - 16.0, float(q[1])), ground))
@@ -412,20 +491,27 @@ func _section(ground: bool) -> Array:
 
 
 ## A table point (HALF_*) as a section entry at p ([p, key, surface] and its atlas rows, reversed
-## for the mirrored half's twin): the curb's face is the border's black band (a gate block's own
-## word instead), the shoulder the grid (on the ground the border's green band).
+## for the mirrored half's twin): the curb's face is the border's black band, the shoulder the grid
+## (on the ground the border's green band; on a ramp off a platform both, and the curb's outer
+## underside the orange band). A gate block's curbs carry its sign on both faces, as
+## TMNF's (its word every 4 m, the face's rows spread over the sign: texgen/gates.py, turbo.py; on
+## the outer face mirrored, as TMNF's read from outside: the "_out" materials).
 func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
 	var key := String(q[2])
 	var rows := q[4] as Vector2 if q.size() > 4 else Vector2(-1, -1)
-	if key == "curb_face":
-		if _curb_mat == "curb_face":
-			key = "border_black"
-		else:
-			key = _curb_mat
-			rows = Vector2(-1, -1)
-	elif key == "shoulder" and ground:
+	if key == "curb_face" and _curb_mat == "curb_face":
+		key = "border_black"
+	elif key == "curb_face" or (key == "border_black" and _curb_mat != "curb_face"):
+		key = _curb_mat if key == "curb_face" else _curb_mat + "_out"
+		rows = (rows - Vector2(CURB_ROWS.x, CURB_ROWS.x)) * (512.0 / (CURB_ROWS.y - CURB_ROWS.x))
+	elif key == "shoulder" and (ground or _green_shoulders):
 		key = "border_green"
 		rows = Vector2(392.7, 511.0)
+	elif key == "border_black" and _green_shoulders and not ground:
+		# the ramp off a platform: the curb's outer underside the orange band, its blue line at the
+		# bottom (TMNF's rows run 300 at the top to 367 at the bottom)
+		key = "border_orange"
+		rows = Vector2(300.0, 300.0) + (rows - Vector2(216.1, 216.1)) * (67.0 / (299.8 - 216.1))
 	elif key == "shoulder":
 		key = "road_grid"
 	if rows.x < 0.0:
@@ -433,9 +519,16 @@ func _entry(q: Array, p: Vector2, ground: bool, mirror := false) -> Array:
 	return [p, key, int(q[3]), Vector2(rows.y, rows.x) if mirror else rows]
 
 
+## The left half's points up to the curb's top (HALF_TOP's start): air, ground, a gate block's ground.
+func _outer_half(ground: bool) -> Array:
+	if not ground:
+		return HALF_AIR + HALF_TOP_AIR
+	return HALF_GROUND if _curb_mat == "curb_face" else HALF_GROUND_GATE + HALF_TOP_AIR
+
+
 ## The left curb alone (the section up to the asphalt's edge), closed underneath; d = x.
 func _curb_section(ground: bool) -> Array:
-	var left: Array = (HALF_GROUND.slice(1) if ground else HALF_AIR.slice(5) + HALF_TOP_AIR) + HALF_TOP
+	var left: Array = (_outer_half(ground).slice(1) if ground else HALF_AIR.slice(5) + HALF_TOP_AIR) + HALF_TOP
 	var out := []
 	for q in left:
 		out.append(_entry(q, Vector2(float(q[0]), float(q[1])), ground))
@@ -470,9 +563,37 @@ func _loop(geo: TmGeo, left: bool) -> void:
 	_sweep_frames(geo, road, frames.slice(0, n + 1))
 	_sweep_frames(geo, sec, frames.slice(n, LOOP_FRAMES - n + 1))
 	_sweep_frames(geo, road, frames.slice(LOOP_FRAMES - n))
+	var cl: Array = LOOP_CLAMP
+	var bk: Vector3 = LOOP_CLAMP_BLOCK
+	for k in range(1, 8):
+		var f: Transform3D = frames[k * LOOP_FRAMES / 8]
+		var lat := f.basis.x
+		var up := f.basis.y
+		var along := lat.cross(up)
+		for s: float in [-1.0, 1.0]:
+			var a := f.origin + lat * s * float(cl[0]) + up * float(cl[2])
+			var b := f.origin + lat * s * float(cl[1]) + up * float(cl[2])
+			geo.pipe(a, b, cl[3], 8, "mast", S_METAL)
+			for t: float in [0.0, 0.5, 1.0]:
+				_obox(geo, a.lerp(b, t), lat * bk.x, up * bk.y, along * bk.z, "stands_dark", S_METAL)
 
 
-## The loop's section (d, y) like _section(): the road's curbs, the grid between them, LOOP_UNDER.
+## A box centred at c with half axes u, v, w (any orientation), faces outward.
+static func _obox(geo: TmGeo, c: Vector3, u: Vector3, v: Vector3, w: Vector3, key: String, surface: int) -> void:
+	for axes: Array in [[u, v, w], [v, w, u], [w, u, v]]:
+		for s: float in [-1.0, 1.0]:
+			var n: Vector3 = axes[0] * s
+			var a: Vector3 = axes[1]
+			var b: Vector3 = axes[2]
+			var q := [c + n - a - b, c + n + a - b, c + n + a + b, c + n - a + b]
+			if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).dot(n) > 0.0:
+				geo.quad(q[0], q[1], q[2], q[3], key, surface)
+			else:
+				geo.quad(q[0], q[3], q[2], q[1], key, surface)
+
+
+## The loop's section (d, y) like _section(): the road's curbs, the grid between them, LOOP_UNDER
+## (TMNF's back: grates, the dark spine down its middle and a rail under each edge).
 func _loop_section() -> Array:
 	var half := []
 	for q in HALF_AIR.slice(6) + HALF_TOP_AIR + HALF_TOP:
@@ -491,7 +612,8 @@ func _loop_section() -> Array:
 		out.append([Vector2(16.0 - float(q[0]), float(q[1])), String(q[2]), int(q[3])])
 	for i in range(LOOP_UNDER.size() - 1, -1, -1):
 		var q: Array = LOOP_UNDER[i]
-		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(q[2]), int(q[3])])
+		var m: Array = LOOP_UNDER[maxi(i - 1, 0)]       # mirrored: the segment back to point i - 1
+		out.append([Vector2(float(q[0]) - 16.0, float(q[1])), String(m[2]), int(m[3])])
 	return out
 
 
@@ -858,6 +980,7 @@ func _ground_pillar(geo: TmGeo, z: float, keel: Callable) -> void:
 ## surface's material (the platform's own where the ramp is part of a platform block).
 func ramp(geo: TmGeo, heights: Array, floor_y: float, mat := "asphalt") -> void:
 	_road_mat = mat
+	_green_shoulders = true      # TMNF's ramp off a platform has the ground road's green shoulders
 	var path := []
 	var lat := []
 	for i in heights.size():
@@ -866,6 +989,7 @@ func ramp(geo: TmGeo, heights: Array, floor_y: float, mat := "asphalt") -> void:
 	var y_at := func(y: float, i: int) -> float: return maxf(y, floor_y - (path[i] as Vector3).y)
 	_sweep(geo, path, lat, false, y_at)
 	_road_mat = "asphalt"
+	_green_shoulders = false
 
 
 ## Road/Main onto a platform floor at road level (Platform/ToRoad, where the platform loops begin):
@@ -928,49 +1052,253 @@ func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN -
 
 ## Checkpoint / finish / multilap / start gate centred at z: TMNF's arch (its measured section)
 ## swept 4.2 m along the road, its front and back faces a moulded rubber band with the gate's word
-## running along the arch ("gate_<kind>", UVs along the arch), its underside lit in the gate's
-## colour, light rigs on its shoulders aimed at the road. TMNF's two sign boards on top are left
+## running along the arch ("gate_<kind>", UVs along the arch), its top and underside TMNF's border
+## atlas strips (_gate_shell), light rigs on its shoulders aimed at the road. TMNF's two sign boards on top are left
 ## out (the review's gate option B: they read as horns); TmGateDress adds an LED screen in the
-## crown instead (TmGateScreen), and paints the road (start/finish pads, the checkpoint line).
-func _gate(geo: TmGeo, zc: float) -> void:
+## crown instead (TmGateScreen). The road takes TMNF's line across it (_gate_line). The arch's
+## ends stand on the curbs as TMNF's do (_gate_feet); the dirt roads' gates are this one resized
+## (dirt.gd CHECKPOINTS), strap_dy moving the clamps' straps down onto their bumpers.
+func _gate(geo: TmGeo, zc: float, strap_dy := 0.0) -> void:
 	_gates.append(zc)
-	var sec := GATE_ARCH.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), "gate_shell", q[3]])
+	_gate_line(geo, zc)
+	# the arch's band swept for its collision and its ends at the feet; its top and underside
+	# TMNF's atlas strips (_gate_shell), its faces the word band (_gate_faces)
+	var sec := []
+	for k in GATE_ARCH.size():
+		var q: Array = GATE_ARCH[k]
+		sec.append([Vector2(q[0], q[1]), "gate_shell" if GATE_ARCH_ENDS.has(k) else "", q[3]])
 	geo.wall_sweep(sec, [Vector3(0, 0, zc - 2.1), Vector3(0, 0, zc + 2.1)], [Vector3(1, 0, 0), Vector3(1, 0, 0)],
 		false, "gate_shell", S_METAL)
+	_gate_shell(geo, zc)
 	_gate_faces(geo, zc)
-	_gate_strips(geo, zc)
-	for x0 in [2.9, 27.7]:
-		geo.box(Vector3(x0, 2.5, zc - 1.4), Vector3(x0 + 1.4, 4.4, zc + 1.4), "gate_shell", S_METAL, "", -2, 0.06)
+	_gate_feet(geo, zc, strap_dy)
 	_gate_lights(geo, zc)
 
 
-## The word a gate block shows: a start/finish line (MultiLap) ends our races, so it says FINISH.
-func _sign_kind() -> String:
-	return "finish" if _gate_kind == "lap" else _gate_kind
+## TMNF's line across the road at a gate: the road top cut LINE_HALF either side of zc and laid
+## with the border atlas' blue band (u across the road, 16 m a tile).
+func _gate_line(geo: TmGeo, zc: float) -> void:
+	geo.split_mat(_road_mat, Vector3(0, 0, 1), [zc - LINE_HALF, zc + LINE_HALF], [_road_mat, "gate_line", _road_mat])
+	geo.remap_uv("gate_line", func(p: Vector3) -> Vector2:
+		return Vector2(p.x / 16.0, lerpf(LINE_ROWS.x, LINE_ROWS.y, (p.z - zc + LINE_HALF) / (2.0 * LINE_HALF)) / 512.0))
 
 
-## Lit strips along the arch's underside at its front and back edges, in the gate's colour.
-func _gate_strips(geo: TmGeo, zc: float) -> void:
-	var inner: Array = _arch_lines()[1]
-	var key := "gate_glow_" + _gate_kind
-	for zz: Array in [[zc - 2.1, zc - 1.92], [zc + 1.92, zc + 2.1]]:
-		for i in inner.size() - 1:
-			var p: Vector2 = inner[i]
-			var q: Vector2 = inner[i + 1]
-			var d := (q - p).normalized()
-			var n := Vector2(-d.y, d.x)
-			if n.dot(Vector2(16.0, 0.0) - p) < 0.0:
-				n = -n
-			var o := n * 0.006
-			var a := Vector3(p.x + o.x, p.y + o.y, float(zz[0]))
-			var b := Vector3(q.x + o.x, q.y + o.y, float(zz[0]))
-			var c := Vector3(q.x + o.x, q.y + o.y, float(zz[1]))
-			var e := Vector3(p.x + o.x, p.y + o.y, float(zz[1]))
-			var nrm := Vector3(n.x, n.y, 0.0)
-			if (b - a).cross(c - a).dot(nrm) < 0.0:
-				geo.quad(a, e, c, b, key, TmGeo.NO_COLLISION)
+## TMNF's start / finish road (RoadRace: texgen/gates.py race_road) on the road top between z0 and
+## z1 (the rest stays asphalt; a finish block's road is laid with it whole): u along the road,
+## RACE_TILE m a tile, v from the edge (0) to the centre line (1), mirrored.
+func _race_road(geo: TmGeo, key: String, z0: float, z1: float) -> void:
+	geo.split_mat("asphalt", Vector3(0, 0, 1), [z0, z1], ["asphalt", key, "asphalt"])
+	geo.remap_uv(key, func(p: Vector3) -> Vector2:
+		return Vector2(p.z / RACE_TILE, 1.0 - absf(p.x - 16.0) / (16.0 - ROAD_EDGE)))
+
+
+## The start's pad (TMNF's, measured): the car's spawn stands on a thin plate START_PAD_Y up between
+## z START_PAD_Z, then a ramp down to the road at the line (START_RAMP_END), flat between
+## START_PAD_TOP (x) and sloping down to the road at START_PAD_FOOT, 5 cm thick, on two see-through
+## legs under its top's edges; along each side
+## a board leaning out (START_BOARD: foot, top (x, y); printed with the start's word inside) with a
+## rail along its top (START_RAIL: x, y, radius), and a start light at each end of the rail
+## (START_LIGHTS: x, y0, y1, half width, the z of their faces). All given for the left side.
+const START_PAD_Y := 2.0
+const START_PAD_Z := Vector2(8.0, 16.0)
+const START_RAMP_END := 27.82
+const START_PAD_TOP := 14.0
+const START_PAD_FOOT := 12.0
+const START_BOARD := [Vector2(13.87, 2.1), Vector2(13.46, 2.89)]
+const START_RAIL := Vector3(13.31, 2.955, 0.06)
+const START_LIGHTS := [13.02, 3.06, 3.84, 0.28, [11.57, 15.56]]
+
+
+func _start_pad(geo: TmGeo) -> void:
+	var z0 := START_PAD_Z.x
+	var z1 := START_PAD_Z.y
+	var y := START_PAD_Y
+	var t := 0.05
+	# the top: flat in the middle (the start road), its slopes dark; underneath and the ends dark
+	var xs := [START_PAD_FOOT, START_PAD_TOP, 32.0 - START_PAD_TOP, 32.0 - START_PAD_FOOT]
+	var zs := [z0, z1, START_RAMP_END]
+	var hs := [y, y, TOP]
+	for j in 2:
+		for i in 3:
+			# the side slopes keep their angle: on the ramp their foot comes in with the height
+			var pt := func(k: int, jj: int, dy: float) -> Vector3:
+				var h := float(hs[jj])
+				var x := float(xs[k])
+				if k == 0 or k == 3:
+					var inset := (START_PAD_TOP - START_PAD_FOOT) * (1.0 - (h - TOP) / (y - TOP))
+					x += inset if k == 0 else -inset
+				return Vector3(x, (TOP if k == 0 or k == 3 else h) - dy, zs[jj])
+			var key := "race_start" if i == 1 else "stands_dark"
+			geo.quad(pt.call(i, j, 0.0), pt.call(i, j + 1, 0.0), pt.call(i + 1, j + 1, 0.0), pt.call(i + 1, j, 0.0), key, _road_surf)
+			geo.quad(pt.call(i, j, t), pt.call(i + 1, j, t), pt.call(i + 1, j + 1, t), pt.call(i, j + 1, t), "stands_dark",
+				TmGeo.NO_COLLISION)
+	# the back end's thin edge
+	for i in 3:
+		var a := Vector3(xs[i], TOP if i == 0 else y, z0)
+		var b := Vector3(xs[i + 1], TOP if i == 2 else y, z0)
+		geo.quad(a, b, b - Vector3(0, t, 0), a - Vector3(0, t, 0), "road_metal", S_METAL)
+	for side in 2:
+		var mx := func(x: float) -> float: return 32.0 - x if side == 1 else x
+		# the legs under the top's edges: see-through cards from the road up
+		var lx: float = mx.call(START_PAD_TOP)
+		geo.quad_uv(Vector3(lx, TOP, z0 + 1.0), Vector3(lx, TOP, z1), Vector3(lx, y - t, z1), Vector3(lx, y - t, z0 + 1.0),
+			"girder_dark", TmGeo.NO_COLLISION, Vector2(0, 1), Vector2((z1 - z0 - 1.0) / 8.0, 1), Vector2((z1 - z0 - 1.0) / 8.0, 0.9),
+			Vector2(0, 0.9))
+		# the board, printed inside (u along it, v down its face), dark outside; its rail
+		var f: Vector2 = START_BOARD[0]
+		var g: Vector2 = START_BOARD[1]
+		var p := [Vector3(mx.call(f.x), f.y, z0), Vector3(mx.call(f.x), f.y, z1), Vector3(mx.call(g.x), g.y, z1), Vector3(mx.call(g.x), g.y, z0)]
+		var inward := Vector3(1.0 if side == 0 else -1.0, 0.6, 0.0)
+		# the word reads left to right from the pad (TmGeo's view is TMNF's mirrored: along +z on the left)
+		var u0 := 0.0 if side == 0 else z1 - z0
+		var u1 := z1 - z0 - u0
+		var uv := [Vector2(u0, 1.25), Vector2(u1, 1.25), Vector2(u1, 0.0), Vector2(u0, 0.0)]
+		if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(inward) < 0.0:
+			geo.quad_uv(p[0], p[3], p[2], p[1], "gate_start", S_METAL, uv[0], uv[3], uv[2], uv[1])
+			geo.quad(p[0], p[1], p[2], p[3], "stands_dark", TmGeo.NO_COLLISION)
+		else:
+			geo.quad_uv(p[0], p[1], p[2], p[3], "gate_start", S_METAL, uv[0], uv[1], uv[2], uv[3])
+			geo.quad(p[0], p[3], p[2], p[1], "stands_dark", TmGeo.NO_COLLISION)
+		geo.pipe(Vector3(mx.call(START_RAIL.x), START_RAIL.y, z0), Vector3(mx.call(START_RAIL.x), START_RAIL.y, z1), START_RAIL.z, 6,
+			"structure", TmGeo.NO_COLLISION)
+		# a start light on each end of the rail, facing along the road
+		var l: Array = START_LIGHTS
+		var cx: float = mx.call(float(l[0]))
+		var hw := float(l[3])
+		for zf: float in l[4]:
+			var dz := -1.0 if zf < 12.0 else 1.0
+			var zb := zf - dz * 0.3
+			geo.box(Vector3(cx - hw, l[1], minf(zf, zb)), Vector3(cx + hw, l[2], maxf(zf, zb)), "stands_dark", TmGeo.NO_COLLISION)
+			var q := [Vector3(cx - hw + 0.06, float(l[1]) + 0.06, zf + dz * 0.01), Vector3(cx + hw - 0.06, float(l[1]) + 0.06, zf + dz * 0.01),
+				Vector3(cx + hw - 0.06, float(l[2]) - 0.06, zf + dz * 0.01), Vector3(cx - hw + 0.06, float(l[2]) - 0.06, zf + dz * 0.01)]
+			if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).z * dz < 0.0:
+				geo.quad(q[0], q[3], q[2], q[1], "gate_lamp_start", TmGeo.NO_COLLISION)
 			else:
-				geo.quad(a, b, c, e, key, TmGeo.NO_COLLISION)
+				geo.quad(q[0], q[1], q[2], q[3], "gate_lamp_start", TmGeo.NO_COLLISION)
+
+
+## The arch's feet (TMNF's, measured), each end alike (the right one mirrored): at GATE_FOOT_Z from
+## the gate's centre a dark clamp round the curb (GATE_CLAMP, its outer flange the thickest) with
+## a strap over the curb's top (GATE_STRAP, strap_dy higher: a dirt gate's on its bumper), from it
+## an eight-sided strut up to the arch's end (GATE_STRUT, GATE_STRUT_HEX), between the struts a dark
+## see-through lattice (GATE_LATTICE: its lower and upper edge, along GATE_LATTICE_Z) and on it two
+## light rigs aimed down at the road (GATE_SPOTS: their centres, GATE_SPOT_SIDE square, along
+## GATE_SPOT_Z). (TMNF's checkpoints also have a clamp at z 5.8 holding a brace up to the sign
+## boards over the arch; with the boards (left out: the owner's option B) they are left out.)
+func _gate_feet(geo: TmGeo, zc: float, strap_dy := 0.0) -> void:
+	var axis: Vector2 = (GATE_STRUT[1] - GATE_STRUT[0]).normalized()
+	for right in [false, true]:
+		var mx := func(q: Vector2) -> Vector2: return Vector2(32.0 - q.x, q.y) if right else q
+		for zf: float in GATE_FOOT_Z:
+			var z := zc + zf
+			var front := []
+			var back := []
+			for q: Vector3 in GATE_CLAMP:
+				var p: Vector2 = mx.call(Vector2(q.x, q.y))
+				front.append(Vector3(p.x, p.y, z - q.z))
+				back.append(Vector3(p.x, p.y, z + q.z))
+			_extrude(geo, front, back, "road_metal", S_METAL)
+			var x0: Vector2 = mx.call(Vector2(GATE_STRAP_X.x, 0.0))
+			var x1: Vector2 = mx.call(Vector2(GATE_STRAP_X.y, 0.0))
+			_extrude(geo, GATE_STRAP.map(func(q: Vector2) -> Vector3: return Vector3(x0.x, q.y + strap_dy, z + q.x)),
+				GATE_STRAP.map(func(q: Vector2) -> Vector3: return Vector3(x1.x, q.y + strap_dy, z + q.x)), "road_metal", S_METAL)
+			var rings := []
+			for end: Vector2 in GATE_STRUT:
+				rings.append(GATE_STRUT_HEX.map(func(h: Vector2) -> Vector3:
+					var p: Vector2 = mx.call(end + Vector2(-axis.y, axis.x) * h.x)
+					return Vector3(p.x, p.y, z + h.y)))
+			_extrude(geo, rings[0], rings[1], "road_metal", S_METAL, false)
+		var a: Vector2 = mx.call(GATE_LATTICE[0])
+		var b: Vector2 = mx.call(GATE_LATTICE[1])
+		var z0 := zc + GATE_LATTICE_Z.x
+		var z1 := zc + GATE_LATTICE_Z.y
+		# (one face: the translucent material shows both sides)
+		geo.quad(Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1),
+			"glass_dark", TmGeo.NO_COLLISION)
+		# the light rigs: square housings turned with the lattice, their lamps facing the road
+		var dir := (GATE_LATTICE[1] - GATE_LATTICE[0]).normalized()
+		var nrm := Vector2(dir.y, -dir.x)          # toward the road and down (left foot)
+		var h := GATE_SPOT_SIDE * 0.5
+		for c: Vector2 in GATE_SPOTS:
+			var sq := [c - dir * h - nrm * h, c + dir * h - nrm * h, c + dir * h + nrm * h, c - dir * h + nrm * h]
+			_prism(geo, sq.map(mx), zc + GATE_SPOT_Z.x, zc + GATE_SPOT_Z.y, "gate_shell", TmGeo.NO_COLLISION)
+			var f0: Vector2 = mx.call(c + nrm * (h + 0.01) - dir * (h - 0.06))
+			var f1: Vector2 = mx.call(c + nrm * (h + 0.01) + dir * (h - 0.06))
+			var face := [Vector3(f0.x, f0.y, zc + GATE_SPOT_Z.x + 0.08), Vector3(f1.x, f1.y, zc + GATE_SPOT_Z.x + 0.08),
+				Vector3(f1.x, f1.y, zc + GATE_SPOT_Z.y - 0.08), Vector3(f0.x, f0.y, zc + GATE_SPOT_Z.y - 0.08)]
+			var uvs := [Vector2(0, 1), Vector2(0, 0), Vector2(2, 0), Vector2(2, 1)]
+			var out3 := Vector3(-nrm.x if right else nrm.x, nrm.y, 0.0)
+			if (face[1] - face[0]).cross(face[2] - face[0]).dot(out3) < 0.0:
+				geo.quad_uv(face[0], face[3], face[2], face[1], "gate_lamps", TmGeo.NO_COLLISION, uvs[0], uvs[3], uvs[2], uvs[1])
+			else:
+				geo.quad_uv(face[0], face[1], face[2], face[3], "gate_lamps", TmGeo.NO_COLLISION, uvs[0], uvs[1], uvs[2], uvs[3])
+
+
+## A convex (or star-shaped) outline (x, y) extruded along z from z0 to z1, its faces outward.
+func _prism(geo: TmGeo, poly: Array, z0: float, z1: float, key: String, surface: int) -> void:
+	_extrude(geo, poly.map(func(q: Vector2) -> Vector3: return Vector3(q.x, q.y, z0)),
+		poly.map(func(q: Vector2) -> Vector3: return Vector3(q.x, q.y, z1)), key, surface)
+
+
+## A solid between two matching convex rings of points (a0[k] faces b0[k]), its faces outward:
+## the sides, and (caps) each ring closed by a fan from its centre.
+func _extrude(geo: TmGeo, ring0: Array, ring1: Array, key: String, surface: int, caps := true) -> void:
+	var c0 := Vector3.ZERO
+	var c1 := Vector3.ZERO
+	for k in ring0.size():
+		c0 += ring0[k] / ring0.size()
+		c1 += ring1[k] / ring1.size()
+	var cc := (c0 + c1) * 0.5
+	for k in ring0.size():
+		var k1 := (k + 1) % ring0.size()
+		var f := [ring0[k], ring0[k1], ring1[k1], ring1[k]]
+		var mid: Vector3 = (f[0] + f[1] + f[2] + f[3]) * 0.25
+		if (f[1] - f[0]).cross(f[2] - f[0]).dot(mid - cc) < 0.0:
+			geo.quad(f[0], f[3], f[2], f[1], key, surface)
+		else:
+			geo.quad(f[0], f[1], f[2], f[3], key, surface)
+	if not caps:
+		return
+	for r in 2:
+		var ring: Array = ring0 if r == 0 else ring1
+		var c := c0 if r == 0 else c1
+		var out := (c0 - c1) if r == 0 else (c1 - c0)
+		for k in ring.size():
+			var a: Vector3 = ring[k]
+			var b: Vector3 = ring[(k + 1) % ring.size()]
+			if (a - c).cross(b - c).dot(out) < 0.0:
+				geo.tri(c, b, a, key, surface)
+			else:
+				geo.tri(c, a, b, key, surface)
+
+
+## The arch's top and underside as TMNF's: its border atlas in strips across the arch's depth
+## (GATE_TOP, GATE_UNDER), u along the arch (16 m a tile), each facing away from (top) or toward
+## (underside) about the arch's centre.
+func _gate_shell(geo: TmGeo, zc: float) -> void:
+	var lines := _arch_lines()
+	for w in 2:
+		var line: Array = lines[w]
+		var strips: Array = GATE_TOP if w == 0 else GATE_UNDER
+		var s := 0.0
+		for i in line.size() - 1:
+			var a: Vector2 = line[i]
+			var b: Vector2 = line[i + 1]
+			var ds := a.distance_to(b)
+			var o2 := ((a + b) * 0.5 - GATE_ARCH_CENTRE) * (1.0 if w == 0 else -1.0)
+			var out := Vector3(o2.x, o2.y, 0.0)
+			for st: Array in strips:
+				var z0 := zc + float(st[0])
+				var z1 := zc + float(st[1])
+				var r: Vector2 = st[2]
+				var p := [Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1)]
+				var uv := [Vector2(s / 16.0, r.x / 512.0), Vector2((s + ds) / 16.0, r.x / 512.0),
+					Vector2((s + ds) / 16.0, r.y / 512.0), Vector2(s / 16.0, r.y / 512.0)]
+				if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+					geo.quad_uv(p[0], p[3], p[2], p[1], String(st[3]), TmGeo.NO_COLLISION, uv[0], uv[3], uv[2], uv[1])
+				else:
+					geo.quad_uv(p[0], p[1], p[2], p[3], String(st[3]), TmGeo.NO_COLLISION, uv[0], uv[1], uv[2], uv[3])
+			s += ds
 
 
 ## The arch's outer and inner lines (x, y), from the left foot to the right one (GATE_ARCH: the
@@ -1017,36 +1345,30 @@ func _gate_faces(geo: TmGeo, zc: float) -> void:
 	var length := 0.0
 	for i in range(1, n):
 		length += (((outer[i] as Vector2) + (inner[i] as Vector2)) * 0.5 - ((outer[i - 1] as Vector2) + (inner[i - 1] as Vector2)) * 0.5).length()
-	var fit := maxf(1.0, roundf(length / TmGeo.UV_TILE)) * TmGeo.UV_TILE / length
-	var key := "gate_" + _sign_kind()
+	var fit := maxf(1.0, roundf(length / GATE_WORD)) * GATE_WORD / length
+	var key := "gate_" + _gate_kind
 	for face: float in [-1.0, 1.0]:
-		var z := zc + face * 2.1
-		var u := 0.0
-		for i in n - 1:
-			var o0: Vector2 = outer[i]
-			var o1: Vector2 = outer[i + 1]
-			var i0: Vector2 = inner[i]
-			var i1: Vector2 = inner[i + 1]
-			var du := (((o1 + i1) - (o0 + i0)) * 0.5).length() * fit
-			# from the front (face -1, seen from -z) u runs with TMNF x; the back face mirrors it
-			var ua := u * -face
-			var ub := (u + du) * -face
-			var a := Vector3(o0.x, o0.y, z)
-			var b := Vector3(o1.x, o1.y, z)
-			var c := Vector3(i1.x, i1.y, z)
-			var d := Vector3(i0.x, i0.y, z)
-			var uva := Vector2(ua, 0.0)
-			var uvb := Vector2(ub, 0.0)
-			var uvc := Vector2(ub, 1.25)
-			var uvd := Vector2(ua, 1.25)
-			var nrm := Vector3(0, 0, face)
-			if (b - a).cross(c - a).dot(nrm) < 0.0:
-				geo.tri(a, c, b, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvc, uvb)
-				geo.tri(a, d, c, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvd, uvc)
-			else:
-				geo.tri(a, b, c, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvb, uvc)
-				geo.tri(a, c, d, key, S_METAL, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, uva, uvc, uvd)
-			u += du
+		# rows across the face from the outer line to the inner, each GATE_FACE_BULGE out of it
+		var pts := []
+		var uvs := []
+		for r: Vector2 in GATE_FACE_BULGE:
+			var row := []
+			var urow := []
+			var u := 0.0
+			for i in n:
+				var p: Vector2 = (outer[i] as Vector2).lerp(inner[i], r.x)
+				if i > 0:
+					var q0: Vector2 = ((outer[i - 1] as Vector2) + (inner[i - 1] as Vector2)) * 0.5
+					var q1: Vector2 = ((outer[i] as Vector2) + (inner[i] as Vector2)) * 0.5
+					u += (q1 - q0).length() * fit
+				row.append(Vector3(p.x, p.y, zc + face * (GATE_FACE_Z + r.y)))
+				# from the front (face -1, seen from -z) u runs with TMNF x; the back face mirrors it
+				urow.append(Vector2(u * -face + (1e-4 if i == 0 else 0.0), r.x * 1.25))
+			pts.append(row)
+			uvs.append(urow)
+		var a: Vector3 = pts[0][0]
+		var nrm := ((pts[0][1] as Vector3) - a).cross((pts[1][0] as Vector3) - a)
+		geo.grid(pts, uvs, key, S_METAL, nrm.z * face < 0.0)
 
 
 ## Light rigs on the arch's shoulders, front and back: a housing with a face of lamps tilted
@@ -1083,17 +1405,29 @@ func _turbo_gate(geo: TmGeo) -> void:
 		true, "structure", 22)
 
 
-## The turbo gate's sides, over each curb: a booster pod (a collar round the fan, a slimmer body
-## through the frame, a cap behind it) and on it a grid tray between two thin translucent panels,
+## The turbo gate's sides, over each curb: a booster pod (a collar round the fan of nine blades, a
+## slimmer body through the frame, a cap behind it) and on it a grid tray between railings (TMNF's;
+## our cut-out railing cards, solid to the car),
 ## level over the pod and the frame, then down to the curb. On a road sheared by (kx, kz, dy) each
 ## side keeps its shape: lifted with the road at its axis, sheared only along the slope, the tray's
 ## level part never dipping toward the front (measured on the sloped and tilted pads).
 func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
-	var pod := TURBO_POD.map(func(q: Array) -> Array: return [q[0], q[1], "structure", 22])
+	var pod := TURBO_POD.map(func(q: Array) -> Array: return [q[0], q[1], q[2], 22])
 	for x: float in [2.0, 30.0]:
 		var side := TmGeo.new()
 		var lift := kx * x + dy
 		side.revolve_z(pod, Vector2(x, TURBO_POD_Y + lift), 0.0, 360.0, 36, false)
+		var cap: Array = TURBO_POD[TURBO_POD.size() - 2]
+		bolt_rings(side, Vector3(x, TURBO_POD_Y + lift, float(cap[0]) + 0.01), TURBO_BOSS, TURBO_BOLT, TURBO_BOLT_AT)
+		var fc := Vector3(x, TURBO_POD_Y + lift, float(TURBO_POD[0][0]) - 0.03)
+		side.fan(fc, 0.35, 1.45, 0.16, "road_metal", 9)
+		# the dark inside behind the blades, facing out of the pod (-z)
+		for k in 24:
+			var a0 := TAU * k / 24.0
+			var a1 := TAU * (k + 1) / 24.0
+			var o := fc + Vector3(0, 0, 0.02)
+			side.tri(o, o + Vector3(cos(a1), sin(a1), 0) * 1.5, o + Vector3(cos(a0), sin(a0), 0) * 1.5, "stands_dark",
+				TmGeo.NO_COLLISION)
 		var tray := []
 		for q: Vector2 in TURBO_TRAY:
 			tray.append(Vector2(q.x, q.y + lift))
@@ -1102,21 +1436,173 @@ func _turbo_sides(geo: TmGeo, kx := 0.0, kz := 0.0, dy := 0.0) -> void:
 		var x1 := x + TURBO_FIN_HALF
 		var lo: float = TURBO_PANEL[0]
 		var hi: float = TURBO_PANEL[1]
+		var u := 0.0
 		for i in tray.size() - 1:
 			var a: Vector2 = tray[i]
 			var b: Vector2 = tray[i + 1]
 			side.quad(Vector3(x0, a.y, a.x), Vector3(x0, b.y, b.x), Vector3(x1, b.y, b.x), Vector3(x1, a.y, a.x), "grid", S_METAL)
+			# the railing either side (cut-out cards, 8 m a tile; collision on their outline)
+			var du := a.distance_to(b) / 8.0
 			for px: float in [x0, x1]:
-				side.quad(Vector3(px, a.y - lo, a.x), Vector3(px, b.y - lo, b.x), Vector3(px, b.y + hi, b.x),
-					Vector3(px, a.y + hi, a.x), "glass", S_METAL)
+				var q := [Vector3(px, a.y - lo, a.x), Vector3(px, b.y - lo, b.x), Vector3(px, b.y + hi, b.x), Vector3(px, a.y + hi, a.x)]
+				side.quad_uv(q[0], q[1], q[2], q[3], "railing", TmGeo.NO_COLLISION, Vector2(u, 1), Vector2(u + du, 1),
+					Vector2(u + du, 0), Vector2(u, 0))
+				side.quad(q[0], q[1], q[2], q[3], "", S_METAL)
+			u += du
 		var f: Vector2 = tray[0]
 		var e: Vector2 = tray[tray.size() - 1]
-		side.quad(Vector3(x0, f.y - lo, f.x), Vector3(x0, f.y + hi, f.x), Vector3(x1, f.y + hi, f.x),
-			Vector3(x1, f.y - lo, f.x), "glass", S_METAL)
+		var w := (x1 - x0) / 8.0
+		side.quad_uv(Vector3(x0, f.y - lo, f.x), Vector3(x1, f.y - lo, f.x), Vector3(x1, f.y + hi, f.x),
+			Vector3(x0, f.y + hi, f.x), "railing", TmGeo.NO_COLLISION, Vector2(0, 1), Vector2(w, 1), Vector2(w, 0), Vector2(0, 0))
+		side.quad(Vector3(x0, f.y - lo, f.x), Vector3(x0, f.y + hi, f.x), Vector3(x1, f.y + hi, f.x), Vector3(x1, f.y - lo, f.x), "", S_METAL)
 		side.quad(Vector3(x0, e.y - lo, e.x), Vector3(x0, e.y, e.x), Vector3(x1, e.y, e.x), Vector3(x1, e.y - lo, e.x),
-			"glass", S_METAL)
+			"glass_dark", S_METAL)
 		side.shear_y(0.0, kz, 0.0)
 		geo.merge(side)
+
+
+## TMNF's keel under a junction in the air: in each quarter of the block the road's keel section
+## (HALF_AIR and its mirror across the centre line: the plates, the dark middle strip, the far
+## plates rising again; the step up to the shoulder at SHOULDER) by the distance from the quarter's
+## corner, revolved round it, where both its sides are open (between four such corners the middle
+## a diamond with hollow sides); where one is closed, by the distance from that side, straight. A
+## dark face closes the step where a straight quarter meets a revolved one. Facing down.
+func _junction_keel(geo: TmGeo, closed: Array) -> void:
+	var ribs: Vector2 = HALF_AIR[0][4]          # the middle strip's rows, at its middle to its edge
+	var x_plate := float(HALF_AIR[1][0])         # the strip's edge (14.339)
+	var x_mid := float(HALF_AIR[2][0])
+	# the profile out from the shoulder: [distance, y, key of the segment from it, rows]
+	var prof := [[SHOULDER, float(HALF_AIR[3][1]), "road_keel", Vector2(0.0, 144.0)],
+		[x_mid, float(HALF_AIR[2][1]), "road_keel", Vector2(144.0, 288.0)],
+		[x_plate, 0.0, "border_ribs", Vector2(ribs.y, ribs.x)], [16.0, 0.0, "border_ribs", ribs],
+		[32.0 - x_plate, 0.0, "road_keel", Vector2(288.0, 144.0)], [32.0 - x_mid, float(HALF_AIR[2][1]), "road_keel", Vector2(144.0, 0.0)],
+		[32.0 - SHOULDER, float(HALF_AIR[3][1]), ""]]
+	var y_at := func(r: float) -> float:
+		for e in prof.size() - 1:
+			var a: Array = prof[e]
+			var b: Array = prof[e + 1]
+			if r <= float(b[0]) or e == prof.size() - 2:
+				return lerpf(float(a[1]), float(b[1]), clampf((r - float(a[0])) / (float(b[0]) - float(a[0])), 0.0, 1.0))
+		return 0.0
+	var step_rows: Vector2 = HALF_AIR[3][4]
+	# (which way a quad faces from its diagonals: a clipped ring's quads may be triangles)
+	var face := func(a: Vector3, b: Vector3, c: Vector3, d: Vector3, key: String, uv: Array, out: Vector3) -> void:
+		if (c - a).cross(d - b).dot(out) >= 0.0:
+			geo.quad_uv(a, b, c, d, key, S_METAL, uv[0], uv[1], uv[2], uv[3])
+		else:
+			geo.quad_uv(a, d, c, b, key, S_METAL, uv[0], uv[3], uv[2], uv[1])
+	# a segment's UVs at (along, distance) corners: its atlas rows (the keel's plates, the strip)
+	var seg_uv := func(e: int, s0: float, s1: float, r0: float, r1: float) -> Array:
+		var seg: Array = prof[e]
+		if seg.size() > 3:
+			var rows: Vector2 = seg[3]
+			var span := float(prof[e + 1][0]) - float(seg[0])
+			var v0 := lerpf(rows.x, rows.y, (r0 - float(seg[0])) / span) / 512.0
+			var v1 := lerpf(rows.x, rows.y, (r1 - float(seg[0])) / span) / 512.0
+			return [Vector2(s0 / 16.0, v0), Vector2(s1 / 16.0, v0), Vector2(s1 / 16.0, v1), Vector2(s0 / 16.0, v1)]
+		return [Vector2(s0 / 8.0, (16.0 - r0) / 4.0), Vector2(s1 / 8.0, (16.0 - r0) / 4.0), Vector2(s1 / 8.0, (16.0 - r1) / 4.0),
+			Vector2(s0 / 8.0, (16.0 - r1) / 4.0)]
+	var step_uv := func(s0: float, s1: float) -> Array:
+		return [Vector2(s0 / 16.0, step_rows.x / 512.0), Vector2(s1 / 16.0, step_rows.x / 512.0),
+			Vector2(s1 / 16.0, step_rows.y / 512.0), Vector2(s0 / 16.0, step_rows.y / 512.0)]
+	var top := 1.243                             # the shoulder's underside (HALF_AIR)
+	# the quarters: corner, its sides (SIDES indices: the one at the corner's x, the one at its z)
+	for q: Array in [[Vector2(0, 0), 1, 2], [Vector2(32, 0), 3, 2], [Vector2(32, 32), 3, 0], [Vector2(0, 32), 1, 0]]:
+		var cq: Vector2 = q[0]
+		var sx := 1.0 if cq.x == 0.0 else -1.0
+		var sz := 1.0 if cq.y == 0.0 else -1.0
+		var x_closed: bool = closed[q[1]]
+		var z_closed: bool = closed[q[2]]
+		if x_closed and z_closed:
+			continue
+		var at := func(d: Vector2) -> Vector3:
+			var p := cq + Vector2(sx * d.x, sz * d.y)
+			return Vector3(p.x, 0.0, p.y)
+		if not x_closed and not z_closed:
+			# revolved round the corner, each ring clipped to the quarter (x and z 16 from it)
+			var n := 16
+			for k in n:
+				var t0 := PI * 0.5 * k / n
+				var t1 := PI * 0.5 * (k + 1) / n
+				var d0 := Vector2(cos(t0), sin(t0))
+				var d1 := Vector2(cos(t1), sin(t1))
+				var lim0 := 16.0 / maxf(d0.x, d0.y)
+				var lim1 := 16.0 / maxf(d1.x, d1.y)
+				for e in prof.size() - 1:
+					var ra := float(prof[e][0])
+					var rb := float(prof[e + 1][0])
+					var a0 := minf(ra, lim0)
+					var b0 := minf(rb, lim0)
+					var a1 := minf(ra, lim1)
+					var b1 := minf(rb, lim1)
+					if b0 - a0 < 1e-4 and b1 - a1 < 1e-4:
+						continue
+					var p0: Vector3 = at.call(d0 * a0)
+					var p1: Vector3 = at.call(d1 * a1)
+					var p2: Vector3 = at.call(d1 * b1)
+					var p3: Vector3 = at.call(d0 * b0)
+					p0.y = y_at.call(a0)
+					p1.y = y_at.call(a1)
+					p2.y = y_at.call(b1)
+					p3.y = y_at.call(b0)
+					var uv: Array = seg_uv.call(e, ra * t0, ra * t1, ra, rb)
+					face.call(p0, p1, p2, p3, String(prof[e][2]), uv, Vector3.DOWN)
+				# the step up to the shoulder's underside, facing the corner
+				var s0: Vector3 = at.call(d0 * SHOULDER)
+				var s1: Vector3 = at.call(d1 * SHOULDER)
+				var yk := float(prof[0][1])
+				face.call(Vector3(s0.x, yk, s0.z), Vector3(s1.x, yk, s1.z), Vector3(s1.x, top, s1.z), Vector3(s0.x, top, s0.z),
+					"border_ribs", step_uv.call(SHOULDER * t0, SHOULDER * t1), Vector3(cq.x, 0, cq.y) - (s0 + s1) * 0.5)
+			continue
+		# straight from the closed side: d across the quarter from it, l along it (0..16)
+		var pt := func(d: float, l: float) -> Vector3: return at.call(Vector2(d, l) if x_closed else Vector2(l, d))
+		var away := Vector3(sx, 0, 0) if x_closed else Vector3(0, 0, sz)
+		for e in 3:
+			var ra := float(prof[e][0])
+			var rb := float(prof[e + 1][0])
+			var ya := float(prof[e][1])
+			var yb := float(prof[e + 1][1])
+			var p := [pt.call(ra, 0.0), pt.call(ra, 16.0), pt.call(rb, 16.0), pt.call(rb, 0.0)]
+			p[0].y = ya
+			p[1].y = ya
+			p[2].y = yb
+			p[3].y = yb
+			face.call(p[0], p[1], p[2], p[3], String(prof[e][2]), seg_uv.call(e, 0.0, 16.0, ra, rb), Vector3.DOWN)
+		var s0: Vector3 = pt.call(SHOULDER, 0.0)
+		var s1: Vector3 = pt.call(SHOULDER, 16.0)
+		var yk := float(prof[0][1])
+		face.call(Vector3(s0.x, yk, s0.z), Vector3(s1.x, yk, s1.z), Vector3(s1.x, top, s1.z), Vector3(s0.x, top, s0.z),
+			"border_ribs", step_uv.call(0.0, 16.0), -away)
+		# where it meets the revolved quarter beyond its middle (d 16): the dark face up to that
+		# quarter's keel, facing it
+		var other := cq + (Vector2(32.0 * sx, 0.0) if x_closed else Vector2(0.0, 32.0 * sz))
+		var steps := 16
+		for k in steps:
+			var l0 := 16.0 * k / steps
+			var l1 := 16.0 * (k + 1) / steps
+			var e0: Vector3 = pt.call(16.0, l0)
+			var e1: Vector3 = pt.call(16.0, l1)
+			var h0: float = y_at.call(Vector2(e0.x, e0.z).distance_to(other))
+			var h1: float = y_at.call(Vector2(e1.x, e1.z).distance_to(other))
+			if h0 < 1e-3 and h1 < 1e-3:
+				continue
+			face.call(e0, e1, Vector3(e1.x, h1, e1.z), Vector3(e0.x, h0, e0.z), "road_metal",
+				[Vector2.ZERO, Vector2(0.01, 0), Vector2(0.01, 0.01), Vector2(0, 0.01)], away)
+
+
+## A ring of eight bolts round a boss on a turbine's back cap at c (the x-y plane, facing +z):
+## light flat rims (radii boss, bolt; the bolts `at` out), visual only.
+static func bolt_rings(geo: TmGeo, c: Vector3, boss: Array, bolt: Array, at: float) -> void:
+	var rim := func(o: Vector3, r0: float, r1: float, n: int) -> void:
+		for k in n:
+			var d0 := Vector3(cos(TAU * k / n), sin(TAU * k / n), 0)
+			var d1 := Vector3(cos(TAU * (k + 1) / n), sin(TAU * (k + 1) / n), 0)
+			# (out, then round toward +angle: wound to face +z)
+			geo.quad(o + d0 * r0, o + d0 * r1, o + d1 * r1, o + d1 * r0, "stands_top", TmGeo.NO_COLLISION)
+	rim.call(c, float(boss[0]), float(boss[1]), 16)
+	for k in 8:
+		var a := TAU * (k + 0.5) / 8.0
+		rim.call(c + Vector3(cos(a), sin(a), 0) * at, float(bolt[0]), float(bolt[1]), 10)
 
 
 ## T and cross: a flat deck, curbs along the closed sides (full length), and the curb revolved
@@ -1128,18 +1614,21 @@ func _cross(geo: TmGeo, arms: Array, ground: bool) -> void:
 	var inset := func(i: int) -> float: return SHOULDER if closed[i] else 0.0
 	var lo := Vector3(inset.call(1), 1.0 if ground else 0.0, inset.call(2))
 	var hi := Vector3(32.0 - inset.call(3), TOP, 32.0 - inset.call(0))
-	# the deck: the road on top, TMNF's light keel plates underneath (on the ground the terrain
-	# hides them), its dark border metal on the closed sides under the curbs; the open sides meet
-	# the next road's section (collision only)
+	# the deck: the road on top; underneath on the ground a flat floor (the terrain hides it), in
+	# the air TMNF's keel (_junction_keel); the open sides meet the next road's section (collision
+	# only)
 	geo.quad(Vector3(lo.x, TOP, lo.z), Vector3(lo.x, TOP, hi.z), Vector3(hi.x, TOP, hi.z), Vector3(hi.x, TOP, lo.z), _road_mat, _road_surf)
-	geo.quad(Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z),
-		"" if ground else "road_under", S_METAL)
+	if ground:
+		geo.quad(Vector3(lo.x, lo.y, lo.z), Vector3(hi.x, lo.y, lo.z), Vector3(hi.x, lo.y, hi.z), Vector3(lo.x, lo.y, hi.z), "", S_METAL)
+	else:
+		_junction_keel(geo, closed)
 	var corners := [Vector3(hi.x, 0, hi.z), Vector3(lo.x, 0, hi.z), Vector3(lo.x, 0, lo.z), Vector3(hi.x, 0, lo.z)]
 	for i in 4:
-		# side i (SIDES: +z, -x, -z, +x) from corner i to corner i + 1, facing out
+		# side i (SIDES: +z, -x, -z, +x) from corner i to corner i + 1, facing out (on the ground
+		# the closed sides' dark border metal under the curbs; in the air the keel's step)
 		var a: Vector3 = corners[i]
 		var b: Vector3 = corners[(i + 1) % 4]
-		var mat := "road_metal" if closed[i] else ""
+		var mat := "road_metal" if closed[i] and ground else ""
 		geo.quad(Vector3(b.x, lo.y, b.z), Vector3(a.x, lo.y, a.z), Vector3(a.x, TOP, a.z), Vector3(b.x, TOP, b.z), mat, S_METAL)
 	var curb := _curb_section(ground)
 	for i in 4:

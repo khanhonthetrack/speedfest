@@ -165,3 +165,18 @@ and extra area by material and family, `--shape=substr --detail` one family in d
 
     stadium/tools/run.sh res://tests/block_dump.tscn --headless -- --shapes=<list> --out=$W/ours
     python3 -I tools/research/tmnf/material_check.py $W/ours $W/ref stadium/blocks/data/block_catalogue.json --pairs=60
+
+`atlas_rows.py` compares the border atlas' row itself (a band laid a segment off hides from the
+colour check when both bands are dark): at each TMNF atlas triangle, our triangle at the same spot
+and the row there; per shape the area whose rows differ and what ours has where TMNF uses the
+atlas but ours doesn't.
+
+    python3 -I tools/research/tmnf/atlas_rows.py $W/ours $W/ref [shape prefix] [--show=5]
+
+`dirt_furniture.py` measures the dirt pieces' furniture (advert boards and bands, kiosks, logo
+bumpers and their rubber ends, LED signs and the way they face, the border atlas' tubes) from the
+same reference visuals as placements only
+(corners, centre lines, sizes):
+`stadium/blocks/data/dirt_furniture.json`, which `blocks/shapes/dirt.gd` builds our own furniture at.
+
+    python3 -I tools/research/tmnf/dirt_furniture.py $W/ref stadium/blocks/data/dirt_furniture.json

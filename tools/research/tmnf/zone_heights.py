@@ -1,12 +1,14 @@
 """Zone (terrain) block control heights for the remake: for each measured Zone/* collision mesh
-(meas/<name>.json from extract_surf.py), the surface's top height on a 9 x 9 grid 4 m apart (a coarse
-survey; the remake interpolates its own surface through these points). Also reports how well a
+(meas/<name>.json from extract_surf.py), the surface's top height on a 33 x 33 grid 1 m apart (the
+remake lays its surface through these points: TMNF's hills are hand-sculpted, and a 4 m survey
+missed their creases: 67-84% within 0.15 m, 92-98% at 1 m). Also reports how well a
 bicubic surface through an n x n grid reproduces the measurement (share within 0.15 m).
 usage: zone_heights.py MEAS_DIR OUT.json [--check]"""
 import json, sys, os
 
 
-SKIP = {'StadiumWater'}   # the water surface: the remake adds its own plane; survey the ground below
+N = 33                    # grid points per side (1 m apart)
+SKIP = {'StadiumWater', 'StadiumWarpSpotsGlow', 'StadiumWarpSpotsGlowBack'}   # water (the remake adds its own plane), glow cards
 
 
 def height(s, x, z):
@@ -51,14 +53,17 @@ def bicubic(g, x, z):
 
 def main():
     meas, outp = sys.argv[1], sys.argv[2]
-    out = {"_doc": "Zone (terrain) block surfaces: control heights (block-local TMNF y) on a 9 x 9 grid 4 m apart "
+    out = {"_doc": "Zone (terrain) block surfaces: control heights (block-local TMNF y) on a 33 x 33 grid 1 m apart "
            "(rows along z from 0, columns along x from 0), measured from a TMNF install by "
            "tools/research/tmnf/zone_heights.py; the remake interpolates its own surface through them.", "shapes": {}}
     for f in sorted(os.listdir(meas)):
         if not f.startswith('Zone__') or f.startswith(('Zone__Water', 'Zone__Dirt__')):
             continue
         s = json.load(open(os.path.join(meas, f)))
-        g = [[round(h if h is not None else 9.0, 2) for h in row] for row in grid(s, 9)]
+        raw = grid(s, N)
+        if all(h is None for row in raw for h in row):
+            continue    # no ground measured (the decorated dead ends' files hold their glow only)
+        g = [[round(h if h is not None else 9.0, 2) for h in row] for row in raw]
         out["shapes"][f[:-5].replace('__', '/')] = g
         if '--check' in sys.argv:
             ok = tot = 0

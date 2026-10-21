@@ -66,6 +66,48 @@ def border_atlas(name='border_atlas', seed=401):
         else:
             c = base * (1.0 + 0.1 * fine)[..., None]
         col = col * (1 - m[..., None]) + c * m[..., None]
+    # the rails between the panel and the black band (rows 141-215), laid out as TMNF's rows are
+    # (measured: grey levels and what varies along u; drawn here): a grey rail, a black line, a
+    # dark ribbed strip, a light rail, dark, a light line, a perforated grating, a wide light rail,
+    # a dark line, two bands of slotted teeth (16 px apart) either side of a dark line, black
+    def g(v):
+        return np.full(3, v / 255.0, np.float32)[None, None, :]
+    rib4 = 0.5 + 0.5 * np.cos(xx * 2 * np.pi / 4.0)
+    holes = ((xx % 4.0) < 2.0) & ((yy % 3.0) < 1.5)
+    slot = ((xx % 16.0) < 6.0).astype(np.float32)
+    RAILS = [
+        (141, 147, lambda: g(88) * (1.0 + 0.06 * fine)[..., None], 0.4, 0.6),
+        (148, 149, lambda: g(62) * np.ones((H, W, 1)), 0.3, 0.6),
+        (150, 150, lambda: g(4) * np.ones((H, W, 1)), -0.6, 0.9),
+        (151, 158, lambda: g(36) * (0.85 + 0.3 * rib4 + 0.05 * fine)[..., None], 0.0, 0.9),
+        (159, 161, lambda: g(48) * np.ones((H, W, 1)), 0.5, 0.5),
+        (162, 167, lambda: g(40) * (0.9 + 0.2 * rib4)[..., None], 0.1, 0.8),
+        (168, 169, lambda: g(48) * np.ones((H, W, 1)), 0.4, 0.5),
+        (170, 180, lambda: np.where(holes[..., None], g(36), g(19)) * (1.0 + 0.1 * fine)[..., None], -0.3, 0.85),
+        (181, 192, lambda: (g(42) + (g(51) - g(42)) * ((yy - 181) / 11.0)[..., None]) * (1.0 + 0.04 * fine)[..., None], 0.6, 0.45),
+        (193, 193, lambda: g(18) * np.ones((H, W, 1)), -0.4, 0.8),
+        (194, 205, lambda: lerp(g(42), g(15), slot[..., None]) * (1.0 + 0.06 * fine)[..., None], 0.2, 0.7),
+        (206, 207, lambda: g(27) * np.ones((H, W, 1)), -0.2, 0.8),
+        (208, 212, lambda: lerp(g(42), g(15), slot[..., None]) * (1.0 + 0.06 * fine)[..., None], 0.2, 0.7),
+        (213, 213, lambda: g(18) * np.ones((H, W, 1)), -0.4, 0.8),
+        (214, 215, lambda: g(2) * np.ones((H, W, 1)), -0.6, 0.9),
+    ]
+    for r0, r1, paint, height, rgh in RAILS:
+        m = ((yy >= r0) & (yy <= r1)).astype(np.float32)
+        col = col * (1 - m[..., None]) + paint() * m[..., None]
+        hgt = hgt * (1 - m) + m * height
+        rough = np.where(m > 0, rgh, rough)
+    teeth = (((yy >= 194) & (yy <= 205)) | ((yy >= 208) & (yy <= 212))).astype(np.float32)
+    hgt -= teeth * slot * 0.5
+    # the panel's dark frame (TMNF's: 4 px at its top, 6 at the tile's ends) and its shading into
+    # the rail below
+    pm = ((yy >= 2) & (yy <= 140)).astype(np.float32)
+    frame = np.maximum(((yy >= 2) & (yy <= 4)).astype(np.float32),
+                       ((xx <= 5) | (xx >= W - 7)).astype(np.float32)) * pm
+    col = lerp(col, g(62) * np.ones((H, W, 1)), frame[..., None])
+    shade = smoothstep(134.0, 141.0, yy) * pm * (1 - frame)
+    col *= (1.0 - 0.3 * shade)[..., None]
+    hgt -= 0.5 * frame
     # our emblem: white on the black band, black twice on the orange band
     f = font('orbitron-latin-900-normal', 17)
     logo_b = text_mask(W, H, 'SPEEDFEST', f, (W * 0.5, 256), italic=-0.18, tracking=2)

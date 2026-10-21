@@ -2,8 +2,9 @@ extends RefCounted
 ## Stadium terrain zones: dirt and water fields (flat), and the frontier tiles that shape dirt
 ## hills, pools and dirt borders. Zone blocks sit at their terrain level: level 0 is the stadium
 ## ground (9 m block-local, as measured); a dirt hill tile at level L rises from level L - 2 to L
-## (TmBlockCatalogue.block_transform). Frontier tiles are our own bicubic surfaces through
-## measured control heights (blocks/data/zone_heights.json, 9 x 9 points 4 m apart).
+## (TmBlockCatalogue.block_transform). Frontier tiles are our own surfaces through measured
+## heights (blocks/data/zone_heights.json, 33 x 33 points 1 m apart: TMNF's hand-sculpted hills
+## need that fine a survey), a quad between each four.
 
 const S_CONCRETE := 0
 const S_GRASS := 2
@@ -12,7 +13,6 @@ const S_SLIDING := 10
 const GROUND := 9.0             ## level-0 terrain, block-local
 const WATER := 8.0              ## water surface (1 m below the ground)
 const CLIP_Y := 1.0             ## a clip's triangle (measured; on the terrain where it is placed)
-const RES := 16                 ## surface quads per side (2 m)
 const PATH := "res://blocks/data/zone_heights.json"
 
 static var _heights: Dictionary = {}
@@ -71,19 +71,27 @@ func _flat(geo: TmGeo, y: float, mat: String, surface: int, z0 := 0.0) -> void:
 	geo.quad(Vector3(0, y, z0), Vector3(0, y, 32), Vector3(32, y, 32), Vector3(32, y, z0), mat, surface)
 
 
-## A 32 x 32 m surface through the control grid (Catmull-Rom both ways), RES quads per side;
-## pools line the basin below the water with fabric.
+## A 32 x 32 m surface through the grid of heights, a quad between each four, shaded round (each
+## point's normal from its neighbours' heights); pools line the basin below the water with fabric.
 func _surface(geo: TmGeo, g: Array, mat: String, surface: int, pool: bool) -> void:
+	var res := g.size() - 1
 	var pts := []
-	for j in RES + 1:
+	for j in res + 1:
 		var row := []
-		for i in RES + 1:
-			var x := 32.0 * i / RES
-			var z := 32.0 * j / RES
-			row.append(Vector3(x, _bicubic(g, x, z), z))
+		for i in res + 1:
+			row.append(Vector3(32.0 * i / res, float(g[j][i]), 32.0 * j / res))
 		pts.append(row)
-	for j in RES:
-		for i in RES:
+	var step := 32.0 / res
+	var nrm := func(j: int, i: int) -> Vector3:
+		var i0 := maxi(i - 1, 0)
+		var i1 := mini(i + 1, res)
+		var j0 := maxi(j - 1, 0)
+		var j1 := mini(j + 1, res)
+		var dx := (float(g[j][i1]) - float(g[j][i0])) / ((i1 - i0) * step)
+		var dz := (float(g[j1][i]) - float(g[j0][i])) / ((j1 - j0) * step)
+		return Vector3(-dx, 1.0, -dz).normalized()
+	for j in res:
+		for i in res:
 			var a: Vector3 = pts[j][i]
 			var b: Vector3 = pts[j + 1][i]
 			var c: Vector3 = pts[j + 1][i + 1]
@@ -93,22 +101,10 @@ func _surface(geo: TmGeo, g: Array, mat: String, surface: int, pool: bool) -> vo
 			if pool and minf(minf(a.y, b.y), minf(c.y, d.y)) < GROUND - 0.3:
 				m = "fabric"
 				s = S_SLIDING
-			geo.quad(a, b, c, d, m, s)
+			var na: Vector3 = nrm.call(j, i)
+			var nb: Vector3 = nrm.call(j + 1, i)
+			var nc: Vector3 = nrm.call(j + 1, i + 1)
+			var nd: Vector3 = nrm.call(j, i + 1)
+			geo.tri(a, b, c, m, s, na, nb, nc)
+			geo.tri(a, c, d, m, s, na, nc, nd)
 
-
-static func _cr(p0: float, p1: float, p2: float, p3: float, t: float) -> float:
-	return 0.5 * ((2.0 * p1) + (-p0 + p2) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t
-		+ (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t * t * t)
-
-
-static func _bicubic(g: Array, x: float, z: float) -> float:
-	var n := g.size()
-	var fx := x / 32.0 * (n - 1)
-	var fz := z / 32.0 * (n - 1)
-	var i := mini(int(fx), n - 2)
-	var j := mini(int(fz), n - 2)
-	var at := func(jj: int, ii: int) -> float: return float(g[clampi(jj, 0, n - 1)][clampi(ii, 0, n - 1)])
-	var rows := []
-	for k in [-1, 0, 1, 2]:
-		rows.append(_cr(at.call(j + k, i - 1), at.call(j + k, i), at.call(j + k, i + 1), at.call(j + k, i + 2), fx - i))
-	return _cr(rows[0], rows[1], rows[2], rows[3], fz - j)

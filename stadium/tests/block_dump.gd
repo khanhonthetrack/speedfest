@@ -129,13 +129,16 @@ func _key_of(mat: Material) -> String:
 	return key
 
 
-## The mean albedo a material shows (sRGB): its colour times its albedo texture's mean.
+## The mean albedo a material shows (sRGB): its colour times its albedo texture's mean (an
+## alpha-cut one's: of the texels that show).
 func _albedo(mat: Material) -> Color:
 	var c := Color(1, 1, 1)
 	var tex: Texture2D = null
-	if mat is StandardMaterial3D:
-		c = (mat as StandardMaterial3D).albedo_color
-		tex = (mat as StandardMaterial3D).albedo_texture
+	var cut := false            # alpha-cut (TmMaterials.CUTOUT): the mean of the texels that show
+	if mat is BaseMaterial3D:
+		c = (mat as BaseMaterial3D).albedo_color
+		tex = (mat as BaseMaterial3D).albedo_texture
+		cut = (mat as BaseMaterial3D).transparency != BaseMaterial3D.TRANSPARENCY_DISABLED
 	elif mat is ShaderMaterial:
 		var sm := mat as ShaderMaterial
 		var a: Variant = sm.get_shader_parameter("albedo")
@@ -158,8 +161,13 @@ func _albedo(mat: Material) -> Color:
 		if img != null:
 			if img.is_compressed():
 				img.decompress()
+			if cut:
+				img.convert(Image.FORMAT_RGBA8)
+				img.premultiply_alpha()
 			while img.get_width() > 1 or img.get_height() > 1:     # halvings: a true mean
 				img.resize(maxi(1, img.get_width() / 2), maxi(1, img.get_height() / 2), Image.INTERPOLATE_BILINEAR)
 			var m := img.get_pixel(0, 0)
+			if cut and m.a > 1e-3:
+				m = Color(m.r / m.a, m.g / m.a, m.b / m.a)
 			c = Color(c.r * m.r, c.g * m.g, c.b * m.b)
 	return c

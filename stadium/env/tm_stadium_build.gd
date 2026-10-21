@@ -8,8 +8,9 @@ extends RefCounted
 ## - on each long side (z) a lens-shaped grandstand: a 20 m wall at the field, a ledge, a seating
 ##   rake up to a 46 m deck (rows of seats, tm_surface pattern 7), the same facing out on the far
 ##   side, a ribbon of LED boards along the inner face; over its inner half a roof band (a thin
-##   visor at the field, a thick main part falling to the masts) arched along x and dipping past
-##   the stand's tips; masts on the midline with cables;
+##   visor at the field, a thick main part falling to the masts; glass over the visor and up to the
+##   main part, as TMNF's) arched along x and dipping past the stand's tips; masts on the midline
+##   with cables;
 ## - on each short side (x) a terrace (a 21 m wall, a ledge, a raised block with the big screen),
 ##   six flagpoles a quarter and a floodlight tower at each end;
 ## - the field-level apron between the field and the buildings, the ground falling outside to the
@@ -283,7 +284,9 @@ static func _roof(geo: TmGeo, sz: float) -> void:
 			for k in n:
 				var k1 := (k + 1) % n
 				var e: Vector3 = (sec[k1] as Vector3) - (sec[k] as Vector3)
-				var mat := "roof_under" if k >= 4 and k <= 6 else "roof"   # the underside: louvres
+				# TMNF's: glass over the front band (the visor and up to the main roof, top and
+				# underside), the membrane behind, its underside louvres
+				var mat := "roof_glass" if k in [0, 1, 5, 6] else ("roof_under" if k == 4 else "roof")
 				_quad(geo, prev[k], sec[k], sec[k1], prev[k1], mat, Vector3(0.0, -e.z, e.y) * flip)
 		prev = sec
 	# the tube along the visor's front edge and the beams under the roof every 45 m

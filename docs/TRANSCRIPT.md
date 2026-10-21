@@ -1005,6 +1005,48 @@ the branch, then put it on `stadium` for a v0.6.)
 
 > yes do the systematic check and fix everything
 
+### User (verbatim, session 13, 19 Oct, after a worker restart during M11)
+
+> Continue
+
+### User (verbatim, session 13, 20 Oct, after a worker restart during M11)
+
+> The checkpoints and start/finish: there is a simple block rectangle connecting the arch and the barriers. It looks stupid. Compare this with proper Tmnf.
+
+### User (verbatim, session 13, 20 Oct)
+
+> Yo
+
+### Claude
+
+- The box between each arch end and the curb is gone. Each foot is TMNF's now, measured from its
+  blocks: two dark clamps round the curb (the outer flange thicker, a strap over the curb's top),
+  an eight-sided strut from each up to the arch's end, a dark see-through lattice between them
+  with two light rigs aimed at the road. The dirt checkpoints use TMNF's resized road gate, clamps
+  on the bumpers. The gate blocks' curbs carry the gate's word on both faces every 4 m as TMNF's
+  (mirrored outside, as TMNF's reads), MultiLap its own yellow MULTILAP sign. TMNF's brace from a
+  clamp at z 5.8 up to the sign boards stays out with the boards (option B).
+
+### User (verbatim, session 13, 20 Oct, after the gates and the platform checkpoint)
+
+> Yes
+
+### User (verbatim, session 13, 20 Oct, after a worker restart during M11)
+
+> Cotninue
+
+### User (verbatim, session 13, 20 Oct, after another worker restart during M11: airship, pubs, camera lights, dirt furniture, loops, roof glass done)
+
+> Cotninue
+
+### User (verbatim, session 13, 20 Oct, after the usage limit reset during M11: the platform plates' inner corners)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+
+### User (verbatim, session 13, 21 Oct, after the usage limit reset during M11-3: the inflatable castles)
+
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+
 ## Release v0.6 — 2026-10-19 (owner's Windows PC, branch `stadium`)
 
 ### User (verbatim)

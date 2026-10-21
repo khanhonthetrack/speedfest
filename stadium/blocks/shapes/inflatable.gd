@@ -2,26 +2,78 @@ extends RefCounted
 ## Stadium "Inflatable" blocks: the giant inflatable structures (cushion walls stacked three levels
 ## high under a roof, laid out by the editor round a rectangle: "pillar" pieces are the walls,
 ## "support" pieces the top level with the roof) and the inflatable decorations (cactus, palm tree,
-## snow tree, castles). Our own geometry from measured numbers (TMNF block-local metres).
+## snow tree, castles: castle.gd). Our own geometry from measured numbers (TMNF block-local metres).
 ##
-## A cushion wall is a row of pillows, each 8 m wide bulging 2.1 m out from its seam line (straight
-## along x for the T piece, an arc of radius 24 about the footprint corner for the corner piece).
+## A cushion wall is a row of pillows, each 8 m wide bulging out from its seam line (straight along
+## x for the T piece, an arc of radius 24 about the footprint corner for the corner piece; PILLOW_LINE):
+## the levels below upright (PILLAR), the top level rounded over its top back to a trim and the
+## grey quilted roof (SUPPORT_SECTION), TMNF's sections measured. The pillows are our own drawing
+## of TMNF's layout (texgen/stadium.py inflatable_pillow: red vinyl, our banner on the tops).
 ## The block's direction turns it; the rectasym shape slot repeats the same piece per direction.
+
+const Castles := preload("res://blocks/shapes/castle.gd")
 
 const S_RUBBER := 9
 const S_METAL := 4
 const S_GRASS := 2
 
 const PILLOW := 8.0             ## pillow width along the wall
-const BULGE := 2.1              ## how far a pillow bulges out of its seam line
 
 ## [seam line offset from the cell's -z edge (straight) or radius about (0, 32) (corner), y0, y1]
 const PILLAR := [8.0, 0.0, 8.0]
-const SUPPORT := [9.7, 0.0, 8.0]
+## A pillow's outline out of its seam line: [along from the seam (of its 8 m), out] to its middle
+## (the rest mirrored); the corner's pillows stretched along the arc.
+const PILLOW_LINE := [[0.0, 0.0], [0.395, 0.535], [1.473, 1.616], [4.0, 2.147]]
+## The levels below: upright from y 0 to 8, TMNF's v 0.4 -> 1 up them (the red; rows of 1024).
+const PILLAR_ROWS := Vector2(614.4, 0.0)
+## The top level's section from its foot round over its top to its back: [row, at the seam (out,
+## y), in the pillow's middle (out, y)]; between, the seam's section and the middle's mixed by the
+## outline's share of its bulge (TMNF's own pillows are that mix, measured).
+const SUPPORT_SECTION := [[0.0, 0.0, 0.0, 2.147, 0.0], [150.5, 0.0, 1.375, 2.147, 1.794], [308.2, -0.633, 2.718, 1.455, 3.65],
+	[466.0, -1.641, 3.941, 0.343, 5.214], [619.5, -3.001, 4.947, -1.199, 6.535], [741.4, -4.424, 5.733, -3.125, 7.565],
+	[864.3, -5.758, 6.295, -5.215, 7.977], [932.9, -6.36, 6.45, -6.209, 7.708], [983.0, -6.8, 6.57, -6.828, 7.096],
+	[1002.5, -6.98, 6.59, -7.036, 6.824], [1024.0, -7.278, 6.638, -7.278, 6.638]]
+## Behind the top level's pillows, along the wall: [out from the seam line, y] -> key: a rubber
+## strip, the interior's grey edge, a white awning plate over them; then the roof (y, 8 m tiles).
+const SUPPORT_TRIM := [[[-7.278, 6.638], [-7.461, 7.29], "rubber_dark"], [[-7.461, 7.29], [-8.0, 7.608], "stands_top"],
+	[[-6.975, 7.604], [-8.0, 7.904], "sculpt_fabric"]]
+const ROOF_Y := 7.99
+const ROOF_TILE := 8.0
 ## The tube's mouth in a T pillar: the flared box (x0 at z 5, x0 at z 8, y0, y1), the pipe's and
 ## its rubber ring's radii (about (16, 4), along z 0..5); measured.
 const TUBE_FLARE := [9.93, 7.67, 2.19, 5.81]
 const TUBE_PIPE := [1.42, 1.66]
+## The ground pillar pieces (TMNF's billboard walls, measured): each pillow rises from its seam
+## line at y 2, how far out of it TMNF's surface stands (PILLOW_DEPTH: rows at PILLOW_HEIGHTS,
+## columns at PILLOW_ACROSS, the share of its width from a seam to its middle, mirrored beyond): a
+## steep groove at each seam, flat low down, a crown up top. Red vinyl with a white banner
+## printed on it (texgen/stadium.py inflatable_banner: our emblem and name where TMNF prints its
+## logo; u across the pillow, v up its surface over BANNER_ARC m), a thin skin behind printed
+## the same, read from behind (TMNF's shows from both sides). Under them
+## a low plinth in front of the seam line (PILLAR_BASE: (d in front, y), its upright face, a bevel,
+## then a rubber strip up to the seam), a white foot at each seam (PILLAR_FOOT: half width, y0,
+## y1, d0, d1) and a dark post in front of it (PILLAR_POST). The corner piece: PILLAR_CORNER
+## pillows round its arc.
+const PILLOW_HEIGHTS := [2.0, 2.31, 2.53, 2.82, 3.15, 3.6, 4.15, 5.4, 6.7, 8.0]
+const PILLOW_ACROSS := [0.0, 0.025, 0.056, 0.1, 0.163, 0.25, 0.35, 0.5]
+const PILLOW_DEPTH := [
+	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+	[0.0, 0.0, 0.0, 0.0, 0.0, 0.022, 0.101, 0.221],
+	[0.0, 0.0, 0.025, 0.087, 0.175, 0.298, 0.405, 0.517],
+	[0.0, 0.339, 0.576, 0.617, 0.676, 0.758, 0.842, 0.857],
+	[0.0, 0.293, 0.684, 0.922, 1.144, 1.202, 1.218, 1.241],
+	[0.0, 0.263, 0.642, 1.05, 1.344, 1.402, 1.456, 1.479],
+	[0.0, 0.263, 0.59, 1.003, 1.502, 1.571, 1.651, 1.769],
+	[0.0, 0.268, 0.591, 1.008, 1.532, 1.603, 1.682, 1.891],
+	[0.0, 0.271, 0.596, 0.986, 1.487, 1.635, 1.767, 2.019],
+	[0.0, 0.27, 0.59, 0.941, 1.442, 1.726, 1.894, 2.145],
+]
+const BANNER_ARC := 6.65
+const PILLAR_BASE := [[0.93, 1.0, "stands_top"], [0.93, 1.5, "stands_top"], [0.63, 1.66, "rubber_dark"], [0.0, 2.0, ""]]
+const PILLAR_FOOT := [0.39, 0.96, 2.24, -0.02, 1.22]
+const PILLAR_POST := [0.09, 2.17, 8.0, 0.0, 0.29]
+const PILLAR_CORNER := 4
+const SKIN := 0.08
 ## The advert pillar's billboard frame (x0, x1, y0, y1, z0 = the screen, z1) and its posts (x).
 const ADVERT_BOARD := [9.37, 54.63, 5.24, 28.53, 5.066, 9.058]
 const ADVERT_POSTS := [8.0, 56.0]
@@ -35,14 +87,17 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var name := shape.trim_prefix("Inflatable/")
 	var geo := TmGeo.new()
 	var ground := name.ends_with("Ground")
-	var y0 := 1.0 if ground else 0.0
 	match name.trim_suffix("Ground").trim_suffix("Air"):
 		"TShapedPillar":
-			_straight_wall(geo, PILLAR[0], y0, PILLAR[2])
+			if ground:
+				var seam: float = PILLAR[0]
+				_banner_wall(geo, 32.0, 4, func(t: float, d: float, y: float) -> Vector3: return Vector3(t, y, seam - d))
+			else:
+				_pillows(geo, 32.0, 4, _line_at(PILLAR[0]), false)
 		"TubeTShapedPillar":
 			# the wall with a tube's mouth: a flared box through it, its frame, and the pipe
 			# leaving toward -z with a rubber ring at its end (measured)
-			_straight_wall(geo, PILLAR[0], y0, PILLAR[2])
+			_pillows(geo, 32.0, 4, _line_at(PILLAR[0]), false)
 			var flare := [[Vector2(TUBE_FLARE[0], 5.0), "structure", S_METAL], [Vector2(32.0 - TUBE_FLARE[0], 5.0), "structure", S_METAL],
 				[Vector2(32.0 - TUBE_FLARE[1], 8.0), "structure", S_METAL], [Vector2(TUBE_FLARE[1], 8.0), "structure", S_METAL]]
 			geo.extrude_y(flare, TUBE_FLARE[2], TUBE_FLARE[3], true, "structure", S_METAL)
@@ -51,7 +106,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			geo.pipe(Vector3(16, 4, 4.86), Vector3(16, 4, 5), TUBE_PIPE[1], 16, "rubber", S_RUBBER)
 		"AdvertTShapedPillar":
 			# a two-block cushion wall four levels high carrying a billboard frame through it
-			_straight_wall(geo, PILLAR[0], 0.0, 32.0, 64.0)
+			for level in 4:
+				_pillows(geo, 64.0, 8, _line_at(PILLAR[0], 8.0 * level), false)
 			var b: Array = ADVERT_BOARD
 			geo.box(Vector3(b[0], b[2], b[4]), Vector3(b[1], b[3], b[5]), "structure", S_METAL)
 			geo.screen_rect(Vector3(b[1], b[2], b[4] - 0.01), Vector3(b[0], b[2], b[4] - 0.01), Vector3(b[0], b[3], b[4] - 0.01),
@@ -59,17 +115,24 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			for x: float in ADVERT_POSTS:
 				geo.box(Vector3(x - 0.26, 2.0, 7.543), Vector3(x + 0.26, 30.0, 8.058), "structure", S_METAL, "", -2, 0.03)
 		"CornerPillar":
-			_arc_wall(geo, 32.0 - PILLAR[0], y0, PILLAR[2])
+			var r: float = 32.0 - float(PILLAR[0])
+			if ground:
+				# along the arc from (0, 32 - r) round to (r, 32), outward
+				_banner_wall(geo, r * PI * 0.5, PILLAR_CORNER, func(t: float, d: float, y: float) -> Vector3:
+					var a := -PI * 0.5 + t / r
+					return Vector3(cos(a) * (r + d), y, 32.0 + sin(a) * (r + d)))
+			else:
+				_pillows(geo, r * PI * 0.5, PILLAR_CORNER, _arc_at(r), false)
 		"TShaped":
-			_straight_wall(geo, SUPPORT[0], y0, SUPPORT[2])
-			_roof(geo, PackedVector2Array([Vector2(0, SUPPORT[0]), Vector2(32, SUPPORT[0]), Vector2(32, 32), Vector2(0, 32)]))
+			_pillows(geo, 32.0, 4, _line_at(PILLAR[0]), true)
+			_roof(geo, PackedVector2Array([Vector2(0, 16), Vector2(32, 16), Vector2(32, 32), Vector2(0, 32)]))
 		"Corner":
-			var r := 32.0 - SUPPORT[0]
-			_arc_wall(geo, r, y0, SUPPORT[2])
+			var r: float = 32.0 - float(PILLAR[0])
+			_pillows(geo, r * PI * 0.5, PILLAR_CORNER, _arc_at(r), true)
 			var poly := PackedVector2Array([Vector2(0, 32)])
-			for i in 13:
-				var a := lerpf(-PI * 0.5, 0.0, i / 12.0)
-				poly.append(Vector2(0, 32) + Vector2(cos(a), sin(a)) * r)
+			for i in 9:
+				var a := lerpf(-PI * 0.5, 0.0, i / 8.0)
+				poly.append(Vector2(0, 32) + Vector2(cos(a), sin(a)) * (r - 8.0))
 			_roof(geo, poly)
 		"Cross":
 			_roof(geo, PackedVector2Array([Vector2(0, 0), Vector2(32, 0), Vector2(32, 32), Vector2(0, 32)]))
@@ -79,61 +142,199 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_palm(geo)
 		"InflatableSnowTree":
 			_snow_tree(geo)
-		"Castle":
-			_castle(geo, Vector2(32, 32), 17.6)
-		"CastleBig":
-			_castle(geo, Vector2(64, 64), 23.2)
-		"InflatableCastleDoor":
-			_castle(geo, Vector2(96, 32), 23.2)
+		"Castle", "CastleBig", "InflatableCastleDoor":
+			Castles.build(geo, name)
 		_:
 			return null
 	return geo.build()
 
 
-## A pillow's bulge at u in [0, 1] across it (a rounded bump, measured shape).
-static func _bulge(u: float) -> float:
-	return BULGE * sqrt(maxf(0.0, sin(PI * clampf(u, 0.0, 1.0))))
-
-
-## Cushion wall along x (0..width) with its seam line at z = seam, pillows bulging toward -z.
-func _straight_wall(geo: TmGeo, seam: float, y0: float, y1: float, width := 32.0) -> void:
-	var loop := []
-	var n := int(width / PILLOW)
+## A ground pillar's billboard wall (PILLOW_DEPTH etc.) `length` m along its seam line in `n`
+## pillows; at(t, d, y): the block point t m along the seam line, d m in front of it, at height y.
+func _banner_wall(geo: TmGeo, length: float, n: int, at: Callable) -> void:
+	var w := length / n
+	var rows := PILLOW_HEIGHTS.size()
+	var mid := PILLOW_ACROSS.size() - 1
+	# v up the surface (the pillow's middle), shared by each row
+	var arc := [0.0]
+	for i in range(1, rows):
+		var p0 := Vector2(float(PILLOW_DEPTH[i - 1][mid]), float(PILLOW_HEIGHTS[i - 1]))
+		var p1 := Vector2(float(PILLOW_DEPTH[i][mid]), float(PILLOW_HEIGHTS[i]))
+		arc.append(float(arc[i - 1]) + p0.distance_to(p1))
+	# the columns across a pillow (share of its width) and their column of PILLOW_DEPTH
+	var us := []
+	var cs := []
+	for c in PILLOW_ACROSS.size():
+		us.append(float(PILLOW_ACROSS[c]))
+		cs.append(c)
+	for c in range(mid - 1, -1, -1):
+		us.append(1.0 - float(PILLOW_ACROSS[c]))
+		cs.append(c)
+	var front := func(t: float, c: int, i: int, skin: float) -> Vector3:
+		return at.call(t, float(PILLOW_DEPTH[i][c]) - skin, float(PILLOW_HEIGHTS[i]))
 	for k in n:
-		for s in 8:
-			var u := s / 8.0
-			loop.append([Vector2(k * PILLOW + u * PILLOW, seam - _bulge(u)), "inflatable", S_RUBBER])
-	loop.append([Vector2(width, seam), "inflatable", S_RUBBER])
-	loop.append([Vector2(width, seam + 0.3), "inflatable", S_RUBBER])
-	loop.append([Vector2(0, seam + 0.3), "inflatable", S_RUBBER])
-	geo.extrude_y(loop, y0, y1, true, "inflatable", S_RUBBER)
+		for j in us.size() - 1:
+			var u0: float = us[j]
+			var u1: float = us[j + 1]
+			var c0: int = cs[j]
+			var c1: int = cs[j + 1]
+			for i in rows - 1:
+				var p := [front.call(w * (k + u0), c0, i, 0.0), front.call(w * (k + u1), c1, i, 0.0),
+					front.call(w * (k + u1), c1, i + 1, 0.0), front.call(w * (k + u0), c0, i + 1, 0.0)]
+				var q := [front.call(w * (k + u0), c0, i, SKIN), front.call(w * (k + u1), c1, i, SKIN),
+					front.call(w * (k + u1), c1, i + 1, SKIN), front.call(w * (k + u0), c0, i + 1, SKIN)]
+				var v0 := 1.0 - float(arc[i]) / BANNER_ARC
+				var v1 := 1.0 - float(arc[i + 1]) / BANNER_ARC
+				# the banner reads left to right from in front (the bulge side, toward the track;
+				# TMNF's logo reads mirrored from there)
+				var out: Vector3 = (p[0] - q[0]) + (p[2] - q[2])
+				_face_uv(geo, p, [Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)],
+					out, "inflatable_banner", S_RUBBER)
+				# the skin behind: the banner again, reading left to right from behind (TMNF's shows
+				# through from both sides)
+				_face_uv(geo, q, [Vector2(1.0 - u0, v0), Vector2(1.0 - u1, v0), Vector2(1.0 - u1, v1), Vector2(1.0 - u0, v1)],
+					-out, "inflatable_banner", S_RUBBER)
+			# the skin's top edge
+			var top := rows - 1
+			_face(geo, [front.call(w * (k + u0), c0, top, 0.0), front.call(w * (k + u1), c1, top, 0.0),
+				front.call(w * (k + u1), c1, top, SKIN), front.call(w * (k + u0), c0, top, SKIN)], Vector3.UP, "inflatable_banner",
+				TmGeo.NO_COLLISION, [Vector2(u0, 0.01), Vector2(u1, 0.01), Vector2(u1, 0.02), Vector2(u0, 0.02)])
+	# the plinth and the rubber strip along the whole wall
+	var segs := maxi(1, int(ceil(length / 2.0)))
+	for m in segs:
+		var t0 := length * m / segs
+		var t1 := length * (m + 1) / segs
+		for b in PILLAR_BASE.size() - 1:
+			var e0: Array = PILLAR_BASE[b]
+			var e1: Array = PILLAR_BASE[b + 1]
+			var f := [at.call(t0, float(e0[0]), float(e0[1])), at.call(t1, float(e0[0]), float(e0[1])),
+				at.call(t1, float(e1[0]), float(e1[1])), at.call(t0, float(e1[0]), float(e1[1]))]
+			var o: Vector3 = at.call(t0, 1.0, float(e0[1])) - at.call(t0, 0.0, float(e0[1])) + Vector3.UP * 0.5
+			_face(geo, f, o, String(e0[2]), S_RUBBER)
+	# a foot and a post at each seam
+	for k in n + 1:
+		var t := w * k
+		var foot: Array = PILLAR_FOOT
+		_block(geo, at, maxf(t - float(foot[0]), 0.0), minf(t + float(foot[0]), length), foot[3], foot[4], foot[1], foot[2], "fabric")
+		var post: Array = PILLAR_POST
+		_block(geo, at, maxf(t - float(post[0]), 0.0), minf(t + float(post[0]), length), post[3], post[4], post[1], post[2],
+			"stands_dark")
 
 
-## Cushion wall on an arc of radius r about the footprint corner (0, 32), pillows bulging outward.
-func _arc_wall(geo: TmGeo, r: float, y0: float, y1: float) -> void:
-	var c := Vector2(0, 32)
-	var n := maxi(1, int(round(r * PI * 0.5 / PILLOW)))
-	var outer := []
-	var inner := []
-	for k in n * 8 + 1:
-		var u := float(k) / (n * 8)
-		var a := lerpf(-PI * 0.5, 0.0, u)
-		var dir := Vector2(cos(a), sin(a))
-		outer.append(c + dir * (r + _bulge(fmod(u * n, 1.0) if k < n * 8 else 0.0)))
-		inner.append(c + dir * (r - 0.3))
-	var loop := []
-	for p in outer:
-		loop.append([p, "inflatable", S_RUBBER])
-	inner.reverse()
-	for p in inner:
-		loop.append([p, "inflatable", S_RUBBER])
-	geo.extrude_y(loop, y0, y1, true, "inflatable", S_RUBBER)
+## A block between t0..t1 along a wall's seam line, d0..d1 in front of it, y0..y1 (at: as
+## _banner_wall's), its faces but the bottom; visual only.
+func _block(geo: TmGeo, at: Callable, t0: float, t1: float, d0: float, d1: float, y0: float, y1: float, key: String) -> void:
+	var c: Vector3 = at.call((t0 + t1) * 0.5, (d0 + d1) * 0.5, (y0 + y1) * 0.5)
+	var p := func(t: float, d: float, y: float) -> Vector3: return at.call(t, d, y)
+	var faces := [
+		[p.call(t0, d0, y1), p.call(t1, d0, y1), p.call(t1, d1, y1), p.call(t0, d1, y1)],
+		[p.call(t0, d1, y0), p.call(t1, d1, y0), p.call(t1, d1, y1), p.call(t0, d1, y1)],
+		[p.call(t0, d0, y0), p.call(t1, d0, y0), p.call(t1, d0, y1), p.call(t0, d0, y1)],
+		[p.call(t0, d0, y0), p.call(t0, d1, y0), p.call(t0, d1, y1), p.call(t0, d0, y1)],
+		[p.call(t1, d0, y0), p.call(t1, d1, y0), p.call(t1, d1, y1), p.call(t1, d0, y1)],
+	]
+	for f: Array in faces:
+		var m: Vector3 = (f[0] + f[1] + f[2] + f[3]) * 0.25
+		_face(geo, f, m - c, key, TmGeo.NO_COLLISION)
 
 
-## The structure's roof at the top of the support level.
+## A quad facing `out` (whichever way its corners run), with its UVs in p's order if given.
+func _face(geo: TmGeo, p: Array, out: Vector3, key: String, surface: int, uv: Array = []) -> void:
+	if not uv.is_empty():
+		_face_uv(geo, p, uv, out, key, surface)
+		return
+	if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+		geo.quad(p[0], p[3], p[2], p[1], key, surface)
+	else:
+		geo.quad(p[0], p[1], p[2], p[3], key, surface)
+
+
+## A quad with its UVs (in p's order) facing `out`.
+func _face_uv(geo: TmGeo, p: Array, uv: Array, out: Vector3, key: String, surface: int) -> void:
+	if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+		geo.quad_uv(p[0], p[3], p[2], p[1], key, surface, uv[0], uv[3], uv[2], uv[1])
+	else:
+		geo.quad_uv(p[0], p[1], p[2], p[3], key, surface, uv[0], uv[1], uv[2], uv[3])
+
+
+## The straight walls' frame: at(t, d, y) = the point t m along the seam line z = seam, d m out of it
+## (toward -z), at height y (+ lift).
+static func _line_at(seam: float, lift := 0.0) -> Callable:
+	return func(t: float, d: float, y: float) -> Vector3: return Vector3(t, y + lift, seam - d)
+
+
+## The corner walls' frame: along the arc of radius r about (0, 32) from (0, 32 - r), out of it.
+static func _arc_at(r: float) -> Callable:
+	return func(t: float, d: float, y: float) -> Vector3:
+		var a := -PI * 0.5 + t / r
+		return Vector3(cos(a) * (r + d), y, 32.0 + sin(a) * (r + d))
+
+
+## A row of n pillows `length` m along a wall (at: _line_at / _arc_at), each TMNF's outline
+## (PILLOW_LINE, stretched to its share of the length): upright from y 0 to 8 (the levels below),
+## or the top level's pillows rounded over their tops back to the trim (SUPPORT_SECTION,
+## SUPPORT_TRIM). Our pillow drawing across each, read from in front.
+func _pillows(geo: TmGeo, length: float, n: int, at: Callable, support: bool) -> void:
+	var w := length / n
+	var line := []
+	for q: Array in PILLOW_LINE:
+		line.append([float(q[0]) / PILLOW, float(q[1])])
+	for k in range(PILLOW_LINE.size() - 2, -1, -1):
+		line.append([1.0 - float(PILLOW_LINE[k][0]) / PILLOW, float(PILLOW_LINE[k][1])])
+	var mid := float(PILLOW_LINE[PILLOW_LINE.size() - 1][1])
+	for p in n:
+		var pts := []
+		var uvs := []
+		var rows := SUPPORT_SECTION.size() if support else 2
+		for r in rows:
+			var row := []
+			var urow := []
+			for q: Array in line:
+				var t := w * (p + float(q[0]))
+				var share := float(q[1]) / mid
+				var d: float
+				var y: float
+				var v: float
+				if support:
+					var s: Array = SUPPORT_SECTION[r]
+					d = lerpf(float(s[1]), float(s[3]), share)
+					y = lerpf(float(s[2]), float(s[4]), share)
+					v = float(s[0])
+				else:
+					d = float(q[1])
+					y = 8.0 * r
+					v = PILLAR_ROWS.x if r == 0 else PILLAR_ROWS.y
+				row.append(at.call(t, d, y))
+				urow.append(Vector2(float(q[0]), v / 1024.0))
+			pts.append(row)
+			uvs.append(urow)
+		# columns along the wall, rows up: (along) x (up) faces back, so turned round
+		geo.grid(pts, uvs, "inflatable_pillow", S_RUBBER, true)
+	if not support:
+		return
+	var segs := maxi(1, n * 4)
+	for tr: Array in SUPPORT_TRIM:
+		var a := Vector2(tr[0][0], tr[0][1])
+		var b := Vector2(tr[1][0], tr[1][1])
+		for m in segs:
+			var t0 := length * m / segs
+			var t1 := length * (m + 1) / segs
+			var q := [at.call(t0, a.x, a.y), at.call(t1, a.x, a.y), at.call(t1, b.x, b.y), at.call(t0, b.x, b.y)]
+			var o: Vector3 = (at.call(t0, 1.0, 0.0) - at.call(t0, 0.0, 0.0)) + Vector3.UP * 2.0
+			_face(geo, q, o, String(tr[2]), S_RUBBER)
+
+
+## The top level's roof: TMNF's grey quilted vinyl (texgen inflatable_roof) in ROOF_TILE m tiles.
 func _roof(geo: TmGeo, poly: PackedVector2Array) -> void:
-	geo.flat_polygon(poly, 8.0, "inflatable", S_RUBBER)
-	geo.flat_polygon(poly, 7.6, "inflatable", S_RUBBER, true)
+	var idx := Geometry2D.triangulate_polygon(poly)
+	for k in range(0, idx.size(), 3):
+		var t := [poly[idx[k]], poly[idx[k + 1]], poly[idx[k + 2]]]
+		var p := [Vector3(t[0].x, ROOF_Y, t[0].y), Vector3(t[1].x, ROOF_Y, t[1].y), Vector3(t[2].x, ROOF_Y, t[2].y)]
+		if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).y < 0.0:
+			p = [p[0], p[2], p[1]]
+			t = [t[0], t[2], t[1]]
+		geo.tri(p[0], p[1], p[2], "infl_roof", S_RUBBER, Vector3.UP, Vector3.UP, Vector3.UP, t[0] / ROOF_TILE + Vector2(1e-4, 0),
+			t[1] / ROOF_TILE, t[2] / ROOF_TILE)
 
 
 ## Decorations, as TMNF lays them out (measured from its blocks: every object's place, heights and
@@ -173,15 +374,17 @@ const SNOW_TREES := [
 	[Vector2(20.6, 15.65), Vector2(19.95, 15.05), 1.33, 12.59], [Vector2(13.7, 24.55), Vector2(14.6, 24.55), 1.16, 10.4],
 ]
 ## A snow tree's outline (r, y) for one 1.15 -> 10.5 m high (scaled to each), from the bottom centre
-## out and up to the tip, each segment's colour: four tiers with snow on their tops just above the
-## rim, the top cone all snow (measured where TMNF's texture is light). The radii are the mean
-## round the tree; each tier's rim hangs in eight branches reaching out by the lobe depth (of the
-## radius; measured: the widest against the mean), the tiers' branches staggered (phase).
+## out and up to the tip, each segment's colour: four tiers, the snow on each tier's slope above its
+## green rim (on the first from 1.95 to 2.5 m), the top cone all snow (measured where TMNF's texture
+## is light, sampled across its faces). The radii are the mean round the tree; each tier's rim hangs
+## in eight branches reaching out by the lobe depth (of the radius; measured: the widest against the
+## mean), the tiers' branches staggered (phase).
 const SNOW_TREE := [
-	[0.0, 1.15, "infl_tree", 0.0, 0.0], [2.9, 1.15, "infl_tree", 0.1, 0.0], [3.45, 1.6, "infl_snow", 0.26, 0.0],
-	[3.4, 1.95, "infl_tree", 0.22, 0.0], [3.0, 2.5, "infl_tree", 0.15, 0.0], [2.6, 3.05, "infl_tree", 0.12, 0.39],
-	[2.65, 3.45, "infl_snow", 0.24, 0.39], [2.5, 3.8, "infl_tree", 0.26, 0.39], [2.3, 4.4, "infl_tree", 0.15, 0.39],
-	[2.0, 4.95, "infl_tree", 0.12, 0.0], [2.15, 5.45, "infl_snow", 0.3, 0.0], [2.0, 6.0, "infl_tree", 0.2, 0.0],
+	[0.0, 1.15, "infl_tree", 0.0, 0.0], [2.9, 1.15, "infl_tree", 0.1, 0.0], [3.45, 1.6, "infl_tree", 0.26, 0.0],
+	[3.4, 1.95, "infl_snow", 0.22, 0.0], [3.0, 2.5, "infl_tree", 0.15, 0.0], [2.6, 3.05, "infl_tree", 0.12, 0.39],
+	[2.65, 3.45, "infl_tree", 0.24, 0.39], [2.5, 3.8, "infl_snow", 0.26, 0.39], [2.3, 4.4, "infl_snow", 0.15, 0.39],
+	[2.2, 4.62, "infl_tree", 0.14, 0.39], [2.0, 4.95, "infl_tree", 0.12, 0.0], [2.15, 5.45, "infl_tree", 0.3, 0.0],
+	[2.0, 6.0, "infl_snow", 0.2, 0.0], [1.7, 6.55, "infl_tree", 0.14, 0.0],
 	[1.6, 6.75, "infl_tree", 0.12, 0.39], [1.55, 7.3, "infl_snow", 0.4, 0.39], [1.35, 7.9, "infl_snow", 0.25, 0.39],
 	[1.1, 8.5, "infl_snow", 0.17, 0.0], [0.8, 9.1, "infl_snow", 0.2, 0.0], [0.54, 9.7, "infl_snow", 0.2, 0.0],
 	[0.23, 10.3, "infl_snow", 0.0, 0.0], [0.0, 10.5, "", 0.0, 0.0],
@@ -432,9 +635,3 @@ static func _inset(poly: PackedVector2Array, d: float) -> PackedVector2Array:
 		out.append(q + n * d / maxf(0.5, n.dot(n1 if ccw else -n1)))
 	return out
 
-
-func _castle(geo: TmGeo, size: Vector2, h: float) -> void:
-	var wall := minf(size.x, size.y) * 0.35
-	geo.box(Vector3(2, 0.9, 2), Vector3(size.x - 2, h * 0.55, size.y - 2), "inflatable", S_RUBBER, "inflatable", S_RUBBER)
-	for corner in [Vector2(4, 4), Vector2(size.x - 4, 4), Vector2(4, size.y - 4), Vector2(size.x - 4, size.y - 4)]:
-		geo.pipe(Vector3(corner.x, 0.9, corner.y), Vector3(corner.x, h, corner.y), minf(4.0, wall * 0.3), 12, "inflatable", S_RUBBER)

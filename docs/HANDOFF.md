@@ -95,10 +95,54 @@
   walls and turbo pads, the circuit (sides, undersides, end caps, slope bases with their pillar),
   roads (TMNF's atlas bands per section segment, keel plates, grid, ground slopes raised on a
   pillar), the inflatable palm / snow trees / cacti (`blob_slices.py`), the platform decks' rim,
-  tray and truss columns, the airship's colour. Side-by-side renders: `tests/block_view.tscn`
-  (one shape; `--ref=<local ref dir>` shows TMNF's own look). Next by our tracks' use (the list
-  in m11_check.md): the grandstands (Fabric), camera booths, sculptures, dirt roads, castles; then
-  PLAN M11-4..8.
+  tray and truss columns, the airship's colour, the grandstands' and camera booths' colours, the
+  dirt roads' outline, FreeWheeling pads, the start / finish roads and the gate line (TMNF's
+  RoadRace layout, `TmGeo.split_mat`), the pipe pillars and tubes (TMNF's light StadiumPillar),
+  the platform decks' undersides (plate, hub, column beams), slopes' frames, the turbo deck
+  (floor, turbines, TURBO rim), checkpoint arch / ring, the gates' word bands (FINISH white on
+  red), ToRoad, glass booths, pub blocks, camera lights, the gates' feet (owner: the "block
+  rectangle" between arch and curb), the gate blocks' curb signs, the platform checkpoint, the
+  grandstands' steel (cut-out lattice cards, `TmMaterials.CUTOUT`), the road-side booths, the
+  platform truss columns (slotted plates outside), the airship (gondola, fins, moorings, livery),
+  the pub base and the camera pub, the camera lights' steel and spotlights, the ground
+  grandstands' orange strips, the dirt roads' furniture, the loops' backs, the stand roofs' glass
+  band (M11-8), the circuit base's bump, hole and pillar variants (M11-4), the glass booth's room,
+  the booths' plinth rims and gallery ends, the grandstand roofs' membrane (fabric_roof), the
+  dirt-to-road transition (road_to_dirt) and TMNF's LED signs on 13 dirt pieces, the dirt pieces'
+  border tubes and rubber ends, the platform ramp's orange curb underside, the turbo pads'
+  grating, the road turbo's railings and fans, the sculptures' plinth pads, the snow trees' snow,
+  the turbines' exhaust caps, the road junctions' keel, the platform plates' inner corners (the
+  lip turned round a notch) and truss undersides, the platform checkpoint's floodlight banks, the gate arches' word every 3.08 m, the inflatable
+  billboard walls (banner cushions), the camera pubs' ends and roof strips, the road pubs' boards (ads outward only), the
+  platform lip's atlas rows (and the ramp piece's orange bevel), the gate arches' top and underside
+  (TMNF's atlas strips), the sculptures' curb tops, the circuit walls' bumpers (atlas rows, outline), the road keel's plates,
+  the border atlas' rail rows (structure as TMNF's), the decks' 16 m plate tiles, the circuit
+  walls' back panel and straight ledges; M11-3: the inflatable castles (`castle.gd`, a kit from
+  measured numbers, our atlas in TMNF's layout; fidelity 85-96%), the Sculpt bridges' white fabric
+  and their pillars' truss, arms and bearing plate (94%), the camera light base's octagon dress, the
+  terrain zones on a 1 m survey (hills 95-99.9%), the air inflatable structures (TMNF's pillows and
+  roof, 96.6-100%), the loops' back brackets, the road pubs' boards, beams and walkways (98% on our
+  tracks), the road start's pad (the car starts on it as in TMNF) and the gates' rounded faces,
+  the glass booths' corner (TMNF's: chamfered outside, a white chamfer inside; 98-99.7%), the air
+  glass booths' walkway (grating at 1 m, railing, stairs down at open ends, ad boards under it),
+  window-module glass and dark/white underside, the dark steel texture (steel_truss: TMNF's
+  Stands2 layout, ribbed panels and faint braces, not bold X's). TMNF lays Stands2 rotated on the
+  booths' end caps and along the sweep on their roofs (ours world-mapped): not done. The tube
+  light system (RoadLightSystem: lamp bars, frames, the column; 96-99%), the inflatable ground
+  pillar walls' pillows (97.6%), the dirt-to-road curbs (98.8%), the fabric pillar corners' line.
+  Next by use: the fabric pillar corner's floor edge, the tube sound system (a gantry; 8 campaign
+  uses), the road bump, the dirt bridge, the Sculpt bridge slope ends.
+  Side-by-side renders:
+  `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
+  `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell
+  coplanar or hidden surfaces apart: check a big "differ" with a render before fixing it; sample
+  TMNF's colours inside triangles, never at vertices). Rank what is left by our tracks' use
+  (m11_check "Survey by use": every shape our tracks build, with counts, not the catalogue's base
+  forms). Left: the grandstand straights' lattice (flat cards in TMNF), the grandstand pillar
+  piece, the snow / palm trees (organic), the curved circuit walls' ledges (plain plate), TMNF's additive glow cards (ours: lit lamps), the loops'
+  backs, the hill pieces' fabric awnings; the gates' big sign panels stay out (owner's option B);
+  then the rest of PLAN M11-3 (bump, fabric pillar corners,
+  trusses, screens, spotlights, bridge rails, dirt fences), 5..7. Tools: `material_check.py` (colours) and `atlas_rows.py` (atlas rows).
 - Continue on `stadium`. Open (owner's calls): TMNF's padlocks on later campaign tracks, the
   engine's layers' pitch curves, the rest of TMNF's wheelie (on flat ground ours now lifts its
   nose more than TMNF's: 19.1 s of the ghost_fit ground windows against 5.9).

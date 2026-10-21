@@ -25,6 +25,11 @@ const SCREEN_MIN_W := 2.5
 const AD_ASPECT := 2.0              ## the ads' width : height (env/tm_adverts.gd PANEL)
 const AD_STRETCH := 1.25            ## an ad stretches this much at most to fill its screen
 
+## Atlas keys whose rows stay upright where a sweep curves (each point's u is its own distance
+## travelled: on a revolve the outer points' run ahead): a run of their segments takes one u per
+## frame, its first point's (the glass booths' window posts stand radial round a pavilion).
+const UPRIGHT_ROWS := ["booth_glass"]
+
 class Group:
 	var v := PackedVector3Array()
 	var n := PackedVector3Array()
@@ -90,6 +95,21 @@ func quad_uv(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surfac
 	tri(a, c, d, mat, surface, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, ua, uc, ud)
 
 
+## A fan's blades in a disc facing -z at c (TMNF's turbines): `blades` flat blades from radius r0
+## to r1, half_w wide, the first at 45 degrees; visual only.
+func fan(c: Vector3, r0: float, r1: float, half_w: float, mat: String, blades := 4) -> void:
+	for k in blades:
+		var a := deg_to_rad(45.0 + 360.0 * k / blades)
+		var r := Vector3(cos(a), sin(a), 0.0)
+		var t := Vector3(-sin(a), cos(a), 0.0) * half_w
+		var p0 := c + r * r0
+		var p1 := c + r * r1
+		var q := [p0 - t, p1 - t, p1 + t, p0 + t]
+		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).z > 0.0:
+			quad(q[0], q[3], q[2], q[1], mat, NO_COLLISION)
+		else:
+			quad(q[0], q[1], q[2], q[3], mat, NO_COLLISION)
+
 ## Re-maps the UVs of every face of a material made so far: f(p) -> UV, p in TMNF block-local
 ## coordinates (for textures laid out across a whole piece, e.g. the turbo pads').
 func remap_uv(mat: String, f: Callable) -> void:
@@ -145,8 +165,46 @@ func remap_uv_sides(mat: String, u_m: float, v_m: float, top_y: float, top_at :=
 	_vis[mat] = out
 
 
-## A convex polygon of [point, normal] cut by the plane p . t = k: the parts on each side.
+## Moves a material's faces made so far to other keys by region: cut at the planes p . t =
+## cuts[i] (TMNF coordinates, ascending), the part before the first cut to mats[0], between the
+## first and second to mats[1]... (one key more than cuts; the same key keeps them). UVs are
+## carried over (interpolated at the cuts).
+func split_mat(mat: String, t: Vector3, cuts: Array, mats: Array) -> void:
+	if not _vis.has(mat):
+		return
+	var grp: Group = _vis[mat]
+	_vis.erase(mat)
+	for i in range(0, grp.v.size() - 2, 3):
+		var rest := []
+		for j in 3:
+			rest.append([g(grp.v[i + j]), grp.n[i + j], grp.uv[i + j]])
+		for k in mats.size():
+			var part := rest
+			if k < cuts.size():
+				var halves := _split_poly(rest, t, float(cuts[k]))
+				part = halves[0]
+				rest = halves[1]
+			if part.size() >= 3:
+				var out := _group(String(mats[k]))
+				for j in range(1, part.size() - 1):
+					var e: Vector3 = (part[j][0] - part[0][0]).cross(part[j + 1][0] - part[0][0])
+					if e.length_squared() < 1e-12:
+						continue
+					for q: Array in [part[0], part[j], part[j + 1]]:
+						out.v.append(g(q[0]))
+						out.n.append(q[1])
+						out.uv.append(q[2])
+			if rest.size() < 3:
+				break
+
+
+## A convex polygon of [point, normal(, uv)] cut by the plane p . t = k: the parts on each side.
 static func _cut_poly(pc: Array, t: Vector3, k: float) -> Array:
+	return _split_poly(pc, t, k).filter(func(x: Array) -> bool: return x.size() >= 3)
+
+
+## The same, both parts (below the plane, above it) whatever their size.
+static func _split_poly(pc: Array, t: Vector3, k: float) -> Array:
 	var lo := []
 	var hi := []
 	for i in pc.size():
@@ -161,9 +219,11 @@ static func _cut_poly(pc: Array, t: Vector3, k: float) -> Array:
 		if (dq < 0.0 and dr > 0.0) or (dq > 0.0 and dr < 0.0):
 			var f := dq / (dq - dr)
 			var m := [(q[0] as Vector3).lerp(r[0], f), (q[1] as Vector3).lerp(r[1], f).normalized()]
+			if q.size() > 2:
+				m.append((q[2] as Vector2).lerp(r[2], f))
 			lo.append(m)
 			hi.append(m)
-	return [lo, hi].filter(func(x: Array) -> bool: return x.size() >= 3)
+	return [lo, hi]
 
 
 ## A face carrying bands of the border atlas (TmMaterials "border_*", texgen/borders.py: 1024 x
@@ -182,9 +242,10 @@ func band_quad(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surf
 
 
 ## A screen's UV `along` metres (0..w) along it and `down` metres (0..h) from one long edge (see
-## SCREENS); `first` tells screens apart (a billboard's ads, the moment it changes).
-static func screen_uv(along: float, w: float, down: float, h: float, first := 0) -> Vector2:
-	if h < SCREEN_MIN_H or w < SCREEN_MIN_W:
+## SCREENS); `first` tells screens apart (a billboard's ads, the moment it changes); a screen lower
+## than min_h is an unlit panel.
+static func screen_uv(along: float, w: float, down: float, h: float, first := 0, min_h := SCREEN_MIN_H) -> Vector2:
+	if h < min_h or w < SCREEN_MIN_W:
 		return SCREEN_OFF
 	var ad_w := w
 	var ad_h := h
@@ -196,9 +257,9 @@ static func screen_uv(along: float, w: float, down: float, h: float, first := 0)
 
 
 ## A flat screen: bottom edge a -> b, top edge d -> c, its front (b - a) x (c - a) (turned round to
-## face `out` when given).
+## face `out` when given; an advert band lower than SCREEN_MIN_H passes its own min_h).
 func screen_rect(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, surface: int, first := 0,
-		out := Vector3.ZERO) -> void:
+		out := Vector3.ZERO, min_h := SCREEN_MIN_H) -> void:
 	if out != Vector3.ZERO and (b - a).cross(c - a).dot(out) < 0.0:
 		var t := [b, a, d, c]
 		a = t[0]
@@ -207,8 +268,8 @@ func screen_rect(a: Vector3, b: Vector3, c: Vector3, d: Vector3, mat: String, su
 		d = t[3]
 	var w := (b - a).length()
 	var h := (d - a).length()
-	quad_uv(a, b, c, d, mat, surface, screen_uv(0.0, w, h, h, first), screen_uv(w, w, h, h, first),
-		screen_uv(w, w, 0.0, h, first), screen_uv(0.0, w, 0.0, h, first))
+	quad_uv(a, b, c, d, mat, surface, screen_uv(0.0, w, h, h, first, min_h), screen_uv(w, w, h, h, first, min_h),
+		screen_uv(w, w, 0.0, h, first, min_h), screen_uv(0.0, w, 0.0, h, first, min_h))
 
 
 ## World-aligned UVs in metres / 8 (texture tiles every 8 m), projected on the dominant axis.
@@ -245,9 +306,10 @@ func box(lo: Vector3, hi: Vector3, mat: String, surface: int, top_mat := "", top
 
 ## A board or billboard [lo, hi] (TMNF coords): its two wide vertical faces are the screen (mat,
 ## its ad laid out on each: SCREENS), the rest its frame (frame_mat; bevel:
-## chamfered as box() does).
+## chamfered as box() does). With `out` given, only the wide face toward it is a screen, the other
+## back_mat.
 func screen_box(lo: Vector3, hi: Vector3, mat: String, surface: int, bevel := 0.0, first := 0,
-		frame_mat := "structure") -> void:
+		frame_mat := "structure", out := Vector3.ZERO, back_mat := "stands_dark") -> void:
 	var r := minf(bevel, 0.45 * minf(hi.x - lo.x, minf(hi.y - lo.y, hi.z - lo.z)))
 	if r <= 0.002:
 		r = 0.0
@@ -273,14 +335,16 @@ func screen_box(lo: Vector3, hi: Vector3, mat: String, surface: int, bevel := 0.
 		for z: float in [lo.z, hi.z]:
 			var a := Vector3(lo.x + r, y0, z)
 			var b := Vector3(hi.x - r, y0, z)
-			screen_rect(a, b, Vector3(b.x, y1, z), Vector3(a.x, y1, z), mat, NO_COLLISION, first,
-				Vector3(0, 0, -1 if z == lo.z else 1))
+			var n := Vector3(0, 0, -1 if z == lo.z else 1)
+			screen_rect(a, b, Vector3(b.x, y1, z), Vector3(a.x, y1, z), mat if n.dot(out) >= 0.0 else back_mat,
+				NO_COLLISION, first, n)
 	else:
 		for x: float in [lo.x, hi.x]:
 			var a := Vector3(x, y0, lo.z + r)
 			var b := Vector3(x, y0, hi.z - r)
-			screen_rect(a, b, Vector3(x, y1, b.z), Vector3(x, y1, a.z), mat, NO_COLLISION, first,
-				Vector3(-1 if x == lo.x else 1, 0, 0))
+			var n := Vector3(-1 if x == lo.x else 1, 0, 0)
+			screen_rect(a, b, Vector3(x, y1, b.z), Vector3(x, y1, a.z), mat if n.dot(out) >= 0.0 else back_mat,
+				NO_COLLISION, first, n)
 
 
 ## A box's visual mesh with every edge chamfered by r: six inset faces, twelve 45-degree edge
@@ -345,7 +409,8 @@ func _poly(pts: Array, out: Vector3, mat: String) -> void:
 ## (p[k+1] - p[k]) turned by -90 deg (lateral, up) -> (up, -lateral) is the outward normal.
 ## profiles: optional per-frame profiles (same point count and materials) instead of one profile.
 ## UVs (for textured materials): u = metres travelled along the path by that point of the section
-## (stretched so the sweep holds a whole number of UV_TILE tiles: no seam where blocks meet);
+## (stretched so the sweep holds a whole number of UV_TILE tiles: no seam where blocks meet;
+## UPRIGHT_ROWS: one u per frame for a run of the key);
 ## v = metres along the section, measured from its nearer end (a closed road section: from the
 ## bottom centre, the same on both sides) and restarting at 0 on each run of one material, so a
 ## material's texture starts at the run's end nearer the section's ends (a curb face's top).
@@ -451,10 +516,17 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 				va = rows.x / 512.0
 				vb = rows.y / 512.0
 				tile = 1.0 / 16.0
-			var ua := Vector2(side * float(us[f][k]) * tile, va)
-			var ub := Vector2(side * float(us[f][k + 1]) * tile, vb)
-			var uc := Vector2(side * float(us[f + 1][k + 1]) * tile, vb)
-			var ud := Vector2(side * float(us[f + 1][k]) * tile, va)
+			var ku := k
+			var kv := k + 1
+			if mat in UPRIGHT_ROWS and (profile[k] as Array).size() > 3:
+				# one u per frame for the key's run (its first point's): its texture stays upright
+				while ku > 0 and String(profile[ku - 1][1]) == mat:
+					ku -= 1
+				kv = ku
+			var ua := Vector2(side * float(us[f][ku]) * tile, va)
+			var ub := Vector2(side * float(us[f][kv]) * tile, vb)
+			var uc := Vector2(side * float(us[f + 1][kv]) * tile, vb)
+			var ud := Vector2(side * float(us[f + 1][ku]) * tile, va)
 			if mat in SCREENS:
 				# a screen per segment: as long as the path, as high as the segment
 				var h := ((pr0[k + 1][0] as Vector2) - (pr0[k][0] as Vector2)).length()
@@ -721,6 +793,47 @@ func disc(c: Vector2, n: int, r: float, y: Callable, mat: String, surface: int) 
 		tri(m, Vector3(p0.x, y.call(p0), p0.y), Vector3(p1.x, y.call(p1), p1.y), mat, surface)
 
 
+## A grid of quads (rows of points, all rows as long, with their UVs) shaded round: each point's
+## normal the mean of its quads'. Front = (next point along the row - this) x (the next row's -
+## this), turned round when flip.
+func grid(pts: Array, uvs: Array, key: String, surface: int, flip := false) -> void:
+	var nr := pts.size()
+	var nc := (pts[0] as Array).size()
+	var acc := []
+	for i in nr:
+		var row := []
+		row.resize(nc)
+		row.fill(Vector3.ZERO)
+		acc.append(row)
+	for i in nr - 1:
+		for j in nc - 1:
+			var n := ((pts[i + 1][j + 1] as Vector3) - (pts[i][j] as Vector3)).cross((pts[i + 1][j] as Vector3) - (pts[i][j + 1] as Vector3))
+			# (c - a) x (d - b) points the way the quad's front (b - a) x (d - a) does
+			n *= -1.0 if flip else 1.0
+			for q: Vector2i in [Vector2i(i, j), Vector2i(i, j + 1), Vector2i(i + 1, j), Vector2i(i + 1, j + 1)]:
+				acc[q.x][q.y] = (acc[q.x][q.y] as Vector3) + n
+	for i in nr - 1:
+		for j in nc - 1:
+			var a: Vector3 = pts[i][j]
+			var b: Vector3 = pts[i][j + 1]
+			var c: Vector3 = pts[i + 1][j + 1]
+			var d: Vector3 = pts[i + 1][j]
+			var na: Vector3 = (acc[i][j] as Vector3).normalized()
+			var nb: Vector3 = (acc[i][j + 1] as Vector3).normalized()
+			var nc_: Vector3 = (acc[i + 1][j + 1] as Vector3).normalized()
+			var nd: Vector3 = (acc[i + 1][j] as Vector3).normalized()
+			var ua: Vector2 = uvs[i][j]
+			var ub: Vector2 = uvs[i][j + 1]
+			var uc: Vector2 = uvs[i + 1][j + 1]
+			var ud: Vector2 = uvs[i + 1][j]
+			if flip:
+				tri(a, c, b, key, surface, na, nc_, nb, ua, uc, ub)
+				tri(a, d, c, key, surface, na, nd, nc_, ua, ud, uc)
+			else:
+				tri(a, b, c, key, surface, na, nb, nc_, ua, ub, uc)
+				tri(a, c, d, key, surface, na, nc_, nd, ua, uc, ud)
+
+
 ## Horizontal polygon (TMNF x, z points) at height y, facing up (or down if down).
 func flat_polygon(poly: PackedVector2Array, y: float, mat: String, surface: int, down := false) -> void:
 	var idx := Geometry2D.triangulate_polygon(poly)
@@ -785,6 +898,22 @@ func shear_y(kx: float, kz: float, dy: float) -> void:
 	for k in _col.size():
 		var v := _col[k]
 		_col[k] = Vector3(v.x, v.y - kx * v.x + kz * v.z + dy, v.z)
+
+
+## Scales everything added so far about `about` by k per axis, then moves it by `offset` (TMNF
+## coords; k positive); normals follow (inverse transpose). For a piece another of its kind is a
+## resized copy of (the dirt roads' gates).
+func scale_move(about: Vector3, k: Vector3, offset := Vector3.ZERO) -> void:
+	# stored points are Godot's (x negated): TMNF x = -v.x
+	var f := func(v: Vector3) -> Vector3:
+		return TmGeo.g(about + (TmGeo.g(v) - about) * k + offset)
+	for key in _vis:
+		var grp: Group = _vis[key]
+		for i in grp.v.size():
+			grp.v[i] = f.call(grp.v[i])
+			grp.n[i] = (grp.n[i] / k).normalized()
+	for i in _col.size():
+		_col[i] = f.call(_col[i])
 
 
 ## Turns everything added so far by quarters x 90 deg about the vertical axis through (c.x, c.y)

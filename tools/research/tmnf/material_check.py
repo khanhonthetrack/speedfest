@@ -69,8 +69,21 @@ class Ref:
             if not os.path.exists(path):
                 path = os.path.join(self.root, 'tex', name + 'D.png')
             if os.path.exists(path):
-                im = Image.open(path).convert('RGB').resize((BLUR, BLUR), Image.BOX)
-                self.tex[name] = np.asarray(im, dtype=np.float64) / 255.0
+                # alpha-cut textures (trusses, railings) are compared as they show: the mean of their
+                # visible texels per region (premultiplied, then divided by the region's coverage)
+                a = np.asarray(Image.open(path).convert('RGBA'), dtype=np.float64) / 255.0
+                rgb, al = a[..., :3], a[..., 3:]
+                def box(x):
+                    h, w = x.shape[:2]
+                    return x.reshape(BLUR, h // BLUR, BLUR, w // BLUR, x.shape[2]).mean((1, 3))
+                if a.shape[0] % BLUR == 0 and a.shape[1] % BLUR == 0:
+                    cov = box(al)
+                    # see-through regions: the texture's visible mean (what shows of it there)
+                    seen = (rgb * al).sum((0, 1)) / max(float(al.sum()), 1e-6)
+                    self.tex[name] = np.where(cov > 0.05, box(rgb * al) / np.maximum(cov, 1e-6), seen)
+                else:
+                    im = Image.open(path).convert('RGB').resize((BLUR, BLUR), Image.BOX)
+                    self.tex[name] = np.asarray(im, dtype=np.float64) / 255.0
             else:
                 self.tex[name] = None
         return self.tex[name]

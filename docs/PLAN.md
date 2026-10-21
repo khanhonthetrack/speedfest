@@ -218,19 +218,34 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       blocks): for every shape, where TMNF puts each material against where ours does; the list
       of mismatches by area and campaign use (`docs/research/m11_check.md`)
 - [ ] 2. Fix the mismatches it finds, family by family (most visible first). Done: platform walls,
-      turbo pads, the circuit (sides, undersides, end caps, slope bases); next: the road
-- [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
-      bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
+      turbo pads, the circuit (sides, undersides, end caps, slope bases), roads (atlas bands, keel,
+      grid, pillars, ground slopes, FreeWheeling pads, start / finish roads, the gate line),
+      platform decks, grandstands' and camera booths' colours, dirt outlines, sculpture pads, the
+      pipe pillars and tubes, platform undersides (plate, hub, beams), slopes' frames, the turbo
+      deck (floor, turbines, TURBO rim), checkpoint arch and ring, gate word bands, ToRoad, glass
+      booths, pub blocks, camera lights, the gates' feet and curb signs, the platform checkpoint,
+      the grandstands' steel (cut-out cards) and orange strips, the road-side booths' railings and
+      windows, the platform truss columns, the airship, the pub base and camera pub, the camera
+      lights' steel and spotlights, the dirt roads' furniture, the loops' backs, the glass booth's
+      room, the junctions' keel, the turbines, the sculptures' pads and curbs, the platform
+      plates' inner corners and undersides, the platform checkpoint's floodlights, the gate
+      arches (words every 3.08 m, top and underside), the inflatable billboard walls, the camera
+      and road pubs, the border atlas (rows audited: atlas_rows.py; the rails' structure), the
+      platform lip, the road keel's plates, the decks' 16 m tiles, the circuit walls' bumpers,
+      back panel and ledge, the glass booths' corner and the air booths' walkway, the dark steel
+      (Stands2) texture; next: the grandstand pillar piece, the curved ledges, M11-3
+- [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti, inflatable castles, the
+      Sculpt bridges' fabric and pillars, the camera light base, the terrain zones (1 m survey), the air inflatable structures, the loops' brackets, the road pubs, the road start's pad and the gates' rounded faces, the glass booths, the tube light system; left: bump, fabric pillar corners, trusses, screens, the tube sound system, bridge rails,
       dirt fences and signs; fidelity test)
-- [x] 4. The circuit base variants (bump, hole, pillars): built from measurements in M12 (session 15, for
-      TMX tracks); in the v0.6 merge they take M11-2's circuit sides and white fabric underneath,
-      as the circuit's turbo plate and slopes do (the material check not yet re-run on them)
+- [x] 4. The circuit base variants (bump, hole, pillars; 20 Oct): TMNF's dome, hole and pillars,
+      measured; the TMX tracks' base pieces (M12) are built through them
 - [ ] 5. Physics: flat-ground and landing wheelies, water, reverse switch, turbo pad direction,
       burnout / donut
 - [ ] 6. TMNF's padlocks on the campaign
 - [ ] 7. The engine's pitch curves (measured from TMNF's sound, not its files) and the tyre smoke
       side by side
-- [ ] 8. The stadium's surroundings (outer roads, forecourts, parking, roof light panels)
+- [x] 8. The stadium's surroundings (outer roads, forecourts, parking: session 12; the roofs' glass
+      band as TMNF's: 20 Oct)
 
 ### After v0.5 — the owner's remarks, for the next release (session 13, 2026-10-19)
 On `claude/tmnf-replica-graphics-nb1kcg`; into `stadium` with the next release (owner).
