@@ -171,9 +171,11 @@ const SHELL_IN_AIR := [[56.56, 1.54, "fabric_roof", S_ROAD], [56.33, 3.73, "fabr
 	[52.62, 16.92, "fabric_under", S_ROAD], [54.17, 12.73, "fabric_under", S_ROAD], [55.26, 8.43, "fabric_under", S_ROAD],
 	[55.95, 4.05, "fabric_under", S_ROAD], [56.19, 1.84, "fabric_under", S_ROAD]]
 const DECK_IN_AIR := [47.99, 61.84, 1.46, 1.84]
-## The In pillar corners' arcs: centre (c, c) and segments (see _arc_in).
-const PILLAR_ARC_C := 5.533
-const PILLAR_ARC_STEPS := 17
+## The In pillar corners' line (TMNF's, measured: the ground stand's outer wall, from the -z edge
+## to its 45-degree point, mirrored beyond): no circle, flatter near the edges (see _arc_in).
+const PILLAR_ARC := [Vector2(58.94, 0.0), Vector2(58.78, 5.45), Vector2(58.21, 10.98), Vector2(57.25, 16.44),
+	Vector2(55.91, 21.72), Vector2(54.2, 26.72), Vector2(52.1, 31.45), Vector2(49.6, 35.88), Vector2(46.69, 39.97),
+	Vector2(43.5, 43.5)]
 const BASE_IN_AIR := [48.73, 61.04, 0.0, 1.46]
 
 
@@ -276,38 +278,50 @@ func _revolve(geo: TmGeo, table: Array, c: Vector2, a0: float, flip: float) -> v
 
 
 ## The In pillar corners: each point of the section (its x = the distance from the block's edge
-## where the straight piece meets it) runs round an arc about (PILLAR_ARC_C, PILLAR_ARC_C) that
-## meets both edges at that distance (measured: the fabric wall's line is such an arc, 17 even
-## steps over a little more than 90 deg).
+## where the straight piece meets it) runs along PILLAR_ARC moved out along its normals by that
+## distance less the line's own (TMNF's: parallel lines, a section point's line meeting both edges
+## at its distance).
 func _arc_in(geo: TmGeo, table: Array) -> void:
 	var loop := table.map(func(q: Array) -> Array: return [Vector2(q[0], q[1]), q[2], q[3]])
 	if TmGeo.loop_area(loop) < 0.0:
 		loop = TmGeo.reversed_loop(loop)
-	var c := PILLAR_ARC_C
-	var at := func(p: Vector2, t: float) -> Vector3:
-		var r := sqrt((p.x - c) * (p.x - c) + c * c)
-		var a := asin(c / r)
-		var phi := -a + t * (PI * 0.5 + 2.0 * a)
-		return Vector3(c + r * cos(phi), p.y, c + r * sin(phi))
-	var n := PILLAR_ARC_STEPS
+	var line: Array = PILLAR_ARC.duplicate()
+	for i in range(PILLAR_ARC.size() - 2, -1, -1):
+		var q: Vector2 = PILLAR_ARC[i]
+		line.append(Vector2(q.y, q.x))
+	# the normals, mitred (the lines stay parallel), outward
+	var nrm := []
+	for i in line.size():
+		var a: Vector2 = line[maxi(i - 1, 0)]
+		var b: Vector2 = line[mini(i + 1, line.size() - 1)]
+		var n := Vector2((b - a).y, -(b - a).x).normalized()
+		if i > 0 and i < line.size() - 1:
+			var n0 := Vector2(((line[i] as Vector2) - a).y, -((line[i] as Vector2) - a).x).normalized()
+			n = n / maxf(n.dot(n0), 0.5)
+		if n.dot(line[i]) < 0.0:
+			n = -n
+		nrm.append(n)
+	var r0: float = (PILLAR_ARC[0] as Vector2).x
+	var at := func(p: Vector2, i: int) -> Vector3:
+		var q: Vector2 = (line[i] as Vector2) + (nrm[i] as Vector2) * (p.x - r0)
+		return Vector3(q.x, p.y, q.y)
+	var n := line.size() - 1
 	for i in n:
-		var t0 := float(i) / n
-		var t1 := float(i + 1) / n
 		for k in loop.size():
 			var p: Vector2 = loop[k][0]
 			var q: Vector2 = loop[(k + 1) % loop.size()][0]
-			geo.quad(at.call(p, t0), at.call(q, t0), at.call(q, t1), at.call(p, t1), loop[k][1], loop[k][2])
+			geo.quad(at.call(p, i), at.call(q, i), at.call(q, i + 1), at.call(p, i + 1), loop[k][1], loop[k][2])
 	# the ends, on the block's edges
 	var pe := PackedVector2Array()
 	for q in loop:
 		pe.append(q[0])
-	for t: float in [0.0, 1.0]:
+	for e: int in [0, n]:
 		var idx := Geometry2D.triangulate_polygon(pe)
 		for j in range(0, idx.size(), 3):
-			var a: Vector3 = at.call(pe[idx[j]], t)
-			var b: Vector3 = at.call(pe[idx[j + 1]], t)
-			var d: Vector3 = at.call(pe[idx[j + 2]], t)
-			if t == 0.0:
+			var a: Vector3 = at.call(pe[idx[j]], e)
+			var b: Vector3 = at.call(pe[idx[j + 1]], e)
+			var d: Vector3 = at.call(pe[idx[j + 2]], e)
+			if e == 0:
 				geo.tri(a, d, b, "structure", S_METAL)
 			else:
 				geo.tri(a, b, d, "structure", S_METAL)

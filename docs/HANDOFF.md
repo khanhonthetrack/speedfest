@@ -63,7 +63,10 @@
   window-module glass and dark/white underside, the dark steel texture (steel_truss: TMNF's
   Stands2 layout, ribbed panels and faint braces, not bold X's). TMNF lays Stands2 rotated on the
   booths' end caps and along the sweep on their roofs (ours world-mapped): not done. The tube
-  light system (RoadLightSystem: lamp bars, frames, the column; 96-99%).
+  light system (RoadLightSystem: lamp bars, frames, the column; 96-99%), the inflatable ground
+  pillar walls' pillows (97.6%), the dirt-to-road curbs (98.8%), the fabric pillar corners' line.
+  Next by use: the fabric pillar corner's floor edge, the tube sound system (a gantry; 8 campaign
+  uses), the road bump, the dirt bridge, the Sculpt bridge slope ends.
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

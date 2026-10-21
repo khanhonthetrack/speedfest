@@ -3003,3 +3003,8 @@ on every real contact the full impulse would land at the contact point and kick 
   `TO_ROAD_SINK`). TMNF moves the road's own curb section: its shoulder dips toward the asphalt
   as the dirt starts, then the curb alone sinks and slides in toward the dirt's berm. Ours jumped
   at z 17 to a narrower, squashed curb. Fidelity: RoadDirtToRoad (26 on our tracks) 92.5 -> 98.8%.
+- (M11-3) **The fabric pillar corners' line as TMNF's** (`fabric.gd _arc_in`, `PILLAR_ARC`). TMNF's
+  In pillar corners run their sections on parallel lines of one curve, flatter near the block
+  edges than a circle; ours used arcs about (5.5, 5.5), up to 1.2 m off. Now the measured outer
+  wall line moved out along its normals. Fidelity: PillarCornerInGround 86.7 -> 91.0%, Air 93.4 ->
+  95.3%.

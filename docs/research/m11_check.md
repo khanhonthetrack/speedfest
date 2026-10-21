@@ -167,6 +167,12 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   bending from x 3.9), then the curb alone sinks (0.11 m at z 17 to 0.64 m at the end) and slides
   0.97 m in between z 20 and 26. Ours dropped at z 17 into a squeezed, scaled curb. Now tables
   (dirt.gd TO_ROAD_DIP, TO_ROAD_SINK). Fidelity 92.5 -> 98.8%.
+- The fabric pillar corners (In; 21 Oct): TMNF's line round the corner is no circle (an arc about
+  (5.5, 5.5) is up to 1.2 m off it at 20-30 degrees: flatter near the edges); its sections run on
+  parallel lines of one curve (the ramp 10.95 m inside the outer wall at the edges and at 45
+  degrees). Now the outer wall's measured line (PILLAR_ARC) moved out along its normals. The plain
+  corner-in pieces are true circles (unchanged). Fidelity: PillarCornerInGround 86.7 -> 91.0%,
+  PillarCornerInAir 93.4 -> 95.3%; left: the ground piece's floor edge and seating ends.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).
