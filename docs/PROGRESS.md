@@ -3635,4 +3635,5 @@ Owner: "ship to new version". Both stadium branches already contained in `stadiu
 on 78f5b9f; after it only `PLAYING.txt` (the City series' neon nights; the Release's notes) and
 `tools/export.sh` (the zips now carry `CREDITS-city.md`: the city's buildings and lights, among
 them the CC BY credit for raytrace's "12 Buildings", missing from v0.7's zips). Tagged
-`stadium-v0.8` and pushed; CI "Stadium builds" attaches the Windows and Linux zips.
+`stadium-v0.8` (86096d6) and pushed; CI "Stadium builds" green: the Release carries
+`SpeedFestStadium-windows.zip` (118.5 MB) and `SpeedFestStadium-linux.zip` (108.8 MB).

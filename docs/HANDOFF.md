@@ -7,8 +7,9 @@
 - The zips now carry `CREDITS-city.md` (`assets/city/CREDITS.md`: the CC BY credit for raytrace's
   buildings was missing from the v0.7 zips); `PLAYING.txt` (also the Release's notes) tells of the
   City series' neon nights.
-- Tag `stadium-v0.8` pushed from this PC: CI "Stadium builds" makes the GitHub Release with the
-  Windows and Linux zips. Continue on `stadium`.
+- **Released**: tag `stadium-v0.8` on 86096d6, pushed from this PC; CI "Stadium builds" green, the
+  GitHub Release carries `SpeedFestStadium-windows.zip` (118.5 MB) and `SpeedFestStadium-linux.zip`
+  (108.8 MB). Continue on `stadium`.
 
 ## Earlier (21 Oct, session 16, owner's Windows PC): the neon City (PLAN M14), on `stadium`
 - Owner: "I find the new city maps still look cheap" (shops on the ground floors, no real neon, the
