@@ -1033,8 +1033,8 @@ func _nose(geo: TmGeo, z0: float, dir: float, ground: bool, top := TOP - CROWN -
 
 ## Checkpoint / finish / multilap / start gate centred at z: TMNF's arch (its measured section)
 ## swept 4.2 m along the road, its front and back faces a moulded rubber band with the gate's word
-## running along the arch ("gate_<kind>", UVs along the arch), its underside lit in the gate's
-## colour, light rigs on its shoulders aimed at the road. TMNF's two sign boards on top are left
+## running along the arch ("gate_<kind>", UVs along the arch), its top and underside TMNF's border
+## atlas strips (_gate_shell), light rigs on its shoulders aimed at the road. TMNF's two sign boards on top are left
 ## out (the review's gate option B: they read as horns); TmGateDress adds an LED screen in the
 ## crown instead (TmGateScreen). The road takes TMNF's line across it (_gate_line). The arch's
 ## ends stand on the curbs as TMNF's do (_gate_feet); the dirt roads' gates are this one resized

@@ -50,7 +50,7 @@
   lip turned round a notch) and truss undersides, the platform checkpoint's floodlight banks, the gate arches' word every 3.08 m, the inflatable
   billboard walls (banner cushions), the camera pubs' ends and roof strips, the road pubs' boards (ads outward only), the
   platform lip's atlas rows (and the ramp piece's orange bevel), the gate arches' top and underside
-  (TMNF's atlas strips), the sculptures' curb tops.
+  (TMNF's atlas strips), the sculptures' curb tops, the circuit walls' bumpers (atlas rows, outline).
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell
@@ -59,7 +59,7 @@
   (m11_check "Survey by use": every shape our tracks build, with counts, not the catalogue's base
   forms). Left: the grandstand straights' lattice (flat cards in TMNF), the grandstand pillar
   piece, the snow / palm trees (organic), the circuit border's back (TMNF's Stands2 panels; ours
-  an X truss) and blue shade, TMNF's additive glow cards (ours: lit lamps), the road straight's
+  an X truss) and its ledge's stripes, TMNF's additive glow cards (ours: lit lamps), the road straight's
   underside details, the hill pieces'
   fabric awnings, the sculptures' borders; the gates' big sign panels stay out (owner's option B); then PLAN M11-3,
   5..7.

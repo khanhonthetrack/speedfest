@@ -2864,4 +2864,11 @@ on every real contact the full impulse would land at the contact point and kick 
   early addition, before the owner asked for TMNF's look; the gates are told apart by TMNF's word
   bands, and the crown screen stays: option B). Left: the loops' road_metal backs and a 12 m2
   strip (rare pieces), the circuit borders' rubber bands (flat keys where TMNF uses the atlas).
+- (M11-2) **The circuit walls' bumpers in TMNF's atlas and outline** (`circuit.gd WALL`,
+  `BUMPER_END_Y`; every circuit border, slope wall and curve, 1185 straights on our tracks). TMNF
+  lays its border atlas on the wall's foot bumper (the black band over the blue line, rows 298 at
+  the foot to 214 at the top) and on the ledge bumper behind (a light bevel, a ribbed flat top,
+  the black band down its rounded nose to the blue line); ours were flat dark rubber keys on a
+  coarser outline. Now TMNF's rows on both, the ledge bumper on TMNF's measured outline; the
+  collision fidelity rose with it (diagonals 97.7 -> 100%, inner corners 98.1 -> 99.0%, curves +0.3-0.6).
 

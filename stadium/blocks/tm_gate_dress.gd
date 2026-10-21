@@ -1,7 +1,7 @@
 class_name TmGateDress
 extends RefCounted
-## What a gate adds beyond its block's faces (the arch, with the gate's word on its faces and its
-## underside lit in the gate's colour, the gate block's curbs, and the road's paint: TMNF's line
+## What a gate adds beyond its block's faces (the arch, with the gate's word on its faces and
+## TMNF's atlas strips on its top and underside, the gate block's curbs, and the road's paint: TMNF's line
 ## across it and its start / finish roads, are in blocks/shapes/road.gd _gate): an LED screen in
 ## the crown and a spotlight in the kind's colour (`crown`, TmGateScreen). Visual only. Built in
 ## TMNF block-local coordinates like the block, then sheared with it (sloped and banked

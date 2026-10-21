@@ -27,23 +27,30 @@ const GROUND_PADS := {
 		[[66.17, 94.48], [66.75, 95.31], [64.66, 96.74], [62.53, 98.13], [61.98, 97.3], [64.0, 96.0]]],
 }
 const LEDGE_Y := 8.0
+const BUMPER_END_Y := 8.202     ## the ledge bumper's last point before it meets the ledge (WALL)
 const FLOOR_Y := 0.24
 
 ## Wall section: (d, y) points around the solid, d = offset from the inner face outward, with the
-## material/surface of the segment starting at each point. Rubber bumper at the foot, light band,
+## material/surface of the segment starting at each point (and the border atlas' rows along it, as
+## TMNF's: the foot's and the ledge's bumpers its black band over the blue line). Rubber bumper at
+## the foot, light band,
 ## blue band, white cladding, blue top lip at 15-16 m, cap, truss and the dark screen on the lane's
 ## side above the lane-level ledge (8 m), down to the truss' foot (TMNF's colours: TmMaterials).
 const WALL := [
-	[-0.465, 0.10, "rubber_dark", S_RUBBER], [-0.585, 0.31, "rubber_dark", S_RUBBER], [-0.645, 0.54, "rubber_dark", S_RUBBER],
-	[-0.615, 0.81, "rubber_dark", S_RUBBER], [-0.415, 1.28, "metal", S_METAL], [-0.415, 1.79, "metal", S_METAL],
+	[-0.465, 0.10, "border_black", S_RUBBER, Vector2(297.8, 285.9)], [-0.585, 0.31, "border_black", S_RUBBER, Vector2(285.9, 266.0)],
+	[-0.645, 0.54, "border_black", S_RUBBER, Vector2(266.0, 246.1)], [-0.615, 0.81, "border_black", S_RUBBER, Vector2(246.1, 214.3)],
+	[-0.415, 1.28, "metal", S_METAL], [-0.415, 1.79, "metal", S_METAL],
 	[0.305, 2.41, "metal", S_METAL], [-0.055, 2.65, "metal", S_METAL], [-0.125, 2.87, "metal", S_METAL],
 	[-0.125, 3.22, "metal", S_METAL], [0.0, 3.40, "circuit_band", S_METAL], [0.0, 7.00, "circuit_panel", S_RUBBER],
 	[-0.135, 7.07, "circuit_panel", S_RUBBER], [-0.135, 14.86, "circuit_trim", S_RUBBER], [-0.065, 15.61, "circuit_trim", S_RUBBER],
 	[0.105, 15.83, "circuit_trim", S_RUBBER], [0.415, 15.96, "circuit_trim", S_RUBBER], [0.775, 16.0, "fabric", S_METAL],
 	[2.665, 16.0, "fabric", S_METAL], [2.835, 15.94, "fabric", S_METAL], [2.885, 15.77, "fabric", S_METAL],
 	[2.885, 15.28, "circuit_trim", S_METAL], [2.595, 15.06, "truss", S_CONCRETE], [2.595, 12.66, "screen_dark", S_METAL],
-	[2.595, 9.63, "truss", S_CONCRETE], [2.595, 9.42, "circuit_bumper", S_RUBBER], [3.565, 9.09, "circuit_bumper", S_RUBBER],
-	[3.935, 8.81, "circuit_bumper", S_RUBBER], [4.145, 8.33, "circuit_bumper", S_RUBBER], [4.075, 8.0, "", S_METAL],
+	[2.595, 9.63, "truss", S_CONCRETE], [2.604, 9.419, "border_panel", S_RUBBER, Vector2(18.8, 0.0)],
+	[2.709, 9.092, "border_ribs", S_RUBBER, Vector2(151.9, 207.0)], [3.569, 9.092, "border_ribs", S_RUBBER, Vector2(207.0, 213.9)],
+	[3.604, 8.99, "border_black", S_RUBBER, Vector2(216.2, 240.2)], [3.935, 8.813, "border_black", S_RUBBER, Vector2(240.2, 253.3)],
+	[4.066, 8.666, "border_black", S_RUBBER, Vector2(253.3, 266.4)], [4.147, 8.463, "border_black", S_RUBBER, Vector2(266.4, 283.1)],
+	[4.147, BUMPER_END_Y, "border_black", S_RUBBER, Vector2(283.1, 299.8)], [4.082, 8.0, "", S_METAL],
 	[4.075, 0.24, "truss", S_METAL], [3.595, 0.24, "truss", S_METAL], [3.415, 0.0, "fabric_auvent", S_RUBBER],
 	[-0.245, 0.0, "rubber_dark", S_RUBBER],
 ]
@@ -696,7 +703,7 @@ func _diag_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, l_a: Vector3
 func _section(dy: float) -> Array:
 	var out := []
 	for p in WALL:
-		out.append([Vector2(float(p[0]), _lift(float(p[1]), dy)), String(p[2]), int(p[3])])
+		out.append([Vector2(float(p[0]), _lift(float(p[1]), dy)), String(p[2]), int(p[3])] + p.slice(4))
 	# on the ground the faces on the terrain are collision only (the terrain hides them)
 	for i in out.size() - 1:
 		if dy > 0.0 and (out[i][0] as Vector2).y == dy and (out[i + 1][0] as Vector2).y == dy:
@@ -727,7 +734,7 @@ func _line_wall(geo: TmGeo, section: Array, a: Vector3, b: Vector3, outward: Vec
 			sec.append(p)
 		# ledge to the cell edge: top at 8 m, outer face, floor
 		var e := 32.0 - FACE
-		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - 8.33) < 0.01)[0])
+		var at := sec.find(sec.filter(func(q): return (q[0] as Vector2).x > 4.0 and absf((q[0] as Vector2).y - BUMPER_END_Y) < 0.01)[0])
 		sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])
 		sec.insert(at + 2, [Vector2(e, LEDGE_Y), "circuit_side", S_METAL])
 		sec.insert(at + 3, [Vector2(e, _lift(FLOOR_Y, dy)), "truss" if dy <= 0.0 else "", S_CONCRETE])
@@ -896,7 +903,7 @@ func _full_wall(geo: TmGeo, section: Array, path: Array, outs: Array, dy: float)
 		sec.append(p)
 	var at := 0
 	for i in sec.size():
-		if (sec[i][0] as Vector2).x > 4.0 and absf((sec[i][0] as Vector2).y - 8.33) < 0.01:
+		if (sec[i][0] as Vector2).x > 4.0 and absf((sec[i][0] as Vector2).y - BUMPER_END_Y) < 0.01:
 			at = i
 	var e := 32.0 - FACE
 	sec.insert(at + 1, [Vector2(4.075, LEDGE_Y), "circuit_floor", S_RUBBER])

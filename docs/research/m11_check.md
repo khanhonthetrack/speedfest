@@ -172,6 +172,9 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   sculptures' curb tops, the checkpoint notch; and TMNF's atlas on the gate arches' top and
   underside where ours had a flat shell (fixed). Worth keeping: a row shift hides from the colour
   check when both rows are dark.
+- The circuit walls' bumpers (21 Oct): TMNF's atlas rows on the foot and ledge bumpers, the ledge
+  bumper on TMNF's outline (atlas_rows: 0 rows off; "(none)" left where our outline still
+  differs: the cap's trim and truss).
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a
