@@ -36,9 +36,15 @@
   with `CREDITS.md`; `env/tm_city_assets.gd` dresses them by material name (glass -> our curtain
   wall with `world_map`, rooms and night lights), picks one that fits a lot; `TmSkyline` uses them
   for 60% of the towers where one fits. `env/asset_lab.tscn --glb=/abs.glb` or `--dir=/abs`
-  previews models in our light. Next: better procedural mid-rises (the street views of the City
-  tracks are mostly ours), lights along the City tracks, the High Rise Pack (its baked textures
-  need their materials rebuilt) and the houses.
+  previews models in our light. Then (21 Oct): our own buildings in detail (windows set back in
+  their openings, sills, grime, brick/panel grain, shop floors with lit shops and signs, cornices,
+  parapets, roof plant, water tanks: `env/tm_tower.gdshader`, `TmSkyline._box`); street trees
+  (`env/tm_trees.gd`, `env/tm_foliage.gdshader`) and our own street lights
+  (`env/tm_street_lights.gd`, real lights at night) along the City tracks; the city built on a
+  worker thread (`TmSkyline.build_async`: online clients had started late while it built).
+  Screenshots here take 10-25 min each (software Vulkan); `--set_quality=2` for Ultra.
+  Open: the owner's look; Street/Traffic Lights licence (then their models could replace ours);
+  the High Rise Pack (baked textures: materials to rebuild) and the houses (outskirts).
 - Owner (20 Oct, not answered yet): "I want to be able to load all canyon/lagoon maps somehow."
   Their block lists already read; the blocks' geometry doesn't exist. Options put to the owner:
   approximate them from our pieces, recreate from the owner's own TM2 install locally, or a
