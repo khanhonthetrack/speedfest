@@ -2973,3 +2973,12 @@ on every real contact the full impulse would land at the contact point and kick 
   glass, no room behind). Ours swept the section on a quarter circle. Now the section's halves run
   along the two paths (the camera booth's corner stays round, as TMNF's). Fidelity: CornerAir 89.2
   -> 98.3%, CornerGround 88.2 -> 99.7%.
+- (M11-3) **The air glass booths' walkway, glass and underside as TMNF's** (`control.gd
+  _glass_walk`, `_walk`, `_walk_board`, `_ground_grate`, `WALK_*`, `GLASS_HALF`;
+  `TmGeo.UPRIGHT_ROWS`). TMNF's booths in the air (814 campaign uses) have a grating walkway at
+  1 m with a railing, a landing and stair down to the ground at each open end, ad boards under its
+  edge, gratings on the ground at the inner corners, the glass in window modules (posts and
+  transoms, as the ground booths'), a dark wall under the walkway and the underside white along
+  its edges. Ours had a solid ledge box, plain grey glass and a white wall. The window posts stand
+  radial round the pavilions (a sweep's atlas run can now keep one u per frame). Fidelity: all six
+  air pieces 98.6-100%.

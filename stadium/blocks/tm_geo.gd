@@ -25,6 +25,11 @@ const SCREEN_MIN_W := 2.5
 const AD_ASPECT := 2.0              ## the ads' width : height (env/tm_adverts.gd PANEL)
 const AD_STRETCH := 1.25            ## an ad stretches this much at most to fill its screen
 
+## Atlas keys whose rows stay upright where a sweep curves (each point's u is its own distance
+## travelled: on a revolve the outer points' run ahead): a run of their segments takes one u per
+## frame, its first point's (the glass booths' window posts stand radial round a pavilion).
+const UPRIGHT_ROWS := ["booth_glass"]
+
 class Group:
 	var v := PackedVector3Array()
 	var n := PackedVector3Array()
@@ -404,7 +409,8 @@ func _poly(pts: Array, out: Vector3, mat: String) -> void:
 ## (p[k+1] - p[k]) turned by -90 deg (lateral, up) -> (up, -lateral) is the outward normal.
 ## profiles: optional per-frame profiles (same point count and materials) instead of one profile.
 ## UVs (for textured materials): u = metres travelled along the path by that point of the section
-## (stretched so the sweep holds a whole number of UV_TILE tiles: no seam where blocks meet);
+## (stretched so the sweep holds a whole number of UV_TILE tiles: no seam where blocks meet;
+## UPRIGHT_ROWS: one u per frame for a run of the key);
 ## v = metres along the section, measured from its nearer end (a closed road section: from the
 ## bottom centre, the same on both sides) and restarting at 0 on each run of one material, so a
 ## material's texture starts at the run's end nearer the section's ends (a curb face's top).
@@ -510,10 +516,17 @@ func sweep(profile: Array, frames: Array, smooth := false, profiles: Array = [],
 				va = rows.x / 512.0
 				vb = rows.y / 512.0
 				tile = 1.0 / 16.0
-			var ua := Vector2(side * float(us[f][k]) * tile, va)
-			var ub := Vector2(side * float(us[f][k + 1]) * tile, vb)
-			var uc := Vector2(side * float(us[f + 1][k + 1]) * tile, vb)
-			var ud := Vector2(side * float(us[f + 1][k]) * tile, va)
+			var ku := k
+			var kv := k + 1
+			if mat in UPRIGHT_ROWS and (profile[k] as Array).size() > 3:
+				# one u per frame for the key's run (its first point's): its texture stays upright
+				while ku > 0 and String(profile[ku - 1][1]) == mat:
+					ku -= 1
+				kv = ku
+			var ua := Vector2(side * float(us[f][ku]) * tile, va)
+			var ub := Vector2(side * float(us[f][kv]) * tile, vb)
+			var uc := Vector2(side * float(us[f + 1][kv]) * tile, vb)
+			var ud := Vector2(side * float(us[f + 1][ku]) * tile, va)
 			if mat in SCREENS:
 				# a screen per segment: as long as the path, as high as the segment
 				var h := ((pr0[k + 1][0] as Vector2) - (pr0[k][0] as Vector2)).length()

@@ -27,10 +27,14 @@ const CAMERA_HALF := [
 	[4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "truss", S_CONCRETE],
 ]
 const GLASS_HALF := [
-	[16.0, 0.0, "structure", S_CONCRETE], [4.0, 0.0, "control_panel", S_METAL], [4.0, 1.0, "glass_booth", S_ICE],
-	[3.36, 2.54, "glass_booth", S_ICE], [1.42, 7.17, "control_panel", S_METAL], [2.07, 7.38, "control_panel", S_METAL],
+	[16.0, 0.0, "stands_dark", S_CONCRETE], [8.0, 0.0, "control_panel", S_CONCRETE], [4.0, 0.0, "stands_dark", S_METAL],
+	[4.0, 1.0, "booth_glass", S_ICE, Vector2(512.0, 384.0)], [3.36, 2.54, "booth_glass", S_ICE, Vector2(384.0, 0.0)],
+	[1.42, 7.17, "control_panel", S_METAL], [2.07, 7.38, "control_panel", S_METAL],
 	[4.0, 8.0, "stands_top", S_CONCRETE], [8.0, 8.0, "stands_dark", S_CONCRETE],
 ]
+## The glass booth in the air as TMNF's: its glass the window modules (booth_glass, as on the
+## ground: the rows over both segments), the wall under its walkway dark, the underside white 4 m in
+## from each side (measured); the walkway: _glass_walk.
 ## Ground variants: a plinth over the whole cell (1 -> 2 m), the walls rising from it (the glass
 ## leaning inward), a low rail at the plinth's edge. As TMNF's booths: the plinth's rim a bluish
 ## grey (booth_rim), the walkway and walls white, a dark sill under the glass booth's glass, the
@@ -92,6 +96,7 @@ var _half: Array = CAMERA_HALF
 var _glass := false                 ## a glass booth (RoadGlass): its room behind the glass
 var _ledge: Array = CAMERA_LEDGE
 var _floor := 0.0
+var _walkway := false               ## the air glass booth: TMNF's walkway (_glass_walk), no ledge
 
 
 ## The camera light rig (Control/CameraLight): its section (x, y), measured: a block 16 m wide and
@@ -185,6 +190,7 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 		return geo.build()
 	var glass := parts[1] == "RoadGlass"
 	_glass = glass
+	_walkway = glass and not ground
 	if ground:
 		_half = GLASS_GROUND_HALF if glass else CAMERA_GROUND_HALF
 		_ledge = GROUND_RAIL
@@ -209,6 +215,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_revolve(geo, Vector3(16, 0, 16), 0.0, -PI, 12)
 		_:
 			_junction(geo, ARMS[form])
+	if _walkway:
+		_glass_walk(geo, form)
 	return geo.build()
 
 
@@ -489,6 +497,8 @@ func _wall_section() -> Array:
 	var out := []
 	for i in range(1, _half.size()):
 		var q: Array = _half[i]
+		if float(q[1]) <= float(_half[0][1]) and float(q[0]) >= WALL_ZONE:
+			continue        # an underside band (the block's own bottom is there)
 		out.append([Vector2(float(q[0]), maxf(float(q[1]), _floor)), String(q[2]), int(q[3])] + q.slice(4))
 	out.append([Vector2(WALL_ZONE, ROOF), "", TmGeo.NO_COLLISION])
 	out.append([Vector2(WALL_ZONE, _floor), "structure", S_CONCRETE])
@@ -513,7 +523,8 @@ func _along(geo: TmGeo, a: Vector3, b: Vector3) -> void:
 	geo.wall_sweep(_section(), [a, b], [lat, lat], true, "stands_dark", S_METAL)
 	_rails(geo, [a, b], [lat, lat], [float(_ledge[0]) - 16.0, 16.0 - float(_ledge[0])])
 	for mirror in [false, true]:
-		geo.wall_sweep(_ledge_section(mirror), [a, b], [lat, lat], true, "structure", S_METAL)
+		if not _walkway:
+			geo.wall_sweep(_ledge_section(mirror), [a, b], [lat, lat], true, "structure", S_METAL)
 		for room: Array in _rooms(mirror):
 			geo.wall_sweep(room, [a, b], [lat, lat], true, String(room[0][1]), TmGeo.NO_COLLISION)
 
@@ -554,6 +565,26 @@ const CORNER_ARC_STEPS := 5
 
 func _glass_corner(geo: TmGeo) -> void:
 	var k := CORNER_PIVOT.y
+	var paths := _corner_paths()
+	var out_path: Array = paths[0]
+	var out_lat: Array = paths[1]
+	var in_path: Array = paths[2]
+	var in_lat: Array = paths[3]
+	geo.wall_sweep(_half_section(true, k), out_path, out_lat, true, "stands_dark", S_METAL)
+	geo.wall_sweep(_half_section(false, k), in_path, in_lat, true, "stands_dark", S_METAL)
+	var d := float(_ledge[0]) - 16.0
+	_rails(geo, in_path, in_lat, [d])
+	_rails(geo, out_path, out_lat, [-d])
+	if not _walkway:
+		geo.wall_sweep(_ledge_section(false), in_path, in_lat, true, "structure", S_METAL)
+		geo.wall_sweep(_ledge_section(true), out_path, out_lat, true, "structure", S_METAL)
+	for room: Array in _rooms(true):
+		geo.wall_sweep(room, out_path, out_lat, true, String(room[0][1]), TmGeo.NO_COLLISION)
+
+
+## The glass corner's outer path and laterals, and its inner path and laterals (_glass_corner).
+static func _corner_paths() -> Array:
+	var k := CORNER_PIVOT.y
 	var radial := func(deg: float) -> Vector3: return Vector3(sin(deg_to_rad(deg)), 0.0, -cos(deg_to_rad(deg)))
 	var pivots := [Vector3(CORNER_PIVOT.x, 0, 16.0 - k), Vector3(16.0 + k, 0, 32.0 - CORNER_PIVOT.x)]
 	var out_path := [Vector3(0, 0, 16)]
@@ -570,15 +601,7 @@ func _glass_corner(geo: TmGeo) -> void:
 	var m := tan(PI / 8.0)        # the chamfer's mitres
 	var in_path := [Vector3(0, 0, 16), Vector3(a, 0, 16), Vector3(16, 0, 32.0 - a), Vector3(16, 0, 32)]
 	var in_lat := [Vector3(0, 0, -1), Vector3(m, 0, -1), Vector3(1, 0, -m), Vector3(1, 0, 0)]
-	geo.wall_sweep(_half_section(true, k), out_path, out_lat, true, "stands_dark", S_METAL)
-	geo.wall_sweep(_half_section(false, k), in_path, in_lat, true, "stands_dark", S_METAL)
-	var d := float(_ledge[0]) - 16.0
-	_rails(geo, in_path, in_lat, [d])
-	_rails(geo, out_path, out_lat, [-d])
-	geo.wall_sweep(_ledge_section(false), in_path, in_lat, true, "structure", S_METAL)
-	geo.wall_sweep(_ledge_section(true), out_path, out_lat, true, "structure", S_METAL)
-	for room: Array in _rooms(true):
-		geo.wall_sweep(room, out_path, out_lat, true, String(room[0][1]), TmGeo.NO_COLLISION)
+	return [out_path, out_lat, in_path, in_lat]
 
 
 ## One half of _section(): the outer (x >= seam) or the inner (x <= seam, its glass opaque white:
@@ -600,6 +623,210 @@ func _half_section(outer: bool, seam: float) -> Array:
 	out[0] = [Vector2(seam, (out[0][0] as Vector2).y)] + (out[0] as Array).slice(1)
 	out.append([Vector2(seam, ROOF), "", TmGeo.NO_COLLISION])
 	return out
+
+
+## The air glass booth's walkway (TMNF's, measured): a grating WALK_Y up from the wall (WALK_WALL
+## from the centre line) out to WALK_EDGE, a railing WALK_RAIL high along its edge, down to the
+## ground at each open end (a landing, then a stair: WALK_ENDS; the corner's CORNER_WALK_ENDS, m
+## along the edge), dark ad boards WALK_BOARD thick under its edge (m along the edge from its start,
+## a negative from its end; round a base or a dead end's half round WALK_BOARD_ARCS, degrees: four
+## to a circle, none across the axes); the inner corners (the corner's, the junctions' open ones) a
+## grating on the ground instead, without the railing.
+const WALK_Y := 1.0
+const WALK_WALL := 12.0
+const WALK_EDGE := 14.0
+const WALK_RAIL := 1.0
+const WALK_ENDS := Vector2(1.0, 3.0)
+const CORNER_WALK_ENDS := Vector2(3.0, 2.2)
+const WALK_BOARD := 0.11
+const WALK_BOARDS := [Vector2(4.0, 16.0), Vector2(22.0, 28.0)]
+const CORNER_BOARDS := [Vector2(5.2, 14.8), Vector2(-23.46, -5.2)]
+const WALK_BOARD_ARCS := [Vector2(10.0, 80.0), Vector2(100.0, 170.0)]
+const DEAD_BOARD := Vector2(4.0, 10.0)      ## a dead end's arms' boards (the straight's second)
+
+
+func _glass_walk(geo: TmGeo, form: String) -> void:
+	var c := Vector3(16, 0, 16)
+	var first := 0
+	match form:
+		"Straight":
+			for sgn: float in [-1.0, 1.0]:
+				first = _walk(geo, [Vector3(16, 0, 0), Vector3(16, 0, 32)], [Vector3(1, 0, 0), Vector3(1, 0, 0)], sgn,
+					WALK_ENDS, WALK_BOARDS, first)
+		"Corner":
+			var paths := _corner_paths()
+			_walk(geo, paths[0], paths[1], 1.0, CORNER_WALK_ENDS, CORNER_BOARDS, 0)
+			_ground_grate(geo, paths[2], paths[3], -1.0)
+		"Base", "Deadend":
+			# round from -x through -z (the dead end's open arm +z: its sides from and back to z 32)
+			var path := []
+			var lat := []
+			var a0 := 0.0 if form == "Base" else PI
+			var a1 := TAU
+			if form == "Deadend":
+				path.append_array([Vector3(16, 0, 32), c])
+				lat.append_array([Vector3(-1, 0, 0), Vector3(-1, 0, 0)])
+			var steps := 36 if form == "Base" else 18
+			for i in steps + 1:
+				var ang := lerpf(a0, a1, float(i) / steps)
+				path.append(c)
+				lat.append(Vector3(cos(ang), 0.0, sin(ang)))
+			var boards := []
+			var s0 := 16.0 if form == "Deadend" else 0.0
+			for q in (2 if form == "Base" else 1):
+				for b: Vector2 in WALK_BOARD_ARCS:
+					boards.append((b + Vector2(180.0, 180.0) * q) * (PI / 180.0) * WALK_EDGE + Vector2(s0, s0))
+			if form == "Deadend":
+				path.append_array([c, Vector3(16, 0, 32)])
+				lat.append_array([Vector3(1, 0, 0), Vector3(1, 0, 0)])
+				boards.append_array([DEAD_BOARD, -Vector2(DEAD_BOARD.y, DEAD_BOARD.x)])
+				_walk(geo, path, lat, 1.0, WALK_ENDS, boards, 0)
+			else:
+				_walk(geo, path, lat, 1.0, Vector2.ZERO, boards, 0)
+		_:
+			var arms: Array = ARMS[form]
+			for i in 4:
+				var o: Vector3 = SIDES[i]
+				var t := Vector3(o.z, 0.0, -o.x)
+				if not arms.has(i):
+					# a closed side: the straight's walkway along it (TMNF's T: its boards from -z)
+					var a := c - Vector3(absf(t.x), 0, absf(t.z)) * 16.0
+					var b := c + Vector3(absf(t.x), 0, absf(t.z)) * 16.0
+					first = _walk(geo, [a, b], [o, o], 1.0, WALK_ENDS, WALK_BOARDS, first)
+				elif arms.has(SIDES.find(t)):
+					# an open corner: the grating on the ground round it
+					var corner := c + o * 16.0 + t * 16.0
+					var path := []
+					var lat := []
+					for s in 7:
+						var ang := PI * 0.5 * s / 6.0
+						path.append(corner)
+						lat.append((-t * cos(ang) - o * sin(ang)).normalized())
+					_ground_grate(geo, path, lat, 1.0, 16.0)
+
+
+## A walkway (above) along a path at the laterals' side sgn: its grating, railing and boards (ends:
+## the landing and stair at each end, or none: the walkway at WALK_Y all along; boards: their spans
+## along the edge, screens from `first`); returns the next screen index.
+func _walk(geo: TmGeo, path: Array, lat: Array, sgn: float, ends: Vector2, boards: Array, first: int) -> int:
+	# the stations, cut where the stairs start and end, with their distance along the edge
+	var st := []          # [point, lateral, s]
+	var s := 0.0
+	for i in path.size():
+		if i > 0:
+			var e0: Vector3 = (path[i - 1] as Vector3) + (lat[i - 1] as Vector3) * sgn * WALK_EDGE
+			var e1: Vector3 = (path[i] as Vector3) + (lat[i] as Vector3) * sgn * WALK_EDGE
+			if e0.distance_to(e1) < 1e-4:
+				continue
+			s += e0.distance_to(e1)
+		st.append([path[i], lat[i], s])
+	var total := s
+	var cuts := [] if ends == Vector2.ZERO else [ends.x, ends.x + ends.y, total - ends.x - ends.y, total - ends.x]
+	for cut: float in cuts:
+		var at := _walk_at(st, cut)
+		var k := 0
+		while k < st.size() and float(st[k][2]) < cut - 1e-4:
+			k += 1
+		if k < st.size() and absf(float(st[k][2]) - cut) > 1e-4:
+			st.insert(k, at)
+	var y_at := func(d: float) -> float:
+		if ends == Vector2.ZERO:
+			return WALK_Y
+		var e := minf(d, total - d)
+		return clampf((e - ends.x) / ends.y, 0.0, 1.0) * WALK_Y
+	var up := Vector3.UP
+	for i in st.size() - 1:
+		var p0: Vector3 = st[i][0]
+		var p1: Vector3 = st[i + 1][0]
+		var l0: Vector3 = (st[i][1] as Vector3) * sgn
+		var l1: Vector3 = (st[i + 1][1] as Vector3) * sgn
+		var y0: float = y_at.call(float(st[i][2]))
+		var y1: float = y_at.call(float(st[i + 1][2]))
+		var q := [p0 + l0 * WALK_WALL + up * y0, p1 + l1 * WALK_WALL + up * y1, p1 + l1 * WALK_EDGE + up * y1,
+			p0 + l0 * WALK_EDGE + up * y0]
+		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).y < 0.0:
+			q = [q[0], q[3], q[2], q[1]]
+		var uv := q.map(func(p: Vector3) -> Vector2: return Vector2(p.x, p.z))
+		geo.quad_uv(q[0], q[1], q[2], q[3], "grate", S_METAL, uv[0], uv[1], uv[2], uv[3])
+		var u0 := float(st[i][2]) / 8.0
+		var u1 := float(st[i + 1][2]) / 8.0
+		var b0 := p0 + l0 * WALK_EDGE + up * y0
+		var b1 := p1 + l1 * WALK_EDGE + up * y1
+		var h := up * WALK_RAIL
+		geo.quad_uv(b0, b1, b1 + h, b0 + h, "railing", S_METAL, Vector2(u0, 1), Vector2(u1, 1), Vector2(u1, 0), Vector2(u0, 0))
+	for b: Vector2 in boards:
+		var s0 := b.x if b.x >= 0.0 else total + b.x
+		var s1 := b.y if b.y >= 0.0 else total + b.y
+		_walk_board(geo, st, sgn, s0, s1, first)
+		first += 1
+	return first
+
+
+## The station (point, lateral, s) at distance s along the edge, interpolated.
+static func _walk_at(st: Array, s: float) -> Array:
+	for k in range(1, st.size()):
+		var s0: float = st[k - 1][2]
+		var s1: float = st[k][2]
+		if s <= s1 + 1e-6:
+			var f := clampf((s - s0) / maxf(s1 - s0, 1e-6), 0.0, 1.0)
+			return [(st[k - 1][0] as Vector3).lerp(st[k][0], f), (st[k - 1][1] as Vector3).lerp(st[k][1], f), s]
+	return st[st.size() - 1]
+
+
+## An ad board under the walkway's edge from s0 to s1 (m along it): dark, its screen facing out.
+func _walk_board(geo: TmGeo, st: Array, sgn: float, s0: float, s1: float, first: int) -> void:
+	var pts := [_walk_at(st, s0)]
+	for q: Array in st:
+		if float(q[2]) > s0 + 1e-4 and float(q[2]) < s1 - 1e-4:
+			pts.append(q)
+	pts.append(_walk_at(st, s1))
+	var w := s1 - s0
+	var h := WALK_Y - 0.02         # its top just under the grating
+	var nz := TmGeo.NO_COLLISION
+	for i in pts.size() - 1:
+		var l0: Vector3 = (pts[i][1] as Vector3) * sgn
+		var l1: Vector3 = (pts[i + 1][1] as Vector3) * sgn
+		var o0: Vector3 = (pts[i][0] as Vector3) + l0 * WALK_EDGE
+		var o1: Vector3 = (pts[i + 1][0] as Vector3) + l1 * WALK_EDGE
+		var i0: Vector3 = (pts[i][0] as Vector3) + l0 * (WALK_EDGE - WALK_BOARD)
+		var i1: Vector3 = (pts[i + 1][0] as Vector3) + l1 * (WALK_EDGE - WALK_BOARD)
+		var a0 := float(pts[i][2]) - s0
+		var a1 := float(pts[i + 1][2]) - s0
+		var top := Vector3(0, h, 0)
+		var uv := [TmGeo.screen_uv(a0, w, h, h, first, 0.5), TmGeo.screen_uv(a1, w, h, h, first, 0.5),
+			TmGeo.screen_uv(a1, w, 0.0, h, first, 0.5), TmGeo.screen_uv(a0, w, 0.0, h, first, 0.5)]
+		var out := (l0 + l1) * 0.5
+		if (o1 - o0).cross(top).dot(out) >= 0.0:
+			geo.quad_uv(o0, o1, o1 + top, o0 + top, "screen", S_METAL, uv[0], uv[1], uv[2], uv[3])
+		else:
+			geo.quad_uv(o1, o0, o0 + top, o1 + top, "screen", S_METAL, uv[1], uv[0], uv[3], uv[2])
+		# its back, top and bottom dark (drawn both ways)
+		for f: Array in [[i0, i1, i1 + top, i0 + top], [o0, o1, i1, i0], [o0 + top, o1 + top, i1 + top, i0 + top]]:
+			geo.quad(f[0], f[1], f[2], f[3], "stands_dark", nz)
+			geo.quad(f[0], f[3], f[2], f[1], "stands_dark", nz)
+	for e: Array in [[pts[0], -1.0], [pts[pts.size() - 1], 1.0]]:
+		var l: Vector3 = (e[0][1] as Vector3) * sgn
+		var o: Vector3 = (e[0][0] as Vector3) + l * WALK_EDGE
+		var i: Vector3 = (e[0][0] as Vector3) + l * (WALK_EDGE - WALK_BOARD)
+		var top := Vector3(0, h, 0)
+		geo.quad(o, i, i + top, o + top, "stands_dark", nz)
+		geo.quad(i, o, o + top, i + top, "stands_dark", nz)
+
+
+## The grating on the ground at an inner corner: from the wall out to the walkway's edge at the
+## laterals' side sgn (edge: the walkway's distances from the path, less this: from a block corner).
+func _ground_grate(geo: TmGeo, path: Array, lat: Array, sgn: float, edge := 0.0) -> void:
+	var d0 := absf(edge - WALK_WALL) if edge > 0.0 else WALK_WALL
+	var d1 := absf(edge - WALK_EDGE) if edge > 0.0 else WALK_EDGE
+	for i in path.size() - 1:
+		var l0: Vector3 = (lat[i] as Vector3) * sgn
+		var l1: Vector3 = (lat[i + 1] as Vector3) * sgn
+		var q := [(path[i] as Vector3) + l0 * d0, (path[i + 1] as Vector3) + l1 * d0, (path[i + 1] as Vector3) + l1 * d1,
+			(path[i] as Vector3) + l0 * d1]
+		if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).y < 0.0:
+			q = [q[0], q[3], q[2], q[1]]
+		var uv := q.map(func(p: Vector3) -> Vector2: return Vector2(p.x, p.z))
+		geo.quad_uv(q[0], q[1], q[2], q[3], "grate", S_METAL, uv[0], uv[1], uv[2], uv[3])
 
 
 ## On the ground, the plinth's railing under its top bar (a cut-out card from the walkway up), along
@@ -637,7 +864,7 @@ func _revolve(geo: TmGeo, c: Vector3, a0: float, a1: float, steps: int, half: Ar
 		path.append(c)
 		lat.append(Vector3(cos(ang), 0.0, sin(ang)))
 	geo.wall_sweep(sec, path, lat, false)
-	if rails:
+	if rails and not _walkway:
 		geo.wall_sweep(led, path, lat, false)
 		_rails(geo, path, lat, [16.0 - float(_ledge[0])])
 	for r: Array in (GLASS_ROOM if _glass else []):

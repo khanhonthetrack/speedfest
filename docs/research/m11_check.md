@@ -134,10 +134,15 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   the wall's 11.1 m: their distance out less 0.75), kinks 10 degrees onto a 45-degree chamfer and
   back; the inner side is a chamfer of the square corner (the centre line's from x 6.43), opaque
   white (ControlInterior, no glass, no room). Fidelity: CornerAir 89.2 -> 98.3%, CornerGround
-  88.2 -> 99.7%. Seen on the way: the air booths' ledge is TMNF's grating walkway (AuventAlpha) at
-  1 m with a 1 m railing, stairs down to 0 at each open end (3 m on a straight, 2 m on the
-  corner), ad boards 0-1 m under its edge (straight: 4-16 and 22-28 each side), the inner
-  corners' grating at 0; their glass is the window modules (posts, transoms) as the ground's.
+  88.2 -> 99.7%.
+- The air glass booths (21 Oct): TMNF's ledge is a grating walkway (AuventAlpha) at 1 m with a
+  1 m railing, a landing at 0 and a stair at each open end (1 + 3 m on a straight, 3 + 2.2 m on
+  the corner, along the edge), ad boards 0-1 m under its edge (straight and T side: 4-16 and
+  22-28; dead end arms 4-10 from the end; round: 10-80 and 100-170 degrees each half; the
+  corner's 9.6 and 18.3 m), the inner corners' grating on the ground (no railing); the glass is
+  the window modules as the ground's (posts radial round the pavilions: TmGeo.UPRIGHT_ROWS), the
+  wall under the walkway dark, the underside white 4 m in from each side. Ours had a solid
+  ledge, plain glass, a white wall. Fidelity: 98.6-100% on all six.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).

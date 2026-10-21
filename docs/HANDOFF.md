@@ -58,11 +58,10 @@
   terrain zones on a 1 m survey (hills 95-99.9%), the air inflatable structures (TMNF's pillows and
   roof, 96.6-100%), the loops' back brackets, the road pubs' boards, beams and walkways (98% on our
   tracks), the road start's pad (the car starts on it as in TMNF) and the gates' rounded faces,
-  the glass booths' corner (TMNF's: chamfered outside, a white chamfer inside; 98-99.7%).
-  Next (in progress): the air glass booths as TMNF's: a grating walkway at 1 m with a railing,
-  stairs down to 0 at each open end and ad boards under it (ours a solid ledge), the glass in
-  window modules (ours plain); then the dark Stands2 texture (TMNF's ribbed panels and faint
-  K-braces; our steel_truss draws bold X's).
+  the glass booths' corner (TMNF's: chamfered outside, a white chamfer inside; 98-99.7%), the air
+  glass booths' walkway (grating at 1 m, railing, stairs down at open ends, ad boards under it),
+  window-module glass and dark/white underside. Next: the dark Stands2 texture (TMNF's ribbed
+  panels and faint K-braces; our steel_truss draws bold X's).
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell
