@@ -12,9 +12,14 @@ the game dresses them in its own materials, `env/tm_city_assets.gd`). Each set's
 | sky2 | `sky2_01..05.glb` | "Skyscraper 2", Blend Swap #82048 (blendswap.com/blends/view/82048) | Blend Swap user (2015) | CC0 1.0 |
 | hotel | `hotel_01.glb` | "Hotel", Blend Swap #82480 (blendswap.com/blends/view/82480) | Blend Swap user (2015) | CC0 1.0 |
 | rt | `rt_01..21.glb` | "12 Buildings", Blend Swap #69593 (blendswap.com/blends/view/69593) | **raytrace** (soundcloud.com/raytrace) | **CC BY 3.0** (credit required) |
+| blade | `blade_01..17.glb` | "Blade runner style Cityscapes" (Blender 2.82), given by the owner (21 Oct 2026) | its author (unnamed in the file) | Free for any project (the file's own note: "you can use this in your any project"); the owner's permission |
 
 "12 Buildings" by raytrace is licensed under Creative Commons Attribution 3.0
 (creativecommons.org/licenses/by/3.0/); scaled to metres (x 100), one of each design kept.
+
+"blade": the file's 19 highrise models (its particle systems' towers; the small buildings' groups,
+the ground and its fog left out), scaled x 80 to metres (`--scale 80 --pad 0.02 --skip
+group,ground,base,volume --min-height 60`; two pairs stood close enough to stay one building).
 
 ## Props (`props/`)
 

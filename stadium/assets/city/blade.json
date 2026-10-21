@@ -1,0 +1,211 @@
+{
+ "source": "Blade runner style Cityscapes.blend",
+ "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026",
+ "scale": 80.0,
+ "buildings": [
+  {
+   "name": "blade_01",
+   "size": [
+    64.84,
+    309.64,
+    64.84
+   ],
+   "triangles": 760,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_02",
+   "size": [
+    64.73,
+    282.99,
+    64.73
+   ],
+   "triangles": 416,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_03",
+   "size": [
+    172.87,
+    277.54,
+    60.84
+   ],
+   "triangles": 1602,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_04",
+   "size": [
+    66.97,
+    264.11,
+    66.97
+   ],
+   "triangles": 1024,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_05",
+   "size": [
+    69.67,
+    254.26,
+    69.67
+   ],
+   "triangles": 1804,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_06",
+   "size": [
+    34.95,
+    253.51,
+    66.6
+   ],
+   "triangles": 1144,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_07",
+   "size": [
+    81.11,
+    239.07,
+    65.82
+   ],
+   "triangles": 180,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_08",
+   "size": [
+    152.35,
+    231.11,
+    91.13
+   ],
+   "triangles": 3016,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_09",
+   "size": [
+    116.65,
+    223.47,
+    71.32
+   ],
+   "triangles": 568,
+   "parts": 2,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_10",
+   "size": [
+    69.65,
+    208.46,
+    77.18
+   ],
+   "triangles": 348,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_11",
+   "size": [
+    140.52,
+    210.99,
+    90.36
+   ],
+   "triangles": 1504,
+   "parts": 2,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_12",
+   "size": [
+    64.57,
+    205.85,
+    46.0
+   ],
+   "triangles": 140,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_13",
+   "size": [
+    89.32,
+    202.42,
+    89.32
+   ],
+   "triangles": 196,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_14",
+   "size": [
+    145.39,
+    192.06,
+    64.54
+   ],
+   "triangles": 796,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_15",
+   "size": [
+    91.52,
+    172.82,
+    86.3
+   ],
+   "triangles": 428,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_16",
+   "size": [
+    45.57,
+    155.69,
+    45.57
+   ],
+   "triangles": 348,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  },
+  {
+   "name": "blade_17",
+   "size": [
+    93.64,
+    108.15,
+    93.64
+   ],
+   "triangles": 76,
+   "parts": 1,
+   "source": "Blade runner style Cityscapes.blend",
+   "licence": "Free for any project (the author's note in Blade runner style Cityscapes.blend); given by the owner, 21 Oct 2026"
+  }
+ ]
+}
