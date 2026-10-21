@@ -99,6 +99,44 @@ def inflatable(name='inflatable_vinyl', ppm=48, size_m=8.0, seed=121):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
+def inflatable_banner(name='inflatable_banner', w=512, h=432, seed=125):
+    """One pillow of the inflatable billboard walls (TMNF's layout; blocks/shapes/inflatable.gd
+    maps it per pillow: u across it, v up its surface from the top of the image = the pillow's top,
+    6.65 m): glossy red vinyl with welded seams at its sides, a white banner printed on it (from
+    1.2 to 4.95 m up the surface, 8.6% in from each side) with our emblem and SPEEDFEST where TMNF
+    prints its own logo, a little grime at the foot."""
+    from road import emblem
+    from livery import fit_font
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    up = (1.0 - (yy + 0.5) / h) * 6.65        # metres up the surface from the pillow's foot
+    u = (xx + 0.5) / w
+    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
+    n2 = fbm(w, h, seed + 1, beta=1.0, lo=24.0)
+    col = srgb((196, 28, 30))[None, None, :] * (1.0 + 0.04 * n1 + 0.02 * n2)[..., None]
+    y0, y1 = (1.0 - 4.95 / 6.65) * h, (1.0 - 1.2 / 6.65) * h
+    x0, x1 = 0.086 * w, 0.914 * w
+    banner = rect_mask(w, h, x0, y0, x1, y1, 2.0)
+    col = lerp(col, srgb((236, 236, 232))[None, None, :] * (1.0 + 0.02 * n2)[..., None], banner)
+    # a thin grey keyline inside the banner's edge
+    key = np.clip(rect_mask(w, h, x0 + 6, y0 + 6, x1 - 6, y1 - 6, 1.0) - rect_mask(w, h, x0 + 9, y0 + 9, x1 - 9, y1 - 9, 1.0), 0, 1)
+    col = lerp(col, srgb((150, 150, 150))[None, None, :], key * 0.6)
+    bh = y1 - y0
+    word = text_mask(w, h, 'SPEEDFEST', fit_font('orbitron-latin-900-normal', 'SPEEDFEST', int(0.54 * (x1 - x0)), int(0.24 * bh)),
+                     (x0 + 0.64 * (x1 - x0), y0 + 0.5 * bh), 'mm', italic=0.22)
+    mark = emblem(w, h, x0 + 0.2 * (x1 - x0), y0 + 0.5 * bh, 0.2 * bh)
+    col = lerp(col, srgb((24, 24, 28))[None, None, :], word)
+    col = lerp(col, srgb((196, 28, 30))[None, None, :], mark)
+    seam = np.clip(1 - smoothstep(0.0, 0.012, np.minimum(u, 1.0 - u)), 0, 1)
+    col *= (1.0 - 0.35 * seam)[..., None]
+    scuff = grime(w, h, seed + 2, 0.8, 2.0) * (1.0 - smoothstep(0.0, 0.9, up))
+    col = lerp(col, srgb((90, 70, 60))[None, None, :], scuff * 0.3)
+    wr = blur(fbm(w, h, seed + 3, beta=1.6, lo=4.0), 1.5)
+    nrm = normal_from_height(-2.0 * seam + 0.5 * wr + 0.3 * banner, 0.5)
+    rough = 0.32 + 0.1 * n2 + 0.3 * scuff + 0.2 * seam + 0.25 * banner
+    orm = np.stack([1.0 - 0.4 * seam, rough, np.zeros_like(rough)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
 def pillar(name='pillar_steel', ppm=64, size_m=8.0, seed=131):
     """The tube network's pillars and pipes: light grey painted steel, welded rings every 2 m,
     bolts, rain streaks (world-mapped)."""
@@ -117,6 +155,7 @@ def pillar(name='pillar_steel', ppm=64, size_m=8.0, seed=131):
 
 if __name__ == '__main__':
     inflatable()
+    inflatable_banner()
     pillar()
 
 

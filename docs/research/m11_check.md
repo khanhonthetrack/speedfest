@@ -156,6 +156,10 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   TMNF's additive glow cards (WarpSpotsGlow, ~170 m2) stay "missing": our lamps are emissive.
 - The gate arches' words (20 Oct, late): TMNF repeats the word every 3.08 m along the arch (u per
   metre of its RaceSigns faces); ours was 8 m. Now 3.08 (ring 2.19).
+- The inflatable billboard walls (21 Oct): TMNF's ground pillars are banner cushions on a plinth
+  (white banner on each red pillow, feet, posts), ours were thick red walls; rebuilt (our emblem
+  on the banner). TMNF's own logo reads mirrored from the bulge side in our reference renders;
+  ours reads from there (the track side).
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a

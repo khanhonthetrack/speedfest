@@ -83,6 +83,7 @@ const COLORS := {
 	"race_finish": [Color8(152, 35, 35), 0.75, 0.0],
 	"gate_line": [Color8(62, 133, 254), 0.5, 0.0],       # the line across the road at a gate
 	"inflatable": [Color(0.95, 0.85, 0.25), 0.6, 0.0],
+	"inflatable_banner": [Color(0.78, 0.22, 0.22), 0.4, 0.0],
 	# the inflatable decorations, in their TMNF textures' colours (measured, area-weighted)
 	"airship": [Color8(237, 230, 170), 0.4, 0.0],        # the airship's envelope (its livery's mean)
 	"airship_fin": [Color8(205, 12, 10), 0.35, 0.0],     # its tail fins (TMNF's red)
@@ -261,6 +262,7 @@ const TEXTURED := {
 	"roof": ["fabric_top", Vector2(16.0, 16.0), true],
 	# inflatable cushion walls (8 m pillows on the 8 m grid), the tube network's pillars and pipes
 	"inflatable": ["inflatable_vinyl", Vector2(8.0, 8.0), true],
+	"inflatable_banner": ["inflatable_banner", Vector2(1.0, 1.0), false],     # a billboard wall's pillow (UVs)
 	# the decorations: one near-white vinyl (texgen/stadium.py inflatable_skin), tinted per part
 	"airship": ["airship_skin", Vector2(1.0, 1.0), false],      # our livery in TMNF's layout (texgen/stadium.py)
 	"infl_leaf": ["inflatable_skin", Vector2(4.0, 4.0), true, Color8(55, 142, 44)],

@@ -22,6 +22,23 @@ const SUPPORT := [9.7, 0.0, 8.0]
 ## its rubber ring's radii (about (16, 4), along z 0..5); measured.
 const TUBE_FLARE := [9.93, 7.67, 2.19, 5.81]
 const TUBE_PIPE := [1.42, 1.66]
+## The ground pillar pieces (TMNF's billboard walls, measured): each pillow rises from its seam
+## line at y 2 with a rounded belly to its full bulge (PILLOW_BELLY: height, share of BULGE across
+## the pillow's middle; across it the share BULGE_SHAPE of sin), red vinyl with a white banner
+## printed on it (texgen/stadium.py inflatable_banner: our emblem and name where TMNF prints its
+## logo; u across the pillow, v up its surface over BANNER_ARC m), a thin skin behind. Under them
+## a low plinth in front of the seam line (PILLAR_BASE: (d in front, y), its face then a rubber
+## strip up to the seam), a white foot at each seam (PILLAR_FOOT: half width, y0, y1, d0, d1) and
+## a dark post in front of it (PILLAR_POST). The corner piece: PILLAR_CORNER pillows round its arc.
+const PILLOW_BELLY := [[2.0, 0.0], [2.31, 0.1], [2.53, 0.24], [2.82, 0.42], [3.15, 0.58], [3.6, 0.71],
+	[4.15, 0.82], [5.4, 0.88], [6.7, 0.94], [8.0, 1.0]]
+const BULGE_SHAPE := 0.6
+const BANNER_ARC := 6.65
+const PILLAR_BASE := [[0.93, 1.0, "stands_top"], [0.63, 1.66, "rubber_dark"], [0.0, 2.0, ""]]
+const PILLAR_FOOT := [0.39, 0.96, 2.24, -0.02, 1.22]
+const PILLAR_POST := [0.09, 2.17, 8.0, 0.0, 0.29]
+const PILLAR_CORNER := 4
+const SKIN := 0.08
 ## The advert pillar's billboard frame (x0, x1, y0, y1, z0 = the screen, z1) and its posts (x).
 const ADVERT_BOARD := [9.37, 54.63, 5.24, 28.53, 5.066, 9.058]
 const ADVERT_POSTS := [8.0, 56.0]
@@ -38,7 +55,11 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	var y0 := 1.0 if ground else 0.0
 	match name.trim_suffix("Ground").trim_suffix("Air"):
 		"TShapedPillar":
-			_straight_wall(geo, PILLAR[0], y0, PILLAR[2])
+			if ground:
+				var seam: float = PILLAR[0]
+				_banner_wall(geo, 32.0, 4, func(t: float, d: float, y: float) -> Vector3: return Vector3(t, y, seam - d))
+			else:
+				_straight_wall(geo, PILLAR[0], y0, PILLAR[2])
 		"TubeTShapedPillar":
 			# the wall with a tube's mouth: a flared box through it, its frame, and the pipe
 			# leaving toward -z with a rubber ring at its end (measured)
@@ -59,7 +80,14 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			for x: float in ADVERT_POSTS:
 				geo.box(Vector3(x - 0.26, 2.0, 7.543), Vector3(x + 0.26, 30.0, 8.058), "structure", S_METAL, "", -2, 0.03)
 		"CornerPillar":
-			_arc_wall(geo, 32.0 - PILLAR[0], y0, PILLAR[2])
+			var r: float = 32.0 - float(PILLAR[0])
+			if ground:
+				# along the arc from (0, 32 - r) round to (r, 32), outward
+				_banner_wall(geo, r * PI * 0.5, PILLAR_CORNER, func(t: float, d: float, y: float) -> Vector3:
+					var a := -PI * 0.5 + t / r
+					return Vector3(cos(a) * (r + d), y, 32.0 + sin(a) * (r + d)))
+			else:
+				_arc_wall(geo, r, y0, PILLAR[2], PILLAR_CORNER)
 		"TShaped":
 			_straight_wall(geo, SUPPORT[0], y0, SUPPORT[2])
 			_roof(geo, PackedVector2Array([Vector2(0, SUPPORT[0]), Vector2(32, SUPPORT[0]), Vector2(32, 32), Vector2(0, 32)]))
@@ -90,6 +118,103 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 	return geo.build()
 
 
+## A ground pillar's billboard wall (PILLOW_BELLY etc.) `length` m along its seam line in `n`
+## pillows; at(t, d, y): the block point t m along the seam line, d m in front of it, at height y.
+func _banner_wall(geo: TmGeo, length: float, n: int, at: Callable) -> void:
+	var w := length / n
+	var cols := 12
+	var rows := PILLOW_BELLY.size()
+	# v up the surface (the pillow's middle), shared by each row
+	var arc := [0.0]
+	for i in range(1, rows):
+		var p0: Vector2 = Vector2(BULGE * float(PILLOW_BELLY[i - 1][1]), float(PILLOW_BELLY[i - 1][0]))
+		var p1: Vector2 = Vector2(BULGE * float(PILLOW_BELLY[i][1]), float(PILLOW_BELLY[i][0]))
+		arc.append(float(arc[i - 1]) + p0.distance_to(p1))
+	var front := func(t: float, u: float, i: int, skin: float) -> Vector3:
+		var d := BULGE * pow(sin(PI * u), BULGE_SHAPE) * float(PILLOW_BELLY[i][1]) - skin
+		return at.call(t, d, float(PILLOW_BELLY[i][0]))
+	for k in n:
+		for j in cols:
+			var u0 := float(j) / cols
+			var u1 := float(j + 1) / cols
+			for i in rows - 1:
+				var p := [front.call(w * (k + u0), u0, i, 0.0), front.call(w * (k + u1), u1, i, 0.0),
+					front.call(w * (k + u1), u1, i + 1, 0.0), front.call(w * (k + u0), u0, i + 1, 0.0)]
+				var q := [front.call(w * (k + u0), u0, i, SKIN), front.call(w * (k + u1), u1, i, SKIN),
+					front.call(w * (k + u1), u1, i + 1, SKIN), front.call(w * (k + u0), u0, i + 1, SKIN)]
+				var v0 := 1.0 - float(arc[i]) / BANNER_ARC
+				var v1 := 1.0 - float(arc[i + 1]) / BANNER_ARC
+				# the banner reads left to right from in front (the bulge side, toward the track;
+				# TMNF's logo reads mirrored from there)
+				var out: Vector3 = (p[0] - q[0]) + (p[2] - q[2])
+				_face_uv(geo, p, [Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)],
+					out, "inflatable_banner", S_RUBBER)
+				# the skin behind: plain red (the texture's top, above the banner)
+				_face_uv(geo, q, [Vector2(u0, v0 * 0.2), Vector2(u1, v0 * 0.2), Vector2(u1, v1 * 0.2), Vector2(u0, v1 * 0.2)],
+					-out, "inflatable_banner", S_RUBBER)
+			# the skin's top edge
+			var top := rows - 1
+			_face(geo, [front.call(w * (k + u0), u0, top, 0.0), front.call(w * (k + u1), u1, top, 0.0),
+				front.call(w * (k + u1), u1, top, SKIN), front.call(w * (k + u0), u0, top, SKIN)], Vector3.UP, "inflatable_banner",
+				TmGeo.NO_COLLISION, [Vector2(u0, 0.01), Vector2(u1, 0.01), Vector2(u1, 0.02), Vector2(u0, 0.02)])
+	# the plinth and the rubber strip along the whole wall
+	var segs := maxi(1, int(ceil(length / 2.0)))
+	for m in segs:
+		var t0 := length * m / segs
+		var t1 := length * (m + 1) / segs
+		for b in PILLAR_BASE.size() - 1:
+			var e0: Array = PILLAR_BASE[b]
+			var e1: Array = PILLAR_BASE[b + 1]
+			var f := [at.call(t0, float(e0[0]), float(e0[1])), at.call(t1, float(e0[0]), float(e0[1])),
+				at.call(t1, float(e1[0]), float(e1[1])), at.call(t0, float(e1[0]), float(e1[1]))]
+			var o: Vector3 = at.call(t0, 1.0, float(e0[1])) - at.call(t0, 0.0, float(e0[1])) + Vector3.UP * 0.5
+			_face(geo, f, o, String(e0[2]), S_RUBBER)
+	# a foot and a post at each seam
+	for k in n + 1:
+		var t := w * k
+		var foot: Array = PILLAR_FOOT
+		_block(geo, at, maxf(t - float(foot[0]), 0.0), minf(t + float(foot[0]), length), foot[3], foot[4], foot[1], foot[2], "fabric")
+		var post: Array = PILLAR_POST
+		_block(geo, at, maxf(t - float(post[0]), 0.0), minf(t + float(post[0]), length), post[3], post[4], post[1], post[2],
+			"stands_dark")
+
+
+## A block between t0..t1 along a wall's seam line, d0..d1 in front of it, y0..y1 (at: as
+## _banner_wall's), its faces but the bottom; visual only.
+func _block(geo: TmGeo, at: Callable, t0: float, t1: float, d0: float, d1: float, y0: float, y1: float, key: String) -> void:
+	var c: Vector3 = at.call((t0 + t1) * 0.5, (d0 + d1) * 0.5, (y0 + y1) * 0.5)
+	var p := func(t: float, d: float, y: float) -> Vector3: return at.call(t, d, y)
+	var faces := [
+		[p.call(t0, d0, y1), p.call(t1, d0, y1), p.call(t1, d1, y1), p.call(t0, d1, y1)],
+		[p.call(t0, d1, y0), p.call(t1, d1, y0), p.call(t1, d1, y1), p.call(t0, d1, y1)],
+		[p.call(t0, d0, y0), p.call(t1, d0, y0), p.call(t1, d0, y1), p.call(t0, d0, y1)],
+		[p.call(t0, d0, y0), p.call(t0, d1, y0), p.call(t0, d1, y1), p.call(t0, d0, y1)],
+		[p.call(t1, d0, y0), p.call(t1, d1, y0), p.call(t1, d1, y1), p.call(t1, d0, y1)],
+	]
+	for f: Array in faces:
+		var m: Vector3 = (f[0] + f[1] + f[2] + f[3]) * 0.25
+		_face(geo, f, m - c, key, TmGeo.NO_COLLISION)
+
+
+## A quad facing `out` (whichever way its corners run), with its UVs in p's order if given.
+func _face(geo: TmGeo, p: Array, out: Vector3, key: String, surface: int, uv: Array = []) -> void:
+	if not uv.is_empty():
+		_face_uv(geo, p, uv, out, key, surface)
+		return
+	if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+		geo.quad(p[0], p[3], p[2], p[1], key, surface)
+	else:
+		geo.quad(p[0], p[1], p[2], p[3], key, surface)
+
+
+## A quad with its UVs (in p's order) facing `out`.
+func _face_uv(geo: TmGeo, p: Array, uv: Array, out: Vector3, key: String, surface: int) -> void:
+	if ((p[1] - p[0]) as Vector3).cross(p[2] - p[0]).dot(out) < 0.0:
+		geo.quad_uv(p[0], p[3], p[2], p[1], key, surface, uv[0], uv[3], uv[2], uv[1])
+	else:
+		geo.quad_uv(p[0], p[1], p[2], p[3], key, surface, uv[0], uv[1], uv[2], uv[3])
+
+
 ## A pillow's bulge at u in [0, 1] across it (a rounded bump, measured shape).
 static func _bulge(u: float) -> float:
 	return BULGE * sqrt(maxf(0.0, sin(PI * clampf(u, 0.0, 1.0))))
@@ -109,10 +234,11 @@ func _straight_wall(geo: TmGeo, seam: float, y0: float, y1: float, width := 32.0
 	geo.extrude_y(loop, y0, y1, true, "inflatable", S_RUBBER)
 
 
-## Cushion wall on an arc of radius r about the footprint corner (0, 32), pillows bulging outward.
-func _arc_wall(geo: TmGeo, r: float, y0: float, y1: float) -> void:
+## Cushion wall on an arc of radius r about the footprint corner (0, 32), pillows bulging outward
+## (`pillows` of them, else about PILLOW wide each).
+func _arc_wall(geo: TmGeo, r: float, y0: float, y1: float, pillows := 0) -> void:
 	var c := Vector2(0, 32)
-	var n := maxi(1, int(round(r * PI * 0.5 / PILLOW)))
+	var n := pillows if pillows > 0 else maxi(1, int(round(r * PI * 0.5 / PILLOW)))
 	var outer := []
 	var inner := []
 	for k in n * 8 + 1:

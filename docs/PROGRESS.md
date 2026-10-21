@@ -2824,4 +2824,15 @@ on every real contact the full impulse would land at the contact point and kick 
   ones. The texture is now one word a tile, condensed as TMNF's lettering, the arch's length
   fitted to whole words; the ring checkpoint's band every 2.19 m as TMNF's. The crown screen
   stays (owner's option B).
+- (M11-2) **The inflatable billboard walls as TMNF's** (`inflatable.gd _banner_wall`,
+  `texgen/stadium.py inflatable_banner`; the walls our tracks put outside curves: CornerPillar 72,
+  TShapedPillar 36 uses). TMNF's ground pillar pieces are a row of red cushions (four on the
+  corner's arc, ours had five) rising from y 2 with a rounded belly, each with a white banner
+  printed on it, over a low plinth and rubber strip, a white foot and a dark post at each seam;
+  ours were thick red pillow walls from the ground with a white stripe. Now built so from the
+  measurement (the belly's profile, the banner's height on the surface, the plinth, feet and
+  posts), the banner our emblem and SPEEDFEST where TMNF prints its own logo, reading from the
+  bulge side (toward the track; TMNF's logo reads mirrored from there), a plain red skin behind.
+  Collision fidelity T 92.1 -> 94.8%, corner 94.2 -> 96.9%. (The stacked pieces above ground,
+  not on our tracks, keep the plain cushion walls; the corner has four pillows as TMNF's.)
 
