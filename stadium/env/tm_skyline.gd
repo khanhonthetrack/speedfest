@@ -121,6 +121,8 @@ static func build() -> Node3D:
 		s["shadows"] = false
 		s["podium"] = 18.0
 		s["bay"] = 4.5
+		s["neon"] = [TmNeon.CYAN, TmNeon.MAGENTA, TmNeon.VIOLET, TmNeon.ICE][k % 4]
+		s["neon_r"] = 0.9
 		_tower(towers, s, Vector2(cell) * PITCH)
 		taken[cell] = true
 		k += 1
@@ -131,6 +133,9 @@ static func build() -> Node3D:
 	for i in SECTORS:
 		roofs.append(TmTower.Builder.new())
 		plazas.append(TmTower.Builder.new())
+	var neon := TmNeon.Tubes.new()       # the lower blocks' neon (crowns, near the Stadium)
+	neon.night = TmStadiumEnv.night
+	neon.sides = 4
 	var n := int(ceil(RADIUS / PITCH))
 	for ix in range(-n, n + 1):
 		for iz in range(-n, n + 1):
@@ -143,14 +148,16 @@ static func build() -> Node3D:
 				continue
 			var sector := _sector(c)
 			if t > 0.42 and rng.randf() < 0.2 + 0.5 * t:
-				_tower_block(towers, blocks, roofs[sector], sector, c, t, _tower_spec(rng, t, ix * 7919 + iz * 104729), rng)
+				_tower_block(towers, blocks, roofs[sector], sector, c, t, _tower_spec(rng, t, ix * 7919 + iz * 104729), rng, neon)
 				continue
 			var park := t < 0.25 and rng.randf() < 0.06
 			if park:
 				_park(plazas[sector], c)
 				continue
-			_lots(blocks, roofs[sector], sector, c, t, rng)
+			_lots(blocks, roofs[sector], sector, c, t, rng, neon)
 	_add_blocks(root, blocks, false)
+	if not neon.is_empty():
+		root.add_child(neon.build("CityNeon"))
 	for i in SECTORS:
 		TmTower.add_mesh(root, roofs[i], TmTower.shared("roof"), "Roofs_%d" % i, false)
 		TmTower.add_mesh(root, plazas[i], _grass(), "Parks_%d" % i, false)
@@ -222,6 +229,8 @@ static func field(builder: TmMapBuilder) -> Node3D:
 	var plazas: Array[Vector2i] = []
 	var boards := []
 	var blades := []
+	var neon := TmNeon.Tubes.new()
+	neon.night = TmStadiumEnv.night
 	var count := 0
 	for c in cells:
 		if used.has(c):
@@ -248,6 +257,8 @@ static func field(builder: TmMapBuilder) -> Node3D:
 			spec["d"] = minf(w * rng.randf_range(0.8, 1.05), room / 1.25)
 			spec["shadows"] = true
 			spec["podium"] = rng.randf_range(8.0, 12.0)
+			spec["neon"] = spec.get("neon", TmNeon.pick(hash(int(spec["seed"]) * 13 + 5), 1.0))     # every field tower
+			spec["neon_r"] = 0.16
 			var turn := absi(int(spec["seed"])) % 4
 			var asset := TmCityAssets.pick(rng, Vector2(room, room), h) if rng.randf() < ASSET_SHARE else {}
 			if not asset.is_empty():
@@ -276,7 +287,7 @@ static func field(builder: TmMapBuilder) -> Node3D:
 		var z1 := (c.y + 1) * 32.0 - FIELD_INSET - rng.randf_range(0.0, 3.0)
 		var r := Rect2(x0, z0, x1 - x0, z1 - z0)
 		var bh := rng.randf_range(16.0, 45.0) if d <= 1 else rng.randf_range(20.0, 90.0)
-		_box(blocks, roofs, 0, r, bh, 0.5, rng, true)
+		_box(blocks, roofs, 0, r, bh, 0.5, rng, true, neon, d <= 2)
 		_collide(body, r, bh)
 		# beside the road: a billboard on the roof facing it, or a neon sign out from the facade
 		var way := _road_way(c, busy)
@@ -298,6 +309,8 @@ static func field(builder: TmMapBuilder) -> Node3D:
 	root.add_child(_street_trees(ch, cells, busy, plazas, body, rng))
 	root.add_child(TmCitySigns.billboards(boards))
 	root.add_child(TmCitySigns.blades(blades, rng))
+	if not neon.is_empty():
+		root.add_child(neon.build("FieldNeon"))
 	_layer(root)          # the city's light: the moon and the street lights, not the floodlights
 	return root
 
@@ -525,7 +538,13 @@ static func _tower_spec(rng: RandomNumberGenerator, t: float, seed: int) -> Dict
 		"glass": GLASS_STYLES[rng.randi() % GLASS_STYLES.size()], "crown": crowns[rng.randi() % crowns.size()],
 		"fins": [0, 0, 2, 3, 4][rng.randi() % 5], "floor": rng.randf_range(3.7, 4.3), "tiers": tiers,
 		"bay": 3.0 if w < 50.0 else 4.5,
-		"seed": seed, "shadows": false, "podium": rng.randf_range(10.0, 16.0)}
+		"seed": seed, "shadows": false, "podium": rng.randf_range(10.0, 16.0)}.merged(_tower_neon(seed))
+
+
+## A tower's neon (spec "neon", "neon_r"; TmTower.build): over half of them, by their seed.
+static func _tower_neon(seed: int) -> Dictionary:
+	var col := TmNeon.pick(hash(seed * 7 + 3), 0.6)
+	return {} if col < 0 else {"neon": col, "neon_r": 0.45}
 
 
 ## One of the owner's buildings (TmCityAssets.pick) standing at `at` (its foot's centre).
@@ -544,7 +563,8 @@ static func _tower(parent: Node3D, spec: Dictionary, at: Vector2, turn := 0) -> 
 
 ## A block of lower buildings: four lots, each a building inset from the pavement, its height and
 ## style from the district (glass where it is taller, masonry where it is low).
-static func _lots(blocks: Dictionary, roofs: TmTower.Builder, sector: int, c: Vector2, t: float, rng: RandomNumberGenerator) -> void:
+static func _lots(blocks: Dictionary, roofs: TmTower.Builder, sector: int, c: Vector2, t: float, rng: RandomNumberGenerator,
+		neon: TmNeon.Tubes = null) -> void:
 	var lot := HALF
 	for qx in 2:
 		for qz in 2:
@@ -553,12 +573,12 @@ static func _lots(blocks: Dictionary, roofs: TmTower.Builder, sector: int, c: Ve
 			var lc := c + Vector2((qx - 0.5) * lot, (qz - 0.5) * lot)
 			var size := Vector2(lot - rng.randf_range(2.0, 9.0) * 2.0, lot - rng.randf_range(2.0, 9.0) * 2.0)
 			var h := 10.0 + (14.0 + 110.0 * t) * pow(rng.randf(), 1.6) + 30.0 * t
-			_box(blocks, roofs, sector, Rect2(lc - size * 0.5, size), h, t, rng)
+			_box(blocks, roofs, sector, Rect2(lc - size * 0.5, size), h, t, rng, false, neon if lc.length() < 1800.0 else null)
 
 
 ## A tower's block: the tower off its centre, lower wings on the block's free sides.
 static func _tower_block(towers: Node3D, blocks: Dictionary, roofs: TmTower.Builder, sector: int, c: Vector2, t: float,
-		spec: Dictionary, rng: RandomNumberGenerator) -> void:
+		spec: Dictionary, rng: RandomNumberGenerator, neon: TmNeon.Tubes = null) -> void:
 	var turn := absi(int(spec["seed"])) % 4
 	var e := Vector2(float(spec["w"]) * 0.59, float(spec["d"]) * 0.625)   # the podium's half extents
 	if turn % 2 == 1:
@@ -599,13 +619,13 @@ static func _tower_block(towers: Node3D, blocks: Dictionary, roofs: TmTower.Buil
 				parts = [Rect2(r.position, Vector2(cut - 3.0, r.size.y)), Rect2(r.position + Vector2(cut + 3.0, 0.0), Vector2(span - cut - 3.0, r.size.y))]
 		for q in parts:
 			var h := 14.0 + (20.0 + 50.0 * t) * rng.randf()
-			_box(blocks, roofs, sector, q, h, t, rng)
+			_box(blocks, roofs, sector, q, h, t, rng, false, neon if c.length() < 1800.0 else null)
 
 
 ## One lower building: a box on a rectangle (with a parapet and, taller, maybe a setback), its
 ## style from its height and the district (glass where it is taller, masonry where it is low).
 static func _box(blocks: Dictionary, roofs: TmTower.Builder, sector: int, r: Rect2, h: float, t: float, rng: RandomNumberGenerator,
-		modern := false) -> void:
+		modern := false, neon: TmNeon.Tubes = null, near := false) -> void:
 	var glass := (h > 45.0 and rng.randf() < 0.35 + 0.6 * t) or (modern and rng.randf() < 0.4)
 	var style: String = (GLASS_STYLES[rng.randi() % GLASS_STYLES.size()] if glass
 		else MASONRY_STYLES[rng.randi() % MASONRY_STYLES.size()])
@@ -633,6 +653,30 @@ static func _box(blocks: Dictionary, roofs: TmTower.Builder, sector: int, r: Rec
 		roof_y += h2
 		_crown_band(b, roofs, lc, roof, roof_y, glass, rng)
 	_roof_clutter(roofs, lc, roof, roof_y, h, glass, rng)
+	if neon != null:
+		_box_neon(neon, r, h, near)
+
+
+## A lower building's neon (M14), by a hash of its place (the layout's random draws stay as they
+## were): a ring under its crown; on many, tubes down its corners to the base; on some, a band
+## every three floors. Near the road (a City field) most of them, thin tubes; in the city round the
+## Stadium a fifth of the taller ones, crowns only, thick enough to read from the field.
+static func _box_neon(neon: TmNeon.Tubes, r: Rect2, h: float, near: bool) -> void:
+	var hv := hash(Vector2i(roundi(r.position.x * 10.0), roundi(r.position.y * 10.0)))
+	var col := TmNeon.pick(hv, 0.75 if near else (0.2 if h > 25.0 else 0.0))
+	if col < 0:
+		return
+	var poly := _rect(r.get_center(), r.size)
+	var top := 0.4 + h - 1.1
+	var rad := 0.12 if near else 0.45
+	var style := (absi(hv) / 1000) % 4 if near else 2
+	var base := 0.4 + STOREFRONT
+	TmNeon.ring(neon, poly, top, col, rad, 0.2, top - base if style == 0 or style == 3 else 0.0)
+	if style == 1:
+		var yb := base + 12.0
+		while yb < top - 6.0:
+			TmNeon.ring(neon, poly, yb, col, rad, 0.2)
+			yb += 12.0
 
 
 static func _rect(c: Vector2, size: Vector2) -> PackedVector2Array:

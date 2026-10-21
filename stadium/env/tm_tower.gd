@@ -105,6 +105,7 @@ static func build(spec: Dictionary) -> Node3D:
 	# the tiers: each from the last one's top, smaller as it rises
 	var y := podium
 	var last: PackedVector2Array = footprint(shape, w, d)
+	var tops := []           # each tier's footprint and top (the neon outlines them)
 	for t: Array in tiers:
 		var top := podium + (height - podium) * float(t[0])
 		var poly := footprint(shape, w * float(t[1]), d * float(t[1]))
@@ -116,6 +117,7 @@ static func build(spec: Dictionary) -> Node3D:
 		cap(roofs, poly, top)
 		last = poly
 		y = top
+		tops.append([poly, top])
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed
 	var glass := String(spec.get("glass", "blue"))
@@ -140,6 +142,19 @@ static func build(spec: Dictionary) -> Node3D:
 	lobby_mat.set_shader_parameter("transom", 0.9)
 	_add(root, lobby, lobby_mat, "Lobby", shadows)
 	_add(root, roofs, shared("roof"), "Roofs", shadows)
+	# neon (M14; spec "neon": a TmNeon colour): round the podium's top, every setback and the top,
+	# and down the top tier's corners
+	if spec.has("neon"):
+		var tubes := TmNeon.Tubes.new()
+		tubes.night = TmStadiumEnv.night
+		var col := int(spec["neon"])
+		var r := float(spec.get("neon_r", 0.35))
+		TmNeon.ring(tubes, pod, podium, col, r, 0.3)
+		for k in tops.size():
+			var top_y := float(tops[k][1])
+			var down := minf((top_y - (float(tops[k - 1][1]) if k > 0 else podium)) * 0.4, 70.0) if k == tops.size() - 1 else 0.0
+			TmNeon.ring(tubes, tops[k][0], top_y - 0.4, col, r, 0.3, down)
+		root.add_child(tubes.build())
 	return root
 
 

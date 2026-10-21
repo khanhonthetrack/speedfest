@@ -41,6 +41,8 @@ static func setup(on: bool, night: bool) -> void:
 	_line("border_blue", Vector2(364.0, 393.0), COLOURS[CYAN], 3.5, true)        # the road edge's strip
 	_line("airship", Vector2(0.47, 0.53) * 512.0, COLOURS[CYAN], 6.0, true)     # along the envelope's belly
 	_materials.clear()
+	for c in COLOURS.size():          # made here, on the main thread: the city builds on a worker
+		material(c, night)
 
 
 static func _line(key: String, rows: Vector2, colour: Color, energy: float, chase: bool) -> void:
@@ -97,6 +99,7 @@ static func track_lights(path: Array, night: bool) -> Node3D:
 class Tubes:
 	var _st := {}          ## colour index -> SurfaceTool
 	var night := true
+	var sides := 8         ## round each tube (4 for the far city)
 
 	func add(points: PackedVector3Array, radius: float, colour: int, closed := false) -> void:
 		if points.size() < 2:
@@ -109,7 +112,6 @@ class Tubes:
 		var pts := points.duplicate()
 		if closed:
 			pts.append(points[0])
-		var sides := 8
 		for i in pts.size() - 1:
 			var a: Vector3 = pts[i]
 			var b: Vector3 = pts[i + 1]
@@ -156,6 +158,33 @@ class Tubes:
 			mi.gi_mode = GeometryInstance3D.GI_MODE_STATIC
 			root.add_child(mi)
 		return root
+
+
+## A building's neon from a hash (not a random draw: the city's layout stays as it was): -1 none, else
+## a colour (cyan, magenta, violet, amber, ice: not lime); `share` of them get one.
+static func pick(h: int, share: float) -> int:
+	var hv := absi(h)
+	return (hv / 100) % LIME if float(hv % 100) < share * 100.0 else -1
+
+
+## A neon outline round a footprint (x, z in the parent's frame) at height y, `out` m proud of the
+## wall; `down` > 0 runs a tube down each corner that far as well (footprints of up to 8 corners).
+static func ring(tubes: Tubes, poly: PackedVector2Array, y: float, colour: int, radius: float, out := 0.25, down := 0.0) -> void:
+	if poly.size() < 3:
+		return
+	var c := Vector2.ZERO
+	for p in poly:
+		c += p
+	c /= poly.size()
+	var pts := PackedVector3Array()
+	for p in poly:
+		var d := p - c
+		var q := p + (d.normalized() * out if d.length() > 0.01 else Vector2.ZERO)
+		pts.append(Vector3(q.x, y, q.y))
+	tubes.add(pts, radius, colour, true)
+	if down > 0.0 and poly.size() <= 8:
+		for q in pts:
+			tubes.add(PackedVector3Array([q, q - Vector3(0.0, down, 0.0)]), radius, colour)
 
 
 ## A tube's material: its colour, glowing (shared per colour and mood).

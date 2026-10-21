@@ -75,7 +75,7 @@ vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp, vec3 box) 
 		col = vec3(0.82);
 		vec2 q = fract(p.xz / vec2(1.5, 1.5));
 		float panel = step(0.2, q.x) * step(q.x, 0.8) * step(0.3, q.y) * step(q.y, 0.7);
-		col = mix(col, lamp * mix(5.0, 2.4, day), panel * lit);
+		col = mix(col, lamp * mix(mix(5.0, 2.6, tm_night), 2.4, day), panel * lit);
 	} else if (t == ty) {
 		col = carpet;
 	} else if (t == tz) {
@@ -93,7 +93,7 @@ vec3 room(vec2 cell, vec3 o, vec3 d, float lit, float day, vec3 lamp, vec3 box) 
 		col *= mix(0.55, 1.0, smoothstep(0.0, 0.7, p.y));
 	}
 	// daylight from the window falls off into the room; the lamps light it evenly
-	vec3 light = vec3(day * (0.70 - 0.45 * depth)) + lit * lamp * (0.9 + 0.25 * hash(cell, 5.0));
+	vec3 light = vec3(day * (0.70 - 0.45 * depth)) + lit * lamp * (0.9 + 0.25 * hash(cell, 5.0)) * mix(1.0, 0.6, tm_night);
 	return col * light;
 }
 
@@ -157,10 +157,14 @@ void fragment() {
 	float day = daylight * (1.0 - tm_night);
 	// lit in patches: each band of floors and bays its own share (offices, empty floors)
 	vec2 band = vec2(floor(c.x / 6.0), floor(c.y / 3.0));
-	float litf = clamp(mix(lit_fraction, 0.45, tm_night) * (0.2 + 1.6 * hash(band, 15.0)), 0.0, 0.95);
+	float litf = clamp(mix(lit_fraction, 0.30, tm_night) * (0.2 + 1.6 * hash(band, 15.0)), 0.0, 0.95);
 	float lit = lobby > 0.5 ? 1.0 : step(hash(rc, 2.0), litf);
 	// the rooms' lamps: warm in most, cool white in offices with fluorescent panels
 	vec3 lamp = mix(vec3(1.05, 0.90, 0.68), vec3(0.88, 0.95, 1.05), step(0.55, hash(rc, 14.0)));
+	// at night some rooms glow in colour (screens, mood lights): violet, blue, pink
+	float hue = hash(rc, 16.0);
+	vec3 tint_room = hue < 0.33 ? vec3(0.55, 0.32, 1.0) : (hue < 0.66 ? vec3(0.25, 0.55, 1.05) : vec3(1.0, 0.35, 0.65));
+	lamp = mix(lamp, tint_room, step(hash(rc, 17.0), 0.14) * tm_night);
 	vec3 inside_avg = vec3(0.10, 0.10, 0.10) * day + litf * mix(vec3(0.55, 0.50, 0.42), vec3(0.55, 0.47, 0.36), tm_night);
 	// masonry: the glass sits `reveal` back in its opening; the eye meets it further along its
 	// ray, or meets the opening's sides first: the sill (lit from above), the head (in shade), jambs
@@ -226,7 +230,7 @@ void fragment() {
 	ALBEDO = (frame_alb * frame + span_alb * span + frame_colour * COLOR.rgb * rev_light * rev_m + glass_tint * glass_eff) / wsum;
 	METALLIC = (frame_metal * (frame + rev_m) + span_metal * span + reflectivity * glass_eff) / wsum;
 	ROUGHNESS = (frame_rough * (frame + rev_m) + span_rough * span + (0.035 + 0.02 * hash(c, 13.0)) * glass_eff) / wsum;
-	EMISSION = inside * glass_eff * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.5, tm_night) * transmit;
+	EMISSION = inside * glass_eff * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.0, tm_night) * transmit;
 	// a crown's floodlights wash up its frames at night
 	float crown = step(0.4, COLOR.a) * (1.0 - step(0.75, COLOR.a));      // 0.4..0.75 (under 0.4: plain)
 	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;
@@ -262,7 +266,7 @@ void fragment() {
 		vec3 sp = so + sdd * min(sty, stz);
 		float depth = clamp(-sp.z / 12.0, 0.0, 1.0);
 		vec3 inner = vec3(0.010, 0.012, 0.016) * (1.0 - 0.5 * depth);
-		inner = mix(inner, vec3(1.0, 0.84, 0.62) * (1.3 - 0.9 * depth) * (0.7 + 0.5 * clamp(sp.y / max(hh, 0.1), 0.0, 1.0)), entrance);
+		inner = mix(inner, vec3(1.0, 0.84, 0.62) * (0.65 - 0.45 * depth) * (0.7 + 0.5 * clamp(sp.y / max(hh, 0.1), 0.0, 1.0)), entrance);
 		float glass_b = (1.0 - fin) * (1.0 - plinth) * (1.0 - cap);
 		vec3 led = bid < 0.24 ? vec3(0.15, 0.85, 1.0) : (bid < 0.46 ? vec3(1.0, 0.18, 0.62)
 			: (bid < 0.66 ? vec3(0.6, 0.28, 1.0) : (bid < 0.82 ? vec3(1.0, 0.62, 0.18) : vec3(0.9, 0.95, 1.0))));
