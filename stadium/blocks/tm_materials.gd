@@ -174,8 +174,8 @@ const TEXTURED := {
 	# the field, dirt roads, platforms, structures and walls (texgen/surfaces.py)
 	"grass": ["stadium_grass", Vector2(32.0, 32.0), true, Color.WHITE, 0.16],
 	"dirt": ["stadium_dirt", Vector2(8.0, 8.0), true, Color.WHITE, 0.14],
-	# (the decks: one texture per 32 m block, its edge the blocks' seam; the tread is a DETAIL map)
-	"platform": ["platform_plate", Vector2(32.0, 32.0), true, Color.WHITE, 0.05],
+	# (the decks: a 16 m tile as TMNF's, its edges the seams; the tread is a DETAIL map)
+	"platform": ["platform_plate", Vector2(16.0, 16.0), true, Color.WHITE, 0.05],
 	"structure": ["steel_painted", Vector2(8.0, 8.0), true],
 	"wall": ["wall_panels", Vector2(16.0, 16.0), true],
 	"wall_dark": ["wall_panels", Vector2(16.0, 16.0), true, Color(0.36, 0.38, 0.42)],

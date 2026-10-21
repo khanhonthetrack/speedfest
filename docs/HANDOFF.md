@@ -51,7 +51,7 @@
   billboard walls (banner cushions), the camera pubs' ends and roof strips, the road pubs' boards (ads outward only), the
   platform lip's atlas rows (and the ramp piece's orange bevel), the gate arches' top and underside
   (TMNF's atlas strips), the sculptures' curb tops, the circuit walls' bumpers (atlas rows, outline), the road keel's plates,
-  the border atlas' rail rows (structure as TMNF's).
+  the border atlas' rail rows (structure as TMNF's), the decks' 16 m plate tiles.
   Side-by-side renders:
   `tests/block_view.tscn` (one shape; `--ref=<local ref dir>` shows TMNF's own look); numbers:
   `tests/block_dump.tscn` + `material_check.py --shape=<family> --detail` (it can't tell

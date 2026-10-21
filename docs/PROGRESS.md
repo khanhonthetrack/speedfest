@@ -2882,4 +2882,9 @@ on every real contact the full impulse would land at the contact point and kick 
   light rails, a perforated grating, a wide rail, two bands of slotted teeth 16 px apart. Redrawn
   so (ours), and the panel band (the curbs' tops) gets TMNF's dark frame and its shading into
   the rail.
+- (M11-2) **The decks' plate in 16 m tiles as TMNF's** (`texgen/decks.py platform_plate`,
+  `TmMaterials` "platform"; every platform and circuit deck). TMNF tiles its deck plate every 16 m
+  (UVs 0-2 over a block, a dark seam at the texture's edge), so each block shows a seam across its
+  middle both ways; ours tiled 32 m (seams only at the block edges). The plate is redrawn as a
+  16 m tile (the same scratches and smears per m2).
 

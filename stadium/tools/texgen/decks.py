@@ -37,8 +37,9 @@ def lines(w, h, seed, count, lmin, lmax, angle_sd, width=1, ss=2):
     return np.asarray(img, np.float32) / 255.0
 
 
-def platform_plate(name='platform_plate', ppm=64, size_m=32.0, seed=251, base=(170, 169, 166)):
-    """The decks' steel plate over one block (32 m; world-mapped, so its edge is the blocks' seam):
+def platform_plate(name='platform_plate', ppm=64, size_m=16.0, seed=251, base=(170, 169, 166)):
+    """The decks' steel plate, a tile 16 m square as TMNF's (world-mapped, so its edges are the
+    blocks' seams and a seam across each block's middle both ways):
     light grey with soft mottling, rubber smears and scratches along x (TMNF's deck reads like a
     worn floor that cars slide across), a few dark spots, the seam a fine groove with a bright lip."""
     w = h = int(size_m * ppm)
@@ -48,8 +49,10 @@ def platform_plate(name='platform_plate', ppm=64, size_m=32.0, seed=251, base=(1
     fine = fbm(w, h, seed + 2, beta=0.5, lo=200.0)
     # smears: noise stretched along x, kept where it is strong
     smear = smoothstep(0.9, 2.4, blur_xy(fbm(w, h, seed + 3, beta=1.2, lo=6.0), 60.0, 3.0) * 4.0)
-    scratch = lines(w, h, seed + 4, 900, 10.0, 90.0, 0.06)
-    scratch_dark = lines(w, h, seed + 5, 1400, 4.0, 60.0, 0.15, width=2) * smoothstep(0.0, 1.2, fbm(w, h, seed + 6, beta=2.2, lo=2.0))
+    # (as many per m2 as over the old 32 m tile)
+    k = (size_m / 32.0) ** 2
+    scratch = lines(w, h, seed + 4, int(900 * k), 10.0, 90.0, 0.06)
+    scratch_dark = lines(w, h, seed + 5, int(1400 * k), 4.0, 60.0, 0.15, width=2) * smoothstep(0.0, 1.2, fbm(w, h, seed + 6, beta=2.2, lo=2.0))
     spots = blur(speckles(w, h, seed + 7, 0.000005, 2.0, 5.0), 1.5)
     # the seam on the block's edge (the texture's edge, both axes)
     du = np.minimum(xx, w - 1 - xx) / ppm
