@@ -161,8 +161,8 @@ Updated 2026-10-19 (session 13 continued, v0.5). Details: `docs/PROGRESS.md` (la
    path (`TmGeo.wall_sweep`, `sweep`), revolved, extruded (`extrude_y`), a flat piece sheared into
    a slope or bank (`TmGeo.shear_y`), half a symmetric piece clipped and mirrored (`TmGeo.clip`,
    `add_mirror_x`), swept through TMNF's own frames (`sweep_frames.py`), or, for hand-sculpted
-   terrain, a bicubic surface through surveyed control heights (`zone_heights.py`,
-   `terrain_heights.py` -> `blocks/data/*.json`).
+   terrain, a surface through surveyed heights (`zone_heights.py`: a 1 m grid, a quad between
+   each four, as TMNF's hills have sharp creases; `terrain_heights.py`: bicubic) -> `blocks/data/*.json`.
    Fit planes and curves to the measurement before assuming a formula.
 4. Write the generator in `blocks/shapes/<family>.gd` (`handles(shape)`, `make(shape, ...)`);
    register a new family in `blocks/tm_block_lib.gd` `FAMILIES`.

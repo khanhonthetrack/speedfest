@@ -2921,4 +2921,14 @@ on every real contact the full impulse would land at the contact point and kick 
   panels and rail over them, the walkway's grating, lattice and railing, and under the top bar
   four flat trusses along the axes and four along the diagonals; ours was the bare revolved
   section. Fidelity 83.1 -> 83.8% (TMNF's bars tilt their lamps up; ours level).
+- (M11-3) **The terrain zones on a 1 m survey** (`tools/research/tmnf/zone_heights.py`,
+  `blocks/data/zone_heights.json`, `zone.gd _surface`). TMNF's dirt hills, dirt borders and pool
+  basins are hand-sculpted meshes; ours were bicubic surfaces through a 4 m survey (9 x 9), which
+  rounded off their creases (the full fidelity sweep ranked them the biggest gap by campaign
+  use: hills 67-92%, border dead ends 68%). Now the survey is 33 x 33 points 1 m apart and the
+  surface a quad between each four, shaded round from the heights: hills 94.8-99.9%, border
+  dead ends 90.6-99.2%, corners 91-98%. The decorated dead ends (door, spotlight), whose
+  measurement holds their glow cards only, had been surveyed flat and built as flat ground; they
+  now take the plain dead end's hill. Pools stay low in the sweep (18-74%) because TMNF's water
+  surface collides (our water has no physics yet: the owner's call, PLAN M11-5).
 
