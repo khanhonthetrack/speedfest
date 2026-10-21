@@ -2947,4 +2947,14 @@ on every real contact the full impulse would land at the contact point and kick 
   a loop's back every 15 degrees (five across: four 1 m fins and a 7.2 m one in the middle,
   tapering from radius 31 to 32 m); ours had none. Fidelity: EndAir 83.7 -> 92.0%, StartAir 91.4
   -> 91.7%.
+- (M11-3) **The road pubs' boards, beams and walkways as TMNF's** (`control.gd _pub_junction_boards`,
+  `_pub_board`, `_pub_beams`, `_pub_walk`, `PUB_SIDE` etc.). TMNF lays a junction's boards across
+  each closed side and diagonally across each inner corner between two arms; the dead end has one
+  along each side of its arm (from the box out), one across its closed end and two beams across,
+  its plinth running back past the box. The straights have no end portals (ours had invented them)
+  but two beams across each side of the box (the ground's high ones further out), taller frames,
+  and the air straights and dead ends a grating walkway with railings under the boards. Ours laid
+  boards along every arm. Fidelity: StraightGround 91.8 -> 98.3%, DeadendGround 76.6 -> 98.5% (both
+  on our tracks), StraightAir 77.6 -> 86.8%, DeadendAir 82.3 -> 91.3%, the junctions +1-9 points
+  (TMNF's junction walkways run narrower strips along their railings: not built).
 

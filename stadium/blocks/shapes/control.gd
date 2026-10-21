@@ -685,6 +685,23 @@ const PUB_BASE_RUN := 13.19
 const PUB_BASE_RAIL := 0.93
 const PUB_RAIL_H := 1.0
 const PUB_FRAME := 0.25         ## the dark frame's margin round a straight's boards
+## The junctions' boards as TMNF lays them out (measured): a board across each closed side, its face
+## PUB_SIDE from the centre, and one across each inner corner between two arms, its face PUB_DIAG out
+## along the corner's diagonal; the dead end's two along its arm (PUB_SIDE out, from the centre to
+## PUB_DEAD_RUN), one across its closed end (PUB_DEAD_END from the centre) and two beams across
+## between the side boards (PUB_DEAD_BEAMS: t0, t1 along the arm, low and top; on the ground the top
+## one at PUB_DEAD_BEAM_TOP); each board PUB_BOARD_HALF long either side of its middle, 0.6 m deep,
+## its frame PUB_BOARD_RIM below and above the screen (whose ad faces out), the dead end's plinth
+## from PUB_DEAD_PLINTH.x behind the centre (its railing PUB_DEAD_PLINTH.y in from there).
+const PUB_SIDE := 6.0
+const PUB_DIAG := 12.52
+const PUB_DEAD_RUN := 12.96
+const PUB_DEAD_END := 4.58
+const PUB_DEAD_BEAMS := Vector2(3.98, 4.86)
+const PUB_DEAD_BEAM_TOP := Vector2(10.98, 11.86)
+const PUB_BOARD_HALF := 6.48
+const PUB_BOARD_RIM := Vector2(0.63, 0.47)
+const PUB_DEAD_PLINTH := Vector2(13.2, 0.9)
 
 
 func _pub(geo: TmGeo, arms: Array) -> void:
@@ -739,8 +756,7 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 		runs.append([Vector3(0, 0, 1), -PUB_GAP * 0.5 - PUB_BOARD_W, -PUB_GAP * 0.5])
 		runs.append([Vector3(0, 0, 1), PUB_GAP * 0.5, PUB_GAP * 0.5 + PUB_BOARD_W])
 	else:
-		for d: Vector3 in dirs:
-			runs.append([d, 4.0, 12.96])
+		first = _pub_junction_boards(geo, dirs, by)
 	for r in runs:
 		var d: Vector3 = r[0]
 		var side := Vector3(d.z, 0.0, -d.x)
@@ -754,31 +770,143 @@ func _pub(geo: TmGeo, arms: Array) -> void:
 			geo.screen_box(lo, hi, "screen", S_METAL, 0.03, first, "structure", off)
 			first += 1
 	if straight:
-		# TMNF's dark frame round each side's boards; on the ground, a portal over each end
+		# TMNF's dark frame round each side's boards, and beams across between them (each side of the
+		# box: low and high, the ground's high ones further out)
 		var z0 := 16.0 - PUB_GAP * 0.5 - PUB_BOARD_W - PUB_FRAME
 		var z1 := 16.0 + PUB_GAP * 0.5 + PUB_BOARD_W + PUB_FRAME
 		for x: float in [10.1, 21.5]:
-			geo.box(Vector3(x, by.x - PUB_FRAME, z0), Vector3(x + 0.4, by.y + PUB_FRAME, z1), "stands_dark", S_METAL)
-		if _floor > 0.0:
-			for z: float in [0.0, 31.6]:
-				for x: Vector2 in [Vector2(8.0, 10.5), Vector2(21.5, 24.0)]:
-					geo.box(Vector3(x.x, 1.81, z), Vector3(x.y, ROOF, z + 0.4), "stands_dark", S_METAL)
-				geo.box(Vector3(10.5, ROOF - 0.4, z), Vector3(21.5, ROOF, z + 0.4), "stands_dark", S_METAL)
+			geo.box(Vector3(x, by.x - PUB_BOARD_RIM.x, z0), Vector3(x + 0.4, by.y + PUB_BOARD_RIM.y, z1), "stands_dark", S_METAL)
+		for d: Vector3 in [Vector3(0, 0, 1), Vector3(0, 0, -1)]:
+			_pub_beams(geo, d, by)
+	if _floor <= 0.0 and (straight or dirs.size() == 1):
+		_pub_walk(geo, dirs)
 	if _floor > 0.0:
 		if straight:
 			_pub_plinth(geo, Vector3(16, 0, 0), Vector3(16, 0, 32), Vector3(1, 0, 0))
+		elif dirs.size() == 1:
+			# the dead end's plinth runs back past the box, its railing closing across that end
+			var d: Vector3 = dirs[0]
+			_pub_plinth(geo, Vector3(16, 0, 16) - d * PUB_DEAD_PLINTH.x, Vector3(16, 0, 16) + d * 16.0, Vector3(d.z, 0.0, -d.x),
+				PUB_DEAD_PLINTH.y, 0.0)
 		else:
 			for d: Vector3 in dirs:
 				_pub_plinth(geo, Vector3(16, 0, 16) + d * 4.0, Vector3(16, 0, 16) + d * 16.0, Vector3(d.z, 0.0, -d.x))
 
 
+## The boards of a pub junction (dirs: its arms; not the straight), TMNF's layout (PUB_SIDE etc.);
+## returns the next screen index.
+func _pub_junction_boards(geo: TmGeo, dirs: Array, by: Vector2) -> int:
+	var first := 0
+	var c := Vector3(16, 0, 16)
+	var y0 := by.x - PUB_BOARD_RIM.x
+	var y1 := by.y + PUB_BOARD_RIM.y
+	if dirs.size() == 1:
+		var d: Vector3 = dirs[0]
+		var side := Vector3(d.z, 0, -d.x)
+		var mid := PUB_DEAD_RUN * 0.5
+		for k: float in [-1.0, 1.0]:
+			_pub_board(geo, c + d * mid + side * k * PUB_SIDE, side * k, mid, y0, y1, by, first)
+			first += 1
+		_pub_board(geo, c - d * PUB_DEAD_END, -d, PUB_BOARD_HALF, y0, y1, by, first)
+		first += 1
+		_pub_beams(geo, d, by)
+		return first
+	for s: Vector3 in SIDES:
+		if not dirs.has(s):
+			_pub_board(geo, c + s * PUB_SIDE, s, PUB_BOARD_HALF, y0, y1, by, first)
+			first += 1
+	for i in dirs.size():
+		for j in range(i + 1, dirs.size()):
+			var a: Vector3 = dirs[i]
+			var b: Vector3 = dirs[j]
+			if absf(a.dot(b)) > 0.5:
+				continue
+			var o := (a + b).normalized()
+			_pub_board(geo, c + o * PUB_DIAG, o, PUB_BOARD_HALF, y0, y1, by, first)
+			first += 1
+	return first
+
+
+## The two beams across between the boards along d (PUB_DEAD_BEAMS: t along d; a low one at the
+## frames' foot, a high one at their top, the ground's high one further out, PUB_DEAD_BEAM_TOP).
+func _pub_beams(geo: TmGeo, d: Vector3, by: Vector2) -> void:
+	var c := Vector3(16, 0, 16)
+	var side := Vector3(d.z, 0, -d.x)
+	var y0 := by.x - PUB_BOARD_RIM.x
+	var y1 := by.y + PUB_BOARD_RIM.y
+	var beam := func(t: Vector2, ya: float, yb: float) -> void:
+		var p := c + d * t.x - side * (PUB_SIDE - 0.6)
+		var q := c + d * t.y + side * (PUB_SIDE - 0.6)
+		geo.box(Vector3(minf(p.x, q.x), ya, minf(p.z, q.z)), Vector3(maxf(p.x, q.x), yb, maxf(p.z, q.z)), "stands_dark", S_METAL)
+	beam.call(PUB_DEAD_BEAMS, y0, y0 + 0.88)
+	beam.call(PUB_DEAD_BEAM_TOP if _floor > 0.0 else PUB_DEAD_BEAMS, y1 - 0.88, y1)
+
+
+## The air straights' and dead ends' walkway under the boards (TMNF's): a grating PUB_WALK_Y up,
+## reaching PUB_WALK_END from the centre along the arm(s), PUB_SIDE + 2 to each side and the dead
+## end's PUB_DEAD_WALK back, a railing PUB_RAIL_H high all round it. (TMNF's junctions run narrower
+## strips along their railings; not built.)
+const PUB_WALK_Y := 0.584
+const PUB_WALK_END := 14.9
+const PUB_DEAD_WALK := 6.52
+
+
+func _pub_walk(geo: TmGeo, dirs: Array) -> void:
+	var d: Vector3 = dirs[0]
+	var side := Vector3(d.z, 0, -d.x)
+	var c := Vector3(16, PUB_WALK_Y, 16)
+	var w := PUB_SIDE + 2.0
+	var t0 := -PUB_DEAD_WALK if dirs.size() == 1 else -PUB_WALK_END
+	var t1 := PUB_WALK_END
+	var q := [c + d * t0 - side * w, c + d * t1 - side * w, c + d * t1 + side * w, c + d * t0 + side * w]
+	if ((q[1] - q[0]) as Vector3).cross(q[2] - q[0]).y < 0.0:
+		q = [q[0], q[3], q[2], q[1]]
+	var uv := q.map(func(p: Vector3) -> Vector2: return Vector2(p.x, p.z))
+	uv[0] += Vector2(1e-4, 0)
+	geo.quad_uv(q[0], q[1], q[2], q[3], "grate", S_METAL, uv[0], uv[1], uv[2], uv[3])
+	for k in 4:
+		var a: Vector3 = q[k]
+		var b: Vector3 = q[(k + 1) % 4]
+		var du := a.distance_to(b) / 8.0
+		var h := Vector3(0, PUB_RAIL_H, 0)
+		geo.quad_uv(a, b, b + h, a + h, "railing", S_METAL, Vector2(0, 1), Vector2(du, 1), Vector2(du, 0), Vector2(0, 0))
+
+
+## A pub board standing at p (its face's middle at the ground), facing o, half m either side along
+## the face, 0.6 m deep behind it, its frame from y0 to y1 (dark steel) and the screen (by) on the
+## face, the ad facing out.
+func _pub_board(geo: TmGeo, p: Vector3, o: Vector3, half: float, y0: float, y1: float, by: Vector2, first: int) -> void:
+	var t := Vector3(o.z, 0, -o.x)
+	var corner := func(u: float, d: float, y: float) -> Vector3: return Vector3(p.x, y, p.z) + t * u - o * d
+	var faces := [
+		[corner.call(-half, 0.0, y0), corner.call(half, 0.0, y0), corner.call(half, 0.6, y0), corner.call(-half, 0.6, y0)],
+		[corner.call(-half, 0.0, y1), corner.call(half, 0.0, y1), corner.call(half, 0.6, y1), corner.call(-half, 0.6, y1)],
+		[corner.call(-half, 0.6, y0), corner.call(half, 0.6, y0), corner.call(half, 0.6, y1), corner.call(-half, 0.6, y1)],
+		[corner.call(-half, 0.0, y0), corner.call(-half, 0.6, y0), corner.call(-half, 0.6, y1), corner.call(-half, 0.0, y1)],
+		[corner.call(half, 0.0, y0), corner.call(half, 0.6, y0), corner.call(half, 0.6, y1), corner.call(half, 0.0, y1)],
+		[corner.call(-half, 0.0, y0), corner.call(half, 0.0, y0), corner.call(half, 0.0, y1), corner.call(-half, 0.0, y1)],
+	]
+	var mid: Vector3 = corner.call(0.0, 0.3, (y0 + y1) * 0.5)
+	for f: Array in faces:
+		var n: Vector3 = (f[0] + f[1] + f[2] + f[3]) * 0.25 - mid
+		if ((f[1] - f[0]) as Vector3).cross(f[2] - f[0]).dot(n) < 0.0:
+			geo.quad(f[0], f[3], f[2], f[1], "stands_dark", S_METAL)
+		else:
+			geo.quad(f[0], f[1], f[2], f[3], "stands_dark", S_METAL)
+	var sh := minf(half, PUB_BOARD_W * 0.5)
+	geo.screen_rect(corner.call(-sh, -0.01, by.x), corner.call(sh, -0.01, by.x), corner.call(sh, -0.01, by.y),
+		corner.call(-sh, -0.01, by.y), "screen", TmGeo.NO_COLLISION, first, o)
+
+
 ## The pub's plinth along a -> b (side: across it), from the ground to 1.81 m: grey sides, a dark
 ## rubber top inside the railing (a light rim outside it) with a light strip down its middle, the
-## railing along each edge (inset > 0: from that far in from a and b, and across both ends).
-func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3, inset := 0.0) -> void:
+## railing along each edge (inset > 0: from that far in from a and b (inset_b at b when given), and
+## across those ends).
+func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3, inset := 0.0, inset_b := -1.0) -> void:
 	var run := (b - a).normalized()
+	var ib := inset if inset_b < 0.0 else inset_b
 	var ra := a + run * inset
-	var rb := b - run * inset
+	var rb := b - run * ib
 	var box := func(p: Vector3, q: Vector3, w0: float, w1: float, top_key: String) -> void:
 		var p0 := p + side * w0
 		var p1 := q + side * w1
@@ -790,6 +918,7 @@ func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3, inset := 0.0
 		box.call(a, b, k * PUB_RAIL, k * PUB_PLINTH, "stands_top")
 	if inset > 0.0:
 		box.call(a, ra, -PUB_RAIL, PUB_RAIL, "stands_top")
+	if ib > 0.0:
 		box.call(rb, b, -PUB_RAIL, PUB_RAIL, "stands_top")
 	var s0 := ra - side * PUB_STRIP
 	var s1 := rb + side * PUB_STRIP
@@ -799,6 +928,7 @@ func _pub_plinth(geo: TmGeo, a: Vector3, b: Vector3, side: Vector3, inset := 0.0
 	var edges := [[ra + side * PUB_RAIL, rb + side * PUB_RAIL], [ra - side * PUB_RAIL, rb - side * PUB_RAIL]]
 	if inset > 0.0:
 		edges.append([ra - side * PUB_RAIL, ra + side * PUB_RAIL])
+	if ib > 0.0:
 		edges.append([rb - side * PUB_RAIL, rb + side * PUB_RAIL])
 	var y0 := 1.81
 	var y1 := y0 + PUB_RAIL_H
