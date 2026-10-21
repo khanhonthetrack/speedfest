@@ -72,6 +72,10 @@ Commit like this, so a failing gate never lands:
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Our own menu look (PLAN M16, 22 Oct):** the menus left TMNF's look: `ui/sf_ui.gd` (charcoal,
+  red and violet accents, Montserrat), `ui/sf_header.gd` (tabs; Story locked), `ui/sf_tile.gd`
+  (home's picture panels, rendered by `tools/icons/menu_art.sh`), Options as explained rows. The
+  race's overlays keep TMNF's look for now (next).
 - **`stadium-v0.8` (21 Oct) is `stadium` + the neon City (PLAN M14)**; the zips carry `CREDITS-city.md`.
 - **Our own Le Mans hypercar (PLAN M15, 22 Oct):** `tools/assets/hypercar.py` (Blender) ->
   `assets/car/hypercar.glb`, drawn by `TmCarVisual.model = "hyper"` (our materials, wheels, livery

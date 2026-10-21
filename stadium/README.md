@@ -44,14 +44,15 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `net/`, `server/` | online play: the client (`Online` autoload) and the Node.js time-attack server |
 | `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
 | `audio/` | recorded open-licensed sounds (`audio/sfx`), music (`audio/music`, `tm_music.gd`), the race's engine and cues (`tm_car_audio.gd`) |
-| `ui/` | menus in TMNF's structure (`tm_menu.gd`, the main scene: Solo, Online, Profile, Options), the race's pause and finish menus, the glass theme (`tm_glass_box.gd`, `tm_ui.gd`), $-code nicknames (`tm_nick.gd`) |
+| `ui/` | the menus in our own look (`tm_menu.gd`, the main scene; `sf_ui.gd` the palette, Montserrat and boxes; `sf_header.gd` the tabs; `sf_tile.gd` the home page's picture panels, whose pictures `tools/icons/menu_art.sh` renders), the race's pause and finish menus in TMNF's glass theme (`tm_glass_box.gd`, `tm_ui.gd`), $-code nicknames (`tm_nick.gd`) |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
 ## Play it
 1. Install Godot 4.7.2, clone this repo, check out branch `stadium`, open `stadium/project.godot`
-   and press Play (F5): the menu. Solo > Campaign lists our campaign (a tab per series, your best
-   time and medal on each track); Race starts the selected one. Straight into a race: run
+   and press Play (F5): the menu (tabs across the top: Home, Solo, Multiplayer, Story (still to
+   come), Community, Editor; you, options and quit at the right). Solo lists our campaign (a row per
+   series, your best time and medal on each track); a track's card starts it. Straight into a race: run
    `race/race.tscn` with `-- --track=SF03`. Profile sets your nickname (TMNF's $-codes: `$f00`
    red, `$o` bold, `$i` italic ...), zone, car (the open-wheeler or the Le Mans hypercar) and its colour.
 2. TrackMania tracks: Solo > "Open a track file" races any `.Challenge.Gbx`

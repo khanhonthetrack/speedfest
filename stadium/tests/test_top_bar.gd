@@ -2,8 +2,7 @@ extends Node
 ## TMNF's top bar (TmTopBar): in a race it is hidden until the mouse reaches the top edge, stays while
 ## the mouse is on it and goes a moment after the mouse leaves; its wedges set the sound and music
 ## volumes, the speaker mutes, the window button toggles fullscreen, the display button opens its
-## panel (races) or the options page (menus, where the bar stays up with your nickname). Settings go
-## to a test file.
+## panel. The menus have our own header instead (SfHeader). Settings go to a test file.
 
 
 func _ready() -> void:
@@ -73,17 +72,13 @@ func _controls() -> void:
 	await _frames(1)
 
 
-## In the menus the bar stays up with your nickname, its display button opens the options; a race
-## has it hidden until the mouse goes up.
+## The menus have our own header instead (SfHeader, PLAN M16: no TMNF bar there); a race has the bar
+## hidden until the mouse goes up.
 func _in_scenes() -> void:
 	var menu: TmMenu = (load("res://ui/menu.tscn") as PackedScene).instantiate()
 	add_child(menu)
 	await _frames(2)
-	var mb: TmTopBar = menu._bar
-	TestHooks.check(mb != null and mb.shown() and not mb.popup and mb._nick != null, "menu_bar_up")
-	mb.display_pressed.emit()
-	await _frames(1)
-	TestHooks.check(menu.page == "options", "menu_bar_display_opens_options", menu.page)
+	TestHooks.check(menu.nav != null and not menu.find_children("*", "CanvasLayer", true, false).any(func(c: Node) -> bool: return c is TmTopBar), "menu_header_not_bar")
 	menu.queue_free()
 	await _frames(2)
 	TestHooks.args["track"] = "A01"

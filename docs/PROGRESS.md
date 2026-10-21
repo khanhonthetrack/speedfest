@@ -3686,3 +3686,56 @@ design a similar, generic hypercar model? Blender or Godot, whatever is easier f
   ghost, the setting, the replay header; server test: each player's model in the list.
 - Gate (worktree `C:\dev\sf-gate`, 4e3b8e1 + these files): STADIUM_TESTS PASS, 22 suites + server.
   Owner after the screenshots: "Looks good, commit and push it."
+
+## 2026-10-22 — Session 17 (cloud): our own menu look, panel-based (PLAN M16)
+Owner (TRANSCRIPT, session 17): "move away from this trackmania vibe and have our own vibe for UI.
+We'll start from the menu ... (panel-based). Colours minimalistic, slight hint of red and
+blue/purple. Include the solo, multiplayer tabs. also include the "Story" panel, but this is locked
+... Put good graphics in the panel", with two pictures of RaceRoom's menus (its DRIVE page of
+picture panels, its settings rows). Done on `stadium`; the race's own overlays are untouched.
+- **The look** (`stadium/ui/sf_ui.gd`, `SfUi`): charcoal (#0b0c10), dark panels with hairline
+  borders and square-ish corners, white type in **Montserrat** (SIL OFL, 500/600/700/800 and 800
+  italic for the wordmark, `assets/fonts/montserrat-*.woff2`, `OFL-Montserrat.txt`), red
+  (#e8364f) for what is chosen or on, violet (#7357ff) as the second accent, the two meeting in a
+  gradient line (the current tab's underline, panel titles, the pages' titles). `SfUi.box(kind)`
+  for every box, `SfUi.theme()` for the menus' controls (red switches drawn in code, sliders,
+  fields, lists, pop-ups), `label`/`caption`/`title`/`button`.
+- **The backdrop** (`ui/sf_backdrop.gdshader`) instead of TMNF's green globe: charcoal with a red
+  glow rising from the bottom left through a few faint diagonal streaks, a violet glow from the top
+  right, drifting slowly, a little grain. The Profile page still shows our car on the field (its
+  grade now charcoal instead of green).
+- **The header** (`ui/sf_header.gd`, `SfHeader`) instead of TMNF's top bar in the menus: our
+  wordmark (two slashes, red and violet, and SPEEDFEST in a heavy italic), a back arrow, the tabs
+  HOME, SOLO, MULTIPLAYER, STORY (a padlock: it only says "Story mode is on its way: it is one of
+  the next steps."), COMMUNITY, EDITOR with the red-to-violet line sliding under the current one,
+  and at the right you (your nickname with its $-codes and your country in a gradient ring: the
+  Profile), options (a gear) and quit. The race keeps `TmTopBar` (its `profile` mode is now unused).
+- **Home** (`TmMenu._page_main`, `ui/sf_tile.gd`, `SfTile`): picture panels as RaceRoom's DRIVE
+  page: SOLO and MULTIPLAYER large on top; STORY (locked: the picture greyed and dark, a COMING SOON
+  chip, a padlock; a press shakes it and says so), COMMUNITY, TRACK EDITOR and REPLAYS below; the
+  title in heavy capitals and a spaced line under it at the bottom left; hovered or focused the
+  picture leans in, a white frame, a gradient line under the title. Solo says how many campaign
+  tracks you finished; your medals along the foot. Laid out in containers, so wider screens
+  stretch the panels.
+- **The pictures** are our own renders of our own cars on our own tracks:
+  `tools/icons/menu_art.tscn` (cars stood on the road along the bot's line in the lead car's
+  frame, ghosts, a lowered sun, the editor's grid, depth of field) and `tools/icons/menu_art.sh`
+  (six compositions, Ultra, 1440 x 810 JPEG into `assets/ui/menu/`; the panels crop them to their
+  shape): Solo the red hypercar with its ghost on a day circuit; Multiplayer four cars through the
+  neon City at night; Story a black car from behind on a City night (Story mode's world: the
+  present is a rainy night in the city, `docs/STORY.md` on `ccr-be8add6f-thdbey`); Community five
+  of our cars in five colours at a start; Track editor a track from the air over the editor's
+  cells; Replays a trackside long lens on the open-wheeler on dirt. About 5-15 min a picture with
+  software Vulkan here.
+- **The other pages** keep their structure in the new look: the page's title and what to do at the
+  top of the left column, its entries in spaced capitals (series flags on Solo), a red bar on the
+  current one, Back at the foot; panels with the gradient title; dark list rows (red-tinted with a
+  red bar when picked); track and community cards dark with a red frame and a play mark when
+  focused; Multiplayer (was Play Online) and Editor (was Editors) named as their tabs.
+- **Options** as the owner's second picture: one row per setting, its name in capitals with a line
+  saying what it does, its control at the right (a switch, a slider with its value in per cent,
+  a choice between two arrows, a button), in sections Graphics, Sound, Gameplay.
+- Tests: `test_menu` (the header's tabs, the home panels, Story locked from its panel and its tab,
+  each panel opening its page, options and back from the header; the column rows by name, their
+  text being in capitals), `test_top_bar` (the menus have the header, not the bar), `test_editor`
+  (rows by name).

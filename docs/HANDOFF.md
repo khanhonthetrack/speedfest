@@ -1,6 +1,26 @@
 # HANDOFF: start here
 
-## Latest (22 Oct, owner's Windows PC): our own Le Mans hypercar (PLAN M15), on `stadium`
+## Latest (22 Oct, session 17, cloud): our own menu look, panel-based (PLAN M16), on `stadium`
+- Owner: "move away from this trackmania vibe and have our own vibe for UI. We'll start from the
+  menu" (RaceRoom's picture panels and settings rows as the reference; minimal colours, a hint of
+  red and blue/purple; Solo and Multiplayer tabs; a locked Story panel; good pictures in the panels).
+- Done (PROGRESS, session 17): `ui/sf_ui.gd` (SfUi: palette, Montserrat, boxes, the menus' theme),
+  `ui/sf_header.gd` (the tabs; Story locked), `ui/sf_tile.gd` (picture panels), the backdrop
+  `ui/sf_backdrop.gdshader`; `ui/tm_menu.gd`'s home is the panel grid, every other page re-skinned
+  (Options as rows with a line of explanation each). The race's overlays (pause/finish menus,
+  HUD, loading screen, `TmTopBar`) still wear TMNF's look: the next steps.
+- The panels' pictures: `stadium/tools/icons/menu_art.sh [names]` renders them from our own game
+  (`tools/icons/menu_art.tscn`) into `assets/ui/menu/*.jpg`. On the owner's PC it takes well under a
+  minute each; change a composition there (its args are documented in `menu_art.gd`).
+  (While `assets/ui/menu/` is empty the panels show dark placeholders.)
+- Look at it: `stadium/tools/run.sh res://ui/menu.tscn -- [--page=solo|online|options|...] --frames=40
+  --shot=/abs.png --settings=<scratch>/s.cfg --records=<scratch>/rec`.
+- Not removed (unused by the menus now): the globe (`ui/tm_globe.gdshader`,
+  `assets/tex/globe_map_albedo.jpg`) and the column icons `assets/ui/icon_*.png`.
+- Next: the owner's look; then the race's menus, HUD and loading screen in the same look; then
+  Story mode itself (its written story is `docs/STORY.md` on `ccr-be8add6f-thdbey`).
+
+## Earlier (22 Oct, owner's Windows PC): our own Le Mans hypercar (PLAN M15), on `stadium`
 - Owner asked for "a similar, generic hypercar" to the one they drove (a community Porsche 963 pack,
   not the Peugeot they named: studied for proportions only, never committed).
 - `stadium/tools/assets/hypercar.py` (Blender 5.2, `C:\Program Files\Blender Foundation\Blender 5.2`)
