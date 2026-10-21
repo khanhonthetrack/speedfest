@@ -2992,3 +2992,10 @@ on every real contact the full impulse would land at the contact point and kick 
   along each arm (12 m, 6 m facing another arm, 30 m along a straight), held by a frame of two
   collars and plates, round a 4 m column at the junction; the lone base has no pipe, its bars up
   the column. Ours was a box, a dark sleeve and cubes in rings. Fidelity: 83-93% -> 95.8-99.0%.
+- (M11-3) **The inflatable ground pillar walls' pillows as TMNF's** (`inflatable.gd PILLOW_DEPTH`,
+  `PILLOW_HEIGHTS`, `PILLOW_ACROSS`, `PILLAR_BASE`). TMNF's pillow has a steep groove at each seam
+  and is flat low down, a crown up top; ours was one sine shape at every height (too thin near the
+  seams). Now TMNF's surface sampled on a grid; the plinth's face upright to 1.5 m; the banner on
+  both sides of the wall (TMNF's shows through from behind). Fidelity: TShapedPillarGround (36 on
+  our tracks) 94.8 -> 97.6%. Fixed: the air inflatable walls' trim strips threw a script error
+  (an array read as a Vector2) and were never built.

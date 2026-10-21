@@ -155,6 +155,13 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   at the junction with strips up its closed faces; the base no pipe, four bars up two faces of the
   column. Ours: a box, a dark sleeve, cubes in rings. Fidelity: Straight 83.5 -> 97.6%, Cross 82.7
   -> 95.8%, T 84.1 -> 96.3%, Corner 87.8 -> 97.4%, Deadend 93.0 -> 98.4%, Base 92.7 -> 99.0%.
+- The inflatable ground pillar walls (21 Oct; 36 on our tracks): TMNF's pillow is no sine across:
+  a steep groove at each seam (out 0.27 m at 0.2 m, 1 m at 0.8 m from it), flat low down (y 3:
+  1.04-1.07 m out from 1.9 m on), a crown up top (2.15 m); now sampled on a grid (PILLOW_DEPTH).
+  Its plinth face is upright to 1.5 m, then a bevel. Its banner shows from both sides (ours now
+  printed on the skin behind too, reading the right way). Fidelity: TShapedPillarGround 94.8 ->
+  97.6%, CornerPillarGround 98.5%. Found on the way: the air walls' trim strips threw a script
+  error (never built); fixed.
 - The booths' plinth rims (bluish grey), the camera booth's walkway (white), the galleries' ends
   (dark): camera booth 127 -> 73 m2, its straight 392 -> 64, glass straight 650 -> 320 (20 Oct).
 - The grandstands' wave roofs: fabric_roof in TMNF's layout (ribs every two facets, pillows).
