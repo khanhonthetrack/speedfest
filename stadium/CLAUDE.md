@@ -72,6 +72,12 @@ Commit like this, so a failing gate never lands:
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-21 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **The neon City (PLAN M14, 21 Oct, session 16):** City maps only: neon barriers (`tm_neon`,
+  `blocks/tm_textured.gdshader`) and lights along them, tubes on buildings and the Stadium
+  (`env/tm_neon.gd`), an airship, searchlights, LED screens; City nights wet (`tm_wet`) with AgX,
+  glow, fog, SDFGI/SSR tuned (`TmStadiumEnv.city`); no shops on ground floors; far towers dark with
+  lit floors. The owner's `assets/` folder at the repo root is untracked source material (759 MB):
+  never commit it. Gate this PC from a separate worktree (HANDOFF).
 - **PC only (owner, 20 Oct: "I dont do browser anymore. Only pc with high graphics card"):** new
   work targets Forward+ on a strong graphics card; the web build is no longer a constraint.
 - **A city around the Stadium (PLAN M13, 20 Oct):** our own skyscrapers (`env/tm_tower.gd`: glass

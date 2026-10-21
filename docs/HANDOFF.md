@@ -1,6 +1,31 @@
 # HANDOFF: start here
 
-## Latest (21 Oct, owner's Windows PC): **`stadium-v0.7` released**
+## Latest (21 Oct, session 16, owner's Windows PC): the neon City (PLAN M14), on `stadium`
+- Owner: "I find the new city maps still look cheap" (shops on the ground floors, no real neon, the
+  new Blender assets, "Improve it for RTX ... I want to see the ray tracing ... looks like 2005"),
+  then "arent building far away soul-less and gray?". `ccr-1ce252fc-wl7p3m`'s last two commits are
+  merged into `stadium` first. Work on `stadium`; everything below is City maps only unless said.
+- Done (PROGRESS, session 16): no shops (a dark glass base with an LED line); neon barriers (the
+  road edge cyan with running pulses, the curb top magenta: `tm_neon` in
+  `blocks/tm_textured.gdshader`) and coloured lights along them (`env/tm_neon.gd`); neon tubes on
+  the buildings, towers and the Stadium; an airship circling the Stadium (`env/tm_airship_orbit.gd`);
+  searchlights (`env/tm_searchlights.gd`); LED screens on towers; the night look
+  (`TmStadiumEnv.city`: wet roads with puddles, `tm_wet`; AgX, glow, haze, volumetric fog,
+  SDFGI/SSR tuned for Ultra; floodlights dimmed); far towers dark with lit floors in strips; the
+  owner's Blend Swap towers given windowed walls. Screenshots (Ultra, RTX 2060) in the session.
+- The owner's new Blender files (`assets/` at the repo root, untracked, 759 MB: never commit it):
+  looked at, none shipped (PROGRESS: City Street's buildings are one-sided shells). Licences:
+  City Street, drone City, Procedural Clouds CC0 (owner); Trees & Bushes CC BY 3.0; Mountain Range
+  CC BY-NC-SA (not usable).
+- Look: `stadium/tools/run.sh res://race/map_view.tscn -- --track=F02 --view=path:0.15
+  --set_quality=2 --frames=60 --shot=/abs.png` (`--yaw= --pitch= --fov=` turn and zoom the driver's
+  view; `--view=at:-512,520,-500,-512,120,900` the Stadium and the city from above).
+- Gate on this PC from the worktree `C:\dev\sf-gate` (detached at the commit under test; copy
+  `stadium/.godot` there first): the gate tests the working tree it runs in.
+- Next: the owner's look at it; frame rate at Ultra on the RTX 2060 (PLAN M14-5), the RTX fork's
+  path tracing on the City; maybe more of the city by day.
+
+## Earlier (21 Oct, owner's Windows PC): **`stadium-v0.7` released**
 - Owner: "merge all the progress from branches (including your graphics updates) and the city maps
   with new assets, to have 0.7 ready".
 - **Both stadium branches are merged into `stadium`** (gated separately, STADIUM_TESTS PASS each

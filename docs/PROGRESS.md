@@ -3583,4 +3583,25 @@ one after a clean `user://` ~10 min).
   volumetric fog the lights glow in, more SDFGI bounce (the neon lights what is round it) and
   longer SSR traces (the neon and towers in the road); the floodlights at a quarter (0.14).
   Night windows: 30% of rooms lit (was 45%), dimmer, 14% of them in colour (violet, blue, pink).
-
+- (M14, owner: "arent building far away soul-less and gray?") **The skyline by night**: far off a
+  tower's windows no longer fade to their grey average but light in strips (four bays of a floor,
+  warm, cool, now and then violet or blue; `far_room` in `env/tm_tower.gdshader`), its frames and
+  spandrels at 42% at night, a darker haze (`fog_light_color` (0.028, 0.022, 0.05)); the owner's
+  Blend Swap towers' unnamed facades ("cladding", most of a tower) and white panels get our walls
+  with world-mapped punched windows (`TmCityAssets.material`; flat faces stay plain): they had been
+  grey and windowless. Three quarters of the skyline's towers carry neon, 0.9 m tubes, a third of
+  them down their whole height; a fifth a big LED screen (`TmCitySigns.facade_screen`, up to 64 m
+  wide, on the face towards the Stadium); the far streets glow as a grid at night, a quarter of
+  them neon avenues (`env/tm_city_ground.gdshader`); eight searchlights sweep the sky from round
+  the Stadium and the downtowns (`env/tm_searchlights.gd`, additive cones).
+- (M14-4) **The owner's new Blender files** looked at (`assets/` at the repo root, 759 MB, never
+  committed): City Street converted per building (`blend_to_glb.py --by-collection buld,bulid
+  --images --image-format JPEG --max-image 512 --drop-image coffee`: 8 buildings, 11.5 MB) and
+  previewed: one-sided facade shells (blank brick backs, floating sign texts), one a fog box, one a
+  pavement slab: cheap out of their street, so none shipped; drone City is low-poly with 100-300 px
+  textures; Procedural Clouds is Cycles volume shaders (nothing to port). The converter keeps its
+  new options. `lgt.pdf` in the folder is a university tutorial, not an asset.
+- Gate on Windows from a separate worktree (`C:\dev\sf-gate`, detached at the commit under test):
+  the gate tests the working tree it runs in, and edits made while it runs had failed
+  `test_online` (a class not imported yet); a fresh worktree needs the import cache first (copy
+  `stadium/.godot` over, then `--import`: the gate's own 300 s import doesn't finish 1,396 assets).
