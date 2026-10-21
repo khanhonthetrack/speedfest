@@ -3629,3 +3629,10 @@ one after a clean `user://` ~10 min).
   17 towers 108-310 m, 776 KB, `assets/city/blade_*.glb`, CREDITS.md; TmCityAssets dresses them
   in our windowed walls and picks them where they fit (the skyline's towers, the field's).
 - Frame rate (RTX 2060, 1080p, F02 at night, the bot driving): Ultra 56.0 fps, High 74.2 (as before).
+
+## 2026-10-21 — Release `stadium-v0.8` (owner's Windows PC): `stadium` + the neon City
+Owner: "ship to new version". Both stadium branches already contained in `stadium`. The gate passed
+on 78f5b9f; after it only `PLAYING.txt` (the City series' neon nights; the Release's notes) and
+`tools/export.sh` (the zips now carry `CREDITS-city.md`: the city's buildings and lights, among
+them the CC BY credit for raytrace's "12 Buildings", missing from v0.7's zips). Tagged
+`stadium-v0.8` and pushed; CI "Stadium builds" attaches the Windows and Linux zips.

@@ -342,6 +342,7 @@ pushed after each; screenshots on the owner's PC (RTX 2060, Ultra).
       shadows, neon, windows, a glimmer of moon: measured what made the far towers grey); no
       Stadium on City maps (the city up to the field's edge); the Blade Runner towers in the city
 - [ ] 6. The RTX fork's path tracing (stadium/RTX.md) checked on the City (a photo mode on a 2060)
+- [x] 7. Released as `stadium-v0.8` (21 Oct; owner: "ship to new version")
 
 ### M13 — Our own city around the Stadium (owner, session 15, 2026-10-20; called M12 on its branch, where M12 was the community work) ☐
 "Can you create new assets to the game? Not recreating anymore but actually put tall,

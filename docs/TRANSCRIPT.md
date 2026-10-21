@@ -1200,3 +1200,12 @@ path tracing on the City next.)
 > 3. For the "City maps", remove the stadium around. It doesn't make sense to have buildings inside the stadium.
 > Did you use the other assets (you have permission to all of them)
 
+### User (verbatim, after the fixes; asked whether to launch the game)
+
+> Not now
+
+### User (verbatim)
+
+> ship to new version
+
+(Released `stadium-v0.8`: `stadium` as it stands; both stadium branches were already in it.)

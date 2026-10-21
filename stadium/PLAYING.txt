@@ -5,8 +5,10 @@ SPEEDFEST STADIUM - how to play
    Nothing else to install. Windows may warn "Windows protected your PC" because the game
    isn't signed: click "More info" -> "Run anyway".
 2. SOLO -> CAMPAIGN races SpeedFest's own campaign: 70 tracks in six series (White, Green,
-   Blue, Red, Black and City, the last five raced through a city of skyscrapers, three of them
-   at night), each with author, gold, silver and bronze times. Your best times and the
+   Blue, Red, Black and City), each with author, gold, silver and bronze times. The City series
+   races through a neon city of skyscrapers instead of the Stadium; three of its five tracks are
+   at night: wet streets mirroring the neon, street lights, searchlights, an airship overhead
+   (graphics on Ultra for the reflections and the glow). Your best times and the
    ghost of your best run are saved. SOLO -> REPLAYS plays back the runs you saved. Before
    your first run on a track (or Escape -> SELECT OPPONENTS) pick the ghost you race against: a
    gold, silver or bronze medal run, or your personal best.
@@ -36,4 +38,5 @@ screen (in a race: move the mouse to the top edge) has the volumes, the display 
 the clock too.
 
 Music and sounds: open-licensed works by their authors; see CREDITS-music.md and
-CREDITS-sounds.md. Fonts: Orbitron and Rajdhani (SIL Open Font License).
+CREDITS-sounds.md. The city's buildings and street lights: see CREDITS-city.md. Fonts: Orbitron
+and Rajdhani (SIL Open Font License).

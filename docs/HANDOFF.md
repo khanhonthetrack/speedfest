@@ -1,6 +1,16 @@
 # HANDOFF: start here
 
-## Latest (21 Oct, session 16, owner's Windows PC): the neon City (PLAN M14), on `stadium`
+## Latest (21 Oct, session 16, owner's Windows PC): **`stadium-v0.8`** = `stadium` + the neon City (M14)
+- Owner: "ship to new version". `claude/tmnf-replica-graphics-nb1kcg` and `ccr-1ce252fc-wl7p3m`
+  hold nothing `stadium` lacks; the gate passed on 78f5b9f (STADIUM_TESTS PASS, 21 suites) and only
+  release notes and the export's credit list changed after it.
+- The zips now carry `CREDITS-city.md` (`assets/city/CREDITS.md`: the CC BY credit for raytrace's
+  buildings was missing from the v0.7 zips); `PLAYING.txt` (also the Release's notes) tells of the
+  City series' neon nights.
+- Tag `stadium-v0.8` pushed from this PC: CI "Stadium builds" makes the GitHub Release with the
+  Windows and Linux zips. Continue on `stadium`.
+
+## Earlier (21 Oct, session 16, owner's Windows PC): the neon City (PLAN M14), on `stadium`
 - Owner: "I find the new city maps still look cheap" (shops on the ground floors, no real neon, the
   new Blender assets, "Improve it for RTX ... I want to see the ray tracing ... looks like 2005"),
   then "arent building far away soul-less and gray?". `ccr-1ce252fc-wl7p3m`'s last two commits are
