@@ -2835,4 +2835,11 @@ on every real contact the full impulse would land at the contact point and kick 
   bulge side (toward the track; TMNF's logo reads mirrored from there), a plain red skin behind.
   Collision fidelity T 92.1 -> 94.8%, corner 94.2 -> 96.9%. (The stacked pieces above ground,
   not on our tracks, keep the plain cushion walls; the corner has four pillows as TMNF's.)
+- (M11-2) **The camera pubs' ends and roof as TMNF's** (`control.gd` PUB tables, `PUB_END_STRIPS`,
+  `texgen/booth.py pub_end`; Control/CameraPub 51 uses). TMNF lays its steel panel texture over
+  each end, turned so it reads as dark bays between columns, braces above and below a slotted
+  girder band, a white strip up each corner; ours were a curtain wall of light-framed panes. Now
+  our own drawing of that layout (3 m bays, knee braces, an inverted V below the girder), mapped
+  per block as TMNF's (a tile 12 m across from x 4, 6 m down from the roof), with the corner
+  strips. The roof's edge strips are TMNF's grey concrete walkways (ours were white).
 

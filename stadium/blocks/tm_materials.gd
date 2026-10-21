@@ -219,7 +219,7 @@ const TEXTURED := {
 	"circuit_bumper": ["circuit_bumper", Vector2(16.0, 2.0), false],  # the lane side's rubber, our name on it
 	"control_panel": ["circuit_panel", Vector2(16.0, 8.0), false],     # the control booths' white sides
 	"pub_facade": ["pub_facade", Vector2(2.0, 1.0), false],     # the camera pub's sides (rows: control.gd PUB)
-	"pub_end": ["pub_end", Vector2(8.0, 8.0), true],    # its ends: a dark curtain wall (texgen/booth.py)
+	"pub_end": ["pub_end", Vector2(1.0, 1.0), false],    # its ends: dark steel panels (texgen/booth.py; UVs: control.gd)
 	"booth_wall": ["booth_wall", Vector2(0.5, 1.0), false],    # their room's wall (texgen/booth.py; 8 m, rows)
 	"curb_face": ["road_curb_face", Vector2(8.0, 1.25), false],
 	"curb_outer": ["road_curb_face", Vector2(8.0, 1.25), false],

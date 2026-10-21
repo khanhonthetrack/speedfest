@@ -160,6 +160,8 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   (white banner on each red pillow, feet, posts), ours were thick red walls; rebuilt (our emblem
   on the banner). TMNF's own logo reads mirrored from the bulge side in our reference renders;
   ours reads from there (the track side).
+- The camera pub (21 Oct): its ends TMNF's turned steel panels (a 12 x 6 m tile from x 4) with a
+  white strip up each corner, its roof strips grey concrete (ours were white: dE 31 on 250 m2).
 - Survey by use (20 Oct, late): list every shape our tracks build (`TmTracks` challenges through
   `TmBlockCatalogue.shape_name`, with counts), dump those and weight each shape's missing and
   differing area by its count. The catalogue's "uses" are per block (its base form), so forms a

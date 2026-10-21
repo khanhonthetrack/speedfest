@@ -138,25 +138,59 @@ def pub_facade(name='pub_facade', w=1024, h=256, seed=517):
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 
-def pub_end(name='pub_end', s=512, seed=519):
-    """The camera pub's ends: a dark curtain wall 8 m square (world-mapped), panes 1.6 m wide and
-    1.33 m high between lighter mullions, each pane a little different, lighter toward its top."""
-    yy, xx = np.mgrid[0:s, 0:s].astype(np.float32)
-    um = xx / s * 8.0
-    vm = yy / s * 8.0
-    fine = fbm(s, s, seed, beta=1.0, lo=20.0)
-    cu = um / 1.6
-    cv = vm / (8.0 / 6.0)
-    r = rng(seed)
-    shade = r.uniform(0.85, 1.15, (6, 5)).astype(np.float32)
-    pane_shade = shade[np.clip(cv.astype(int), 0, 5), np.clip(cu.astype(int), 0, 4)]
-    up = 1.0 + 0.35 * (1.0 - (cv % 1.0))
-    col = srgb((30, 32, 36))[None, None, :] * (pane_shade * up * (1.0 + 0.03 * fine))[..., None]
-    mull = np.maximum(1 - smoothstep(0.03, 0.05, np.minimum(cu % 1.0, 1 - cu % 1.0) * 1.6),
-                      1 - smoothstep(0.03, 0.05, np.minimum(cv % 1.0, 1 - cv % 1.0) * (8.0 / 6.0)))
-    col = lerp(col, srgb((84, 86, 90))[None, None, :] * np.ones((s, s, 1)), mull[..., None])
-    nrm = normal_from_height(1.0 * mull, 0.5)
-    orm = np.stack([np.ones((s, s), np.float32), 0.15 + 0.45 * mull, 0.3 * (1 - mull)], -1)
+def pub_end(name='pub_end', w=1024, h=512, seed=519):
+    """The camera pub's ends: dark steel panels in TMNF's layout, one tile 12 m across (four 3 m
+    bays between light columns) and 6 m down from the top (UV-mapped by blocks/shapes/control.gd:
+    u along the end from x 4 toward its middle, v down from the roof): plain panels under the roof,
+    a rail, knee braces down from each bay's top corners, a slotted girder band across, a rail, an
+    inverted V brace in each lower bay, the foot rail."""
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    um = (xx + 0.5) / w * 12.0
+    vm = (yy + 0.5) / h * 6.0
+    fine = fbm(w, h, seed, beta=1.0, lo=20.0)
+    blot = fbm(w, h, seed + 1, beta=2.2, lo=2.0)
+    col = srgb((33, 33, 36))[None, None, :] * (1.0 + 0.05 * fine + 0.05 * blot)[..., None]
+    px = w / 12.0
+    def bar(mask, c, k=1.0):
+        nonlocal col
+        col = lerp(col, srgb(c)[None, None, :] * (1.0 + 0.04 * fine)[..., None], np.clip(mask, 0, 1)[..., None] * k)
+    def hband(y0, y1):
+        return rect_mask(w, h, -10, y0 * px, w + 10, y1 * px, 1.0)
+    def seg(x0, y0, x1, y1, half):
+        d = np.array([x1 - x0, y1 - y0], np.float32)
+        L = float(np.hypot(*d))
+        t = np.clip(((um - x0) * d[0] + (vm - y0) * d[1]) / (L * L), 0, 1)
+        dist = np.hypot(um - (x0 + t * d[0]), vm - (y0 + t * d[1]))
+        return 1 - smoothstep(half * 0.7, half, dist)
+    # panel seams: thin dark lines every 1 m across, two along the top band
+    seams = np.maximum(1 - smoothstep(0.0, 0.02, np.abs(((um + 0.5) % 1.0) - 0.5)), 0)
+    for y in (0.3, 0.7):
+        seams = np.maximum(seams, 1 - smoothstep(0.0, 0.02, np.abs(vm - y)))
+    bar(seams, (18, 18, 20), 0.7)
+    members = np.zeros((h, w), np.float32)
+    for y0, y1 in ((1.2, 1.32), (3.42, 3.52), (5.82, 6.0)):
+        members = np.maximum(members, hband(y0, y1))
+    for k in range(5):
+        x = 3.0 * k
+        members = np.maximum(members, rect_mask(w, h, (x - 0.11) * px, -10, (x + 0.11) * px, h + 10, 1.0))
+        members = np.maximum(members, rect_mask(w, h, (x + 1.5 - 0.035) * px, 1.32 * px, (x + 1.5 + 0.035) * px, 5.82 * px, 1.0))
+    for k in range(4):
+        x = 3.0 * k
+        # knee braces down from the upper bay's corners, an inverted V in the lower bay
+        members = np.maximum(members, seg(x + 0.15, 1.35, x + 0.9, 2.7, 0.05))
+        members = np.maximum(members, seg(x + 2.85, 1.35, x + 2.1, 2.7, 0.05))
+        members = np.maximum(members, seg(x + 0.15, 5.8, x + 1.5, 3.55, 0.06))
+        members = np.maximum(members, seg(x + 2.85, 5.8, x + 1.5, 3.55, 0.06))
+    bar(members, (54, 54, 58))
+    # the girder band: dark with a light edge either side and slots along it
+    girder = hband(2.82, 3.12)
+    bar(girder, (20, 20, 22))
+    bar(np.maximum(hband(2.78, 2.82), hband(3.12, 3.16)), (84, 84, 88))
+    slots = girder * (1 - smoothstep(0.0, 0.03, np.abs(((um + 0.25) % 0.5) - 0.25) - 0.12)) * (np.abs(vm - 2.97) < 0.06)
+    bar(slots, (52, 52, 56))
+    hgt = 1.0 * members - 0.6 * girder - 0.4 * seams + 0.2 * blot
+    nrm = normal_from_height(hgt, 0.5)
+    orm = np.stack([1.0 - 0.3 * girder, 0.55 + 0.2 * fine - 0.2 * members, 0.5 * members], -1)
     save(name, np.clip(col, 0, 1), nrm, orm)
 
 

@@ -129,7 +129,8 @@ const LIGHT_HALF := [[16.0, 0.0, "stands_dark", S_METAL], [24.0, 0.0, "control_u
 ## ground it stands on a low plinth with a walkway along each side. TMNF's look: the long sides
 ## its facade (our drawing, texgen/booth.py pub_facade: rows of 512 from the facade's foot, 512,
 ## split 3.2 m up above the windows, 260.6, its top, 103, up the rounded edge to the roof, 0), the
-## roof light along its edges (x 4..8, 24..28) and dark between, the ends dark panels; a screen on each
+## roof TMNF's grey concrete walkways along its edges (x 4..8, 24..28) and dark between, the ends dark
+## panels; a screen on each
 ## side (PUB_SCREEN: x0, x1 of the left one, y0, y1, z0, z1) in a dark frame (PUB_SCREEN_FRAME:
 ## x0, x1, y0, y1, z0, z1) between two dark posts (PUB_POSTS: x0, x1, their z spans), an advert
 ## band under one end's windows on the ground (PUB_BAND: y0, y1, z0, z1), the walkway's railing
@@ -139,7 +140,7 @@ const PUB := [[3.113, 0.0, "structure", S_METAL], [28.887, 0.0, "stands_dark", S
 	[28.887, 1.0, "pub_facade", S_METAL, Vector2(512, 260.6)], [28.888, 4.2, "pub_facade", S_METAL, Vector2(260.6, 103)],
 	[28.889, 7.207, "pub_facade", S_METAL, Vector2(103, 87.85)], [28.851, 7.396, "pub_facade", S_METAL, Vector2(87.85, 58.04)],
 	[28.669, 7.729, "pub_facade", S_METAL, Vector2(58.04, 22.63)], [28.285, 7.965, "pub_facade", S_METAL, Vector2(22.63, 0)],
-	[28.0, 8.0, "control_panel", S_METAL], [24.0, 8.0, "stands_dark", S_METAL], [8.0, 8.0, "control_panel", S_METAL],
+	[28.0, 8.0, "stands_top", S_METAL], [24.0, 8.0, "stands_dark", S_METAL], [8.0, 8.0, "stands_top", S_METAL],
 	[4.0, 8.0, "pub_facade", S_METAL, Vector2(0, 22.63)], [3.715, 7.965, "pub_facade", S_METAL, Vector2(22.63, 58.04)],
 	[3.331, 7.729, "pub_facade", S_METAL, Vector2(58.04, 87.85)], [3.149, 7.396, "pub_facade", S_METAL, Vector2(87.85, 103)],
 	[3.111, 7.207, "pub_facade", S_METAL, Vector2(103, 260.6)], [3.112, 4.2, "pub_facade", S_METAL, Vector2(260.6, 512)],
@@ -148,13 +149,14 @@ const PUB_GROUND := [[0.0, 1.0, "structure", S_METAL], [32.0, 1.0, "stands_top",
 	[31.06, 2.0, "stands_top", S_METAL], [28.887, 2.0, "pub_facade", S_METAL, Vector2(512, 260.6)],
 	[28.888, 5.2, "pub_facade", S_METAL, Vector2(260.6, 103)], [28.889, 7.207, "pub_facade", S_METAL, Vector2(103, 87.85)],
 	[28.851, 7.396, "pub_facade", S_METAL, Vector2(87.85, 58.04)], [28.669, 7.729, "pub_facade", S_METAL, Vector2(58.04, 22.63)],
-	[28.285, 7.965, "pub_facade", S_METAL, Vector2(22.63, 0)], [28.0, 8.0, "control_panel", S_METAL],
-	[24.0, 8.0, "stands_dark", S_METAL], [8.0, 8.0, "control_panel", S_METAL], [4.0, 8.0, "pub_facade", S_METAL, Vector2(0, 22.63)],
+	[28.285, 7.965, "pub_facade", S_METAL, Vector2(22.63, 0)], [28.0, 8.0, "stands_top", S_METAL],
+	[24.0, 8.0, "stands_dark", S_METAL], [8.0, 8.0, "stands_top", S_METAL], [4.0, 8.0, "pub_facade", S_METAL, Vector2(0, 22.63)],
 	[3.715, 7.965, "pub_facade", S_METAL, Vector2(22.63, 58.04)], [3.331, 7.729, "pub_facade", S_METAL, Vector2(58.04, 87.85)],
 	[3.149, 7.396, "pub_facade", S_METAL, Vector2(87.85, 103)], [3.111, 7.207, "pub_facade", S_METAL, Vector2(103, 260.6)],
 	[3.112, 5.2, "pub_facade", S_METAL, Vector2(260.6, 512)], [3.113, 2.0, "stands_top", S_METAL],
 	[0.942, 2.0, "stands_top", S_METAL], [0.0, 1.5, "stands_top", S_METAL]]
 const PUB_SCREEN := [2.67, 3.113, 2.47, 6.81, 11.36, 20.64]
+const PUB_END_STRIPS := [[Vector2(3.113, 4.0), Vector2(28.0, 28.887)], 2.0, 7.21]
 const PUB_SCREEN_FRAME := [2.72, 3.11, 1.99, 7.17, 11.07, 20.93]
 const PUB_POSTS := [2.66, 3.12, [Vector2(9.26, 9.72), Vector2(22.41, 22.87)]]
 const PUB_BAND := [2.0, 3.56, 0.25, 8.36]
@@ -253,6 +255,21 @@ func _camera_piece(shape: String) -> Node3D:
 				var x0: float = [s[0], 32.0 - s[1]][i]
 				geo.screen_box(Vector3(x0, s[2], s[4]), Vector3(x0 + s[1] - s[0], s[3], s[5]), "screen", S_METAL, 0.03, i)
 			_camera_pub_dress(geo, ground)
+			# its ends as TMNF lays its steel panels: a tile 12 m across from x 4 (TMNF's mirrors the
+			# second about the middle; the tile is symmetric) and 6 m down from the roof
+			geo.remap_uv("pub_end", func(p: Vector3) -> Vector2: return Vector2((p.x - 4.0) / 12.0, (8.0 - p.y) / 6.0))
+			# and TMNF's white strip up each corner of the ends (PUB_END_STRIPS: x spans, y0, y1)
+			for z: float in [-0.005, 32.005]:
+				for xs: Vector2 in PUB_END_STRIPS[0]:
+					var y_lo: float = PUB_END_STRIPS[1] if ground else 0.0
+					var a := Vector3(xs.x, y_lo, z)
+					var b := Vector3(xs.y, y_lo, z)
+					var c := Vector3(xs.y, PUB_END_STRIPS[2], z)
+					var d := Vector3(xs.x, PUB_END_STRIPS[2], z)
+					if ((b - a).cross(c - a)).z * z < 0.0:
+						geo.quad(a, d, c, b, "control_panel", TmGeo.NO_COLLISION)
+					else:
+						geo.quad(a, b, c, d, "control_panel", TmGeo.NO_COLLISION)
 	return geo.build()
 
 
