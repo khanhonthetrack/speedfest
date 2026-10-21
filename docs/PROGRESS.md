@@ -3538,3 +3538,18 @@ with new assets, to have 0.7 ready".
   that carry no billboard; a neon tube under many shops' fascias (pink, cyan, violet, amber). A
   City track's paved field is darker, and wet at night (glossy, puddles that mirror the lights:
   SSR on Ultra).
+
+## 2026-10-21 — Session 16 (owner's Windows PC): the neon city (M14)
+Owner: "I find the new city maps still look cheap" (TRANSCRIPT, session 16). `ccr-1ce252fc-wl7p3m`'s
+last two commits (the modern street, more neon) merged into `stadium` first (docs only conflicted).
+Screenshots on this PC (RTX 2060, Ultra) take ~20 s each once the shader cache exists (the first
+one after a clean `user://` ~10 min).
+- (M14-1) **No shops on the ground floors** (owner: "remove shops from the ground floor they look
+  stupid"): the lower buildings' first storey (`TmSkyline.STOREFRONT`, 5.6 m) is now a modern
+  base in `env/tm_tower.gdshader`: a polished dark stone plinth, dark smoked glass between slim
+  black fins (a pier every 9 m), a dim interior 12 m deep, a warm lit lobby entrance every
+  24-36 m, and an LED line along its top in the building's own colour (cyan, magenta, violet,
+  amber, white; bright at night). The shops' fascias, brands, shelves and fascia tubes are gone
+  (the adverts no longer reach the blocks' material). The building's hash comes from a `flat`
+  varying: hashed from the interpolated vertex colour it flickered per pixel (speckled entrances).
+  `map_view`'s path view takes `--yaw=` and `--fov=` (a closer look from the driver's spot).

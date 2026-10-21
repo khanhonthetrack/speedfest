@@ -18,7 +18,7 @@ const RADIUS := 5200.0          ## m, the city's rim
 const SECTORS := 12             ## the merged blocks, cut by angle (so whole sectors are culled)
 const LAYER := 2                ## the city's render layer (lit by the moon, not the floodlights)
 const ASSET_SHARE := 0.6        ## of the towers, this share are the owner's buildings when one fits
-const STOREFRONT := 5.6         ## m: the lower buildings' shop floor (from the plaza, 0.4 m up)
+const STOREFRONT := 5.6         ## m: the lower buildings' base storey (from the plaza, 0.4 m up; no shops)
 const SEED := 20261020
 const HALF := (PITCH - STREET) * 0.5 - 4.5     ## a block's half width inside its pavements (m)
 ## The skyscraper districts: centre (x, z), radius (m), strength (0..1: how tall).
@@ -174,10 +174,7 @@ static func _add_blocks(root: Node3D, blocks: Dictionary, shadows: bool) -> void
 		if not shared.has(style):
 			var mat := TmTower.masonry(style, style.hash() % 997, 3.4, 3.0) if style in MASONRY_STYLES \
 				else TmTower.material(style, style.hash() % 997, 3.8, 3.0)
-			mat.set_shader_parameter("storefront", STOREFRONT)      # shops at the foot of the lower buildings
-			mat.set_shader_parameter("ads", Adverts.texture())       # their brands
-			mat.set_shader_parameter("ads_fill", Adverts.fill_texture())
-			mat.set_shader_parameter("has_ads", 1.0)
+			mat.set_shader_parameter("storefront", STOREFRONT)      # the base storey (dark glass, LED line)
 			shared[style] = mat
 		TmTower.add_mesh(root, blocks[key], shared[style], "Blocks_" + key.replace(":", "_"), shadows)
 
