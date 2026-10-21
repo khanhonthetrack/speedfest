@@ -321,3 +321,107 @@ def roof_glass(name='roof_glass', s=512, seed=171):
     orm = np.stack([np.ones((s, s), np.float32), 0.15 + 0.45 * frame, 0.3 + 0.3 * frame], -1)
     save(name, rgba, nrm, orm)
 
+
+
+def inflatable_castle(name='inflatable_castle', w=512, h=512, seed=181):
+    """The inflatable castles' atlas (TMNF's layout, rows of 512 from the top; blocks/shapes/
+    inflatable.gd maps it): the towers' slate cones (rows 0-37), a dark trim line (37-49), a cream
+    band printed with our name (49-100; the towers' crowns and the walls' tops), a dark line
+    (100-105), the battlements' band (105-136), the stone walls (136-425, a window slit in the
+    middle) and the green cushion tube (425-512, shaded round, a white board with our emblem in
+    the middle of each pillow). u runs across a wall, a pillow, half a tower."""
+    from road import emblem
+    from livery import fit_font
+    r = rng(seed)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    n1 = fbm(w, h, seed, beta=2.4, lo=1.0)
+    n2 = fbm(w, h, seed + 1, beta=1.0, lo=24.0)
+    col = np.zeros((h, w, 3), np.float32)
+    hgt = np.zeros((h, w), np.float32)
+    band = lambda y0, y1: ((yy >= y0) & (yy < y1)).astype(np.float32)
+    # slate cone, trim line
+    col += band(0, 37)[..., None] * srgb((80, 87, 105))[None, None, :] * (1.0 + 0.03 * n1 + 0.02 * n2)[..., None]
+    col += band(37, 49)[..., None] * srgb((36, 31, 12))[None, None, :]
+    col = lerp(col, srgb((108, 98, 60))[None, None, :], band(41, 43))
+    # the cream band and our name
+    col += band(49, 100)[..., None] * srgb((178, 175, 145))[None, None, :] * (1.0 + 0.02 * n2)[..., None]
+    word = 'SPEEDFEST STADIUM'
+    txt = text_mask(w, h, word, fit_font('orbitron-latin-900-normal', word, int(0.6 * w), 30), (w * 0.5, 75), 'mm', italic=0.18)
+    col = lerp(col, srgb((30, 30, 32))[None, None, :], txt * band(49, 100))
+    col += band(100, 105)[..., None] * srgb((56, 52, 30))[None, None, :]
+    # stones: courses of irregular blocks, each its own shade; mortar between them
+    stone = np.zeros((h, w), np.float32)
+    mortar = np.zeros((h, w), np.float32)
+    shade = np.ones((h, w), np.float32)
+    def courses(y0, y1, hmin, hmax, wmin, wmax):
+        y = y0
+        while y < y1:
+            ch = min(int(r.integers(hmin, hmax + 1)), y1 - y)
+            x = -int(r.integers(0, wmax))
+            while x < w:
+                cw = int(r.integers(wmin, wmax + 1))
+                xs = np.arange(max(x, 0), min(x + cw, w))
+                if len(xs):
+                    k = float(r.choice([0.86, 0.94, 1.0, 1.0, 1.06, 1.12]))
+                    shade[y:y + ch, xs[0]:xs[-1] + 1] = k
+                    m = rect_mask(w, h, x + 1.5, y + 1.2, x + cw - 1.5, y + ch - 1.2, 1.0)
+                    stone[:] = np.maximum(stone, m)
+                x += cw
+            y += ch
+    courses(136, 425, 8, 13, 14, 40)
+    courses(105, 136, 31, 31, 22, 30)
+    mortar = band(105, 425) * (1.0 - stone)
+    wall = srgb((170, 161, 137))[None, None, :] * (shade * (1.0 + 0.04 * n1 + 0.03 * n2))[..., None]
+    wall = lerp(wall, srgb((132, 122, 98))[None, None, :], mortar)
+    col += band(136, 425)[..., None] * wall
+    cren = srgb((121, 122, 96))[None, None, :] * (shade * (1.0 + 0.03 * n2))[..., None]
+    cren = lerp(cren, srgb((84, 84, 64))[None, None, :], mortar)
+    col += band(105, 136)[..., None] * cren
+    hgt += band(105, 425) * stone * (0.6 + 0.4 * shade)
+    # the window slit
+    slit = rect_mask(w, h, 245, 250, 267, 277, 1.0) + poly_mask(w, h, [[(245, 251), (256, 245), (267, 251)]])
+    slit = np.clip(slit, 0, 1)
+    col = lerp(col, srgb((28, 24, 20))[None, None, :], slit)
+    hgt -= slit
+    # the cushion: a green tube, dark where it meets the wall and at its foot
+    t = np.clip((yy - 427.0) / (511.0 - 427.0), 0, 1)
+    tube = np.maximum(np.sin(np.pi * np.clip(t * 1.08, 0, 1)), 0.0) ** 0.7
+    green = srgb((92, 141, 80))[None, None, :] * (0.06 + 0.94 * tube)[..., None] * (1.0 + 0.03 * n2)[..., None]
+    col += band(425, 512)[..., None] * green
+    col = lerp(col, srgb((84, 84, 69))[None, None, :], band(425, 427))
+    board = rect_mask(w, h, 181, 439, 330, 501, 1.0)
+    keyline = np.clip(rect_mask(w, h, 178, 436, 333, 504, 1.0) - board, 0, 1)
+    col = lerp(col, srgb((10, 12, 10))[None, None, :], keyline)
+    col = lerp(col, srgb((244, 244, 240))[None, None, :], board)
+    mark = emblem(w, h, 214, 470, 20)
+    sf = text_mask(w, h, 'SPEEDFEST', fit_font('orbitron-latin-900-normal', 'SPEEDFEST', 84, 20), (282, 470), 'mm', italic=0.2)
+    col = lerp(col, srgb((196, 28, 30))[None, None, :], mark)
+    col = lerp(col, srgb((24, 24, 28))[None, None, :], sf)
+    hgt += 0.8 * band(425, 512) * tube
+    nrm = normal_from_height(hgt + 0.2 * n2, 0.6)
+    rough = 0.55 + 0.1 * n2 - 0.2 * band(425, 512) - 0.15 * band(0, 37)
+    orm = np.stack([1.0 - 0.3 * mortar - 0.3 * slit, rough, np.zeros_like(rough)], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)
+
+
+def inflatable_roof(name='inflatable_roof', s=512, seed=191):
+    """The inflatable castles' roofs (UV 0..1 a tile, about 7.6 m): grey vinyl quilted in 26 x 26
+    rounded cells, a welded border round the tile and a plate on each corner."""
+    yy, xx = np.mgrid[0:s, 0:s].astype(np.float32)
+    n2 = fbm(s, s, seed, beta=1.0, lo=24.0)
+    cell = s / 26.0
+    cx = (xx % cell) / cell - 0.5
+    cy = (yy % cell) / cell - 0.5
+    q = np.maximum(np.abs(cx), np.abs(cy)) * 0.6 + np.hypot(cx, cy) * 0.4
+    pad = 1.0 - smoothstep(0.36, 0.46, q)
+    edge = np.minimum(np.minimum(xx, s - 1 - xx), np.minimum(yy, s - 1 - yy))
+    border = 1.0 - smoothstep(6.0, 9.0, edge)
+    corner = poly_mask(s, s, [[(0, 0), (44, 0), (0, 44)], [(s, 0), (s - 44, 0), (s, 44)], [(0, s), (44, s), (0, s - 44)],
+                              [(s, s), (s - 44, s), (s, s - 44)]])
+    col = srgb((112, 108, 100))[None, None, :] * (1.0 + 0.03 * n2)[..., None]
+    col = lerp(col, srgb((140, 136, 127))[None, None, :] * (1.0 + 0.03 * n2)[..., None], pad * (1 - border))
+    col = lerp(col, srgb((150, 150, 150))[None, None, :], border)
+    col = lerp(col, srgb((175, 177, 180))[None, None, :], corner)
+    nrm = normal_from_height(pad * (1 - border) + 0.6 * border + 0.8 * corner, 0.5)
+    orm = np.stack([np.ones((s, s), np.float32) - 0.2 * (1 - pad), 0.5 - 0.1 * corner + 0.05 * n2, 0.2 * corner], -1)
+    save(name, np.clip(col, 0, 1), nrm, orm)

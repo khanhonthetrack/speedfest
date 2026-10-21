@@ -188,6 +188,17 @@ Not real: EditorHelpers, light glows (WarpSpotsGlow).
   the circuit border's blue shade, the platform turbo deck, the platform checkpoint's glow and
   spots, the road straight's underside details, the camera light and camera pub straights.
 
+- **Inflatable castles (M11-3)**: not on our tracks, 13 uses in TMNF's campaign (A02, A09, A11,
+  B11, C05, C11). TMNF's: material StadiumInflatableCastle (one 512 atlas: slate cone rows 0-37,
+  trim 37-49, printed band 49-100, battlement band 105-136, stone 136-425, green cushion 425-512
+  with a board in the middle), StadiumInflatable2Occ (the quilted grey roofs, the cushions' skirt),
+  StadiumRoadDetails (the ropes' pegs). Measured with scratch tools (each tower's rings: axis,
+  foot, shaft top, crown, tip; each wall sheet's foot line and top; the cushion rings' seams;
+  battlements' boxes; the bridge's front face, lip and tunnel). Built as a kit (`castle.gd`);
+  the keeps' walls round over in the slate rows, the hall's, bridge's and step walls' in the
+  band's edge (rows 47-57). TMNF's u reads mirrored in our view: our u runs the other way
+  (`castle.gd _right`) so our name reads left to right.
+
 ## Our tracks' blocks now (20 Oct)
 The 76 shapes our tracks use (`--shapes` from our tracks), TMNF area 276,492 m2: colour differs
 10.5% (13.5% at the round's start), missing 7.5% (11.8%). Left, by area times our tracks' use: the

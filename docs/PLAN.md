@@ -224,7 +224,7 @@ and pushed, gated; TMNF data only locally (never in the repo). The deliberate di
       and road pubs, the border atlas (rows audited: atlas_rows.py; the rails' structure), the
       platform lip, the road keel's plates, the decks' 16 m tiles, the circuit walls' bumpers,
       back panel and ledge; next: the grandstand pillar piece, the curved ledges, M11-3
-- [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti; left: inflatable castles, camera light base,
+- [ ] 3. The rough decorations to TMNF's shapes (done: palm trees, snow trees, cacti, inflatable castles; left: camera light base,
       bump, sculpt pillar heads, fabric pillar corners, trusses, screens, spotlights, bridge rails,
       dirt fences and signs; fidelity test)
 - [x] 4. The circuit base variants (bump, hole, pillars; 20 Oct)

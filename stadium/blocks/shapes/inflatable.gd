@@ -2,11 +2,13 @@ extends RefCounted
 ## Stadium "Inflatable" blocks: the giant inflatable structures (cushion walls stacked three levels
 ## high under a roof, laid out by the editor round a rectangle: "pillar" pieces are the walls,
 ## "support" pieces the top level with the roof) and the inflatable decorations (cactus, palm tree,
-## snow tree, castles). Our own geometry from measured numbers (TMNF block-local metres).
+## snow tree, castles: castle.gd). Our own geometry from measured numbers (TMNF block-local metres).
 ##
 ## A cushion wall is a row of pillows, each 8 m wide bulging 2.1 m out from its seam line (straight
 ## along x for the T piece, an arc of radius 24 about the footprint corner for the corner piece).
 ## The block's direction turns it; the rectasym shape slot repeats the same piece per direction.
+
+const Castles := preload("res://blocks/shapes/castle.gd")
 
 const S_RUBBER := 9
 const S_METAL := 4
@@ -107,12 +109,8 @@ func make(shape: String, _entry: Dictionary, _ground: bool) -> Node3D:
 			_palm(geo)
 		"InflatableSnowTree":
 			_snow_tree(geo)
-		"Castle":
-			_castle(geo, Vector2(32, 32), 17.6)
-		"CastleBig":
-			_castle(geo, Vector2(64, 64), 23.2)
-		"InflatableCastleDoor":
-			_castle(geo, Vector2(96, 32), 23.2)
+		"Castle", "CastleBig", "InflatableCastleDoor":
+			Castles.build(geo, name)
 		_:
 			return null
 	return geo.build()
@@ -560,9 +558,3 @@ static func _inset(poly: PackedVector2Array, d: float) -> PackedVector2Array:
 		out.append(q + n * d / maxf(0.5, n.dot(n1 if ccw else -n1)))
 	return out
 
-
-func _castle(geo: TmGeo, size: Vector2, h: float) -> void:
-	var wall := minf(size.x, size.y) * 0.35
-	geo.box(Vector3(2, 0.9, 2), Vector3(size.x - 2, h * 0.55, size.y - 2), "inflatable", S_RUBBER, "inflatable", S_RUBBER)
-	for corner in [Vector2(4, 4), Vector2(size.x - 4, 4), Vector2(4, size.y - 4), Vector2(size.x - 4, size.y - 4)]:
-		geo.pipe(Vector3(corner.x, 0.9, corner.y), Vector3(corner.x, h, corner.y), minf(4.0, wall * 0.3), 12, "inflatable", S_RUBBER)

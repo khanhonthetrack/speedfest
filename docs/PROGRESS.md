@@ -2894,4 +2894,17 @@ on every real contact the full impulse would land at the contact point and kick 
   texture across it (a dirty white line by the bumper, a bolted seam 1.87 m out, a darker strip at
   the edge, bolted joints every 16 m); ours was a plain blue plate. Our drawing of that layout,
   mapped by TMNF's rows (the curved walls' ledges keep the plain plate).
+- (M11-3) **The inflatable castles as TMNF's** (`blocks/shapes/castle.gd`, new; `texgen/stadium.py
+  inflatable_castle`, `inflatable_roof`; TmMaterials "castle", "castle_roof"). Ours were a red box
+  with four red tubes; TMNF's (13 uses in its campaign) are stone castles: keeps of four towers
+  (shaft, a crown flaring out with a printed band, a slate cone; they lean a little) on a ring of
+  green cushion pillows (pinched at the seams, a board in each pillow's middle), stone walls
+  bulging out in their middle and rounded over at the top, grey quilted roofs, red tie ropes; the
+  big castle adds a hall with battlements and a courtyard closed by two beams to a second keep,
+  the door castle a bridge with an arch over the road between two keeps. Rebuilt as a kit from
+  measured numbers (every tower's axis and heights, every wall's foot line and top, the roofs'
+  outlines, the cushions' seams, the battlements, the bridge's arch and tunnel) with our own
+  atlas in TMNF's layout (our name on the band, our emblem on the boards). Fidelity: Castle 22.1
+  -> 96.0%, CastleBig 14.5 -> 90.2%, InflatableCastleDoor 22.1 -> 85.0% (left: the cushions'
+  section on the big ones, the courtyard's curved edge, the keeps' roofs 0.2 m high).
 
