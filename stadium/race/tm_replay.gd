@@ -35,6 +35,7 @@ var uid := ""                     ## the track's uid when the run was raced
 var track_name := ""
 var player := ""                  ## the nickname, $-codes and all
 var colour := Color(0.85, 0.08, 0.06)
+var model := ""                  ## our car (TmCarVisual.model; "" the open-wheeler)
 var date := ""                    ## local time, "YYYY-MM-DD HH:MM:SS"
 var path := ""                    ## where it was loaded from or saved to
 
@@ -47,7 +48,7 @@ static func dir() -> String:
 	return String(TestHooks.arg("replays", DIR))
 
 
-## A new recording of a run on a challenge, by the player (nickname and colour from the settings),
+## A new recording of a run on a challenge, by the player (nickname, colour and car from the settings),
 ## in a race of `lap_count` laps of `cp_count` checkpoints.
 static func start(ch: TmChallenge, track_id: String, map_path: String, lap_count := 1, cp_count := -1) -> TmReplay:
 	var r := TmReplay.new()
@@ -59,6 +60,7 @@ static func start(ch: TmChallenge, track_id: String, map_path: String, lap_count
 	r.track_name = ch.name
 	r.player = String(TmUi.setting("name"))
 	r.colour = TmUi.car_colour()
+	r.model = TmUi.car_model()
 	r.date = Time.get_datetime_string_from_system(false, true)
 	return r
 
@@ -169,7 +171,7 @@ func to_ghost() -> TmGhost:
 
 func header() -> Dictionary:
 	return {"track": track, "map": map, "uid": uid, "track_name": track_name, "player": player,
-		"colour": [colour.r, colour.g, colour.b], "date": date, "finish_ms": finish_ms, "splits": splits, "laps": laps,
+		"colour": [colour.r, colour.g, colour.b], "model": model, "date": date, "finish_ms": finish_ms, "splits": splits, "laps": laps,
 		"checkpoints": checkpoints}
 
 
@@ -182,6 +184,7 @@ func _set_header(h: Dictionary) -> void:
 	var c: Array = h.get("colour", [0.85, 0.08, 0.06])
 	if c.size() >= 3:
 		colour = Color(float(c[0]), float(c[1]), float(c[2]))
+	model = String(h.get("model", ""))
 	date = String(h.get("date", ""))
 	finish_ms = int(h.get("finish_ms", -1))
 	splits = (h.get("splits", []) as Array).map(func(v: Variant) -> int: return int(v))

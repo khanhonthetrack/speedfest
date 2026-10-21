@@ -105,6 +105,7 @@ func _ready() -> void:
 	ghost_car.name = "Ghost"
 	var gv := TmCarVisual.new()
 	gv.ghost = true
+	gv.model = TmUi.car_model()
 	ghost_car.add_child(gv)
 	add_child(ghost_car)
 
@@ -114,6 +115,7 @@ func _ready() -> void:
 	                                  # which turns it back on
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
+	look.model = TmUi.car_model()
 	if TestHooks.has_arg("car_pack"):        # a community car pack (.zip) to drive (tests, screenshots)
 		look.pack = TmCarPack.load_zip(String(TestHooks.arg("car_pack", "")))
 	else:

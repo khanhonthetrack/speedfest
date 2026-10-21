@@ -3643,3 +3643,46 @@ them the CC BY credit for raytrace's "12 Buildings", missing from v0.7's zips). 
   0.62) the smudge and the orange sheen on the glass went; SDFGI and SSR off left them. On City
   nights there is no probe now (the Stadium it mirrored isn't there): reflections are SSR's (what is
   on screen), SDFGI's and the sky's.
+
+## 2026-10-22 — Our own Le Mans hypercar (PLAN M15; owner's Windows PC, side session of session 16)
+Owner: "Can you look at the peugeot hypercar (that i used), and without using peugeot copyright,
+design a similar, generic hypercar model? Blender or Godot, whatever is easier for you".
+- **The car the owner drove** (`community_car` in their settings) is ManiaPark's "2024 Porsche 963
+  GTP/LMDh" (theRockettSally), not a Peugeot. Looked at only for proportions (rendered with
+  `map_view --car=ours --car_pack=<zip>`, measured with TmCarPack): 4.75 m long, 1.87 m wide, roof
+  1.09 m, wing 1.11 m, its own wheels 0.43 m behind TMNF's. Nothing of it is in the repo.
+- **Ours, made in Blender from numbers** (`stadium/tools/assets/hypercar.py`, Blender 5.2, ~20 s:
+  `blender -b -P stadium/tools/assets/hypercar.py -- --out stadium/assets/car/hypercar.glb [--shots DIR]`):
+  the body lofted through 16 cross-sections (centre nose / canopy / engine cover, a valley each side,
+  fender pods, the side to an undercut floor; rounded corners, monotone cubic between stations,
+  points spaced by length and curvature), then cut with exact booleans whose faces come out dark
+  (`inlet`): wheel wells, vents behind the front wheels, six louvres over each, the rear fenders open
+  behind the tyres, front intakes, inlets on the rear fenders, the diffuser's tunnel, the tail's
+  grille. Added: splitter (notched round the front tyres), dive planes, a single-element wing with
+  a gurney, end plates with red LED strips, the fin, a roof scoop, mirrors, strakes and low fences;
+  glass, headlight housings with two LED blades each and the tail's full-width light bar are laid
+  onto the body (cast along a direction, lifted 3-6 mm). 38k triangles in one mesh, a surface per
+  material (paint, carbon, black, glass_dark, inlet, light, led, mirror); 2.2 m wide over TMNF's
+  wheels (centres +-0.863 / 0.885, z 1.784 / -1.204), 4.81 m long, roof 1.04 m.
+- **In the game** (`car/tm_car_visual.gd`, `model = "hyper"`): the glb's mesh loaded once, its
+  surfaces dressed in our materials by name (`HYPER_MATS`; the rear lights brighten under braking
+  like ours), on our own wheels with dark forged rims and hubs without the open-wheeler's guards,
+  no suspension arms; the livery in `car/tm_car_surface.gdshader` mode 3 (the player's colour, gloss
+  black below a sill line rising to the tail and on the canopy, a white pinstripe over the sill,
+  twin white stripes nose to tail) and stickers (`HYPER_STICKERS`: 07 on the nose and flanks,
+  ORLAN on the sidepods and across the wing's top for the chase camera, our emblem on the end
+  plates). The open-wheeler is unchanged.
+- **Picked on the Profile page** (Car: "Formula (open wheels)" / "Hypercar (Le Mans)": setting
+  `car_model`, `TmUi.car_model()`): the race's car and ghost, replays (`TmReplay.model` in the
+  header; older replays are the open-wheeler), the menu's turntable; **online** the hello carries
+  `model` and the player list returns it (`server/lib/game.js`: '' or 'hyper'), so the others see
+  your car (`tm_race_online.gd`); a community car still draws instead of either.
+- `car/car_lab.tscn`: one of our cars on a plaza in our light (`--model=hyper --yaw= --pitch=
+  --dist= --spin=` for a turntable with `--shots`, `--mood=night`); `map_view` takes
+  `--car_model=` and `--car_pack=`.
+- `tests/test_car_models` (gate): the body loads with every surface dressed, its size and triangle
+  budget, no bodywork inside a tyre at rest (it caught the splitter's corners and the dive planes
+  reaching into the front tyres), four wheels where ours are, no guards or arms, a translucent
+  ghost, the setting, the replay header; server test: each player's model in the list.
+- Gate (worktree `C:\dev\sf-gate`, 4e3b8e1 + these files): STADIUM_TESTS PASS, 22 suites + server.
+  Owner after the screenshots: "Looks good, commit and push it."

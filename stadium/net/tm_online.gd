@@ -31,7 +31,7 @@ var my_id := -1
 var server_name := ""
 var round := {}                    ## {mode, id, track, state ("race" | "results"), start, end, synced, number, ...} (server ms)
 var mode := "TimeAttack"
-var players: Array = []            ## [{id, name, colour, best, points, team, spectator, login, car}]
+var players: Array = []            ## [{id, name, colour, best, points, team, spectator, login, car, model}]
 var cars: Array = []               ## the server's car packs [{id, name, sha256, size, url, mesh, skin, sounds}]
 var forced_car := ""               ## a car pack everyone drives on this server ("" none)
 var vote := {}                     ## the running vote {kind, target, target_name, by, yes, no, needed, ends}; {} none
@@ -278,7 +278,8 @@ func _process(_delta: float) -> void:
 	var st := ws.get_ready_state()
 	if st == WebSocketPeer.STATE_OPEN and not _was_open:
 		_was_open = true
-		var hello := {"t": "hello", "name": _name, "version": VERSION, "colour": [_colour.r, _colour.g, _colour.b]}
+		var hello := {"t": "hello", "name": _name, "version": VERSION, "colour": [_colour.r, _colour.g, _colour.b],
+			"model": TmUi.car_model()}
 		if not _token.is_empty():
 			hello["token"] = _token
 		if _spectator:

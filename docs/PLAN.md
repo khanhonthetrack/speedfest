@@ -316,6 +316,20 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M15 — Our own Le Mans hypercar (owner, 21 Oct) ☑
+"Can you look at the peugeot hypercar (that i used), and without using peugeot copyright, design
+a similar, generic hypercar model? Blender or Godot, whatever is easier for you". (The car they
+drove is a community Porsche 963 pack, studied for proportions only, never committed.)
+- [x] 1. The model: `tools/assets/hypercar.py` (Blender, from numbers) -> `assets/car/hypercar.glb`,
+      on TMNF's wheel places, 38k triangles; nothing of any maker's design or livery
+- [x] 2. Drawn by `TmCarVisual` (`model = "hyper"`): our materials, wheels, livery (shader mode 3)
+      and stickers; picked on the Profile page (`car_model`), in races, ghosts, replays, the menu
+      and online (the server passes each player's pick)
+- [x] 3. `tests/test_car_models` in the gate; `car/car_lab.tscn` for screenshots
+- [x] 4. Screenshots shown (day, City 04 at night, the Profile page); owner: "Looks good, commit and
+      push it."
+- [ ] 5. Maybe: more of our own cars the same way (a GT, a rally car), a livery picker
+
 ### M14 — A neon city, alive, for RTX (owner, 21 Oct, after the City maps' modern street) ☐
 "building still look a bit cheap, empty, remove shops from the ground floor they look stupid /
 introduce real neon lights, around the track, near barriers, on the buildings, on the freaking

@@ -149,6 +149,7 @@ func _paint_car(pack: TmCarPack = null) -> void:
 		c.queue_free()
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
+	look.model = TmUi.car_model()
 	look.pack = pack if pack else TmCommunity.my_car_pack()
 	_car_holder.add_child(look)
 
@@ -982,6 +983,9 @@ func _page_profile() -> void:
 	var zone := _zone_picker()
 	col.add_child(zone)
 	col.add_child(HSeparator.new())
+	col.add_child(TmUi.label("Car", 20, TmUi.DIM, TmUi.SANS_BOLD))
+	var model := _model_picker()
+	col.add_child(model)
 	col.add_child(TmUi.label("Car colour", 20, TmUi.DIM, TmUi.SANS_BOLD))
 	var swatches := HBoxContainer.new()
 	swatches.add_theme_constant_override("separation", 10)
@@ -1009,6 +1013,8 @@ func _page_profile() -> void:
 	var focus: Control = edit
 	if _profile_focus == "zone":
 		focus = zone
+	elif _profile_focus == "model":
+		focus = model
 	elif _profile_focus.is_valid_int() and int(_profile_focus) < swatches.get_child_count():
 		focus = swatches.get_child(int(_profile_focus)) as Control
 	_profile_focus = ""
@@ -1024,6 +1030,24 @@ func _medal_summary_panel(root: Control, rect: Rect2) -> void:
 	p.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	p.offset_left = rect.position.x
 	p.offset_bottom = -(900.0 - COLUMN.end.y)
+
+
+## Which of our own cars we drive (TmUi.CAR_MODELS: the open-wheeler, the hypercar); a community
+## car from the Community page is drawn instead while it is picked there.
+func _model_picker() -> OptionButton:
+	var pick := OptionButton.new()
+	pick.custom_minimum_size = Vector2(590, 48)
+	for c: Array in TmUi.CAR_MODELS:
+		pick.add_item(String(c[1]))
+		pick.set_item_metadata(pick.item_count - 1, String(c[0]))
+		if String(c[0]) == TmUi.car_model():
+			pick.select(pick.item_count - 1)
+	pick.item_selected.connect(func(i: int) -> void:
+		TmUi.set_setting("car_model", String(pick.get_item_metadata(i)))
+		_paint_car()
+		_profile_focus = "model"
+		show_page("profile"))
+	return pick
 
 
 ## The zone: World, or a country (data/zones.json, by continent), stored as "Continent|Country".

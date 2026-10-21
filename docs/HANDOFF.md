@@ -1,6 +1,20 @@
 # HANDOFF: start here
 
-## Latest (21 Oct, session 16, owner's Windows PC): **`stadium-v0.8`** = `stadium` + the neon City (M14)
+## Latest (22 Oct, owner's Windows PC): our own Le Mans hypercar (PLAN M15), on `stadium`
+- Owner asked for "a similar, generic hypercar" to the one they drove (a community Porsche 963 pack,
+  not the Peugeot they named: studied for proportions only, never committed).
+- `stadium/tools/assets/hypercar.py` (Blender 5.2, `C:\Program Files\Blender Foundation\Blender 5.2`)
+  builds it from numbers into `stadium/assets/car/hypercar.glb`: a lofted body cut with booleans,
+  wing, fin, splitter, LEDs. Change the shape there and re-run it (`--shots DIR` renders Workbench
+  views for a quick look), then `godot --import`.
+- `TmCarVisual.model = "hyper"` draws it (our materials by surface name, our wheels, the livery in
+  `car/tm_car_surface.gdshader` mode 3, `HYPER_STICKERS`); the Profile page's Car picks it
+  (`car_model`); replays and the online player list carry it. Look at it:
+  `stadium/tools/run.sh res://car/car_lab.tscn -- --model=hyper --yaw=35 --set_quality=2 --frames=40 --shot=/abs.png`.
+- Gate: `tests/test_car_models` (new) and the server's player-list test; STADIUM_TESTS PASS.
+- Next: whatever the owner says after driving it; maybe more of our own cars the same way.
+
+## Earlier (21 Oct, session 16, owner's Windows PC): **`stadium-v0.8`** = `stadium` + the neon City (M14)
 - Owner: "ship to new version". `claude/tmnf-replica-graphics-nb1kcg` and `ccr-1ce252fc-wl7p3m`
   hold nothing `stadium` lacks; the gate passed on 78f5b9f (STADIUM_TESTS PASS, 21 suites) and only
   release notes and the export's credit list changed after it.

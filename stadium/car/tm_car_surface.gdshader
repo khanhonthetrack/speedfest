@@ -4,7 +4,8 @@ shader_type spatial;
 // Our car's surfaces, in the parts' own space (they move with the car and the wheels):
 // mode 0 paint (metallic flakes under a clearcoat, a white stripe along the top), 1 carbon fibre
 // (a 2x2 twill weave that catches the light by direction), 2 tyre (tread grooves and sipes, a
-// lettering band on the sidewall). Fine detail fades out with distance.
+// lettering band on the sidewall), 3 the hypercar's paint and livery (its parts in visual
+// coordinates: x to the left, y up from the ground, z forward). Fine detail fades out with distance.
 
 uniform int mode = 0;
 uniform vec3 colour : source_color = vec3(0.85, 0.08, 0.06);
@@ -31,20 +32,50 @@ float hash3(vec3 p) {
 	return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
 }
 
+// 1 between lo and hi (antialiased over fw)
+float band(float v, float lo, float hi, float fw) {
+	return smoothstep(lo - fw, lo + fw, v) * (1.0 - smoothstep(hi - fw, hi + fw, v));
+}
+
+// The hypercar's livery: the paint; gloss black below a sill line that rises towards the tail
+// (the chin, the sills, the tail under its light bar) and on the canopy round its glass; a white
+// pinstripe over the sill; two white stripes along the top, nose to tail.
+vec3 hyper_livery(vec3 paint, vec3 p, vec3 n) {
+	vec3 black = vec3(0.012, 0.012, 0.014);
+	vec3 white = vec3(0.93, 0.93, 0.94);
+	vec3 fw = fwidth(p) + 1e-4;
+	float sill = 0.21 + 0.05 * smoothstep(2.6, 1.6, p.z) + 0.06 * smoothstep(0.8, -1.0, p.z) + 0.12 * smoothstep(-1.4, -2.2, p.z);
+	float low = 1.0 - smoothstep(sill - fw.y, sill + fw.y, p.y);
+	float pin = band(p.y, sill + 0.010, sill + 0.024, fw.y);
+	float ax = abs(p.x);
+	// the canopy: over its glass's lower edge, inside its shoulders, from the windscreen's foot to a
+	// line sweeping back down its flanks (the fin stays painted)
+	float zrear = -0.36 - (1.06 - p.y) * 1.6;
+	float canopy = smoothstep(0.70 - fw.y, 0.70 + fw.y, p.y) * (1.0 - smoothstep(0.50 - fw.x, 0.50 + fw.x, ax))
+		* (1.0 - smoothstep(0.97 - fw.z, 0.97 + fw.z, p.z)) * smoothstep(zrear - fw.z, zrear + fw.z, p.z)
+		* smoothstep(0.010, 0.016, ax);
+	float stripes = (band(ax, 0.035, 0.105, fw.x)) * smoothstep(0.2, 0.4, n.y);
+	vec3 col = mix(paint, black, max(low, canopy));
+	col = mix(col, white, max(pin, stripes));
+	return col;
+}
+
 void fragment() {
 	// darker under bridges, roofs and gates (the map's sky occlusion); the body (paint, carbon) also
 	// darker low down and on surfaces facing the road, which blocks their sky
 	AO = tm_sky_visibility(cwpos, normalize(cwnrm));
-	if (mode < 2) {
+	if (mode != 2) {
 		float h = opos.y - ground_y;
 		float facing = clamp(normalize(onrm).y * 0.5 + 0.5, 0.0, 1.0);
 		AO *= mix(0.45, 1.0, smoothstep(0.1, 0.55, h)) * mix(0.55, 1.0, facing);
 	}
 	AO_LIGHT_AFFECT = 0.0;
 	float dist = length(VERTEX);
-	if (mode == 0) {
+	if (mode == 0 || mode == 3) {
 		vec3 col = colour;
-		if (stripe_half > 0.0 && onrm.y > 0.35) {
+		if (mode == 3) {
+			col = hyper_livery(colour, opos, normalize(onrm));
+		} else if (stripe_half > 0.0 && onrm.y > 0.35) {
 			float fw = fwidth(opos.x) + 1e-4;
 			float s = 1.0 - smoothstep(stripe_half - fw, stripe_half + fw, abs(opos.x));
 			float edge = 1.0 - smoothstep(0.012 - fw, 0.012 + fw, abs(abs(opos.x) - stripe_half - 0.02));

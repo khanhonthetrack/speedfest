@@ -30,9 +30,9 @@ test('two players: welcome, relay, finish ranking, round change, results', async
   const a = client(port);
   const b = client(port);
   await a.open; await b.open;
-  a.ws.send(JSON.stringify({ t: 'hello', name: 'Alice', version: VERSION }));
+  a.ws.send(JSON.stringify({ t: 'hello', name: 'Alice', version: VERSION, model: 'tank' }));
   const wa = await a.next('welcome');
-  b.ws.send(JSON.stringify({ t: 'hello', name: 'Bob\u0000‮', version: VERSION }));
+  b.ws.send(JSON.stringify({ t: 'hello', name: 'Bob\u0000‮', version: VERSION, model: 'hyper' }));
   const wb = await b.next('welcome');
   assert.strictEqual(wa.round.track, wb.round.track);
   a.ws.send(JSON.stringify({ t: 'state', p: [1, 2, 3], q: [0, 0, 0, 1], v: 50, s: 0.5 }));
@@ -43,6 +43,9 @@ test('two players: welcome, relay, finish ranking, round change, results', async
   let pl;
   do { pl = await a.next('players'); } while (!pl.players.some((p) => p.best === 25000));
   assert.ok(pl.players.some((p) => p.name === 'Bob' && p.best === 25000));
+  // each player's own car as they picked it (one the server doesn't know: the open-wheeler)
+  assert.ok(pl.players.some((p) => p.name === 'Bob' && p.model === 'hyper'));
+  assert.ok(pl.players.some((p) => p.name === 'Alice' && p.model === ''));
   const res = await a.next('results', 4000);
   assert.strictEqual(res.ranking[0].time, 25000);
   let rd;

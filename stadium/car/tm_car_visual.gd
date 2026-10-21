@@ -20,6 +20,11 @@ extends Node3D
 ## With a pack (TmCarPack: a community car, e.g. from ManiaPark, set before it enters the tree) it
 ## draws that model and skin instead: its body, its wheels spinning, steering and riding the
 ## suspension about their own centres, glows at its lamps (the rear ones brighter under braking).
+## model "hyper" (set before it enters the tree; the player's pick: TmUi.car_model()) is our
+## closed Le Mans hypercar instead of the open-wheeler: its body from assets/car/hypercar.glb
+## (made by tools/assets/hypercar.py, in visual coordinates) dressed in our materials by their
+## names, on these same wheels without the open-wheeler's guards; its livery in the paint shader
+## (mode 3) and stickers (HYPER_STICKERS).
 
 const T := preload("res://core/tm_tuning.gd")
 
@@ -81,6 +86,7 @@ var ghost_steer := 0.0
 var paint_colour := Color(0.85, 0.08, 0.06)
 var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online players: theirs)
 var pack: TmCarPack               ## a community car to draw instead of ours (null: ours)
+var model := ""                   ## ours: "" the open-wheeler, "hyper" the hypercar
 var _from_pack := true            ## drawn from the pack's model (false: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
 var _rest: Array[Vector3] = []    ## per wheel: the pivot's place at rest (node space)
@@ -90,6 +96,7 @@ var _brake_glow: Array[StandardMaterial3D] = []
 var _arms := []                   ## [MeshInstance3D, inner point (node space), outer offset from the wheel centre, wheel]
 var _spin := 0.0
 var _mats := {}
+var _rename := {}                 ## our parts' material names -> this car's (the hypercar's rims)
 
 static var _shared := {}          ## part name -> ArrayMesh, built once for every car
 
@@ -109,7 +116,7 @@ func _ghostly(m: StandardMaterial3D) -> StandardMaterial3D:
 
 
 ## The car's own surface shader (HD graphics, not for ghosts): paint with flakes and a stripe,
-## carbon weave, tyre tread.
+## carbon weave, tyre tread, the hypercar's livery.
 func _surface(mode: int, colour: Color, stripe: float) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = preload("res://car/tm_car_surface.gdshader")
@@ -124,7 +131,8 @@ func _surface(mode: int, colour: Color, stripe: float) -> ShaderMaterial:
 func _mat(key: String) -> Material:
 	if _mats.has(key):
 		return _mats[key]
-	if not ghost and TmMaterials.hd() and key in ["paint", "paint_plain", "white", "carbon", "tyre"]:
+	if not ghost and TmMaterials.hd() and key in ["paint", "paint_plain", "white", "carbon", "tyre", "hyper_paint",
+			"hyper_carbon", "hyper_black"]:
 		var sm: ShaderMaterial
 		match key:
 			"paint": sm = _surface(0, paint_colour, 0.07)
@@ -134,21 +142,39 @@ func _mat(key: String) -> Material:
 				sm.set_shader_parameter("flakes", 0.0)
 			"carbon": sm = _surface(1, Color.BLACK, 0.0)
 			"tyre": sm = _surface(2, Color.BLACK, 0.0)
+			# the hypercar's parts are in visual coordinates (the ground at y 0)
+			"hyper_paint": sm = _surface(3, paint_colour, 0.0)
+			"hyper_carbon": sm = _surface(1, Color.BLACK, 0.0)
+			"hyper_black":
+				sm = _surface(0, Color(0.012, 0.012, 0.014), 0.0)
+				sm.set_shader_parameter("flakes", 0.0)
+		if key.begins_with("hyper_"):
+			sm.set_shader_parameter("ground_y", 0.0)
 		_mats[key] = sm
 		return sm
 	var m := StandardMaterial3D.new()
 	match key:
-		"paint", "paint_plain":
+		"paint", "paint_plain", "hyper_paint":
 			m.albedo_color = paint_colour if not ghost else ghost_tint
 			m.metallic = 0.15
 			m.roughness = 0.32
 			m.clearcoat_enabled = true
+		"hyper_black":
+			m.albedo_color = Color(0.012, 0.012, 0.014)
+			m.metallic = 0.2
+			m.roughness = 0.2
+			m.clearcoat_enabled = true
+		"led":
+			m.albedo_color = Color(0.92, 0.96, 1.0)
+			m.emission_enabled = true
+			m.emission = Color(0.85, 0.92, 1.0)
+			m.emission_energy_multiplier = 4.0
 		"white", "helmet":
 			m.albedo_color = Color(0.93, 0.93, 0.94) if not ghost else Color(0.7, 0.85, 1.0)
 			m.metallic = 0.1
 			m.roughness = 0.3
 			m.clearcoat_enabled = true
-		"carbon":
+		"carbon", "hyper_carbon":
 			m.albedo_color = Color(0.06, 0.06, 0.07)
 			m.metallic = 0.3
 			m.roughness = 0.4
@@ -165,6 +191,11 @@ func _mat(key: String) -> Material:
 			m.albedo_color = Color(0.16, 0.16, 0.17)
 			m.metallic = 0.8
 			m.roughness = 0.5
+		"hyper_rim":
+			# forged, in dark graphite
+			m.albedo_color = Color(0.11, 0.11, 0.12)
+			m.metallic = 0.9
+			m.roughness = 0.32
 		"disc":
 			m.albedo_color = Color(0.36, 0.35, 0.34)
 			m.metallic = 0.9
@@ -227,7 +258,10 @@ func _ready() -> void:
 			ghost_tint = pack.colour
 	_from_pack = false
 	_shared_meshes()
-	_part(_instance("body"))
+	var hyper := model == "hyper" and _hyper_mesh() != null
+	if hyper:
+		_rename = {"rim": "hyper_rim"}     # dark forged rims on the hypercar
+	_part(_hyper_instance() if hyper else _instance("body"))
 	for i in 4:
 		var front := i < 2
 		var pivot := Node3D.new()
@@ -241,16 +275,17 @@ func _ready() -> void:
 		var side := "L" if T.WHEELS[i].x > 0.0 else "R"
 		var axle := "F" if front else "B"
 		spin.add_child(_instance("wheel" + axle + side, true))
-		pivot.add_child(_instance("hub" + axle + side, true))
+		pivot.add_child(_instance(("hubH" if hyper else "hub") + axle + side, true))
 		_wheels.append(pivot)
 		_spins.append(spin)
 		_rest.append(pivot.position)
 		_radius.append(TYRE_R)
-	_suspension()
+	if not hyper:
+		_suspension()                # (the hypercar's are under its bodywork)
 	if not ghost:
 		add_child(contact_shadow())
 		if TmMaterials.hd():
-			_livery()
+			_livery(HYPER_STICKERS if hyper else STICKERS)
 
 
 ## The soft shade on the road under the car (TMNF and TM2020 bake it into the map; ours moves
@@ -288,12 +323,25 @@ const STICKERS := [
 	["livery_emblem", Vector3(0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
 	["livery_emblem", Vector3(-0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
 ]
+## The hypercar's stickers (as STICKERS): the race number on the nose and on each flank ahead of
+## the rear wheels, the title sponsor on the sidepods and across the rear wing's top (read from
+## the chase camera), our emblem on the end plates.
+const HYPER_STICKERS := [
+	["livery_number", Vector3(0.0, 0.50, 2.20), Vector3(0.26, 0.30, 0.32), Vector3(1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, 1)],
+	["livery_number", Vector3(1.0, 0.43, -0.32), Vector3(0.30, 0.34, 0.37), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
+	["livery_number", Vector3(-1.0, 0.43, -0.32), Vector3(0.30, 0.34, 0.37), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+	["livery_sponsor", Vector3(0.98, 0.40, 0.42), Vector3(0.80, 0.30, 0.20), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
+	["livery_sponsor", Vector3(-0.98, 0.40, 0.42), Vector3(0.80, 0.30, 0.20), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+	["livery_sponsor", Vector3(0.0, 1.06, -1.98), Vector3(1.30, 0.20, 0.30), Vector3(-1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, -1)],
+	["livery_emblem", Vector3(1.0, 0.97, -1.90), Vector3(0.50, 0.10, 0.13), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
+	["livery_emblem", Vector3(-1.0, 0.97, -1.90), Vector3(0.50, 0.10, 0.13), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+]
 
 
 ## The livery: decals that move with the car (the stickers' places are on the tub's nose and the
 ## sidepods' flat sides; faded on surfaces that don't face them).
-func _livery() -> void:
-	for st: Array in STICKERS:
+func _livery(stickers: Array) -> void:
+	for st: Array in stickers:
 		var tex := TmMaterials._tex(String(st[0]), "albedo")
 		if tex == null:
 			continue
@@ -416,12 +464,48 @@ func _pack_instance(mesh: ArrayMesh, wheel := false) -> MeshInstance3D:
 	return mi
 
 
+const HYPER_GLB := "res://assets/car/hypercar.glb"
+## The hypercar's materials (by the names tools/assets/hypercar.py gives them) -> ours.
+const HYPER_MATS := {"paint": "hyper_paint", "carbon": "hyper_carbon", "black": "hyper_black",
+	"glass_dark": "glass_dark", "inlet": "inlet", "light": "light", "led": "led", "mirror": "mirror"}
+
+
+## The hypercar's body (one mesh, a surface per material), loaded once for every car.
+static func _hyper_mesh() -> ArrayMesh:
+	if not _shared.has("hyper"):
+		var mesh: ArrayMesh = null
+		var scene := load(HYPER_GLB) as PackedScene
+		if scene != null:
+			var root := scene.instantiate()
+			var found := root.find_children("*", "MeshInstance3D", true, false)
+			if not found.is_empty():
+				mesh = (found[0] as MeshInstance3D).mesh as ArrayMesh
+			root.free()
+		_shared["hyper"] = mesh
+	return _shared["hyper"]
+
+
+func _hyper_instance() -> MeshInstance3D:
+	var mesh := _hyper_mesh()
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.position = -VIS
+	for s in mesh.get_surface_count():
+		var src := mesh.surface_get_material(s)
+		var name := src.resource_name if src != null else mesh.surface_get_name(s)
+		mi.set_surface_override_material(s, _mat(String(HYPER_MATS.get(name, "hyper_paint"))))
+	if ghost:
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi
+
+
 func _instance(name: String, wheel := false) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var mesh: ArrayMesh = _shared[name]
 	mi.mesh = mesh
 	for s in mesh.get_surface_count():
-		mi.set_surface_override_material(s, _mat(mesh.surface_get_name(s)))
+		var key := mesh.surface_get_name(s)
+		mi.set_surface_override_material(s, _mat(String(_rename.get(key, key))))
 	if ghost:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if wheel:
@@ -546,14 +630,20 @@ static func _shared_meshes() -> void:
 		_wheel(wl, hw)
 		var hl := TmMesher.new()
 		_hub(hl, hw, front)
+		var bl := TmMesher.new()            # the hypercar's: no guard (its body covers the wheel)
+		_hub(bl, hw, front, false)
 		_shared["wheel" + axle + "L"] = wl.build()
 		_shared["hub" + axle + "L"] = hl.build()
+		_shared["hubH" + axle + "L"] = bl.build()
 		var wr := TmMesher.new()
 		wr.add_mirror_x(wl)
 		var hr := TmMesher.new()
 		hr.add_mirror_x(hl)
+		var br := TmMesher.new()
+		br.add_mirror_x(bl)
 		_shared["wheel" + axle + "R"] = wr.build()
 		_shared["hub" + axle + "R"] = hr.build()
+		_shared["hubH" + axle + "R"] = br.build()
 
 
 ## The tub's section at a station: a rounded trapezoid that opens into a U for the cockpit.
@@ -979,13 +1069,15 @@ static func _spoke(m: TmMesher, a_hub: float, a_rim: float, b: float) -> void:
 
 
 ## What steers with the wheel but doesn't spin: the caliper, the upright, the front guard (on its
-## bracket) or the rear guard. +x (left) wheel.
-static func _hub(m: TmMesher, hw: float, front: bool) -> void:
+## bracket) or the rear guard (guard: false, none). +x (left) wheel.
+static func _hub(m: TmMesher, hw: float, front: bool, guard := true) -> void:
 	# caliper over the disc, at the top towards the back
 	m.revolve("caliper", [Vector2(-0.052, 0.150), Vector2(-0.052, 0.198), Vector2(0.010, 0.198),
 		Vector2(0.010, 0.150), Vector2(-0.052, 0.150)], 8, 1.0, deg_to_rad(-50.0), deg_to_rad(-10.0), Vector3.ZERO, true)
 	m.extrude("carbon", [Vector2(-0.06, -0.13), Vector2(0.06, -0.13), Vector2(0.05, 0.15), Vector2(-0.05, 0.15)],
 		"x", -0.135, -0.075)
+	if not guard:
+		return
 	# the guard: a shell over the tyre, its edges rolled
 	var r_in := TYRE_R + (0.032 if front else 0.040)
 	var x0 := -hw + 0.01 if front else -hw - 0.06

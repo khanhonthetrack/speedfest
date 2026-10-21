@@ -80,6 +80,7 @@ func _ready() -> void:
 	car.set_physics_process(false)   # a puppet: never simulated (after add_child, which turns it on)
 	var look := TmCarVisual.new()
 	look.paint_colour = replay.colour
+	look.model = replay.model
 	car.add_child(look)
 	marks = TmTyreMarks.new()        # after this node in the tree: it reads the puppet each tick
 	marks.car = car

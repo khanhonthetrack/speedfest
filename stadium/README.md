@@ -36,7 +36,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | dir | contents |
 |---|---|
 | `core/` | tuning + car model (shared with SpeedFest) |
-| `car/` | car body, input, our own car model (`tm_car_visual.gd`), chase camera |
+| `car/` | car body, input, our own cars (`tm_car_visual.gd`: the open-wheeler and the hypercar, whose body `assets/car/hypercar.glb` is made by `tools/assets/hypercar.py` in Blender), `car_lab.tscn` to look at them, chase camera |
 | `gbx/` | `.Challenge.Gbx` reader: header, medals, LZO body, blocks |
 | `blocks/` | recreated Stadium block library on the 32 × 8 × 32 m grid: catalogue (layout data), placement, map builder, shape families in `blocks/shapes/` |
 | `race/` | race rules (`TmRace`), waypoint triggers (`TmTriggers`), race scene + HUD, map viewer, drive test; our tracks: `TmTracks`, `TmTrackBuilder` (piece lists → blocks), the driving bot `TmBot` |
@@ -53,7 +53,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
    and press Play (F5): the menu. Solo > Campaign lists our campaign (a tab per series, your best
    time and medal on each track); Race starts the selected one. Straight into a race: run
    `race/race.tscn` with `-- --track=SF03`. Profile sets your nickname (TMNF's $-codes: `$f00`
-   red, `$o` bold, `$i` italic ...), zone and car colour.
+   red, `$o` bold, `$i` italic ...), zone, car (the open-wheeler or the Le Mans hypercar) and its colour.
 2. TrackMania tracks: Solo > "Open a track file" races any `.Challenge.Gbx`
    (or `race/race.tscn -- --map="C:/path/X.Challenge.Gbx"`).
 3. Keys: arrows / WASD (or a pad) to drive, Enter respawns at the last checkpoint,

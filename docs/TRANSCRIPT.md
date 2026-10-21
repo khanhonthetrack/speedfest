@@ -1217,3 +1217,19 @@ path tracing on the City next.)
 (Found by switching sources off at the same spot: the field's reflection probe, captured once from
 20 m over the field and not parallax-correct, mirrored the amber neon and the street lights onto the
 road where nothing is. No probe on City nights now.)
+
+### User (verbatim)
+
+> Can you look at the peugeot hypercar (that i used), and without using peugeot copyright, design a similar, generic hypercar model? Blender or Godot, whatever is easier for you
+
+(The car the owner drove is a ManiaPark community pack in their own Community downloads, "2024
+Porsche 963 GTP/LMDh" by theRockettSally, not a Peugeot: rendered and measured locally for its
+proportions only, nothing of it committed. Our own generic Le Mans hypercar instead (PLAN M15): a
+Blender script (`tools/assets/hypercar.py`) builds it on our car's wheels, the game draws it in our
+materials and livery, the Profile page picks it (Car: Formula / Hypercar), online players see each
+other's pick. Screenshots shown: day views, City 04 at night, the Profile page, and the pack next
+to ours.)
+
+### User (verbatim, after the screenshots)
+
+> Looks good, commit and push it.

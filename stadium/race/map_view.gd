@@ -54,6 +54,9 @@ func _cars() -> void:
 	if which in ["ours", "both"]:
 		var ours := TmCarVisual.new()
 		ours.paint_colour = TmUi.car_colour()
+		ours.model = String(TestHooks.arg("car_model", TmUi.car_model()))    # --car_model=hyper
+		if TestHooks.has_arg("car_pack"):    # a community car pack (.zip) drawn instead of ours
+			ours.pack = TmCarPack.load_zip(String(TestHooks.arg("car_pack", "")))
 		add_child(ours)
 		ours.global_transform = Transform3D(s.basis, _car_at * TmCarVisual.VIS + (side * 1.3 if which == "both" else Vector3.ZERO))
 	if which in ["ref", "both"] and TmRefVisuals.active():

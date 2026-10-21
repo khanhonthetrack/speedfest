@@ -71,8 +71,12 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-21 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **`stadium-v0.8` (21 Oct) is `stadium` + the neon City (PLAN M14)**; the zips carry `CREDITS-city.md`.
+- **Our own Le Mans hypercar (PLAN M15, 22 Oct):** `tools/assets/hypercar.py` (Blender) ->
+  `assets/car/hypercar.glb`, drawn by `TmCarVisual.model = "hyper"` (our materials, wheels, livery
+  shader mode 3), picked on the Profile page (`car_model`), carried by replays and online;
+  `car/car_lab.tscn`, `tests/test_car_models`. Generic: nothing of any maker's design.
 - **The neon City (PLAN M14, 21 Oct, session 16):** City maps only: neon barriers (`tm_neon`,
   `blocks/tm_textured.gdshader`) and lights along them, tubes on buildings and the Stadium
   (`env/tm_neon.gd`), an airship, searchlights, LED screens; City nights wet (`tm_wet`) with AgX,
