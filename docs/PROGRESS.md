@@ -3739,3 +3739,8 @@ picture panels, its settings rows). Done on `stadium`; the race's own overlays a
   each panel opening its page, options and back from the header; the column rows by name, their
   text being in capitals), `test_top_bar` (the menus have the header, not the bar), `test_editor`
   (rows by name).
+- The pictures as committed (bde299e): Multiplayer and Replays rendered twice (the first had the
+  pack hidden behind the leader, the second the back of a banner, its text mirrored, then the
+  car in shadow); all six at Ultra in 29 min here (software Vulkan), 115-195 KB each.
+- Gate (cloud container, no TMNF install, 5cd6872 + the pictures): STADIUM_TESTS PASS, 22 suites
+  + server (test_menu 42, test_top_bar 13, test_editor 35, test_replay 29, test_community 21).

@@ -13,6 +13,8 @@
   (`tools/icons/menu_art.tscn`) into `assets/ui/menu/*.jpg`. On the owner's PC it takes well under a
   minute each; change a composition there (its args are documented in `menu_art.gd`).
   (While `assets/ui/menu/` is empty the panels show dark placeholders.)
+- Gate: STADIUM_TESTS PASS (cloud, no TMNF install). Screenshots of every page were shown to the
+  owner in the session.
 - Look at it: `stadium/tools/run.sh res://ui/menu.tscn -- [--page=solo|online|options|...] --frames=40
   --shot=/abs.png --settings=<scratch>/s.cfg --records=<scratch>/rec`.
 - Not removed (unused by the menus now): the globe (`ui/tm_globe.gdshader`,
