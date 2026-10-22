@@ -3770,8 +3770,9 @@ picture panels, its settings rows). Done on `stadium`; the race's own overlays a
   `OS.crash` in it, the old script printed nothing for 240 s with the server alive (the hang); the
   new one printed the line above in 45 s, ran the next suite, ended STADIUM_TESTS FAIL, no server
   left. Hung until run.sh's timeout: the same with exit code 124. Quitting early
-  (`get_tree().quit`): `_exit_tree` stopped the server. Full gate on the fixed tree: running at
-  this commit (the first 16 suites passed); its result follows below.
+  (`get_tree().quit`): `_exit_tree` stopped the server. Full gate on the fixed tree (b5a59c7):
+  STADIUM_TESTS PASS in 363 s, the same per-suite lines as before (22 suites + server; test_online
+  42, test_community 21), no server or Godot left running after it.
 - Also seen here, not investigated: test_online's client crashed (signal 11) in one of two runs,
   in the Rounds part right after `rounds_start_held`, just after
   `ERROR: /root: The caller thread can't call the function propagate_notification() on this node`
