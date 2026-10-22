@@ -155,9 +155,16 @@ func _garage(menu: TmMenu) -> void:
 	TmUi.set_setting("car_model", "")
 	(menu.home_tiles["garage"] as SfTile).pressed.emit()
 	await get_tree().process_frame
-	TestHooks.check(menu.page == "garage" and menu._world.visible and menu.nav.current == "garage" and _labels(menu).has("FORMULA (OPEN WHEELS)"),
+	TestHooks.check(menu.page == "garage" and menu.nav.current == "garage" and _labels(menu).has("FORMULA (OPEN WHEELS)"),
 		"menu_garage_page",
 		str(_labels(menu).slice(0, 8)))
+	# its world: the dark neon city at night (built the first time), its sky instead of the Stadium's
+	for k in 900:
+		if menu.in_city():
+			break
+		await get_tree().process_frame
+	TestHooks.check(menu.in_city() and not menu._world.visible and not menu._day_env.is_inside_tree() and menu._city_env.is_inside_tree()
+		and menu.turntable() == menu._city_car and TmStadiumEnv.night, "menu_garage_neon_city", "%s %s" % [menu.city, menu._world.visible])
 	_press(menu, "Next car")
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -181,16 +188,8 @@ func _garage(menu: TmMenu) -> void:
 	TmUi.set_setting("car_tuning", {})
 	_press(menu, "Tuning")
 	await get_tree().process_frame
-	TestHooks.check(menu.page == "tuning" and menu.tuning_rows.size() == 4 and menu.nav.current == "garage", "menu_tuning_page",
-		str(menu.tuning_rows.keys()))
-	# its world: the neon city at night (built the first time), its sky instead of the Stadium's
-	for k in 900:
-		if menu.in_city():
-			break
-		await get_tree().process_frame
-	TestHooks.check(menu.in_city() and not menu._world.visible and not menu._day_env.is_inside_tree() and menu._city_env.is_inside_tree()
-		and menu.turntable() == menu._city_car and TmStadiumEnv.night,
-		"menu_tuning_neon_city", "%s %s" % [menu.city, menu._world.visible])
+	TestHooks.check(menu.page == "tuning" and menu.tuning_rows.size() == 4 and menu.nav.current == "garage" and menu.in_city(),
+		"menu_tuning_page", str(menu.tuning_rows.keys()))
 	(menu.tuning_rows["spoiler"] as Button).pressed.emit()
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -206,12 +205,14 @@ func _garage(menu: TmMenu) -> void:
 	TestHooks.check(look != null and int(look.tuning.get("glow", 0)) == TmRoadCars.GLOWS.size() - 1, "menu_tuning_on_the_turntable")
 	menu.back()
 	await get_tree().process_frame
-	TestHooks.check(menu.page == "garage" and not menu.in_city() and menu._world.visible and menu._day_env.is_inside_tree()
-		and not menu._city_env.is_inside_tree() and not TmStadiumEnv.night and not menu.city.visible, "menu_tuning_back_to_the_garage", menu.page)
+	TestHooks.check(menu.page == "garage" and menu.in_city(), "menu_tuning_back_to_the_garage", menu.page)
 	TmUi.set_setting("car_tuning", was_t)
 	TmUi.set_setting("car_model", "")
 	menu.back()
 	await get_tree().process_frame
+	# home again: the Stadium's day back, the city hidden
+	TestHooks.check(menu.page == "main" and not menu.in_city() and menu._day_env.is_inside_tree() and not menu._city_env.is_inside_tree()
+		and not TmStadiumEnv.night and not menu.city.visible, "menu_garage_leaves_the_city", menu.page)
 
 
 ## The profile: the nickname (saved as typed, previewed with its codes) and the zone.

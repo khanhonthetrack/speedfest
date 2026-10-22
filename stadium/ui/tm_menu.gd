@@ -6,8 +6,8 @@ extends Node3D
 ## glows behind (sf_backdrop.gdshader). The home page is picture panels (SfTile, after RaceRoom's
 ## DRIVE page the owner pointed to); the other pages keep a column of entries down the left (the
 ## page's title above them, the current one marked red, Back at its foot) and panels beside it. The
-## profile and the garage show our car on the field instead of the backdrop, tuning shows it in a
-## neon city at night (_use_city). Pages:
+## profile shows our car on the field instead of the backdrop, the garage and tuning show it in a
+## dark neon city at night (_use_city). Pages:
 ## - main (home): Solo and Multiplayer large; Story (locked: Story mode is still to be built),
 ##   Community, Track editor and Replays; your campaign's medals along the foot;
 ## - solo (also "campaign"): the series down the left (White .. City), the series' tracks as cards
@@ -194,14 +194,15 @@ func _orbit(delta: float) -> void:
 	_cam.position -= _cam.basis.x * lerpf(2.4, 2.3, v)   # the car off-centre, right of the profile's panel
 
 
-## The Tuning page's world (the owner: "for tuning, make background neon city vibes, not stadium"):
-## one of our City tracks at night (CITY_TRACK: its towers, neon, wet road, lights along the
+## The Garage's and Tuning's world (the owner: "for tuning, make background neon city vibes, not
+## stadium", "Dark nighy neon city vibes background"): one of our City tracks at night (CITY_TRACK: its towers, neon, wet road, lights along the
 ## barriers, the airship and searchlights) with the turntable on its road, where the Garage's home
-## picture stands its cars (menu_art.sh garage). Built the first time Tuning opens (a few seconds:
+## picture stands its cars (menu_art.sh garage). Built the first time the Garage opens (a few seconds:
 ## the page shows over the backdrop meanwhile), then kept, hidden, for the next visit. Shown, it
 ## takes the Stadium's place: its moon and night sky instead of the day's, and the City's switches
 ## (night windows, neon, wet roads, the occlusion heights) on; hidden, those back off.
 const CITY_TRACK := "F02"
+const CITY_PAGES := ["garage", "tuning"]
 const CITY_AT := 0.3                ## of the track's line: where the turntable stands
 
 
@@ -209,7 +210,7 @@ func _use_city(on: bool) -> void:
 	if on and city == null:
 		if not _city_building:
 			_city_building = true
-			notice("Lighting up the city...")
+			notice.call_deferred("Lighting up the city...", true)     # over the page built after this
 			_build_city.call_deferred()
 		return
 	if city != null and on != city.visible:
@@ -235,14 +236,14 @@ func _apply_city(on: bool) -> void:
 	RenderingServer.global_shader_parameter_set(&"tm_wet", 1.0 if on else 0.0)
 	RenderingServer.global_shader_parameter_set(&"tm_occl_on", 1.0 if on else 0.0)
 	_cam.far = TmSkyline.FAR if on else 4000.0
-	_world.visible = page in ["profile", "garage"] and not on
+	_world.visible = page == "profile" and not on
 	_backdrop.visible = not (_world.visible or on)
 	_paint_car()
 
 
-## A tuning shop's lights on the city's turntable (at `at`; the car's frame: x left, z ahead): a warm
-## key light from above the front corner (with shadows) and a cyan and a magenta rim behind it,
-## so the paint reads against the night and the neon.
+## A tuning shop's lights on the city's turntable (at `at`; the car's frame: x left, z ahead): a soft
+## warm key light from above the front corner (with shadows) and a cyan and a magenta rim behind
+## it, so the paint reads in the dark without lifting the night.
 func _show_lights(parent: Node3D, at: Transform3D) -> void:
 	var lights := Node3D.new()
 	lights.name = "ShowLights"
@@ -250,7 +251,7 @@ func _show_lights(parent: Node3D, at: Transform3D) -> void:
 	lights.global_transform = at
 	var key := SpotLight3D.new()
 	key.light_color = Color(1.0, 0.94, 0.88)
-	key.light_energy = 9.0
+	key.light_energy = 5.5
 	key.spot_range = 14.0
 	key.spot_angle = 38.0
 	key.spot_attenuation = 0.6
@@ -261,7 +262,7 @@ func _show_lights(parent: Node3D, at: Transform3D) -> void:
 	for rim: Array in [[Vector3(-3.0, 1.4, -3.4), Color(0.1, 0.85, 1.0)], [Vector3(3.2, 1.2, -2.6), Color(1.0, 0.15, 0.7)]]:
 		var l := OmniLight3D.new()
 		l.light_color = rim[1]
-		l.light_energy = 2.2
+		l.light_energy = 2.6
 		l.omni_range = 6.0
 		l.omni_attenuation = 1.2
 		l.light_specular = 1.0
@@ -300,7 +301,7 @@ func _build_city() -> void:
 		await get_tree().physics_frame
 	city = c
 	_city_building = false
-	_apply_city(page == "tuning")
+	_apply_city(page in CITY_PAGES)
 
 
 func _exit_tree() -> void:
@@ -458,16 +459,21 @@ static func _title_of(body: Control) -> Label:
 	return body.get_meta("title") as Label
 
 
-## A short line at the bottom of the screen that fades (the locked Story, ...).
-func notice(text: String) -> void:
+## A short line at the bottom of the screen that fades (the locked Story, ...); under the header with
+## `top` (where a page's foot panel would cover it).
+func notice(text: String, top := false) -> void:
 	var chip := PanelContainer.new()
 	chip.add_theme_stylebox_override("panel", SfUi.box("chip_violet"))
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(SfUi.label(text, 15, SfUi.TEXT, SfUi.SEMI))
 	_layer.add_child(chip)
-	chip.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 40)
-	chip.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	chip.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	if top:
+		chip.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE, int(SfHeader.HEIGHT) + 18)
+		chip.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	else:
+		chip.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 40)
+		chip.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		chip.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	chip.name = "Notice"
 	var tw := chip.create_tween()
 	tw.tween_interval(2.6)
@@ -492,10 +498,10 @@ func show_page(name: String) -> void:
 		nav.set_page(page)
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25)
 	var car_view := page in ["profile", "garage", "tuning"]
-	_world.visible = page in ["profile", "garage"]
+	_world.visible = page == "profile"
 	_grade.visible = car_view
 	_backdrop.visible = not _world.visible
-	_use_city(page == "tuning")      # (over the backdrop while it is first built)
+	_use_city(page in CITY_PAGES)      # (over the backdrop while it is first built)
 	match page:
 		"solo":
 			_page_solo()

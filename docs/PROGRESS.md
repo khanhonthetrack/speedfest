@@ -3944,3 +3944,8 @@ refused by this session's permission check, so it is left to the owner).
 - Tests (`test_menu`, 53): `menu_tuning_neon_city` (the city shown, the Stadium hidden, the city's
   sky in, the turntable there, night), `menu_tuning_back_to_the_garage` (the Stadium's sky back, the
   city hidden, day).
+- Owner, after: "Dark nighy neon city vibes background". The Garage joins Tuning in the City at
+  night (`TmMenu.CITY_PAGES`; built the first time the Garage opens, kept for both); the Profile
+  keeps the Stadium. The shop's key light toned down (5.5) and the cyan/magenta rims up a little
+  (2.6), so the night and the neon lead. `test_menu` (54): `menu_garage_neon_city`,
+  `menu_garage_leaves_the_city` (home again: the Stadium's day back).

@@ -1304,3 +1304,10 @@ PLAN M17, tuning M18, as `stadium`'s M16 is the menu look.)
 (The Home pictures re-composed with the road cars; the Tuning page's turntable moved to a neon
 city at night. Moving `stadium` up to this branch: the session's permission check refused the push
 to `stadium`, so that is left to the owner.)
+
+### User (verbatim)
+
+> Dark nighy neon city vibes background
+
+(Taken for the car pages' backdrop: the Garage joins Tuning in the City at night, the shop lights
+toned down so the night and the neon lead.)
