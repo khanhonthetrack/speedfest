@@ -7,6 +7,10 @@ L = 4.52
 SPEC = {
     "id": "zenith", "name": "Zenith TT",
     "length": L, "wheelbase": 2.55, "front_overhang": 1.04, "track": (1.52, 1.525),
+    # the hood's, glasshouse's and deck's lines and the plan measured on a blueprint drawing
+    # (blueprint_fit.py curves -> roadcars/profiles/zenith.json): the windscreen's foot at 1.55, the
+    # backlight's at 3.95, the wing over 3.97-4.42
+    "fit": {"cowl": 1.55, "deck": 3.95, "wing": [3.97, 4.42]},
     "tyre": {"r": (0.327, 0.327), "w": (0.245, 0.275), "rim_r": 0.2415, "rim": "five", "spokes": 5, "dish": 0.03},
     "body": {
         "floor": 0.13,
@@ -34,63 +38,67 @@ SPEC = {
         "rear": {"yc": 0.62, "plan": (0.22, 3.6), "top": (0.06, 3.6), "bottom": (0.12, 3.0)},
     },
     "cabin": {
-        "d0": 1.46, "d1": 3.74,
+        "d0": 1.47, "d1": 4.03,
         "curves": {
-            "top": [(1.46, 0.83), (1.60, 0.92), (1.85, 1.07), (2.10, 1.19), (2.30, 1.245), (2.6, 1.275), (2.9, 1.262),
-                    (3.1, 1.215), (3.35, 1.11), (3.6, 1.0), (3.74, 0.93)],
-            "rail_x": [(1.46, 0.62), (1.8, 0.60), (2.2, 0.56), (2.6, 0.55), (3.0, 0.56), (3.3, 0.62), (3.74, 0.68)],
-            "base_x": [(1.46, 0.70), (1.75, 0.76), (2.0, 0.78), (3.0, 0.79), (3.5, 0.77), (3.74, 0.74)],
-            "base_y": [(1.46, 0.83), (2.0, 0.86), (3.0, 0.89), (3.4, 0.93), (3.74, 0.95)],
+            "top": [(1.47, 0.86), (4.03, 0.97)],
+            "rail_x": [(1.47, 0.62), (1.8, 0.60), (2.2, 0.55), (2.6, 0.54), (3.0, 0.56), (3.4, 0.60), (3.8, 0.64), (4.03, 0.66)],
+            "base_x": [(1.47, 0.68), (1.75, 0.74), (2.1, 0.77), (3.0, 0.78), (3.5, 0.76), (3.85, 0.72), (4.03, 0.69)],
             "crown": 0.05,
         },
         "radii": {"rail": 0.06},
     },
     "arches": {"r": 0.352, "lift": 0.006},
     "glass": [
-        {"plane": "top", "outline": [(-0.66, 1.58), (0.66, 1.58), (0.53, 2.21), (-0.53, 2.21)], "radii": [0.04, 0.04, 0.06, 0.06]},
-        {"plane": "side", "outline": [(1.72, 0.905), (2.20, 1.18), (2.55, 1.232), (2.95, 1.215), (3.28, 1.07), (3.36, 0.95),
-                                       (3.0, 0.915), (2.2, 0.90)], "radii": [0.03, 0.08, 0.1, 0.1, 0.06, 0.04, 0.02, 0.02],
-         "mirror": True},
-        {"plane": "top", "outline": [(-0.54, 3.03), (0.54, 3.03), (0.64, 3.55), (-0.64, 3.55)], "radii": [0.06, 0.06, 0.05, 0.05]},
-    ],
-    "insets": [
-        # headlights: a long sweeping housing on each front corner, three round lamps in it
-        {"plane": "front", "ray": (0, -0.45, -1), "outline": [(0.40, 0.585), (0.62, 0.60), (0.80, 0.64), (0.86, 0.675),
-                                                                (0.82, 0.705), (0.62, 0.69), (0.43, 0.635)],
-         "radii": [0.02, 0.04, 0.04, 0.03, 0.04, 0.04, 0.02], "depth": 0.045, "mats": ("lamp", "lamp"), "cover": "lens",
-         "mirror": True,
-         "elements": [("projector", (0.51, 0.615), 0.03, "proj"), ("projector", (0.62, 0.635), 0.032, "proj"),
-                      ("projector", (0.73, 0.655), 0.032, "proj"), ("strip", [(0.45, 0.60), (0.78, 0.64)], 0.006, "led")]},
-        # four round tail lamps
-        {"plane": "rear", "outline": circle(0.66, 0.80, 0.088, 36), "depth": 0.04, "mats": ("lamp", "trim"), "cover": "lens_red", "mirror": True,
-         "elements": [("ring", (0.66, 0.80), 0.082, 0.052, "light"), ("disc", (0.66, 0.80), 0.03, "light")]},
-        {"plane": "rear", "outline": circle(0.45, 0.80, 0.08, 36), "depth": 0.04, "mats": ("lamp", "trim"), "cover": "lens_red", "mirror": True,
-         "elements": [("ring", (0.45, 0.80), 0.074, 0.045, "light"), ("disc", (0.45, 0.80), 0.026, "lamp")]},
-        # the rear plate
-        {"plane": "rear", "outline": [(-0.27, 0.47), (0.27, 0.47), (0.27, 0.62), (-0.27, 0.62)], "radii": [0.01] * 4, "depth": 0.02,
-         "mats": ("trim", "trim"), "elements": [("patch", [(-0.255, 0.48), (0.255, 0.48), (0.255, 0.61), (-0.255, 0.61)], [0.01] * 4,
-                                                  "plate", 0.004)]},
-    ],
-    "recesses": [
-        # the big mouth in the bumper, fog lamp pockets either side
-        {"plane": "front", "outline": [(-0.42, 0.19), (0.42, 0.19), (0.48, 0.28), (0.40, 0.37), (-0.40, 0.37), (-0.48, 0.28)],
-         "radii": [0.04, 0.04, 0.05, 0.05, 0.05, 0.05], "depth": 0.10, "mats": ("grille", "trim")},
-        {"plane": "front", "outline": [(0.58, 0.22), (0.76, 0.24), (0.78, 0.31), (0.60, 0.31)], "radii": [0.02] * 4, "depth": 0.06,
-         "mats": ("grille", "trim"), "mirror": True},
+        {"plane": "top", "outline": [(-0.64, 1.62), (0.64, 1.62), (0.51, 2.22), (-0.51, 2.22)], "radii": [0.04, 0.04, 0.07, 0.07]},
+        {"plane": "side", "outline": [(2.02, 0.875), (2.30, 1.14), (2.60, 1.19), (2.95, 1.17), (3.15, 1.07), (3.22, 0.95), (3.10, 0.88)],
+         "radii": [0.02, 0.1, 0.12, 0.1, 0.08, 0.05, 0.03], "mirror": True},
+        # the bubble backlight, wrapping down to the deck
+        {"plane": "top", "outline": [(-0.52, 3.0), (0.52, 3.0), (0.63, 3.88), (-0.63, 3.88)], "radii": [0.08, 0.08, 0.06, 0.06]},
     ],
     "paint": [
-        {"plane": "front", "outline": [(0.66, 0.415), (0.82, 0.43), (0.83, 0.455), (0.67, 0.445)], "radii": [0.01] * 4, "mat": "amber",
+        # the quarter glass's thin frame
+        {"plane": "side", "outline": [(2.82, 0.86), (2.86, 0.86), (2.86, 1.21), (2.82, 1.21)], "radii": [0.005] * 4, "mat": "gloss_black",
+         "mirror": True, "cabin": True},
+        # side markers on the front fenders
+        {"plane": "side", "outline": [(1.44, 0.655), (1.52, 0.655), (1.52, 0.685), (1.44, 0.685)], "radii": [0.01] * 4, "mat": "amber",
          "mirror": True},
     ],
-    "gaps": [
-        {"plane": "side", "line": [(1.70, 0.885), (1.67, 0.6), (1.71, 0.27), (2.95, 0.27), (3.0, 0.6), (2.99, 0.9)]},
-        {"plane": "top", "line": [(-0.60, 1.50), (-0.66, 0.9), (-0.56, 0.22), (0.56, 0.22), (0.66, 0.9), (0.60, 1.50)], "mirror": False},
-        {"plane": "top", "line": [(-0.60, 3.60), (-0.68, 4.28), (0.68, 4.28), (0.60, 3.60)], "mirror": False},
+    "insets": [
+        # headlights on the sloping nose: two round lamps under one glass, the indicator outboard
+        {"plane": "front", "ray": (0, -0.35, -1), "outline": [(0.33, 0.635), (0.62, 0.62), (0.72, 0.655), (0.72, 0.715), (0.62, 0.755),
+                                                                (0.35, 0.735)],
+         "radii": [0.03, 0.04, 0.03, 0.03, 0.04, 0.03], "depth": 0.05, "mats": ("lamp", "lamp"), "cover": "lens", "mirror": True,
+         "elements": [("projector", (0.42, 0.68), 0.042, "proj"), ("projector", (0.54, 0.68), 0.042, "proj"),
+                      ("strip", [(0.63, 0.66), (0.70, 0.675)], 0.02, "amber")]},
+        # the tail clusters: three round lamps each in a smoked housing
+        {"plane": "rear", "outline": [(0.20, 0.77), (0.62, 0.77), (0.69, 0.80), (0.68, 0.86), (0.22, 0.86)],
+         "radii": [0.03, 0.04, 0.03, 0.03, 0.03], "depth": 0.04, "mats": ("trim", "trim"), "cover": "lens_red", "mirror": True,
+         "elements": [("ring", (0.30, 0.815), 0.042, 0.026, "light"), ("ring", (0.42, 0.815), 0.042, 0.026, "light"),
+                      ("ring", (0.54, 0.815), 0.042, 0.026, "light"), ("disc", (0.42, 0.815), 0.02, "lamp"),
+                      ("strip", [(0.61, 0.79), (0.66, 0.83)], 0.02, "amber")]},
+        # the plate panel
+        {"plane": "rear", "outline": rect(-0.33, 0.57, 0.33, 0.68), "radii": [0.015] * 4, "depth": 0.015, "mats": ("paint", "paint"),
+         "elements": [("patch", rect(-0.155, 0.575, 0.155, 0.675), [0.01] * 4, "plate", 0.004)]},
     ],
-    "handles": [(2.75, 0.82)],
-    "mirrors": [{"base": (0.79, 1.76, 0.88), "size": (0.14, 0.09, 0.12), "reach": 0.04}],
-    "wings": [{"span": 0.80, "chord": 0.26, "d": 4.06, "y": 1.13, "pitch": 0.10,
-               "uprights": [{"x": 0.70, "outline": [(4.02, 0.94), (4.34, 0.94), (4.30, 1.115), (4.10, 1.125)], "radii": [0, 0, 0.05, 0.05]}]}],
-    "exhausts": [{"at": (0.55, 0.25, L - 0.06), "r": (0.05, 0.04), "length": 0.14}],
-    "wipers": {"d": 1.60, "x": [0.40, -0.12], "len": 0.48, "dir": -1},
+    "recesses": [
+        # the centre intake under the bumper's bar, with slats; an intake each side
+        {"plane": "front", "outline": rect(-0.45, 0.35, 0.45, 0.45), "radii": [0.02] * 4, "depth": 0.09, "mats": ("grille", "trim"),
+         "bars": {"y": [0.383, 0.417], "mat": "trim", "t": 0.012}},
+        {"plane": "front", "outline": rect(0.61, 0.38, 0.73, 0.50), "radii": [0.03] * 4, "depth": 0.06, "mats": ("grille", "trim"),
+         "mirror": True, "bars": {"y": [0.42, 0.46], "mat": "trim", "t": 0.01}},
+    ],
+    "gaps": [
+        {"plane": "side", "line": [(1.72, 0.86), (1.63, 0.6), (1.66, 0.30), (2.9, 0.29), (2.98, 0.55), (2.98, 0.87)]},
+        {"plane": "top", "line": [(-0.62, 1.52), (-0.70, 0.9), (-0.40, 0.18), (0.40, 0.18), (0.70, 0.9), (0.62, 1.52)], "mirror": False},
+        {"plane": "top", "line": [(-0.66, 3.92), (-0.70, 4.35), (0.70, 4.35), (0.66, 3.92)], "mirror": False},
+    ],
+    "handles": [(2.70, 0.71)],
+    "splitter": {"d1": 0.45, "reach": 0.03, "y": 0.15, "t": 0.016, "mat": "trim"},
+    "mirrors": [{"base": (0.80, 2.02, 0.88), "size": (0.14, 0.09, 0.12), "reach": 0.05}],
+    # the hoop wing: its legs sweep up from the rear quarters
+    "wings": [{"span": 0.78, "chord": 0.28, "d": 4.16, "y": 1.20, "pitch": 0.15,
+               "uprights": [{"x": 0.72, "t": 0.03, "outline": [(3.92, 0.98), (4.18, 0.98), (4.44, 1.17), (4.30, 1.21)],
+                             "radii": [0.03, 0.05, 0.04, 0.05]}]}],
+    "exhausts": [{"at": (-0.56, 0.28, L - 0.06), "r": 0.045, "length": 0.14, "mirror": False}],
+    "wipers": {"d": 1.66, "x": [0.40, -0.12], "len": 0.48, "dir": -1},
 }

@@ -1,36 +1,17 @@
 {
- "zenith": {
-  "url": "https://drawingdatabase.com/wp-content/uploads/2015/07/Supra_MkIV.jpg",
-  "length": 4.52,
-  "width": 1.81,
-  "side": [
-   8,
-   8,
-   1281,
-   375,
-   0
-  ],
-  "top": [
-   7,
-   930,
-   1283,
-   1487,
-   0
-  ],
-  "front": [
-   37,
-   540,
-   593,
-   878,
-   0
-  ],
-  "rear": [
-   677,
-   510,
-   1281,
-   877,
-   0
-  ],
-  "height": 1.275
- }
+ "zenith": {"url": "https://drawingdatabase.com/wp-content/uploads/2015/07/Supra_MkIV.jpg", "length": 4.52, "width": 1.81, "side": [8, 8, 1281, 375, 0], "top": [7, 930, 1283, 1487, 0], "front": [37, 540, 593, 878, 0], "rear": [677, 510, 1281, 877, 0], "height": 1.275},
+ "kobold": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/10/chevrolet-cobalt-2007.gif", "length": 4.585, "width": 1.725, "height": 1.415, "side": [0, 364, 1079, 709, 0], "front": [1112, 0, 1590, 339, 0], "rear": [1119, 362, 1587, 703, 0]},
+ "ayame": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/04/lexusIS300.jpg", "length": 4.485, "width": 1.72, "height": 1.41, "side": [35, 330, 716, 589, 0], "front": [18, 11, 331, 291, 0], "rear": [404, 9, 764, 286, 0], "thr": 0.86},
+ "birdie": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/12/Golf-V-04.gif", "length": 4.216, "width": 1.759, "height": 1.466, "side": [55, 555, 1015, 902, 0], "top": [64, 982, 1016, 1453, 0], "front": [535, 135, 1020, 474, 0], "rear": [45, 135, 525, 474, 0]},
+ "nemesis": {"url": "https://carblueprints.info/blueprints/bmw/bmw-m3-coupe-2007-e46.gif", "length": 4.49, "width": 1.84, "height": 1.33, "side": [1026, 28, 2811, 736, 0], "top": [1077, 788, 2805, 1535, 0], "front": [41, 29, 948, 663, 0], "rear": [32, 707, 946, 1484, 0]},
+ "stallion": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/10/Ford-Mustang-GT-2006.jpg", "length": 4.765, "width": 1.877, "height": 1.415, "side": [34, 537, 1435, 957, 0], "top": [34, 950, 1417, 1569, 0], "front": [34, 31, 708, 512, 0], "rear": [754, 31, 1430, 513, 0]},
+ "kaiten": {"url": "https://drawingdatabase.com/wp-content/uploads/2015/02/Mazda-RX-8_2008.gif", "length": 4.43, "width": 1.77, "height": 1.34, "side": [91, 1934, 2199, 2743, 0], "top": [95, 1091, 2060, 1920, 0], "front": [209, 246, 1051, 980, 0], "rear": [1219, 249, 2067, 924, 0]},
+ "halberd": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/04/mitsubishi_evolution-viii.jpg", "length": 4.49, "width": 1.77, "height": 1.45, "side": [179, 1321, 2414, 1983, 0], "top": [245, 234, 2257, 1134, 0], "front": [245, 2372, 1147, 3375, 0], "rear": [1355, 2372, 2258, 3228, 0]},
+ "gavial": {"url": "https://carblueprints.info/blueprints/porsche/porsche-cayman-s.gif", "length": 4.341, "width": 1.801, "height": 1.305, "side": [261, 275, 816, 449, 0], "top": [261, 2, 816, 255, 0], "front": [4, 276, 256, 448, 0], "rear": [3, 50, 256, 222, 0]},
+ "argent": {"url": "https://carblueprints.info/blueprints/mercedes-benz/mercedes-benz-clk500-2004.gif", "length": 4.638, "width": 1.74, "height": 1.413, "side": [0, 2, 1125, 355, 1]},
+ "albion": {"url": "https://drawingdatabase.com/wp-content/uploads/2015/04/Aston-Martin-DB9.gif", "length": 4.71, "width": 1.875, "height": 1.27, "side": [716, 21, 2223, 441, 0], "top": [716, 448, 2223, 1103, 0], "front": [26, 16, 681, 441, 0], "rear": [26, 582, 681, 1008, 0]},
+ "taipan": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/12/Dodge-Viper-SRT10-Coupe.png", "length": 4.46, "width": 1.911, "height": 1.233, "side": [73, 45, 1691, 508, 0], "top": [73, 1022, 1691, 1753, 1], "front": [1753, 45, 2483, 508, 0], "rear": [1755, 534, 2485, 998, 0]},
+ "corrida": {"url": "https://drawingdatabase.com/wp-content/uploads/2015/02/gallardo.gif", "length": 4.3, "width": 1.9, "height": 1.165, "side": [1191, 1138, 3191, 1695, 0], "top": [1195, 58, 3192, 1084, 0], "front": [50, 1143, 1080, 1695, 0], "rear": [50, 268, 1076, 820, 0]},
+ "frigate": {"url": "https://drawingdatabase.com/wp-content/uploads/2014/11/chevrolet-corvette-c6-2009.gif", "length": 4.435, "width": 1.844, "height": 1.244, "side": [16, 1, 1612, 453, 0], "front": [0, 463, 829, 906, 0], "rear": [847, 463, 1598, 906, 0]},
+ "quicksilver": {"url": "https://drawingdatabase.com/wp-content/uploads/2016/10/Mercedes-Benz-slr-mclaren.gif", "length": 4.656, "width": 1.908, "height": 1.261, "side": [139, 3, 3172, 762, 0], "top": [139, 906, 3171, 2333, 0], "front": [207, 2406, 1630, 3269, 0], "rear": [1772, 2404, 3187, 3268, 0]}
 }

@@ -180,6 +180,23 @@ class Curve:
         return float(pchip(self.ds, self.vs, d)[0])
 
 
+def smooth_keys(pts, sigma, ends=0.0):
+    """Measured keys [(d, v)] (a drawing's pixel steps) smoothed by a Gaussian of sigma metres,
+    narrowing within ends of either end so a nose's or tail's quick turn stays."""
+    pts = np.array(sorted(pts), float)
+    if len(pts) < 3 or sigma <= 0:
+        return [tuple(p) for p in pts]
+    d, v = pts[:, 0], pts[:, 1]
+    out = []
+    for di in d:
+        s = sigma
+        if ends > 0:
+            s *= min(max(min(di - d[0], d[-1] - di) / ends, 0.25), 1.0)
+        w = np.exp(-0.5 * ((d - di) / s) ** 2)
+        out.append((float(di), float(np.sum(w * v) / np.sum(w))))
+    return out
+
+
 def endcap(t, p):
     """A superellipse's quarter: 0 at t 0, rising with a vertical tangent, 1 from t 1 on."""
     t = min(max(t, 0.0), 1.0)
@@ -395,13 +412,20 @@ class Car:
         self.d_rear = self.foh + self.wb
         self.F = spec["body"].get("floor", 0.13)
         b = spec["body"]
-        self.c = {k: Curve(v) for k, v in b["curves"].items()}
+        prof = self._profile(spec)
+        self.c = {k: Curve(self._measured(v, prof, spec, k)) for k, v in b["curves"].items()}
         self.r = {k: Curve(v) for k, v in b.get("radii", {}).items()}
         self.bows = {k: Curve(v) for k, v in b.get("bows", {}).items()}
         self.front = b.get("front", {})
         self.rear = b.get("rear", {})
         g = spec.get("cabin")
-        self.g = {k: Curve(v) for k, v in g["curves"].items()} if g else None
+        self.g = {k: Curve(self._measured(v, prof, spec, "cabin." + k)) for k, v in g["curves"].items()} if g else None
+        # the plan from the measured silhouette (when the spec asks): every x along the car scaled so
+        # the widest corner follows the drawing's half width
+        self.plan = None
+        if prof and spec.get("profile", {}).get("plan") and "plan_hw" in prof:
+            pts = smooth_keys([(a * self.L / prof["length"], b) for a, b in prof["plan_hw"]], 0.08, ends=0.5)
+            self.plan = Curve(pts[::2] + ([pts[-1]] if len(pts) % 2 == 0 else []))
         self.gr = {k: Curve(v) for k, v in g.get("radii", {}).items()} if g else {}
         self.gd = (g["d0"], g["d1"]) if g else None
         self.wheels = []
@@ -412,6 +436,58 @@ class Car:
     def z(self, d):
         return self.z_nose - d
 
+    @staticmethod
+    def _profile(spec):
+        """The car's measured silhouettes (roadcars/profiles/<id>.json, blueprint_fit.py curves),
+        if the spec uses them. A spec's "fit" {cowl, deck, front, rear, wing: [d0, d1], plan} is
+        turned into its "profile": the hood's line (and its edge's) from the side's top line ahead
+        of the windscreen's foot (cowl), the glasshouse's top between the cowl and the backlight's
+        foot (deck), the deck's line behind it (but over a wing), the plan."""
+        f = spec.get("fit")
+        if f:
+            cowl, deck = f["cowl"], f["deck"]
+            a, b = f.get("front", 0.15), f.get("rear", spec["length"] - 0.06)
+            w0, w1 = f.get("wing", (b, b))
+            prof = {"plan": f.get("plan", True),
+                    "top": {"from": "side_top", "ranges": [[a, cowl - 0.03], [deck + 0.04, min(w0, b)], [max(w1, deck + 0.04), b]],
+                            "add": f.get("top_add", -0.004)},
+                    "edge_y": {"from": "side_top", "ranges": [[a, cowl - 0.03], [deck + 0.04, min(w0, b)], [max(w1, deck + 0.04), b]],
+                               "add": f.get("edge_add", -0.016)},
+                    "cabin.top": {"from": "side_top", "ranges": [[cowl + 0.03, deck - 0.03]], "add": 0.0}}
+            prof.update(spec.get("profile", {}))
+            spec["profile"] = prof
+        if not spec.get("profile"):
+            return None
+        path = os.path.join(HERE, "roadcars", "profiles", spec["id"] + ".json")
+        if not os.path.exists(path):
+            return None
+        with open(path) as f:
+            return json.load(f)
+
+    def _measured(self, keys, prof, spec, name):
+        """A curve's keys with a measured stretch in place of the spec's own (spec["profile"][name]:
+        {"from": silhouette, "range": [d0, d1], "add": dy, "every": step}); its keys outside the
+        stretch stay."""
+        use = spec.get("profile", {}).get(name) if prof else None
+        if not use or use["from"] not in prof:
+            return keys
+        ranges = use.get("ranges", [use.get("range")])
+        ranges = [r for r in ranges if r and r[1] - r[0] > 0.02]
+        k = self.L / prof["length"]
+        step = max(1, int(round(use.get("every", 0.05) / 0.025)))
+        out = [] if isinstance(keys, (int, float)) else [(d, v) for d, v in keys
+                                                          if not any(a - 1e-6 <= d <= b + 1e-6 for a, b in ranges)]
+        if isinstance(keys, (int, float)) and not out:
+            pass
+        for a, b in ranges:
+            pts = [(d * k, y + use.get("add", 0.0)) for d, y in prof[use["from"]] if a <= d * k <= b]
+            pts = smooth_keys(pts, use.get("smooth", 0.04))
+            thin = [p for i, p in enumerate(pts) if i % step == 0]
+            if thin and thin[-1] != pts[-1]:
+                thin.append(pts[-1])
+            out += thin
+        return sorted(out)
+
     def P(self, x, d, y):
         """A blueprint point (half width x, distance back d, height y) in Blender."""
         return B(x, y, self.z(d))
@@ -421,10 +497,15 @@ class Car:
     def _ends(self, d):
         f, r = self.front, self.rear
         fp = endcap(d / f.get("plan", (0.4, 2.0))[0], f.get("plan", (0.4, 2.0))[1])
+        if self.plan is not None:
+            # the measured plan in place of the superellipse ends
+            c = self.c
+            wide = max(c["side_x"](d), c["sh_x"](d), 1e-3)
+            fp = min(self.plan(d) / wide, 1.25)
         ft = endcap(d / f.get("top", (0.12, 2.0))[0], f.get("top", (0.12, 2.0))[1])
         fb = endcap(d / f.get("bottom", (0.12, 2.0))[0], f.get("bottom", (0.12, 2.0))[1])
         e = self.L - d
-        rp = endcap(e / r.get("plan", (0.4, 2.0))[0], r.get("plan", (0.4, 2.0))[1])
+        rp = endcap(e / r.get("plan", (0.4, 2.0))[0], r.get("plan", (0.4, 2.0))[1]) if self.plan is None else 1.0
         rt = endcap(e / r.get("top", (0.12, 2.0))[0], r.get("top", (0.12, 2.0))[1])
         rb = endcap(e / r.get("bottom", (0.12, 2.0))[0], r.get("bottom", (0.12, 2.0))[1])
         yc = f.get("yc", 0.45) if d < self.L * 0.5 else r.get("yc", 0.6)
@@ -460,7 +541,7 @@ class Car:
         default = {"top": 0.0, "hood": 0.03, "edge": 0.03, "sh": 0.04, "side": 0.15, "rk": 0.04, "fl": 0.01, "centre": 0.0}
         rad = [r[nm](d) if nm in r else default[nm] for nm in names]
         ep, et, eb, _ = self._ends(d)
-        s = min(ep, 0.5 + 0.5 * min(et, eb))
+        s = min(ep, 1.0, 0.5 + 0.5 * min(et, eb))
         rad = [a * s for a in rad]
         bw = self.bows
 
@@ -1431,8 +1512,13 @@ def ortho(car, body, wheels, out_path):
         o.hide_render = True
     sc.render.engine = "BLENDER_WORKBENCH"
     sc.display.shading.light = "FLAT"
-    sc.display.shading.color_type = "SINGLE"
-    sc.display.shading.single_color = (0.0, 0.0, 0.0)
+    sc.display.shading.color_type = "MATERIAL"
+    # each material drawn in its class's code colour: the body black, glass blue, lamps green,
+    # openings (grilles, intakes, trim) red
+    code = {"glass": (0, 0, 1), "lens": (0, 1, 0), "lamp": (0, 1, 0), "led": (0, 1, 0), "light": (0, 1, 0),
+            "lens_red": (0, 1, 0), "amber": (0, 1, 0), "proj": (0, 1, 0), "grille": (1, 0, 0), "inlet": (1, 0, 0)}
+    for m in bpy.data.materials:
+        m.diffuse_color = (*code.get(m.name.split(".")[0], (0, 0, 0)), 1.0)
     sc.display.shading.show_cavity = False
     sc.display.shading.show_specular_highlight = False
     sc.render.film_transparent = True
