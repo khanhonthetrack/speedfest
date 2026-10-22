@@ -29,6 +29,9 @@ class TmOnlineUrls:
 	static func report() -> String:
 		return str(CASES.map(func(c: Array) -> String: return "%s -> %s %s" % [c[0], Online.ws_url(c[0]), Online.status_url(c[0])]))
 var _pid := -1
+## The test servers started and not stopped yet: _exit_tree stops them too, so a run that quits
+## early leaves none behind holding its port (and the gate's output).
+var _servers: Array[int] = []
 
 
 func _ready() -> void:
@@ -46,7 +49,7 @@ func _ready() -> void:
 	if DirAccess.dir_exists_absolute(data):
 		for f in DirAccess.get_files_at(data):
 			DirAccess.remove_absolute(data.path_join(f))
-	_pid = OS.create_process(node, [script, "--port=%d" % PORT, "--round-ms=%d" % TA_ROUND_MS, "--results-ms=1500", "--name=Test", "--data=" + data])
+	_pid = _serve(node, [script, "--port=%d" % PORT, "--round-ms=%d" % TA_ROUND_MS, "--results-ms=1500", "--name=Test", "--data=" + data])
 	await _wait(func() -> bool: return _up(), 8000)
 	await _account()
 	Online.join("127.0.0.1:%d" % PORT, "Tester", Color(0.1, 0.35, 0.9), Master.token())
@@ -63,7 +66,7 @@ func _ready() -> void:
 	Online.leave()
 	await Master.log_out()
 	TestHooks.check(not Master.logged_in() and Master.account.is_empty(), "online_log_out")
-	OS.kill(_pid)
+	_stop(_pid)
 	TestHooks.args.erase("master")
 	await _rounds(node, script)
 	await _community(node, script)
@@ -75,7 +78,7 @@ func _ready() -> void:
 ## id, and a finish on it is ranked.
 func _community(node: String, script: String) -> void:
 	var port := PORT + 2
-	var pid := OS.create_process(node, [script, "--port=%d" % port, "--name=Community", "--tracks=A01", "--admin-password=let-me-in",
+	var pid := _serve(node, [script, "--port=%d" % port, "--name=Community", "--tracks=A01", "--admin-password=let-me-in",
 		"--data=" + _fresh_dir("user://test_master_community")])
 	await _wait(func() -> bool: return _up_at(port), 8000)
 	var file := ProjectSettings.globalize_path("user://test_upload.Challenge.Gbx")
@@ -104,7 +107,7 @@ func _community(node: String, script: String) -> void:
 	TestHooks.check(ok and f is Dictionary and String(Online.round["track"]) == "CommunityTest00000000000000", "community_round_names_its_file",
 		str(Online.round))
 	if not (ok and f is Dictionary):
-		OS.kill(pid)
+		_stop(pid)
 		return
 	var path: String = await Online.round_track_file()
 	TestHooks.check(not path.is_empty() and Online.has_cached(String(f["sha256"]), ".Challenge.Gbx"), "community_track_downloaded", path)
@@ -126,7 +129,7 @@ func _community(node: String, script: String) -> void:
 	TestHooks.args.erase("map")
 	TestHooks.args.erase("online_track")
 	Online.leave()
-	OS.kill(pid)
+	_stop(pid)
 
 
 ## An admin uploads a car pack (a ManiaPark-like zip of our own: TmTestCar) to the server, which
@@ -186,14 +189,14 @@ func _http(url: String, method: int, body: PackedByteArray, type: String, auth :
 ## parks the car.
 func _rounds(node: String, script: String) -> void:
 	var port := PORT + 1
-	var pid := OS.create_process(node, [script, "--port=%d" % port, "--mode=Rounds", "--name=Rounds Test", "--tracks=SF01,SF02",
+	var pid := _serve(node, [script, "--port=%d" % port, "--mode=Rounds", "--name=Rounds Test", "--tracks=SF01,SF02",
 		"--start-ms=%d" % ROUNDS_LEAD_MS, "--data=" + _fresh_dir("user://test_master_rounds")])
 	await _wait(func() -> bool: return _up_at(port), 8000)
 	Online.join("127.0.0.1:%d" % port, "Racer", Color(0.9, 0.1, 0.1))
 	var ok := await _wait(func() -> bool: return Online.is_online(), 8000)
 	TestHooks.check(ok and Online.mode == "Rounds" and Online.synced(), "rounds_joins", Online.mode)
 	if not ok:
-		OS.kill(pid)
+		_stop(pid)
 		return
 	TestHooks.args["track"] = String(Online.round["track"])
 	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
@@ -229,7 +232,26 @@ func _rounds(node: String, script: String) -> void:
 	TestHooks.check(watching and scene.waiting and not scene.car.visible, "rounds_spectate")
 	scene.queue_free()
 	Online.leave()
+	_stop(pid)
+
+
+## Starts a test server: node server.js with these arguments.
+func _serve(node: String, args: Array) -> int:
+	var pid := OS.create_process(node, PackedStringArray(args))
+	if pid > 0:
+		_servers.append(pid)
+	return pid
+
+
+func _stop(pid: int) -> void:
 	OS.kill(pid)
+	_servers.erase(pid)
+
+
+func _exit_tree() -> void:
+	for pid in _servers:
+		OS.kill(pid)
+	_servers.clear()
 
 
 ## An empty data directory for a test server (never the server's own data/: on the official

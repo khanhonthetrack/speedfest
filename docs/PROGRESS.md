@@ -3744,3 +3744,37 @@ picture panels, its settings rows). Done on `stadium`; the race's own overlays a
   car in shadow); all six at Ultra in 29 min here (software Vulkan), 115-195 KB each.
 - Gate (cloud container, no TMNF install, 5cd6872 + the pictures): STADIUM_TESTS PASS, 22 suites
   + server (test_menu 42, test_top_bar 13, test_editor 35, test_replay 29, test_community 21).
+
+## 2026-10-22 — The Stadium gate no longer hangs when a test client dies (`stadium/tools/test_all.sh`)
+
+- Seen on 22 Oct: test_online's Godot client was gone, its test server
+  (`node .../server.js --port=18091 --round-ms=30000 ...`) still ran, and `test_all.sh` waited until
+  the server was killed by hand, with no TEST_SUMMARY and no failure line. The gate read each
+  suite's output through `$( ... )`, and the servers that test_online and test_community start with
+  `OS.create_process` share the client's stdout: while one lived the pipe stayed open. So any early
+  exit of the client (crash, run.sh's timeout) became a stuck gate.
+- `stadium/tools/test_all.sh`: each suite's output goes to a file (`run.sh ... > "$TMP/<suite>.txt"
+  2>&1`), so the shell waits for run.sh only, and the lines and the pass check are read from it.
+  After each suite (and once before the first) it kills the test servers left behind:
+  `pkill -f '[s]erver/server\.js --port=(1809[123]|18095)( |$)'` (test_online's 18091-18093,
+  test_community's 18095; the `[s]` keeps it from matching a command line that holds the pattern),
+  SIGKILL after 2 s for one that ignores SIGTERM; skipped where there is no pkill (Git Bash).
+  A suite that ends without a TEST_SUMMARY now says so under its name:
+  `[test_online] TEST_FAIL no TEST_SUMMARY: the run ended early (exit code 134)` (134: a crash,
+  124: run.sh's timeout). Everything else prints as before.
+- `stadium/tests/test_online.gd`: servers start through `_serve` and stop through `_stop`;
+  `_exit_tree` stops any still running, so a run that quits early leaves none. A crash or run.sh's
+  timeout never reaches it (on SIGTERM Godot exits without leaving the tree: measured), so the
+  gate's pkill is what covers those.
+- Checked (cloud container), with test_online made to die before killing its first server:
+  `OS.crash` in it, the old script printed nothing for 240 s with the server alive (the hang); the
+  new one printed the line above in 45 s, ran the next suite, ended STADIUM_TESTS FAIL, no server
+  left. Hung until run.sh's timeout: the same with exit code 124. Quitting early
+  (`get_tree().quit`): `_exit_tree` stopped the server. Full gate on the fixed tree: running at
+  this commit (the first 16 suites passed); its result follows below.
+- Also seen here, not investigated: test_online's client crashed (signal 11) in one of two runs,
+  in the Rounds part right after `rounds_start_held`, just after
+  `ERROR: /root: The caller thread can't call the function propagate_notification() on this node`
+  (something on a thread other than the main one touched the scene tree; the only worker thread in
+  our code is `TmSkyline.build_async`'s). The next run passed (ok=42 fail=0). Perhaps the same
+  early exit as the hang above; the gate now reports it instead of hanging on it.
