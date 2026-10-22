@@ -321,13 +321,18 @@ outside the repo (`stadium/tools/compat/`).
 something like this [RaceRoom's menus] (panel-based). Colours minimalistic, slight hint of red and
 blue/purple. Include the solo, multiplayer tabs. also include the "Story" panel, but this is locked
 as building a story mode is one of the next steps. Put good graphics in the panel". On `stadium`.
-- [ ] 1. The look: charcoal, a hint of red and violet, Montserrat; a header with our wordmark and
+- [x] 1. The look: charcoal, a hint of red and violet, Montserrat; a header with our wordmark and
       tabs (Home, Solo, Multiplayer, Story (locked), Community, Editor; profile, options, quit)
-- [ ] 2. Home: picture panels (Solo, Multiplayer large; Story locked, Community, Editor, Replays)
-- [ ] 3. The panels' pictures rendered from our own game (a generator scene and script in the repo)
-- [ ] 4. The other menu pages in the new look under the header
-- [ ] 5. Next (the owner's second picture): options as rows with a line of explanation each,
-      sub-tabs; then the race's menus and HUD; then Story mode itself
+      (`ui/sf_ui.gd`, `ui/sf_header.gd`, `ui/sf_backdrop.gdshader`)
+- [x] 2. Home: picture panels (Solo, Multiplayer large; Story locked, Community, Editor, Replays)
+      (`ui/sf_tile.gd`, `TmMenu._page_main`)
+- [x] 3. The panels' pictures rendered from our own game (`tools/icons/menu_art.tscn`, `menu_art.sh`
+      -> `assets/ui/menu/*.jpg`)
+- [x] 4. The other menu pages in the new look under the header; Options as rows with a line of
+      explanation each (the owner's second picture)
+- [ ] 5. The owner's look at it
+- [ ] 6. Next: the race's pause and finish menus, HUD, loading screen and top bar in the same look;
+      then Story mode itself
 
 ### M15 — Our own Le Mans hypercar (owner, 21 Oct) ☑
 "Can you look at the peugeot hypercar (that i used), and without using peugeot copyright, design

@@ -15,7 +15,7 @@ declare -A SHOT
 # the red hypercar on a day circuit, its ghost at its shoulder, a low sun behind the stands
 SHOT[solo]='--track=A01 --at=0.42 --cars=0:hyper:0:0;1:hyper:-3.4:-8:0:g --cam=-5.2,0.75,8.5 --look=-0.6,0.55,-2.5 --fov=36 --dof=14,30,0.10 --sun=210,22'
 # four cars side by side through the neon City at night
-SHOT[multiplayer]='--track=F02 --at=0.3 --cars=0:hyper:-2.0:0;1:hyper:2.2:-4;7:hyper:-2.4:-10;4::1.8:-14 --cam=-4.5,1.0,10.0 --look=0.5,0.6,-5.0 --fov=40 --dof=20,40,0.08'
+SHOT[multiplayer]='--track=F02 --at=0.3 --cars=0:hyper:-1.5:0;1:hyper:2.4:-5;7:hyper:-2.6:-11;4::1.6:-17 --cam=-5.5,1.9,11.0 --look=0.3,0.4,-6.0 --fov=40 --dof=22,40,0.08'
 # a black car from behind on a wet City night (Story mode's opening, locked for now)
 SHOT[story]='--track=F04 --at=0.55 --cars=5:hyper:0:0 --cam=0.8,1.1,-7.5 --look=0,0.7,3.0 --fov=42 --dof=20,60,0.08'
 # a line-up of our cars in five colours
@@ -23,7 +23,7 @@ SHOT[community]='--track=A05 --at=0.03 --cars=0:hyper:-6:0;2::-3:0;1:hyper:0:0;3
 # a track from the air over the editor's grid, the Stadium round it
 SHOT[editor]='--track=C03 --at=0.5 --cars= --grid --cam=-70,120,-100 --look=0,0,50 --fov=48'
 # a trackside camera's long lens on the open-wheeler on dirt
-SHOT[replays]='--track=A05 --at=0.4 --cars=2::0:0 --cam=14,2.5,4 --look=0,0.6,0 --fov=20 --dof=16,25,0.12'
+SHOT[replays]='--track=A05 --at=0.4 --cars=2::0:0 --cam=14,5.0,4 --look=0,0.5,0 --fov=20 --dof=16,25,0.12'
 NAMES=("$@")
 [[ ${#NAMES[@]} -eq 0 ]] && NAMES=(solo multiplayer story community editor replays)
 for n in "${NAMES[@]}"; do
