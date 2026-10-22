@@ -316,6 +316,22 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M19 — Sky City: maps high between the skyscrapers (owner, 22 Oct) ☐
+"Build 10 city maps, where instead of being on the ground like the first 5, you are really high,
+between buildings, between skyscrapers. Some "lol" maps where you ride "on a building", or wallride
+on a building. Be creating. Or you jump and fly between building. Still futuristic, most of them at
+night, still neon. But more "LOL" maps using the night city setting. Tracks varying between 10 and 40
+seconds. Potentially maps with multiple finishes"
+- [ ] 1. Sky scenery (`"scenery": "sky"`): the city's streets far below the road, towers on the
+      field rising past it, rooftops just under it, pylons under raised road; a fall into the
+      streets respawns the car
+- [ ] 2. Pieces of our own (`TmChallenge.extras`, built beside TMNF's blocks): roads swept along
+      any curve (banks, quarter pipes, spirals, drops), rooftop pads, magnetic mag-road (holds the
+      car to a wall or a tower's face: wallrides, up and over buildings), forks to a second finish
+- [ ] 3. The bot drives them (medals); tests
+- [ ] 4. Ten maps G01-G10, 10-40 s, most at night, some with two finishes; the campaign's Sky series
+- [ ] 5. Screenshots for the owner; docs
+
 ### M18 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☑
 (M17 on its branch until it met `stadium`, whose M16 is the menu look.)
 "Now, add a tuning option so players can choose spoilers, rims, different light under, hood. At

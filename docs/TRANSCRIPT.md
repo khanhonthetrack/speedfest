@@ -1324,3 +1324,15 @@ branches; the command never ran.)
 > Try again
 
 (`stadium` fast-forwarded to `claude/nice-ride-q9yx1h`: dd67b9e -> 89f3c4f.)
+
+## Session 18 — 2026-10-22 (cloud, branch `ccr-198135bf-7uoo98`, from `stadium`): Sky City maps (M19)
+
+### User (verbatim)
+
+> Build 10 city maps, where instead of being on the ground like the first 5, you are really high, between buildings, between skyscrapers. Some "lol" maps where you ride "on a building", or wallride on a building. Be creating. Or you jump and fly between building. Still futuristic, most of them at night, still neon. But more "LOL" maps using the night city setting. Tracks varying between 10 and 40 seconds. Potentially maps with multiple finishes
+
+(Taken as PLAN M19: a seventh series, **Sky** (G01-G10), raced hundreds of metres over the city's
+streets between towers that rise past the road; new pieces of our own beside TMNF's blocks: roads
+swept along any curve, magnetic "mag-road" that holds the car on a wall or a tower's face (wallrides,
+driving up and over buildings), rooftops to land on, jumps between buildings, and forks to a second
+finish.)
