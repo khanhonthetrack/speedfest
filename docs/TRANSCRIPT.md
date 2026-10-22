@@ -1296,3 +1296,11 @@ PROGRESS, 22 Oct.)
 (`stadium`, which holds the new menu look, merged into `claude/nice-ride-q9yx1h`; the Garage and its
 Tuning page moved into the new look, a Garage tab and Home panel added; the road cars renumbered
 PLAN M17, tuning M18, as `stadium`'s M16 is the menu look.)
+
+### User (verbatim, asked whether to move `stadium` up to this branch)
+
+> Yes. Also, update the screenshots in the menu to cover new cars. For tuning, make background neon city vibes, not stadium
+
+(The Home pictures re-composed with the road cars; the Tuning page's turntable moved to a neon
+city at night. Moving `stadium` up to this branch: the session's permission check refused the push
+to `stadium`, so that is left to the owner.)
