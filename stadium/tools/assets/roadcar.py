@@ -442,18 +442,26 @@ class Car:
         if the spec uses them. A spec's "fit" {cowl, deck, front, rear, wing: [d0, d1], plan} is
         turned into its "profile": the hood's line (and its edge's) from the side's top line ahead
         of the windscreen's foot (cowl), the glasshouse's top between the cowl and the backlight's
-        foot (deck), the deck's line behind it (but over a wing), the plan."""
+        foot (deck), the deck's line behind it (but over a wing), the plan. top_add, edge_add and
+        hood_add (the hood's edge, for specs with one) offset those lines from the silhouette: a
+        number, or (ahead of the cowl, behind the deck) where raised fenders make the silhouette's
+        top line the fenders' rather than the hood's."""
         f = spec.get("fit")
         if f:
             cowl, deck = f["cowl"], f["deck"]
             a, b = f.get("front", 0.15), f.get("rear", spec["length"] - 0.06)
             w0, w1 = f.get("wing", (b, b))
+            ranges = [[a, cowl - 0.03], [deck + 0.04, min(w0, b)], [max(w1, deck + 0.04), b]]
+
+            def adds(v):
+                return [v[0], v[1], v[1]] if isinstance(v, (list, tuple)) else v
+
             prof = {"plan": f.get("plan", True),
-                    "top": {"from": "side_top", "ranges": [[a, cowl - 0.03], [deck + 0.04, min(w0, b)], [max(w1, deck + 0.04), b]],
-                            "add": f.get("top_add", -0.004)},
-                    "edge_y": {"from": "side_top", "ranges": [[a, cowl - 0.03], [deck + 0.04, min(w0, b)], [max(w1, deck + 0.04), b]],
-                               "add": f.get("edge_add", -0.016)},
+                    "top": {"from": "side_top", "ranges": ranges, "add": adds(f.get("top_add", -0.004))},
+                    "edge_y": {"from": "side_top", "ranges": ranges, "add": adds(f.get("edge_add", -0.016))},
                     "cabin.top": {"from": "side_top", "ranges": [[cowl + 0.03, deck - 0.03]], "add": 0.0, "smooth": 0.10, "every": 0.1}}
+            if "hood_add" in f:
+                prof["hood_y"] = {"from": "side_top", "ranges": ranges, "add": adds(f["hood_add"])}
             prof.update(spec.get("profile", {}))
             spec["profile"] = prof
         if not spec.get("profile"):
@@ -472,15 +480,18 @@ class Car:
         if not use or use["from"] not in prof:
             return keys
         ranges = use.get("ranges", [use.get("range")])
-        ranges = [r for r in ranges if r and r[1] - r[0] > 0.02]
+        add = use.get("add", 0.0)
+        add = list(add) if isinstance(add, (list, tuple)) else [add] * len(ranges)
+        keep = [i for i, r in enumerate(ranges) if r and r[1] - r[0] > 0.02]
+        ranges, add = [ranges[i] for i in keep], [add[i] for i in keep]
         k = self.L / prof["length"]
         step = max(1, int(round(use.get("every", 0.05) / 0.025)))
         out = [] if isinstance(keys, (int, float)) else [(d, v) for d, v in keys
                                                           if not any(a - 1e-6 <= d <= b + 1e-6 for a, b in ranges)]
         if isinstance(keys, (int, float)) and not out:
             pass
-        for a, b in ranges:
-            pts = [(d * k, y + use.get("add", 0.0)) for d, y in prof[use["from"]] if a <= d * k <= b]
+        for (a, b), dy in zip(ranges, add):
+            pts = [(d * k, y + dy) for d, y in prof[use["from"]] if a <= d * k <= b]
             pts = smooth_keys(pts, use.get("smooth", 0.04))
             thin = [p for i, p in enumerate(pts) if i % step == 0]
             if thin and thin[-1] != pts[-1]:
