@@ -1,18 +1,18 @@
 # HANDOFF: start here
 
-## Latest (22 Oct, session 17, cloud): `stadium` (the new menu look) merged into `claude/nice-ride-q9yx1h`
+## Latest (22 Oct, session 17, cloud): the road cars, tuning and the new menu look, all on `stadium`
 - Owner: "merge this with the menu branch, as we now have a modernized menu". `stadium` (PLAN M16,
-  our own panel-based menus) is merged into the road cars' branch; nothing pushed to `stadium` itself.
+  our own panel-based menus) was merged into the road cars' branch, then (owner: "Yes", "Try
+  again") `stadium` fast-forwarded to it: `stadium` and `claude/nice-ride-q9yx1h` are the same
+  (89f3c4f). Continue on `stadium`.
 - The Garage joins the new menus: a Garage tab in the header (`SfHeader.TABS`; Tuning lights it),
   a large Garage panel on Home beside Solo and Multiplayer (its picture `assets/ui/menu/garage.jpg`,
   `menu_art.sh garage`: road cars with liveries and underglow on a City night; `menu_art.gd`'s car
   spec takes a livery and tuning). The Garage and Tuning pages wear SfUi (labels, captions, flat
   livery swatches with the vinyl's band, chosen in red).
 - The Garage's and Tuning's turntable stands in a dark neon city at night (the City track F02,
-  built the first time the Garage opens: `TmMenu._use_city`, `CITY_PAGES`), lit like a tuning shop; the Home pictures show the road cars
-  (`menu_art.sh`). Owner said yes to moving `stadium` up to this branch, but this session's
-  permission check refused the push: `git push origin claude/nice-ride-q9yx1h:stadium` (a
-  fast-forward) is the owner's to run.
+  built the first time the Garage opens: `TmMenu._use_city`, `CITY_PAGES`), lit like a tuning
+  shop; the Home pictures show the road cars (`menu_art.sh`).
 - Milestones renumbered: the menu look keeps M16 (`stadium`'s); the road cars are M17, tuning M18.
 - Home's other six pictures re-rendered with today's cars (no sponsor stickers on the hypercar or
   the open-wheeler); Solo's "tracks finished" is a chip at its panel's top right.

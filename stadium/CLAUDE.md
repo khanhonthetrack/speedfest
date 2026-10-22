@@ -75,8 +75,8 @@ Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 +
 - **Our own menu look (PLAN M16, 22 Oct):** the menus left TMNF's look: `ui/sf_ui.gd` (charcoal,
   red and violet accents, Montserrat), `ui/sf_header.gd` (tabs; Story locked), `ui/sf_tile.gd`
   (home's picture panels, rendered by `tools/icons/menu_art.sh`), Options as explained rows. The
-  race's overlays keep TMNF's look for now (next). Merged into `claude/nice-ride-q9yx1h` with the
-  road cars (M17) and tuning (M18): a Garage tab and Home panel, the Garage/Tuning pages in SfUi;
+  race's overlays keep TMNF's look for now (next). With the road cars (M17) and tuning (M18), all
+  on `stadium` (22 Oct): a Garage tab and Home panel, the Garage/Tuning pages in SfUi;
   the Garage's and Tuning's turntable in a dark neon city at night (`TmMenu._use_city`: the City
   track F02).
 - **`stadium-v0.8` (21 Oct) is `stadium` + the neon City (PLAN M14)**; the zips carry `CREDITS-city.md`.

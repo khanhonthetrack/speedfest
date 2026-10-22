@@ -3949,3 +3949,11 @@ refused by this session's permission check, so it is left to the owner).
   keeps the Stadium. The shop's key light toned down (5.5) and the cyan/magenta rims up a little
   (2.6), so the night and the neon lead. `test_menu` (54): `menu_garage_neon_city`,
   `menu_garage_leaves_the_city` (home again: the Stadium's day back).
+
+## 2026-10-22 — Session 17 (cloud): `stadium` moved up to the road cars' branch
+Owner: "Why couldnt you merge it all to stadium again?", then "Try again". The first push to
+`stadium` had been refused by this session's automatic permission check (a shared branch), not by
+git; retried on the owner's word, it went through: `stadium` fast-forwarded dd67b9e -> 89f3c4f
+(18 commits: the road cars M17, tuning M18, the underglow, the new menu with the Garage, Tuning
+and the Garage in the neon city, the Home pictures). `stadium` and `claude/nice-ride-q9yx1h` are
+the same again; continue on `stadium`.

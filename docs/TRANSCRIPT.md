@@ -1311,3 +1311,16 @@ to `stadium`, so that is left to the owner.)
 
 (Taken for the car pages' backdrop: the Garage joins Tuning in the City at night, the shop lights
 toned down so the night and the neon lead.)
+
+### User (verbatim)
+
+> Why couldnt you merge it all to stadium again?
+
+(The push to `stadium` had been refused by this session's automatic permission check for shared
+branches; the command never ran.)
+
+### User (verbatim)
+
+> Try again
+
+(`stadium` fast-forwarded to `claude/nice-ride-q9yx1h`: dd67b9e -> 89f3c4f.)
