@@ -73,6 +73,12 @@ Commit like this, so a failing gate never lands:
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **`stadium-v0.8` (21 Oct) is `stadium` + the neon City (PLAN M14)**; the zips carry `CREDITS-city.md`.
+- **16 road cars of our own, NFS Most Wanted's Blacklist (PLAN M16, 22 Oct, branch
+  `claude/nice-ride-q9yx1h`):** specs in `tools/assets/roadcars/`, built by `tools/assets/roadcar.py`
+  (Blender) into `assets/car/<id>.glb/.json`, shaped against public drawings
+  (`tools/assets/blueprint_fit.py`; drawings never in the repo, measured lines in
+  `roadcars/profiles/`); `car/tm_road_cars.gd` (line-up, 5 liveries each, 5 for the hypercar),
+  livery shader mode 4, the menu's Garage page; `tests/test_car_models`.
 - **Our own Le Mans hypercar (PLAN M15, 22 Oct):** `tools/assets/hypercar.py` (Blender) ->
   `assets/car/hypercar.glb`, drawn by `TmCarVisual.model = "hyper"` (our materials, wheels, livery
   shader mode 3), picked on the Profile page (`car_model`), carried by replays and online;

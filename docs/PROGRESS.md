@@ -3727,3 +3727,34 @@ orlan). Similarly, add 5 liveries options for that hypercar." (for the Stadium g
   Gate: STADIUM_TESTS PASS (22 suites + server).
 - Next: shape each car against public blueprint drawings (`tools/assets/blueprint_fit.py`:
   silhouettes and overlays; the drawings stay out of the repo), screenshots in the game's light.
+
+## 2026-10-22 — Session 17 (cloud): the road cars fitted to public drawings (PLAN M16)
+Owner: "Continue". Every road car but the Umbra GTS is now shaped against a public blueprint
+drawing of its class of car, then looked at in the game's light (`car/car_lab.tscn`, four views).
+- **`stadium/tools/assets/blueprint_fit.py`** (numpy + PIL): `fetch DIR` downloads each drawing in
+  `blueprints.json` to a scratch dir (the drawings never enter the repo; the JSON keeps only the
+  source URL, the real length/width/height and each view's pixel box with a flip flag);
+  `curves DIR <id>` reads the side/top/front/rear silhouettes (flood fill from outside, an opening
+  scaled to the drawing to drop dimension lines, the largest part) and writes measured lines
+  (`roadcars/profiles/<id>.json`: side top/bottom, plan and front/rear half widths, in metres:
+  numbers only); `grid DIR <id> <view>` draws a metric grid over a view (read windows, lamps,
+  intakes off it); `overlay DIR <id> ORTHO` lays the model's silhouettes (red), glass (blue) and
+  lamps (green) over the drawing (`roadcar.py --ortho ORTHO`), aligned on the nose and the roof
+  (a drawing's wheels can stand apart from its body's outline).
+- **`roadcar.py`**: a spec's `"fit": {cowl, deck, wing, front, top_add, edge_add, hood_add}` takes
+  the hood's line, the glasshouse's top, the deck's and the plan from the measured lines
+  (Gaussian-smoothed so a drawing's pixel steps and double lines don't ripple the paint; offsets
+  per range for raised fenders). Recess bars were placed along the wrong axis (short stubs): fixed,
+  and a recess takes a list of bar sets (a grille's horizontal and vertical bars).
+- **Fitted** (each spec's comment says how): Zenith TT, Kobold SS, Ayame 300, Birdie GT, Nemesis
+  GT, Stallion GT, Kaiten R, Halberd VIII, Gavial S, Argent 500 (side view only), Albion GT,
+  Taipan V10, Corrida V10, Frigate V8, Quicksilver. Their windows, pillars, lamps (round, swept,
+  stacked, wrapping), grilles, intakes, gills, scoops, side pipes, diffusers, plates and wings
+  were placed from each drawing's grid; every shape is our own (no badges, no makers' emblems).
+  View boxes fixed where they held dimension lines (Kaiten, Halberd front/rear) or faced the other
+  way (Stallion's top). Lamps on steep noses want a nearly level `ray` (a downward ray lands them
+  low on the slope).
+- The **Umbra GTS** has no matching public drawing (the ones found show the older generation): it
+  keeps its hand-made lines.
+- Gate: STADIUM_TESTS PASS after each batch (the road-car box test caught a mirror reaching past
+  2.1 m wide on the Corrida).

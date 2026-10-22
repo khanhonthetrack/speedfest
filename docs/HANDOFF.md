@@ -1,6 +1,28 @@
 # HANDOFF: start here
 
-## Latest (22 Oct, owner's Windows PC): our own Le Mans hypercar (PLAN M15), on `stadium`
+## Latest (22 Oct, session 17, cloud): 16 road cars of our own with liveries (PLAN M16), on branch `claude/nice-ride-q9yx1h`
+- Owner: recreate NFS Most Wanted (2005)'s 16 Blacklist cars "in high quality" for the Stadium game,
+  all in the garage with 5 NFS-style liveries each (no fake sponsors), and 5 liveries for the
+  hypercar. Branch `claude/nice-ride-q9yx1h` (from `stadium`); not merged yet.
+- Cars: our own names, no badges (`car/tm_road_cars.gd`: Kobold SS ... Quicksilver). Each is a spec
+  in `stadium/tools/assets/roadcars/<id>.py` built by Blender (`roadcar.py` + `roadcar_features.py`):
+  `blender -b -P stadium/tools/assets/roadcar.py -- --car <id> --out stadium/assets/car`
+  (`--shots DIR` a Workbench sheet, `--views name:yaw:height:dist[:d:y]`, `--ortho DIR` silhouettes),
+  then `godot --headless --path stadium --import`.
+- Shaped against public blueprint drawings: `tools/assets/blueprint_fit.py fetch DIR` (into a
+  scratch dir, never the repo), `grid DIR <id> side|front|rear|top` (a metric grid to read
+  features), `overlay DIR <id> ORTHO` (the model over the drawing). A spec's `"fit"` takes the
+  measured lines from `roadcars/profiles/<id>.json`. All but the Umbra GTS are fitted.
+- In the game: `TmCarVisual` draws road cars on their own wheels; livery shader mode 4 (13 vinyl
+  patterns, 5 finishes); the menu's Garage page picks car and livery; races, ghosts, replays and
+  online carry both. Look at a car: `stadium/tools/run.sh res://car/car_lab.tscn -- --model=<id>
+  --livery=<0-4> --yaw=35 --set_quality=2 --frames=40 --shot=/abs.png`.
+- Gate: `tests/test_car_models` (every car: size <= 2.1 m wide with mirrors, budget, no bodywork in
+  a tyre, wheels, liveries), STADIUM_TESTS PASS.
+- Next: the owner's verdict after looking at them; the Umbra GTS if a drawing of its generation
+  turns up; the open-wheeler still wears its ORLAN stickers (only the hypercar's were removed).
+
+## Earlier (22 Oct, owner's Windows PC): our own Le Mans hypercar (PLAN M15), on `stadium`
 - Owner asked for "a similar, generic hypercar" to the one they drove (a community Porsche 963 pack,
   not the Peugeot they named: studied for proportions only, never committed).
 - `stadium/tools/assets/hypercar.py` (Blender 5.2, `C:\Program Files\Blender Foundation\Blender 5.2`)

@@ -1250,3 +1250,10 @@ to ours.)
 (The 16 cars in the picture: Cobalt SS, IS 300, Golf GTI, M3 GTR, Eclipse, Supra, Mustang GT,
 RX-8, Lancer Evolution VIII, Cayman S, CLK 500, DB9, Viper SRT-10, Gallardo, Corvette C6, SLR
 McLaren. Recreated as our own cars under our own names, without makers' badges or logos: PLAN M16.)
+
+### User (verbatim, after the session's worker restarted mid-work)
+
+> Continue
+
+(Carried on with M16: each car shaped against a public blueprint drawing, then checked in the
+game's light.)
