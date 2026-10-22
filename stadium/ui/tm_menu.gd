@@ -6,7 +6,8 @@ extends Node3D
 ## glows behind (sf_backdrop.gdshader). The home page is picture panels (SfTile, after RaceRoom's
 ## DRIVE page the owner pointed to); the other pages keep a column of entries down the left (the
 ## page's title above them, the current one marked red, Back at its foot) and panels beside it. The
-## profile shows our car on the field instead of the backdrop. Pages:
+## profile and the garage show our car on the field instead of the backdrop, tuning shows it in a
+## neon city at night (_use_city). Pages:
 ## - main (home): Solo and Multiplayer large; Story (locked: Story mode is still to be built),
 ##   Community, Track editor and Replays; your campaign's medals along the foot;
 ## - solo (also "campaign"): the series down the left (White .. City), the series' tracks as cards
@@ -65,6 +66,13 @@ var _account_asked := false         ## the online page asked the master for the 
 var _profile_changed := false
 var _grade: ColorRect
 var _world: Node3D                 ## the Stadium, the field and the car (shown on the profile page)
+var _day: Node3D                   ## the Stadium's sun and sky (every page but Tuning)
+var _day_env: WorldEnvironment
+var _day_night := false            ## the Stadium's mood is night (--mood=night)
+var city: Node3D                   ## Tuning's neon city at night (a City track, built when Tuning first opens)
+var _city_env: WorldEnvironment
+var _city_car: Node3D              ## the turntable there, on the city's road
+var _city_building := false
 var _backdrop: ColorRect           ## the glows on charcoal (every other page)
 var _rows: VBoxContainer           ## the left column's entries
 var _rows_bottom: VBoxContainer    ## its entries at the foot (Back, Quit)
@@ -116,7 +124,11 @@ func _ready() -> void:
 ## The 3D backdrop: sky, the Stadium, a grass field and our car; the camera focuses on the car
 ## and leaves the Stadium soft behind it.
 func _scene() -> void:
-	TmStadiumEnv.add(self)
+	_day = Node3D.new()
+	_day.name = "Day"
+	add_child(_day)
+	_day_env = TmStadiumEnv.add(_day)
+	_day_night = TmStadiumEnv.night
 	_world = Node3D.new()
 	add_child(_world)
 	_world.add_child(TmStadiumBuild.build())
@@ -149,28 +161,157 @@ func _scene() -> void:
 func _paint_car(pack: TmCarPack = null) -> void:
 	for c in _car_holder.get_children():
 		c.queue_free()
+	if is_instance_valid(_city_car):
+		for c in _city_car.get_children():
+			c.queue_free()
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
 	look.model = TmUi.car_model()
 	look.livery = TmUi.car_livery()
 	look.tuning = TmUi.car_tuning()
 	look.pack = pack if pack else TmCommunity.my_car_pack()
-	_car_holder.add_child(look)
+	turntable().add_child(look)
+
+
+## The turntable our car stands on now: in the neon city on the Tuning page, else on the field.
+func turntable() -> Node3D:
+	return _city_car if in_city() else _car_holder
+
+
+## Whether the Tuning page's neon city is the world shown.
+func in_city() -> bool:
+	return is_instance_valid(city) and city.visible and is_instance_valid(_city_car)
 
 
 func _orbit(delta: float) -> void:
 	_angle += delta * 0.12
 	_view = move_toward(_view, 1.0 if page in ["profile", "garage", "tuning"] else 0.0, delta * 1.5)
 	var v := smoothstep(0.0, 1.0, _view)
-	var at := CENTRE + Vector3(0.0, 0.75 - 0.15 * v, 0.0)
-	var dist := lerpf(7.0, 5.4, v)
+	var at := (_city_car.global_position - Vector3(0.0, 0.441, 0.0) if in_city() else CENTRE) + Vector3(0.0, 0.75 - 0.15 * v, 0.0)
+	var dist := 7.0
 	_cam.position = at + Vector3(cos(_angle) * dist, lerpf(0.55, 0.45, v), sin(_angle) * dist)
 	_cam.look_at(at)
-	_cam.position -= _cam.basis.x * lerpf(2.4, 2.9, v)   # the car off-centre, right of the profile's panel
+	_cam.position -= _cam.basis.x * lerpf(2.4, 2.3, v)   # the car off-centre, right of the profile's panel
+
+
+## The Tuning page's world (the owner: "for tuning, make background neon city vibes, not stadium"):
+## one of our City tracks at night (CITY_TRACK: its towers, neon, wet road, lights along the
+## barriers, the airship and searchlights) with the turntable on its road, where the Garage's home
+## picture stands its cars (menu_art.sh garage). Built the first time Tuning opens (a few seconds:
+## the page shows over the backdrop meanwhile), then kept, hidden, for the next visit. Shown, it
+## takes the Stadium's place: its moon and night sky instead of the day's, and the City's switches
+## (night windows, neon, wet roads, the occlusion heights) on; hidden, those back off.
+const CITY_TRACK := "F02"
+const CITY_AT := 0.3                ## of the track's line: where the turntable stands
+
+
+func _use_city(on: bool) -> void:
+	if on and city == null:
+		if not _city_building:
+			_city_building = true
+			notice("Lighting up the city...")
+			_build_city.call_deferred()
+		return
+	if city != null and on != city.visible:
+		_apply_city(on)
+
+
+## Shows (true) or hides the neon city, whatever it showed before.
+func _apply_city(on: bool) -> void:
+	city.visible = on
+	city.process_mode = Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED
+	_day.visible = not on
+	for pair: Array in [[_city_env, city, on], [_day_env, _day, not on]]:
+		var we: WorldEnvironment = pair[0]
+		if we == null:
+			continue
+		if pair[2] and not we.is_inside_tree():
+			(pair[1] as Node).add_child(we)
+		elif not pair[2] and we.is_inside_tree():
+			we.get_parent().remove_child(we)
+	TmStadiumEnv.night = on or _day_night
+	RenderingServer.global_shader_parameter_set(&"tm_night", 1.0 if TmStadiumEnv.night else 0.0)
+	RenderingServer.global_shader_parameter_set(&"tm_neon", 1.0 if on else 0.0)
+	RenderingServer.global_shader_parameter_set(&"tm_wet", 1.0 if on else 0.0)
+	RenderingServer.global_shader_parameter_set(&"tm_occl_on", 1.0 if on else 0.0)
+	_cam.far = TmSkyline.FAR if on else 4000.0
+	_world.visible = page in ["profile", "garage"] and not on
+	_backdrop.visible = not (_world.visible or on)
+	_paint_car()
+
+
+## A tuning shop's lights on the city's turntable (at `at`; the car's frame: x left, z ahead): a warm
+## key light from above the front corner (with shadows) and a cyan and a magenta rim behind it,
+## so the paint reads against the night and the neon.
+func _show_lights(parent: Node3D, at: Transform3D) -> void:
+	var lights := Node3D.new()
+	lights.name = "ShowLights"
+	parent.add_child(lights)
+	lights.global_transform = at
+	var key := SpotLight3D.new()
+	key.light_color = Color(1.0, 0.94, 0.88)
+	key.light_energy = 9.0
+	key.spot_range = 14.0
+	key.spot_angle = 38.0
+	key.spot_attenuation = 0.6
+	key.shadow_enabled = true
+	lights.add_child(key)
+	key.position = Vector3(2.4, 4.6, 3.6)
+	key.look_at(at.origin, Vector3.UP)
+	for rim: Array in [[Vector3(-3.0, 1.4, -3.4), Color(0.1, 0.85, 1.0)], [Vector3(3.2, 1.2, -2.6), Color(1.0, 0.15, 0.7)]]:
+		var l := OmniLight3D.new()
+		l.light_color = rim[1]
+		l.light_energy = 2.2
+		l.omni_range = 6.0
+		l.omni_attenuation = 1.2
+		l.light_specular = 1.0
+		lights.add_child(l)
+		l.position = rim[0]
+
+
+func _build_city() -> void:
+	# two frames first, so the notice shows before the build holds the screen
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var ch := TmTracks.challenge(CITY_TRACK)
+	if ch == null or not ch.ok() or ch.path.is_empty():
+		_city_building = false
+		return
+	var c := Node3D.new()
+	c.name = "City"
+	c.visible = false                # its moon and lights stay off the Stadium while it is built
+	add_child(c)
+	var b := TmMapBuilder.build(ch)
+	c.add_child(b.root)
+	TmStage.add_environment(c, b)
+	_city_env = c.find_children("*", "WorldEnvironment", false, false).front() as WorldEnvironment
+	var i := clampi(int(CITY_AT * (ch.path.size() - 1)), 0, ch.path.size() - 1)
+	var d: Vector3 = (ch.path[i]["dir"] as Vector3).normalized()
+	_city_car = Node3D.new()
+	_city_car.name = "Turntable"
+	c.add_child(_city_car)
+	# the line's point is on the road; the car turned a little off the road's direction
+	_city_car.global_transform = Transform3D(Basis.looking_at(-d, Vector3.UP).rotated(Vector3.UP, 0.5),
+		(ch.path[i]["p"] as Vector3) + Vector3(0.0, 0.441, 0.0))
+	_show_lights(c, _city_car.global_transform)
+	# its occlusion bakes two physics frames on (TmOcclusion) and switches itself on: after that
+	# the city is shown or hidden as the page wants
+	for k in 3:
+		await get_tree().physics_frame
+	city = c
+	_city_building = false
+	_apply_city(page == "tuning")
+
+
+func _exit_tree() -> void:
+	# the sky taken out of the tree (the Stadium's or the city's) goes with the menu
+	for we: WorldEnvironment in [_day_env, _city_env]:
+		if is_instance_valid(we) and not we.is_inside_tree():
+			we.free()
 
 
 func _process(delta: float) -> void:
-	if _world.visible:
+	if _world.visible or in_city():
 		_orbit(delta)
 	if is_instance_valid(_comm_pivot):
 		_comm_pivot.rotation.y += delta * 0.4     # the Community page's car turns
@@ -351,9 +492,10 @@ func show_page(name: String) -> void:
 		nav.set_page(page)
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25)
 	var car_view := page in ["profile", "garage", "tuning"]
-	_world.visible = car_view
+	_world.visible = page in ["profile", "garage"]
 	_grade.visible = car_view
-	_backdrop.visible = not car_view
+	_backdrop.visible = not _world.visible
+	_use_city(page == "tuning")      # (over the backdrop while it is first built)
 	match page:
 		"solo":
 			_page_solo()

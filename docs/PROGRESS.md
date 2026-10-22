@@ -3921,3 +3921,26 @@ Owner: "merge this with the menu branch, as we now have a modernized menu". `ori
   road cars are M17, tuning M18 (the earlier log entries above say M16/M17 for them).
 - Tests: `test_menu` (52): the header's tabs and Home's panels include the Garage, the Garage opens
   from its panel and lights its tab, Tuning lights the Garage's tab.
+
+## 2026-10-22 — Session 17 (cloud): Tuning in a neon city; the Home pictures show the road cars
+Owner: "update the screenshots in the menu to cover new cars. For tuning, make background neon city
+vibes, not stadium" (and "Yes" to moving `stadium` up to this branch: the push to `stadium` was
+refused by this session's permission check, so it is left to the owner).
+- **Tuning's world** (`TmMenu._use_city`, `_build_city`): the City track F02 at night (towers,
+  neon, wet road, lights along the barriers, airship, searchlights, the far city), built the first
+  time Tuning opens (about 3 s here, over the backdrop with a "Lighting up the city..." note), then
+  kept, hidden, for the next visit. The turntable stands on its road where the Garage's home picture
+  stands its cars (`CITY_AT` 0.3 of the line). Shown, the city's moon and night sky take the
+  Stadium's place (the WorldEnvironment nodes swapped in and out of the tree) and the City's globals
+  go on (`tm_night`, `tm_neon`, `tm_wet`, `tm_occl_on`; off again for every other page, after its
+  occlusion bake too). A tuning shop's lights on the car (`_show_lights`: a warm key spotlight with
+  shadows, cyan and magenta rims) so the paint reads at night. `turntable()`, `in_city()`.
+- The turntable camera a little further out (7 m) so a whole road car fits right of the panels.
+- **The Home pictures** re-composed with the road cars (`menu_art.sh`): Solo the Corrida V10 in
+  Arancia with its ghost; Multiplayer a City-night pack (Nemesis GT, Quicksilver, Stallion GT under
+  underglow, a hypercar); Story the Nemesis GT in Black Ops from behind on a wet night; Community a
+  line-up (Kaiten R, Ayame 300, hypercar, Umbra GTS, Taipan V10); Replays the Halberd VIII in Rally
+  Legend on dirt; Garage as before; Editor unchanged (no cars).
+- Tests (`test_menu`, 53): `menu_tuning_neon_city` (the city shown, the Stadium hidden, the city's
+  sky in, the turntable there, night), `menu_tuning_back_to_the_garage` (the Stadium's sky back, the
+  city hidden, day).

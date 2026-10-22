@@ -8,6 +8,11 @@
   `menu_art.sh garage`: road cars with liveries and underglow on a City night; `menu_art.gd`'s car
   spec takes a livery and tuning). The Garage and Tuning pages wear SfUi (labels, captions, flat
   livery swatches with the vinyl's band, chosen in red).
+- Tuning's turntable stands in a neon city at night (the City track F02, built the first time
+  Tuning opens: `TmMenu._use_city`), lit like a tuning shop; the Home pictures show the road cars
+  (`menu_art.sh`). Owner said yes to moving `stadium` up to this branch, but this session's
+  permission check refused the push: `git push origin claude/nice-ride-q9yx1h:stadium` (a
+  fast-forward) is the owner's to run.
 - Milestones renumbered: the menu look keeps M16 (`stadium`'s); the road cars are M17, tuning M18.
 - Home's other six pictures re-rendered with today's cars (no sponsor stickers on the hypercar or
   the open-wheeler); Solo's "tracks finished" is a chip at its panel's top right.
