@@ -424,7 +424,10 @@ class Car:
         # the widest corner follows the drawing's half width
         self.plan = None
         if prof and spec.get("profile", {}).get("plan") and "plan_hw" in prof:
-            pts = smooth_keys([(a * self.L / prof["length"], b) for a, b in prof["plan_hw"]], 0.08, ends=0.5)
+            # smoothed wide (a body's width changes slowly along it; quick steps in a drawing's plan
+            # read as bands in the paint), narrowing at the ends so the nose's and tail's turns stay
+            sigma = spec.get("fit", {}).get("plan_smooth", 0.15)
+            pts = smooth_keys([(a * self.L / prof["length"], b) for a, b in prof["plan_hw"]], sigma, ends=0.6)
             self.plan = Curve(pts[::2] + ([pts[-1]] if len(pts) % 2 == 0 else []))
         self.gr = {k: Curve(v) for k, v in g.get("radii", {}).items()} if g else {}
         self.gd = (g["d0"], g["d1"]) if g else None

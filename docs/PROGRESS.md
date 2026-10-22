@@ -3754,7 +3754,13 @@ drawing of its class of car, then looked at in the game's light (`car/car_lab.ts
   View boxes fixed where they held dimension lines (Kaiten, Halberd front/rear) or faced the other
   way (Stallion's top). Lamps on steep noses want a nearly level `ray` (a downward ray lands them
   low on the slope).
-- The **Umbra GTS** has no matching public drawing (the ones found show the older generation): it
-  keeps its hand-made lines.
+- The **Umbra GTS** has no matching public drawing (the ones found show the older generation):
+  refined by hand from its class's known shape (the roof in one slope down to a spoiler across the
+  hatch's foot, door and quarter glass split by a black pillar, twin pipes, markers).
+- The measured plan is smoothed wide (`fit.plan_smooth`, default 0.15 m, narrowing near the ends):
+  a drawing's quick width steps read as light bands across the doors (seen on the Zenith); every
+  car with a measured plan rebuilt. Zenith, Kobold and Ayame rebuilt with the final roof smoothing.
 - Gate: STADIUM_TESTS PASS after each batch (the road-car box test caught a mirror reaching past
-  2.1 m wide on the Corrida).
+  2.1 m wide on the Corrida). Once test_online's client exited early and left its Node server
+  holding test_all.sh's output pipe, so the gate hung (killed by hand; test_online then passed
+  alone and in a full re-run): test_all.sh should write suites to files and clean up servers.
