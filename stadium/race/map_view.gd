@@ -157,8 +157,10 @@ func _camera() -> void:
 		while j > 0 and (_path[j]["p"] as Vector3).distance_to(p) < back:
 			j -= 1
 		var behind: Vector3 = _path[j]["p"] if j < i else p - d * back
-		cam.global_position = behind + Vector3.UP * up
-		cam.look_at(ahead + Vector3.UP * 1.0 if ahead.distance_to(p) > 1.0 else p + d * 40.0)
+		# (the Sky maps' road can face any way: up is its own normal there)
+		var nu: Vector3 = _path[i].get("n", Vector3.UP)
+		cam.global_position = behind + nu * up
+		cam.look_at(ahead + nu * 1.0 if ahead.distance_to(p) > 1.0 else p + d * 40.0, nu)
 		# --yaw=deg turns the camera to the left (positive) or right from the line; --fov= narrows it
 		cam.rotate_y(deg_to_rad(float(TestHooks.arg("yaw", 0.0))))
 		cam.rotate_object_local(Vector3.RIGHT, deg_to_rad(float(TestHooks.arg("pitch", 0.0))))

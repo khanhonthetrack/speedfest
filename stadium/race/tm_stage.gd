@@ -127,14 +127,15 @@ static func field_probe(builder: TmMapBuilder) -> ReflectionProbe:
 static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 	var we := TmStadiumEnv.add(parent, TmStadiumEnv.mood_of(builder.challenge))
 	var city_map := builder.challenge.scenery == "city"
-	TmNeon.setup(city_map, TmStadiumEnv.night)
-	if city_map:
+	var sky_map := builder.challenge.scenery == "sky"           # (M19: high over the City's streets)
+	TmNeon.setup(city_map or sky_map, TmStadiumEnv.night)
+	if city_map or sky_map:
 		TmStadiumEnv.city(we, TmStadiumEnv.night)
 	TmOcclusion.add(parent, builder)
 	# the field's probe (captured once, not parallax-correct) mirrored a City night's amber neon and
 	# street lights onto the wet road where nothing is (the owner: "some orange reflection"): there
 	# the reflections are SSR's, SDFGI's and the sky's
-	if not (city_map and TmStadiumEnv.night):
+	if not ((city_map or sky_map) and TmStadiumEnv.night):
 		parent.add_child(field_probe(builder))
 	if builder.challenge.size.x == 32 and builder.challenge.size.z == 32:
 		if TmRefVisuals.active():
@@ -154,6 +155,20 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 				parent.add_child(ship)
 			if TmStadiumEnv.night:
 				parent.add_child(TmSearchlights.make())
+		elif sky_map:
+			# a Sky map: the city's streets far below the road (TmSkyCity), the towers round it, the
+			# road's own coloured light, the searchlights sweeping up from the streets
+			parent.add_child(TmSkyCity.build(builder))
+			parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
+			parent.add_child(TmSkyPieces.lights(builder.challenge.extras, TmStadiumEnv.night))
+			var ship := TmAirshipOrbit.make(TmStadiumEnv.night)
+			if ship != null:
+				ship.position.y += TmSkyCity.SHIP_RISE
+				parent.add_child(ship)
+			if TmStadiumEnv.night:
+				var lights := TmSearchlights.make()
+				lights.position.y -= TmSkyCity.DROP
+				parent.add_child(lights)
 		else:
 			parent.add_child(TmStadiumBuild.build())
 			if TmStadiumEnv.night:
@@ -162,9 +177,12 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 			# built on a worker thread: the race doesn't wait for it (TmSkyline.build_async)
 			var city := Node3D.new()
 			city.name = "City"
-			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, TmSkyline.FIELD_LEVEL if city_map else TmStadiumBuild.BOTTOM, 0.0)
+			var level := TmSkyline.FIELD_LEVEL if city_map else TmStadiumBuild.BOTTOM
+			if sky_map:
+				level = TmSkyline.FIELD_LEVEL - TmSkyCity.DROP
+			city.position = TmGeo.g(TmStadiumBuild.CENTRE) + Vector3(0.0, level, 0.0)
 			parent.add_child(city)
-			TmSkyline.build_async(city, city_map)
+			TmSkyline.build_async(city, city_map or sky_map)
 		return
 	var w := float(builder.challenge.size.x) * 32.0
 	var d := float(builder.challenge.size.z) * 32.0

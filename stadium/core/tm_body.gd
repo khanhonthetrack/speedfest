@@ -41,6 +41,14 @@ var collision_mask := 1
 ## Returns [surface id, pad direction (world)] for a contact point and normal; default: the collider's
 ## metadata ("surface", per-face "surfaces", "pad_dir").
 var surface_fn := Callable()
+## Magnetic road (our own Sky maps', M19; TMNF has none): while a wheel stands on this surface, and
+## T.MAG_HOLD after it last did, gravity pulls towards that road (its wheels' contact normal)
+## instead of down, and the force model takes the road's normal for up: the car drives up a wall or
+## upside down as it does on the flat. Off it (a wheel on any other surface) gravity is TMNF's
+## again at once. -1: none.
+var mag_surface := T.MAG_SURFACE
+var mag_up := Vector3.UP               ## the way gravity doesn't pull (world): up, or a mag road's normal
+var _mag_left := 0.0
 
 # --- outputs of the last tick ---
 var substeps := 1
@@ -132,6 +140,8 @@ func reset() -> void:
 		(_wheels[i] as TmCarModel.WheelInput).side_contact = false
 		wheel_contact[i] = false
 	_body_hit = false
+	mag_up = Vector3.UP
+	_mag_left = 0.0
 
 
 ## Height of the centre of mass above the ground with the car at rest.
@@ -170,7 +180,7 @@ func _substep(h: float) -> void:
 		model.integrate_suspension(i, _absorb[i], h)
 		_absorb[i] = 0.0
 	# 2) forces, from the contacts of the last pass
-	model.tick(h, now_ms, gas, brake, steer, inv * lin_vel, inv * ang_vel, inv * Vector3.UP, _wheels, _body_hit)
+	model.tick(h, now_ms, gas, brake, steer, inv * lin_vel, inv * ang_vel, inv * mag_up, _wheels, _body_hit)
 	# 3) integrate (semi-implicit Euler); the air control may set the angular speed first
 	var w_loc := inv * ang_vel
 	if model.air_set_w:
@@ -183,8 +193,9 @@ func _substep(h: float) -> void:
 			continue
 		f_loc += wf
 		t_loc += wheel_center_local(i).cross(wf)
-	model.last_force = f_loc + inv * (GRAVITY * model.gravity_coef)
-	lin_vel += (b * f_loc + GRAVITY * model.gravity_coef + extra_accel) * h
+	var grav := GRAVITY if mag_up == Vector3.UP else -mag_up * T.GRAVITY
+	model.last_force = f_loc + inv * (grav * model.gravity_coef)
+	lin_vel += (b * f_loc + grav * model.gravity_coef + extra_accel) * h
 	if model.linear_damp > 0.0:
 		lin_vel *= maxf(0.0, 1.0 - model.linear_damp * h)
 	w_loc += t_loc * _inv_inertia * h
@@ -196,6 +207,30 @@ func _substep(h: float) -> void:
 	xform = Transform3D(b.orthonormalized(), pos)
 	# 4) collide and absorb
 	_collide()
+	if mag_surface >= 0:
+		_magnet(h)
+
+
+## Which way gravity pulls next sub-step: towards the mag road the wheels stand on (their contact
+## normals), held T.MAG_HOLD after the last touch; down when a wheel stands on anything else.
+func _magnet(h: float) -> void:
+	var n := Vector3.ZERO
+	var other := false
+	for i in 4:
+		if not wheel_contact[i]:
+			continue
+		if wheel_surface[i] == mag_surface:
+			n += wheel_hit_n[i]
+		else:
+			other = true
+	if n != Vector3.ZERO and not other:
+		mag_up = n.normalized()
+		_mag_left = T.MAG_HOLD
+	elif other or _mag_left <= 0.0:
+		mag_up = Vector3.UP
+		_mag_left = 0.0
+	else:
+		_mag_left -= h
 
 
 ## Contacts of an ellipsoid (half-axes `half`) at xf: [[normal (world, out of the surface, toward the

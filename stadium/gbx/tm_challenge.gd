@@ -32,6 +32,8 @@ var nb_laps := 0
 var size := Vector3i(32, 32, 32)
 var blocks: Array = []
 var path: Array = []           ## our own tracks only (TmTrackBuilder): the line the driving bot follows
+var extras: Array = []         ## our own pieces beside the blocks (TmTrackBuilder.extras: the Sky maps' road, TmSkyPieces)
+var alt_paths: Array = []      ## the lines to a fork's other finishes (TmTrackBuilder.alt_paths)
 ## A TMUnlimiter 2 track: TMNF's block list is a placeholder (its one block's name says the track
 ## needs TMUnlimiter) and the real blocks are in Unlimiter's own chunks.
 var unlimiter := false

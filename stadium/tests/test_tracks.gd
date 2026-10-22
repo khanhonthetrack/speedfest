@@ -160,6 +160,8 @@ func _track(id: String, drive := true) -> int:
 	var spec := TmTracks.spec(id)
 	var b := TmTrackBuilder.build(spec)
 	TestHooks.check(b.errors.is_empty(), "%s_lays_out" % id, "; ".join(b.errors))
+	for n: String in b.notes:
+		print("TRACK_NOTE %s %s" % [id, n])
 	var ch := TmTracks.challenge(id)
 	var mb := TmMapBuilder.build(ch)
 	var finishes := 0
@@ -168,8 +170,9 @@ func _track(id: String, drive := true) -> int:
 		if int(wp["kind"]) in [TmBlockCatalogue.Waypoint.FINISH, TmBlockCatalogue.Waypoint.START_FINISH]:
 			finishes += 1
 	TestHooks.check(int(mb.stats["placeholder"]) == 0 and int(mb.stats["unknown"]) == 0 and mb.has_start
-		and mb.checkpoints.size() == b.checkpoints and finishes == 1, "%s_builds" % id,
-		"%s start %s cps %d/%d finishes %d" % [mb.stats, mb.has_start, mb.checkpoints.size(), b.checkpoints, finishes])
+		and mb.checkpoints.size() == b.checkpoints and finishes == b.finishes and b.finishes >= 1, "%s_builds" % id,
+		"%s start %s cps %d/%d finishes %d/%d" % [mb.stats, mb.has_start, mb.checkpoints.size(), b.checkpoints, finishes,
+		b.finishes])
 	mb.root.free()
 	if not ch.ok() or not drive:
 		return -1
@@ -216,10 +219,14 @@ func _drive(id: String, grip: float) -> Dictionary:
 	while race.state != TmRace.State.FINISHED and bot.failed.is_empty() and race.time_ms < limit:
 		await get_tree().physics_frame
 		top = maxf(top, scene.car.speed_kmh())
-		if TestHooks.has_arg("trace") and race.racing() and race.time_ms % 500 == 0:
-			print("  %6d ms point %3d at %s %.0f km/h gas %.0f brake %.0f steer %.2f wheels %s local %s" % [race.time_ms,
+		# --trace (every 500 ms; --trace_ms=50 --trace_from=4000 --trace_to=6000 closer)
+		var every := int(TestHooks.arg("trace_ms", 500))
+		if TestHooks.has_arg("trace") and race.racing() and race.time_ms % every == 0 \
+				and race.time_ms >= int(TestHooks.arg("trace_from", 0)) and race.time_ms <= int(TestHooks.arg("trace_to", 1e9)):
+			print("  %6d ms point %3d at %s %.0f km/h gas %.0f brake %.0f steer %.2f wheels %s local %s up %s mag %s" % [race.time_ms,
 				bot.index, scene.car.global_position.snapped(Vector3.ONE * 0.1), scene.car.speed_kmh(), scene.car.gas,
-				scene.car.brake, scene.car.steer, scene.car.wheel_contact, scene.car.local_velocity().snapped(Vector3.ONE * 0.1)])
+				scene.car.brake, scene.car.steer, scene.car.wheel_contact, scene.car.local_velocity().snapped(Vector3.ONE * 0.1),
+				scene.car.global_transform.basis.y.snapped(Vector3.ONE * 0.01), scene.car.body.mag_up.snapped(Vector3.ONE * 0.01)])
 	var ms := race.finish_ms if race.state == TmRace.State.FINISHED else -1
 	var why := bot.failed if not bot.failed.is_empty() else ("over %d s" % (limit / 1000) if ms < 0 else "")
 	var out := {"ms": ms, "taken": race.taken.size(), "top": top, "index": bot.index, "why": why}

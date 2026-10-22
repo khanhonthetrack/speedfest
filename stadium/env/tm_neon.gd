@@ -70,8 +70,8 @@ static func track_lights(path: Array, night: bool) -> Node3D:
 		var a: Dictionary = path[i - 1]
 		var b: Dictionary = path[i]
 		run += (b["p"] as Vector3).distance_to(a["p"])
-		if int(b["mode"]) != TmTrackBuilder.Drive.STEER:
-			continue
+		if int(b["mode"]) != TmTrackBuilder.Drive.STEER or bool(b.get("sky", false)):
+			continue          # (the Sky maps' own road has its own: TmSkyPieces.lights)
 		var dir: Vector3 = b["dir"]
 		var right := dir.cross(Vector3.UP).normalized()
 		for side in 2:

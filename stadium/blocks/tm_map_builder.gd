@@ -84,7 +84,11 @@ func _build() -> void:
 			for u: Array in TmUserTracks.units(id, dir, true):
 				var w: Vector3i = coord + (u[0] as Vector3i)
 				_zone_cells[Vector2i(w.x, w.z)] = true
-	_terrain()
+	if challenge.scenery != "sky":
+		_terrain()          # (a Sky map has no ground on the field: the streets are TmSkyCity's, far below)
+	if not challenge.extras.is_empty():
+		# our own pieces beside the blocks (the Sky maps' road, rooftops: TmSkyPieces)
+		root.add_child(TmSkyPieces.build(challenge.extras, TmStadiumEnv.mood_of(challenge) == "night"))
 	if TmMaterials.hd():
 		root.add_child(TmRoadDecals.place(self))
 

@@ -19,6 +19,10 @@ extends RefCounted
 ##   ["jump", gap] (a low ramp, then gap empty blocks; ["jump", gap, "high"]: the high ramp),
 ##   ["loop", "l" | "r"] (a full loop, coming out 4 blocks to that side), ["block", id] (any block
 ##   with two clips, entered at its first).
+##   ["fork", "l" | "r", [pieces]] (a T junction: the pieces in the list leave it to that side, a
+##   second way to its own finish (after the last checkpoint); the track goes on straight),
+##   and the Sky maps' road of our own (TmSkyTrack: walls, faces, twists, banks, kickers, gaps,
+##   drops, rooftops; "scenery": "sky").
 ## Surfaces (the pieces after it are laid on it; the join is placed where it changes):
 ##   ["road"] (the default: TMNF's Road/Main), ["dirt"] (dirt road on the ground: s, l, r, gt 2-3,
 ##   cp; joined to the road by StadiumRoadDirtToRoad), ["platform", w] / ["platform", w, "walls"]
@@ -66,6 +70,14 @@ var areas: TmTrackAreas
 var laps := 1                    ## a lap race's laps (the line repeats once per lap)
 var _start := {}                 ## a lap race's start/finish line: {cell (the car enters it), heading}
 var _closed := false
+## Pieces of our own beside the blocks (TmSkyTrack: the Sky maps' road and rooftops), built by
+## TmSkyPieces: [{kind: "ribbon", frames} | {kind: "roof", lo, hi, y, ...}] (TMNF metres).
+var extras: Array = []
+var sky: TmSkyTrack
+## The other ways to a finish (forks): each a whole line from the start, through its fork.
+var alt_paths: Array = []
+var finishes := 0                ## finish lines laid (a fork's way has its own)
+var notes: Array[String] = []    ## for whoever lays the track out (a ski jump's design speed)
 
 const DIRT_DECK := 0.4           ## the dirt road's top: 0.6 m into the grass (9 m; blocks/shapes/dirt.gd)
 
@@ -83,13 +95,17 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 		b.piece(p)
 		if not b.errors.is_empty():
 			break
+	if b.sky != null and b.sky.on:
+		b.sky.flush()
 	if b.errors.is_empty():
 		b.areas.finish()
 	if b.errors.is_empty():
 		b.ease_loops()
 	if b.errors.is_empty() and b.laps > 1 and not b._closed:
 		b.errors.append("a lap race ends with [\"close\"], back onto its start/finish line")
-	if b.errors.is_empty():
+	var in_sky := String(spec.get("scenery", "")) == "sky"
+	if b.errors.is_empty() and not in_sky:
+		# (the Sky maps' raised road hangs between the towers: TmSkyCity puts its pylons up)
 		b.add_pillars()
 		if bool(spec.get("decorate", true)):
 			TmTrackDecor.decorate(b, String(spec.get("id", "")), String(spec.get("scenery", "")) == "city")
@@ -181,6 +197,8 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	ch.nb_laps = b.laps
 	ch.blocks = b.blocks
 	ch.path = b.path
+	ch.extras = b.extras
+	ch.alt_paths = b.alt_paths
 	if not b.errors.is_empty():
 		ch.error = "track %s: %s" % [spec.get("id", "?"), "; ".join(b.errors)]
 	return ch
@@ -402,6 +420,16 @@ func _segment(a: Vector3, ha: int, b: Vector3, hb: int, r := 0.0, mode := Drive.
 
 func piece(p: Array) -> void:
 	var kind := String(p[0])
+	if TmSkyTrack.handles(kind):
+		if sky == null:
+			sky = TmSkyTrack.new(self)
+		sky.piece(p)
+		return
+	if sky != null and sky.on and not sky.land():
+		return
+	if kind == "fork":
+		_fork(String(p[1]) == "l", p[2] if p.size() > 2 else [])
+		return
 	if kind in ["road", "dirt", "platform", "circuit"]:
 		_switch(kind, int(p[1]) if p.size() > 1 else 1, p.size() > 2 and String(p[2]) == "walls")
 		return
@@ -425,6 +453,7 @@ func piece(p: Array) -> void:
 			var line := "StadiumRoadMainStartFinishLine" if laps > 1 else "StadiumRoadMainStartLine"
 			if laps > 1:
 				_start = {"cell": cell, "heading": heading}
+				finishes += 1              # (a lap race finishes on its start/finish line)
 			var res := place(line, -1, 0)
 			if not res.is_empty():
 				cell = res["exit_cell"]
@@ -543,10 +572,54 @@ func _dirt(p: Array) -> void:
 			errors.append("%s can't be laid on dirt (piece %d)" % [kind, _pieces])
 
 
+## A fork (multiple finishes): TMNF's road T junction, the pieces in `branch` laid from its side
+## exit (left or right) as a second way to their own finish, then the track goes on straight. The
+## way's line is kept whole from the start (alt_paths: the bot can drive it too); a checkpoint on
+## it would have to be taken on the main way as well, so they belong before the fork.
+func _fork(left: bool, branch: Array) -> void:
+	if surface != "road":
+		errors.append("a fork stands on road (piece %d)" % _pieces)
+		return
+	var a := entry_face()
+	var h := heading
+	# TMNF's T (Road/Main shape 4: arms +z, -z, -x): in at -z for a left branch, at +z for a right
+	var res := place("StadiumRoadMain", 0, 1, 4, [2, 0, 1] if left else [0, 2, 1])
+	if res.is_empty():
+		return
+	var side := posmod(1 + int(res["dir"]), 4)
+	var main_cell: Vector3i = res["exit_cell"]
+	# the branch, laid with the turtle's own state, then put back
+	var keep := {"cell": main_cell, "heading": heading, "path": path, "pieces": _pieces}
+	var junction: Vector3i = res["coord"]
+	path = path.duplicate()
+	cell = junction + SIDE[side]
+	heading = side
+	_segment(a, h, entry_face(), heading, 16.0)
+	var finishes_before := finishes
+	var saved_sky := sky
+	sky = null
+	for bp: Array in branch:
+		piece(bp)
+		if not errors.is_empty():
+			return
+	if sky != null and sky.on:
+		sky.flush()
+	sky = saved_sky
+	if finishes == finishes_before:
+		errors.append("a fork's way (piece %d) ends with its own [\"finish\"]" % keep["pieces"])
+		return
+	alt_paths.append(path)
+	path = keep["path"]
+	cell = keep["cell"]
+	heading = keep["heading"]
+	_segment(a, h, entry_face(), h)
+
+
 ## The finish with road to stop on: TMNF's through start/finish line block (it finishes a
 ## one-lap race), up to RUN_OFF straights and a rounded dead end, as far as the cells ahead are
 ## free; else the finish block that ends in its nose (the car flew off it into the grass).
 func _finish() -> void:
+	finishes += 1
 	var free := 0
 	while free < RUN_OFF + 2:
 		var w := cell + SIDE[heading] * free

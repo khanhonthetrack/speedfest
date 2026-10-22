@@ -154,6 +154,10 @@ enum Surface { CONCRETE = 0, PAVEMENT = 1, GRASS = 2, ICE = 3, METAL = 4, SAND =
 	TURBO = 7, DIRT_ROAD = 8, RUBBER = 9, ROCK = 12, WATER = 13, WOOD = 14, ASPHALT = 16,
 	WET_DIRT_ROAD = 17, WET_PAVEMENT = 19, WET_GRASS = 20, SNOW = 21, TURBO2 = 26,
 	FREE_WHEELING = 29, TURBO_ROULETTE = 30 }
+## Our own (no TMNF counterpart): the Sky maps' magnetic road (M19), asphalt's factors (unknown ids
+## read surface 0's); while a wheel stands on it gravity pulls towards that road (TmBody.mag_surface).
+const MAG_SURFACE := 40
+const MAG_HOLD := 0.2                ## s: the pull stays this long after the last touch (bumps, crests)
 const SURFACES := {
 	0: [1.0, 1.0, 1.0, 1.0], 1: [1.0, 1.0, 1.0, 1.0], 2: [0.5, 0.15, 0.4, 0.05],
 	3: [1.0, 0.0, 0.1, 0.0], 4: [1.0, 1.0, 1.0, 1.0], 5: [0.2, 0.5, 0.4, 1.0],
