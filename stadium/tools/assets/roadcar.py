@@ -453,7 +453,7 @@ class Car:
                             "add": f.get("top_add", -0.004)},
                     "edge_y": {"from": "side_top", "ranges": [[a, cowl - 0.03], [deck + 0.04, min(w0, b)], [max(w1, deck + 0.04), b]],
                                "add": f.get("edge_add", -0.016)},
-                    "cabin.top": {"from": "side_top", "ranges": [[cowl + 0.03, deck - 0.03]], "add": 0.0}}
+                    "cabin.top": {"from": "side_top", "ranges": [[cowl + 0.03, deck - 0.03]], "add": 0.0, "smooth": 0.10, "every": 0.1}}
             prof.update(spec.get("profile", {}))
             spec["profile"] = prof
         if not spec.get("profile"):
