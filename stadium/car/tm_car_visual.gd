@@ -108,10 +108,6 @@ var _arms := []                   ## [MeshInstance3D, inner point (node space), 
 var _spin := 0.0
 var _mats := {}
 var _rename := {}                 ## our parts' material names -> this car's (the hypercar's rims)
-var _glow_mats: Array[BaseMaterial3D] = []   ## the underglow's tubes, decal and lights (a rainbow cycles them)
-var _glow_lights: Array[OmniLight3D] = []
-var _glow_decal: Decal
-var _glow_t := 0.0
 
 static var _shared := {}          ## part name -> ArrayMesh, built once for every car
 
@@ -284,7 +280,7 @@ func _ready() -> void:
 		_road_parts()
 		if not ghost:
 			add_child(contact_shadow())
-			_underglow((TmRoadCars.meshes(model)["Body"] as Mesh).get_aabb())
+			_underglow()
 		return
 	_shared_meshes()
 	var hyper := model == "hyper" and _hyper_mesh() != null
@@ -324,7 +320,7 @@ func _ready() -> void:
 		if TmMaterials.hd():
 			_livery(HYPER_STICKERS if hyper else STICKERS)
 		if hyper:
-			_underglow(_hyper_mesh().get_aabb())
+			_underglow()
 
 
 ## The soft shade on the road under the car (TMNF and TM2020 bake it into the map; ours moves
@@ -355,9 +351,7 @@ const STICKERS := [
 	# the race number on the nose, read from in front (the chase camera can't see the nose past
 	# the airbox; other players and replays do)
 	["livery_number", Vector3(0.0, 0.66, 1.12), Vector3(0.30, 0.34, 0.38), Vector3(1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, 1)],
-	# the title sponsor on the sidepods (ORLAN, brands.py), each read from its own side
-	["livery_sponsor", Vector3(0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
-	["livery_sponsor", Vector3(-0.80, 0.33, 0.12), Vector3(1.15, 0.30, 0.29), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
+	# (no sponsor on the sidepods: the owner, 22 Oct, "remove the ORLAN stickers from the formula car")
 	# our emblem on the engine cover's flanks, behind the driver
 	["livery_emblem", Vector3(0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
 	["livery_emblem", Vector3(-0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
@@ -721,104 +715,12 @@ func _kit_rim_mat(k: int) -> Material:
 	return _mats[key]
 
 
-## Underglow (tuning "glow"; not on ghosts): the road under the car lit in the glow's colour (an
-## emissive decal round its footprint and two lights under it) and a neon tube under each sill and
-## across both ends. `box`: the body's bounds (visual coordinates).
-func _underglow(box: AABB) -> void:
-	var g: Dictionary = TmRoadCars.GLOWS[_tune("glow")]
-	if not g.has("colour") and not g.get("cycle", false):
-		return
-	var col: Color = g.get("colour", Color.from_hsv(0.0, 0.9, 1.0))
-	var tube := StandardMaterial3D.new()
-	tube.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	tube.albedo_color = col
-	_glow_mats.append(tube)
-	var hx := box.size.x * 0.5 - 0.17
-	var y := maxf(box.position.y - 0.012, 0.06)
-	var z0 := box.position.z + 0.5
-	var z1 := box.end.z - 0.5
-	var cx := box.get_center().x
-	for t: Array in [[Vector3(cx + hx, y, (z0 + z1) * 0.5), Vector3(0.025, 0.018, z1 - z0)],
-			[Vector3(cx - hx, y, (z0 + z1) * 0.5), Vector3(0.025, 0.018, z1 - z0)],
-			[Vector3(cx, y, z1), Vector3(hx * 1.6, 0.018, 0.025)], [Vector3(cx, y, z0), Vector3(hx * 1.6, 0.018, 0.025)]]:
-		var mi := MeshInstance3D.new()
-		mi.name = "GlowTube"
-		var bm := BoxMesh.new()
-		bm.size = t[1]
-		mi.mesh = bm
-		mi.material_override = tube
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		mi.position = (t[0] as Vector3) - VIS
-		add_child(mi, true)
-	var d := Decal.new()
-	d.name = "Underglow"
-	d.texture_emission = _glow_tex(box.size.x / d_size(box).x, box.size.z / d_size(box).z)
-	d.emission_energy = 1.8
-	d.albedo_mix = 0.0
-	d.modulate = col
-	d.size = d_size(box)
-	d.position = Vector3(cx, -0.08, box.get_center().z) - VIS
-	d.normal_fade = 0.5
-	d.upper_fade = 0.2
-	d.lower_fade = 0.4
-	d.distance_fade_enabled = true
-	d.distance_fade_begin = 90.0
-	d.distance_fade_length = 20.0
-	add_child(d)
-	_glow_decal = d
-	for z: float in [z0 + 0.3, z1 - 0.3]:
-		var l := OmniLight3D.new()
-		l.name = "GlowLight"
-		l.light_color = col
-		l.light_energy = 1.6
-		l.omni_range = 2.2
-		l.omni_attenuation = 1.4
-		l.shadow_enabled = false
-		l.position = Vector3(cx, 0.08, z) - VIS
-		add_child(l, true)
-		_glow_lights.append(l)
-	set_meta("glow_cycle", bool(g.get("cycle", false)))
-
-
-## The underglow decal's size round a body's bounds.
-static func d_size(box: AABB) -> Vector3:
-	return Vector3(box.size.x + 1.6, 0.5, box.size.z + 1.4)
-
-
-static var _glows := {}
-
-
-## The underglow's light on the road (emission, its colour from the decal's modulate): brightest
-## just under the car's edges (the tubes), softer under its middle, fading out a metre round it.
-## fx, fz: the car's footprint as fractions of the decal's size.
-static func _glow_tex(fx: float, fz: float) -> ImageTexture:
-	var key := "%.2f_%.2f" % [fx, fz]
-	if not _glows.has(key):
-		var w := 96
-		var h := 160
-		var img := Image.create(w, h, true, Image.FORMAT_RGBA8)
-		for y in h:
-			for x in w:
-				var u := absf((x + 0.5) / w * 2.0 - 1.0) / fx
-				var v := absf((y + 0.5) / h * 2.0 - 1.0) / fz
-				var e := maxf(u, v)                  # 1 on the footprint's edge
-				var i := 0.0
-				if e <= 1.0:
-					i = 0.45 + 0.55 * smoothstep(0.55, 1.0, e)
-				else:
-					var du := maxf(0.0, u - 1.0) * fx / (1.0 - fx)
-					var dv := maxf(0.0, v - 1.0) * fz / (1.0 - fz)
-					var dd := sqrt(du * du + dv * dv)    # 0 at the edge, 1 at the decal's border
-					i = exp(-pow(dd / 0.38, 2.0)) * (1.0 - smoothstep(0.8, 1.0, dd))
-				img.set_pixel(x, y, Color(i, i, i, 1.0))
-		img.generate_mipmaps()
-		_glows[key] = ImageTexture.create_from_image(img)
-	return _glows[key]
-
-
-## The underglow's colour now (a rainbow's turns through the hues).
-func _glow_colour(t: float) -> Color:
-	return Color.from_hsv(fmod(t * 0.12, 1.0), 0.9, 1.0)
+## Underglow (tuning "glow"; not on ghosts): TmUnderglow, fitted to this car.
+func _underglow() -> void:
+	var u := TmUnderglow.make(model, TmRoadCars.GLOWS[_tune("glow")])
+	if u != null:
+		u.position = -VIS
+		add_child(u)
 
 
 ## The finishes a livery can have: metallic, roughness, clearcoat, pearl.
@@ -1000,14 +902,6 @@ static func _tube_mesh(rx: float, ry: float) -> ArrayMesh:
 
 
 func _process(delta: float) -> void:
-	if _glow_decal != null and bool(get_meta("glow_cycle", false)):
-		_glow_t += delta
-		var gc := _glow_colour(_glow_t)
-		_glow_decal.modulate = gc
-		for m in _glow_mats:
-			m.albedo_color = gc
-		for l in _glow_lights:
-			l.light_color = gc
 	if car and _mats.has("light") and _mats["light"] is StandardMaterial3D:   # brake lights
 		(_mats["light"] as StandardMaterial3D).emission_energy_multiplier = 7.0 if car.brake > 0.1 else 1.6
 	for m in _brake_glow:

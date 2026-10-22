@@ -323,8 +323,10 @@ least 7-10 options each. This includes hypercar"
       car's deck (none, lips, ducktail, wings on stanchions, GT wings, swan neck, twin plane...),
       hood add-ons fitted to each hood (vents, scoops, bulge, louvres...), a library of 10 rim
       styles scaled to each car's wheels; the hypercar too
-- [x] 2. `TmCarVisual` draws a car's tuning (spoiler, rims, underglow: a glowing strip and light
-      under the car in 10 colours/effects, hood: shapes and carbon/black finishes)
+- [x] 2. `TmCarVisual` draws a car's tuning (spoiler, rims, underglow: neon tubes fitted under each
+      car with their light on the road baked in Blender, tyre shadows and all (`TmUnderglow`;
+      rebuilt after the owner's "Is it really just a coloured rectangle?"), 10 colours/effects,
+      hood: shapes and carbon/black finishes)
 - [x] 3. The Garage's tuning panel (4 rows, 10 choices each, live on the turntable); picks saved
       per car; races, ghosts, replays and online carry them
 - [x] 4. Tests and screenshots

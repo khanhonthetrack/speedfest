@@ -3804,3 +3804,36 @@ comes), for the 16 road cars and the hypercar.
   glow on ghosts, the tuned hypercar, the rainbow cycling, the setting, replays), `test_menu` (the
   Tuning page, stepping, wrapping, the turntable, back to the garage), server (tuning relayed and
   clamped).
+
+## 2026-10-22 — Session 17 (cloud): underglow rebuilt, no sponsors on the formula car (PLAN M17)
+Owner: "remove the ORLAN stickers from the formula car too. / You're lazy with the lights. Is it
+really just a coloured rectangle? Put some effort".
+- **Formula car**: the two sponsor stickers on its sidepods are gone (`TmCarVisual.STICKERS`);
+  `test_car_models` `formula_no_sponsors`.
+- **Underglow, fitted to each car in Blender** (`tools/assets/tuning_kit.py` `underglow()`, run by
+  `roadcar.py` and `hypercar.py`): four neon tubes (22 mm) following the underside, two under the
+  sills (7 cm in from the side, between the wheels) and one across behind the front bumper and
+  ahead of the rear one; their light on the road **baked** like a renderer would: each tube a line
+  of lamps every 3 cm lighting the road below (h / (d^2 + h^2)^1.5), the tyres standing in the
+  light's way (their shadows in the pool), exposed like neon on camera ((1 - e^-kE)^2: saturated
+  under the tubes, gone a metre and a bit out, no edge), the front tubes' share and the rear's in
+  two pictures (`assets/car/<id>_glow_f.png`, `_glow_r.png`); the manifest's `"underglow"` holds the
+  tubes, each point's place along the car, the pictures' footprint and where the lights go.
+- **In the game** (`car/tm_underglow.gd`, `TmUnderglow`; `TmCarVisual._underglow` makes it): the
+  tubes as glass round the lit gas, a white-hot core where they face the eye, HDR emission the
+  environment's glow blooms (`tm_glow_tube.gdshader`), in dark aluminium channels; a halo of light
+  in the air round each tube (a ribbon turned to the eye, added, soft where it meets the road:
+  `tm_glow_halo.gdshader`); the light on the road as two emissive decals (the front's share in the
+  front's colour, the rear's in the rear's); a small light at each tube's middle (tyres, sills,
+  kerbs lit in the colour). Brighter at night. Colours from `tm_glow.gdshaderinc` (the same sums
+  as `TmUnderglow.colour_at`).
+- **Choices** (`TmRoadCars.GLOWS`): white made way for **Synthwave**, a two-tone glow (magenta at
+  the nose fading to cyan at the tail, `"colours"`); the **rainbow** now flows along the car (its
+  hues spread over the tubes and turning), the decals and lights following.
+- `tools/assets/roadcars/__init__.py` `ORDER` lists all 16 cars again (`--all` built only one).
+  The cars' meshes and kits rebuild byte-identical; only the manifests and the glow pictures are new.
+- Tests (`test_car_models`): `underglow_fitted` (every car: four tubes inside its body's plan,
+  between 3 and 40 cm up, four lights, the pictures round the body), `underglow_baked` (the front
+  picture bright at the front tube, the rear's at the rear, black at the border, darker under a
+  tyre than beside it), `tuned_underglow` (the node, both decals, four lights in the colour, the
+  tubes and halo), `tuned_rainbow_cycles`, `tuned_two_tone`.

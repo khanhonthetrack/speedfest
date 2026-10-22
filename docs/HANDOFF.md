@@ -5,8 +5,14 @@
   hypercar too. Done: ten choices each (`TmRoadCars.TUNING`), Garage -> Tuning.
 - Kits: `tools/assets/tuning_kit.py` fits 8 spoilers and 5 hood shapes to each car's body (run by
   `roadcar.py` and `hypercar.py`: `<id>_kit.glb` beside `<id>.glb`); `tools/assets/rims.py` makes the
-  rim library (`rims.glb`); underglow is drawn by `TmCarVisual._underglow`. Rebuild a car and its
-  kit: `blender -b -P stadium/tools/assets/roadcar.py -- --car <id> --out stadium/assets/car`.
+  rim library (`rims.glb`). Rebuild a car and its kit:
+  `blender -b -P stadium/tools/assets/roadcar.py -- --car <id> --out stadium/assets/car`.
+- Underglow (rebuilt after the owner's "Is it really just a coloured rectangle? Put some effort"):
+  `tuning_kit.underglow()` fits four neon tubes under each car and bakes their light on the road
+  with the tyres' shadows (`<id>_glow_f/_r.png`, manifest `"underglow"`); `car/tm_underglow.gd`
+  draws the tubes (hot core, HDR), their halos, the light (two decals: front and rear colours) and
+  four small lights; one colour, Synthwave (two-tone) or a rainbow flowing along the car. The
+  formula car's sidepod sponsors are gone (owner: "remove the ORLAN stickers").
 - Look at a tuned car: `stadium/tools/run.sh res://car/car_lab.tscn -- --model=<id> --spoiler=6
   --rims=3 --glow=2 --hood=9 [--mood=night] --frames=40 --shot=/abs.png`.
 

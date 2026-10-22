@@ -9,7 +9,11 @@ object "Spoiler<k>".
 Hoods (TmRoadCars.HOODS: shapes; the finishes are the paint shader's): vents, scoop, bulge,
 louvres, cowl. Each is one object "Hood<Shape>".
 Materials by name: paint (the livery shader paints it like the body), carbon, inlet (dark).
+Underglow (TmRoadCars.GLOWS): underglow() fits neon tubes under the car (under its sills between the
+wheels, across behind its bumpers) and bakes the light they throw on the road into two pictures.
 """
+import struct
+import zlib
 import math
 
 import bmesh
@@ -46,6 +50,11 @@ class Geo:
         """The body's side (x > 0) at height y, z, from the left."""
         hit = self.bvh.ray_cast(B(4.0, y, z), Vector((-1.0, 0.0, 0.0)))
         return hit[0].x if hit[0] is not None else default
+
+    def below(self, x, z, default=None):
+        """The body's underside (y) at (x, z), from the road."""
+        hit = self.bvh.ray_cast(B(x, -1.0, z), Vector((0.0, 0.0, 1.0)))
+        return hit[0].z if hit[0] is not None else default
 
 
 # --- building blocks -------------------------------------------------------------------------------
@@ -357,3 +366,133 @@ def kit(geo):
             o.data.shade_smooth()
             o.data.set_sharp_from_angle(angle=math.radians(40.0))
     return [o for o in obs if o is not None]
+
+
+# --- underglow -------------------------------------------------------------------------------------
+
+TUBE_R = 0.011           # a neon tube's radius (22 mm tubes)
+STEP = 0.08              # the tubes' points every 8 cm
+
+
+def _tube_under(geo, x, z, floor):
+    """A tube's height at (x, z): just under the body there (its floor if nothing is above)."""
+    return max(geo.below(x, z, floor) - TUBE_R - 0.006, 0.035)
+
+
+def underglow_tubes(geo, wheels, tyre_r, tyre_hw):
+    """The tubes: [[(x, y, z)]] polylines under the car (visual coordinates). Two under the sills,
+    from behind the front wheels to ahead of the rear ones, 7 cm in from the side at the sill; one
+    across behind the front bumper (ahead of the front wheels) and one ahead of the rear bumper,
+    6-15 cm in from the body's side there, each following the underside."""
+    (xf, _, zf), (xr, _, zr) = wheels
+    floor = geo.below(0.0, (zf + zr) * 0.5, 0.15)
+    tubes = []
+    # the sills
+    z0, z1 = zr + tyre_r[1] + 0.10, zf - tyre_r[0] - 0.10
+    n = max(2, int(round((z1 - z0) / STEP)))
+    side = []
+    for k in range(n + 1):
+        z = z0 + (z1 - z0) * k / n
+        y_low = geo.below(0.35, z, floor) + 0.05
+        xs = geo.side(y_low, z, xf + tyre_hw[0])
+        x = min(xs - 0.07, max(xf, xr) + 0.05)
+        side.append((x, _tube_under(geo, x, z, floor), z))
+    tubes.append(side)
+    tubes.append([(-x, y, z) for x, y, z in side])
+    # across: behind the front bumper, ahead of the rear one (inside the nose and tail)
+    for zc, end in ((min(zf + tyre_r[0] + 0.14, geo.z_nose - 0.16), geo.z_nose), (max(zr - tyre_r[1] - 0.14, geo.z_tail + 0.16), geo.z_tail)):
+        y_low = geo.below(0.0, zc, floor) + 0.05
+        hw = geo.side(y_low, zc, 0.6) - 0.15
+        hw = min(hw, max(xf, xr) + 0.05)
+        m = max(2, int(round(2 * hw / STEP)))
+        tubes.append([(-hw + 2 * hw * k / m, _tube_under(geo, -hw + 2 * hw * k / m, zc, floor), zc) for k in range(m + 1)])
+    return tubes
+
+
+def _png_gray(path, img):
+    """An 8-bit greyscale PNG of img (rows top to bottom, values 0..1)."""
+    h, w = img.shape
+    raw = b"".join(b"\x00" + bytes((np.clip(row, 0.0, 1.0) * 255.0 + 0.5).astype(np.uint8)) for row in img)
+
+    def chunk(tag, data):
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+
+    with open(path, "wb") as f:
+        f.write(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 0, 0, 0, 0))
+                + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
+
+
+def underglow(geo, wheels, tyre_r, tyre_hw, out_prefix, ppm=40, margin=1.3):
+    """The underglow's fitting for one car: its tubes (underglow_tubes) and the light they throw on
+    the road, baked: each tube a line of small lamps (every 3 cm) lighting the road below
+    (irradiance h / (d^2 + h^2)^1.5, d the distance along the road, h the tube's height), the tyres
+    standing in the light's way (their shadows in the pool), the sum exposed like a camera sees
+    neon ((1 - e^-kE)^2: saturated under the tubes, falling off softly to nothing a metre and a bit
+    round the car) and faded out at the picture's border. Two pictures (sRGB greyscale): <out_prefix>_glow_f.png the front's share
+    of the light, _glow_r.png the rear's (the side tubes' split along the car), so the game can
+    colour the front and the rear apart (a two-tone glow, a rainbow flowing along the car).
+    Returns the manifest's "underglow": {tubes, tube_t (each point's place along the car: 0 the
+    nose, 1 the tail), rect [x0, z0, x1, z1] (the pictures' footprint; column 0 at x0, row 0 at z0, the
+    rear: a Godot decal's texture laid flat, its top towards -z),
+    lights [[x, y, z]] (where the game puts its lights)}."""
+    tubes = underglow_tubes(geo, wheels, tyre_r, tyre_hw)
+    L = geo.z_nose - geo.z_tail
+    t_of = lambda z: (geo.z_nose - z) / L
+    # the lamps along the tubes
+    q = []
+    for tube in tubes:
+        for (xa, ya, za), (xb, yb, zb) in zip(tube[:-1], tube[1:]):
+            seg = math.dist((xa, za), (xb, zb))
+            n = max(1, int(math.ceil(seg / 0.03)))
+            for k in range(n):
+                u = (k + 0.5) / n
+                x, y, z = xa + (xb - xa) * u, ya + (yb - ya) * u, za + (zb - za) * u
+                q.append((x, max(y, 0.03), z, seg / n, t_of(z)))
+    q = np.array(q)
+    hw = max(abs(p[0]) for t in tubes for p in t)
+    x0, x1 = -hw - margin, hw + margin
+    z0, z1 = geo.z_tail - margin * 0.8, geo.z_nose + margin * 0.8
+    w, h = int(round((x1 - x0) * ppm)), int(round((z1 - z0) * ppm))
+    gx = x0 + (np.arange(w) + 0.5) / ppm
+    gz = z0 + (np.arange(h) + 0.5) / ppm               # row 0 at the rear (a decal's top is its -z)
+    GX, GZ = np.meshgrid(gx, gz)
+    # the tyres: boxes in plan that the light can't cross (both sides)
+    boxes = []
+    for (wx, _, wz), r, thw in zip(wheels, tyre_r, tyre_hw):
+        for sx in (1.0, -1.0):
+            boxes.append((sx * wx - thw, sx * wx + thw, wz - r * 0.92, wz + r * 0.92))
+    E = np.zeros((2, h, w))
+    for x, y, z, dl, t in q:
+        dx, dz = GX - x, GZ - z
+        d2 = dx * dx + dz * dz
+        e = dl * y / (d2 + y * y) ** 1.5
+        for bx0, bx1, bz0, bz1 in boxes:
+            # does the road point's line to the lamp cross this tyre? (slab test on the segment)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                tx0, tx1 = (bx0 - x) / dx, (bx1 - x) / dx
+                tz0, tz1 = (bz0 - z) / dz, (bz1 - z) / dz
+            tmin = np.maximum(np.minimum(tx0, tx1), np.minimum(tz0, tz1))
+            tmax = np.minimum(np.maximum(tx0, tx1), np.maximum(tz0, tz1))
+            hit = (tmax >= np.maximum(tmin, 0.0)) & (tmin <= 1.0) & ~(np.isnan(tmin) | np.isnan(tmax))
+            e = np.where(hit, e * 0.12, e)
+        E[0] += e * (1.0 - t)
+        E[1] += e * t
+    tot = E[0] + E[1]
+    # squared: a pool that holds its strength half a metre out and is all but gone (3%) by the
+    # picture's border, so no edge of it shows
+    img = (1.0 - np.exp(-1.15 * tot)) ** 2
+    # faded out over the last 35 cm of the picture
+    fx = np.clip(np.minimum(GX - x0, x1 - GX) / 0.35, 0.0, 1.0)
+    fz = np.clip(np.minimum(GZ - z0, z1 - GZ) / 0.35, 0.0, 1.0)
+    img *= (fx * fx * (3 - 2 * fx)) * (fz * fz * (3 - 2 * fz))
+    share = np.where(tot > 0, E[0] / np.maximum(tot, 1e-9), 0.5)
+    for part, frac in (("f", share), ("r", 1.0 - share)):
+        _png_gray("%s_glow_%s.png" % (out_prefix, part), (img * frac) ** (1.0 / 2.2))
+    lights = []
+    for tube in tubes:
+        mid = tube[len(tube) // 2]
+        lights.append([round(mid[0], 3), round(max(mid[1] - 0.01, 0.05), 3), round(mid[2], 3)])
+    r3 = lambda v: round(v, 4)
+    return {"tubes": [[[r3(c) for c in p] for p in tube] for tube in tubes],
+            "tube_t": [[r3(t_of(p[2])) for p in tube] for tube in tubes],
+            "rect": [r3(x0), r3(z0), r3(x1), r3(z1)], "lights": lights}

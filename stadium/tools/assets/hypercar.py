@@ -710,6 +710,16 @@ if out:
     kit = tuning_kit.kit(geo)
     roadcar.export_objects(kit, out.replace(".glb", "_kit.glb"))
     print("HYPERCAR kit", {o.name: len(o.data.polygons) for o in kit})
+    # the manifest (the body's lines) with the underglow's tubes, lights and light on the road
+    import json
+    man_path = out.replace(".glb", ".json")
+    manifest(man_path)
+    with open(man_path) as f:
+        man = json.load(f)
+    man["underglow"] = tuning_kit.underglow(geo, [FRONT, REAR], [0.364, 0.364], [0.172, 0.18], out.replace(".glb", ""))
+    with open(man_path, "w") as f:
+        json.dump(man, f, indent=1)
+    print("HYPERCAR underglow", man_path)
 if opt("blend"):
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(opt("blend")))
 if opt("shots"):

@@ -212,6 +212,8 @@ func _road_cars() -> void:
 	TestHooks.check(mode4, "hyper_livery_drawn")
 	TestHooks.check(not TmCarVisual.HYPER_STICKERS.any(func(st: Array) -> bool: return String(st[0]) == "livery_sponsor"),
 		"hyper_no_sponsors")
+	TestHooks.check(not TmCarVisual.STICKERS.any(func(st: Array) -> bool: return String(st[0]) == "livery_sponsor"),
+		"formula_no_sponsors")
 	h.queue_free()
 	# the garage's pick
 	var was := String(TmUi.setting("car_model"))
@@ -242,6 +244,49 @@ func _tuning() -> void:
 		if id != "hyper" and not TmRoadCars.meshes(id).has("TyreF"):
 			bad.append("%s: no TyreF" % id)
 	TestHooks.check(bad.is_empty(), "tuning_kits_complete", str(bad))
+	# every car's underglow fitted: four tubes under its body (two sills, two across), a light at
+	# each, the light on the road baked round it
+	var ugbad := []
+	for id: String in TmRoadCars.CARS.map(func(c: Array) -> String: return String(c[0])) + ["hyper"]:
+		var f := TmUnderglow.fit(id)
+		if f.is_empty():
+			ugbad.append("%s: no fitting" % id)
+			continue
+		var ug: Dictionary = TmRoadCars.manifest(id)["underglow"]
+		var box := (TmCarVisual._hyper_mesh() if id == "hyper" else TmRoadCars.meshes(id)["Body"] as Mesh).get_aabb()
+		var r: Array = f["rect"]
+		if (ug["tubes"] as Array).size() != 4 or (f["lights"] as Array).size() != 4:
+			ugbad.append("%s: %d tubes" % [id, (ug["tubes"] as Array).size()])
+		for line: Array in ug["tubes"]:
+			for p: Array in line:
+				if absf(p[0]) > box.end.x - 0.05 or p[1] < 0.03 or p[1] > 0.4 or p[2] < box.position.z or p[2] > box.end.z:
+					ugbad.append("%s: a tube at %s" % [id, p])
+					break
+		if r[0] > box.position.x or r[2] < box.end.x or r[1] > box.position.z or r[3] < box.end.z:
+			ugbad.append("%s: rect %s" % [id, r])
+	TestHooks.check(ugbad.is_empty(), "underglow_fitted", str(ugbad))
+	# the baked light (kobold): the front picture brightest at the front, the rear's at the rear,
+	# nothing at the border, the tyres' shadows in it
+	var kf := TmUnderglow.fit("kobold")
+	var front_img := (kf["f"] as Texture2D).get_image()
+	var rear_img := (kf["r"] as Texture2D).get_image()
+	var kr: Array = kf["rect"]
+	var px := func(img: Image, x: float, z: float) -> float:
+		var w := img.get_width()
+		var h := img.get_height()
+		var c := clampi(int((x - float(kr[0])) / (float(kr[2]) - float(kr[0])) * w), 0, w - 1)
+		var row := clampi(int((z - float(kr[1])) / (float(kr[3]) - float(kr[1])) * h), 0, h - 1)
+		return img.get_pixel(c, row).r
+	var kug: Dictionary = TmRoadCars.manifest("kobold")["underglow"]
+	var tf: Array = kug["tubes"][2][kug["tubes"][2].size() / 2]       # the middle of the front tube
+	var tr: Array = kug["tubes"][3][kug["tubes"][3].size() / 2]
+	var wf: Array = TmRoadCars.manifest("kobold")["wheels"][0]
+	var near_wheel: float = px.call(front_img, float(wf[0]), float(wf[2]))
+	var beside_wheel: float = px.call(front_img, float(wf[0]) - 0.45, float(wf[2]))
+	TestHooks.check(px.call(front_img, tf[0], tf[2]) > 0.8 and px.call(front_img, tr[0], tr[2]) < px.call(rear_img, tr[0], tr[2])
+		and px.call(rear_img, tr[0], tr[2]) > 0.8 and px.call(front_img, kr[0], kr[1]) < 0.02 and px.call(rear_img, kr[2], kr[3]) < 0.02
+		and near_wheel < beside_wheel, "underglow_baked",
+		"%.2f %.2f %.2f wheel %.2f beside %.2f" % [px.call(front_img, tf[0], tf[2]), px.call(front_img, tr[0], tr[2]), px.call(rear_img, tr[0], tr[2]), near_wheel, beside_wheel])
 	TestHooks.check(TmRoadCars.rims().size() == 9, "tuning_rim_library", str(TmRoadCars.rims().keys()))
 	# a tuned road car: the kit's GT wing for its own, the scoop, a carbon hood, mesh rims, cyan underglow
 	var v := TmCarVisual.new()
@@ -267,11 +312,18 @@ func _tuning() -> void:
 			if c is MeshInstance3D and (c as MeshInstance3D).mesh == TmRoadCars.meshes("kobold").get("RimF"):
 				stock_rims += 1
 	TestHooks.check(stock_rims == 0, "tuned_rims_replace_the_stock_ones")
-	var glow := v.get_node_or_null("Underglow") as Decal
+	var ug := v.get_node_or_null("Underglow") as TmUnderglow
+	var cyan: Color = TmRoadCars.GLOWS[2]["colour"]
 	var lights := v.find_children("GlowLight*", "OmniLight3D", true, false)
-	TestHooks.check(glow != null and glow.modulate.is_equal_approx(TmRoadCars.GLOWS[2]["colour"]) and lights.size() == 2
-		and v.find_children("GlowTube*", "MeshInstance3D", true, false).size() == 4, "tuned_underglow",
-		"%s %s %d %d" % [glow, glow.modulate if glow else null, lights.size(), v.find_children("GlowTube*", "MeshInstance3D", true, false).size()])
+	var tubes := v.get_node_or_null("Underglow/GlowTubes") as MeshInstance3D
+	var gf := v.get_node_or_null("Underglow/GlowFront") as Decal
+	var gr := v.get_node_or_null("Underglow/GlowRear") as Decal
+	TestHooks.check(ug != null and gf != null and gr != null and gf.modulate.is_equal_approx(cyan) and gr.modulate.is_equal_approx(cyan)
+		and gf.texture_emission == TmUnderglow.fit("kobold")["f"] and lights.size() == 4
+		and lights.all(func(l: OmniLight3D) -> bool: return l.light_color.is_equal_approx(cyan))
+		and tubes != null and tubes.mesh.get_surface_count() == 2 and v.get_node_or_null("Underglow/GlowHalo") != null
+		and ug.position.is_equal_approx(-TmCarVisual.VIS), "tuned_underglow",
+		"%s %s %d %s" % [ug, gf.modulate if gf else null, lights.size(), tubes])
 	TestHooks.check(_paint_param(v, 4, "liv_hood") == 1, "tuned_hood_carbon")
 	v.queue_free()
 	# its own spoiler at 0, none at 1; no underglow on a ghost
@@ -304,12 +356,28 @@ func _tuning() -> void:
 	TestHooks.check(hr != null and hr.mesh == TmRoadCars.rims()["Rim5"] and absf(hr.scale.x - TmCarVisual.TYRE_HW[0] / TmRoadCars.RIM_REF.y) < 1e-4,
 		"tuned_hyper_rims")
 	TestHooks.check(_paint_param(h, 3, "liv_hood") == 1 and _paint_param(h0, 3, "liv_hood") == 0, "tuned_hyper_hood")
-	var c0: Color = (h.get_node("Underglow") as Decal).modulate
+	var c0: Color = (h.get_node("Underglow/GlowFront") as Decal).modulate
+	var hu := h.get_node("Underglow") as TmUnderglow
 	for k in 30:
 		await get_tree().process_frame
-	TestHooks.check(not (h.get_node("Underglow") as Decal).modulate.is_equal_approx(c0), "tuned_rainbow_cycles")
+	TestHooks.check(not (h.get_node("Underglow/GlowFront") as Decal).modulate.is_equal_approx(c0)
+		and float(hu._tube_mat.get_shader_parameter("phase")) > 0.0 and hu.colour_at(0.0) != hu.colour_at(1.0), "tuned_rainbow_cycles")
 	h.queue_free()
 	h0.queue_free()
+	# a two-tone glow: the front's colour at the nose fading to the rear's at the tail
+	var two := TmCarVisual.new()
+	two.model = "frigate"
+	var synth := TmRoadCars.GLOWS.map(func(g: Dictionary) -> String: return String(g["name"])).find("Synthwave")
+	two.tuning = {"glow": synth}
+	add_child(two)
+	await get_tree().process_frame
+	var cs: Array = TmRoadCars.GLOWS[synth]["colours"]
+	var tu := two.get_node_or_null("Underglow") as TmUnderglow
+	TestHooks.check(tu != null and tu.colour_at(0.0).is_equal_approx(cs[0]) and tu.colour_at(1.0).is_equal_approx(cs[1])
+		and (two.get_node("Underglow/GlowFront") as Decal).modulate.r > (two.get_node("Underglow/GlowRear") as Decal).modulate.r
+		and (two.get_node("Underglow/GlowFront") as Decal).modulate.g < (two.get_node("Underglow/GlowRear") as Decal).modulate.g,
+		"tuned_two_tone")
+	two.queue_free()
 	# the pick: per car, clamped, none for the open-wheeler; replays keep it
 	var was: Variant = TmUi.setting("car_tuning")
 	TmUi.set_car_tuning("zenith", "spoiler", 7)

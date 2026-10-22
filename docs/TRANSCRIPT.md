@@ -1264,3 +1264,14 @@ game's light.)
 
 (Visual tuning for every car of ours, the 16 road cars and the hypercar: spoilers, rims, underglow
 ("light under") and hoods, 7-10 choices each: PLAN M17.)
+
+### User (verbatim)
+
+> remove the ORLAN stickers from the formula car too.
+>
+> You're lazy with the lights. Is it really just a coloured rectangle? Put some effort
+
+(The formula car's sidepod sponsors removed. The underglow rebuilt: neon tubes fitted under each
+car in Blender with their light on the road baked, tyre shadows and all; glass tubes with a hot
+core and a halo, front and rear colours, lights under the car, a two-tone and a flowing rainbow:
+PROGRESS, 22 Oct.)

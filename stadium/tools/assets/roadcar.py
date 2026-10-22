@@ -1429,7 +1429,8 @@ def export_objects(obs, path):
 
 def export(spec, car, body, wheels, out_dir, kit):
     """<id>.glb: Body, Spoiler (the stock one, if any), Tyre/Rim/Brake F and R; <id>_kit.glb: the
-    tuning kit's parts fitted to this body (tuning_kit.py); <id>.json: the manifest."""
+    tuning kit's parts fitted to this body (tuning_kit.py); <id>_glow_f/r.png: the underglow's light
+    on the road; <id>.json: the manifest."""
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, spec["id"] + ".glb")
     for o in wheels:
@@ -1449,6 +1450,10 @@ def export(spec, car, body, wheels, out_dir, kit):
         "rim_r": [r for r in (spec["tyre"].get("rim_r") if isinstance(spec["tyre"].get("rim_r"), (list, tuple))
                               else [spec["tyre"].get("rim_r", spec["tyre"]["r"][0] - 0.08)] * 2)],
         "kit": sorted(o.name for o in kit),
+        # the underglow's tubes, lights and baked light on the road (<id>_glow_f/r.png)
+        "underglow": importlib.import_module("tuning_kit").underglow(
+            kit_geo(car, body), list(car.wheels), list(spec["tyre"]["r"]), [w * 0.5 for w in spec["tyre"]["w"]],
+            os.path.join(out_dir, spec["id"])),
         "length": spec["length"], "z_nose": round(car.z_nose, 4), "z_tail": round(car.z(car.L), 4),
         # Blender (x, -z, y) -> visual
         "box": [[round(box_min[0], 3), round(box_min[2], 3), round(-box_max[1], 3)],

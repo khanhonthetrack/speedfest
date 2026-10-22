@@ -279,7 +279,8 @@ const RIMS := [
 ]
 ## The library rims' size (rims.py: bead radius, half width): scaled to each car's.
 const RIM_REF := Vector2(0.24, 0.12)
-## Underglow: 0 off; a colour, or a cycle through the hues.
+## Underglow (TmUnderglow): 0 off; a colour, two (the front's fading to the rear's along the car), or a
+## rainbow flowing along the car.
 const GLOWS := [
 	{"name": "Off"},
 	{"name": "Neon Blue", "colour": Color(0.1, 0.4, 1.0)},
@@ -289,7 +290,7 @@ const GLOWS := [
 	{"name": "Red", "colour": Color(1.0, 0.06, 0.04)},
 	{"name": "Purple", "colour": Color(0.55, 0.1, 1.0)},
 	{"name": "Amber", "colour": Color(1.0, 0.55, 0.05)},
-	{"name": "White", "colour": Color(0.9, 0.95, 1.0)},
+	{"name": "Synthwave", "colours": [Color(1.0, 0.08, 0.7), Color(0.0, 0.85, 1.0)]},
 	{"name": "Rainbow", "cycle": true},
 ]
 ## Hoods: a kit shape (assets/car/<id>_kit.glb "Hood<Shape>") and a finish ("" the livery's; the
