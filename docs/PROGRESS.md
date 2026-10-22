@@ -3915,8 +3915,8 @@ Owner: "merge this with the menu branch, as we now have a modernized menu". `ori
 - Home with three large panels: the Solo panel's "tracks finished" line ran into its subtitle; it
   is now a chip at the panel's top right (`SfTile.info`). The Tuning panel of the open-wheeler is
   titled "Formula".
-- Next: the six older Home pictures re-rendered (`menu_art.sh`) without the sponsor stickers the
-  hypercar and the open-wheeler no longer wear (they were rendered on `stadium` before).
+- The six older Home pictures re-rendered (`menu_art.sh`, Ultra, about an hour here) without the
+  sponsor stickers the hypercar and the open-wheeler no longer wear (rendered on `stadium` before).
 - Milestones renumbered so the plan has one of each: the menu look keeps M16 (`stadium`'s), the
   road cars are M17, tuning M18 (the earlier log entries above say M16/M17 for them).
 - Tests: `test_menu` (52): the header's tabs and Home's panels include the Garage, the Garage opens

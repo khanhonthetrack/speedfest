@@ -9,6 +9,8 @@
   spec takes a livery and tuning). The Garage and Tuning pages wear SfUi (labels, captions, flat
   livery swatches with the vinyl's band, chosen in red).
 - Milestones renumbered: the menu look keeps M16 (`stadium`'s); the road cars are M17, tuning M18.
+- Home's other six pictures re-rendered with today's cars (no sponsor stickers on the hypercar or
+  the open-wheeler); Solo's "tracks finished" is a chip at its panel's top right.
 - Gate: STADIUM_TESTS PASS after the merge.
 
 ## Earlier (22 Oct, session 17, cloud): tuning (PLAN M18), on branch `claude/nice-ride-q9yx1h`
