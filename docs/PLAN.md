@@ -316,6 +316,19 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M17 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☐
+"Now, add a tuning option so players can choose spoilers, rims, different light under, hood. At
+least 7-10 options each. This includes hypercar"
+- [ ] 1. Kits from Blender: each car's stock spoiler as its own part, 10 spoilers fitted to each
+      car's deck (none, lips, ducktail, wings on stanchions, GT wings, swan neck, twin plane...),
+      hood add-ons fitted to each hood (vents, scoops, bulge, louvres...), a library of 10 rim
+      styles scaled to each car's wheels; the hypercar too
+- [ ] 2. `TmCarVisual` draws a car's tuning (spoiler, rims, underglow: a glowing strip and light
+      under the car in 10 colours/effects, hood: shapes and carbon/black finishes)
+- [ ] 3. The Garage's tuning panel (4 rows, 10 choices each, live on the turntable); picks saved
+      per car; races, ghosts, replays and online carry them
+- [ ] 4. Tests and screenshots
+
 ### M16 — Our own road cars, NFS Most Wanted's Blacklist, with liveries (owner, 21 Oct) ☑
 "I want these cars recreated, obviously you can change a bit to avoid copyrights. I want all the
 cars in the carage, with 5 fancy, nice liveries, need for speed style. Avoid using fake sponsors

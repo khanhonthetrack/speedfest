@@ -1257,3 +1257,10 @@ McLaren. Recreated as our own cars under our own names, without makers' badges o
 
 (Carried on with M16: each car shaped against a public blueprint drawing, then checked in the
 game's light.)
+
+### User (verbatim)
+
+> Now, add a tuning option so players can choose spoilers, rims, different light under, hood. At least 7-10 options each. This includes hypercar
+
+(Visual tuning for every car of ours, the 16 road cars and the hypercar: spoilers, rims, underglow
+("light under") and hoods, 7-10 choices each: PLAN M17.)
