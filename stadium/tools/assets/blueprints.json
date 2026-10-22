@@ -1,0 +1,36 @@
+{
+ "zenith": {
+  "url": "https://drawingdatabase.com/wp-content/uploads/2015/07/Supra_MkIV.jpg",
+  "length": 4.52,
+  "width": 1.81,
+  "side": [
+   8,
+   8,
+   1281,
+   375,
+   0
+  ],
+  "top": [
+   7,
+   930,
+   1283,
+   1487,
+   0
+  ],
+  "front": [
+   37,
+   540,
+   593,
+   878,
+   0
+  ],
+  "rear": [
+   677,
+   510,
+   1281,
+   877,
+   0
+  ],
+  "height": 1.275
+ }
+}

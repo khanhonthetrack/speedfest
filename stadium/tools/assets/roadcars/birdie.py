@@ -27,10 +27,10 @@ SPEC = {
             "fl_x": [(0.0, 0.62), (0.5, 0.76), (1.0, 0.79), (3.4, 0.79), (L, 0.70)],
             "floor_y": [(0.0, 0.22), (0.5, 0.18), (0.9, 0.155), (3.6, 0.155), (4.0, 0.25), (L, 0.33)],
         },
-        "radii": {"edge": 0.035, "sh": 0.045, "side": 0.35, "rk": 0.06, "fl": 0.02},
-        "bows": {"edge_sh": 0.004, "sh_side": 0.012, "side_rk": 0.012},
-        "front": {"yc": 0.48, "plan": (0.30, 2.8), "top": (0.12, 2.6), "bottom": (0.10, 2.4)},
-        "rear": {"yc": 0.66, "plan": (0.25, 3.0), "top": (0.06, 2.6), "bottom": (0.12, 2.2)},
+        "radii": {"edge": 0.035, "sh": 0.045, "side": 0.13, "rk": 0.06, "fl": 0.02},
+        "bows": {"edge_sh": 0.004, "sh_side": 0.024, "side_rk": 0.018},
+        "front": {"yc": 0.48, "plan": (0.30, 3.3), "top": (0.12, 3.1), "bottom": (0.10, 2.9)},
+        "rear": {"yc": 0.66, "plan": (0.25, 3.5), "top": (0.06, 3.1), "bottom": (0.12, 2.7)},
     },
     "cabin": {
         "d0": 1.02, "d1": 4.08,
@@ -43,7 +43,7 @@ SPEC = {
         },
         "radii": {"rail": 0.07},
     },
-    "arches": {"r": 0.352, "lift": 0.018},
+    "arches": {"r": [0.345, 0.345], "lift": 0.007},
     "glass": [
         {"plane": "top", "outline": [(-0.62, 1.10), (0.62, 1.10), (0.56, 1.73), (-0.56, 1.73)], "radii": [0.04, 0.04, 0.07, 0.07]},
         {"plane": "side", "outline": [(1.24, 0.965), (1.80, 1.355), (2.60, 1.385), (2.60, 0.985)], "radii": [0.03, 0.1, 0.03, 0.02],
@@ -55,7 +55,7 @@ SPEC = {
     "paint": [
         # the B-pillar blacked out
         {"plane": "side", "outline": [(2.585, 0.975), (2.755, 0.98), (2.755, 1.39), (2.585, 1.39)], "radii": [0.01] * 4,
-         "mat": "gloss_black", "mirror": True},
+         "mat": "gloss_black", "mirror": True, "cabin": True},
         # rear reflectors in the bumper's corners
         {"plane": "rear", "outline": [(0.62, 0.42), (0.80, 0.42), (0.80, 0.45), (0.62, 0.45)], "radii": [0.012] * 4,
          "mat": "lens_red", "mirror": True},
@@ -64,7 +64,7 @@ SPEC = {
         # headlights: a deep glass over two round lamps, the indicator in its lower outer corner
         {"plane": "front", "ray": (-0.35, 0, -1), "outline": [(0.40, 0.665), (0.79, 0.685), (0.86, 0.735), (0.84, 0.79), (0.47, 0.79), (0.39, 0.735)],
          "radii": [0.03, 0.05, 0.03, 0.03, 0.03, 0.03], "depth": 0.055, "mats": ("lamp", "lamp"), "cover": "lens", "mirror": True,
-         "elements": [("projector", (0.53, 0.735), 0.042, "lens"), ("projector", (0.69, 0.738), 0.045, "lens"),
+         "elements": [("projector", (0.53, 0.735), 0.042, "proj"), ("projector", (0.69, 0.738), 0.045, "proj"),
                       ("strip", [(0.76, 0.70), (0.83, 0.715)], 0.012, "amber")]},
         # tail lamps: wide, across the hatch's corners, two round lamps in each
         {"plane": "rear", "ray": (-0.4, 0, 1), "outline": [(0.40, 0.92), (0.84, 0.925), (0.88, 0.98), (0.86, 1.035), (0.44, 1.03)],
@@ -73,7 +73,7 @@ SPEC = {
                       ("disc", (0.52, 0.978), 0.016, "lamp")]},
         # fog lamps low in the bumper's corners
         {"plane": "front", "outline": [(0.60, 0.30), (0.75, 0.30), (0.76, 0.38), (0.60, 0.38)], "radii": [0.02] * 4, "depth": 0.04,
-         "mats": ("grille", "trim"), "mirror": True, "elements": [("projector", (0.68, 0.34), 0.03, "lens")]},
+         "mats": ("grille", "trim"), "mirror": True, "elements": [("projector", (0.68, 0.34), 0.03, "proj")]},
         # the rear plate
         {"plane": "rear", "outline": [(-0.27, 0.58), (0.27, 0.58), (0.27, 0.73), (-0.27, 0.73)], "radii": [0.01] * 4, "depth": 0.018,
          "mats": ("trim", "trim"), "elements": [("patch", [(-0.255, 0.59), (0.255, 0.59), (0.255, 0.72), (-0.255, 0.72)], [0.01] * 4,
@@ -97,6 +97,7 @@ SPEC = {
         {"outline": [(3.26, 1.405), (3.55, 1.37), (3.58, 1.39), (3.30, 1.455)], "radii": [0.01, 0.01, 0.01, 0.03], "axis": "x",
          "a0": -0.60, "a1": 0.60, "mat": "paint"},
     ],
+    "handles": [(2.55, 0.86)],
     "mirrors": [{"base": (0.79, 1.25, 0.975), "size": (0.17, 0.11, 0.13), "reach": 0.04}],
     "exhausts": [{"at": (0.40, 0.27, L - 0.05), "r": 0.042, "length": 0.14, "mirror": False},
                  {"at": (0.51, 0.27, L - 0.05), "r": 0.042, "length": 0.14, "mirror": False}],

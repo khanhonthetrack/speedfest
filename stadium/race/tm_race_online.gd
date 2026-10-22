@@ -136,7 +136,8 @@ func _car(id: int) -> Node3D:
 	for p: Dictionary in Online.players:
 		if int(p["id"]) == id:
 			var c: Array = p.get("colour", [0.85, 0.08, 0.06])
-			v.model = String(p.get("model", ""))   # their own car (the hypercar or the open-wheeler)
+			v.model = String(p.get("model", ""))   # their own car (the hypercar, a road car or the open-wheeler)
+			v.livery = int(p.get("livery", 0))
 			var team := int(p.get("team", -1))
 			v.ghost_tint = TEAM_COLOURS[team] if Online.mode == "Team" and team in [0, 1] \
 				else Color(float(c[0]), float(c[1]), float(c[2])).lerp(Color.WHITE, 0.25)

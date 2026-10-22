@@ -78,6 +78,7 @@ MATS = {
     "glass": ((0.03, 0.035, 0.045), 0.2, 0.05, 0.0, 1.0),
     "lens": ((0.8, 0.85, 0.9), 0.0, 0.02, 0.0, 0.15),
     "lamp": ((0.75, 0.76, 0.78), 1.0, 0.15, 0.0, 1.0),
+    "proj": ((0.02, 0.022, 0.03), 0.5, 0.02, 0.0, 1.0),
     "led": ((0.92, 0.95, 1.0), 0.0, 0.3, 4.0, 1.0),
     "amber": ((1.0, 0.55, 0.08), 0.0, 0.3, 0.6, 1.0),
     "light": ((0.9, 0.05, 0.03), 0.0, 0.3, 2.0, 1.0),
@@ -476,6 +477,21 @@ class Car:
 
     # the greenhouse -----------------------------------------------------------------------------
 
+    def base_y(self, d):
+        """The greenhouse's foot (where the side glass meets the body) at d."""
+        g = self.g
+        bx = g["base_x"](d)
+        return g["base_y"](d) if "base_y" in g else self.top_at(d, bx) - 0.012
+
+    def rail_y(self, d):
+        """The roof rail's height (the side glass's top) at d."""
+        g = self.g
+        top = g["top"](d)
+        bx = g["base_x"](d)
+        by = g["base_y"](d) if "base_y" in g else self.top_at(d, bx) - 0.012
+        crown = min(g["crown"](d) if "crown" in g else 0.04, max(top - by, 0.004) * 0.45)
+        return top - crown
+
     def top_at(self, d, x):
         """The lower body's top surface height at half width x (from the centre outwards)."""
         h = self.body_half(d)
@@ -713,7 +729,7 @@ def inside_poly(pts, poly):
     return inside
 
 
-def cast_points(car, surf, plane, pts, ray=None, side=1.0):
+def cast_points(car, surf, plane, pts, ray=None, side=1.0, min_dot=0.2):
     """Outline-plane points cast onto the surface: [(hit point, normal, hit?)] (a miss: the ray's
     start) and the ray."""
     d0 = ray_dir(plane, ray)
@@ -725,7 +741,9 @@ def cast_points(car, surf, plane, pts, ray=None, side=1.0):
         if side < 0:
             o = Vector((-o.x, o.y, o.z))
         hit = surf.cast(o, d)
-        if hit is None:
+        # a grazing hit (the ray skimming a surface that doesn't face it: a roof seen from the
+        # side) counts as a miss, so a patch doesn't wrap round onto it
+        if hit is None or -hit[1].dot(d) < min_dot:
             miss += 1
             out.append((o, -d, False))
         else:
@@ -801,7 +819,7 @@ def recess(car, surf, name, plane, outline, depth, mats, radii=None, ray=None, m
 
 def ribbon(car, surf, name, plane, line, width, mat, lift=0.0015, closed=False, mirror=False, ray=None, step=0.01):
     """A strip `width` wide along a polyline (outline coords) laid onto the body: panel gaps,
-    pinstripes."""
+    pinstripes, glass seals. Where the surface turns away from the ray the strip stops."""
     pts = np.array(line, float)
     if closed:
         pts = np.vstack([pts, pts[:1]])
@@ -810,26 +828,20 @@ def ribbon(car, surf, name, plane, line, width, mat, lift=0.0015, closed=False, 
     tan /= np.maximum(np.linalg.norm(tan, axis=1)[:, None], 1e-9)
     nrm = np.stack([-tan[:, 1], tan[:, 0]], axis=1)
     obs = []
-    d = ray_dir(plane, ray)
+    two = [tuple(p + nm * width * s_) for p, nm in zip(pts, nrm) for s_ in (-0.5, 0.5)]
     for side in ((1.0, -1.0) if mirror else (1.0,)):
-        dd = Vector((-d.x, d.y, d.z)) if side < 0 else d
+        hits, dd, _ = cast_points(car, surf, plane, two, ray, side)
         bm = bmesh.new()
-        rows = []
-        for p, nm in zip(pts, nrm):
-            row = []
-            for s in (-0.5, 0.5):
-                u, v = p + nm * width * s
-                o = start_for(car, plane, u, v, d, ray)
-                if side < 0:
-                    o = Vector((-o.x, o.y, o.z))
-                hit = surf.cast(o, dd)
-                row.append(bm.verts.new(hit[0] + hit[1] * lift if hit else o))
-            rows.append(row)
-        for a, b in zip(rows[:-1], rows[1:]):
-            f = bm.faces.new((a[0], b[0], b[1], a[1]))
+        vs = [bm.verts.new(h[0] + h[1] * lift) for h in hits]
+        for k in range(len(pts) - 1):
+            a0, a1, b0, b1 = 2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 3
+            if not (hits[a0][2] and hits[a1][2] and hits[b0][2] and hits[b1][2]):
+                continue
+            f = bm.faces.new((vs[a0], vs[b0], vs[b1], vs[a1]))
             f.normal_update()
             if f.normal.dot(dd) > 0:
                 f.normal_flip()
+        bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
         obs.append(new_object(name, bm, [mat]))
     return obs
 
@@ -929,41 +941,67 @@ def loft_rings(name, rings, mats, cap0=True, cap1=True):
 
 
 def mirror_part(car, m):
-    """A side mirror: a housing (paint) lofted through rounded sections from its base on the door
-    to its outer cap, the glass (mirror) on its back, a stalk (trim)."""
+    """A side mirror: a housing (paint) lofted outwards from its stalk through D-shaped sections
+    (a rounded front, a flat back where its glass is), swept back a little at its outer end and
+    closed by a rounded cap; the glass (mirror) on the back; the stalk (paint or trim) to the
+    door."""
     x0, d0, y0 = m["base"]               # where the stalk meets the body
     w, h, depth = m["size"]              # housing: across (outwards), height, depth along the car
     reach = m.get("reach", 0.06)         # stalk length outwards
+    sweep = m.get("sweep", 0.025)        # its outer end this much further back
     xi = x0 + reach
+    yc = y0 + h * 0.5
     rings = []
-    for k in range(9):
-        t = k / 8.0
+    backs = []
+    n = 14
+    for k in range(n + 1):
+        t = k / n
         x = xi + w * t
-        s = 0.55 + 0.45 * math.sin(math.pi * min(1.0, t * 1.4 + 0.15)) if t < 1.0 else 0.4
-        s = min(s, 1.0)
-        hh = h * 0.5 * (0.75 + 0.25 * s)
-        dd = depth * 0.5 * s
+        if t < 0.8:
+            sc = 0.78 + 0.22 * math.sin(math.pi * 0.5 * min(1.0, t / 0.5))
+        else:
+            u = (t - 0.8) / 0.2
+            sc = math.sqrt(max(1.0 - u * u, 0.0)) * 0.98 + 0.02
+        dz = d0 + sweep * t
         ring = []
-        for j in range(20):
-            a = 2 * math.pi * j / 20
-            # a rounded front (towards the nose) and a flat back
-            cz = math.cos(a)
-            front = cz < 0
-            ring.append(car.P(x, d0 + dd * cz * (1.0 if front else 0.55), y0 + h * 0.5 + hh * math.sin(a)))
+        for j in range(24):
+            a = 2 * math.pi * j / 24
+            ca, sa = math.cos(a), math.sin(a)
+            if ca >= 0:
+                dd = -depth * 0.7 * sc * ca             # the front, rounded towards the nose
+            else:
+                dd = depth * 0.3 * sc * abs(ca) ** 0.25  # the back: nearly flat
+            yy = yc + h * 0.5 * sc * (abs(sa) ** 0.8) * (1 if sa >= 0 else -1)
+            ring.append(car.P(x, dz + dd, yy))
         rings.append(ring)
+        backs.append((x, dz + depth * 0.3 * sc, sc))
     obs = [loft_rings("Mirror", rings, ["paint"])]
-    # the glass on its back face
-    glass = closed_outline([(xi + 0.01, y0 + 0.012), (xi + w - 0.012, y0 + 0.02), (xi + w - 0.012, y0 + h - 0.015),
-                            (xi + 0.01, y0 + h - 0.012)], [0.01, 0.025, 0.025, 0.01])
+    # the glass: a flat plate just behind the back, inset from its edge
     bm = bmesh.new()
-    vs = [bm.verts.new(car.P(u, d0 + depth * 0.5 * 0.55 * 0.95 + 0.002, v)) for u, v in glass]
-    f = bm.faces.new(vs)
-    f.normal_update()
-    if f.normal.dot(B(0, 0, -1)) < 0:
-        f.normal_flip()
-    obs.append(new_object("MirrorGlass", bm, ["mirror"]))
-    obs.append(prism("Stalk", [(d0 - 0.03, y0 + 0.01), (d0 + 0.04, y0 + 0.01), (d0 + 0.03, y0 + 0.05), (d0 - 0.02, y0 + 0.045)],
-                     x0 - 0.05, xi + 0.02, "x", m.get("stalk_mat", "paint"), radii=[0.01] * 4, car=car))
+    pts = []
+    for k in range(1, n):
+        x, db, sc = backs[k]
+        if sc < 0.55:
+            continue
+        pts.append((x, db + 0.003, yc - h * 0.5 * sc * 0.82))
+    top = []
+    for k in range(1, n):
+        x, db, sc = backs[k]
+        if sc < 0.55:
+            continue
+        top.append((x, db + 0.003, yc + h * 0.5 * sc * 0.82))
+    poly = pts + top[::-1]
+    if len(poly) >= 3:
+        vs = [bm.verts.new(car.P(x, d, y)) for x, d, y in poly]
+        f = bm.faces.new(vs)
+        f.normal_update()
+        if f.normal.dot(B(0, 0, -1)) < 0:
+            f.normal_flip()
+        obs.append(new_object("MirrorGlass", bm, ["mirror"]))
+    else:
+        bm.free()
+    obs.append(prism("Stalk", [(d0 - 0.035, y0 + 0.012), (d0 + 0.03, y0 + 0.012), (d0 + 0.025, y0 + 0.05), (d0 - 0.025, y0 + 0.045)],
+                     x0 - 0.05, xi + 0.03, "x", m.get("stalk_mat", "paint"), radii=[0.01] * 4, car=car))
     return obs
 
 
@@ -1029,6 +1067,7 @@ def wheel_objects(car, axle):
     R = t["r"][axle]
     W = t["w"][axle]
     rr = t.get("rim_r", R - 0.08)
+    rr = rr[axle] if isinstance(rr, (list, tuple)) else rr
     style = t.get("rim", "five")
     hw = W * 0.5
     # the tyre: sidewalls bulging out of the bead, rounded shoulders, a flat tread
@@ -1195,6 +1234,7 @@ def build(spec):
     add += feats.late_features(car, surf2, spec)
     obs = [body] + add
     ob = join(obs, "Body")
+    underbody(ob)
     me = ob.data
     me.shade_smooth()
     me.set_sharp_from_angle(angle=math.radians(40.0))
@@ -1211,6 +1251,26 @@ def build(spec):
             o.data.set_sharp_from_angle(angle=math.radians(35.0))
         wheels += [w, b]
     return car, ob, wheels
+
+
+def underbody(ob):
+    """The floor and whatever faces the road low down: dark (the paint's livery doesn't go under the
+    car)."""
+    me = ob.data
+    names = [m.name.split(".")[0] for m in me.materials]
+    if "paint" not in names:
+        return
+    if "trim" not in names:
+        me.materials.append(material("trim"))
+        names.append("trim")
+    paint, trim = names.index("paint"), names.index("trim")
+    for p in me.polygons:
+        if p.material_index != paint:
+            continue
+        n = p.normal
+        y = p.center.z                     # Blender z = the car's height
+        if n.z < -0.55 and y < 0.30:
+            p.material_index = trim
 
 
 def anchors(car, n=24):
@@ -1347,6 +1407,67 @@ def shots(car, body, wheels, out_path, size=None):
     print("ROADCAR sheet", out_path)
 
 
+PPM = 300                # orthographic silhouettes: pixels per metre
+
+
+def ortho(car, body, wheels, out_path):
+    """The car's silhouettes, black on transparent, orthographic at PPM pixels a metre: side (nose
+    to the left), top (nose to the left), front, rear; one PNG each (out_path_<view>.png) and a
+    JSON of the views (for blueprint_fit.py overlay)."""
+    sc = bpy.context.scene
+    placed = []
+    for (x, y, z), axle in zip(car.wheels, (0, 1)):
+        w, b = wheels[axle * 2], wheels[axle * 2 + 1]
+        for sx in (1, -1):
+            for o in (w, b):
+                c = o.copy()
+                c.data = o.data
+                sc.collection.objects.link(c)
+                c.location = B(sx * x, y, z)
+                if sx < 0:
+                    c.scale = (-1, 1, 1)
+                placed.append(c)
+    for o in wheels:
+        o.hide_render = True
+    sc.render.engine = "BLENDER_WORKBENCH"
+    sc.display.shading.light = "FLAT"
+    sc.display.shading.color_type = "SINGLE"
+    sc.display.shading.single_color = (0.0, 0.0, 0.0)
+    sc.display.shading.show_cavity = False
+    sc.display.shading.show_specular_highlight = False
+    sc.render.film_transparent = True
+    cam = bpy.data.objects.new("Ortho", bpy.data.cameras.new("Ortho"))
+    sc.collection.objects.link(cam)
+    sc.camera = cam
+    cam.data.type = "ORTHO"
+    cam.data.sensor_fit = "HORIZONTAL"
+    zc = car.z(car.L * 0.5)
+    views = {
+        # name: (width m, height m, camera position, camera rotation): side from the car's left with
+        # the nose to the left, top with the nose to the left, front and rear as seen from them
+        "side": (5.2, 1.7, B(8.0, 0.8, zc), (math.pi / 2, 0.0, math.pi / 2)),
+        "top": (5.2, 2.4, B(0.0, 8.0, zc), (0.0, 0.0, math.pi / 2)),
+        "front": (2.4, 1.7, B(0.0, 0.8, zc + 8.0), (math.pi / 2, 0.0, 0.0)),
+        "rear": (2.4, 1.7, B(0.0, 0.8, zc - 8.0), (math.pi / 2, 0.0, math.pi)),
+    }
+    info = {"ppm": PPM}
+    for name, (wm, hm, pos, rot) in views.items():
+        sc.render.resolution_x, sc.render.resolution_y = int(wm * PPM), int(hm * PPM)
+        cam.data.ortho_scale = wm
+        cam.location = pos
+        cam.rotation_euler = rot
+        path = "%s_%s.png" % (out_path, name)
+        sc.render.filepath = path
+        bpy.ops.render.render(write_still=True)
+        info[name] = {"path": path, "width_m": wm, "height_m": hm}
+    with open(out_path + ".json", "w") as f:
+        json.dump(info, f, indent=1)
+    for c in placed:
+        bpy.data.objects.remove(c, do_unlink=True)
+    bpy.data.objects.remove(cam, do_unlink=True)
+    print("ROADCAR ortho", out_path)
+
+
 def run(car_id):
     mod = importlib.import_module("roadcars." + car_id)
     spec = mod.SPEC
@@ -1356,6 +1477,9 @@ def run(car_id):
         export(spec, car, body, wheels, out)
     if opt("blend"):
         bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(opt("blend")))
+    if opt("ortho"):
+        os.makedirs(opt("ortho"), exist_ok=True)
+        ortho(car, body, wheels, os.path.join(opt("ortho"), car_id))
     if opt("shots"):
         os.makedirs(opt("shots"), exist_ok=True)
         shots(car, body, wheels, os.path.join(opt("shots"), car_id + ".png"))

@@ -279,7 +279,7 @@ func _process(_delta: float) -> void:
 	if st == WebSocketPeer.STATE_OPEN and not _was_open:
 		_was_open = true
 		var hello := {"t": "hello", "name": _name, "version": VERSION, "colour": [_colour.r, _colour.g, _colour.b],
-			"model": TmUi.car_model()}
+			"model": TmUi.car_model(), "livery": TmUi.car_livery()}
 		if not _token.is_empty():
 			hello["token"] = _token
 		if _spectator:

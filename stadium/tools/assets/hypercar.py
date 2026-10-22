@@ -20,6 +20,9 @@ inlet, light (the rear lights: brighter under braking), led (the headlights), mi
 
 usage: blender -b -P stadium/tools/assets/hypercar.py -- --out stadium/assets/car/hypercar.glb
            [--shots DIR] (Workbench views of the shape) [--blend FILE] (the scene, to look at)
+       blender -b -P stadium/tools/assets/hypercar.py -- --manifest stadium/assets/car/hypercar.json
+           (only the body's lines along the car for the livery shader, as tools/assets/roadcar.py
+           writes them for the road cars; the model isn't built)
 """
 import bpy
 import bmesh
@@ -652,7 +655,34 @@ def shots(out_dir):
         bpy.ops.render.render(write_still=True)
 
 
+def manifest(path, n=24):
+    """The body's lines at n stations nose to tail (visual coordinates): the top centre, the belt
+    (the side's top), the widest point's height, the sill (the side's foot) and the half width;
+    the canopy's span (distances back from the nose)."""
+    z0, z1 = STATIONS[0][0], STATIONS[-1][0]
+    out = {"z": [], "top": [], "belt": [], "mid": [], "sill": [], "hw": []}
+    for k in range(n):
+        z = z0 + (z1 - z0) * (k + 0.5) / n
+        p = station_at(z)
+        out["z"].append(round(z, 4))
+        out["top"].append(round(p[0][1], 4))
+        out["belt"].append(round(p[6][1], 4))
+        out["mid"].append(round((p[6][1] + p[7][1]) * 0.5, 4))
+        out["sill"].append(round(p[7][1], 4))
+        out["hw"].append(round(p[6][0], 4))
+    import json
+    with open(path, "w") as f:
+        json.dump({"id": "hyper", "z_nose": z0, "z_tail": z1, "cabin": [round(z0 - 0.97, 3), round(z0 + 0.36, 3)],
+                   "anchors": out}, f, indent=1)
+    print("HYPERCAR manifest", path)
+
+
+if opt("manifest") and not opt("out"):
+    manifest(opt("manifest"))
+    raise SystemExit(0)
 ob = build()
+if opt("manifest"):
+    manifest(opt("manifest"))
 out = opt("out")
 if out:
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)

@@ -30,7 +30,7 @@ signal edited(track_file: String)
 
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
 const PAGES := {"main": "", "solo": "main", "campaign": "main", "replays": "solo", "editors": "main", "online": "main", "profile": "main",
-	"options": "main", "community": "main"}
+	"options": "main", "community": "main", "garage": "main"}
 const MEDALS := ["author", "gold", "silver", "bronze"]
 ## The backdrop's grade: dark green at the edges and behind the menu column (TMNF's menus sit
 ## on a dark green, blurred Stadium).
@@ -150,13 +150,14 @@ func _paint_car(pack: TmCarPack = null) -> void:
 	var look := TmCarVisual.new()
 	look.paint_colour = TmUi.car_colour()
 	look.model = TmUi.car_model()
+	look.livery = TmUi.car_livery()
 	look.pack = pack if pack else TmCommunity.my_car_pack()
 	_car_holder.add_child(look)
 
 
 func _orbit(delta: float) -> void:
 	_angle += delta * 0.12
-	_view = move_toward(_view, 1.0 if page == "profile" else 0.0, delta * 1.5)
+	_view = move_toward(_view, 1.0 if page in ["profile", "garage"] else 0.0, delta * 1.5)
 	var v := smoothstep(0.0, 1.0, _view)
 	var at := CENTRE + Vector3(0.0, 0.75 - 0.15 * v, 0.0)
 	var dist := lerpf(7.0, 5.4, v)
@@ -347,7 +348,7 @@ func show_page(name: String) -> void:
 		page = "solo"              # TMNF's campaign is the Solo page
 	_clear()
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25)
-	var car_view := page == "profile"
+	var car_view := page in ["profile", "garage"]
 	_world.visible = car_view
 	_grade.visible = car_view
 	_backdrop.visible = not car_view
@@ -366,6 +367,8 @@ func show_page(name: String) -> void:
 			_page_community()
 		"profile":
 			_page_profile()
+		"garage":
+			_page_garage()
 		_:
 			_page_main()
 
@@ -381,7 +384,8 @@ func _page_main() -> void:
 	var solo := _row("Play Solo", "icon_solo", func() -> void: show_page("solo"))
 	_row("Play Online", "icon_online", func() -> void: show_page("online"))
 	_row("Community", "icon_browse", func() -> void: show_page("community"))
-	_gap(96)
+	_row("Garage", "icon_car", func() -> void: show_page("garage"))
+	_gap(4)
 	_row("Editors", "icon_editors", func() -> void: show_page("editors"))
 	_row("Profile", "icon_profile", func() -> void: show_page("profile"))
 	_row("Options", "icon_options", func() -> void: show_page("options"))
@@ -1021,6 +1025,101 @@ func _page_profile() -> void:
 	focus.grab_focus.call_deferred()
 
 
+var garage_cars: Array = []          ## the garage's line-up ([model, name, ...]: TmUi.car_models())
+var garage_liveries: Array[Button] = []   ## the shown car's livery buttons (tests)
+var _garage_focus := ""              ## after a pick rebuilds the page: "prev", "next" or a livery's index
+
+
+## The garage (PLAN M16): our cars one at a time on the turntable, as NFS's garage shows them: the
+## car's name, its place in the line-up and what it is in a panel at the foot, the previous and
+## next car down the column, the car's five liveries as swatches. A pick is the car we drive from
+## then on (settings car_model, car_liveries); a community car (Community page) still draws instead.
+func _page_garage() -> void:
+	var root := _root("Garage", "Pick your car and its livery", "icon_car")
+	garage_cars = TmUi.car_models()
+	var cur := TmUi.car_model()
+	var idx := maxi(0, garage_cars.find_custom(func(c: Array) -> bool: return String(c[0]) == cur))
+	var prev := _row("Previous car", "icon_back", func() -> void: garage_step(-1))
+	var next := _row("Next car", "play", func() -> void: garage_step(1))
+	_row("Back", "icon_back", back, true)
+	var body := _panel(root, "Car  %d / %d" % [idx + 1, garage_cars.size()], Rect2(RIGHT.position.x, 0, 1180, 0))
+	var p := body.get_parent().get_parent().get_parent() as Control
+	p.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE)
+	p.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	p.offset_left = RIGHT.position.x
+	p.offset_bottom = -(900.0 - COLUMN.end.y)
+	var car: Array = garage_cars[idx]
+	var name := TmUi.label(String(car[1]).to_upper(), 52, Color.WHITE, TmUi.TITLE, 2)
+	body.add_child(name)
+	body.add_child(TmUi.label(TmRoadCars.blurb(String(car[0])), 22, TmUi.DIM, TmUi.SANS))
+	garage_liveries.clear()
+	var lvs := TmRoadCars.liveries(String(car[0])) if String(car[0]) != "" else []
+	if lvs.is_empty():
+		body.add_child(TmUi.label("Its colour is picked on the Profile page.", 20, TmUi.DIM, TmUi.SANS))
+	else:
+		body.add_child(TmUi.label("Livery", 20, TmUi.DIM, TmUi.SANS_BOLD))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 14)
+		body.add_child(row)
+		var picked := TmUi.car_livery(String(car[0]))
+		for i in lvs.size():
+			row.add_child(_livery_swatch(String(car[0]), i, lvs[i], i == picked))
+	var focus: Control = next
+	if _garage_focus == "prev":
+		focus = prev
+	elif _garage_focus.is_valid_int() and int(_garage_focus) < garage_liveries.size():
+		focus = garage_liveries[int(_garage_focus)]
+	_garage_focus = ""
+	focus.grab_focus.call_deferred()
+
+
+## Drives the previous (-1) or next (+1) car of the line-up, and shows it.
+func garage_step(dir: int) -> void:
+	var cars := TmUi.car_models()
+	var cur := TmUi.car_model()
+	var idx := maxi(0, cars.find_custom(func(c: Array) -> bool: return String(c[0]) == cur))
+	TmUi.set_setting("car_model", String(cars[posmod(idx + dir, cars.size())][0]))
+	_paint_car()
+	_garage_focus = "prev" if dir < 0 else "next"
+	show_page("garage")
+
+
+## Drives car `model` in livery i, and shows it.
+func garage_livery(model: String, i: int) -> void:
+	TmUi.set_setting("car_model", model)
+	TmUi.set_car_livery(model, i)
+	_paint_car()
+	_garage_focus = str(i)
+	show_page("garage")
+
+
+## A livery's swatch: its colours as a glass chip (paint above, the vinyl's colour below), its
+## name under it; ringed white with a green glow when it's the one picked.
+func _livery_swatch(model: String, i: int, lv: Dictionary, chosen: bool) -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(200, 64)
+	var base: Color = lv.get("base", TmUi.car_colour()) if String(lv.get("pattern", "")) != "hyper" else TmUi.car_colour()
+	var a: Color = lv.get("a", base)
+	var st := TmGlassBox.make({"top": base.lightened(0.15), "bottom": a, "gloss": 0.35, "radius": 10.0,
+		"border": Color.WHITE if chosen else Color(0.6, 0.62, 0.6), "border_top": Color.WHITE, "border_width": 3.0 if chosen else 1.5,
+		"glow": Color(TmUi.TM_GREEN, 0.9) if chosen else Color(0, 0, 0, 0), "glow_size": 6.0})
+	for k in ["normal", "hover", "pressed"]:
+		b.add_theme_stylebox_override(k, st)
+	b.add_theme_stylebox_override("focus", TmUi.glass("tm_button_focus"))
+	b.pressed.connect(func() -> void: garage_livery(model, i))
+	b.pressed.connect(TmUi.play.bind("click"))
+	b.mouse_entered.connect(b.grab_focus)
+	box.add_child(b)
+	garage_liveries.append(b)
+	var l := TmUi.label(String(lv.get("name", "Livery %d" % (i + 1))), 19, TmUi.TM_GREEN if chosen else TmUi.TEXT, TmUi.SANS_BOLD)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.custom_minimum_size = Vector2(200, 0)
+	box.add_child(l)
+	return box
+
+
 ## Your medals in a panel at the column's foot (the profile).
 func _medal_summary_panel(root: Control, rect: Rect2) -> void:
 	var body := _panel(root, "Your Campaign", rect)
@@ -1032,12 +1131,13 @@ func _medal_summary_panel(root: Control, rect: Rect2) -> void:
 	p.offset_bottom = -(900.0 - COLUMN.end.y)
 
 
-## Which of our own cars we drive (TmUi.CAR_MODELS: the open-wheeler, the hypercar); a community
-## car from the Community page is drawn instead while it is picked there.
+## Which of our own cars we drive (TmUi.car_models(): the open-wheeler, the hypercar, the road
+## cars; their liveries on the Garage page); a community car from the Community page is drawn
+## instead while it is picked there.
 func _model_picker() -> OptionButton:
 	var pick := OptionButton.new()
 	pick.custom_minimum_size = Vector2(590, 48)
-	for c: Array in TmUi.CAR_MODELS:
+	for c: Array in TmUi.car_models():
 		pick.add_item(String(c[1]))
 		pick.set_item_metadata(pick.item_count - 1, String(c[0]))
 		if String(c[0]) == TmUi.car_model():

@@ -3686,3 +3686,44 @@ design a similar, generic hypercar model? Blender or Godot, whatever is easier f
   ghost, the setting, the replay header; server test: each player's model in the list.
 - Gate (worktree `C:\dev\sf-gate`, 4e3b8e1 + these files): STADIUM_TESTS PASS, 22 suites + server.
   Owner after the screenshots: "Looks good, commit and push it."
+
+## 2026-10-22 — Session 17 (cloud): our own road cars with liveries (PLAN M16), first pass
+Owner: "I want these cars recreated [NFS Most Wanted 2005's 16 Blacklist cars] ... all the cars in
+the carage, with 5 fancy, nice liveries, need for speed style. Avoid using fake sponsors (like
+orlan). Similarly, add 5 liveries options for that hypercar." (for the Stadium game)
+- **The generator** (`stadium/tools/assets/roadcar.py` + `roadcar_features.py`, Blender 5.2; specs
+  in `tools/assets/roadcars/<id>.py`): a lower body lofted through half-sections whose corners
+  (top, hood edge, edge, shoulder, side, rocker, floor) are monotone cubics along the car, rows
+  spaced by how far the surface moves, superellipse nose and tail; a greenhouse loft unioned in
+  (exact boolean); wheel arches and surface-following recesses cut (lamps with chrome insides,
+  projectors and LED strips under clear covers, grilles with slats, intakes, vents, plates, door
+  handles); glass with black or chrome seals (side glass kept between the belt and the roof rail),
+  panel gaps (on the cut body), mirrors, wings, splitters that follow the bumper's plan, skirts,
+  exhausts, wipers, rolled arch lips; a dark underbody; each axle's wheel (tyre with bulging
+  sidewalls, rim styles five / split / multi / mesh / turbine / star, polished lip, nuts) and
+  brake (disc, caliper). Writes `assets/car/<id>.glb` + `<id>.json` (wheel places, tyre sizes, the
+  body's lines at 24 stations for the livery shader). `--shots DIR` a sheet of Workbench views,
+  `--ortho DIR` orthographic silhouettes.
+- **16 cars, our own names, no badges** (the class of car each Blacklist racer drove): Kobold SS,
+  Ayame 300, Birdie GT, Nemesis GT, Umbra GTS, Zenith TT, Stallion GT, Kaiten R, Halberd VIII,
+  Gavial S, Argent 500, Albion GT, Taipan V10, Corrida V10, Frigate V8, Quicksilver; 63-84k
+  triangles each with wheels.
+- **In the game**: `TmRoadCars` (car/tm_road_cars.gd: the line-up, blurbs, 5 liveries per car and
+  5 for the hypercar = 85); `TmCarVisual` draws a road car on its own wheels (its manifest's places,
+  right side mirrored); `car/tm_car_surface.gdshader` mode 4 paints the liveries from 13 vinyl
+  patterns (stripes, flames, tribal, tiger, shards, halftone, sweep, checker, camo, two-tone, bolt,
+  fade, claws) over the paint's finish (gloss, metallic, pearl, matte, chrome), carbon/black hood,
+  black roof; mode 5 a grille's honeycomb. The hypercar's first livery is its own, the other four
+  drawn the same way from `assets/car/hypercar.json` (hypercar.py `--manifest`); its ORLAN
+  sponsor stickers are gone (the owner's ask; the open-wheeler keeps its own).
+- **The garage** (main menu → Garage, `ui/tm_menu.gd` `_page_garage`): every car of ours on the
+  turntable, its name, place in the line-up and blurb, Previous / Next car, its five liveries as
+  swatches; picks are settings (`car_model`, `car_liveries`: `TmUi.car_livery`). Races, ghosts,
+  replays (header `livery`), map_view (`--livery=`) and online (hello and player list carry
+  `livery`; the server accepts the road cars) carry the car and its livery.
+- Tests: `test_car_models` (every road car loads and fits: size, budget, nothing inside its tyres,
+  wheels placed and spinning, right wheels mirrored, liveries reach the shader; the hypercar's;
+  settings; replay header), `test_menu` (the Garage row and page), server (livery in the list).
+  Gate: STADIUM_TESTS PASS (22 suites + server).
+- Next: shape each car against public blueprint drawings (`tools/assets/blueprint_fit.py`:
+  silhouettes and overlays; the drawings stay out of the repo), screenshots in the game's light.

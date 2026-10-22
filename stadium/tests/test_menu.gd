@@ -1,9 +1,10 @@
 extends Node
 ## Menus (TMNF's frame: rows down the left column, panels beside it): the main page (TMNF's order:
-## Play Solo, Play Online, Editors, Profile, Options, Quit), Solo (a row per series, a card per
+## Play Solo, Play Online, Editors, Profile, Options, Quit; ours adds Community and Garage), Solo (a row per series, a card per
 ## track with your medal, the focused track's details, a card's press handing the track to the race
 ## scene), going back, the profile (nickname with $-codes, zone), online and options; TmNick's
-## $-codes; the race's pause and finish menus. Also: picks on the profile keep the focus, Clear all
+## $-codes; the garage (the previous / next car, a livery's pick, both kept as settings); the
+## race's pause and finish menus. Also: picks on the profile keep the focus, Clear all
 ## records asks again on every visit, the race menu's panel takes its new content's size, no NOW
 ## PLAYING with the music off. Records go to a test folder, settings to a test file.
 
@@ -22,7 +23,7 @@ func _ready() -> void:
 	add_child(menu)
 	await get_tree().process_frame
 	var names := _buttons(menu).map(func(b: Button) -> String: return b.text).filter(func(t: String) -> bool: return not t.is_empty())
-	TestHooks.check(names == ["Play Solo", "Play Online", "Community", "Editors", "Profile", "Options", "Quit"], "menu_main_page", str(names))
+	TestHooks.check(names == ["Play Solo", "Play Online", "Community", "Garage", "Editors", "Profile", "Options", "Quit"], "menu_main_page", str(names))
 	_press(menu, "Play Solo")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text).filter(func(t: String) -> bool: return not t.is_empty())
@@ -33,6 +34,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	TestHooks.check(menu.page == "main", "menu_back_to_main", menu.page)
 	await _profile(menu)
+	await _garage(menu)
 	menu.show_page("online")
 	await get_tree().process_frame
 	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
@@ -114,6 +116,37 @@ func _ours(menu: TmMenu) -> void:
 	menu.race(ids[0])
 	TestHooks.check(got.size() == 1 and got[0][0] == ids[0] and String(TestHooks.arg("track", "")) == ids[0] and not TestHooks.has_arg("map"),
 		"menu_race_hands_over_the_track")
+
+
+## The garage: the next car is driven from then on, a livery's swatch picks it, the focus stays on
+## what was pressed.
+func _garage(menu: TmMenu) -> void:
+	TmUi.set_setting("car_model", "")
+	_press(menu, "Garage")
+	await get_tree().process_frame
+	TestHooks.check(menu.page == "garage" and menu._world.visible and _labels(menu).has("FORMULA (OPEN WHEELS)"), "menu_garage_page",
+		str(_labels(menu).slice(0, 8)))
+	_press(menu, "Next car")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var f := get_viewport().gui_get_focus_owner()
+	TestHooks.check(TmUi.car_model() == "hyper" and menu.garage_liveries.size() == 5 and f is Button and (f as Button).text == "Next car",
+		"menu_garage_next_car", "%s %d %s" % [TmUi.car_model(), menu.garage_liveries.size(), f])
+	_press(menu, "Next car")
+	await get_tree().process_frame
+	menu.garage_liveries[3].pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var first: String = TmRoadCars.CARS[0][0]
+	f = get_viewport().gui_get_focus_owner()
+	TestHooks.check(TmUi.car_model() == first and TmUi.car_livery() == 3 and f == menu.garage_liveries[3]
+		and _labels(menu).has(String(TmRoadCars.livery(first, 3)["name"])), "menu_garage_livery", "%s %d" % [TmUi.car_model(), TmUi.car_livery()])
+	_press(menu, "Previous car")
+	await get_tree().process_frame
+	TestHooks.check(TmUi.car_model() == "hyper", "menu_garage_previous_car", TmUi.car_model())
+	TmUi.set_setting("car_model", "")
+	menu.back()
+	await get_tree().process_frame
 
 
 ## The profile: the nickname (saved as typed, previewed with its codes) and the zone.

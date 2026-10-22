@@ -17,11 +17,12 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true,
 	"name": "Player", "zone": "", "server": "", "token": "", "colour": 0, "music": true, "music_volume": 0.7, "sound_volume": 1.0, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2,
-	"car_pack": "", "community_car": "", "community_mod": "", "car_model": ""}
+	"car_pack": "", "community_car": "", "community_mod": "", "car_model": "", "car_liveries": {}}
 	# car_pack: the SHA-256 of the car pack last picked on a server (Online); community_car: the
 	# community car (a car pack from the Community page, TmCommunity) we drive ("" our own car);
 	# community_mod: the texture mod the Stadium wears (TmTextureMod; "" our own look);
-	# car_model: which of our own cars we drive (TmCarVisual.model: "" the open-wheeler, "hyper")
+	# car_model: which of our own cars we drive (TmCarVisual.model: "" the open-wheeler, "hyper", a
+	# road car's id: TmRoadCars); car_liveries: each car's picked livery {model: index}
 ## Car colours to pick from (online, the others see yours).
 const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.95, 0.70, 0.05), Color(0.10, 0.65, 0.30),
 	Color(0.92, 0.92, 0.94), Color(0.10, 0.10, 0.12), Color(0.95, 0.40, 0.05), Color(0.55, 0.20, 0.85)]
@@ -30,13 +31,36 @@ const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.
 static func car_colour() -> Color:
 	return CAR_COLOURS[clampi(int(setting("colour")), 0, CAR_COLOURS.size() - 1)]
 
-## Our own cars to pick from: [TmCarVisual.model, name].
+## Our own cars to pick from: [TmCarVisual.model, name]; then the road cars (TmRoadCars.CARS).
 const CAR_MODELS := [["", "Formula (open wheels)"], ["hyper", "Hypercar (Le Mans)"]]
+
+
+## Every car of ours, in the garage's order: [model, name].
+static func car_models() -> Array:
+	return CAR_MODELS + TmRoadCars.CARS
 
 
 static func car_model() -> String:
 	var m := String(setting("car_model"))
-	return m if CAR_MODELS.any(func(c: Array) -> bool: return c[0] == m) else ""
+	return m if car_models().any(func(c: Array) -> bool: return c[0] == m) else ""
+
+
+## The livery picked for a car (the player's car unless said): an index into
+## TmRoadCars.liveries(model); 0 for a car without liveries (the open-wheeler).
+static func car_livery(model: Variant = null) -> int:
+	var m := car_model() if model == null else String(model)
+	var all: Variant = setting("car_liveries")
+	var n := TmRoadCars.liveries(m).size() if m != "" else 0
+	if not all is Dictionary or n == 0:
+		return 0
+	return clampi(int((all as Dictionary).get(m, 0)), 0, n - 1)
+
+
+static func set_car_livery(model: String, i: int) -> void:
+	var all: Variant = setting("car_liveries")
+	var d: Dictionary = (all as Dictionary).duplicate() if all is Dictionary else {}
+	d[model] = i
+	set_setting("car_liveries", d)
 
 static var _theme: Theme
 static var _fonts := {}

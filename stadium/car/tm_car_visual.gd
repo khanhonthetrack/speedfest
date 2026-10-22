@@ -147,8 +147,14 @@ func _mat(key: String) -> Material:
 				sm.set_shader_parameter("flakes", 0.0)
 			"carbon": sm = _surface(1, Color.BLACK, 0.0)
 			"tyre": sm = _surface(2, Color.BLACK, 0.0)
-			# the hypercar's parts are in visual coordinates (the ground at y 0)
-			"hyper_paint": sm = _surface(3, paint_colour, 0.0)
+			# the hypercar's parts are in visual coordinates (the ground at y 0); its first livery is
+			# its own (mode 3, the player's colour), the others are drawn like a road car's
+			"hyper_paint":
+				var lv := TmRoadCars.livery("hyper", livery)
+				if String(lv.get("pattern", "hyper")) == "hyper":
+					sm = _surface(3, paint_colour, 0.0)
+				else:
+					sm = _livery_paint("hyper", lv)
 			"hyper_carbon": sm = _surface(1, Color.BLACK, 0.0)
 			"hyper_black":
 				sm = _surface(0, Color(0.012, 0.012, 0.014), 0.0)
@@ -334,15 +340,11 @@ const STICKERS := [
 	["livery_emblem", Vector3(-0.27, 0.70, -0.85), Vector3(0.62, 0.22, 0.16), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
 ]
 ## The hypercar's stickers (as STICKERS): the race number on the nose and on each flank ahead of
-## the rear wheels, the title sponsor on the sidepods and across the rear wing's top (read from
-## the chase camera), our emblem on the end plates.
+## the rear wheels, our emblem on the end plates (no sponsors: the owner, 22 Oct).
 const HYPER_STICKERS := [
 	["livery_number", Vector3(0.0, 0.50, 2.20), Vector3(0.26, 0.30, 0.32), Vector3(1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, 1)],
 	["livery_number", Vector3(1.0, 0.43, -0.32), Vector3(0.30, 0.34, 0.37), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
 	["livery_number", Vector3(-1.0, 0.43, -0.32), Vector3(0.30, 0.34, 0.37), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
-	["livery_sponsor", Vector3(0.98, 0.40, 0.42), Vector3(0.80, 0.30, 0.20), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
-	["livery_sponsor", Vector3(-0.98, 0.40, 0.42), Vector3(0.80, 0.30, 0.20), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
-	["livery_sponsor", Vector3(0.0, 1.06, -1.98), Vector3(1.30, 0.20, 0.30), Vector3(-1, 0, 0), Vector3(0, -1, 0), Vector3(0, 0, -1)],
 	["livery_emblem", Vector3(1.0, 0.97, -1.90), Vector3(0.50, 0.10, 0.13), Vector3(0, 0, -1), Vector3(-1, 0, 0), Vector3(0, -1, 0)],
 	["livery_emblem", Vector3(-1.0, 0.97, -1.90), Vector3(0.50, 0.10, 0.13), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(0, -1, 0)],
 ]
@@ -577,6 +579,29 @@ func _road_dress(mi: MeshInstance3D) -> void:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
+## A livery's paint (tm_car_surface.gdshader mode 4) on car `id`'s body (its manifest's lines).
+func _livery_paint(id: String, lv: Dictionary) -> ShaderMaterial:
+	var man := TmRoadCars.manifest(id)
+	var sm := _surface(4, lv.get("base", paint_colour), 0.0)
+	sm.set_shader_parameter("livery", maxi(0, TmRoadCars.PATTERNS.find(String(lv.get("pattern", "plain")))))
+	sm.set_shader_parameter("liv_a", lv.get("a", Color.WHITE))
+	sm.set_shader_parameter("liv_b", lv.get("b", Color.BLACK))
+	sm.set_shader_parameter("liv_c", lv.get("c", Color.BLACK))
+	sm.set_shader_parameter("liv_p", lv.get("p", Vector4.ZERO))
+	sm.set_shader_parameter("finish", FINISHES.get(String(lv.get("finish", "metallic")), FINISHES["metallic"]))
+	sm.set_shader_parameter("liv_hood", ["", "carbon", "black"].find(String(lv.get("hood", ""))))
+	sm.set_shader_parameter("liv_roof", ["", "black"].find(String(lv.get("roof", ""))))
+	var an: Dictionary = man.get("anchors", {})
+	for k: String in ["top", "belt", "mid", "sill", "hw"]:
+		sm.set_shader_parameter("an_" + k, PackedFloat32Array(an.get(k, [])))
+	sm.set_shader_parameter("z_nose", float(man.get("z_nose", 2.5)))
+	sm.set_shader_parameter("z_tail", float(man.get("z_tail", -2.0)))
+	var cab: Array = man.get("cabin", [1.5, 3.5])
+	sm.set_shader_parameter("cabin", Vector2(float(cab[0]), float(cab[1])))
+	sm.set_shader_parameter("flakes", 1.0 if String(lv.get("finish", "metallic")) in ["metallic", "pearl"] else 0.0)
+	return sm
+
+
 ## The finishes a livery can have: metallic, roughness, clearcoat, pearl.
 const FINISHES := {"gloss": Vector4(0.05, 0.22, 1.0, 0.0), "metallic": Vector4(0.45, 0.3, 1.0, 0.0),
 	"pearl": Vector4(0.25, 0.26, 1.0, 0.55), "matte": Vector4(0.1, 0.62, 0.0, 0.0), "chrome": Vector4(1.0, 0.06, 0.6, 0.0)}
@@ -591,24 +616,7 @@ func _road_mat(key: String) -> Material:
 	if not ghost and TmMaterials.hd() and key in ["road_paint", "road_tyre", "road_grille", "carbon"]:
 		var sm: ShaderMaterial
 		match key:
-			"road_paint":
-				sm = _surface(4, base, 0.0)
-				sm.set_shader_parameter("livery", maxi(0, TmRoadCars.PATTERNS.find(String(lv.get("pattern", "plain")))))
-				sm.set_shader_parameter("liv_a", lv.get("a", Color.WHITE))
-				sm.set_shader_parameter("liv_b", lv.get("b", Color.BLACK))
-				sm.set_shader_parameter("liv_c", lv.get("c", Color.BLACK))
-				sm.set_shader_parameter("liv_p", lv.get("p", Vector4.ZERO))
-				sm.set_shader_parameter("finish", FINISHES.get(String(lv.get("finish", "metallic")), FINISHES["metallic"]))
-				sm.set_shader_parameter("liv_hood", ["", "carbon", "black"].find(String(lv.get("hood", ""))))
-				sm.set_shader_parameter("liv_roof", ["", "black"].find(String(lv.get("roof", ""))))
-				var an: Dictionary = man.get("anchors", {})
-				for k: String in ["top", "belt", "mid", "sill", "hw"]:
-					sm.set_shader_parameter("an_" + k, PackedFloat32Array(an.get(k, [])))
-				sm.set_shader_parameter("z_nose", float(man.get("z_nose", 2.5)))
-				sm.set_shader_parameter("z_tail", float(man.get("z_tail", -2.0)))
-				var cab: Array = man.get("cabin", [1.5, 3.5])
-				sm.set_shader_parameter("cabin", Vector2(float(cab[0]), float(cab[1])))
-				sm.set_shader_parameter("flakes", 1.0 if String(lv.get("finish", "metallic")) in ["metallic", "pearl"] else 0.0)
+			"road_paint": sm = _livery_paint(model, lv)
 			"road_tyre":
 				sm = _surface(2, Color.BLACK, 0.0)
 				var r: Array = man.get("tyre_r", [TYRE_R])
@@ -656,9 +664,16 @@ func _road_mat(key: String) -> Material:
 			m.metallic = 0.2
 			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		"lamp":
-			m.albedo_color = Color(0.8, 0.81, 0.84)
+			# the lamps' insides: a darkened chrome, so the lenses and LEDs stand out
+			m.albedo_color = Color(0.42, 0.43, 0.46)
 			m.metallic = 1.0
-			m.roughness = 0.12
+			m.roughness = 0.24
+		"proj":
+			# a projector's lens: thick dark glass with sharp highlights
+			m.albedo_color = Color(0.02, 0.022, 0.03)
+			m.metallic = 0.6
+			m.roughness = 0.02
+			m.clearcoat_enabled = true
 		"amber":
 			m.albedo_color = Color(1.0, 0.55, 0.08)
 			m.emission_enabled = true

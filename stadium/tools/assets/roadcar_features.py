@@ -37,9 +37,20 @@ def features(car, surf, spec):
     for r in spec.get("recesses", []):
         cut += rc.recess(car, surf, "Recess", r["plane"], r["outline"], r.get("depth", 0.05), r.get("mats", ("grille", "trim")),
                          radii=r.get("radii"), ray=r.get("ray"), mirror=r.get("mirror", False))
+        if r.get("bars"):
+            add += bars(car, surf, r)
     for c in spec.get("cutters", []):
         o = rc.prism("Cutter", c["outline"], c["a0"], c["a1"], c["axis"], c.get("mats", "inlet"), radii=c.get("radii"), car=car)
         cut += rc.both(o, c.get("mirror", False))
+    for d, y in spec.get("handles", []):
+        # a door handle: a shallow pocket with the grip across it
+        c2, a2 = inset(car, surf, {"plane": "side", "outline": [(d - 0.075, y - 0.018), (d + 0.075, y - 0.018), (d + 0.075, y + 0.018),
+                                                                    (d - 0.075, y + 0.018)], "radii": [0.016] * 4, "depth": 0.014,
+                                     "mats": ("trim", "trim"), "mirror": True,
+                                     "elements": [("patch", [(d - 0.065, y + 0.002), (d + 0.065, y + 0.002), (d + 0.065, y + 0.016),
+                                                             (d - 0.065, y + 0.016)], [0.006] * 4, spec.get("handle_mat", "chrome"), 0.013)]})
+        cut += c2
+        add += a2
     for ins in spec.get("insets", []):
         c2, a2 = inset(car, surf, ins)
         cut += c2
@@ -47,14 +58,16 @@ def features(car, surf, spec):
     for g in spec.get("glass", []):
         add += glass(car, surf, g)
     for p in spec.get("paint", []):
+        if p.get("cabin") and car.g is not None:
+            p = dict(p, outline=clip_to_cabin(car, p["outline"], 0.012, 0.012))
         add += rc.patch(car, surf, "Paint", p["plane"], p["outline"], p["mat"], lift=p.get("lift", 0.0025),
                         radii=p.get("radii"), ray=p.get("ray"), mirror=p.get("mirror", False))
-    for g in spec.get("gaps", []):
-        add += rc.ribbon(car, surf, "Gap", g["plane"], g["line"], g.get("width", 0.005), g.get("mat", "gap"),
-                         lift=g.get("lift", 0.0012), closed=g.get("closed", False), mirror=g.get("mirror", True), ray=g.get("ray"))
     for s in spec.get("solids", []):
         o = rc.prism("Solid", s["outline"], s["a0"], s["a1"], s["axis"], s.get("mat", "trim"), radii=s.get("radii"), car=car)
         add += rc.both(o, s.get("mirror", False))
+    add += arch_lips(car, surf, spec)
+    if spec.get("splitter"):
+        add += splitter(car, spec["splitter"])
     for m in spec.get("mirrors", []):
         for o in rc.mirror_part(car, m):
             add += rc.both(o)
@@ -67,8 +80,90 @@ def features(car, surf, spec):
     return cut, add
 
 
+def plan_outline(car, d0, d1, y_max, n=40, rear=False):
+    """The body's outline in plan (x, d) up to height y_max, from d0 to d1 (the +x side)."""
+    out = []
+    for k in range(n + 1):
+        d = d0 + (d1 - d0) * k / n
+        h = car.body_half(d)
+        low = [x for x, y in h if y <= y_max]
+        out.append((max(low) if low else 0.0, d))
+    return out
+
+
+def splitter(car, sp):
+    """A blade under the nose (or the tail: rear) that follows the bumper's plan, standing out by
+    `reach`, from the tip back to d1."""
+    reach = sp.get("reach", 0.04)
+    d1 = sp.get("d1", 0.5)
+    y = sp.get("y", car.F)
+    t = sp.get("t", 0.018)
+    half = plan_outline(car, 0.002, d1, y + 0.12)
+    pts = []
+    for i, (x, d) in enumerate(half):
+        # pushed out across and forwards
+        pts.append((x + reach, d - reach * (1.0 - i / len(half))))
+    outline = [(-x, d) for x, d in pts[::-1]] + [(x, d) for x, d in pts]
+    outline = [(x, d) for x, d in outline]
+    # back edge inside the body
+    inner = sp.get("inner", 0.15)
+    outline += [(pts[-1][0] - inner, d1), (-(pts[-1][0] - inner), d1)]
+    o = rc.prism("Splitter", outline, y, y + t, "y", sp.get("mat", "carbon"), car=car)
+    return [o]
+
+
+def bars(car, surf, r):
+    """Slats across a recess's opening (front/rear planes: horizontal at heights y; side: upright
+    at distances d): a thin box swept a little behind the opening, along the surface."""
+    import bmesh
+    b = r["bars"]
+    pts = rc.closed_outline(r["outline"], r.get("radii"))
+    out = []
+    t = b.get("t", 0.012)
+    depth = r.get("depth", 0.05) * b.get("at", 0.3)
+    vertical = b.get("vertical", False)
+    for side in ((1.0, -1.0) if r.get("mirror", False) else (1.0,)):
+        for c in b.get("y", []):
+            # the opening's extent along the bar (crossings of the outline)
+            xs = []
+            n = len(pts)
+            for i in range(n):
+                a, q = pts[i], pts[(i + 1) % n]
+                ia, ib = (0, 1) if vertical else (1, 0)
+                if (a[ib] - c) * (q[ib] - c) <= 0 and a[ib] != q[ib]:
+                    xs.append(a[ia] + (q[ia] - a[ia]) * (c - a[ib]) / (q[ib] - a[ib]))
+            if len(xs) < 2:
+                continue
+            lo, hi = min(xs) + 0.004, max(xs) - 0.004
+            line = [((lo + (hi - lo) * k / 16, c) if not vertical else (c, lo + (hi - lo) * k / 16)) for k in range(17)]
+            hits, d, _ = rc.cast_points(car, surf, r["plane"], line, r.get("ray"), side)
+            bm = bmesh.new()
+            rings = []
+            for k, h in enumerate(hits):
+                p = h[0] + d * depth
+                a = hits[max(k - 1, 0)][0]
+                b_ = hits[min(k + 1, len(hits) - 1)][0]
+                w = (b_ - a).cross(d).normalized()        # across the slat, in the opening's plane
+                ring = [bm.verts.new(p + w * (t * 0.5 * su) + d * (0.012 * sd)) for su, sd in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+                rings.append(ring)
+            for ra, rb in zip(rings[:-1], rings[1:]):
+                for k in range(4):
+                    j = (k + 1) % 4
+                    bm.faces.new((ra[k], ra[j], rb[j], rb[k]))
+            bm.faces.new(rings[0][::-1])
+            bm.faces.new(rings[-1])
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+            out.append(rc.new_object("Bar", bm, [b.get("mat", "trim")]))
+    return out
+
+
 def late_features(car, surf, spec):
-    return []
+    """What is laid onto the body once it is cut: panel gaps (they stop at the arches and openings)."""
+    add = []
+    for g in spec.get("gaps", []):
+        add += rc.ribbon(car, surf, "Gap", g["plane"], g["line"], g.get("width", 0.005), g.get("mat", "gap"),
+                         lift=g.get("lift", 0.0012), closed=g.get("closed", False), mirror=g.get("mirror", True), ray=g.get("ray"))
+    return add
 
 
 def arches(car, spec):
@@ -91,6 +186,35 @@ def arches(car, spec):
     return out
 
 
+def arch_lips(car, surf, spec):
+    """A rolled lip round each wheel arch where it meets the body side (a tube following the
+    side's surface over the top of the arch), pushed out by `flare` for wide-arched cars."""
+    a = spec.get("arches", {})
+    lip = a.get("lip", 0.011)
+    flare = a.get("flare", 0.0)
+    if lip <= 0:
+        return []
+    out = []
+    for i, (x, y, z) in enumerate(car.wheels):
+        d = car.z_nose - z
+        r = a.get("r", [spec["tyre"]["r"][0] + 0.035, spec["tyre"]["r"][1] + 0.035])
+        r = r[i] if isinstance(r, (list, tuple)) else r
+        cy = y + a.get("lift", 0.012)
+        pts = []
+        for k in range(49):
+            t = math.radians(-8.0 + 196.0 * k / 48)
+            dd, yy = d + (r + lip * 0.3) * math.cos(t), cy + (r + lip * 0.3) * math.sin(t)
+            if yy < car.F + 0.06:
+                continue
+            pts.append((dd, yy))
+        hits, ray, miss = rc.cast_points(car, surf, "side", pts, None, 1.0, min_dot=-1.0)
+        path = [h[0] + h[1] * (flare - lip * 0.35) for h in hits if h[2]]
+        if len(path) > 3:
+            o = rc.tube("ArchLip", path, lip + flare * 0.6, "paint", seg=10)
+            out += rc.both(o)
+    return out
+
+
 def offset_outline(pts, w):
     """A closed outline (dense) pushed out by w along its normals (counter-clockwise outlines grow;
     either way, by its winding)."""
@@ -102,9 +226,24 @@ def offset_outline(pts, w):
     return pts + nrm * w
 
 
-def glass(car, surf, g):
-    """A window: the glass, and a black seal round its edge (a band half under it)."""
+def clip_to_cabin(car, outline, top_gap, foot_gap):
+    """A side outline (d, y) kept between the greenhouse's foot and its roof rail."""
+    a, b = car.gd
     out = []
+    for d, y in outline:
+        dc = min(max(d, a + 0.01), b - 0.01)
+        y = min(y, car.rail_y(dc) - top_gap)
+        y = max(y, car.base_y(dc) + foot_gap)
+        out.append((d, y))
+    return out
+
+
+def glass(car, surf, g):
+    """A window: the glass, and a black seal round its edge (a band half under it). A side
+    window's top stays under the roof rail (it would wrap over onto the roof)."""
+    out = []
+    if g["plane"] == "side" and car.g is not None and g.get("clip_rail", True):
+        g = dict(g, outline=clip_to_cabin(car, g["outline"], g.get("rail_gap", 0.022), g.get("belt_gap", 0.02)))
     trim = g.get("trim", 0.012)
     if trim > 0:
         pts = rc.closed_outline(g["outline"], g.get("radii"))
@@ -134,14 +273,17 @@ def inset(car, surf, ins):
 
 def floor_point(car, surf, plane, ray, depth, u, v, h, side):
     """The point on an inset's floor under outline point (u, v), lifted h off it (Blender), and
-    the ray (into the body)."""
-    d = rc.ray_dir(plane, ray)
-    o = rc.start_for(car, plane, u, v, d, ray)
-    if side < 0:
-        d = Vector((-d.x, d.y, d.z))
-        o = Vector((-o.x, o.y, o.z))
-    hit = surf.cast(o, d)
-    p = hit[0] if hit else o
+    the ray (into the body). A ray that misses the body takes the nearest hit's place."""
+    hits, d, _ = rc.cast_points(car, surf, plane, [(u, v)], ray, side, min_dot=-1.0)
+    p = hits[0][0]
+    if not hits[0][2]:
+        # step inwards towards the outline's centre until the ray hits
+        for k in range(1, 8):
+            q = (u * (1.0 - 0.1 * k), v)
+            hh, _, _ = rc.cast_points(car, surf, plane, [q], ray, side, min_dot=-1.0)
+            if hh[0][2]:
+                p = hh[0][0]
+                break
     return p + d * (depth - h), d
 
 
@@ -218,8 +360,8 @@ def element(car, surf, plane, ray, depth, el, mirror):
             (cu, cv), r, lens = el[1], el[2], el[3]
             h = el[4] if len(el) > 4 else min(depth * 0.7, 0.03)
             p, d = floor_point(car, surf, plane, ray, depth, cu, cv, 0.0, side)
-            out.append(rc.cylinder("Projector", p, -d, r * 1.25, h, ("lamp", "lamp"), seg=28, r2=r * 1.15))
-            out.append(rc.cylinder("ProjectorLens", p - d * h, -d, r, 0.004, (lens, lens), seg=28))
+            out.append(rc.cylinder("Projector", p, -d, r * 1.3, h, ("chrome", "lamp"), seg=28, r2=r * 1.15))
+            out.append(rc.cylinder("ProjectorLens", p - d * h, -d, r, 0.006, (lens, lens), seg=28, r2=r * 0.9))
     return out
 
 

@@ -36,6 +36,7 @@ var track_name := ""
 var player := ""                  ## the nickname, $-codes and all
 var colour := Color(0.85, 0.08, 0.06)
 var model := ""                  ## our car (TmCarVisual.model; "" the open-wheeler)
+var livery := 0                  ## its livery (TmCarVisual.livery)
 var date := ""                    ## local time, "YYYY-MM-DD HH:MM:SS"
 var path := ""                    ## where it was loaded from or saved to
 
@@ -61,6 +62,7 @@ static func start(ch: TmChallenge, track_id: String, map_path: String, lap_count
 	r.player = String(TmUi.setting("name"))
 	r.colour = TmUi.car_colour()
 	r.model = TmUi.car_model()
+	r.livery = TmUi.car_livery()
 	r.date = Time.get_datetime_string_from_system(false, true)
 	return r
 
@@ -171,7 +173,7 @@ func to_ghost() -> TmGhost:
 
 func header() -> Dictionary:
 	return {"track": track, "map": map, "uid": uid, "track_name": track_name, "player": player,
-		"colour": [colour.r, colour.g, colour.b], "model": model, "date": date, "finish_ms": finish_ms, "splits": splits, "laps": laps,
+		"colour": [colour.r, colour.g, colour.b], "model": model, "livery": livery, "date": date, "finish_ms": finish_ms, "splits": splits, "laps": laps,
 		"checkpoints": checkpoints}
 
 
@@ -185,6 +187,7 @@ func _set_header(h: Dictionary) -> void:
 	if c.size() >= 3:
 		colour = Color(float(c[0]), float(c[1]), float(c[2]))
 	model = String(h.get("model", ""))
+	livery = int(h.get("livery", 0))
 	date = String(h.get("date", ""))
 	finish_ms = int(h.get("finish_ms", -1))
 	splits = (h.get("splits", []) as Array).map(func(v: Variant) -> int: return int(v))
