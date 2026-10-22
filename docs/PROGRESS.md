@@ -3837,3 +3837,87 @@ really just a coloured rectangle? Put some effort".
   picture bright at the front tube, the rear's at the rear, black at the border, darker under a
   tyre than beside it), `tuned_underglow` (the node, both decals, four lights in the colour, the
   tubes and halo), `tuned_rainbow_cycles`, `tuned_two_tone`.
+
+## 2026-10-22 — Session 17 (cloud): our own menu look, panel-based (PLAN M16)
+Owner (TRANSCRIPT, session 17): "move away from this trackmania vibe and have our own vibe for UI.
+We'll start from the menu ... (panel-based). Colours minimalistic, slight hint of red and
+blue/purple. Include the solo, multiplayer tabs. also include the "Story" panel, but this is locked
+... Put good graphics in the panel", with two pictures of RaceRoom's menus (its DRIVE page of
+picture panels, its settings rows). Done on `stadium`; the race's own overlays are untouched.
+- **The look** (`stadium/ui/sf_ui.gd`, `SfUi`): charcoal (#0b0c10), dark panels with hairline
+  borders and square-ish corners, white type in **Montserrat** (SIL OFL, 500/600/700/800 and 800
+  italic for the wordmark, `assets/fonts/montserrat-*.woff2`, `OFL-Montserrat.txt`), red
+  (#e8364f) for what is chosen or on, violet (#7357ff) as the second accent, the two meeting in a
+  gradient line (the current tab's underline, panel titles, the pages' titles). `SfUi.box(kind)`
+  for every box, `SfUi.theme()` for the menus' controls (red switches drawn in code, sliders,
+  fields, lists, pop-ups), `label`/`caption`/`title`/`button`.
+- **The backdrop** (`ui/sf_backdrop.gdshader`) instead of TMNF's green globe: charcoal with a red
+  glow rising from the bottom left through a few faint diagonal streaks, a violet glow from the top
+  right, drifting slowly, a little grain. The Profile page still shows our car on the field (its
+  grade now charcoal instead of green).
+- **The header** (`ui/sf_header.gd`, `SfHeader`) instead of TMNF's top bar in the menus: our
+  wordmark (two slashes, red and violet, and SPEEDFEST in a heavy italic), a back arrow, the tabs
+  HOME, SOLO, MULTIPLAYER, STORY (a padlock: it only says "Story mode is on its way: it is one of
+  the next steps."), COMMUNITY, EDITOR with the red-to-violet line sliding under the current one,
+  and at the right you (your nickname with its $-codes and your country in a gradient ring: the
+  Profile), options (a gear) and quit. The race keeps `TmTopBar` (its `profile` mode is now unused).
+- **Home** (`TmMenu._page_main`, `ui/sf_tile.gd`, `SfTile`): picture panels as RaceRoom's DRIVE
+  page: SOLO and MULTIPLAYER large on top; STORY (locked: the picture greyed and dark, a COMING SOON
+  chip, a padlock; a press shakes it and says so), COMMUNITY, TRACK EDITOR and REPLAYS below; the
+  title in heavy capitals and a spaced line under it at the bottom left; hovered or focused the
+  picture leans in, a white frame, a gradient line under the title. Solo says how many campaign
+  tracks you finished; your medals along the foot. Laid out in containers, so wider screens
+  stretch the panels.
+- **The pictures** are our own renders of our own cars on our own tracks:
+  `tools/icons/menu_art.tscn` (cars stood on the road along the bot's line in the lead car's
+  frame, ghosts, a lowered sun, the editor's grid, depth of field) and `tools/icons/menu_art.sh`
+  (six compositions, Ultra, 1440 x 810 JPEG into `assets/ui/menu/`; the panels crop them to their
+  shape): Solo the red hypercar with its ghost on a day circuit; Multiplayer four cars through the
+  neon City at night; Story a black car from behind on a City night (Story mode's world: the
+  present is a rainy night in the city, `docs/STORY.md` on `ccr-be8add6f-thdbey`); Community five
+  of our cars in five colours at a start; Track editor a track from the air over the editor's
+  cells; Replays a trackside long lens on the open-wheeler on dirt. About 5-15 min a picture with
+  software Vulkan here.
+- **The other pages** keep their structure in the new look: the page's title and what to do at the
+  top of the left column, its entries in spaced capitals (series flags on Solo), a red bar on the
+  current one, Back at the foot; panels with the gradient title; dark list rows (red-tinted with a
+  red bar when picked); track and community cards dark with a red frame and a play mark when
+  focused; Multiplayer (was Play Online) and Editor (was Editors) named as their tabs.
+- **Options** as the owner's second picture: one row per setting, its name in capitals with a line
+  saying what it does, its control at the right (a switch, a slider with its value in per cent,
+  a choice between two arrows, a button), in sections Graphics, Sound, Gameplay.
+- Tests: `test_menu` (the header's tabs, the home panels, Story locked from its panel and its tab,
+  each panel opening its page, options and back from the header; the column rows by name, their
+  text being in capitals), `test_top_bar` (the menus have the header, not the bar), `test_editor`
+  (rows by name).
+- The pictures as committed (bde299e): Multiplayer and Replays rendered twice (the first had the
+  pack hidden behind the leader, the second the back of a banner, its text mirrored, then the
+  car in shadow); all six at Ultra in 29 min here (software Vulkan), 115-195 KB each.
+- Gate (cloud container, no TMNF install, 5cd6872 + the pictures): STADIUM_TESTS PASS, 22 suites
+  + server (test_menu 42, test_top_bar 13, test_editor 35, test_replay 29, test_community 21).
+
+## 2026-10-22 — Session 17 (cloud): `stadium` (the new menu look) merged into the road cars' branch
+Owner: "merge this with the menu branch, as we now have a modernized menu". `origin/stadium`
+(PLAN M16, our own panel-based menus: SfUi, SfHeader, SfTile) merged into `claude/nice-ride-q9yx1h`.
+- Conflicts: `ui/tm_menu.gd` (the home page: the new panel grid kept), `tests/test_menu.gd`, the
+  docs (both sides kept). The Garage and Tuning pages already sat on the shared helpers (`_root`,
+  `_row`, `_panel`), so they took the new frame; their own labels and swatches moved from TmUi to
+  SfUi (Montserrat labels and captions; flat livery swatches, the paint with a band of the vinyl's
+  colour, the picked one's border white and its name red, a red focus ring; tuning picks other
+  than stock in red). `_foot_panel` places their panel at the foot (the new `_panel` nests one level
+  less than the old one).
+- The Garage in the new menus: a **Garage** tab in the header (`SfHeader.TABS`, after
+  Multiplayer; the Tuning page lights it) and a large **Garage** panel on Home beside Solo and
+  Multiplayer, its picture rendered from the game (`menu_art.sh garage`: the Zenith TT in flames,
+  the Taipan in Synthwave, the Kobold in magenta on a City night). `menu_art.gd`'s car spec takes a
+  livery and tuning (`colour:model:left:ahead:lift:g:livery:spoiler.rims.glow.hood`).
+- Underglow lights have no specular (on wet City roads each threw a point glint).
+- Home with three large panels: the Solo panel's "tracks finished" line ran into its subtitle; it
+  is now a chip at the panel's top right (`SfTile.info`). The Tuning panel of the open-wheeler is
+  titled "Formula".
+- Next: the six older Home pictures re-rendered (`menu_art.sh`) without the sponsor stickers the
+  hypercar and the open-wheeler no longer wear (they were rendered on `stadium` before).
+- Milestones renumbered so the plan has one of each: the menu look keeps M16 (`stadium`'s), the
+  road cars are M17, tuning M18 (the earlier log entries above say M16/M17 for them).
+- Tests: `test_menu` (52): the header's tabs and Home's panels include the Garage, the Garage opens
+  from its panel and lights its tab, Tuning lights the Garage's tab.

@@ -229,7 +229,7 @@ func _menu(path: String) -> void:
 	await get_tree().process_frame
 	menu.show_page("editors")
 	await get_tree().process_frame
-	var names := _buttons(menu).map(func(b: Button) -> String: return b.text)
+	var names := _buttons(menu).map(func(b: Button) -> String: return String(b.get_meta("name", b.text)))   # rows: as written
 	TestHooks.check(menu.track_rows.size() == 1 and menu.track_rows.has(path) and names.has("New Track") and names.has("Edit")
 		and names.has("Play"), "editor_menu_lists", str(names))
 	var got := []

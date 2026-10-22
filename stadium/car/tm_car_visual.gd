@@ -29,7 +29,7 @@ extends Node3D
 ## car: its body in our materials by name, its paint in the livery `livery` (TmRoadCars.LIVERIES:
 ## tm_car_surface.gdshader mode 4), on its own wheels at its own places (from its manifest), each
 ## wheel spinning, steering and riding the suspension like ours, the brake behind it fixed.
-## `tuning` (PLAN M17; the road cars and the hypercar) swaps parts: the spoiler and the hood's shape
+## `tuning` (PLAN M18; the road cars and the hypercar) swaps parts: the spoiler and the hood's shape
 ## for kit parts fitted to the car (TmRoadCars.kit), the rims for the library's (TmRoadCars.rims,
 ## scaled to the car's wheels, in their own finishes), the hood's finish (the paint shader's carbon
 ## or black), and lights the road under the car (underglow: a glow decal, tubes under the sills,

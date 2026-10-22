@@ -316,7 +316,8 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
-### M17 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☑
+### M18 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☑
+(M17 on its branch until it met `stadium`, whose M16 is the menu look.)
 "Now, add a tuning option so players can choose spoilers, rims, different light under, hood. At
 least 7-10 options each. This includes hypercar"
 - [x] 1. Kits from Blender: each car's stock spoiler as its own part, 10 spoilers fitted to each
@@ -331,7 +332,8 @@ least 7-10 options each. This includes hypercar"
       per car; races, ghosts, replays and online carry them
 - [x] 4. Tests and screenshots
 
-### M16 — Our own road cars, NFS Most Wanted's Blacklist, with liveries (owner, 21 Oct) ☑
+### M17 — Our own road cars, NFS Most Wanted's Blacklist, with liveries (owner, 21 Oct) ☑
+(M16 on its branch, `claude/nice-ride-q9yx1h`, until it met `stadium`, whose M16 is the menu look.)
 "I want these cars recreated, obviously you can change a bit to avoid copyrights. I want all the
 cars in the carage, with 5 fancy, nice liveries, need for speed style. Avoid using fake sponsors
 (like orlan). Similarly, add 5 liveries options for that hypercar." (For the Stadium game.)
@@ -352,6 +354,26 @@ cars in the carage, with 5 fancy, nice liveries, need for speed style. Avoid usi
 - [x] 6. Each car shaped against a public blueprint drawing (`tools/assets/blueprint_fit.py`,
       measured lines in `roadcars/profiles/`; the drawings stay out of the repo); all but the
       Umbra GTS (no drawing of its generation found)
+
+### M16 — Our own menu look, panel-based (owner, 22 Oct) ☐
+"move away from this trackmania vibe and have our own vibe for UI. We'll start from the menu. I want
+something like this [RaceRoom's menus] (panel-based). Colours minimalistic, slight hint of red and
+blue/purple. Include the solo, multiplayer tabs. also include the "Story" panel, but this is locked
+as building a story mode is one of the next steps. Put good graphics in the panel". On `stadium`.
+- [x] 1. The look: charcoal, a hint of red and violet, Montserrat; a header with our wordmark and
+      tabs (Home, Solo, Multiplayer, Story (locked), Community, Editor; profile, options, quit)
+      (`ui/sf_ui.gd`, `ui/sf_header.gd`, `ui/sf_backdrop.gdshader`)
+- [x] 2. Home: picture panels (Solo, Multiplayer large; Story locked, Community, Editor, Replays)
+      (`ui/sf_tile.gd`, `TmMenu._page_main`)
+- [x] 3. The panels' pictures rendered from our own game (`tools/icons/menu_art.tscn`, `menu_art.sh`
+      -> `assets/ui/menu/*.jpg`)
+- [x] 4. The other menu pages in the new look under the header; Options as rows with a line of
+      explanation each (the owner's second picture)
+- [x] 4b. The Garage (road cars, M17) and its Tuning (M18) in this look: a Garage panel on Home
+      and a Garage tab (the merge of `claude/nice-ride-q9yx1h`, 22 Oct)
+- [ ] 5. The owner's look at it
+- [ ] 6. Next: the race's pause and finish menus, HUD, loading screen and top bar in the same look;
+      then Story mode itself
 
 ### M15 — Our own Le Mans hypercar (owner, 21 Oct) ☑
 "Can you look at the peugeot hypercar (that i used), and without using peugeot copyright, design

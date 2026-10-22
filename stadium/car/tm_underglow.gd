@@ -1,6 +1,6 @@
 class_name TmUnderglow
 extends Node3D
-## Underglow (tuning "glow", PLAN M17): neon tubes under one of our cars and the light they throw.
+## Underglow (tuning "glow", PLAN M18): neon tubes under one of our cars and the light they throw.
 ## Fitted to each car in Blender (tools/assets/tuning_kit.py underglow()): the tubes' lines under its
 ## sills and across both ends (the manifest's "underglow"), and their light on the road baked from
 ## them, the tyres' shadows in it, the front tubes' share and the rear's apart
@@ -152,7 +152,7 @@ func _ready() -> void:
 		var l := OmniLight3D.new()
 		l.name = "GlowLight"
 		l.light_energy = 0.9 if night else 0.6
-		l.light_specular = 0.3
+		l.light_specular = 0.0          # no point glints on wet roads: the tubes' own reflections are the SSR's
 		l.omni_range = 1.5
 		l.omni_attenuation = 0.6
 		l.shadow_enabled = false

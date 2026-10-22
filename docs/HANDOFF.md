@@ -1,6 +1,17 @@
 # HANDOFF: start here
 
-## Latest (22 Oct, session 17, cloud): tuning (PLAN M17), on branch `claude/nice-ride-q9yx1h`
+## Latest (22 Oct, session 17, cloud): `stadium` (the new menu look) merged into `claude/nice-ride-q9yx1h`
+- Owner: "merge this with the menu branch, as we now have a modernized menu". `stadium` (PLAN M16,
+  our own panel-based menus) is merged into the road cars' branch; nothing pushed to `stadium` itself.
+- The Garage joins the new menus: a Garage tab in the header (`SfHeader.TABS`; Tuning lights it),
+  a large Garage panel on Home beside Solo and Multiplayer (its picture `assets/ui/menu/garage.jpg`,
+  `menu_art.sh garage`: road cars with liveries and underglow on a City night; `menu_art.gd`'s car
+  spec takes a livery and tuning). The Garage and Tuning pages wear SfUi (labels, captions, flat
+  livery swatches with the vinyl's band, chosen in red).
+- Milestones renumbered: the menu look keeps M16 (`stadium`'s); the road cars are M17, tuning M18.
+- Gate: STADIUM_TESTS PASS after the merge.
+
+## Earlier (22 Oct, session 17, cloud): tuning (PLAN M18), on branch `claude/nice-ride-q9yx1h`
 - Owner: tuning for spoilers, rims, underglow ("light under") and hoods, 7-10 options each, the
   hypercar too. Done: ten choices each (`TmRoadCars.TUNING`), Garage -> Tuning.
 - Kits: `tools/assets/tuning_kit.py` fits 8 spoilers and 5 hood shapes to each car's body (run by
@@ -16,10 +27,10 @@
 - Look at a tuned car: `stadium/tools/run.sh res://car/car_lab.tscn -- --model=<id> --spoiler=6
   --rims=3 --glow=2 --hood=9 [--mood=night] --frames=40 --shot=/abs.png`.
 
-## Earlier (22 Oct, session 17, cloud): 16 road cars of our own with liveries (PLAN M16), on branch `claude/nice-ride-q9yx1h`
+## Earlier (22 Oct, session 17, cloud): 16 road cars of our own with liveries (PLAN M17), on branch `claude/nice-ride-q9yx1h`
 - Owner: recreate NFS Most Wanted (2005)'s 16 Blacklist cars "in high quality" for the Stadium game,
   all in the garage with 5 NFS-style liveries each (no fake sponsors), and 5 liveries for the
-  hypercar. Branch `claude/nice-ride-q9yx1h` (from `stadium`); not merged yet.
+  hypercar. Branch `claude/nice-ride-q9yx1h` (from `stadium`; `stadium` merged into it, above).
 - Cars: our own names, no badges (`car/tm_road_cars.gd`: Kobold SS ... Quicksilver). Each is a spec
   in `stadium/tools/assets/roadcars/<id>.py` built by Blender (`roadcar.py` + `roadcar_features.py`):
   `blender -b -P stadium/tools/assets/roadcar.py -- --car <id> --out stadium/assets/car`
@@ -36,7 +47,29 @@
 - Gate: `tests/test_car_models` (every car: size <= 2.1 m wide with mirrors, budget, no bodywork in
   a tyre, wheels, liveries), STADIUM_TESTS PASS.
 - Next: the owner's verdict after looking at them; the Umbra GTS if a drawing of its generation
-  turns up; the open-wheeler still wears its ORLAN stickers (only the hypercar's were removed).
+  turns up.
+
+## Earlier (22 Oct, session 17, cloud): our own menu look, panel-based (PLAN M16), on `stadium`
+- Owner: "move away from this trackmania vibe and have our own vibe for UI. We'll start from the
+  menu" (RaceRoom's picture panels and settings rows as the reference; minimal colours, a hint of
+  red and blue/purple; Solo and Multiplayer tabs; a locked Story panel; good pictures in the panels).
+- Done (PROGRESS, session 17): `ui/sf_ui.gd` (SfUi: palette, Montserrat, boxes, the menus' theme),
+  `ui/sf_header.gd` (the tabs; Story locked), `ui/sf_tile.gd` (picture panels), the backdrop
+  `ui/sf_backdrop.gdshader`; `ui/tm_menu.gd`'s home is the panel grid, every other page re-skinned
+  (Options as rows with a line of explanation each). The race's overlays (pause/finish menus,
+  HUD, loading screen, `TmTopBar`) still wear TMNF's look: the next steps.
+- The panels' pictures: `stadium/tools/icons/menu_art.sh [names]` renders them from our own game
+  (`tools/icons/menu_art.tscn`) into `assets/ui/menu/*.jpg`. On the owner's PC it takes well under a
+  minute each; change a composition there (its args are documented in `menu_art.gd`).
+  (While `assets/ui/menu/` is empty the panels show dark placeholders.)
+- Gate: STADIUM_TESTS PASS (cloud, no TMNF install). Screenshots of every page were shown to the
+  owner in the session.
+- Look at it: `stadium/tools/run.sh res://ui/menu.tscn -- [--page=solo|online|options|...] --frames=40
+  --shot=/abs.png --settings=<scratch>/s.cfg --records=<scratch>/rec`.
+- Not removed (unused by the menus now): the globe (`ui/tm_globe.gdshader`,
+  `assets/tex/globe_map_albedo.jpg`) and the column icons `assets/ui/icon_*.png`.
+- Next: the owner's look; then the race's menus, HUD and loading screen in the same look; then
+  Story mode itself (its written story is `docs/STORY.md` on `ccr-be8add6f-thdbey`).
 
 ## Earlier (22 Oct, owner's Windows PC): our own Le Mans hypercar (PLAN M15), on `stadium`
 - Owner asked for "a similar, generic hypercar" to the one they drove (a community Porsche 963 pack,

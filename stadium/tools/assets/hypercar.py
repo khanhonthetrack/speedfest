@@ -582,7 +582,7 @@ def patches(body_ob):
 
 # --- the whole car --------------------------------------------------------------------------------
 
-# the rear wing's parts: the car's stock spoiler, its own object (tuning swaps it, PLAN M17)
+# the rear wing's parts: the car's stock spoiler, its own object (tuning swaps it, PLAN M18)
 SPOILER_PARTS = ("Wing", "Gurney", "EndPlate", "PlateLight")
 
 

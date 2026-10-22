@@ -1,4 +1,4 @@
-"""The rim library for tuning (PLAN M17): nine rim designs at one reference size, scaled by the game
+"""The rim library for tuning (PLAN M18): nine rim designs at one reference size, scaled by the game
 to each car's wheels (TmCarVisual: the radius to the car's rim radius, the width to its tyre's).
 Built with roadcar.py's rim maker; the stock rim stays each car's own.
 

@@ -1,10 +1,11 @@
 extends Node
-## Menus (TMNF's frame: rows down the left column, panels beside it): the main page (TMNF's order:
-## Play Solo, Play Online, Editors, Profile, Options, Quit; ours adds Community and Garage), Solo (a row per series, a card per
-## track with your medal, the focused track's details, a card's press handing the track to the race
-## scene), going back, the profile (nickname with $-codes, zone), online and options; TmNick's
-## $-codes; the garage (the previous / next car, a livery's pick, both kept as settings); the
-## race's pause and finish menus. Also: picks on the profile keep the focus, Clear all
+## Menus (our own look, PLAN M16): the header's tabs (Home, Solo, Multiplayer, Garage, Story locked,
+## Community, Editor; you, options, quit), the home page's picture panels (Solo, Multiplayer,
+## Garage; Story locked: it only says so; Community, Track editor, Replays), Solo (a row per series,
+## a card per track with your medal, the focused track's details, a card's press handing the track
+## to the race scene), going back, the profile (nickname with $-codes, zone), online and options;
+## TmNick's $-codes; the garage (the previous / next car, a livery's pick, both kept as settings;
+## its tuning page); the race's pause and finish menus. Also: picks on the profile keep the focus, Clear all
 ## records asks again on every visit, the race menu's panel takes its new content's size, no NOW
 ## PLAYING with the music off. Records go to a test folder, settings to a test file.
 
@@ -17,16 +18,17 @@ func _ready() -> void:
 	TestHooks.args["settings"] = "user://test_settings.cfg"     # never the player's own settings
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_settings.cfg"))
 	TestHooks.args["master"] = "http://127.0.0.1:9"    # no master: the online page offers logging in
+	TestHooks.args["community"] = "http://127.0.0.1:9"  # nor TMX / ManiaPark (the Community page opens)
+	TestHooks.args["community_dir"] = "user://test_community_menu"
 	TmRecords.clear()
 	_nick()
 	var menu: TmMenu = (load("res://ui/menu.tscn") as PackedScene).instantiate()
 	add_child(menu)
 	await get_tree().process_frame
-	var names := _buttons(menu).map(func(b: Button) -> String: return b.text).filter(func(t: String) -> bool: return not t.is_empty())
-	TestHooks.check(names == ["Play Solo", "Play Online", "Community", "Garage", "Editors", "Profile", "Options", "Quit"], "menu_main_page", str(names))
-	_press(menu, "Play Solo")
+	await _home(menu)
+	(menu.home_tiles["solo"] as SfTile).pressed.emit()
 	await get_tree().process_frame
-	names = _buttons(menu).map(func(b: Button) -> String: return b.text).filter(func(t: String) -> bool: return not t.is_empty())
+	var names := _buttons(menu).map(_name).filter(func(t: String) -> bool: return not t.is_empty())
 	var rows: Array = TmTracks.series().map(func(x: Dictionary) -> String: return String(x["name"])) + ["Replays", "Browse", "Back"]
 	TestHooks.check(menu.page == "solo" and names == rows, "menu_solo_page", str(names))
 	await _ours(menu)
@@ -37,7 +39,7 @@ func _ready() -> void:
 	await _garage(menu)
 	menu.show_page("online")
 	await get_tree().process_frame
-	names = _buttons(menu).map(func(b: Button) -> String: return b.text)
+	names = _buttons(menu).map(_name)
 	TestHooks.check(names.has("Log in") and names.has("Register") and names.has("Servers") and names.has("Rankings") and names.has("Connect")
 		and names.has("Back"), "menu_online_page", str(names))
 	menu.show_page("options")
@@ -59,6 +61,35 @@ func _ready() -> void:
 	TestHooks.finish()
 
 
+## The header's tabs and the home page's panels: Story is locked (its panel and tab only say so and
+## stay home), the others open their pages.
+func _home(menu: TmMenu) -> void:
+	var tabs: Array = menu.nav.tabs.keys()
+	TestHooks.check(tabs.slice(0, 7) == ["main", "solo", "online", "garage", "story", "community", "editors"] and tabs.has("profile")
+		and tabs.has("options") and menu.nav.current == "main", "menu_header_tabs", str(tabs))
+	var tiles: Array = menu.home_tiles.keys()
+	TestHooks.check(menu.page == "main" and tiles == ["solo", "online", "garage", "story", "community", "editors", "replays"]
+		and (menu.home_tiles["story"] as SfTile).locked and not (menu.home_tiles["solo"] as SfTile).locked, "menu_home_panels", str(tiles))
+	(menu.home_tiles["story"] as SfTile).pressed.emit()
+	(menu.nav.tabs["story"] as Button).pressed.emit()
+	await get_tree().process_frame
+	var notes := _all(menu, []).filter(func(c: Node) -> bool: return String(c.name).begins_with("Notice"))
+	TestHooks.check(menu.page == "main" and notes.size() == 2 and _labels(notes[0]).has(TmMenu.LOCKED_NOTE), "menu_story_locked",
+		"%s, %d notices" % [menu.page, notes.size()])
+	for to: String in ["online", "garage", "community", "editors", "replays"]:
+		(menu.home_tiles[to] as SfTile).pressed.emit()
+		await get_tree().process_frame
+		TestHooks.check(menu.page == to and menu.nav.current == ("solo" if to == "replays" else to), "menu_home_opens_" + to,
+			"%s, tab %s" % [menu.page, menu.nav.current])
+		(menu.nav.tabs["main"] as Button).pressed.emit()
+		await get_tree().process_frame
+	(menu.nav.tabs["options"] as Button).pressed.emit()
+	TestHooks.check(menu.page == "options" and menu.nav.current == "options", "menu_header_options", menu.page)
+	menu.nav.back_pressed.emit()
+	await get_tree().process_frame
+	TestHooks.check(menu.page == "main", "menu_header_back", menu.page)
+
+
 ## TMNF's $-codes.
 func _nick() -> void:
 	TestHooks.check(TmNick.strip("$f00Red$zPlain$$") == "RedPlain$" and TmNick.strip("$oBo$iLd$l[http://x.y]link$l") == "BoLdlink"
@@ -73,7 +104,7 @@ func _nick() -> void:
 
 func _press(menu: Node, text: String) -> void:
 	for b: Button in _buttons(menu):
-		if b.text == text:
+		if _name(b) == text:
 			b.pressed.emit()
 			return
 	TestHooks.check(false, "menu_press_" + text, "no button %s" % text)
@@ -90,9 +121,9 @@ func _ours(menu: TmMenu) -> void:
 	await get_tree().process_frame
 	TestHooks.check(menu.page == "solo", "menu_campaign_page", menu.page)
 	var names: Array = series.map(func(x: Dictionary) -> String: return String(x["name"]))
-	var tabs := _buttons(menu).filter(func(b: Button) -> bool: return names.has(b.text))
-	TestHooks.check(tabs.size() == series.size() and tabs[0].text == String(series[0]["name"]), "menu_series_rows",
-		str(tabs.map(func(b: Button) -> String: return b.text)))
+	var tabs := _buttons(menu).filter(func(b: Button) -> bool: return names.has(_name(b)))
+	TestHooks.check(tabs.size() == series.size() and _name(tabs[0]) == String(series[0]["name"]), "menu_series_rows",
+		str(tabs.map(_name)))
 	var first: Array = series[0]["tracks"]
 	var ch := TmTracks.challenge(ids[0])
 	TestHooks.check(menu._tiles.size() == first.size() and _labels(menu._tiles[ids[0]]).has(ch.name), "menu_our_cards",
@@ -122,15 +153,16 @@ func _ours(menu: TmMenu) -> void:
 ## what was pressed; its tuning page steps the car's parts (kept per car, on the turntable).
 func _garage(menu: TmMenu) -> void:
 	TmUi.set_setting("car_model", "")
-	_press(menu, "Garage")
+	(menu.home_tiles["garage"] as SfTile).pressed.emit()
 	await get_tree().process_frame
-	TestHooks.check(menu.page == "garage" and menu._world.visible and _labels(menu).has("FORMULA (OPEN WHEELS)"), "menu_garage_page",
+	TestHooks.check(menu.page == "garage" and menu._world.visible and menu.nav.current == "garage" and _labels(menu).has("FORMULA (OPEN WHEELS)"),
+		"menu_garage_page",
 		str(_labels(menu).slice(0, 8)))
 	_press(menu, "Next car")
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var f := get_viewport().gui_get_focus_owner()
-	TestHooks.check(TmUi.car_model() == "hyper" and menu.garage_liveries.size() == 5 and f is Button and (f as Button).text == "Next car",
+	TestHooks.check(TmUi.car_model() == "hyper" and menu.garage_liveries.size() == 5 and f is Button and _name(f as Button) == "Next car",
 		"menu_garage_next_car", "%s %d %s" % [TmUi.car_model(), menu.garage_liveries.size(), f])
 	_press(menu, "Next car")
 	await get_tree().process_frame
@@ -144,19 +176,19 @@ func _garage(menu: TmMenu) -> void:
 	_press(menu, "Previous car")
 	await get_tree().process_frame
 	TestHooks.check(TmUi.car_model() == "hyper", "menu_garage_previous_car", TmUi.car_model())
-	# tuning (PLAN M17): the garage's Tuning row, four parts, Enter steps a part on, left back
+	# tuning (PLAN M18): the garage's Tuning row, four parts, Enter steps a part on, left back
 	var was_t: Variant = TmUi.setting("car_tuning")
 	TmUi.set_setting("car_tuning", {})
 	_press(menu, "Tuning")
 	await get_tree().process_frame
-	TestHooks.check(menu.page == "tuning" and menu.tuning_rows.size() == 4 and menu._world.visible, "menu_tuning_page",
+	TestHooks.check(menu.page == "tuning" and menu.tuning_rows.size() == 4 and menu._world.visible and menu.nav.current == "garage", "menu_tuning_page",
 		str(menu.tuning_rows.keys()))
 	(menu.tuning_rows["spoiler"] as Button).pressed.emit()
 	await get_tree().process_frame
 	await get_tree().process_frame
 	f = get_viewport().gui_get_focus_owner()
 	TestHooks.check(int(TmUi.car_tuning("hyper")["spoiler"]) == 1 and f == menu.tuning_rows["spoiler"]
-		and (menu.tuning_rows["spoiler"] as Button).text.contains(String(TmRoadCars.SPOILERS[1]["name"])), "menu_tuning_next",
+		and _name(menu.tuning_rows["spoiler"] as Button).contains(String(TmRoadCars.SPOILERS[1]["name"])), "menu_tuning_next",
 		str(TmUi.car_tuning("hyper")))
 	menu.tuning_step("glow", -1)
 	await get_tree().process_frame
@@ -175,7 +207,7 @@ func _garage(menu: TmMenu) -> void:
 
 ## The profile: the nickname (saved as typed, previewed with its codes) and the zone.
 func _profile(menu: TmMenu) -> void:
-	_press(menu, "Profile")
+	(menu.nav.tabs["profile"] as Button).pressed.emit()     # you, at the header's right
 	await get_tree().process_frame
 	var edits := _all(menu, []).filter(func(c: Node) -> bool: return c is LineEdit)
 	TestHooks.check(menu.page == "profile" and edits.size() == 1, "menu_profile_page", menu.page)
@@ -194,7 +226,7 @@ func _profile(menu: TmMenu) -> void:
 	pick.select(uk)
 	pick.item_selected.emit(uk)
 	await get_tree().process_frame
-	TestHooks.check(uk > 0 and String(TmUi.setting("zone")) == "Europe|United Kingdom" and _labels(menu).has("EUROPE  ·  UNITED KINGDOM"),
+	TestHooks.check(uk > 0 and String(TmUi.setting("zone")) == "Europe|United Kingdom" and _labels(menu.nav).has("UNITED KINGDOM"),
 		"menu_profile_zone", String(TmUi.setting("zone")))
 	# a pick rebuilds the page; the focus stays on what was picked (not the nickname)
 	await get_tree().process_frame
@@ -286,8 +318,23 @@ static func _all(n: Node, out: Array) -> Array:
 	return out
 
 
+## A page's buttons (not the header's), visible.
 static func _buttons(n: Node) -> Array:
-	return _all(n, []).filter(func(c: Node) -> bool: return c is Button and not (c is CheckButton) and (c as Button).is_visible_in_tree())
+	return _all(n, []).filter(func(c: Node) -> bool: return c is Button and not (c is CheckButton) and (c as Button).is_visible_in_tree()).filter(
+		func(c: Node) -> bool: return not _in_header(c))
+
+
+static func _in_header(c: Node) -> bool:
+	while c != null:
+		if c is SfHeader:
+			return true
+		c = c.get_parent()
+	return false
+
+
+## A button's name: a column row's as written (its text is in capitals), else its text.
+static func _name(b: Button) -> String:
+	return String(b.get_meta("name", b.text))
 
 
 static func _labels(n: Node) -> Array:

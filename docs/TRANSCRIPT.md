@@ -1275,3 +1275,24 @@ game's light.)
 car in Blender with their light on the road baked, tyre shadows and all; glass tubes with a hot
 core and a halo, front and rear colours, lights under the car, a two-tone and a flowing rainbow:
 PROGRESS, 22 Oct.)
+
+## Session 17 — 2026-10-22 (cloud, branch `stadium`): our own menu look (M16)
+
+### User (verbatim, with two screenshots of RaceRoom's menus: DRIVE, big picture panels SINGLE
+### RACE and MULTIPLAYER over CHAMPIONSHIP, TRACK DAY, LEADERBOARD CHALLENGE, TEST ALL CARS, tabs
+### across the top; and its CONTROLS > FORCE FEEDBACK page: sub-tabs, slider rows with a title and
+### a line of explanation each, a graph at the right)
+
+> UI: Now, move away from this trackmania vibe and have our own vibe for UI. We'll start from the menu. I want something like this https://www.overtake.gg/news/racerooms-historic-update-another-big-step-forward.4972/  (panel-based). Colours minimalistic, slight hint of red and blue/purple.
+>
+> Include the solo, multiplayer tabs. also include the "Story" panel, but this is locked as building a story mode is one of the next steps. Put good graphics in the panel as you see fit (you can use claude design right...if needed).
+
+## Session 17 — 2026-10-22 (cloud, branch `claude/nice-ride-q9yx1h`): the road cars meet the new menu
+
+### User (verbatim)
+
+> merge this with the menu branch, as we now have a modernized menu
+
+(`stadium`, which holds the new menu look, merged into `claude/nice-ride-q9yx1h`; the Garage and its
+Tuning page moved into the new look, a Garage tab and Home panel added; the road cars renumbered
+PLAN M17, tuning M18, as `stadium`'s M16 is the menu look.)

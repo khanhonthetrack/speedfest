@@ -4,12 +4,12 @@ extends Node
 ## size, a triangle budget, no bodywork inside a tyre at rest), and a visual of it has its four
 ## wheels where the open-wheeler has them, without the open-wheeler's guards and arms; the
 ## player's pick (TmUi.car_model) and a replay's header carry it.
-## The road cars (TmRoadCars, PLAN M16): each one's glb and manifest load, fit a car (size, a
+## The road cars (TmRoadCars, PLAN M17): each one's glb and manifest load, fit a car (size, a
 ## triangle budget, no bodywork inside its tyres at rest, wheels where its manifest puts them),
 ## every surface is dressed, its five liveries name known patterns and reach the paint shader;
 ## the hypercar's liveries too (the first its own, no sponsors on it); the garage's pick (car and
 ## livery) is a setting and replays keep it.
-## Tuning (PLAN M17): every car of ours with tuning has its kit (8 spoilers, 5 hood shapes), the rim
+## Tuning (PLAN M18): every car of ours with tuning has its kit (8 spoilers, 5 hood shapes), the rim
 ## library loads, each part has 7-10 choices; a tuned road car and a tuned hypercar draw the picked
 ## spoiler (or none, or their own), hood shape and finish, the library's rims scaled to their wheels
 ## (mirrored on the right), the underglow (decal, lights, tubes; none on ghosts); the pick is a

@@ -1,6 +1,6 @@
 class_name TmRoadCars
 extends RefCounted
-## Our own road cars (PLAN M16: the class of cars NFS Most Wanted's Blacklist drove, our own
+## Our own road cars (PLAN M17: the class of cars NFS Most Wanted's Blacklist drove, our own
 ## shapes and names, no makers' badges): tools/assets/roadcar.py builds each into
 ## assets/car/<id>.glb (the body, its spoiler, a tyre, rim and brake per axle), its tuning kit
 ## (assets/car/<id>_kit.glb, TUNING) and assets/car/<id>.json (its
@@ -254,7 +254,7 @@ const LIVERIES := {
 	],
 }
 
-## Tuning (PLAN M17): the parts a player picks for a car of ours (the road cars and the hypercar),
+## Tuning (PLAN M18): the parts a player picks for a car of ours (the road cars and the hypercar),
 ## each a list of choices; 0 is the car as it comes. Spoilers and hood shapes are kit parts fitted
 ## to each car (tools/assets/tuning_kit.py: assets/car/<id>_kit.glb), rims a shared library scaled to
 ## each car's wheels (tools/assets/rims.py: assets/car/rims.glb), underglow is drawn by the game.

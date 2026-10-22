@@ -1,4 +1,4 @@
-"""The tuning kit (PLAN M17): spoilers and hood add-ons fitted to one car's body, for
+"""The tuning kit (PLAN M18): spoilers and hood add-ons fitted to one car's body, for
 tools/assets/roadcar.py (the road cars) and tools/assets/hypercar.py (the hypercar). Blender,
 imported by those scripts; everything in the car's visual frame (x to its left, y up, z forward,
 the ground at y 0), placed by ray casts against the car's own body (without its stock spoiler).

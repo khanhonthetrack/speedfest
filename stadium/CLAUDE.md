@@ -72,13 +72,18 @@ Commit like this, so a failing gate never lands:
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Our own menu look (PLAN M16, 22 Oct):** the menus left TMNF's look: `ui/sf_ui.gd` (charcoal,
+  red and violet accents, Montserrat), `ui/sf_header.gd` (tabs; Story locked), `ui/sf_tile.gd`
+  (home's picture panels, rendered by `tools/icons/menu_art.sh`), Options as explained rows. The
+  race's overlays keep TMNF's look for now (next). Merged into `claude/nice-ride-q9yx1h` with the
+  road cars (M17) and tuning (M18): a Garage tab and Home panel, the Garage/Tuning pages in SfUi.
 - **`stadium-v0.8` (21 Oct) is `stadium` + the neon City (PLAN M14)**; the zips carry `CREDITS-city.md`.
-- **Tuning (PLAN M17, 22 Oct, same branch):** spoilers, rims, underglow, hoods, ten choices each
+- **Tuning (PLAN M18, 22 Oct, same branch):** spoilers, rims, underglow, hoods, ten choices each
   for the road cars and the hypercar (`TmRoadCars.TUNING`, `TmCarVisual.tuning`, settings
   `car_tuning`, Garage -> Tuning); kits fitted per car by `tools/assets/tuning_kit.py`
   (`assets/car/<id>_kit.glb`), the rim library by `tools/assets/rims.py` (`rims.glb`), the underglow's
   tubes and baked light too (`<id>_glow_f/_r.png`, manifest `"underglow"`, drawn by `car/tm_underglow.gd`).
-- **16 road cars of our own, NFS Most Wanted's Blacklist (PLAN M16, 22 Oct, branch
+- **16 road cars of our own, NFS Most Wanted's Blacklist (PLAN M17, 22 Oct, branch
   `claude/nice-ride-q9yx1h`):** specs in `tools/assets/roadcars/`, built by `tools/assets/roadcar.py`
   (Blender) into `assets/car/<id>.glb/.json`, shaped against public drawings
   (`tools/assets/blueprint_fit.py`; drawings never in the repo, measured lines in

@@ -1,4 +1,4 @@
-"""Our own road cars for the Stadium game (PLAN M16), built from numbers in Blender and exported
+"""Our own road cars for the Stadium game (PLAN M17), built from numbers in Blender and exported
 as glTF for car/tm_car_visual.gd, one .glb and one .json manifest per car. Each car is a spec
 (tools/assets/roadcars/<id>.py: SPEC) read by the builder here; nothing of any maker's badges,
 logos or names is in them.
