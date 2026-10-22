@@ -129,7 +129,7 @@ def bars(car, surf, r):
             n = len(pts)
             for i in range(n):
                 a, q = pts[i], pts[(i + 1) % n]
-                ia, ib = (0, 1) if vertical else (1, 0)
+                ia, ib = (1, 0) if vertical else (0, 1)
                 if (a[ib] - c) * (q[ib] - c) <= 0 and a[ib] != q[ib]:
                     xs.append(a[ia] + (q[ia] - a[ia]) * (c - a[ib]) / (q[ib] - a[ib]))
             if len(xs) < 2:
