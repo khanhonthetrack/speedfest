@@ -1,0 +1,8 @@
+{
+	"name": "G04-Corkscrew",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [16, 28, 30, 2],
+	"pieces": [["start"], ["s", 2], ["cp"], ["s", 1], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 0, -3], ["s", 2], ["cp"], ["sky", 1], ["twist", "l", 180, 5], ["sky", 2], ["twist", "l", 180, 5], ["s", 1], ["finish"]]
+}

@@ -58,6 +58,10 @@ var _prev := Vector3.ZERO          ## the car's position at the previous tick
 var _cp_states := {}               ## checkpoint index -> the car as it crossed it {xform, lin, ang}
 var _result := {}                  ## the finish menu's result (TmRaceMenu.show_finish); {} before
 var _tail_ms := 0                  ## recorded so far after the finish (TmReplay.TAIL_MS)
+## A Sky map (M19): a car that falls this far under the lowest road respawns by itself (the streets
+## are 200 m down); -INF elsewhere (TMNF's way: Enter respawns).
+var _fall_y := -INF
+const SKY_FALL := 45.0
 
 
 func _ready() -> void:
@@ -77,6 +81,12 @@ func _ready() -> void:
 	builder = TmMapBuilder.build(challenge)
 	add_child(builder.root)
 	TmStage.add_environment(self, builder)
+	if challenge.scenery == "sky":
+		var lowest := INF
+		for line: Array in [challenge.path] + challenge.alt_paths:
+			for pt: Dictionary in line:
+				lowest = minf(lowest, (pt["p"] as Vector3).y)
+		_fall_y = lowest - SKY_FALL if lowest < INF else -INF
 	if not builder.has_start:
 		var why := "%s has no start block" % challenge.name
 		push_error("race: %s" % why)
@@ -295,6 +305,9 @@ func _physics_process(_delta: float) -> void:
 			_recorded.append([race.time_ms, car.gas, car.brake, car.steer])
 	car.step_tick()
 	var p := car.global_position
+	if p.y < _fall_y and race.racing() and not waiting:
+		respawn()               # fell off a Sky map's road: back to the last checkpoint (or the start)
+		return
 	if TestHooks.has_arg("trace") and race.racing() and race.time_ms % 100 == 0:
 		_trace_state()
 	if race.racing():

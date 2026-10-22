@@ -1,0 +1,8 @@
+{
+	"name": "G02-Window Washer",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [4, 12, 3, 0],
+	"pieces": [["start"], ["s", 2], ["sky", 1], ["twist", "l", 90, 3], ["sky", 2], ["twist", "r", 90, 3], ["twist", "r", 90, 3], ["sky", 2], ["twist", "l", 90, 3], ["sky", 1], ["cp"], ["gt", 3, "r"], ["s", 1], ["sky", 1], ["twist", "l", 90, 3], ["sky", 3], ["twist", "r", 90, 3], ["sky", 1], ["cp"], ["gt", 3, "r"], ["sky", 1], ["twist", "r", 90, 3], ["sky", 2], ["twist", "l", 90, 3], ["s", 2], ["finish"]]
+}

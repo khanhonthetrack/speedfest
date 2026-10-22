@@ -37,6 +37,12 @@ const PATH_STEP := 8.0           ## m between the bot's points (TmTrackBuilder.S
 const MAG_COS := 0.96            ## frames whose up leans more than ~16 degrees are mag-road
 const GRID_EPS := 0.05
 const DROP_GAP := 3.0            ## m: a ski jump's landing hill starts this far under its lip
+const TWIST_EASE := 0.2          ## a twist's rate ramps in and out over this share of it at each end
+const TWIST_MAX := 0.025         ## rad/m: the most a twist turns (beyond: two wheels lift)
+## Over an edge (a convex pitch) the road holds the car only up to sqrt(g r) (the mag-road's pull is
+## the ground's gravity): the bot is told the radius is this much smaller, to keep it well under.
+const CREST_MARGIN := 0.6
+const PITCH_EASE := 0.3          ## a quarter pitch's curvature ramps in and out over this share at each end
 ## the grid: blocks 32 m across, levels 8 m, the road's top ROAD_Y over a level's base
 const BLOCK := 32.0
 const LEVEL := 8.0
@@ -226,8 +232,13 @@ func _turn(left: bool, r: float) -> void:
 
 
 ## A pitch about the road's right: up (concave, towards its surface's side) or down (convex), by
-## `ang`, radius r.
+## `ang`, radius r. A quarter (90 degrees) is eased: its curvature ramps in and out over
+## PITCH_EASE of it at each end (a straight meeting a circle unloads the springs at once: over an
+## edge they throw the car off), the curve as long as it takes to move r on and r up, as the circle.
 func _pitch(upward: bool, r: float, ang: float) -> void:
+	if absf(ang - PI * 0.5) < 1e-3:
+		_pitch_eased(upward, r)
+		return
 	var rt := right_of(fwd, up)
 	var c := pos + up * (r if upward else -r)
 	var a := -ang if upward else ang
@@ -237,21 +248,94 @@ func _pitch(upward: bool, r: float, ang: float) -> void:
 	var u0 := up
 	for i in range(1, n + 1):
 		var rot := Basis(rt, a * i / n)
-		_frame(c + rot * (p0 - c), rot * f0, rot * u0, r * ang / n, 0.0, 0.0, 0.0 if upward else r)
+		_frame(c + rot * (p0 - c), rot * f0, rot * u0, r * ang / n, 0.0, 0.0, 0.0 if upward else r * CREST_MARGIN)
 
 
-## A twist about the line over m metres: the wheels' side swings to the left or right by ang (the
-## roll eased in and out: smoothstep).
+## A quarter pitch with eased curvature (see _pitch): the shape is fixed up to its size, so its
+## length is found from how far one of unit length moves (each way: it is symmetric).
+func _pitch_eased(upward: bool, r: float) -> void:
+	var a := PITCH_EASE
+	var k1 := PI * 0.5 / (1.0 - a)           # the peak curvature of a unit-length quarter
+	var steps := 400
+	var d := 0.0                             # how far a unit-length quarter moves on
+	var th := 0.0
+	for i in steps:
+		var t := (i + 0.5) / steps
+		d += cos(th + _ease_k(t, a) * k1 / steps * 0.5) / steps
+		th += _ease_k(t, a) * k1 / steps
+	var length := r / d
+	var kmax := k1 / length
+	var rt := right_of(fwd, up)
+	var n := maxi(4, ceili(length / STEP))
+	var sgn := -1.0 if upward else 1.0
+	var p := pos
+	var f := fwd
+	var u := up
+	var ang := 0.0
+	var start_f := fwd
+	var start_u := up
+	for i in range(1, n + 1):
+		# the angle at the step's end (the curvature integrated); the position by the middle angle
+		var t0 := float(i - 1) / n
+		var t1 := float(i) / n
+		var a1 := _ease_angle(t1, a) * PI * 0.5
+		var amid := _ease_angle((t0 + t1) * 0.5, a) * PI * 0.5
+		var rm := Basis(rt, sgn * amid)
+		p += (rm * start_f) * (length / n)
+		var r1 := Basis(rt, sgn * a1)
+		f = r1 * start_f
+		u = r1 * start_u
+		var kk := _ease_k(t1, a) * kmax
+		_frame(p, f, u, length / n, 0.0, 0.0, 0.0 if upward else (1.0 / maxf(kk, 1e-4)) * CREST_MARGIN if kk > 1e-4 else 0.0)
+		ang = a1
+	# exactly on the quarter
+	var q := Basis(rt, sgn * PI * 0.5)
+	fwd = q * start_f
+	up = q * start_u
+
+
+## A quarter's curvature at t (0..1 along it) as a share of its peak: ramps of `a` at both ends.
+static func _ease_k(t: float, a: float) -> float:
+	if t < a:
+		return t / a
+	if t > 1.0 - a:
+		return (1.0 - t) / a
+	return 1.0
+
+
+## Its angle at t as a share of the whole: the curvature integrated.
+static func _ease_angle(t: float, a: float) -> float:
+	var full := 1.0 - a
+	if t < a:
+		return t * t / (2.0 * a) / full
+	if t > 1.0 - a:
+		return 1.0 - (1.0 - t) * (1.0 - t) / (2.0 * a) / full
+	return (t - a * 0.5) / full
+
+
+## A twist about the line over m metres: the wheels' side swings to the left or right by ang, at an
+## even rate eased in and out over TWIST_EASE of it at each end (the car is rigid: the road can't
+## twist much along its wheelbase, TWIST_MAX, or two of its wheels lose the road).
 func _twist(left: bool, ang: float, m: float) -> void:
 	var n := maxi(2, ceili(m / STEP))
 	var p0 := pos
 	var f0 := fwd
 	var u0 := up
 	var a := -ang if left else ang
+	if ang / (m * (1.0 - TWIST_EASE)) > TWIST_MAX + 1e-4:
+		b.notes.append("twist (piece %d): %.3f rad/m, over %.3f: lengthen it" % [b.piece_count(), ang / (m * (1.0 - TWIST_EASE)), TWIST_MAX])
 	for i in range(1, n + 1):
-		var t := float(i) / n
-		var e := t * t * (3.0 - 2.0 * t)
-		_frame(p0 + f0 * (m * t), f0, Basis(f0, a * e) * u0, m / n)
+		_frame(p0 + f0 * (m * float(i) / n), f0, Basis(f0, a * ease_twist(float(i) / n)) * u0, m / n)
+
+
+## The share of a twist done at t (0..1 along it): an even rate between ramps of TWIST_EASE.
+static func ease_twist(t: float) -> float:
+	var a := TWIST_EASE
+	if t < a:
+		return t * t / (2.0 * a) / (1.0 - a)
+	if t > 1.0 - a:
+		return 1.0 - (1.0 - t) * (1.0 - t) / (2.0 * a) / (1.0 - a)
+	return (t - a * 0.5) / (1.0 - a)
 
 
 ## The bank about the line from the vertical: + where the road's up leans to its right (a right

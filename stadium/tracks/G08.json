@@ -1,0 +1,8 @@
+{
+	"name": "G08-Rooftop Rally",
+	"author": "SpeedFest",
+	"mood": "day",
+	"scenery": "sky",
+	"start": [4, 24, 3, 0],
+	"pieces": [["start"], ["s", 1], ["roof", 3, 3], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["roof", 3, 2], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["roof", 3, 2], ["kick", 12, 24], ["gap", 4, 3], ["roof", 3, 3], ["s", 1], ["finish"]]
+}

@@ -1,0 +1,8 @@
+{
+	"name": "G10-Last Exit",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [6, 30, 2, 0],
+	"pieces": [["start"], ["s", 2], ["cp"], ["sky", 1], ["drop", 6, 14, 45, 64], ["sky", 1], ["cp"], ["gt", 3, "r"], ["sky", 1], ["twist", "l", 90, 3], ["sky", 2], ["twist", "r", 90, 3], ["bank", "r", 3, 45, 2], ["bank", "r", 3, 0, 2], ["cp"], ["s", 1], ["fork", "l", [["s", 1], ["kick", 12, 24], ["gap", 5, 3], ["roof", 3, 3], ["finish"]]], ["s", 1], ["twist", "r", 90, 3], ["sky", 1], ["twist", "l", 90, 3], ["s", 1], ["finish"]]
+}

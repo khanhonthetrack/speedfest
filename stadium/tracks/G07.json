@@ -1,0 +1,8 @@
+{
+	"name": "G07-Upside Down",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [26, 14, 2, 0],
+	"pieces": [["start"], ["s", 2], ["cp"], ["sky", 1], ["twist", "l", 180, 5], ["sky", 2], ["twist", "r", 180, 5], ["sky", 1], ["gt", 3, "l"], ["s", 1], ["cp"], ["sky", 1], ["twist", "r", 180, 5], ["sr", 3], ["twist", "l", 180, 5], ["s", 1], ["finish"]]
+}

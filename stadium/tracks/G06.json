@@ -1,0 +1,8 @@
+{
+	"name": "G06-Two Roofs",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [6, 18, 2, 0],
+	"pieces": [["start"], ["s", 2], ["roof", 3, 2], ["kick", 10, 20], ["gap", 3, 1], ["roof", 3, 3], ["s", 1], ["cp"], ["gt", 3, "r"], ["s", 1], ["fork", "r", [["s", 1], ["kick", 12, 24], ["gap", 5, 4], ["roof", 3, 3], ["finish"]]], ["s", 2], ["twist", "l", 90, 3], ["sky", 3], ["twist", "r", 90, 3], ["gt", 3, "l"], ["s", 1], ["finish"]]
+}

@@ -1,0 +1,8 @@
+{
+	"name": "G05-Lemming",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [16, 30, 3, 0],
+	"pieces": [["start"], ["s", 2], ["cp"], ["sky", 1], ["drop", 8, 22, 50, 64], ["sky", 1], ["cp"], ["s", 2], ["finish"]]
+}

@@ -1,0 +1,8 @@
+{
+	"name": "G09-Up and Over",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "sky",
+	"start": [16, 3, 2, 0],
+	"pieces": [["start"], ["s", 3], ["cp"], ["s", 1], ["sky", 1], ["pu", 48], ["go", 96], ["pd", 80], ["roof", 3, 2], ["pd", 80], ["go", 96], ["pu", 48], ["sky", 1], ["cp"], ["gt", 3, "l"], ["s", 2], ["finish"]]
+}
