@@ -37,8 +37,9 @@ def features(car, surf, spec):
     for r in spec.get("recesses", []):
         cut += rc.recess(car, surf, "Recess", r["plane"], r["outline"], r.get("depth", 0.05), r.get("mats", ("grille", "trim")),
                          radii=r.get("radii"), ray=r.get("ray"), mirror=r.get("mirror", False))
-        if r.get("bars"):
-            add += bars(car, surf, r)
+        for bb in (r["bars"] if isinstance(r.get("bars"), list) else [r.get("bars")]):
+            if bb:
+                add += bars(car, surf, dict(r, bars=bb))
     for c in spec.get("cutters", []):
         o = rc.prism("Cutter", c["outline"], c["a0"], c["a1"], c["axis"], c.get("mats", "inlet"), radii=c.get("radii"), car=car)
         cut += rc.both(o, c.get("mirror", False))

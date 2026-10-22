@@ -272,7 +272,8 @@ def profile(d, cid):
 def overlay(d, cid, ortho):
     """The model's silhouettes (roadcar.py --ortho DIR: DIR/<id>_<view>.png at a known scale) as
     red outlines over the drawing's views, at the drawing's scale (the car's length for side and
-    top, its height for front and rear), aligned on the nose (or the left) and the ground."""
+    top, its height for front and rear), aligned on the nose (or the left) and the roof (a drawing's
+    wheels can stand apart from its body's outline, so its lowest line isn't always the ground)."""
     db = use(cid)
     info = json.load(open(os.path.join(ortho, cid + ".json")))
     g = gray(os.path.join(d, cid + ".img"))
@@ -306,18 +307,18 @@ def overlay(d, cid, ortho):
         H, Wd = max(ref.shape[0], h), max(ref.shape[1], w)
         rgb = np.full((H, Wd, 3), 255, np.uint8)
         base = np.ones((H, Wd), np.float32)
-        base[H - c.shape[0]:, :c.shape[1]] = c
+        base[:c.shape[0], :c.shape[1]] = c
         rgb[:] = (base[:, :, None] * 255).astype(np.uint8)
         ox = 0
         if v in ("front", "rear"):
             ox = (Wd - w) // 2 if w < Wd else 0
             rx = (Wd - ref.shape[1]) // 2
             base2 = np.ones((H, Wd), np.float32)
-            base2[H - c.shape[0]:, rx:rx + c.shape[1]] = c
+            base2[:c.shape[0], rx:rx + c.shape[1]] = c
             rgb[:] = (base2[:, :, None] * 255).astype(np.uint8)
         for mask, colour in ((a, (230, 20, 20)), (glass, (20, 60, 240)), (lamps, (10, 170, 40))):
             m = np.zeros((H, Wd), bool)
-            m[H - h:, ox:ox + w] = mask
+            m[:h, ox:ox + w] = mask
             edge = m & ~(np.roll(m, 1, 0) & np.roll(m, -1, 0) & np.roll(m, 1, 1) & np.roll(m, -1, 1))
             rgb[dilate(edge, 1)] = colour
         tiles.append(Image.fromarray(rgb))
