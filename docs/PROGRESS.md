@@ -3764,3 +3764,43 @@ drawing of its class of car, then looked at in the game's light (`car/car_lab.ts
   2.1 m wide on the Corrida). Once test_online's client exited early and left its Node server
   holding test_all.sh's output pipe, so the gate hung (killed by hand; test_online then passed
   alone and in a full re-run): test_all.sh should write suites to files and clean up servers.
+
+## 2026-10-22 — Session 17 (cloud): tuning - spoilers, rims, underglow, hoods (PLAN M17)
+Owner: "Now, add a tuning option so players can choose spoilers, rims, different light under, hood.
+At least 7-10 options each. This includes hypercar". Ten choices per part (0 = the car as it
+comes), for the 16 road cars and the hypercar.
+- **Kits from Blender** (`stadium/tools/assets/tuning_kit.py`, imported by `roadcar.py` and
+  `hypercar.py`): each car's spoilers and hood shapes fitted to its own body by ray casts (the deck
+  0.3 m inside the tail, the highest of three points off the centre line so wings clear raised
+  fenders; blades on the deck ignore a fin; the hood from behind the nose to short of the
+  windscreen's foot). Spoilers: lip, ducktail, low wing, street wing on stanchions, GT wing (carbon,
+  big end plates, gurney), swan neck, twin plane, drift wing -> `assets/car/<id>_kit.glb`
+  (Spoiler2..9) with the hood shapes (HoodVents, HoodScoop, HoodBulge, HoodLouvres, HoodCowl). The
+  car's own spoiler is now its own part ("Spoiler"; wings and solids marked `"spoiler": true`; the
+  hypercar's wing, gurney, end plates and their lights: "HyperSpoiler"); the wheels are a tyre, a
+  rim and a brake per axle (`rim_object`), so a rim can be swapped.
+- **Rims**: `tools/assets/rims.py` -> `assets/car/rims.glb` (Rim1..9: five spoke, split, mesh,
+  multi-spoke, turbine, star, deep dish with a stepped polished lip, six spoke, twisted twin
+  spokes) at one reference size; the game scales them to each car's bead radius and tyre width
+  (manifest `rim_r`, `tyre_hw`), each in its finish (`TmRoadCars.RIMS`: the livery's colour,
+  gunmetal, gold, silver, black, chrome, white, bronze). The hypercar's rims go on our own tyres
+  (the shared wheel's tyre and disc alone).
+- **Hoods**: a shape (the kit's, painted like the body so the livery and the hood finish reach it)
+  and a finish: carbon or gloss black through the paint shader (`liv_hood`; now also for the
+  hypercar's own livery, mode 3, where the whole front deck is the hood: `hood_all`).
+- **Underglow** (`TmCarVisual._underglow`; not on ghosts): an emissive decal (its own soft texture:
+  bright under the sills, fading a metre out), a neon tube under each sill and across the ends, two
+  lights under the car; colours: neon blue, cyan, magenta, toxic green, red, purple, amber, white,
+  and a rainbow that cycles.
+- **The game**: `TmRoadCars.TUNING` (spoiler, rims, glow, hood) and its choices, `kit(id)`,
+  `rims()`; `TmCarVisual.tuning`; settings `car_tuning` per car (`TmUi.car_tuning`,
+  `set_car_tuning`, `clean_tuning`); races, ghosts, replays (header `tuning`), map_view, car_lab
+  (`--spoiler= --rims= --glow= --hood=`) and online (hello and the player list carry `tuning`, the
+  server keeps each part in range) carry it. The Garage has a **Tuning** row for our tunable cars:
+  a page with four rows (the part, its pick), Enter takes the next choice, left/right step either
+  way, the car on the turntable shows it, a panel lists the picks.
+- Tests: `test_car_models` (kits complete for all 17 cars, the rim library, 7-10 choices each, a
+  tuned road car's spoiler/hood/rims (scaled, mirrored)/underglow/carbon hood, stock and none, no
+  glow on ghosts, the tuned hypercar, the rainbow cycling, the setting, replays), `test_menu` (the
+  Tuning page, stepping, wrapping, the turntable, back to the garage), server (tuning relayed and
+  clamped).

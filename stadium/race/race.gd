@@ -107,6 +107,7 @@ func _ready() -> void:
 	gv.ghost = true
 	gv.model = TmUi.car_model()
 	gv.livery = TmUi.car_livery()
+	gv.tuning = TmUi.car_tuning()
 	ghost_car.add_child(gv)
 	add_child(ghost_car)
 
@@ -118,6 +119,7 @@ func _ready() -> void:
 	look.paint_colour = TmUi.car_colour()
 	look.model = TmUi.car_model()
 	look.livery = TmUi.car_livery()
+	look.tuning = TmUi.car_tuning()
 	if TestHooks.has_arg("car_pack"):        # a community car pack (.zip) to drive (tests, screenshots)
 		look.pack = TmCarPack.load_zip(String(TestHooks.arg("car_pack", "")))
 	else:

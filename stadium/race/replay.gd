@@ -82,6 +82,7 @@ func _ready() -> void:
 	look.paint_colour = replay.colour
 	look.model = replay.model
 	look.livery = replay.livery
+	look.tuning = replay.tuning
 	car.add_child(look)
 	marks = TmTyreMarks.new()        # after this node in the tree: it reads the puppet each tick
 	marks.car = car

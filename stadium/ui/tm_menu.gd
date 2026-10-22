@@ -30,7 +30,7 @@ signal edited(track_file: String)
 
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
 const PAGES := {"main": "", "solo": "main", "campaign": "main", "replays": "solo", "editors": "main", "online": "main", "profile": "main",
-	"options": "main", "community": "main", "garage": "main"}
+	"options": "main", "community": "main", "garage": "main", "tuning": "garage"}
 const MEDALS := ["author", "gold", "silver", "bronze"]
 ## The backdrop's grade: dark green at the edges and behind the menu column (TMNF's menus sit
 ## on a dark green, blurred Stadium).
@@ -151,13 +151,14 @@ func _paint_car(pack: TmCarPack = null) -> void:
 	look.paint_colour = TmUi.car_colour()
 	look.model = TmUi.car_model()
 	look.livery = TmUi.car_livery()
+	look.tuning = TmUi.car_tuning()
 	look.pack = pack if pack else TmCommunity.my_car_pack()
 	_car_holder.add_child(look)
 
 
 func _orbit(delta: float) -> void:
 	_angle += delta * 0.12
-	_view = move_toward(_view, 1.0 if page in ["profile", "garage"] else 0.0, delta * 1.5)
+	_view = move_toward(_view, 1.0 if page in ["profile", "garage", "tuning"] else 0.0, delta * 1.5)
 	var v := smoothstep(0.0, 1.0, _view)
 	var at := CENTRE + Vector3(0.0, 0.75 - 0.15 * v, 0.0)
 	var dist := lerpf(7.0, 5.4, v)
@@ -348,7 +349,7 @@ func show_page(name: String) -> void:
 		page = "solo"              # TMNF's campaign is the Solo page
 	_clear()
 	(_grade.material as ShaderMaterial).set_shader_parameter("left_dark", 0.25)
-	var car_view := page in ["profile", "garage"]
+	var car_view := page in ["profile", "garage", "tuning"]
 	_world.visible = car_view
 	_grade.visible = car_view
 	_backdrop.visible = not car_view
@@ -369,6 +370,8 @@ func show_page(name: String) -> void:
 			_page_profile()
 		"garage":
 			_page_garage()
+		"tuning":
+			_page_tuning()
 		_:
 			_page_main()
 
@@ -1041,6 +1044,9 @@ func _page_garage() -> void:
 	var idx := maxi(0, garage_cars.find_custom(func(c: Array) -> bool: return String(c[0]) == cur))
 	var prev := _row("Previous car", "icon_back", func() -> void: garage_step(-1))
 	var next := _row("Next car", "play", func() -> void: garage_step(1))
+	if TmRoadCars.tunable(String(garage_cars[idx][0])):
+		_gap(16)
+		_row("Tuning", "icon_options", func() -> void: show_page("tuning"))
 	_row("Back", "icon_back", back, true)
 	var body := _panel(root, "Car  %d / %d" % [idx + 1, garage_cars.size()], Rect2(RIGHT.position.x, 0, 1180, 0))
 	var p := body.get_parent().get_parent().get_parent() as Control
@@ -1091,6 +1097,71 @@ func garage_livery(model: String, i: int) -> void:
 	_paint_car()
 	_garage_focus = str(i)
 	show_page("garage")
+
+
+var tuning_rows := {}                ## the tuning page's rows by part (tests)
+var _tuning_focus := ""              ## after a pick rebuilds the page: the part whose row keeps the focus
+
+
+## The garage's tuning (PLAN M17): the car's spoiler, rims, underglow and hood, ten choices each,
+## live on the turntable. Each row shows its part and pick; Enter or a click takes the next choice,
+## left and right step either way. Picks are kept per car (settings car_tuning) and go wherever
+## the car does (races, ghosts, replays, online).
+func _page_tuning() -> void:
+	var model := TmUi.car_model()
+	var root := _root("Tuning", "Spoiler, rims, underglow and hood", "icon_options")
+	tuning_rows.clear()
+	var t := TmUi.car_tuning(model)
+	for part: String in TmRoadCars.TUNING if TmRoadCars.tunable(model) else []:
+		var opts := TmRoadCars.options(part)
+		var i := int(t.get(part, 0))
+		# two lines: the part, then its pick (the longest picks don't fit beside it)
+		var b := _row("%s\n%s" % [TmRoadCars.TUNING_NAMES[part], opts[i]["name"]], "icon_options",
+			func() -> void: tuning_step(part, 1))
+		b.add_theme_font_size_override("font_size", 26)
+		b.gui_input.connect(func(e: InputEvent) -> void:
+			if e.is_action_pressed("ui_left") or e.is_action_pressed("ui_right"):
+				b.accept_event()
+				TmUi.play("click")
+				tuning_step(part, -1 if e.is_action_pressed("ui_left") else 1))
+		tuning_rows[part] = b
+	_row("Back", "icon_back", back, true)
+	var body := _panel(root, TmRoadCars.car_name(model) if model != "hyper" else "Hypercar", Rect2(RIGHT.position.x, 0, 1180, 0))
+	var p := body.get_parent().get_parent().get_parent() as Control
+	p.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE)
+	p.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	p.offset_left = RIGHT.position.x
+	p.offset_bottom = -(900.0 - COLUMN.end.y)
+	if tuning_rows.is_empty():
+		body.add_child(TmUi.label("This car isn't tuned: pick one of our hypercar or road cars in the Garage.", 22, TmUi.DIM, TmUi.SANS))
+	else:
+		var grid := GridContainer.new()
+		grid.columns = 4
+		grid.add_theme_constant_override("h_separation", 40)
+		body.add_child(grid)
+		for part: String in TmRoadCars.TUNING:
+			var opts := TmRoadCars.options(part)
+			var i := int(t.get(part, 0))
+			var col := VBoxContainer.new()
+			col.add_child(TmUi.label(TmRoadCars.TUNING_NAMES[part], 20, TmUi.DIM, TmUi.SANS_BOLD))
+			col.add_child(TmUi.label(String(opts[i]["name"]), 28, TmUi.TM_GREEN if i > 0 else Color.WHITE, TmUi.SANS_BOLD))
+			col.add_child(TmUi.label("%d / %d" % [i + 1, opts.size()], 18, TmUi.DIM, TmUi.SANS))
+			grid.add_child(col)
+		body.add_child(TmUi.label("Enter: the next choice.  Left / right: step through them.", 19, TmUi.DIM, TmUi.SANS))
+	var focus: Control = tuning_rows.get(_tuning_focus, tuning_rows.get("spoiler"))
+	_tuning_focus = ""
+	if focus != null:
+		focus.grab_focus.call_deferred()
+
+
+## Takes tuning part `part`'s next (+1) or previous (-1) choice for the car we drive, and shows it.
+func tuning_step(part: String, dir: int) -> void:
+	var model := TmUi.car_model()
+	var n := TmRoadCars.options(part).size()
+	TmUi.set_car_tuning(model, part, posmod(int(TmUi.car_tuning(model).get(part, 0)) + dir, n))
+	_paint_car()
+	_tuning_focus = part
+	show_page("tuning")
 
 
 ## A livery's swatch: its colours as a glass chip (paint above, the vinyl's colour below), its

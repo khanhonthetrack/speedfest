@@ -26,6 +26,7 @@ uniform vec3 liv_c : source_color = vec3(1.0, 0.8, 0.1);
 uniform vec4 liv_p = vec4(0.0);
 uniform vec4 finish = vec4(0.12, 0.30, 1.0, 0.0);
 uniform int liv_hood = 0;            // 0 paint, 1 carbon, 2 gloss black
+uniform bool hood_all = false;       // the hood is every upward face ahead of the cabin (the hypercar's front deck)
 uniform int liv_roof = 0;            // 0 paint, 1 gloss black
 uniform vec2 cabin = vec2(1.5, 3.5); // the greenhouse's d range (from the nose)
 uniform float z_nose = 2.5;
@@ -119,6 +120,12 @@ struct Frame {
 	float hw;
 };
 
+// whether a point of the body is on its hood (ahead of the cabin, facing up, between the fenders'
+// tops: or all of the front deck)
+bool is_hood_at(float d, float hw, float belt, vec3 p, vec3 n) {
+	return d < cabin.x - 0.03 && n.y > 0.45 && (hood_all || abs(p.x) < hw * 0.78 && p.y > belt - 0.08);
+}
+
 Frame frame_at(vec3 p) {
 	Frame f;
 	float L = max(z_nose - z_tail, 1.0);
@@ -134,6 +141,25 @@ Frame frame_at(vec3 p) {
 	f.mid = mix(an_mid[i0], an_mid[i1], t);
 	f.hw = max(mix(an_hw[i0], an_hw[i1], t), 0.2);
 	return f;
+}
+
+bool is_hood(Frame f, vec3 p, vec3 n) {
+	return is_hood_at(f.d, f.hw, f.belt, p, n);
+}
+
+// a carbon weave's look at p (tows 9 mm wide, alternating 2x2 twill; fades to its average far away)
+void carbon_look(vec3 p, out vec3 alb, out float metal, out float rough) {
+	vec2 uv = p.xz * 110.0;
+	vec2 cell = floor(uv);
+	vec2 fc = fract(uv);
+	bool along = mod(cell.x + floor(cell.y * 0.5) * 2.0 + cell.y, 4.0) < 2.0;
+	float tow = along ? fc.y : fc.x;
+	float ridge = 1.0 - pow(abs(tow - 0.5) * 2.0, 2.0);
+	float cf = 1.0 - smoothstep(0.0, 0.35, fwidth(uv.x));
+	float sheen = mix(0.5, (along ? 0.58 : 0.42) * (0.7 + 0.3 * ridge), cf);
+	alb = vec3(0.025, 0.026, 0.03) + vec3(0.04) * sheen;
+	metal = 0.35;
+	rough = mix(0.4, 0.25 + 0.2 * (1.0 - ridge), cf);
 }
 
 // flames licking back from the nose: u along the car (m from the nose), w across the tongues
@@ -349,7 +375,7 @@ vec4 road_livery(vec3 p, vec3 n, out float carbon, out float black) {
 		o = mix(o, vec4(liv_a, 1.0), a1);
 	}
 	// the hood and roof
-	if (liv_hood > 0 && f.d < cabin.x - 0.03 && n.y > 0.45 && ax < f.hw * 0.78 && p.y > f.belt - 0.08) {
+	if (liv_hood > 0 && is_hood(f, p, n)) {
 		if (liv_hood == 1) {
 			carbon = 1.0;
 		} else {
@@ -396,18 +422,13 @@ void fragment() {
 		METALLIC = clamp(metal + (flake - 0.5) * 0.2 * fade * step(0.05, metal), 0.0, 1.0);
 		ROUGHNESS = clamp(rough + (flake - 0.5) * 0.12 * fade, 0.02, 1.0);
 		if (carbon > 0.5) {
-			vec3 a = abs(onrm);
-			vec2 uv = opos.xz * 110.0;
-			vec2 cell = floor(uv);
-			vec2 fc = fract(uv);
-			bool along = mod(cell.x + floor(cell.y * 0.5) * 2.0 + cell.y, 4.0) < 2.0;
-			float tow = along ? fc.y : fc.x;
-			float ridge = 1.0 - pow(abs(tow - 0.5) * 2.0, 2.0);
-			float cf = 1.0 - smoothstep(0.0, 0.35, fwidth(uv.x));
-			float sheen = mix(0.5, (along ? 0.58 : 0.42) * (0.7 + 0.3 * ridge), cf);
-			ALBEDO = vec3(0.025, 0.026, 0.03) + vec3(0.04) * sheen;
-			METALLIC = 0.35;
-			ROUGHNESS = mix(0.4, 0.25 + 0.2 * (1.0 - ridge), cf);
+			vec3 alb;
+			float m;
+			float r;
+			carbon_look(opos, alb, m, r);
+			ALBEDO = alb;
+			METALLIC = m;
+			ROUGHNESS = r;
 		}
 #if !defined(RT)
 		CLEARCOAT = finish.z;
@@ -457,6 +478,22 @@ void fragment() {
 		// round the body (a "jelly" look)
 		METALLIC = 0.12 + (flake - 0.5) * 0.2 * fade;
 		ROUGHNESS = 0.36 + (flake - 0.5) * 0.15 * fade;
+		// the hypercar's own livery with a tuned hood: carbon or gloss black on its front deck
+		if (mode == 3 && liv_hood > 0 && is_hood(frame_at(opos), opos, normalize(onrm))) {
+			if (liv_hood == 1) {
+				vec3 alb;
+				float m;
+				float r;
+				carbon_look(opos, alb, m, r);
+				ALBEDO = alb;
+				METALLIC = m;
+				ROUGHNESS = r;
+			} else {
+				ALBEDO = vec3(0.012, 0.012, 0.014);
+				METALLIC = 0.1;
+				ROUGHNESS = 0.18;
+			}
+		}
 #if !defined(RT)
 		CLEARCOAT = 0.85;             // (the RTX fork's hit shaders have no clearcoat)
 		CLEARCOAT_ROUGHNESS = 0.06;

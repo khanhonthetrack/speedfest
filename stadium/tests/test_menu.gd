@@ -119,7 +119,7 @@ func _ours(menu: TmMenu) -> void:
 
 
 ## The garage: the next car is driven from then on, a livery's swatch picks it, the focus stays on
-## what was pressed.
+## what was pressed; its tuning page steps the car's parts (kept per car, on the turntable).
 func _garage(menu: TmMenu) -> void:
 	TmUi.set_setting("car_model", "")
 	_press(menu, "Garage")
@@ -144,6 +144,30 @@ func _garage(menu: TmMenu) -> void:
 	_press(menu, "Previous car")
 	await get_tree().process_frame
 	TestHooks.check(TmUi.car_model() == "hyper", "menu_garage_previous_car", TmUi.car_model())
+	# tuning (PLAN M17): the garage's Tuning row, four parts, Enter steps a part on, left back
+	var was_t: Variant = TmUi.setting("car_tuning")
+	TmUi.set_setting("car_tuning", {})
+	_press(menu, "Tuning")
+	await get_tree().process_frame
+	TestHooks.check(menu.page == "tuning" and menu.tuning_rows.size() == 4 and menu._world.visible, "menu_tuning_page",
+		str(menu.tuning_rows.keys()))
+	(menu.tuning_rows["spoiler"] as Button).pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	f = get_viewport().gui_get_focus_owner()
+	TestHooks.check(int(TmUi.car_tuning("hyper")["spoiler"]) == 1 and f == menu.tuning_rows["spoiler"]
+		and (menu.tuning_rows["spoiler"] as Button).text.contains(String(TmRoadCars.SPOILERS[1]["name"])), "menu_tuning_next",
+		str(TmUi.car_tuning("hyper")))
+	menu.tuning_step("glow", -1)
+	await get_tree().process_frame
+	TestHooks.check(int(TmUi.car_tuning("hyper")["glow"]) == TmRoadCars.GLOWS.size() - 1 and _labels(menu).has("Rainbow"),
+		"menu_tuning_wraps")
+	var look := menu._car_holder.get_child(menu._car_holder.get_child_count() - 1) as TmCarVisual
+	TestHooks.check(look != null and int(look.tuning.get("glow", 0)) == TmRoadCars.GLOWS.size() - 1, "menu_tuning_on_the_turntable")
+	menu.back()
+	await get_tree().process_frame
+	TestHooks.check(menu.page == "garage", "menu_tuning_back_to_the_garage", menu.page)
+	TmUi.set_setting("car_tuning", was_t)
 	TmUi.set_setting("car_model", "")
 	menu.back()
 	await get_tree().process_frame

@@ -29,6 +29,11 @@ extends Node3D
 ## car: its body in our materials by name, its paint in the livery `livery` (TmRoadCars.LIVERIES:
 ## tm_car_surface.gdshader mode 4), on its own wheels at its own places (from its manifest), each
 ## wheel spinning, steering and riding the suspension like ours, the brake behind it fixed.
+## `tuning` (PLAN M17; the road cars and the hypercar) swaps parts: the spoiler and the hood's shape
+## for kit parts fitted to the car (TmRoadCars.kit), the rims for the library's (TmRoadCars.rims,
+## scaled to the car's wheels, in their own finishes), the hood's finish (the paint shader's carbon
+## or black), and lights the road under the car (underglow: a glow decal, tubes under the sills,
+## lights; not on ghosts).
 
 const T := preload("res://core/tm_tuning.gd")
 
@@ -92,6 +97,7 @@ var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online pla
 var pack: TmCarPack               ## a community car to draw instead of ours (null: ours)
 var model := ""                   ## ours: "" the open-wheeler, "hyper" the hypercar, or a road car (TmRoadCars)
 var livery := 0                   ## the road car's (or the hypercar's) livery (TmRoadCars.liveries)
+var tuning := {}                  ## its tuning {part: index} (TmRoadCars.TUNING; missing parts: 0, the car as it comes)
 var _from_pack := true            ## drawn from the pack's model (false: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
 var _rest: Array[Vector3] = []    ## per wheel: the pivot's place at rest (node space)
@@ -102,6 +108,10 @@ var _arms := []                   ## [MeshInstance3D, inner point (node space), 
 var _spin := 0.0
 var _mats := {}
 var _rename := {}                 ## our parts' material names -> this car's (the hypercar's rims)
+var _glow_mats: Array[BaseMaterial3D] = []   ## the underglow's tubes, decal and lights (a rainbow cycles them)
+var _glow_lights: Array[OmniLight3D] = []
+var _glow_decal: Decal
+var _glow_t := 0.0
 
 static var _shared := {}          ## part name -> ArrayMesh, built once for every car
 
@@ -153,6 +163,8 @@ func _mat(key: String) -> Material:
 				var lv := TmRoadCars.livery("hyper", livery)
 				if String(lv.get("pattern", "hyper")) == "hyper":
 					sm = _surface(3, paint_colour, 0.0)
+					_frame_uniforms(sm, "hyper")
+					sm.set_shader_parameter("liv_hood", _hood_finish(""))
 				else:
 					sm = _livery_paint("hyper", lv)
 			"hyper_carbon": sm = _surface(1, Color.BLACK, 0.0)
@@ -272,12 +284,16 @@ func _ready() -> void:
 		_road_parts()
 		if not ghost:
 			add_child(contact_shadow())
+			_underglow((TmRoadCars.meshes(model)["Body"] as Mesh).get_aabb())
 		return
 	_shared_meshes()
 	var hyper := model == "hyper" and _hyper_mesh() != null
 	if hyper:
 		_rename = {"rim": "hyper_rim"}     # dark forged rims on the hypercar
 	_part(_hyper_instance() if hyper else _instance("body"))
+	if hyper:
+		_tuned_parts(_hyper_mesh("HyperSpoiler"), _hyper_dress)
+	var rim := _tune("rims") if hyper else 0
 	for i in 4:
 		var front := i < 2
 		var pivot := Node3D.new()
@@ -290,7 +306,12 @@ func _ready() -> void:
 		pivot.add_child(spin)
 		var side := "L" if T.WHEELS[i].x > 0.0 else "R"
 		var axle := "F" if front else "B"
-		spin.add_child(_instance("wheel" + axle + side, true))
+		if rim > 0:
+			# the library's rim on our tyre (its bead) and disc
+			spin.add_child(_instance("tyre" + axle + side, true))
+			spin.add_child(_kit_rim(rim, BEAD_R + 0.004, float(TYRE_HW[0 if front else 1]), side == "R"))
+		else:
+			spin.add_child(_instance("wheel" + axle + side, true))
 		pivot.add_child(_instance(("hubH" if hyper else "hub") + axle + side, true))
 		_wheels.append(pivot)
 		_spins.append(spin)
@@ -302,6 +323,8 @@ func _ready() -> void:
 		add_child(contact_shadow())
 		if TmMaterials.hd():
 			_livery(HYPER_STICKERS if hyper else STICKERS)
+		if hyper:
+			_underglow(_hyper_mesh().get_aabb())
 
 
 ## The soft shade on the road under the car (TMNF and TM2020 bake it into the map; ours moves
@@ -482,33 +505,42 @@ const HYPER_MATS := {"paint": "hyper_paint", "carbon": "hyper_carbon", "black": 
 	"glass_dark": "glass_dark", "inlet": "inlet", "light": "light", "led": "led", "mirror": "mirror"}
 
 
-## The hypercar's body (one mesh, a surface per material), loaded once for every car.
-static func _hyper_mesh() -> ArrayMesh:
+## The hypercar's parts (HyperBody: one mesh, a surface per material; HyperSpoiler: its wing, end
+## plates and their lights), loaded once for every car. An older glb's only mesh is its body.
+static func _hyper_mesh(part := "HyperBody") -> ArrayMesh:
 	if not _shared.has("hyper"):
-		var mesh: ArrayMesh = null
+		var parts := {}
 		var scene := load(HYPER_GLB) as PackedScene
 		if scene != null:
 			var root := scene.instantiate()
 			var found := root.find_children("*", "MeshInstance3D", true, false)
-			if not found.is_empty():
-				mesh = (found[0] as MeshInstance3D).mesh as ArrayMesh
+			for mi: MeshInstance3D in found:
+				parts[String(mi.name)] = mi.mesh
+			if not parts.has("HyperBody") and not found.is_empty():
+				parts["HyperBody"] = (found[0] as MeshInstance3D).mesh
 			root.free()
-		_shared["hyper"] = mesh
-	return _shared["hyper"]
+		_shared["hyper"] = parts
+	return (_shared["hyper"] as Dictionary).get(part) as ArrayMesh
 
 
 func _hyper_instance() -> MeshInstance3D:
-	var mesh := _hyper_mesh()
 	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
+	mi.name = "Body"
+	mi.mesh = _hyper_mesh()
 	mi.position = -VIS
+	_hyper_dress(mi)
+	return mi
+
+
+## The hypercar's materials on a part (its body's, a kit part's) by their names.
+func _hyper_dress(mi: MeshInstance3D) -> void:
+	var mesh := mi.mesh
 	for s in mesh.get_surface_count():
 		var src := mesh.surface_get_material(s)
-		var name := src.resource_name if src != null else mesh.surface_get_name(s)
+		var name: String = src.resource_name if src != null else mesh.surface_get_name(s)
 		mi.set_surface_override_material(s, _mat(String(HYPER_MATS.get(name, "hyper_paint"))))
 	if ghost:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return mi
 
 
 func _instance(name: String, wheel := false) -> MeshInstance3D:
@@ -541,8 +573,10 @@ func _road_parts() -> void:
 	body.position = -VIS
 	_road_dress(body)
 	add_child(body)
+	_tuned_parts(rc.get("Spoiler"), _road_dress)
 	var cs: Array = man["wheels"]
 	var radii: Array = man["tyre_r"]
+	var rim := _tune("rims")
 	for i in 4:
 		var axle := "F" if i < 2 else "R"
 		var c: Array = cs[i]
@@ -553,8 +587,9 @@ func _road_parts() -> void:
 		var spin := Node3D.new()
 		pivot.add_child(spin)
 		var right := float(c[0]) < 0.0
-		for part: String in ["Wheel", "Brake"]:
-			if not rc.has(part + axle):
+		# the tyre and the car's own rim (an older glb: one wheel), or the library's rim
+		for part: String in ["Wheel", "Tyre", "Rim", "Brake"]:
+			if not rc.has(part + axle) or part == "Rim" and rim > 0:
 				continue
 			var mi := MeshInstance3D.new()
 			mi.mesh = rc[part + axle]
@@ -562,7 +597,11 @@ func _road_parts() -> void:
 			if right:
 				mi.scale = Vector3(-1.0, 1.0, 1.0)
 			_road_dress(mi)
-			(spin if part == "Wheel" else pivot).add_child(mi)
+			(pivot if part == "Brake" else spin).add_child(mi)
+		if rim > 0 and rc.has("Tyre" + axle):
+			var rr: Array = man.get("rim_r", [float(radii[0]) - 0.08, float(radii[1]) - 0.08])
+			var hw: Array = man.get("tyre_hw", [0.12, 0.12])
+			spin.add_child(_kit_rim(rim, float(rr[0 if i < 2 else 1]), float(hw[0 if i < 2 else 1]), right))
 		_wheels.append(pivot)
 		_spins.append(spin)
 		_rest.append(pivot.position)
@@ -589,8 +628,16 @@ func _livery_paint(id: String, lv: Dictionary) -> ShaderMaterial:
 	sm.set_shader_parameter("liv_c", lv.get("c", Color.BLACK))
 	sm.set_shader_parameter("liv_p", lv.get("p", Vector4.ZERO))
 	sm.set_shader_parameter("finish", FINISHES.get(String(lv.get("finish", "metallic")), FINISHES["metallic"]))
-	sm.set_shader_parameter("liv_hood", ["", "carbon", "black"].find(String(lv.get("hood", ""))))
+	sm.set_shader_parameter("liv_hood", _hood_finish(String(lv.get("hood", ""))))
 	sm.set_shader_parameter("liv_roof", ["", "black"].find(String(lv.get("roof", ""))))
+	_frame_uniforms(sm, id)
+	sm.set_shader_parameter("flakes", 1.0 if String(lv.get("finish", "metallic")) in ["metallic", "pearl"] else 0.0)
+	return sm
+
+
+## The body's lines along the car (its manifest) for the paint shader's livery and hood.
+func _frame_uniforms(sm: ShaderMaterial, id: String) -> void:
+	var man := TmRoadCars.manifest(id)
 	var an: Dictionary = man.get("anchors", {})
 	for k: String in ["top", "belt", "mid", "sill", "hw"]:
 		sm.set_shader_parameter("an_" + k, PackedFloat32Array(an.get(k, [])))
@@ -598,8 +645,180 @@ func _livery_paint(id: String, lv: Dictionary) -> ShaderMaterial:
 	sm.set_shader_parameter("z_tail", float(man.get("z_tail", -2.0)))
 	var cab: Array = man.get("cabin", [1.5, 3.5])
 	sm.set_shader_parameter("cabin", Vector2(float(cab[0]), float(cab[1])))
-	sm.set_shader_parameter("flakes", 1.0 if String(lv.get("finish", "metallic")) in ["metallic", "pearl"] else 0.0)
-	return sm
+	# the hypercar's hood is its whole front deck (the nose between and over the fender pods)
+	sm.set_shader_parameter("hood_all", id == "hyper")
+
+
+## The hood's finish for the paint shader (0 paint, 1 carbon, 2 black): the tuning's, else the
+## livery's.
+func _hood_finish(livery_hood: String) -> int:
+	var hf := String(TmRoadCars.HOODS[_tune("hood")]["finish"])
+	return ["", "carbon", "black"].find(hf if hf != "" else livery_hood)
+
+
+## Tuning part `part`'s pick for this car (0 for a car without tuning).
+func _tune(part: String) -> int:
+	if not TmRoadCars.tunable(model):
+		return 0
+	return clampi(int(tuning.get(part, 0)), 0, TmRoadCars.options(part).size() - 1)
+
+
+## The tuning's spoiler (the car's own `stock` for 0, none for 1, else the kit's) and the hood's
+## shape (the kit's), each a part in visual coordinates dressed like the body (`dress`).
+func _tuned_parts(stock: Mesh, dress: Callable) -> void:
+	var kit := TmRoadCars.kit(model)
+	var parts := {}
+	var sp := _tune("spoiler")
+	if sp == 0:
+		parts["Spoiler"] = stock
+	elif sp >= 2:
+		parts["Spoiler"] = kit.get("Spoiler%d" % sp)
+	var shape := String(TmRoadCars.HOODS[_tune("hood")]["shape"])
+	if shape != "":
+		parts["Hood"] = kit.get("Hood" + shape.capitalize())
+	for name: String in parts:
+		if parts[name] == null:
+			continue
+		var mi := MeshInstance3D.new()
+		mi.name = name
+		mi.mesh = parts[name]
+		mi.position = -VIS
+		dress.call(mi)
+		add_child(mi)
+
+
+## The rim library's rim k (TmRoadCars.rims) scaled to a wheel whose bead sits at radius rr and
+## whose half width is hw, in its finish (the +x side's; mirrored for the right side).
+func _kit_rim(k: int, rr: float, hw: float, right: bool) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.name = "Rim"
+	mi.mesh = TmRoadCars.rims().get("Rim%d" % k)
+	if mi.mesh == null:
+		return mi
+	var a := hw / TmRoadCars.RIM_REF.y
+	var r := rr / TmRoadCars.RIM_REF.x
+	mi.scale = Vector3(-a if right else a, r, r)
+	mi.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	for s in mi.mesh.get_surface_count():
+		var src := mi.mesh.surface_get_material(s)
+		var name: String = src.resource_name if src != null else mi.mesh.surface_get_name(s)
+		mi.set_surface_override_material(s, _kit_rim_mat(k) if name == "rim" else _road_mat("rim_lip"))
+	if ghost:
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi
+
+
+## A library rim's finish (TmRoadCars.RIMS): its own colour, else the livery's rim colour.
+func _kit_rim_mat(k: int) -> Material:
+	var key := "kit_rim%d" % k
+	if not _mats.has(key):
+		var r: Dictionary = TmRoadCars.RIMS[k]
+		var m := StandardMaterial3D.new()
+		m.albedo_color = r.get("colour", TmRoadCars.livery(model, livery).get("rim", Color(0.78, 0.79, 0.81)))
+		m.metallic = float(r.get("metallic", 0.9))
+		m.roughness = float(r.get("roughness", 0.28))
+		_mats[key] = _ghostly(m)
+	return _mats[key]
+
+
+## Underglow (tuning "glow"; not on ghosts): the road under the car lit in the glow's colour (an
+## emissive decal round its footprint and two lights under it) and a neon tube under each sill and
+## across both ends. `box`: the body's bounds (visual coordinates).
+func _underglow(box: AABB) -> void:
+	var g: Dictionary = TmRoadCars.GLOWS[_tune("glow")]
+	if not g.has("colour") and not g.get("cycle", false):
+		return
+	var col: Color = g.get("colour", Color.from_hsv(0.0, 0.9, 1.0))
+	var tube := StandardMaterial3D.new()
+	tube.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	tube.albedo_color = col
+	_glow_mats.append(tube)
+	var hx := box.size.x * 0.5 - 0.17
+	var y := maxf(box.position.y - 0.012, 0.06)
+	var z0 := box.position.z + 0.5
+	var z1 := box.end.z - 0.5
+	var cx := box.get_center().x
+	for t: Array in [[Vector3(cx + hx, y, (z0 + z1) * 0.5), Vector3(0.025, 0.018, z1 - z0)],
+			[Vector3(cx - hx, y, (z0 + z1) * 0.5), Vector3(0.025, 0.018, z1 - z0)],
+			[Vector3(cx, y, z1), Vector3(hx * 1.6, 0.018, 0.025)], [Vector3(cx, y, z0), Vector3(hx * 1.6, 0.018, 0.025)]]:
+		var mi := MeshInstance3D.new()
+		mi.name = "GlowTube"
+		var bm := BoxMesh.new()
+		bm.size = t[1]
+		mi.mesh = bm
+		mi.material_override = tube
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.position = (t[0] as Vector3) - VIS
+		add_child(mi, true)
+	var d := Decal.new()
+	d.name = "Underglow"
+	d.texture_emission = _glow_tex(box.size.x / d_size(box).x, box.size.z / d_size(box).z)
+	d.emission_energy = 1.8
+	d.albedo_mix = 0.0
+	d.modulate = col
+	d.size = d_size(box)
+	d.position = Vector3(cx, -0.08, box.get_center().z) - VIS
+	d.normal_fade = 0.5
+	d.upper_fade = 0.2
+	d.lower_fade = 0.4
+	d.distance_fade_enabled = true
+	d.distance_fade_begin = 90.0
+	d.distance_fade_length = 20.0
+	add_child(d)
+	_glow_decal = d
+	for z: float in [z0 + 0.3, z1 - 0.3]:
+		var l := OmniLight3D.new()
+		l.name = "GlowLight"
+		l.light_color = col
+		l.light_energy = 1.6
+		l.omni_range = 2.2
+		l.omni_attenuation = 1.4
+		l.shadow_enabled = false
+		l.position = Vector3(cx, 0.08, z) - VIS
+		add_child(l, true)
+		_glow_lights.append(l)
+	set_meta("glow_cycle", bool(g.get("cycle", false)))
+
+
+## The underglow decal's size round a body's bounds.
+static func d_size(box: AABB) -> Vector3:
+	return Vector3(box.size.x + 1.6, 0.5, box.size.z + 1.4)
+
+
+static var _glows := {}
+
+
+## The underglow's light on the road (emission, its colour from the decal's modulate): brightest
+## just under the car's edges (the tubes), softer under its middle, fading out a metre round it.
+## fx, fz: the car's footprint as fractions of the decal's size.
+static func _glow_tex(fx: float, fz: float) -> ImageTexture:
+	var key := "%.2f_%.2f" % [fx, fz]
+	if not _glows.has(key):
+		var w := 96
+		var h := 160
+		var img := Image.create(w, h, true, Image.FORMAT_RGBA8)
+		for y in h:
+			for x in w:
+				var u := absf((x + 0.5) / w * 2.0 - 1.0) / fx
+				var v := absf((y + 0.5) / h * 2.0 - 1.0) / fz
+				var e := maxf(u, v)                  # 1 on the footprint's edge
+				var i := 0.0
+				if e <= 1.0:
+					i = 0.45 + 0.55 * smoothstep(0.55, 1.0, e)
+				else:
+					var du := maxf(0.0, u - 1.0) * fx / (1.0 - fx)
+					var dv := maxf(0.0, v - 1.0) * fz / (1.0 - fz)
+					var dd := sqrt(du * du + dv * dv)    # 0 at the edge, 1 at the decal's border
+					i = exp(-pow(dd / 0.38, 2.0)) * (1.0 - smoothstep(0.8, 1.0, dd))
+				img.set_pixel(x, y, Color(i, i, i, 1.0))
+		img.generate_mipmaps()
+		_glows[key] = ImageTexture.create_from_image(img)
+	return _glows[key]
+
+
+## The underglow's colour now (a rainbow's turns through the hues).
+func _glow_colour(t: float) -> Color:
+	return Color.from_hsv(fmod(t * 0.12, 1.0), 0.9, 1.0)
 
 
 ## The finishes a livery can have: metallic, roughness, clearcoat, pearl.
@@ -781,6 +1000,14 @@ static func _tube_mesh(rx: float, ry: float) -> ArrayMesh:
 
 
 func _process(delta: float) -> void:
+	if _glow_decal != null and bool(get_meta("glow_cycle", false)):
+		_glow_t += delta
+		var gc := _glow_colour(_glow_t)
+		_glow_decal.modulate = gc
+		for m in _glow_mats:
+			m.albedo_color = gc
+		for l in _glow_lights:
+			l.light_color = gc
 	if car and _mats.has("light") and _mats["light"] is StandardMaterial3D:   # brake lights
 		(_mats["light"] as StandardMaterial3D).emission_energy_multiplier = 7.0 if car.brake > 0.1 else 1.6
 	for m in _brake_glow:
@@ -838,6 +1065,19 @@ static func _shared_meshes() -> void:
 		_shared["wheel" + axle + "R"] = wr.build()
 		_shared["hub" + axle + "R"] = hr.build()
 		_shared["hubH" + axle + "R"] = br.build()
+		# the tyre and disc alone (a tuned rim goes in their place)
+		for side: String in ["L", "R"]:
+			_shared["tyre" + axle + side] = _surfaces(_shared["wheel" + axle + side], ["tyre", "disc"])
+
+
+## A mesh of some of another's surfaces (by name).
+static func _surfaces(src: ArrayMesh, keep: Array) -> ArrayMesh:
+	var out := ArrayMesh.new()
+	for s in src.get_surface_count():
+		if src.surface_get_name(s) in keep:
+			out.add_surface_from_arrays(src.surface_get_primitive_type(s), src.surface_get_arrays(s))
+			out.surface_set_name(out.get_surface_count() - 1, src.surface_get_name(s))
+	return out
 
 
 ## The tub's section at a station: a rounded trapezoid that opens into a U for the cockpit.

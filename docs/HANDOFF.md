@@ -1,6 +1,16 @@
 # HANDOFF: start here
 
-## Latest (22 Oct, session 17, cloud): 16 road cars of our own with liveries (PLAN M16), on branch `claude/nice-ride-q9yx1h`
+## Latest (22 Oct, session 17, cloud): tuning (PLAN M17), on branch `claude/nice-ride-q9yx1h`
+- Owner: tuning for spoilers, rims, underglow ("light under") and hoods, 7-10 options each, the
+  hypercar too. Done: ten choices each (`TmRoadCars.TUNING`), Garage -> Tuning.
+- Kits: `tools/assets/tuning_kit.py` fits 8 spoilers and 5 hood shapes to each car's body (run by
+  `roadcar.py` and `hypercar.py`: `<id>_kit.glb` beside `<id>.glb`); `tools/assets/rims.py` makes the
+  rim library (`rims.glb`); underglow is drawn by `TmCarVisual._underglow`. Rebuild a car and its
+  kit: `blender -b -P stadium/tools/assets/roadcar.py -- --car <id> --out stadium/assets/car`.
+- Look at a tuned car: `stadium/tools/run.sh res://car/car_lab.tscn -- --model=<id> --spoiler=6
+  --rims=3 --glow=2 --hood=9 [--mood=night] --frames=40 --shot=/abs.png`.
+
+## Earlier (22 Oct, session 17, cloud): 16 road cars of our own with liveries (PLAN M16), on branch `claude/nice-ride-q9yx1h`
 - Owner: recreate NFS Most Wanted (2005)'s 16 Blacklist cars "in high quality" for the Stadium game,
   all in the garage with 5 NFS-style liveries each (no fake sponsors), and 5 liveries for the
   hypercar. Branch `claude/nice-ride-q9yx1h` (from `stadium`); not merged yet.

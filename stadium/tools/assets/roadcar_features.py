@@ -21,7 +21,8 @@ top (x, d); `mirror` puts a copy on the -x side; radii round an outline's corner
   from d a0 to a1): splitters, skirts, diffusers, strakes, fins
 - cutters: [{outline, axis, a0, a1, radii, mats, mirror}] prisms cut out (slots, louvres)
 - mirrors: [{base: (x, d, y), size: (w, h, depth), reach}]
-- wings: [{span, chord, d, y, pitch, elements, plates, uprights, mat}]
+- wings: [{span, chord, d, y, pitch, elements, plates, uprights, mat}] (with solids marked
+  "spoiler": the car's stock spoiler, exported as its own part "Spoiler")
 - exhausts: [{at: (x, y, d), r | (rx, ry), length, mirror, mat}]
 - wipers: {"d": the arms' d at the cowl, "x": [the arms' pivots' x], "len": arm length}
 """
@@ -65,7 +66,10 @@ def features(car, surf, spec):
                         radii=p.get("radii"), ray=p.get("ray"), mirror=p.get("mirror", False))
     for s in spec.get("solids", []):
         o = rc.prism("Solid", s["outline"], s["a0"], s["a1"], s["axis"], s.get("mat", "trim"), radii=s.get("radii"), car=car)
-        add += rc.both(o, s.get("mirror", False))
+        for oo in rc.both(o, s.get("mirror", False)):
+            if s.get("spoiler"):
+                oo["kit"] = "spoiler"           # the stock spoiler: its own part (tuning swaps it)
+            add.append(oo)
     add += arch_lips(car, surf, spec)
     if spec.get("splitter"):
         add += splitter(car, spec["splitter"])
@@ -73,7 +77,9 @@ def features(car, surf, spec):
         for o in rc.mirror_part(car, m):
             add += rc.both(o)
     for w in spec.get("wings", []):
-        add += rc.wing_part(car, w)
+        for o in rc.wing_part(car, w):
+            o["kit"] = "spoiler"
+            add.append(o)
     for e in spec.get("exhausts", []):
         add += rc.exhaust_part(car, e)
     if spec.get("wipers"):

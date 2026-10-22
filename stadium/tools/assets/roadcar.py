@@ -1156,41 +1156,23 @@ def exhaust_part(car, e):
 # --- wheels ----------------------------------------------------------------------------------------
 
 def wheel_objects(car, axle):
-    """The +x side's wheel of an axle, centred on its origin (Blender: axis x, outer face +x):
-    tyre, rim, and (separately) its brake."""
+    """The +x side's wheel of an axle, centred on its origin (Blender: axis x, outer face +x): its
+    tyre, its rim and its brake, each its own part (tuning swaps the rim)."""
     t = car.s["tyre"]
     R = t["r"][axle]
     W = t["w"][axle]
     rr = t.get("rim_r", R - 0.08)
     rr = rr[axle] if isinstance(rr, (list, tuple)) else rr
-    style = t.get("rim", "five")
     hw = W * 0.5
     # the tyre: sidewalls bulging out of the bead, rounded shoulders, a flat tread
     prof = [(-hw + 0.012, rr + 0.004, "tyre"), (-hw + 0.004, rr + 0.02, "tyre"), (-hw - 0.004, rr + (R - rr) * 0.45, "tyre"),
             (-hw + 0.002, R - 0.022, "tyre"), (-hw + 0.012, R - 0.006, "tyre"), (-hw + 0.03, R, "tyre"),
             (hw - 0.03, R, "tyre"), (hw - 0.012, R - 0.006, "tyre"), (hw - 0.002, R - 0.022, "tyre"),
             (hw + 0.004, rr + (R - rr) * 0.45, "tyre"), (hw - 0.004, rr + 0.02, "tyre"), (hw - 0.012, rr + 0.004, "tyre")]
-    tyre = revolve("Tyre", prof + [(prof[0][0], prof[0][1], "tyre")], "tyre", seg=72)
-    # the rim: barrel inside the tyre, a polished lip at the face, spokes to a hub
-    face = hw - 0.012                       # the lip's outer plane
-    dish = t.get("dish", 0.035)             # how far the spokes' centre sits back from the lip
-    barrel = revolve("Barrel", [(-hw + 0.01, rr - 0.004, "rim"), (-hw + 0.01, rr - 0.018, "rim"), (face - 0.02, rr - 0.018, "rim"),
-                                (face - 0.01, rr - 0.03, "rim"), (face - 0.004, rr - 0.03, "rim_lip"), (face, rr - 0.018, "rim_lip"),
-                                (face + 0.002, rr + 0.006, "rim_lip"), (face - 0.008, rr + 0.012, "rim_lip"),
-                                (hw - 0.03, rr + 0.004, "rim")], "rim", seg=72)
-    obs = [tyre, barrel]
-    obs += spokes(style, rr - 0.025, face - 0.006, dish, t)
-    # hub, centre cap, lug nuts
-    hub_x = face - 0.006 - dish
-    obs.append(revolve("Hub", [(hub_x - 0.03, 0.0, "rim"), (hub_x - 0.03, 0.085, "rim"), (hub_x + 0.008, 0.085, "rim"),
-                               (hub_x + 0.012, 0.07, "rim"), (hub_x + 0.012, 0.035, "rim_lip"), (hub_x + 0.02, 0.028, "rim_lip"),
-                               (hub_x + 0.022, 0.0, "rim_lip")], "rim", seg=40))
-    nuts = t.get("nuts", 5)
-    for k in range(nuts):
-        a = 2 * math.pi * (k + 0.5) / nuts
-        c = Vector((hub_x + 0.008, math.cos(a) * 0.058, math.sin(a) * 0.058))
-        obs.append(cylinder("Nut", c, (1, 0, 0), 0.0095, 0.016, ("rim_lip", "rim_lip"), seg=6))
-    wheel = join(obs, "Wheel" + "FR"[axle])
+    tyre = revolve("Tyre" + "FR"[axle], prof + [(prof[0][0], prof[0][1], "tyre")], "tyre", seg=72)
+    rim = rim_object(t, rr, hw, "Rim" + "FR"[axle])
+    face = hw - 0.012
+    hub_x = face - 0.006 - t.get("dish", 0.035)
     # the brake: a disc behind the spokes, a caliper over it towards the rear-top
     dr = min(rr - 0.05, t.get("disc_r", rr - 0.05))
     disc = revolve("Disc", [(hub_x - 0.075, 0.09, "disc"), (hub_x - 0.075, dr, "disc"), (hub_x - 0.045, dr, "disc"),
@@ -1205,7 +1187,33 @@ def wheel_objects(car, axle):
         sec.append((math.cos(a) * (dr - 0.06), math.sin(a) * (dr - 0.06)))
     cal_ob = prism_x_local("Caliper", sec, hub_x - 0.1, hub_x - 0.025, "caliper")
     brake = join([disc, cal_ob], "Brake" + "FR"[axle])
-    return wheel, brake
+    return tyre, rim, brake
+
+
+def rim_object(t, rr, hw, name):
+    """A rim (the +x side's, centred on its origin, outer face +x) of style t["rim"] for a tyre
+    whose bead sits at radius rr and whose half width is hw: the barrel with a polished lip at the
+    face, the spokes, the hub with its centre cap and lug nuts."""
+    face = hw - 0.012                       # the lip's outer plane
+    dish = t.get("dish", 0.035)             # how far the spokes' centre sits back from the lip
+    lip = t.get("lip", 0.0)                 # a stepped lip's depth (deep-dish rims)
+    barrel = revolve("Barrel", [(-hw + 0.01, rr - 0.004, "rim"), (-hw + 0.01, rr - 0.018, "rim"), (face - 0.02 - lip, rr - 0.018, "rim"),
+                                (face - 0.01 - lip, rr - 0.03, "rim"), (face - 0.004 - lip, rr - 0.03, "rim_lip"),
+                                (face - lip * 0.5, rr - 0.03 + lip * 0.15, "rim_lip"), (face, rr - 0.018, "rim_lip"),
+                                (face + 0.002, rr + 0.006, "rim_lip"), (face - 0.008, rr + 0.012, "rim_lip"),
+                                (hw - 0.03, rr + 0.004, "rim")], "rim", seg=72)
+    obs = [barrel]
+    obs += spokes(t.get("rim", "five"), rr - 0.025 - lip * 0.3, face - 0.006 - lip, dish, t)
+    hub_x = face - 0.006 - dish - lip
+    obs.append(revolve("Hub", [(hub_x - 0.03, 0.0, "rim"), (hub_x - 0.03, 0.085, "rim"), (hub_x + 0.008, 0.085, "rim"),
+                               (hub_x + 0.012, 0.07, "rim"), (hub_x + 0.012, 0.035, "rim_lip"), (hub_x + 0.02, 0.028, "rim_lip"),
+                               (hub_x + 0.022, 0.0, "rim_lip")], "rim", seg=40))
+    nuts = t.get("nuts", 5)
+    for k in range(nuts):
+        a = 2 * math.pi * (k + 0.5) / nuts
+        c = Vector((hub_x + 0.008, math.cos(a) * 0.058, math.sin(a) * 0.058))
+        obs.append(cylinder("Nut", c, (1, 0, 0), 0.0095, 0.016, ("rim_lip", "rim_lip"), seg=6))
+    return join(obs, name)
 
 
 def prism_x_local(name, sec, x0, x1, mat):
@@ -1277,6 +1285,11 @@ def spokes(style, r_out, face, dish, t):
             a = 2 * math.pi * i / n
             for s in (-1, 1):
                 obs.append(spoke(a + s * 0.07, 0.016, 0.02, sweep=-s * 0.05, thick=0.024))
+    elif style == "twist":                   # twin spokes curving the same way (directional)
+        for i in range(n):
+            a = 2 * math.pi * i / n
+            for s in (-1, 1):
+                obs.append(spoke(a + s * 0.11, 0.022, 0.03, curve=0.55, thick=0.024))
     elif style == "disc":                    # a flat aero disc with holes cut by the shader... (plain)
         obs.append(revolve("DiscFace", [(face - dish, 0.0, "rim"), (face - dish, r_out * 0.6, "rim"), (face - 0.004, r_out, "rim")],
                            "rim", seg=64))
@@ -1327,8 +1340,13 @@ def build(spec):
         boolean(body, cut, "DIFFERENCE")
     surf2 = Surface(body)
     add += feats.late_features(car, surf2, spec)
-    obs = [body] + add
+    spoiler = [o for o in add if o.get("kit") == "spoiler"]
+    obs = [body] + [o for o in add if o.get("kit") != "spoiler"]
     ob = join(obs, "Body")
+    car.spoiler = join(spoiler, "Spoiler") if spoiler else None
+    if car.spoiler is not None:
+        car.spoiler.data.shade_smooth()
+        car.spoiler.data.set_sharp_from_angle(angle=math.radians(40.0))
     underbody(ob)
     me = ob.data
     me.shade_smooth()
@@ -1340,12 +1358,24 @@ def build(spec):
     print("ROADCAR %s body triangles: %d %s" % (spec["id"], sum(tris.values()), tris))
     wheels = []
     for axle in (0, 1):
-        w, b = wheel_objects(car, axle)
-        for o in (w, b):
+        parts = wheel_objects(car, axle)
+        for o in parts:
             o.data.shade_smooth()
             o.data.set_sharp_from_angle(angle=math.radians(35.0))
-        wheels += [w, b]
+        wheels += list(parts)
     return car, ob, wheels
+
+
+def kit_geo(car, body):
+    """The tuning kit's view of this car (tuning_kit.Geo): its body without the stock spoiler, the
+    hood from the nose to just short of the windscreen's foot, its usable half width inside the
+    hood's edge."""
+    tk = importlib.import_module("tuning_kit")
+    f = car.s.get("fit", {})
+    cowl = f.get("cowl", (car.gd[0] + 0.06) if car.gd else car.L * 0.3)
+    key = "hood_x" if "hood_x" in car.c else "edge_x"
+    return tk.Geo(body, car.z_nose, car.z(car.L), car.z(0.22), car.z(cowl - 0.12),
+                  lambda z: car.c[key](car.z_nose - z) * 0.85)
 
 
 def underbody(ob):
@@ -1389,23 +1419,36 @@ def anchors(car, n=24):
     return out
 
 
-def export(spec, car, body, wheels, out_dir):
+def export_objects(obs, path):
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in obs:
+        o.select_set(True)
+    bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
+                              export_yup=True, export_normals=True, export_texcoords=False, export_materials="EXPORT")
+
+
+def export(spec, car, body, wheels, out_dir, kit):
+    """<id>.glb: Body, Spoiler (the stock one, if any), Tyre/Rim/Brake F and R; <id>_kit.glb: the
+    tuning kit's parts fitted to this body (tuning_kit.py); <id>.json: the manifest."""
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, spec["id"] + ".glb")
     for o in wheels:
         o.location = (0.0, 0.0, 0.0)
-    bpy.ops.object.select_all(action="DESELECT")
-    for o in [body] + wheels:
-        o.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
-                              export_yup=True, export_normals=True, export_texcoords=False, export_materials="EXPORT")
-    tris = sum(len(p.vertices) - 2 for o in [body] + wheels for p in o.data.polygons)
+    parts = [body] + ([car.spoiler] if getattr(car, "spoiler", None) is not None else []) + wheels
+    export_objects(parts, path)
+    tris = sum(len(p.vertices) - 2 for o in parts for p in o.data.polygons)
+    export_objects(kit, os.path.join(out_dir, spec["id"] + "_kit.glb"))
+    kit_tris = {o.name: sum(len(p.vertices) - 2 for p in o.data.polygons) for o in kit}
+    print("ROADCAR kit", kit_tris)
     box_min = [min(v.co[i] for v in body.data.vertices) for i in range(3)]
     box_max = [max(v.co[i] for v in body.data.vertices) for i in range(3)]
     man = {
         "id": spec["id"], "name": spec["name"],
         "wheels": [[round(sx * x, 4), round(y, 4), round(z, 4)] for (x, y, z) in car.wheels for sx in (1, -1)],
         "tyre_r": list(spec["tyre"]["r"]), "tyre_hw": [w * 0.5 for w in spec["tyre"]["w"]],
+        "rim_r": [r for r in (spec["tyre"].get("rim_r") if isinstance(spec["tyre"].get("rim_r"), (list, tuple))
+                              else [spec["tyre"].get("rim_r", spec["tyre"]["r"][0] - 0.08)] * 2)],
+        "kit": sorted(o.name for o in kit),
         "length": spec["length"], "z_nose": round(car.z_nose, 4), "z_tail": round(car.z(car.L), 4),
         # Blender (x, -z, y) -> visual
         "box": [[round(box_min[0], 3), round(box_min[2], 3), round(-box_max[1], 3)],
@@ -1424,9 +1467,8 @@ def shots(car, body, wheels, out_path, size=None):
     # place the wheels for the views
     placed = []
     for (x, y, z), axle in zip(car.wheels, (0, 1)):
-        w, b = wheels[axle * 2], wheels[axle * 2 + 1]
         for sx in (1, -1):
-            for o in (w, b):
+            for o in wheels[axle * 3:axle * 3 + 3]:
                 c = o.copy()
                 c.data = o.data
                 sc.collection.objects.link(c)
@@ -1512,9 +1554,8 @@ def ortho(car, body, wheels, out_path):
     sc = bpy.context.scene
     placed = []
     for (x, y, z), axle in zip(car.wheels, (0, 1)):
-        w, b = wheels[axle * 2], wheels[axle * 2 + 1]
         for sx in (1, -1):
-            for o in (w, b):
+            for o in wheels[axle * 3:axle * 3 + 3]:
                 c = o.copy()
                 c.data = o.data
                 sc.collection.objects.link(c)
@@ -1572,9 +1613,17 @@ def run(car_id):
     mod = importlib.import_module("roadcars." + car_id)
     spec = mod.SPEC
     car, body, wheels = build(spec)
+    kit = importlib.import_module("tuning_kit").kit(kit_geo(car, body))
     out = opt("out")
     if out:
-        export(spec, car, body, wheels, out)
+        export(spec, car, body, wheels, out, kit)
+    # --tuning <spoiler>,<hood shape>: the shots and silhouettes with those kit parts on (2-9 or
+    # "stock"/"none"; vents, scoop, bulge, louvres, cowl or "stock")
+    tun = (opt("tuning") or "stock,stock").split(",")
+    for o in kit:
+        o.hide_render = not (o.name == "Spoiler" + tun[0] or o.name.lower() == "hood" + tun[1].lower())
+    if getattr(car, "spoiler", None) is not None:
+        car.spoiler.hide_render = tun[0] != "stock"
     if opt("blend"):
         bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(opt("blend")))
     if opt("ortho"):

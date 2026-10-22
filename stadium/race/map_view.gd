@@ -56,6 +56,10 @@ func _cars() -> void:
 		ours.paint_colour = TmUi.car_colour()
 		ours.model = String(TestHooks.arg("car_model", TmUi.car_model()))    # --car_model=hyper
 		ours.livery = int(TestHooks.arg("livery", TmUi.car_livery(ours.model)))
+		ours.tuning = TmUi.car_tuning(ours.model)
+		for part: String in TmRoadCars.TUNING:
+			if TestHooks.has_arg(part):
+				ours.tuning[part] = int(TestHooks.arg(part, 0))
 		if TestHooks.has_arg("car_pack"):    # a community car pack (.zip) drawn instead of ours
 			ours.pack = TmCarPack.load_zip(String(TestHooks.arg("car_pack", "")))
 		add_child(ours)

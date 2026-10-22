@@ -9,11 +9,13 @@
 // models an admin uploaded): the welcome lists them, a player's pick is in the player list.
 //
 // Client -> server:
-//   {t:'hello', name, version, colour, token?, spectator?, car?, model?, livery?} token: the master's (an
-//                                                              account); car: a car pack's id ('' ours);
-//                                                              model: which of our own cars ('' the
-//                                                              open-wheeler, 'hyper' the hypercar, a
-//                                                              road car); livery: its livery (0-4)
+//   {t:'hello', name, version, colour, token?, spectator?, car?, model?, livery?, tuning?} token: the
+//                                                              master's (an account); car: a car pack's
+//                                                              id ('' ours); model: which of our own
+//                                                              cars ('' the open-wheeler, 'hyper' the
+//                                                              hypercar, a road car); livery: its livery
+//                                                              (0-4); tuning: its parts {spoiler, rims,
+//                                                              glow, hood} (0-9 each)
 //   {t:'car', id}                                              another car (one of the server's)
 //   {t:'state', p:[x,y,z], q:[x,y,z,w], v, s}                  the car (racers)
 //   {t:'finish', round, track, time, uid?}                     a finish (uid: the track's, for records)
@@ -22,7 +24,7 @@
 //   {t:'spectate', on}
 // Server -> client:
 //   {t:'welcome', id, name, mode, now, round, players, cars, forced_car}   {t:'round', now, round}
-//   {t:'players', players:[{id, name, colour, best, points, team, spectator, login, car, model, livery}]}
+//   {t:'players', players:[{id, name, colour, best, points, team, spectator, login, car, model, livery, tuning}]}
 //   {t:'cars', cars, forced_car}                               the server's car packs changed
 //   {t:'states', s:{id:[px,py,pz,qx,qy,qz,qw,v,s]}}
 //   {t:'results', ranking, last_round, teams, map_over}         {t:'ladder', deltas:[{id, delta}]}
@@ -38,6 +40,18 @@ const { cleanText, stripNick, NICK_MAX } = require('./accounts');
 const CAR_MODELS = ['', 'hyper', 'kobold', 'ayame', 'birdie', 'nemesis', 'umbra', 'zenith', 'stallion', 'kaiten', 'halberd',
   'gavial', 'argent', 'albion', 'taipan', 'corrida', 'frigate', 'quicksilver'];
 const LIVERIES = 5;
+// tuning: each part's choices (TmRoadCars.TUNING)
+const TUNING = { spoiler: 10, rims: 10, glow: 10, hood: 10 };
+
+// A car's tuning as sent: every known part's index in its range (anything else dropped).
+function cleanTuning(t) {
+  const out = {};
+  for (const [part, n] of Object.entries(TUNING)) {
+    const v = t && typeof t === 'object' ? t[part] : 0;
+    out[part] = Number.isInteger(v) && v >= 0 && v < n ? v : 0;
+  }
+  return out;
+}
 
 const VERSION = 2;
 const MAX_FRAME = 4096;
@@ -179,7 +193,7 @@ class Game {
       const r = st.get(p.id) || {};
       return { id: p.id, name: p.name, colour: p.colour, best: r.time !== undefined ? r.time : -1, points: r.points || 0,
         team: this.mode.teamOf ? this.mode.teamOf(p.id) : -1, spectator: p.spectator, login: p.login || '', car: p.car || '',
-        model: p.model || '', livery: p.livery || 0 };
+        model: p.model || '', livery: p.livery || 0, tuning: p.tuning || cleanTuning(null) };
     });
   }
 
@@ -260,7 +274,8 @@ class Game {
     const me = { id: this.nextId++, name: account ? account.nickname : guestName(msg.name), colour, ws,
       state: null, stateAt: 0, chatAt: 0, voteAt: 0, login: account ? account.login : '', spectator: !!msg.spectator,
       car: this._car(msg.car), model: CAR_MODELS.includes(msg.model) ? msg.model : '',
-      livery: Number.isInteger(msg.livery) && msg.livery >= 0 && msg.livery < LIVERIES ? msg.livery : 0 };
+      livery: Number.isInteger(msg.livery) && msg.livery >= 0 && msg.livery < LIVERIES ? msg.livery : 0,
+      tuning: cleanTuning(msg.tuning) };
     this.players.set(me.id, me);
     if (!me.spectator) this.mode.join(me.id, me.name, me.login, this.now());
     this._send(ws, { t: 'welcome', id: me.id, name: this.name, mode: this.mode.name, now: this.now(), round: this.info(),

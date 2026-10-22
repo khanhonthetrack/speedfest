@@ -31,6 +31,8 @@ import os
 import sys
 import numpy as np
 from mathutils import Vector
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from mathutils.bvhtree import BVHTree
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -580,11 +582,23 @@ def patches(body_ob):
 
 # --- the whole car --------------------------------------------------------------------------------
 
+# the rear wing's parts: the car's stock spoiler, its own object (tuning swaps it, PLAN M17)
+SPOILER_PARTS = ("Wing", "Gurney", "EndPlate", "PlateLight")
+
+
 def build():
+    """The body (HyperBody) and the stock spoiler (HyperSpoiler), each one object."""
+    global SPOILER
     bpy.ops.wm.read_factory_settings(use_empty=True)
     ob = body()
     apply_cuts(ob, cutters())
     obs = [ob] + parts() + patches(ob)
+    import roadcar
+    spoiler = [o for o in obs if o.name.split("_")[0].split(".")[0] in SPOILER_PARTS]
+    obs = [o for o in obs if o not in spoiler]
+    SPOILER = roadcar.join(spoiler, "HyperSpoiler")
+    SPOILER.data.shade_smooth()
+    SPOILER.data.set_sharp_from_angle(angle=math.radians(38.0))
     bpy.ops.object.select_all(action="DESELECT")
     for o in obs:
         o.select_set(True)
@@ -686,11 +700,16 @@ if opt("manifest"):
 out = opt("out")
 if out:
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-    bpy.ops.object.select_all(action="DESELECT")
-    ob.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=out, export_format="GLB", use_selection=True, export_apply=True,
-                              export_yup=True, export_normals=True, export_texcoords=False, export_materials="EXPORT")
+    import roadcar
+    import tuning_kit
+    roadcar.export_objects([ob, SPOILER], out)
     print("HYPERCAR wrote", out)
+    # the tuning kit fitted to the body without its wing: the hood is the nose's centre between
+    # the fender pods, from behind its tip to short of the windscreen's foot
+    geo = tuning_kit.Geo(ob, STATIONS[0][0], STATIONS[-1][0], 2.25, 1.05, lambda z: station_at(z)[1][0] * 0.85)
+    kit = tuning_kit.kit(geo)
+    roadcar.export_objects(kit, out.replace(".glb", "_kit.glb"))
+    print("HYPERCAR kit", {o.name: len(o.data.polygons) for o in kit})
 if opt("blend"):
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(opt("blend")))
 if opt("shots"):

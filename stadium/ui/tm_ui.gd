@@ -17,12 +17,13 @@ const SERIES := [["A", "White", Color(0.92, 0.93, 0.95)], ["B", "Green", Color(0
 const SETTINGS_PATH := "user://settings.cfg"
 const DEFAULTS := {"fullscreen": false, "shadows": true, "ghost": true, "sound": true, "hd": true,
 	"name": "Player", "zone": "", "server": "", "token": "", "colour": 0, "music": true, "music_volume": 0.7, "sound_volume": 1.0, "quality": 1, "dlss": 0, "path_tracing": false, "rtx_bounces": 2,
-	"car_pack": "", "community_car": "", "community_mod": "", "car_model": "", "car_liveries": {}}
+	"car_pack": "", "community_car": "", "community_mod": "", "car_model": "", "car_liveries": {}, "car_tuning": {}}
 	# car_pack: the SHA-256 of the car pack last picked on a server (Online); community_car: the
 	# community car (a car pack from the Community page, TmCommunity) we drive ("" our own car);
 	# community_mod: the texture mod the Stadium wears (TmTextureMod; "" our own look);
 	# car_model: which of our own cars we drive (TmCarVisual.model: "" the open-wheeler, "hyper", a
-	# road car's id: TmRoadCars); car_liveries: each car's picked livery {model: index}
+	# road car's id: TmRoadCars); car_liveries: each car's picked livery {model: index};
+	# car_tuning: each car's tuning {model: {part: index}} (TmRoadCars.TUNING)
 ## Car colours to pick from (online, the others see yours).
 const CAR_COLOURS := [Color(0.85, 0.08, 0.06), Color(0.10, 0.35, 0.90), Color(0.95, 0.70, 0.05), Color(0.10, 0.65, 0.30),
 	Color(0.92, 0.92, 0.94), Color(0.10, 0.10, 0.12), Color(0.95, 0.40, 0.05), Color(0.55, 0.20, 0.85)]
@@ -61,6 +62,35 @@ static func set_car_livery(model: String, i: int) -> void:
 	var d: Dictionary = (all as Dictionary).duplicate() if all is Dictionary else {}
 	d[model] = i
 	set_setting("car_liveries", d)
+
+
+## The tuning picked for a car (the player's car unless said): {part: index} for every part of
+## TmRoadCars.TUNING, each clamped to its choices; empty for a car without tuning.
+static func car_tuning(model: Variant = null) -> Dictionary:
+	var m := car_model() if model == null else String(model)
+	if not TmRoadCars.tunable(m):
+		return {}
+	var all: Variant = setting("car_tuning")
+	var t: Variant = (all as Dictionary).get(m, {}) if all is Dictionary else {}
+	return clean_tuning(t)
+
+
+## A tuning as sent and stored: every part's index clamped to its choices (anything else dropped).
+static func clean_tuning(t: Variant) -> Dictionary:
+	var out := {}
+	for part: String in TmRoadCars.TUNING:
+		var v: Variant = (t as Dictionary).get(part, 0) if t is Dictionary else 0
+		out[part] = clampi(int(v) if (v is int or v is float) else 0, 0, TmRoadCars.options(part).size() - 1)
+	return out
+
+
+static func set_car_tuning(model: String, part: String, i: int) -> void:
+	var all: Variant = setting("car_tuning")
+	var d: Dictionary = (all as Dictionary).duplicate(true) if all is Dictionary else {}
+	var t := car_tuning(model)
+	t[part] = clampi(i, 0, TmRoadCars.options(part).size() - 1)
+	d[model] = t
+	set_setting("car_tuning", d)
 
 static var _theme: Theme
 static var _fonts := {}

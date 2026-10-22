@@ -9,6 +9,11 @@ extends Node
 ## every surface is dressed, its five liveries name known patterns and reach the paint shader;
 ## the hypercar's liveries too (the first its own, no sponsors on it); the garage's pick (car and
 ## livery) is a setting and replays keep it.
+## Tuning (PLAN M17): every car of ours with tuning has its kit (8 spoilers, 5 hood shapes), the rim
+## library loads, each part has 7-10 choices; a tuned road car and a tuned hypercar draw the picked
+## spoiler (or none, or their own), hood shape and finish, the library's rims scaled to their wheels
+## (mirrored on the right), the underglow (decal, lights, tubes; none on ghosts); the pick is a
+## setting per car (clamped, none for the open-wheeler) and replays keep it.
 ## Run: stadium/tools/run.sh res://tests/test_car_models.tscn --headless
 
 const T := preload("res://core/tm_tuning.gd")
@@ -118,7 +123,8 @@ func _road_cars() -> void:
 		var id := String(c[0])
 		var rc := TmRoadCars.meshes(id)
 		var man := TmRoadCars.manifest(id)
-		var parts_ok := rc.has("Body") and rc.has("WheelF") and rc.has("WheelR") and rc.has("BrakeF") and rc.has("BrakeR")
+		var parts_ok := rc.has("Body") and rc.has("BrakeF") and rc.has("BrakeR") and (rc.has("WheelF") and rc.has("WheelR")
+			or rc.has("TyreF") and rc.has("TyreR") and rc.has("RimF") and rc.has("RimR"))
 		var an: Dictionary = man.get("anchors", {})
 		var man_ok := (man.get("wheels", []) as Array).size() == 4 and (an.get("belt", []) as Array).size() == 24 \
 			and String(man.get("name", "")) == String(c[1])
@@ -218,3 +224,125 @@ func _road_cars() -> void:
 	TestHooks.check(TmUi.car_livery("") == 0, "formula_has_no_livery")
 	TmUi.set_setting("car_model", was)
 	TmUi.set_setting("car_liveries", was_l)
+	await _tuning()
+
+
+func _tuning() -> void:
+	TestHooks.check(TmRoadCars.TUNING.all(func(part: String) -> bool:
+		return TmRoadCars.options(part).size() >= 7 and TmRoadCars.options(part).size() <= 10), "tuning_choices")
+	var bad := []
+	for id: String in TmRoadCars.CARS.map(func(c: Array) -> String: return String(c[0])) + ["hyper"]:
+		var kit := TmRoadCars.kit(id)
+		for k in range(2, 10):
+			if not kit.has("Spoiler%d" % k):
+				bad.append("%s Spoiler%d" % [id, k])
+		for shape: String in ["Vents", "Scoop", "Bulge", "Louvres", "Cowl"]:
+			if not kit.has("Hood" + shape):
+				bad.append("%s Hood%s" % [id, shape])
+		if id != "hyper" and not TmRoadCars.meshes(id).has("TyreF"):
+			bad.append("%s: no TyreF" % id)
+	TestHooks.check(bad.is_empty(), "tuning_kits_complete", str(bad))
+	TestHooks.check(TmRoadCars.rims().size() == 9, "tuning_rim_library", str(TmRoadCars.rims().keys()))
+	# a tuned road car: the kit's GT wing for its own, the scoop, a carbon hood, mesh rims, cyan underglow
+	var v := TmCarVisual.new()
+	v.model = "kobold"
+	v.tuning = {"spoiler": 6, "rims": 3, "glow": 2, "hood": 9}
+	add_child(v)
+	await get_tree().process_frame
+	var kit := TmRoadCars.kit("kobold")
+	var sp := v.get_node_or_null("Spoiler") as MeshInstance3D
+	var hood := v.get_node_or_null("Hood") as MeshInstance3D
+	TestHooks.check(sp != null and sp.mesh == kit["Spoiler6"] and hood != null and hood.mesh == kit["HoodScoop"]
+		and sp.get_surface_override_material(0) != null, "tuned_spoiler_and_hood")
+	var man := TmRoadCars.manifest("kobold")
+	var rim_l := _rim(v, 0)
+	var rim_r := _rim(v, 1)
+	var want := Vector3(float(man["tyre_hw"][0]) / TmRoadCars.RIM_REF.y, float(man["rim_r"][0]) / TmRoadCars.RIM_REF.x, 0.0)
+	TestHooks.check(rim_l != null and rim_l.mesh == TmRoadCars.rims()["Rim3"] and absf(rim_l.scale.x - want.x) < 1e-4
+		and absf(rim_l.scale.y - want.y) < 1e-4 and rim_r != null and rim_r.scale.x < 0.0, "tuned_rims_scaled",
+		"%s %s" % [rim_l.scale if rim_l else null, want])
+	var stock_rims := 0
+	for i in 4:
+		for c in v._spins[i].get_children():
+			if c is MeshInstance3D and (c as MeshInstance3D).mesh == TmRoadCars.meshes("kobold").get("RimF"):
+				stock_rims += 1
+	TestHooks.check(stock_rims == 0, "tuned_rims_replace_the_stock_ones")
+	var glow := v.get_node_or_null("Underglow") as Decal
+	var lights := v.find_children("GlowLight*", "OmniLight3D", true, false)
+	TestHooks.check(glow != null and glow.modulate.is_equal_approx(TmRoadCars.GLOWS[2]["colour"]) and lights.size() == 2
+		and v.find_children("GlowTube*", "MeshInstance3D", true, false).size() == 4, "tuned_underglow",
+		"%s %s %d %d" % [glow, glow.modulate if glow else null, lights.size(), v.find_children("GlowTube*", "MeshInstance3D", true, false).size()])
+	TestHooks.check(_paint_param(v, 4, "liv_hood") == 1, "tuned_hood_carbon")
+	v.queue_free()
+	# its own spoiler at 0, none at 1; no underglow on a ghost
+	var s0 := TmCarVisual.new()
+	s0.model = "kobold"
+	add_child(s0)
+	var s1 := TmCarVisual.new()
+	s1.model = "kobold"
+	s1.ghost = true
+	s1.tuning = {"spoiler": 1, "glow": 5}
+	add_child(s1)
+	await get_tree().process_frame
+	var own := s0.get_node_or_null("Spoiler") as MeshInstance3D
+	TestHooks.check(own != null and own.mesh == TmRoadCars.meshes("kobold")["Spoiler"] and s1.get_node_or_null("Spoiler") == null
+		and s0.get_node_or_null("Underglow") == null and s1.get_node_or_null("Underglow") == null, "tuned_stock_and_none")
+	s0.queue_free()
+	s1.queue_free()
+	# the hypercar: no wing, the library's rims on our tyres, a carbon front deck under its own livery
+	var h := TmCarVisual.new()
+	h.model = "hyper"
+	h.tuning = {"spoiler": 1, "rims": 5, "glow": 9, "hood": 1}
+	add_child(h)
+	var h0 := TmCarVisual.new()
+	h0.model = "hyper"
+	add_child(h0)
+	await get_tree().process_frame
+	var hr := _rim(h, 0)
+	TestHooks.check(h.get_node_or_null("Spoiler") == null and h0.get_node_or_null("Spoiler") != null
+		and (h0.get_node_or_null("Spoiler") as MeshInstance3D).mesh == TmCarVisual._hyper_mesh("HyperSpoiler"), "tuned_hyper_spoiler")
+	TestHooks.check(hr != null and hr.mesh == TmRoadCars.rims()["Rim5"] and absf(hr.scale.x - TmCarVisual.TYRE_HW[0] / TmRoadCars.RIM_REF.y) < 1e-4,
+		"tuned_hyper_rims")
+	TestHooks.check(_paint_param(h, 3, "liv_hood") == 1 and _paint_param(h0, 3, "liv_hood") == 0, "tuned_hyper_hood")
+	var c0: Color = (h.get_node("Underglow") as Decal).modulate
+	for k in 30:
+		await get_tree().process_frame
+	TestHooks.check(not (h.get_node("Underglow") as Decal).modulate.is_equal_approx(c0), "tuned_rainbow_cycles")
+	h.queue_free()
+	h0.queue_free()
+	# the pick: per car, clamped, none for the open-wheeler; replays keep it
+	var was: Variant = TmUi.setting("car_tuning")
+	TmUi.set_car_tuning("zenith", "spoiler", 7)
+	TmUi.set_car_tuning("zenith", "glow", 99)
+	var t := TmUi.car_tuning("zenith")
+	TestHooks.check(int(t["spoiler"]) == 7 and int(t["glow"]) == TmRoadCars.GLOWS.size() - 1 and int(t["rims"]) == 0
+		and TmUi.car_tuning("").is_empty() and int(TmUi.car_tuning("albion")["spoiler"]) == 0, "setting_tuning_per_car")
+	var r := TmReplay.new()
+	r.model = "zenith"
+	r.tuning = t
+	var back := TmReplay.new()
+	back._set_header(r.header())
+	TestHooks.check(int(back.tuning["spoiler"]) == 7, "replay_keeps_the_tuning")
+	var old := r.header()
+	old.erase("tuning")
+	back._set_header(old)
+	TestHooks.check(int(back.tuning.get("spoiler", -1)) == 0, "replay_before_tuning_is_stock")
+	TmUi.set_setting("car_tuning", was)
+
+
+## Wheel i's library rim (a tuned car's), or null.
+func _rim(v: TmCarVisual, i: int) -> MeshInstance3D:
+	for c in v._spins[i].get_children():
+		if c is MeshInstance3D and String(c.name).begins_with("Rim"):
+			return c
+	return null
+
+
+## The value of a paint material's parameter (the first surface in shader mode `mode`), -1 if none.
+func _paint_param(v: TmCarVisual, mode: int, param: String) -> int:
+	for mi: MeshInstance3D in v.find_children("*", "MeshInstance3D", true, false):
+		for s in mi.mesh.get_surface_count():
+			var m := mi.get_surface_override_material(s)
+			if m is ShaderMaterial and int((m as ShaderMaterial).get_shader_parameter("mode")) == mode:
+				return int((m as ShaderMaterial).get_shader_parameter(param))
+	return -1

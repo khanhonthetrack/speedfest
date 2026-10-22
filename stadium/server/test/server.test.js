@@ -32,7 +32,8 @@ test('two players: welcome, relay, finish ranking, round change, results', async
   await a.open; await b.open;
   a.ws.send(JSON.stringify({ t: 'hello', name: 'Alice', version: VERSION, model: 'tank' }));
   const wa = await a.next('welcome');
-  b.ws.send(JSON.stringify({ t: 'hello', name: 'Bob\u0000‮', version: VERSION, model: 'hyper', livery: 3 }));
+  b.ws.send(JSON.stringify({ t: 'hello', name: 'Bob\u0000‮', version: VERSION, model: 'hyper', livery: 3,
+    tuning: { spoiler: 6, rims: 3, glow: 99, hood: 'x', junk: 1 } }));
   const wb = await b.next('welcome');
   assert.strictEqual(wa.round.track, wb.round.track);
   a.ws.send(JSON.stringify({ t: 'state', p: [1, 2, 3], q: [0, 0, 0, 1], v: 50, s: 0.5 }));
@@ -45,6 +46,9 @@ test('two players: welcome, relay, finish ranking, round change, results', async
   assert.ok(pl.players.some((p) => p.name === 'Bob' && p.best === 25000));
   // each player's own car as they picked it (one the server doesn't know: the open-wheeler)
   assert.ok(pl.players.some((p) => p.name === 'Bob' && p.model === 'hyper' && p.livery === 3));
+  // the tuning relayed, each part in range (a bad value is 0), nothing else
+  const bob = pl.players.find((p) => p.name === 'Bob');
+  assert.deepStrictEqual(bob.tuning, { spoiler: 6, rims: 3, glow: 0, hood: 0 });
   assert.ok(pl.players.some((p) => p.name === 'Alice' && p.model === ''));
   const res = await a.next('results', 4000);
   assert.strictEqual(res.ranking[0].time, 25000);

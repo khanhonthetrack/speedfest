@@ -2,7 +2,8 @@ class_name TmRoadCars
 extends RefCounted
 ## Our own road cars (PLAN M16: the class of cars NFS Most Wanted's Blacklist drove, our own
 ## shapes and names, no makers' badges): tools/assets/roadcar.py builds each into
-## assets/car/<id>.glb (the body, a wheel and a brake per axle) and assets/car/<id>.json (its
+## assets/car/<id>.glb (the body, its spoiler, a tyre, rim and brake per axle), its tuning kit
+## (assets/car/<id>_kit.glb, TUNING) and assets/car/<id>.json (its
 ## wheel places, tyre sizes, and the body's lines along the car for the livery shader). Each car,
 ## and the hypercar, has five liveries (no sponsors): car/tm_car_surface.gdshader mode 4 draws
 ## them from a pattern, colours and parameters.
@@ -253,8 +254,104 @@ const LIVERIES := {
 	],
 }
 
+## Tuning (PLAN M17): the parts a player picks for a car of ours (the road cars and the hypercar),
+## each a list of choices; 0 is the car as it comes. Spoilers and hood shapes are kit parts fitted
+## to each car (tools/assets/tuning_kit.py: assets/car/<id>_kit.glb), rims a shared library scaled to
+## each car's wheels (tools/assets/rims.py: assets/car/rims.glb), underglow is drawn by the game.
+const TUNING := ["spoiler", "rims", "glow", "hood"]
+const TUNING_NAMES := {"spoiler": "Spoiler", "rims": "Rims", "glow": "Underglow", "hood": "Hood"}
+## Spoilers: 0 the car's own, 1 none, then the kit's (Spoiler2..9).
+const SPOILERS := [{"name": "Stock"}, {"name": "None"}, {"name": "Lip"}, {"name": "Ducktail"}, {"name": "Low Wing"},
+	{"name": "Street Wing"}, {"name": "GT Wing"}, {"name": "Swan Neck"}, {"name": "Twin Plane"}, {"name": "Drift Wing"}]
+## Rims: 0 the car's own, then the library's (Rim1..9) in their own finishes (no colour: the
+## livery's rim colour).
+const RIMS := [
+	{"name": "Stock"},
+	{"name": "Five Spoke"},
+	{"name": "Split Spoke", "colour": Color(0.2, 0.21, 0.23), "metallic": 0.85, "roughness": 0.32},
+	{"name": "Gold Mesh", "colour": Color(0.78, 0.6, 0.24), "metallic": 1.0, "roughness": 0.25},
+	{"name": "Multi-Spoke", "colour": Color(0.82, 0.83, 0.86), "metallic": 1.0, "roughness": 0.2},
+	{"name": "Turbine", "colour": Color(0.03, 0.03, 0.035), "metallic": 0.5, "roughness": 0.35},
+	{"name": "Chrome Star", "colour": Color(0.92, 0.92, 0.94), "metallic": 1.0, "roughness": 0.05},
+	{"name": "Deep Dish", "colour": Color(0.06, 0.06, 0.07), "metallic": 0.6, "roughness": 0.3},
+	{"name": "White Six", "colour": Color(0.92, 0.92, 0.93), "metallic": 0.1, "roughness": 0.3},
+	{"name": "Bronze Twist", "colour": Color(0.55, 0.38, 0.18), "metallic": 0.95, "roughness": 0.3},
+]
+## The library rims' size (rims.py: bead radius, half width): scaled to each car's.
+const RIM_REF := Vector2(0.24, 0.12)
+## Underglow: 0 off; a colour, or a cycle through the hues.
+const GLOWS := [
+	{"name": "Off"},
+	{"name": "Neon Blue", "colour": Color(0.1, 0.4, 1.0)},
+	{"name": "Cyan", "colour": Color(0.0, 0.95, 1.0)},
+	{"name": "Magenta", "colour": Color(1.0, 0.1, 0.8)},
+	{"name": "Toxic Green", "colour": Color(0.3, 1.0, 0.1)},
+	{"name": "Red", "colour": Color(1.0, 0.06, 0.04)},
+	{"name": "Purple", "colour": Color(0.55, 0.1, 1.0)},
+	{"name": "Amber", "colour": Color(1.0, 0.55, 0.05)},
+	{"name": "White", "colour": Color(0.9, 0.95, 1.0)},
+	{"name": "Rainbow", "cycle": true},
+]
+## Hoods: a kit shape (assets/car/<id>_kit.glb "Hood<Shape>") and a finish ("" the livery's; the
+## paint shader's carbon or black hood).
+const HOODS := [
+	{"name": "Stock", "shape": "", "finish": ""},
+	{"name": "Carbon", "shape": "", "finish": "carbon"},
+	{"name": "Matte Black", "shape": "", "finish": "black"},
+	{"name": "Vented", "shape": "vents", "finish": ""},
+	{"name": "Ram Scoop", "shape": "scoop", "finish": ""},
+	{"name": "Power Bulge", "shape": "bulge", "finish": ""},
+	{"name": "Louvred", "shape": "louvres", "finish": ""},
+	{"name": "Cowl Induction", "shape": "cowl", "finish": ""},
+	{"name": "Carbon Vented", "shape": "vents", "finish": "carbon"},
+	{"name": "Carbon Scoop", "shape": "scoop", "finish": "carbon"},
+]
+
 static var _meshes := {}
 static var _manifests := {}
+static var _kits := {}
+static var _rims := {}
+
+
+## The choices of tuning part `part` (TUNING).
+static func options(part: String) -> Array:
+	match part:
+		"spoiler": return SPOILERS
+		"rims": return RIMS
+		"glow": return GLOWS
+		"hood": return HOODS
+	return []
+
+
+## Whether a car takes tuning: ours with kits (the road cars and the hypercar).
+static func tunable(id: String) -> bool:
+	return id == "hyper" or is_road(id)
+
+
+## A car's tuning kit (TUNING's spoilers and hood shapes fitted to it): {part name: mesh}, loaded
+## once; empty when it isn't there.
+static func kit(id: String) -> Dictionary:
+	if not _kits.has(id):
+		_kits[id] = _glb_meshes(DIR + ("hypercar" if id == "hyper" else id) + "_kit.glb")
+	return _kits[id]
+
+
+## The rim library: {"Rim1".."Rim9": mesh}.
+static func rims() -> Dictionary:
+	if _rims.is_empty():
+		_rims = _glb_meshes(DIR + "rims.glb")
+	return _rims
+
+
+static func _glb_meshes(path: String) -> Dictionary:
+	var out := {}
+	var scene := load(path) as PackedScene if ResourceLoader.exists(path) else null
+	if scene != null:
+		var root := scene.instantiate()
+		for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+			out[String(mi.name)] = mi.mesh
+		root.free()
+	return out
 
 
 static func is_road(id: String) -> bool:
@@ -280,8 +377,8 @@ static func manifest(id: String) -> Dictionary:
 	return _manifests[id]
 
 
-## A car's meshes (Body, WheelF, WheelR, BrakeF, BrakeR) from its glb, loaded once; empty when
-## it isn't there.
+## A car's meshes (Body, Spoiler (its own, if it has one), TyreF/R, RimF/R, BrakeF/R) from its glb,
+## loaded once; empty when it isn't there.
 static func meshes(id: String) -> Dictionary:
 	if not _meshes.has(id):
 		var out := {}

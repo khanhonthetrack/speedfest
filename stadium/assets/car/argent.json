@@ -31,6 +31,25 @@
   0.1125,
   0.1275
  ],
+ "rim_r": [
+  0.2286,
+  0.2286
+ ],
+ "kit": [
+  "HoodBulge",
+  "HoodCowl",
+  "HoodLouvres",
+  "HoodScoop",
+  "HoodVents",
+  "Spoiler2",
+  "Spoiler3",
+  "Spoiler4",
+  "Spoiler5",
+  "Spoiler6",
+  "Spoiler7",
+  "Spoiler8",
+  "Spoiler9"
+ ],
  "length": 4.638,
  "z_nose": 2.5375,
  "z_tail": -2.1005,
@@ -204,7 +223,7 @@
    0.7068
   ]
  },
- "triangles": 82853,
+ "triangles": 83141,
  "cabin": [
   1.3,
   4.03
