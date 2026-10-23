@@ -1419,3 +1419,17 @@ owner.)
   clothed cast are what is still missing, so the shot grammar keeps people at body distance,
   backlit and in rain, and a character mesh that the UAL clips can drive is the first asset to
   hunt for.
+
+### User (verbatim, on the brief)
+
+> i don't want rear view story, i want something fresh. update the prompt
+
+(`docs/STORY_MODE_PROMPT.md` rewritten: the story is new. The old draft on
+`origin/ccr-be8add6f-thdbey` is marked rejected and not to be revived or re-skinned; only its two
+mechanics stay, which are not story (the decision is the finish gate your accepted run crosses; the
+darker choice gets the faster line). The brief now opens with a pitch step — three different
+premises to the owner before a word of script — a test for whether a premise can survive being
+played in any order (a question, not a countdown; the whole cast reachable every night; each night
+its own goal plus one hard fact; told in cars, not in rooms), and three example seeds marked as
+shapes to beat, not to use. The session-11 ending beats are now a question for the owner rather
+than an inheritance.)

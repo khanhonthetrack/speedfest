@@ -19,10 +19,12 @@ Target is the owner's PC (Forward+, strong GPU); the web build is no longer a co
 2. `docs/HANDOFF.md` (top section) — current state; `docs/PLAN.md` — milestones; `docs/PROGRESS.md` — the log, append to it.
 3. `stadium/README.md` — layout, "Make a track", "Sky maps", run commands.
 4. `docs/TRANSCRIPT.md` — the owner's words, verbatim. **Session 11 is the story-mode pitch.**
-5. **`docs/STORY.md` on the unmerged branch `origin/ccr-be8add6f-thdbey`** — a complete 671-line
-   story draft ("Rear View") written for this exact request and never built:
-   `git show origin/ccr-be8add6f-thdbey:docs/STORY.md`. Read it in full. It already solves the
-   cast, the twist, the decision model and the ending. It is docs-only; nothing of it is in code.
+5. There is an old story draft on the unmerged branch `origin/ccr-be8add6f-thdbey`
+   (`docs/STORY.md`, "Rear View", session 11). **The owner has ruled it out** (session 20: "i don't
+   want rear view story, i want something fresh"). Do not revive it, do not adapt its plot, cast or
+   twist, and do not propose it back. You may reuse the two *mechanics* it worked out, which are not
+   story: the decision is taken by which finish gate your accepted run crosses, and the darker
+   choice gets the faster line. Read it only if you want to see what has already been rejected.
 6. `docs/ASSETS.md`, `stadium/assets/city/CREDITS.md` and `stadium/assets/anim/CREDITS.md` — the
    licence rules you must obey.
 7. `docs/ANIMATIONS.md` — the four humanoid animation packs the owner gave the project on 23 Oct
@@ -131,14 +133,43 @@ subtitles and chapter cards must wear it. `audio/tm_music.gd` (playlists, fades)
 
 ## 3. Step one: the script. Write it before you build anything.
 
-Deliver `docs/STORY.md` (replacing/absorbing the "Rear View" draft from
-`origin/ccr-be8add6f-thdbey`) and get the owner's sign-off **before** authoring 30 tracks.
+**The story is new.** The owner wants something fresh (session 20), so invent it: new premise, new
+cast, new ending. Deliver it as `docs/STORY.md` and get the owner's sign-off **before** authoring
+30 tracks or 40 scenes.
+
+### Pitch before you write
+
+Do not write 10 chapters on your own judgement of what the owner wants. First send them **three
+genuinely different premises**, one short paragraph each — a logline, who the player is, what the
+ten nights are, what the question driving it is, and how it ends — and let them pick or redirect.
+Only then write the full script. A pitch costs an hour; a wrong script costs a week.
+
+What a premise has to survive to work here (check each pitch against this list before you send it):
+
+- **It is a question, not a countdown.** "Who is the man in the black car", "what happened at the
+  bridge", "why does the city keep paying me" — all of them hold in any order. A ticking clock, a
+  pregnancy, a tournament ladder or a relationship that grows does not: those demand a sequence.
+- **The whole cast is reachable on every night.** Nobody dies, leaves or changes irreversibly in
+  the middle, unless that change is a flag the other chapters read.
+- **Ten nights, each with its own local goal**, so a chapter is satisfying even as your first — and
+  one hard fact about the big question, so it is also a step even as your eighth.
+- **It lives in this city after dark.** Cars are the vocabulary: who drives what, who races whom,
+  who owes what to whom. If the premise would be better told in a room with two faces in it, it is
+  the wrong premise for this game.
+- **It gives every chapter a reason to end in a 3-to-5-way decision** that is a real moral or
+  practical fork, not a menu.
+
+Three seeds, to show the *shape* of a workable pitch — none of them are the answer, invent better:
+a courier who drives ten jobs in one night for ten clients who turn out to be the same employer; ten
+members of a broken crew who each tell you their version of the night it broke, and you drive each
+version; a driver chasing a car that is not supposed to exist through ten districts, each district
+holding one piece of what it is.
 
 ### Constraints from the owner
 
-- **Setting:** the city, at night, dark, neon, wet. Everything happens on City-style maps. (The old
-  draft ended on a golden coast road at sunset — that is now out of setting; either move the finale
-  into the city or put the change to the owner explicitly.)
+- **Setting:** the city, at night, dark, neon, wet. Everything happens on City-style maps. If a
+  scene wants somewhere else (a tunnel, a car park, a rooftop, a lock-up, the river), build it as a
+  corner of the same city rather than a new environment — the City scenery is what already exists.
 - **10 chapters**, 3 time-attack maps each.
 - **Non-linear:** the story must make sense in any order the player reaches the chapters.
 - **Cinematic, dialogue-based.** Not a few sentences — write real scenes: 20-40 spoken lines per
@@ -155,7 +186,8 @@ Use a **knowledge-flag model**, not a timeline:
    any other chapter.
 2. **No chapter may say "earlier" or "later" about another chapter.** Dialogue never references
    another chapter's events as sequence — only as *knowledge*. Internally every revelation is a
-   flag (`knows_twin`, `knows_lena_is_wife`, `pushed_hammer`, …).
+   flag (`knows_who_owns_the_yard`, `met_the_dispatcher`, `took_the_money`, …), and every line that
+   depends on one declares it.
 3. **Facts are commutative.** Each chapter delivers exactly one hard fact and one new ambiguity.
    Any 10! ordering still assembles the same complete picture, because the facts never contradict,
    only accumulate. Write the fact table first (10 rows: chapter → fact given → flags required: none).
@@ -164,19 +196,23 @@ Use a **knowledge-flag model**, not a timeline:
    nothing), **warm** (knows some), **hot** (knows most). The same scene plays as introduction or as
    confirmation depending on where the player arrives from. This is what actually makes the
    non-linearity work; budget for it in the writing (it roughly doubles the line count).
-5. **A frame that licenses the shuffle.** Pick one and state it in the doc: a night-radio host
-   telling the city's story out of order; a police impound interview; the main character's own
-   memory, which refuses to run in a line. (The old draft's Memento conceit survives here: it is
-   shuffled memory rather than strict reverse.)
+5. **A frame that licenses the shuffle.** The player should feel the order is the point, not a
+   bug. Pick a frame and state it in the doc: a night-radio host telling the city's story out of
+   order; an interview room where the questions come in whatever order the detective picks; ten
+   tapes, ten calls, ten jobs; a memory that refuses to run in a line. The frame is also where the
+   player's own progress gets narrated back to them.
 6. **A gated finale.** One chapter (the last night) is not reachable by branching: it unlocks when
    N of the other chapters are done (propose N = 8 or 9, ask the owner), and reads the flags to pick
-   the ending. The owner's original ending stands: you beat the final boss, a cutscene where you
-   push them, they crash, you walk over, they are dead, you take car X and drive away — and which
-   of the three endings you get (collector / family / lost everything) comes from the decisions.
-7. **The decision model from the old draft is good; keep it.** "The dark line is the fast line":
-   wherever the branch means hurting someone, that line is shorter, tighter and more dangerous, so
-   the temptation sits in the stopwatch. Decisions never change what you have already seen — they
-   decide what it *meant*.
+   the ending — at least three, far enough apart that a player would replay to see another. Write
+   the finale so it answers the question the other nine chapters asked, in whatever order they were
+   answered. The owner sketched an ending shape in session 11 (beat the last rival, a cutscene where
+   you push them off, they crash, you take their car and drive away); it belongs to the story they
+   have now rejected, so treat it as one option among yours and **ask whether they still want those
+   beats** rather than assuming either way.
+7. **Put the temptation in the stopwatch.** Wherever a branch means the colder or crueller choice,
+   make that line shorter, tighter and more dangerous: the fast line should cost the player
+   something other than time. And hold to the rule that makes an out-of-order story survive its own
+   reveals: a decision never changes what the player has already seen — it changes what it *meant*.
 
 ### The branching map (map 3 of each chapter)
 
@@ -190,7 +226,7 @@ Use a **knowledge-flag model**, not a timeline:
 
 Also decide and write down: how the player picks a chapter when the graph runs out, whether the
 Story page shows a map of what they have seen ("the board"), and what carries over between chapters
-(car X, cars won from bosses, the journal of known facts).
+(the car you drive, anything won or lost on a previous night, the journal of what you know).
 
 ---
 
@@ -308,7 +344,8 @@ own materials where it helps, and keep the PC/Forward+ frame budget in mind.
 
 Open it as **PLAN M20** with these steps (renumber if the plan has moved on):
 
-1. **M20-1 Script.** `docs/STORY.md`: premise, cast, the fact table, the 10 chapters with their 3
+1. **M20-1 Script.** First three premises in a message to the owner (§3), then, on their pick:
+   `docs/STORY.md`: premise, cast, the fact table, the 10 chapters with their 3
    maps and their exits, the decision graph, the three endings, every scene listed with its beats.
    Plus `docs/STORY_SCENES.md` or the scene JSONs themselves with the **full dialogue**. Show the
    owner; get sign-off before M20-4.
@@ -369,12 +406,11 @@ asks. Do not run parallel sessions or parallel subagents (owner's rule).
 
 ## 9. Put these to the owner early — they change the work
 
-1. **Reuse "Rear View"?** The unmerged `docs/STORY.md` is a finished 10-chapter thriller built for
-   this request (twin brothers, the stolen identity, car X, pink slips, three endings). Adapt it to
-   the city-at-night setting and the any-order structure, or start a new story?
-2. **The ending's setting.** The old draft ends on a coast road at sunset. The owner now says the
-   whole mode is the night city. Move the finale into the city, or keep one non-city map as the
-   exception?
+1. **Which premise?** Send three, let them pick or redirect (§3). The story is new — the old
+   "Rear View" draft is rejected and must not come back in another coat of paint.
+2. **The ending.** Do the beats the owner sketched in session 11 still stand (beat the last rival,
+   push them off, they crash, take their car and drive away), or is the ending the premise's to
+   invent? And how many endings do they want — three, or more?
 3. **How free is the order?** Pure branching (the gate you cross is the only route), branching plus
    a chapter board you can pick from once a chapter is cleared, or fully free from the start?
 4. **The finale.** Unlock after how many chapters — 8, 9, or all 10 others?

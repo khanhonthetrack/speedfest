@@ -4088,7 +4088,11 @@ identity, one medal set per track, no difficulty, no dialogue/subtitle system, n
 the knowledge-flag model for any-order chapters, the no-humans shot grammar, the licence rules for
 BlendSwap/itch.io hunting, milestones M20-1..8 with their gates, and the open questions. The
 unmerged `docs/STORY.md` on `origin/ccr-be8add6f-thdbey` ("Rear View", session 11) is flagged as the
-candidate story to adapt. Rebased onto session 19's animation packs and rewritten for them: with
+candidate story to adapt — until the owner's "i don't want rear view story, i want something
+fresh", after which the brief rejects it outright (only its two mechanics survive: the decision is
+the finish gate crossed, the darker choice gets the faster line), opens with a three-premise pitch
+step before any script is written, and sets out what a premise must survive to be playable in any
+order. Rebased onto session 19's animation packs and rewritten for them: with
 Quaternius' CC0 library and Mannequin in the repo, full-body human acting is on the table and only
 faces are not, so the brief now asks for bodies in silhouette, backlit and in rain, cut on a
 gesture, with a clothed character mesh on the UAL rig as the first thing to hunt for.
