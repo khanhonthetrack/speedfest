@@ -128,6 +128,25 @@ records and replays keep it (story mode's decisions are those finishes). Lessons
 3-block gap); at 360 km/h it flies ~290 m; tighter twists lift two wheels off; layout errors name a
 road under a rooftop or through a spiral's tower (their buildings stand from the streets up).
 
+## Story mode (PLAN M20, in progress)
+Ten nights in the neon City, played in any order; three maps a night, the third with 3-5 finishes,
+and the finish your accepted run crosses is the night's decision (the brief:
+`docs/STORY_MODE_PROMPT.md`). `story/story.json` holds the nights, their maps and where each finish
+leads (`StoryGraph`); a save is `user://story.json` (`StoryState`, `--story_save=` in tests).
+Cutscenes are data, `story/scenes/<id>.json`, played by `StoryScene` (shots on our tracks: camera
+keys in a shot's anchor frame, cars standing or driving along the line, people from the animation
+library in silhouette, rain, lights; subtitles, cinema bars, title cards and a phone's texts in the
+menus' look). Look at one:
+
+    stadium/tools/run.sh res://story/story_lab.tscn -- --scene=look_test --t=8.5 --set_quality=2 \
+        --settings=/abs/scratch/settings.cfg --frames=70 --shot=/abs/out.png
+    stadium/tools/run.sh res://story/story_lab.tscn --headless -- --scene=look_test --play --no_stage
+
+(`--flags=a,b` / `--tier=hot` play it as a save that knows more.) A save is played by
+`story/story_play.tscn` (StoryFlow: scenes, then each map in the race with `--story=<night>
+--story_map=0..2`, whose finish panel shows the time to beat and, on map 3, the decision the finish
+makes; CONTINUE writes it into the save). `--story_new=street --story_auto` plays a whole save headless.
+
 ## The track editor
 Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;
 `-- --edit=<file.sftrack>` opens one). TMNF's Stadium blocks sit in a palette by family (roads,

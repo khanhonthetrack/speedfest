@@ -4166,3 +4166,44 @@ story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save
 - Difficulty names in the draft: Cruise x1.30, Street x1.18, Racer x1.08, **Author** x1.00 (the
   brief's "Saint" was the rejected story's antagonist's name, so it is not used).
 
+### M20-3 (first pass) and the story's run: the cutscene player, StoryFlow, story maps in the race (session 21)
+- **The cutscene player** (`story/story_scene.gd`, StoryScene): a scene is data
+  (`story/scenes/<id>.json`): shots on our tracks, each with an anchor on the track's racing line
+  (`at`, `left`, `ahead`), camera keys in that frame (pos, look, fov, roll, dof; eased; or following a
+  car), cars standing or driving along the line (speed, accel, headlights), people (StoryPerson),
+  lights, rain, fades, title cards, and lines (spoken subtitles, texts arriving on a phone). Lines with
+  an `if` play only for a save that meets it (cold / warm / hot variants), and every shot lasts as
+  long as its lines need (15 characters a second, 1.8-9 s a line). Everything is a function of the
+  scene's time (`seek(t)`), so any frame can be looked at, a scene skips at any moment (hold Space)
+  with its flags set as if it had played, and it plays the same headless.
+- **People** (`story/story_person.gd`): Quaternius' Mannequin (UAL, CC0) playing a library clip,
+  dressed near-black with a rim so neon and headlights draw the outline; walks along a path at the
+  clip's own speed.
+- **The 2D layer** (`story/story_subtitles.gd`): cinema bars (2.39:1), the speaker in red capitals over
+  the line (Montserrat, SfUi), fades, a title card (the wordmark's italic, the accent line), a phone's
+  thread (the player's own messages in violet), the skip bar.
+- **The lab** (`story/story_lab.tscn`): a scene seeked to `--t` for a screenshot, `--ts=a,b,c
+  --every=60` for several stills in one run (the city and SDFGI built once), `--play` to the end,
+  `--flags` / `--tier` for a save that knows more. `story/scenes/look_test.json` is a look test (not
+  story): six shots on F04 at night in rain, stills shown to the owner.
+- **StoryFlow** (`story/story_flow.gd`): what comes next for a save: the night's opening scene, map 1,
+  a scene, map 2, a scene, map 3 (the decision), the decision's and closing scenes, the choice of the
+  next night, the finale's ending scene, the end; scenes without a file yet are passed over.
+- **Story maps in the race** (`story/story_race.gd`, StoryRace; `race.gd` `--story=<night>
+  --story_map=0..2`): the time to beat (author x difficulty, per finish) where the medals were; the
+  finish panel says "Target beaten" or "Beat 0:23.60 to go on" and on map 3 "Decision: <the exit's
+  label>"; CONTINUE (`TmRaceMenu.story_continue`) writes the run and the decision into the save and
+  goes back to `story/story_play.tscn`, the runner (scenes here, maps in the race, a board when there
+  is a choice; `--story_auto` plays a whole save headless: the draft graph's 10 nights to an ending
+  in 41 steps).
+- **Tests**: `tests/test_story_scenes` (in the gate): every scene sound (ids, speakers, kinds, tracks,
+  cars, clips, every flag a condition reads set somewhere), played to its end and skipped halfway;
+  variants by knowledge; a staged shot (F04 built: camera and car where the data says); a story map
+  3 in the race: the bot on G06's second finish beats its target, the panel names the decision,
+  CONTINUE writes it into the save. `tests/test_story_save` plays a whole save through StoryFlow.
+- **Asset hunt** (brief section 6): Quaternius' **Universal Base Characters** (CC0; the free build: two
+  bodies, Superhero male and female, and 8 hairstyles) use the UAL rig's own bone names, so the
+  library's clips play on them as they are; not committed yet (no clothes: a body for silhouettes).
+  His Ultimate Modular Men / Women (CC0, casual clothes) are on Google Drive, refused today ("too many
+  users"); his Background Posed Humans, Cyberpunk kit and Downtown City kit are CC0 too.
+

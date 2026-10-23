@@ -1,0 +1,54 @@
+{
+	"id": "look_test",
+	"chapter": "",
+	"title": "Look test (not story: the player's shots, before the owner picks a premise)",
+	"track": "F04",
+	"at": 0.55,
+	"set": ["seen_look_test"],
+	"shots": [
+		{"id": "card", "black": true, "dur": 3.4, "card": {"title": "Night one", "subtitle": "A look test"}},
+		{"id": "crane", "dur": 7.0, "rain": 0.7, "fade_in": 1.2,
+			"cars": [{"id": "hero", "model": "nemesis", "colour": 5, "livery": 1, "tuning": "0.5.0.0", "lights": true}],
+			"people": [{"id": "driver", "clip": "Idle", "pos": [-1.6, 0.0, 0.4], "face": -70}],
+			"camera": {"ease": "inout", "keys": [
+				{"u": 0.0, "pos": [9.0, 1.0, 14.0], "look": [0.0, 0.8, 0.0], "fov": 34},
+				{"u": 1.0, "pos": [6.0, 9.0, 18.0], "look": [0.0, 0.4, -4.0], "fov": 40}]},
+			"lines": [
+				{"id": "look_test_001", "speaker": "Voice", "text": "You're late. The city doesn't wait for anyone, least of all you."},
+				{"id": "look_test_002", "speaker": "Driver", "text": "Rain slowed the bridge. Say what you called to say."}]},
+		{"id": "flank", "rain": 0.7,
+			"cars": [{"id": "hero", "model": "nemesis", "colour": 5, "livery": 1, "tuning": "0.5.0.0", "lights": true}],
+			"camera": {"ease": "linear", "keys": [
+				{"u": 0.0, "pos": [1.9, 0.55, -3.2], "look": [0.6, 0.5, 2.0], "fov": 30, "dof": [7, 12, 0.12]},
+				{"u": 1.0, "pos": [1.9, 0.6, 2.4], "look": [0.4, 0.5, 6.0], "fov": 30, "dof": [7, 12, 0.12]}]},
+			"lines": [
+				{"id": "look_test_003", "speaker": "Voice", "text": "Three roads leave the yard tonight. Only one of them comes back."},
+				{"id": "look_test_004", "speaker": "Driver", "text": "Then I'll take the fast one.", "if": "tier=hot"},
+				{"id": "look_test_005", "speaker": "Driver", "text": "Which one?", "if": "!tier=hot"}]},
+		{"id": "phone", "rain": 0.5,
+			"cars": [{"id": "hero", "model": "nemesis", "colour": 5, "livery": 1, "tuning": "0.5.0.0", "lights": true}],
+			"camera": {"keys": [
+				{"u": 0.0, "pos": [-3.0, 1.3, 5.0], "look": [0.0, 0.8, 0.0], "fov": 46, "dof": [6, 10, 0.18]},
+				{"u": 1.0, "pos": [-3.4, 1.4, 5.6], "look": [0.0, 0.8, 0.0], "fov": 44, "dof": [6, 10, 0.18]}]},
+			"lines": [
+				{"id": "look_test_006", "kind": "phone", "from": "Unknown number"},
+				{"id": "look_test_007", "kind": "text", "text": "North gate. 2:10. Don't bring the white car."},
+				{"id": "look_test_008", "kind": "text", "text": "It's the only car I have.", "mine": true, "gap": 1.2},
+				{"id": "look_test_009", "kind": "text", "text": "Then you'd better be quick.", "gap": 1.4}]},
+		{"id": "arrival", "rain": 0.8,
+			"cars": [{"id": "hero", "model": "nemesis", "colour": 5, "livery": 1, "tuning": "0.5.0.0", "lights": true},
+				{"id": "rival", "model": "kaiten", "colour": 2, "livery": 3, "left": 5.6, "ahead": 60.0, "speed": -18.0, "accel": 4.2, "yaw": 180, "lights": true}],
+			"people": [{"id": "driver", "clip": "Walk", "pos": [-1.8, 0.0, 0.0], "path": [[-3.5, 3.0], [-4.5, 9.0]]}],
+			"camera": {"keys": [
+				{"u": 0.0, "pos": [-0.8, 0.35, -9.0], "look": [0.6, 0.8, 8.0], "fov": 36},
+				{"u": 1.0, "pos": [-0.6, 0.4, -8.0], "look": [1.2, 0.8, 10.0], "fov": 34}]},
+			"lines": [
+				{"id": "look_test_010", "speaker": "Rival", "text": "Nice night for it."},
+				{"id": "look_test_011", "speaker": "Driver", "text": "It always is, until it isn't."}]},
+		{"id": "leave", "rain": 0.8, "fade_out": 1.4, "dur": 6.0,
+			"cars": [{"id": "hero", "model": "nemesis", "colour": 5, "livery": 1, "tuning": "0.5.0.0", "lights": true, "speed": 0.0, "accel": 6.0}],
+			"camera": {"keys": [
+				{"u": 0.0, "pos": [0.0, 0.5, -6.0], "look": [0.0, 0.7, 4.0], "fov": 40},
+				{"u": 1.0, "pos": [0.0, 1.2, -9.0], "look": [0.0, 0.9, 30.0], "fov": 38}]}}
+	]
+}

@@ -52,5 +52,69 @@ func _ready() -> void:
 	TestHooks.check(f.complete() and f.endings.size() == 1 and not g.ending_info(f.endings[0]).is_empty(), "story_finale_gives_an_ending",
 		str(f.endings))
 	TestHooks.check(StoryState.load_file("user://test_story/none.json") == null, "story_missing_save_is_null")
+	_flow(g, diff)
 	DirAccess.remove_absolute(StoryState.path())
 	TestHooks.finish()
+
+
+## A whole save played through StoryFlow: every night is its opening scene, three maps with a scene
+## before the second and third, the decision's and the closing scene; then the next night is chosen;
+## the finale ends it with its ending's scene. With no scene files, a night is its three maps.
+func _flow(g: StoryGraph, diff: String) -> void:
+	var s := StoryState.create(g, diff)
+	var f := StoryFlow.new(g, s)
+	f.exists = func(_id: String) -> bool: return true
+	var trail: Array[String] = []
+	var steps := 0
+	var first_night: Array[String] = []
+	while steps < 400:
+		steps += 1
+		var st := f.next()
+		match String(st["kind"]):
+			"end":
+				trail.append("end " + String(st["ending"]))
+				break
+			"choose":
+				var opts: Array = st["options"]
+				if opts.is_empty():
+					trail.append("stuck")
+					break
+				trail.append("choose " + String(opts[-1]))
+				f.begin(String(opts[-1]))           # the last option: the finale once it is offered
+			"scene":
+				trail.append(String(st["id"]))
+				f.scene_done(String(st["id"]))
+			"race":
+				trail.append("race %d %s" % [st["map"], st["track"]])
+				f.map_done(int(st["map"]), String(st["track"]), 30000, 1 if int(st["map"]) == 2 else 0)
+	# the first night: everything up to the second choice
+	for i in range(1, trail.size()):
+		if trail[i].begins_with("choose "):
+			first_night = trail.slice(0, i)
+			break
+	var c1 := String(first_night[0]).trim_prefix("choose ") if not first_night.is_empty() else ""
+	if c1.is_empty():
+		TestHooks.fail("story_flow_one_night", "no second choice: %s" % [trail])
+		return
+	var want: Array[String] = ["choose " + c1, c1 + "_open", "race 0 " + String(g.chapter(c1)["tracks"][0]), c1 + "_after1",
+		"race 1 " + String(g.chapter(c1)["tracks"][1]), c1 + "_after2", "race 2 " + String(g.chapter(c1)["tracks"][2]),
+		c1 + "_decision", c1 + "_close"]
+	TestHooks.check(first_night == want, "story_flow_one_night", "%s\nwant %s" % [first_night, want])
+	TestHooks.check(String(trail[-1]).begins_with("end ") and s.done.has(g.finale()) and s.done.size() >= g.finale_after() + 1
+		and String(trail[-2]).begins_with("end_"), "story_flow_to_an_ending", "%d steps, last %s" % [steps, trail.slice(-4)])
+	TestHooks.check(s.best_time(String(g.chapter(c1)["tracks"][2]), 1) == 30000 and int(s.decisions[c1]["way"]) == 1,
+		"story_flow_keeps_times_and_decisions")
+	# no scene files: a night is just its maps
+	var s2 := StoryState.create(g, diff)
+	var f2 := StoryFlow.new(g, s2)
+	f2.exists = func(_id: String) -> bool: return false
+	var kinds: Array[String] = []
+	for i in 6:
+		var st := f2.next()
+		kinds.append(String(st["kind"]))
+		if st["kind"] == "choose":
+			f2.begin(String(st["options"][0]))
+		elif st["kind"] == "race":
+			f2.map_done(int(st["map"]), String(st["track"]), 30000, 0)
+	TestHooks.check(kinds == (["choose", "race", "race", "race", "choose", "race"] as Array[String]), "story_flow_without_scenes", str(kinds))
+

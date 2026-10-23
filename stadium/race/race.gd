@@ -58,6 +58,7 @@ var _prev := Vector3.ZERO          ## the car's position at the previous tick
 var _cp_states := {}               ## checkpoint index -> the car as it crossed it {xform, lin, ang}
 var _result := {}                  ## the finish menu's result (TmRaceMenu.show_finish); {} before
 var finish_way := 0                ## the way whose finish the last run crossed (TmChallenge.way_of; 0: the main way)
+var story: StoryRace               ## a story night's map (--story=<night> --story_map=0..2), else null
 var _tail_ms := 0                  ## recorded so far after the finish (TmReplay.TAIL_MS)
 ## A Sky map (M19): a car that falls this far under the lowest road respawns by itself (the streets
 ## are 200 m down); -INF elsewhere (TMNF's way: Enter respawns).
@@ -173,6 +174,13 @@ func _ready() -> void:
 	add_child(menu)
 	_campaign_place()
 	menu.has_next = not next_id.is_empty()
+	if TestHooks.has_arg("story"):
+		# story mode: the time to beat where the medals were, CONTINUE once it is beaten
+		story = StoryRace.make(challenge, track_id)
+		hud.challenge = challenge
+		menu.has_next = false
+		menu.story = true
+		menu.story_continue.connect(func() -> void: story.go_on(get_tree()))
 	menu.restarted.connect(restart)
 	menu.next_track.connect(_next_track)
 	menu.to_menu.connect(_to_menu)
@@ -224,7 +232,7 @@ func _asks_opponent() -> bool:
 ## Our own tracks with medals offer opponents (not online or in a test drive): TMNF's race menu
 ## lists Select Opponents for them too.
 func _offers_opponents() -> bool:
-	return TmTracks.has(track_id) and not online and not editing() and challenge.gold_ms > 0
+	return TmTracks.has(track_id) and not online and not editing() and challenge.gold_ms > 0 and story == null
 
 
 ## The opponents: [kind, name, time]: the medals' ghosts, your best run's, none.
@@ -401,6 +409,9 @@ func _on_finished(time_ms: int) -> void:
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
 		"validated": _validated_ms == time_ms, "way": finish_way, "ways": challenge.ways(),
 		"way_medals": challenge.medals_of(finish_way)}
+	if story != null:
+		story.finish(result, time_ms, finish_way)
+		menu.can_continue = story.can_go_on()
 	_result = result
 	# the crowd cheers by medal, as TMNF's: big for gold and author, smaller for silver and bronze
 	var medal := TmRace.medal(time_ms, challenge)

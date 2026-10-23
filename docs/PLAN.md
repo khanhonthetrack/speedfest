@@ -335,6 +335,8 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
 - [ ] 3. Cutscene player: `story/story_scene.gd` (StoryScene: shots, camera keyframes, actors, characters,
       lines), SfUi subtitles, letterbox, skip, `story/story_lab.tscn` (screenshots);
       `tests/test_story_scenes`; one real scene rendered at Ultra and shown to the owner
+      -- the player, the lab and the tests are in; a look test's stills (not story) go to the owner
+      with the pitch; the real chapter-1 opening waits for the script
 - [x] 4. Branching plumbing: `TmRace` reports which finish gate was crossed; per-gate medals in the
       track JSON and `TmChallenge`; `test_tracks --write_medals` writes a set per way; records and
       replays carry the gate; the finish menu shows the finish crossed (G06, G08, G10 have their

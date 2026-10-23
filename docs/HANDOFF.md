@@ -13,9 +13,16 @@
   **draft** graph: c01-c10, tracks H01-H30 not made yet), `tests/test_story_graph` (every reachable
   state explored, 10,000 random playthroughs) and `tests/test_story_save`, both in the gate. Details:
   PROGRESS, session 21.
-- **In progress**: M20-3, the cutscene player (`story/story_scene.gd`, `story_person.gd`,
-  `story_subtitles.gd`, `story_lab.tscn`, `story/scenes/look_test.json`), and the asset hunt
-  (Quaternius' CC0 character packs: Universal Base Characters fit the UAL rig).
+- **Done (gated, pushed)**: M20-3's player: `story/story_scene.gd` (StoryScene), `story_person.gd`,
+  `story_subtitles.gd`, `story_lab.tscn` (stills: `--t`, or `--ts=a,b,c --every=60 --shots=...`),
+  `story/scenes/look_test.json` (a look test, not story); the run: `story/story_flow.gd` (StoryFlow),
+  `story/story_race.gd` (race.gd `--story`), `story/story_play.tscn` (`--story_auto` plays a save);
+  `tests/test_story_scenes` in the gate. README "Story mode" says how to look at a scene.
+- **Next**: the pitch (three premises) to the owner; then, on their pick, `docs/STORY.md`. The
+  asset hunt so far: Quaternius' Universal Base Characters (CC0) share the UAL rig's bone names and
+  hierarchy (clips play on them as they are); a copy waits untracked in `stadium/tests/tmp/ubc/`
+  (gitignored) to be tried in StoryPerson; his Ultimate Modular Men/Women (clothed, CC0) are on a
+  Google Drive that refused the download (retry another day).
 - Owner rule kept: no parallel agents. Workflow agents run one at a time, return text only,
   and only the main session writes and commits.
 

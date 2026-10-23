@@ -14,8 +14,11 @@ signal watch_replay
 signal save_replay
 signal opponent_chosen(kind: String)
 signal select_opponent
+signal story_continue
 
 var has_next := false
+var story := false                 ## a story night's map: the time to beat instead of medals
+var can_continue := false          ## story: the last finish beat it (CONTINUE)
 var online := false                ## in a server: "menu" leaves it
 var editing := false               ## testing a track from the editor: "menu" goes back to it
 var _panel: PanelContainer
@@ -165,6 +168,8 @@ func show_finish(result := {}) -> void:
 		_result = result
 		_replay_saved = false
 	var items := [["Retry", func() -> void: _emit(restarted)]]
+	if story and can_continue:
+		items.push_front(["Continue", func() -> void: _emit(story_continue)])
 	if not online:
 		items.append(["Replay", func() -> void: _emit(watch_replay)])
 		items.append(["Save replay", func() -> void: save_replay.emit()])
@@ -182,6 +187,7 @@ func show_finish(result := {}) -> void:
 static func _result_card(r: Dictionary) -> Control:
 	var ms := int(r.get("time_ms", -1))
 	var medals: Dictionary = r.get("medals", {})
+	var story: Dictionary = r.get("story", {})
 	var won := ""
 	for m: Array in MEDALS:
 		var t := int(medals.get(m[0], -1))
@@ -200,7 +206,12 @@ static func _result_card(r: Dictionary) -> Control:
 	line.alignment = BoxContainer.ALIGNMENT_CENTER
 	line.add_theme_constant_override("separation", 22)
 	var colour: Color = TmRaceHud.MEDAL_COLOURS[won]
-	if won.is_empty():
+	if not story.is_empty():
+		# story mode: beaten or not, against the time to beat on the finish crossed
+		var ok := bool(story.get("pass", false))
+		line.add_child(TmUi.label("Target beaten" if ok else "Beat %s to go on" % TmRace.time_text(int(story.get("target", -1))),
+			28, TmUi.TM_GREEN if ok else TmRaceHud.BEHIND, TmUi.SANS_BOLD))
+	elif won.is_empty():
 		line.add_child(TmUi.label("No medal", 28, TmUi.DIM, TmUi.SANS_BOLD))
 	else:
 		line.add_child(_medal(won, 44))
@@ -238,7 +249,7 @@ static func _result_card(r: Dictionary) -> Control:
 		if not beaten:
 			icon.modulate = Color(0.45, 0.45, 0.45, 0.8)
 		grid.add_child(icon)
-		grid.add_child(TmUi.label(m[1], 22, c if beaten else TmUi.DIM, TmUi.SANS_BOLD))
+		grid.add_child(TmUi.label("Target" if not story.is_empty() else m[1], 22, c if beaten else TmUi.DIM, TmUi.SANS_BOLD))
 		var tl := TmUi.label(TmRace.time_text(t), 22, TmUi.TEXT if beaten else TmUi.DIM, TmUi.SANS_BOLD)
 		tl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		grid.add_child(tl)

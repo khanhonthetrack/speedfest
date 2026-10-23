@@ -1452,3 +1452,10 @@ than an inheritance.)
 fresh session, as the brief says. Read as "start M20". Ultracode was on, so the work runs as
 workflows whose agents work one at a time, never in parallel (the owner's rule of 15 Oct), and
 only the main session commits.)
+
+### User (verbatim, after the session hit its usage limit and its worker restarted)
+
+> Continue
+
+(Carried on: the gated cutscene player pushed first, then the pitch.)
+
