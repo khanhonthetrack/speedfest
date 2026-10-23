@@ -1,0 +1,1398 @@
+{
+ "pack": "motifect_emotes_social",
+ "files": 60,
+ "clips": 60,
+ "seconds": 379.01,
+ "formats": [
+  {
+   "format": "bvh",
+   "up_axis": "Y",
+   "unit_scale": 100.0,
+   "files": 30
+  },
+  {
+   "format": "fbx7700",
+   "up_axis": "Y",
+   "unit_scale": 1.0,
+   "files": 30
+  }
+ ],
+ "skeletons": [
+  {
+   "bones": 77,
+   "files": 60,
+   "names": [
+    "Hips",
+    "Spine1",
+    "Spine2",
+    "Chest",
+    "Neck1",
+    "Neck2",
+    "Head",
+    "HeadEnd",
+    "Jaw",
+    "LeftEye",
+    "RightEye",
+    "LeftShoulder",
+    "LeftArm",
+    "LeftForeArm",
+    "LeftHand",
+    "LeftHandThumb1",
+    "LeftHandThumb2",
+    "LeftHandThumb3",
+    "LeftHandThumbEnd",
+    "LeftHandIndex1",
+    "LeftHandIndex2",
+    "LeftHandIndex3",
+    "LeftHandIndex4",
+    "LeftHandIndexEnd",
+    "LeftHandMiddle1",
+    "LeftHandMiddle2",
+    "LeftHandMiddle3",
+    "LeftHandMiddle4",
+    "LeftHandMiddleEnd",
+    "LeftHandRing1",
+    "LeftHandRing2",
+    "LeftHandRing3",
+    "LeftHandRing4",
+    "LeftHandRingEnd",
+    "LeftHandPinky1",
+    "LeftHandPinky2",
+    "LeftHandPinky3",
+    "LeftHandPinky4",
+    "LeftHandPinkyEnd",
+    "RightShoulder",
+    "RightArm",
+    "RightForeArm",
+    "RightHand",
+    "RightHandThumb1",
+    "RightHandThumb2",
+    "RightHandThumb3",
+    "RightHandThumbEnd",
+    "RightHandIndex1",
+    "RightHandIndex2",
+    "RightHandIndex3",
+    "RightHandIndex4",
+    "RightHandIndexEnd",
+    "RightHandMiddle1",
+    "RightHandMiddle2",
+    "RightHandMiddle3",
+    "RightHandMiddle4",
+    "RightHandMiddleEnd",
+    "RightHandRing1",
+    "RightHandRing2",
+    "RightHandRing3",
+    "RightHandRing4",
+    "RightHandRingEnd",
+    "RightHandPinky1",
+    "RightHandPinky2",
+    "RightHandPinky3",
+    "RightHandPinky4",
+    "RightHandPinkyEnd",
+    "LeftLeg",
+    "LeftShin",
+    "LeftFoot",
+    "LeftToeBase",
+    "LeftToeEnd",
+    "RightLeg",
+    "RightShin",
+    "RightFoot",
+    "RightToeBase",
+    "RightToeEnd"
+   ]
+  }
+ ],
+ "meshes": [],
+ "clip_list": [
+  {
+   "file": "Animations/arms_crossed_defiant.fbx",
+   "name": "arms_crossed_defiant",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.0,
+     "y": 0.39,
+     "z": 1.05
+    },
+    "net": {
+     "x": -0.33,
+     "y": -0.26,
+     "z": 0.17
+    },
+    "distance": 0.37
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/bow_deep_respect.fbx",
+   "name": "bow_deep_respect",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 16.66,
+     "y": 5.76,
+     "z": 9.97
+    },
+    "net": {
+     "x": 3.66,
+     "y": 0.36,
+     "z": -1.2
+    },
+    "distance": 3.85
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/challenge_stance.fbx",
+   "name": "challenge_stance",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.11,
+     "y": 0.7,
+     "z": 7.25
+    },
+    "net": {
+     "x": 2.59,
+     "y": -0.21,
+     "z": -0.59
+    },
+    "distance": 2.66
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/cheer_arms_raised.fbx",
+   "name": "cheer_arms_raised",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 10.91,
+     "y": 16.27,
+     "z": 11.17
+    },
+    "net": {
+     "x": 2.83,
+     "y": 0.29,
+     "z": 2.58
+    },
+    "distance": 3.83
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/clap_enthusiastic.fbx",
+   "name": "clap_enthusiastic",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 8.76,
+     "y": 1.41,
+     "z": 4.93
+    },
+    "net": {
+     "x": 1.87,
+     "y": 0.09,
+     "z": -1.64
+    },
+    "distance": 2.49
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/cover_face_embarrassed.fbx",
+   "name": "cover_face_embarrassed",
+   "seconds": 6.967,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 12.32,
+     "y": 1.75,
+     "z": 10.89
+    },
+    "net": {
+     "x": -1.26,
+     "y": 0.29,
+     "z": -3.4
+    },
+    "distance": 3.63
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/dance_arm_wave.fbx",
+   "name": "dance_arm_wave",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 10.24,
+     "y": 6.33,
+     "z": 7.48
+    },
+    "net": {
+     "x": 3.33,
+     "y": 0.25,
+     "z": 4.93
+    },
+    "distance": 5.95
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/dance_simple_groove.fbx",
+   "name": "dance_simple_groove",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 17.65,
+     "y": 17.66,
+     "z": 9.04
+    },
+    "net": {
+     "x": 11.14,
+     "y": -12.8,
+     "z": 3.14
+    },
+    "distance": 11.57
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/excited_spin.fbx",
+   "name": "excited_spin",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 11.21,
+     "y": 3.79,
+     "z": 4.55
+    },
+    "net": {
+     "x": 2.5,
+     "y": 0.35,
+     "z": -0.25
+    },
+    "distance": 2.51
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/explain_wide_gesture.fbx",
+   "name": "explain_wide_gesture",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 18.52,
+     "y": 4.17,
+     "z": 8.48
+    },
+    "net": {
+     "x": 7.52,
+     "y": -0.01,
+     "z": -3.87
+    },
+    "distance": 8.46
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/facepalm.fbx",
+   "name": "facepalm",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.54,
+     "y": 0.31,
+     "z": 1.6
+    },
+    "net": {
+     "x": 0.5,
+     "y": -0.01,
+     "z": -0.45
+    },
+    "distance": 0.67
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/fist_pump_victory.fbx",
+   "name": "fist_pump_victory",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 11.57,
+     "y": 12.92,
+     "z": 14.32
+    },
+    "net": {
+     "x": 1.17,
+     "y": 0.13,
+     "z": 2.37
+    },
+    "distance": 2.64
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/hold_up_wait.fbx",
+   "name": "hold_up_wait",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 7.88,
+     "y": 6.66,
+     "z": 6.45
+    },
+    "net": {
+     "x": 1.53,
+     "y": -0.2,
+     "z": 0.43
+    },
+    "distance": 1.59
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/jump_for_joy.fbx",
+   "name": "jump_for_joy",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 9.43,
+     "y": 20.3,
+     "z": 18.2
+    },
+    "net": {
+     "x": -7.29,
+     "y": -0.85,
+     "z": -8.78
+    },
+    "distance": 11.41
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/laugh_body.fbx",
+   "name": "laugh_body",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 9.85,
+     "y": 6.57,
+     "z": 24.0
+    },
+    "net": {
+     "x": -1.84,
+     "y": 0.92,
+     "z": 11.61
+    },
+    "distance": 11.75
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/no_way_hands_out.fbx",
+   "name": "no_way_hands_out",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.64,
+     "y": 0.37,
+     "z": 2.73
+    },
+    "net": {
+     "x": -0.33,
+     "y": 0.1,
+     "z": -0.31
+    },
+    "distance": 0.45
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/point_at_opponent.fbx",
+   "name": "point_at_opponent",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 6.25,
+     "y": 0.55,
+     "z": 3.31
+    },
+    "net": {
+     "x": 3.69,
+     "y": -0.1,
+     "z": 2.15
+    },
+    "distance": 4.27
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/salute_military.fbx",
+   "name": "salute_military",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.09,
+     "y": 0.36,
+     "z": 1.25
+    },
+    "net": {
+     "x": -1.13,
+     "y": 0.22,
+     "z": -0.7
+    },
+    "distance": 1.33
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/shrink_away_scared.fbx",
+   "name": "shrink_away_scared",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 20.73,
+     "y": 3.29,
+     "z": 68.94
+    },
+    "net": {
+     "x": 8.66,
+     "y": -0.26,
+     "z": -68.22
+    },
+    "distance": 68.77
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/shrug_i_dont_know.fbx",
+   "name": "shrug_i_dont_know",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 5.43,
+     "y": 2.36,
+     "z": 5.35
+    },
+    "net": {
+     "x": -1.36,
+     "y": 0.23,
+     "z": 1.46
+    },
+    "distance": 2.0
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/sit_and_wave_goodbye.fbx",
+   "name": "sit_and_wave_goodbye",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.72,
+     "y": 0.25,
+     "z": 1.7
+    },
+    "net": {
+     "x": 0.14,
+     "y": 0.02,
+     "z": -0.54
+    },
+    "distance": 0.56
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/slump_defeated.fbx",
+   "name": "slump_defeated",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.76,
+     "y": 0.58,
+     "z": 4.62
+    },
+    "net": {
+     "x": -0.53,
+     "y": -0.4,
+     "z": -2.18
+    },
+    "distance": 2.24
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/stomp_frustrated.fbx",
+   "name": "stomp_frustrated",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 23.25,
+     "y": 2.55,
+     "z": 6.93
+    },
+    "net": {
+     "x": 8.67,
+     "y": 0.11,
+     "z": 0.29
+    },
+    "distance": 8.67
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/talk_animate_hands.fbx",
+   "name": "talk_animate_hands",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 10.11,
+     "y": 1.71,
+     "z": 10.9
+    },
+    "net": {
+     "x": -1.42,
+     "y": -0.31,
+     "z": 0.5
+    },
+    "distance": 1.51
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/taunt_come_here.fbx",
+   "name": "taunt_come_here",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 7.61,
+     "y": 1.27,
+     "z": 4.42
+    },
+    "net": {
+     "x": -4.61,
+     "y": 0.23,
+     "z": 3.88
+    },
+    "distance": 6.03
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/taunt_mock_bow.fbx",
+   "name": "taunt_mock_bow",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 27.25,
+     "y": 10.94,
+     "z": 10.95
+    },
+    "net": {
+     "x": 0.34,
+     "y": 0.78,
+     "z": 5.74
+    },
+    "distance": 5.75
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/taunt_throat_slash.fbx",
+   "name": "taunt_throat_slash",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.18,
+     "y": 0.18,
+     "z": 1.52
+    },
+    "net": {
+     "x": 0.28,
+     "y": -0.14,
+     "z": -0.05
+    },
+    "distance": 0.28
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/think_chin_stroke.fbx",
+   "name": "think_chin_stroke",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 7.08,
+     "y": 1.46,
+     "z": 5.88
+    },
+    "net": {
+     "x": 1.9,
+     "y": 0.05,
+     "z": 2.27
+    },
+    "distance": 2.96
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/thumbs_down.fbx",
+   "name": "thumbs_down",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 13.2,
+     "y": 0.68,
+     "z": 3.62
+    },
+    "net": {
+     "x": -0.12,
+     "y": -0.23,
+     "z": 2.7
+    },
+    "distance": 2.7
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/thumbs_up.fbx",
+   "name": "thumbs_up",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.2,
+     "y": 0.89,
+     "z": 4.65
+    },
+    "net": {
+     "x": -1.93,
+     "y": 0.07,
+     "z": -0.37
+    },
+    "distance": 1.97
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "BVH/arms_crossed_defiant.bvh",
+   "name": "arms_crossed_defiant",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.0,
+     "y": 0.39,
+     "z": 1.05
+    },
+    "net": {
+     "x": -0.33,
+     "y": -0.26,
+     "z": 0.17
+    },
+    "distance": 0.37
+   }
+  },
+  {
+   "file": "BVH/bow_deep_respect.bvh",
+   "name": "bow_deep_respect",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 16.66,
+     "y": 5.76,
+     "z": 9.97
+    },
+    "net": {
+     "x": 3.66,
+     "y": 0.36,
+     "z": -1.2
+    },
+    "distance": 3.85
+   }
+  },
+  {
+   "file": "BVH/challenge_stance.bvh",
+   "name": "challenge_stance",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.11,
+     "y": 0.7,
+     "z": 7.25
+    },
+    "net": {
+     "x": 2.59,
+     "y": -0.21,
+     "z": -0.59
+    },
+    "distance": 2.66
+   }
+  },
+  {
+   "file": "BVH/cheer_arms_raised.bvh",
+   "name": "cheer_arms_raised",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 10.91,
+     "y": 16.27,
+     "z": 11.17
+    },
+    "net": {
+     "x": 2.83,
+     "y": 0.29,
+     "z": 2.58
+    },
+    "distance": 3.83
+   }
+  },
+  {
+   "file": "BVH/clap_enthusiastic.bvh",
+   "name": "clap_enthusiastic",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 8.76,
+     "y": 1.41,
+     "z": 4.93
+    },
+    "net": {
+     "x": 1.87,
+     "y": 0.09,
+     "z": -1.64
+    },
+    "distance": 2.49
+   }
+  },
+  {
+   "file": "BVH/cover_face_embarrassed.bvh",
+   "name": "cover_face_embarrassed",
+   "seconds": 7.0,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 12.32,
+     "y": 1.75,
+     "z": 10.89
+    },
+    "net": {
+     "x": -1.26,
+     "y": 0.29,
+     "z": -3.4
+    },
+    "distance": 3.63
+   }
+  },
+  {
+   "file": "BVH/dance_arm_wave.bvh",
+   "name": "dance_arm_wave",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 10.24,
+     "y": 6.33,
+     "z": 7.48
+    },
+    "net": {
+     "x": 3.33,
+     "y": 0.25,
+     "z": 4.93
+    },
+    "distance": 5.95
+   }
+  },
+  {
+   "file": "BVH/dance_simple_groove.bvh",
+   "name": "dance_simple_groove",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 17.65,
+     "y": 17.66,
+     "z": 9.04
+    },
+    "net": {
+     "x": 11.14,
+     "y": -12.8,
+     "z": 3.14
+    },
+    "distance": 11.57
+   }
+  },
+  {
+   "file": "BVH/excited_spin.bvh",
+   "name": "excited_spin",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 11.21,
+     "y": 3.79,
+     "z": 4.55
+    },
+    "net": {
+     "x": 2.5,
+     "y": 0.35,
+     "z": -0.25
+    },
+    "distance": 2.51
+   }
+  },
+  {
+   "file": "BVH/explain_wide_gesture.bvh",
+   "name": "explain_wide_gesture",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 18.52,
+     "y": 4.17,
+     "z": 8.48
+    },
+    "net": {
+     "x": 7.52,
+     "y": -0.01,
+     "z": -3.87
+    },
+    "distance": 8.46
+   }
+  },
+  {
+   "file": "BVH/facepalm.bvh",
+   "name": "facepalm",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.54,
+     "y": 0.31,
+     "z": 1.6
+    },
+    "net": {
+     "x": 0.5,
+     "y": -0.01,
+     "z": -0.45
+    },
+    "distance": 0.67
+   }
+  },
+  {
+   "file": "BVH/fist_pump_victory.bvh",
+   "name": "fist_pump_victory",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 11.57,
+     "y": 12.92,
+     "z": 14.32
+    },
+    "net": {
+     "x": 1.17,
+     "y": 0.13,
+     "z": 2.37
+    },
+    "distance": 2.64
+   }
+  },
+  {
+   "file": "BVH/hold_up_wait.bvh",
+   "name": "hold_up_wait",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 7.88,
+     "y": 6.66,
+     "z": 6.45
+    },
+    "net": {
+     "x": 1.53,
+     "y": -0.2,
+     "z": 0.43
+    },
+    "distance": 1.59
+   }
+  },
+  {
+   "file": "BVH/jump_for_joy.bvh",
+   "name": "jump_for_joy",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 9.43,
+     "y": 20.3,
+     "z": 18.2
+    },
+    "net": {
+     "x": -7.29,
+     "y": -0.85,
+     "z": -8.78
+    },
+    "distance": 11.41
+   }
+  },
+  {
+   "file": "BVH/laugh_body.bvh",
+   "name": "laugh_body",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 9.85,
+     "y": 6.57,
+     "z": 24.0
+    },
+    "net": {
+     "x": -1.84,
+     "y": 0.92,
+     "z": 11.61
+    },
+    "distance": 11.75
+   }
+  },
+  {
+   "file": "BVH/no_way_hands_out.bvh",
+   "name": "no_way_hands_out",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.64,
+     "y": 0.37,
+     "z": 2.73
+    },
+    "net": {
+     "x": -0.33,
+     "y": 0.1,
+     "z": -0.31
+    },
+    "distance": 0.45
+   }
+  },
+  {
+   "file": "BVH/point_at_opponent.bvh",
+   "name": "point_at_opponent",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 6.25,
+     "y": 0.55,
+     "z": 3.31
+    },
+    "net": {
+     "x": 3.69,
+     "y": -0.1,
+     "z": 2.15
+    },
+    "distance": 4.27
+   }
+  },
+  {
+   "file": "BVH/salute_military.bvh",
+   "name": "salute_military",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.09,
+     "y": 0.36,
+     "z": 1.25
+    },
+    "net": {
+     "x": -1.13,
+     "y": 0.22,
+     "z": -0.7
+    },
+    "distance": 1.33
+   }
+  },
+  {
+   "file": "BVH/shrink_away_scared.bvh",
+   "name": "shrink_away_scared",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 20.73,
+     "y": 3.29,
+     "z": 68.94
+    },
+    "net": {
+     "x": 8.66,
+     "y": -0.26,
+     "z": -68.22
+    },
+    "distance": 68.77
+   }
+  },
+  {
+   "file": "BVH/shrug_i_dont_know.bvh",
+   "name": "shrug_i_dont_know",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 5.43,
+     "y": 2.36,
+     "z": 5.35
+    },
+    "net": {
+     "x": -1.36,
+     "y": 0.23,
+     "z": 1.46
+    },
+    "distance": 2.0
+   }
+  },
+  {
+   "file": "BVH/sit_and_wave_goodbye.bvh",
+   "name": "sit_and_wave_goodbye",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.72,
+     "y": 0.25,
+     "z": 1.7
+    },
+    "net": {
+     "x": 0.14,
+     "y": 0.02,
+     "z": -0.54
+    },
+    "distance": 0.56
+   }
+  },
+  {
+   "file": "BVH/slump_defeated.bvh",
+   "name": "slump_defeated",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.76,
+     "y": 0.58,
+     "z": 4.62
+    },
+    "net": {
+     "x": -0.53,
+     "y": -0.4,
+     "z": -2.18
+    },
+    "distance": 2.24
+   }
+  },
+  {
+   "file": "BVH/stomp_frustrated.bvh",
+   "name": "stomp_frustrated",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 23.25,
+     "y": 2.55,
+     "z": 6.93
+    },
+    "net": {
+     "x": 8.67,
+     "y": 0.11,
+     "z": 0.29
+    },
+    "distance": 8.67
+   }
+  },
+  {
+   "file": "BVH/talk_animate_hands.bvh",
+   "name": "talk_animate_hands",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 10.11,
+     "y": 1.71,
+     "z": 10.9
+    },
+    "net": {
+     "x": -1.42,
+     "y": -0.31,
+     "z": 0.5
+    },
+    "distance": 1.51
+   }
+  },
+  {
+   "file": "BVH/taunt_come_here.bvh",
+   "name": "taunt_come_here",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 7.61,
+     "y": 1.27,
+     "z": 4.42
+    },
+    "net": {
+     "x": -4.61,
+     "y": 0.23,
+     "z": 3.88
+    },
+    "distance": 6.03
+   }
+  },
+  {
+   "file": "BVH/taunt_mock_bow.bvh",
+   "name": "taunt_mock_bow",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 27.25,
+     "y": 10.94,
+     "z": 10.95
+    },
+    "net": {
+     "x": 0.34,
+     "y": 0.78,
+     "z": 5.74
+    },
+    "distance": 5.75
+   }
+  },
+  {
+   "file": "BVH/taunt_throat_slash.bvh",
+   "name": "taunt_throat_slash",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.18,
+     "y": 0.18,
+     "z": 1.52
+    },
+    "net": {
+     "x": 0.28,
+     "y": -0.14,
+     "z": -0.05
+    },
+    "distance": 0.28
+   }
+  },
+  {
+   "file": "BVH/think_chin_stroke.bvh",
+   "name": "think_chin_stroke",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 7.08,
+     "y": 1.46,
+     "z": 5.88
+    },
+    "net": {
+     "x": 1.9,
+     "y": 0.05,
+     "z": 2.27
+    },
+    "distance": 2.96
+   }
+  },
+  {
+   "file": "BVH/thumbs_down.bvh",
+   "name": "thumbs_down",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 13.2,
+     "y": 0.68,
+     "z": 3.62
+    },
+    "net": {
+     "x": -0.12,
+     "y": -0.23,
+     "z": 2.7
+    },
+    "distance": 2.7
+   }
+  },
+  {
+   "file": "BVH/thumbs_up.bvh",
+   "name": "thumbs_up",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.2,
+     "y": 0.89,
+     "z": 4.65
+    },
+    "net": {
+     "x": -1.93,
+     "y": 0.07,
+     "z": -0.37
+    },
+    "distance": 1.97
+   }
+  }
+ ]
+}

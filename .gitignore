@@ -25,3 +25,7 @@ game/tests/tmp/
 stadium/server/data/
 # the tunnel token for the Pi (stadium/server/docker-compose.yml)
 stadium/server/.env
+
+# the owner's source material at the repo root (third-party packs, blends, raw art):
+# staged locally, never committed -- see docs/ANIMATIONS.md and stadium/assets/*/CREDITS.md
+/assets/

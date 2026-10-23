@@ -9,7 +9,10 @@ Owner decisions (2026-10-16):
   No Nadeo files (meshes, textures, sounds, packs, decompiled code) are ever committed or shipped.
   One exception the owner chose (20 Oct 2026): city buildings from Blend Swap under open licences
   (CC0, CC BY 3.0), converted by `tools/assets/blend_to_glb.py` into `assets/city/` with their
-  credits (`assets/city/CREDITS.md`); anything without a licence stays out.
+  credits (`assets/city/CREDITS.md`); anything without a licence stays out. The same rule took in
+  Quaternius' CC0 humanoid animation library (23 Oct 2026, `assets/anim/ual/`, 43 clips and a
+  Mannequin) and kept three other packs the owner bought out of the repo, since they may be used
+  in the game but not redistributed: `assets/anim/CREDITS.md`, study in `docs/ANIMATIONS.md`.
 - **Tracks:** the game is **standalone** (owner, 2026-10-17): its campaign is our own tracks
   (`tracks/*.json`, built from the recreated blocks; no TMNF needed): 65 in TMNF's five series,
   White A01-A15, Green B01-B15, Blue C01-C15, Red D01-D15, Black E01-E05 (owner, session 13:

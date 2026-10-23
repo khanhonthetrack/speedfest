@@ -1358,3 +1358,18 @@ Release's notes, rewritten for it.)
 > git fetch origin && git tag -a stadium-v0.9 -m "SpeedFest Stadium v0.9" origin/stadium && git push origin stadium-v0.9
 
 (Tagged ce82298 and pushed; CI "Stadium builds" made the Release with the Windows and Linux zips.)
+
+## Session 19 — 2026-10-23 (cloud, branch `stadium`): four humanoid animation packs
+
+### User (verbatim, with four zips attached: `Motifect_daily_life_complete_v1_0.zip`, `Human_Basic_Motions_FREE.zip`, `Universal_Animation_LibraryStandard.zip`, `Motifect_emotes_and_social_v1_0.zip`)
+
+> learn and store these
+
+(Studied all four and written up in `docs/ANIMATIONS.md`: 231 clips over three different
+skeletons, every length and root motion measured from the files. Stored: Quaternius' Universal
+Animation Library is CC0, so it is in the repo at `stadium/assets/anim/ual/`, imported and checked
+in Godot. The other three may be used in the game but not redistributed, and this repo is public,
+so they stay with the owner: the repo keeps their full inventories
+(`tools/anim/manifests/*.json`), the tools that read them, and `tools/anim/stage_packs.sh` to put
+them back on any machine. Nothing was asked about what the characters are for; waiting on the
+owner.)

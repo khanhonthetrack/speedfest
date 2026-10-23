@@ -4026,3 +4026,51 @@ cloud was refused (HTTP 403; branch pushes work), so the tag waits for the owner
 Owner, on the PC: "release it". Tagged `stadium-v0.9` on ce82298 (03abaa4 plus docs only) and
 pushed; CI "Stadium builds" run 49 green: the Release carries `SpeedFestStadium-windows.zip`
 (164.7 MB) and `SpeedFestStadium-linux.zip` (155.1 MB).
+
+## 2026-10-23 — Session 19 (cloud, `stadium`): four humanoid animation packs, learnt and stored
+Owner: "learn and store these" (four zips). The first character material in a repo where
+everything so far is procedural. Study: **`docs/ANIMATIONS.md`**; inventories:
+`tools/anim/manifests/*.json`; sources and licences: `stadium/assets/anim/CREDITS.md`.
+- **231 clips over three different skeletons.** Quaternius' Universal Animation Library
+  (43 clips, 65-bone Unreal-style rig, a 13,744-triangle Mannequin, **CC0**); Kevin Iglesias'
+  Human Basic Motions 2.4 FREE (118 clips, 56-bone Blender-style rig, two body meshes); Motifect
+  Emotes & Social (30) and Daily Life (40), both on one 77-bone rig, FBX and BVH, no mesh.
+- **Only the CC0 one is committed** (`stadium/assets/anim/ual/ual_standard.glb`,
+  `ual_standard_rm.glb`, 7.6 MB each, imported, `.import` files in). The other three are licensed
+  for use in a project but not for redistribution (Unity Asset Store EULA; Motifect's "do not
+  redistribute ... these raw animation files"), and this repo is public, so they stay with the
+  owner the way the root `assets/` source material does. `tools/anim/stage_packs.sh <dir with the
+  zips>` unpacks them into the untracked `assets/anim/` and rebuilds every manifest, so nothing is
+  lost but the bytes. The owner's call if they want all four in.
+- **Our own readers, because the container has no Blender and no FBX SDK**: `tools/anim/
+  fbx_reader.py` (binary FBX: the record tree, deflated property arrays, GlobalSettings,
+  Objects/Connections) and `tools/anim/inspect_packs.py` (`.glb` through its JSON + BIN chunks,
+  `.fbx`, `.bvh`; one take per file or many). Every length is measured from the key times, every
+  travel from the root track -- no header is trusted.
+- **Measured, and worth keeping:** walk 2.00 m/s, run 4.00, sprint 6.00 (Human Basic Motions,
+  8 directions each, in-place and `[RM]` pairs, 0.80 / 0.60 / 0.53 s cycles, diagonals travelling
+  the same distance as the straights, so a blend space needs no correction); the Universal
+  library's locomotion is stylised instead (walk 0.98 m/s but jog 5.36 and sprint 8.25); its
+  `_rm` file is the one with anything on the root track.
+- **Rig gotchas** (ANIMATIONS "Three rigs"): Motifect's `LeftLeg` is the *thigh* and `LeftShin` the
+  calf -- Mixamo's naming means the opposite, and a bone map built on the resemblance folds the
+  character; Human Basic Motions has one spine joint fewer than the others and a `B-spineProxy`
+  that hangs beside `B-hips`, not in the chain; every Motifect FBX calls its take `Take1`, so the
+  file name is the clip name.
+- **Godot 4.7.2 facts, all checked here:** the `.glb` pair imports as it is (headless: 43
+  animations, 66.2 s, 65 bones, both files); the importer eats the `_Loop` suffix and turns it
+  into the clip's loop mode (`Walk_Loop` -> `Walk`, looping); **`.fbx` imports with no FBX2glTF
+  and no Blender** (a clip from each of the other packs went straight in, 56 and 77 bones), while
+  `.bvh` is ignored outright; every pack's units and axis convert correctly, but Motifect's rest
+  pose is hip-centred (head 0.598 m above the hips, standing height in the `Hips` track, so
+  stripping that track drops the character through the floor); Godot rewrites clip names it can't
+  use (`HumanM@Walk01_Forward [RM]` -> `HumanM_Walk01_Forward _RM]`).
+- **Three Motifect clips do not do what their names say** (found by tracking the hip height):
+  `sit_and_wave_goodbye` never sits (hips move 2 mm), `stand_up_from_chair` starts with the hips
+  at 0.12 m -- off the floor, not off a seat -- and `tie_shoelaces` never bends. They are
+  AI-generated; look before building on one.
+- Look: `docs/research/ual_poses.png` (Idle, Driving, Walk, Dance, Fixing_Kneeling, Sitting_Idle
+  on the pack's Mannequin, rendered from the committed `.glb`).
+- Not touched: no game code uses any of this yet, and no milestone was opened. What the characters
+  are for -- a driver in the car, a mechanic in the Garage, street life in the neon City, podium
+  and lobby emotes online -- is the owner's call.

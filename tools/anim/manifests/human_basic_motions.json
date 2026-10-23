@@ -1,0 +1,2699 @@
+{
+ "pack": "human_basic_motions",
+ "files": 120,
+ "clips": 118,
+ "seconds": 95.8,
+ "formats": [
+  {
+   "format": "fbx7700",
+   "up_axis": "Z",
+   "unit_scale": 1.0,
+   "files": 120
+  }
+ ],
+ "skeletons": [
+  {
+   "bones": 57,
+   "files": 118,
+   "names": [
+    "Rig",
+    "B-root",
+    "B-hips",
+    "B-hand.L",
+    "B-indexFinger01.L",
+    "B-spineProxy",
+    "B-indexFinger02.L",
+    "B-indexFinger03.L",
+    "B-middleFinger01.L",
+    "B-middleFinger02.L",
+    "B-middleFinger03.L",
+    "B-ringFinger01.L",
+    "B-ringFinger02.L",
+    "B-ringFinger03.L",
+    "B-spine",
+    "B-pinky01.L",
+    "B-pinky02.L",
+    "B-pinky03.L",
+    "B-thumb01.L",
+    "B-thumb02.L",
+    "B-thumb03.L",
+    "B-chest",
+    "B-handProp.L",
+    "B-shoulder.R",
+    "B-neck",
+    "B-upperArm.R",
+    "B-forearm.R",
+    "B-hand.R",
+    "B-indexFinger01.R",
+    "B-indexFinger02.R",
+    "B-indexFinger03.R",
+    "B-middleFinger01.R",
+    "B-middleFinger02.R",
+    "B-middleFinger03.R",
+    "B-ringFinger01.R",
+    "B-head",
+    "B-ringFinger02.R",
+    "B-ringFinger03.R",
+    "B-pinky01.R",
+    "B-pinky02.R",
+    "B-pinky03.R",
+    "B-thumb01.R",
+    "B-thumb02.R",
+    "B-thumb03.R",
+    "B-jaw",
+    "B-handProp.R",
+    "B-shoulder.L",
+    "B-thigh.L",
+    "B-shin.L",
+    "B-foot.L",
+    "B-toe.L",
+    "B-thigh.R",
+    "B-shin.R",
+    "B-foot.R",
+    "B-toe.R",
+    "B-upperArm.L",
+    "B-forearm.L"
+   ]
+  },
+  {
+   "bones": 57,
+   "files": 1,
+   "names": [
+    "HumanF_BodyMesh",
+    "Rig",
+    "B-root",
+    "B-hips",
+    "B-hand.L",
+    "B-indexFinger01.L",
+    "B-indexFinger02.L",
+    "B-indexFinger03.L",
+    "B-middleFinger01.L",
+    "B-middleFinger02.L",
+    "B-middleFinger03.L",
+    "B-ringFinger01.L",
+    "B-ringFinger02.L",
+    "B-ringFinger03.L",
+    "B-spine",
+    "B-pinky01.L",
+    "B-pinky02.L",
+    "B-pinky03.L",
+    "B-thumb01.L",
+    "B-thumb02.L",
+    "B-thumb03.L",
+    "B-chest",
+    "B-handProp.L",
+    "B-shoulder.R",
+    "B-neck",
+    "B-upperArm.R",
+    "B-forearm.R",
+    "B-hand.R",
+    "B-indexFinger01.R",
+    "B-indexFinger02.R",
+    "B-indexFinger03.R",
+    "B-middleFinger01.R",
+    "B-middleFinger02.R",
+    "B-middleFinger03.R",
+    "B-ringFinger01.R",
+    "B-head",
+    "B-ringFinger02.R",
+    "B-ringFinger03.R",
+    "B-pinky01.R",
+    "B-pinky02.R",
+    "B-pinky03.R",
+    "B-thumb01.R",
+    "B-thumb02.R",
+    "B-thumb03.R",
+    "B-jaw",
+    "B-handProp.R",
+    "B-shoulder.L",
+    "B-thigh.L",
+    "B-shin.L",
+    "B-foot.L",
+    "B-toe.L",
+    "B-thigh.R",
+    "B-shin.R",
+    "B-foot.R",
+    "B-toe.R",
+    "B-upperArm.L",
+    "B-forearm.L"
+   ]
+  },
+  {
+   "bones": 57,
+   "files": 1,
+   "names": [
+    "HumanM_BodyMesh",
+    "Rig",
+    "B-root",
+    "B-hips",
+    "B-hand.L",
+    "B-indexFinger01.L",
+    "B-indexFinger02.L",
+    "B-indexFinger03.L",
+    "B-middleFinger01.L",
+    "B-middleFinger02.L",
+    "B-middleFinger03.L",
+    "B-ringFinger01.L",
+    "B-ringFinger02.L",
+    "B-ringFinger03.L",
+    "B-spine",
+    "B-pinky01.L",
+    "B-pinky02.L",
+    "B-pinky03.L",
+    "B-thumb01.L",
+    "B-thumb02.L",
+    "B-thumb03.L",
+    "B-chest",
+    "B-handProp.L",
+    "B-shoulder.R",
+    "B-neck",
+    "B-upperArm.R",
+    "B-forearm.R",
+    "B-hand.R",
+    "B-indexFinger01.R",
+    "B-indexFinger02.R",
+    "B-indexFinger03.R",
+    "B-middleFinger01.R",
+    "B-middleFinger02.R",
+    "B-middleFinger03.R",
+    "B-ringFinger01.R",
+    "B-head",
+    "B-ringFinger02.R",
+    "B-ringFinger03.R",
+    "B-pinky01.R",
+    "B-pinky02.R",
+    "B-pinky03.R",
+    "B-thumb01.R",
+    "B-thumb02.R",
+    "B-thumb03.R",
+    "B-jaw",
+    "B-handProp.R",
+    "B-shoulder.L",
+    "B-thigh.L",
+    "B-shin.L",
+    "B-foot.L",
+    "B-toe.L",
+    "B-thigh.R",
+    "B-shin.R",
+    "B-foot.R",
+    "B-toe.R",
+    "B-upperArm.L",
+    "B-forearm.L"
+   ]
+  }
+ ],
+ "meshes": [
+  {
+   "name": "HumanF_BodyMesh",
+   "vertices": 10746,
+   "polygons": 11104,
+   "file": "Models/HumanF_Model.fbx"
+  },
+  {
+   "name": "HumanM_BodyMesh",
+   "vertices": 5392,
+   "polygons": 5512,
+   "file": "Models/HumanM_Model.fbx"
+  }
+ ],
+ "clip_list": [
+  {
+   "file": "Animations/Female/Idles/HumanF@Idle01-Idle02.fbx",
+   "name": "HumanF@Idle01-Idle02",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Idles/HumanF@Idle01.fbx",
+   "name": "HumanF@Idle01",
+   "seconds": 2.7,
+   "frames": 82,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Idles/HumanF@Idle02-Idle01.fbx",
+   "name": "HumanF@Idle02-Idle01",
+   "seconds": 0.767,
+   "frames": 24,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Idles/HumanF@Idle02.fbx",
+   "name": "HumanF@Idle02",
+   "seconds": 2.7,
+   "frames": 82,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Fall01.fbx",
+   "name": "HumanF@Fall01",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Jump01 - Begin.fbx",
+   "name": "HumanF@Jump01 - Begin",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Jump01 - Land.fbx",
+   "name": "HumanF@Jump01 - Land",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Jump01 [RM] - Begin.fbx",
+   "name": "HumanF@Jump01 [RM] - Begin",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 101.21
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 88.3
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Jump01 [RM] - Land.fbx",
+   "name": "HumanF@Jump01 [RM] - Land",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 48.36
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": -48.36
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Jump01 [RM].fbx",
+   "name": "HumanF@Jump01 [RM]",
+   "seconds": 1.533,
+   "frames": 47,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 100.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Jump/HumanF@Jump01.fbx",
+   "name": "HumanF@Jump01",
+   "seconds": 1.533,
+   "frames": 47,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_Backward.fbx",
+   "name": "HumanF@Run01_Backward",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_BackwardLeft.fbx",
+   "name": "HumanF@Run01_BackwardLeft",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_BackwardRight.fbx",
+   "name": "HumanF@Run01_BackwardRight",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_Forward.fbx",
+   "name": "HumanF@Run01_Forward",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_ForwardLeft.fbx",
+   "name": "HumanF@Run01_ForwardLeft",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_ForwardRight.fbx",
+   "name": "HumanF@Run01_ForwardRight",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_Left.fbx",
+   "name": "HumanF@Run01_Left",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/HumanF@Run01_Right.fbx",
+   "name": "HumanF@Run01_Right",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_Backward [RM].fbx",
+   "name": "HumanF@Run01_Backward [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 240.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 240.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_BackwardLeft [RM].fbx",
+   "name": "HumanF@Run01_BackwardLeft [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_BackwardRight [RM].fbx",
+   "name": "HumanF@Run01_BackwardRight [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": -169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_Forward [RM].fbx",
+   "name": "HumanF@Run01_Forward [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 240.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -240.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_ForwardLeft [RM].fbx",
+   "name": "HumanF@Run01_ForwardLeft [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": 169.71,
+     "y": -169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_ForwardRight [RM].fbx",
+   "name": "HumanF@Run01_ForwardRight [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": -169.71,
+     "y": -169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_Left [RM].fbx",
+   "name": "HumanF@Run01_Left [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Run/RootMotion/HumanF@Run01_Right [RM].fbx",
+   "name": "HumanF@Run01_Right [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": -240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/HumanF@Sprint01_Forward.fbx",
+   "name": "HumanF@Sprint01_Forward",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/HumanF@Sprint01_ForwardLeft.fbx",
+   "name": "HumanF@Sprint01_ForwardLeft",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/HumanF@Sprint01_ForwardRight.fbx",
+   "name": "HumanF@Sprint01_ForwardRight",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/HumanF@Sprint01_Left.fbx",
+   "name": "HumanF@Sprint01_Left",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/HumanF@Sprint01_Right.fbx",
+   "name": "HumanF@Sprint01_Right",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/RootMotion/HumanF@Sprint01_Forward [RM].fbx",
+   "name": "HumanF@Sprint01_Forward [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 320.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -320.0,
+     "z": 0.0
+    },
+    "distance": 320.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/RootMotion/HumanF@Sprint01_ForwardLeft [RM].fbx",
+   "name": "HumanF@Sprint01_ForwardLeft [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 226.27,
+     "y": 226.27,
+     "z": 0.0
+    },
+    "net": {
+     "x": 226.27,
+     "y": -226.27,
+     "z": 0.0
+    },
+    "distance": 319.99
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/RootMotion/HumanF@Sprint01_ForwardRight [RM].fbx",
+   "name": "HumanF@Sprint01_ForwardRight [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 226.27,
+     "y": 226.27,
+     "z": 0.0
+    },
+    "net": {
+     "x": -226.27,
+     "y": -226.27,
+     "z": 0.0
+    },
+    "distance": 319.99
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/RootMotion/HumanF@Sprint01_Left [RM].fbx",
+   "name": "HumanF@Sprint01_Left [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 320.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 320.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 320.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Sprint/RootMotion/HumanF@Sprint01_Right [RM].fbx",
+   "name": "HumanF@Sprint01_Right [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 320.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": -320.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 320.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Turn/HumanF@Turn01_Left [RM].fbx",
+   "name": "HumanF@Turn01_Left [RM]",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Turn/HumanF@Turn01_Left.fbx",
+   "name": "HumanF@Turn01_Left",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Turn/HumanF@Turn01_Right [RM].fbx",
+   "name": "HumanF@Turn01_Right [RM]",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Turn/HumanF@Turn01_Right.fbx",
+   "name": "HumanF@Turn01_Right",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_Backward.fbx",
+   "name": "HumanF@Walk01_Backward",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_BackwardLeft.fbx",
+   "name": "HumanF@Walk01_BackwardLeft",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_BackwardRight.fbx",
+   "name": "HumanF@Walk01_BackwardRight",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_Forward.fbx",
+   "name": "HumanF@Walk01_Forward",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_ForwardLeft.fbx",
+   "name": "HumanF@Walk01_ForwardLeft",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_ForwardRight.fbx",
+   "name": "HumanF@Walk01_ForwardRight",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_Left.fbx",
+   "name": "HumanF@Walk01_Left",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/HumanF@Walk01_Right.fbx",
+   "name": "HumanF@Walk01_Right",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_Backward [RM].fbx",
+   "name": "HumanF@Walk01_Backward [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 160.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 160.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_BackwardLeft [RM].fbx",
+   "name": "HumanF@Walk01_BackwardLeft [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_BackwardRight [RM].fbx",
+   "name": "HumanF@Walk01_BackwardRight [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": -113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_Forward [RM].fbx",
+   "name": "HumanF@Walk01_Forward [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 160.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -160.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_ForwardLeft [RM].fbx",
+   "name": "HumanF@Walk01_ForwardLeft [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": 113.14,
+     "y": -113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_ForwardRight [RM].fbx",
+   "name": "HumanF@Walk01_ForwardRight [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": -113.14,
+     "y": -113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_Left [RM].fbx",
+   "name": "HumanF@Walk01_Left [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 160.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 160.0,
+     "y": -0.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Movement/Walk/RootMotion/HumanF@Walk01_Right [RM].fbx",
+   "name": "HumanF@Walk01_Right [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 160.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": -160.0,
+     "y": -0.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Female/Social/Conversation/HumanF@Talk01.fbx",
+   "name": "HumanF@Talk01",
+   "seconds": 2.267,
+   "frames": 69,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Idles/HumanM@Idle01-Idle02.fbx",
+   "name": "HumanM@Idle01-Idle02",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Idles/HumanM@Idle01.fbx",
+   "name": "HumanM@Idle01",
+   "seconds": 2.7,
+   "frames": 82,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Idles/HumanM@Idle02-Idle01.fbx",
+   "name": "HumanM@Idle02-Idle01",
+   "seconds": 0.767,
+   "frames": 24,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Idles/HumanM@Idle02.fbx",
+   "name": "HumanM@Idle02",
+   "seconds": 2.7,
+   "frames": 82,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Fall01.fbx",
+   "name": "HumanM@Fall01",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Jump01 - Begin.fbx",
+   "name": "HumanM@Jump01 - Begin",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Jump01 - Land.fbx",
+   "name": "HumanM@Jump01 - Land",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Jump01 [RM] - Begin.fbx",
+   "name": "HumanM@Jump01 [RM] - Begin",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 101.21
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 88.3
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Jump01 [RM] - Land.fbx",
+   "name": "HumanM@Jump01 [RM] - Land",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 48.36
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": -48.36
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Jump01 [RM].fbx",
+   "name": "HumanM@Jump01 [RM]",
+   "seconds": 1.533,
+   "frames": 47,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 100.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Jump/HumanM@Jump01.fbx",
+   "name": "HumanM@Jump01",
+   "seconds": 1.533,
+   "frames": 47,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_Backward.fbx",
+   "name": "HumanM@Run01_Backward",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_BackwardLeft.fbx",
+   "name": "HumanM@Run01_BackwardLeft",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_BackwardRight.fbx",
+   "name": "HumanM@Run01_BackwardRight",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_Forward.fbx",
+   "name": "HumanM@Run01_Forward",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_ForwardLeft.fbx",
+   "name": "HumanM@Run01_ForwardLeft",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_ForwardRight.fbx",
+   "name": "HumanM@Run01_ForwardRight",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_Left.fbx",
+   "name": "HumanM@Run01_Left",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/HumanM@Run01_Right.fbx",
+   "name": "HumanM@Run01_Right",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_Backward [RM].fbx",
+   "name": "HumanM@Run01_Backward [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 240.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 240.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_BackwardLeft [RM].fbx",
+   "name": "HumanM@Run01_BackwardLeft [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_BackwardRight [RM].fbx",
+   "name": "HumanM@Run01_BackwardRight [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": -169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_Forward [RM].fbx",
+   "name": "HumanM@Run01_Forward [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 240.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -240.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_ForwardLeft [RM].fbx",
+   "name": "HumanM@Run01_ForwardLeft [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": 169.71,
+     "y": -169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_ForwardRight [RM].fbx",
+   "name": "HumanM@Run01_ForwardRight [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 169.71,
+     "y": 169.71,
+     "z": 0.0
+    },
+    "net": {
+     "x": -169.71,
+     "y": -169.71,
+     "z": 0.0
+    },
+    "distance": 240.01
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_Left [RM].fbx",
+   "name": "HumanM@Run01_Left [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Run/RootMotion/HumanM@Run01_Right [RM].fbx",
+   "name": "HumanM@Run01_Right [RM]",
+   "seconds": 0.6,
+   "frames": 19,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": -240.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 240.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/HumanM@Sprint01_Forward.fbx",
+   "name": "HumanM@Sprint01_Forward",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/HumanM@Sprint01_ForwardLeft.fbx",
+   "name": "HumanM@Sprint01_ForwardLeft",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/HumanM@Sprint01_ForwardRight.fbx",
+   "name": "HumanM@Sprint01_ForwardRight",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/HumanM@Sprint01_Left.fbx",
+   "name": "HumanM@Sprint01_Left",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/HumanM@Sprint01_Right.fbx",
+   "name": "HumanM@Sprint01_Right",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/RootMotion/HumanM@Sprint01_Forward [RM].fbx",
+   "name": "HumanM@Sprint01_Forward [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 320.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -320.0,
+     "z": 0.0
+    },
+    "distance": 320.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/RootMotion/HumanM@Sprint01_ForwardLeft [RM].fbx",
+   "name": "HumanM@Sprint01_ForwardLeft [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 294.56,
+     "y": 226.27,
+     "z": 0.0
+    },
+    "net": {
+     "x": 294.56,
+     "y": -226.27,
+     "z": 0.0
+    },
+    "distance": 371.43
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/RootMotion/HumanM@Sprint01_ForwardRight [RM].fbx",
+   "name": "HumanM@Sprint01_ForwardRight [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 294.56,
+     "y": 226.27,
+     "z": 0.0
+    },
+    "net": {
+     "x": -294.56,
+     "y": -226.27,
+     "z": 0.0
+    },
+    "distance": 371.43
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/RootMotion/HumanM@Sprint01_Left [RM].fbx",
+   "name": "HumanM@Sprint01_Left [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 416.57,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 416.57,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 416.57
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Sprint/RootMotion/HumanM@Sprint01_Right [RM].fbx",
+   "name": "HumanM@Sprint01_Right [RM]",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 416.57,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": -416.57,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 416.57
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Turn/HumanM@Turn01_Left [RM].fbx",
+   "name": "HumanM@Turn01_Left [RM]",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Turn/HumanM@Turn01_Left.fbx",
+   "name": "HumanM@Turn01_Left",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Turn/HumanM@Turn01_Right [RM].fbx",
+   "name": "HumanM@Turn01_Right [RM]",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Turn/HumanM@Turn01_Right.fbx",
+   "name": "HumanM@Turn01_Right",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_Backward.fbx",
+   "name": "HumanM@Walk01_Backward",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_BackwardLeft.fbx",
+   "name": "HumanM@Walk01_BackwardLeft",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_BackwardRight.fbx",
+   "name": "HumanM@Walk01_BackwardRight",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_Forward.fbx",
+   "name": "HumanM@Walk01_Forward",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_ForwardLeft.fbx",
+   "name": "HumanM@Walk01_ForwardLeft",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_ForwardRight.fbx",
+   "name": "HumanM@Walk01_ForwardRight",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_Left.fbx",
+   "name": "HumanM@Walk01_Left",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/HumanM@Walk01_Right.fbx",
+   "name": "HumanM@Walk01_Right",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_Backward [RM].fbx",
+   "name": "HumanM@Walk01_Backward [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 160.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 160.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_BackwardLeft [RM].fbx",
+   "name": "HumanM@Walk01_BackwardLeft [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_BackwardRight [RM].fbx",
+   "name": "HumanM@Walk01_BackwardRight [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": -113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_Forward [RM].fbx",
+   "name": "HumanM@Walk01_Forward [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 160.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -160.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_ForwardLeft [RM].fbx",
+   "name": "HumanM@Walk01_ForwardLeft [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": 113.14,
+     "y": -113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_ForwardRight [RM].fbx",
+   "name": "HumanM@Walk01_ForwardRight [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 113.14,
+     "y": 113.14,
+     "z": 0.0
+    },
+    "net": {
+     "x": -113.14,
+     "y": -113.14,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_Left [RM].fbx",
+   "name": "HumanM@Walk01_Left [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 160.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 160.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Movement/Walk/RootMotion/HumanM@Walk01_Right [RM].fbx",
+   "name": "HumanM@Walk01_Right [RM]",
+   "seconds": 0.8,
+   "frames": 25,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 160.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": -160.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 160.0
+   }
+  },
+  {
+   "file": "Animations/Male/Social/Conversation/HumanM@Talk01.fbx",
+   "name": "HumanM@Talk01",
+   "seconds": 2.267,
+   "frames": 69,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Masked Poses/Human@HandsClosed01.fbx",
+   "name": "Human@HandsClosed01",
+   "seconds": 0.333,
+   "frames": 11,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Animations/Masked Poses/Human@ObjectGripHands01.fbx",
+   "name": "Human@ObjectGripHands01",
+   "seconds": 0.333,
+   "frames": 11,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "B-root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  }
+ ]
+}

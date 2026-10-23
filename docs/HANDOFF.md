@@ -1,6 +1,25 @@
 # HANDOFF: start here
 
-## Latest (23 Oct, session 18, cloud): **`stadium-v0.9`** = `stadium` + the Sky series (M19)
+## Latest (23 Oct, session 19, cloud, `stadium`): four humanoid animation packs, learnt and stored
+- Owner: "learn and store these" (four zips). **`docs/ANIMATIONS.md` is the study** -- 231 clips
+  over three skeletons, every length and every root travel measured from the files, plus the rig
+  mapping, the Godot import facts and the clips worth using here. Inventories:
+  `tools/anim/manifests/*.json`. Licences: `stadium/assets/anim/CREDITS.md`.
+- **In the repo**: Quaternius' Universal Animation Library (CC0) at `stadium/assets/anim/ual/`
+  (`ual_standard.glb`, `ual_standard_rm.glb`): 43 clips, a 65-bone Unreal-style rig and a
+  13,744-triangle Mannequin, 1.83 m. Imported and checked headless in Godot 4.7.2; usable now,
+  no retargeting (`docs/research/ual_poses.png` shows six of the clips).
+- **Not in the repo**: Human Basic Motions FREE (Kevin Iglesias, 118 clips, the locomotion set:
+  walk 2.00 / run 4.00 / sprint 6.00 m/s, 8 directions) and the two Motifect packs (70 emote and
+  daily-life clips). All three are licensed for **use in the game** but not for redistribution,
+  and this repo is public. They stay with the owner; `tools/anim/stage_packs.sh <dir with the
+  zips>` puts them back under the untracked `assets/anim/` and rebuilds the manifests.
+- **Waiting on the owner**: what the characters are for (a driver in the car, a mechanic in the
+  Garage, street life in the neon City, emotes on the podium and in online lobbies -- all of it
+  possible with these), and whether they want the three non-CC0 packs committed anyway.
+  No game code touched, no milestone opened.
+
+## Earlier (23 Oct, session 18, cloud): **`stadium-v0.9`** = `stadium` + the Sky series (M19)
 - Owner: "Yes, tag stadium-v0.9 and release it". v0.9 carries everything since v0.8: our hypercar
   (M15), our own menu look (M16), the 16 road cars (M17), tuning (M18) and the Sky series (M19).
   `stadium/PLAYING.txt` (in the zips, and the Release's notes) rewritten: a NEW IN 0.9 list, the

@@ -1,0 +1,1828 @@
+{
+ "pack": "motifect_daily_life",
+ "files": 80,
+ "clips": 80,
+ "seconds": 628.68,
+ "formats": [
+  {
+   "format": "bvh",
+   "up_axis": "Y",
+   "unit_scale": 100.0,
+   "files": 40
+  },
+  {
+   "format": "fbx7700",
+   "up_axis": "Y",
+   "unit_scale": 1.0,
+   "files": 40
+  }
+ ],
+ "skeletons": [
+  {
+   "bones": 77,
+   "files": 80,
+   "names": [
+    "Hips",
+    "Spine1",
+    "Spine2",
+    "Chest",
+    "Neck1",
+    "Neck2",
+    "Head",
+    "HeadEnd",
+    "Jaw",
+    "LeftEye",
+    "RightEye",
+    "LeftShoulder",
+    "LeftArm",
+    "LeftForeArm",
+    "LeftHand",
+    "LeftHandThumb1",
+    "LeftHandThumb2",
+    "LeftHandThumb3",
+    "LeftHandThumbEnd",
+    "LeftHandIndex1",
+    "LeftHandIndex2",
+    "LeftHandIndex3",
+    "LeftHandIndex4",
+    "LeftHandIndexEnd",
+    "LeftHandMiddle1",
+    "LeftHandMiddle2",
+    "LeftHandMiddle3",
+    "LeftHandMiddle4",
+    "LeftHandMiddleEnd",
+    "LeftHandRing1",
+    "LeftHandRing2",
+    "LeftHandRing3",
+    "LeftHandRing4",
+    "LeftHandRingEnd",
+    "LeftHandPinky1",
+    "LeftHandPinky2",
+    "LeftHandPinky3",
+    "LeftHandPinky4",
+    "LeftHandPinkyEnd",
+    "RightShoulder",
+    "RightArm",
+    "RightForeArm",
+    "RightHand",
+    "RightHandThumb1",
+    "RightHandThumb2",
+    "RightHandThumb3",
+    "RightHandThumbEnd",
+    "RightHandIndex1",
+    "RightHandIndex2",
+    "RightHandIndex3",
+    "RightHandIndex4",
+    "RightHandIndexEnd",
+    "RightHandMiddle1",
+    "RightHandMiddle2",
+    "RightHandMiddle3",
+    "RightHandMiddle4",
+    "RightHandMiddleEnd",
+    "RightHandRing1",
+    "RightHandRing2",
+    "RightHandRing3",
+    "RightHandRing4",
+    "RightHandRingEnd",
+    "RightHandPinky1",
+    "RightHandPinky2",
+    "RightHandPinky3",
+    "RightHandPinky4",
+    "RightHandPinkyEnd",
+    "LeftLeg",
+    "LeftShin",
+    "LeftFoot",
+    "LeftToeBase",
+    "LeftToeEnd",
+    "RightLeg",
+    "RightShin",
+    "RightFoot",
+    "RightToeBase",
+    "RightToeEnd"
+   ]
+  }
+ ],
+ "meshes": [],
+ "clip_list": [
+  {
+   "file": "Animations/bow_greeting.fbx",
+   "name": "bow_greeting",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.73,
+     "y": 2.6,
+     "z": 13.45
+    },
+    "net": {
+     "x": 1.82,
+     "y": -0.24,
+     "z": -1.4
+    },
+    "distance": 2.3
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/brush_teeth.fbx",
+   "name": "brush_teeth",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.45,
+     "y": 0.32,
+     "z": 1.66
+    },
+    "net": {
+     "x": 1.11,
+     "y": -0.05,
+     "z": -0.56
+    },
+    "distance": 1.24
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/carry_box_two_hands.fbx",
+   "name": "carry_box_two_hands",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 43.87,
+     "y": 4.83,
+     "z": 421.98
+    },
+    "net": {
+     "x": 28.44,
+     "y": -0.34,
+     "z": 421.98
+    },
+    "distance": 422.94
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/carry_grocery_bags.fbx",
+   "name": "carry_grocery_bags",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 53.71,
+     "y": 4.03,
+     "z": 682.97
+    },
+    "net": {
+     "x": 36.9,
+     "y": 0.29,
+     "z": 682.97
+    },
+    "distance": 683.97
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/check_phone_standing.fbx",
+   "name": "check_phone_standing",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.43,
+     "y": 0.33,
+     "z": 1.55
+    },
+    "net": {
+     "x": 0.12,
+     "y": 0.19,
+     "z": -1.03
+    },
+    "distance": 1.04
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/climb_stairs_down.fbx",
+   "name": "climb_stairs_down",
+   "seconds": 6.967,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 24.21,
+     "y": 161.92,
+     "z": 205.75
+    },
+    "net": {
+     "x": 17.75,
+     "y": -161.92,
+     "z": 202.97
+    },
+    "distance": 203.74
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/climb_stairs_up.fbx",
+   "name": "climb_stairs_up",
+   "seconds": 6.967,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 34.4,
+     "y": 200.77,
+     "z": 226.08
+    },
+    "net": {
+     "x": 21.66,
+     "y": 200.19,
+     "z": 225.59
+    },
+    "distance": 226.63
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/comb_hair.fbx",
+   "name": "comb_hair",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.06,
+     "y": 0.84,
+     "z": 4.44
+    },
+    "net": {
+     "x": -2.69,
+     "y": -0.12,
+     "z": -1.18
+    },
+    "distance": 2.94
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/drink_from_cup.fbx",
+   "name": "drink_from_cup",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.55,
+     "y": 0.27,
+     "z": 3.35
+    },
+    "net": {
+     "x": 0.45,
+     "y": -0.09,
+     "z": 1.04
+    },
+    "distance": 1.13
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/eat_with_fork.fbx",
+   "name": "eat_with_fork",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.67,
+     "y": 0.64,
+     "z": 1.27
+    },
+    "net": {
+     "x": -0.59,
+     "y": 0.31,
+     "z": 0.49
+    },
+    "distance": 0.77
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/get_up_from_bed.fbx",
+   "name": "get_up_from_bed",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 49.66,
+     "y": 56.64,
+     "z": 73.92
+    },
+    "net": {
+     "x": 45.88,
+     "y": 55.15,
+     "z": 68.67
+    },
+    "distance": 82.59
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/get_up_from_floor.fbx",
+   "name": "get_up_from_floor",
+   "seconds": 6.967,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 14.03,
+     "y": 91.82,
+     "z": 120.91
+    },
+    "net": {
+     "x": -11.55,
+     "y": 91.12,
+     "z": -110.68
+    },
+    "distance": 111.28
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/hug_greeting.fbx",
+   "name": "hug_greeting",
+   "seconds": 6.967,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.31,
+     "y": 1.09,
+     "z": 12.11
+    },
+    "net": {
+     "x": 1.25,
+     "y": -0.0,
+     "z": 0.87
+    },
+    "distance": 1.52
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/knock_on_door.fbx",
+   "name": "knock_on_door",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 5.35,
+     "y": 1.32,
+     "z": 6.92
+    },
+    "net": {
+     "x": -0.98,
+     "y": 0.7,
+     "z": 1.28
+    },
+    "distance": 1.61
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/lie_down_on_bed.fbx",
+   "name": "lie_down_on_bed",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 30.15,
+     "y": 60.92,
+     "z": 145.13
+    },
+    "net": {
+     "x": 2.93,
+     "y": -54.37,
+     "z": 130.16
+    },
+    "distance": 130.19
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/nod_yes.fbx",
+   "name": "nod_yes",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 11.69,
+     "y": 1.06,
+     "z": 4.92
+    },
+    "net": {
+     "x": -0.45,
+     "y": 0.07,
+     "z": -1.14
+    },
+    "distance": 1.23
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/open_refrigerator.fbx",
+   "name": "open_refrigerator",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.39,
+     "y": 0.65,
+     "z": 3.45
+    },
+    "net": {
+     "x": -0.61,
+     "y": 0.02,
+     "z": 0.61
+    },
+    "distance": 0.86
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/pick_up_object_floor.fbx",
+   "name": "pick_up_object_floor",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.02,
+     "y": 54.52,
+     "z": 16.51
+    },
+    "net": {
+     "x": -0.93,
+     "y": -0.08,
+     "z": -3.09
+    },
+    "distance": 3.23
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/pick_up_object_table.fbx",
+   "name": "pick_up_object_table",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.6,
+     "y": 0.21,
+     "z": 1.97
+    },
+    "net": {
+     "x": -0.04,
+     "y": -0.1,
+     "z": -0.41
+    },
+    "distance": 0.41
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/present_to_audience.fbx",
+   "name": "present_to_audience",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 20.72,
+     "y": 1.42,
+     "z": 10.14
+    },
+    "net": {
+     "x": 1.62,
+     "y": 0.03,
+     "z": 4.9
+    },
+    "distance": 5.16
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/pull_open_drawer.fbx",
+   "name": "pull_open_drawer",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 5.0,
+     "y": 6.91,
+     "z": 18.09
+    },
+    "net": {
+     "x": 0.13,
+     "y": -0.49,
+     "z": 1.08
+    },
+    "distance": 1.09
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/push_open_door.fbx",
+   "name": "push_open_door",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 22.34,
+     "y": 6.28,
+     "z": 80.76
+    },
+    "net": {
+     "x": 0.58,
+     "y": -0.23,
+     "z": 79.99
+    },
+    "distance": 79.99
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/push_shopping_cart.fbx",
+   "name": "push_shopping_cart",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 46.63,
+     "y": 6.24,
+     "z": 942.49
+    },
+    "net": {
+     "x": -41.88,
+     "y": 1.07,
+     "z": 942.49
+    },
+    "distance": 943.42
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/put_down_object_table.fbx",
+   "name": "put_down_object_table",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.9,
+     "y": 0.72,
+     "z": 5.35
+    },
+    "net": {
+     "x": -0.28,
+     "y": 0.09,
+     "z": 1.16
+    },
+    "distance": 1.19
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/put_on_jacket.fbx",
+   "name": "put_on_jacket",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.05,
+     "y": 0.78,
+     "z": 5.4
+    },
+    "net": {
+     "x": 1.29,
+     "y": 0.19,
+     "z": 0.98
+    },
+    "distance": 1.62
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/shake_hands.fbx",
+   "name": "shake_hands",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.79,
+     "y": 0.25,
+     "z": 2.95
+    },
+    "net": {
+     "x": 0.25,
+     "y": 0.11,
+     "z": -0.76
+    },
+    "distance": 0.8
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/shake_head_no.fbx",
+   "name": "shake_head_no",
+   "seconds": 3.967,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.71,
+     "y": 0.27,
+     "z": 1.16
+    },
+    "net": {
+     "x": 0.38,
+     "y": 0.1,
+     "z": -0.37
+    },
+    "distance": 0.53
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/sit_down_chair.fbx",
+   "name": "sit_down_chair",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 51.94,
+     "y": 40.45,
+     "z": 51.86
+    },
+    "net": {
+     "x": -48.07,
+     "y": -39.89,
+     "z": 47.85
+    },
+    "distance": 67.83
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/sit_idle_slouched.fbx",
+   "name": "sit_idle_slouched",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.39,
+     "y": 0.28,
+     "z": 0.51
+    },
+    "net": {
+     "x": -0.03,
+     "y": -0.03,
+     "z": 0.26
+    },
+    "distance": 0.26
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/sit_idle_upright.fbx",
+   "name": "sit_idle_upright",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.59,
+     "y": 0.24,
+     "z": 0.59
+    },
+    "net": {
+     "x": -0.35,
+     "y": -0.1,
+     "z": 0.51
+    },
+    "distance": 0.62
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/stand_up_from_chair.fbx",
+   "name": "stand_up_from_chair",
+   "seconds": 4.967,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 9.49,
+     "y": 87.75,
+     "z": 61.15
+    },
+    "net": {
+     "x": 0.35,
+     "y": 87.11,
+     "z": 59.3
+    },
+    "distance": 59.3
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/stretch_morning.fbx",
+   "name": "stretch_morning",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.71,
+     "y": 0.45,
+     "z": 3.0
+    },
+    "net": {
+     "x": -0.53,
+     "y": -0.25,
+     "z": 1.45
+    },
+    "distance": 1.54
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/sweep_floor.fbx",
+   "name": "sweep_floor",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 37.33,
+     "y": 5.57,
+     "z": 28.82
+    },
+    "net": {
+     "x": -9.24,
+     "y": -0.09,
+     "z": -21.76
+    },
+    "distance": 23.64
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/take_photo_with_phone.fbx",
+   "name": "take_photo_with_phone",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 15.82,
+     "y": 0.8,
+     "z": 6.41
+    },
+    "net": {
+     "x": 8.38,
+     "y": -0.09,
+     "z": -2.64
+    },
+    "distance": 8.79
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/tie_shoelaces.fbx",
+   "name": "tie_shoelaces",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 14.09,
+     "y": 0.74,
+     "z": 12.89
+    },
+    "net": {
+     "x": 0.51,
+     "y": -0.06,
+     "z": 3.2
+    },
+    "distance": 3.24
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/type_on_keyboard.fbx",
+   "name": "type_on_keyboard",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.49,
+     "y": 0.66,
+     "z": 1.13
+    },
+    "net": {
+     "x": 0.12,
+     "y": 0.37,
+     "z": 0.46
+    },
+    "distance": 0.48
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/wash_hands.fbx",
+   "name": "wash_hands",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.04,
+     "y": 1.07,
+     "z": 7.48
+    },
+    "net": {
+     "x": 0.87,
+     "y": -0.23,
+     "z": 3.0
+    },
+    "distance": 3.12
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/wave_hello.fbx",
+   "name": "wave_hello",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.37,
+     "y": 0.26,
+     "z": 1.34
+    },
+    "net": {
+     "x": -0.12,
+     "y": 0.05,
+     "z": 0.87
+    },
+    "distance": 0.88
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/write_on_whiteboard.fbx",
+   "name": "write_on_whiteboard",
+   "seconds": 9.967,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.28,
+     "y": 1.29,
+     "z": 2.75
+    },
+    "net": {
+     "x": 1.07,
+     "y": 0.28,
+     "z": 0.42
+    },
+    "distance": 1.15
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "Animations/yawn_and_stretch.fbx",
+   "name": "yawn_and_stretch",
+   "seconds": 5.967,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.12,
+     "y": 0.44,
+     "z": 2.17
+    },
+    "net": {
+     "x": -2.01,
+     "y": -0.02,
+     "z": 0.44
+    },
+    "distance": 2.06
+   },
+   "take": "Take1"
+  },
+  {
+   "file": "BVH/bow_greeting.bvh",
+   "name": "bow_greeting",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.73,
+     "y": 2.6,
+     "z": 13.45
+    },
+    "net": {
+     "x": 1.82,
+     "y": -0.24,
+     "z": -1.4
+    },
+    "distance": 2.3
+   }
+  },
+  {
+   "file": "BVH/brush_teeth.bvh",
+   "name": "brush_teeth",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.45,
+     "y": 0.32,
+     "z": 1.66
+    },
+    "net": {
+     "x": 1.11,
+     "y": -0.05,
+     "z": -0.56
+    },
+    "distance": 1.24
+   }
+  },
+  {
+   "file": "BVH/carry_box_two_hands.bvh",
+   "name": "carry_box_two_hands",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 43.87,
+     "y": 4.83,
+     "z": 421.98
+    },
+    "net": {
+     "x": 28.44,
+     "y": -0.34,
+     "z": 421.98
+    },
+    "distance": 422.94
+   }
+  },
+  {
+   "file": "BVH/carry_grocery_bags.bvh",
+   "name": "carry_grocery_bags",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 53.71,
+     "y": 4.03,
+     "z": 682.97
+    },
+    "net": {
+     "x": 36.9,
+     "y": 0.29,
+     "z": 682.97
+    },
+    "distance": 683.97
+   }
+  },
+  {
+   "file": "BVH/check_phone_standing.bvh",
+   "name": "check_phone_standing",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.43,
+     "y": 0.33,
+     "z": 1.55
+    },
+    "net": {
+     "x": 0.12,
+     "y": 0.19,
+     "z": -1.03
+    },
+    "distance": 1.04
+   }
+  },
+  {
+   "file": "BVH/climb_stairs_down.bvh",
+   "name": "climb_stairs_down",
+   "seconds": 7.0,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 24.21,
+     "y": 161.92,
+     "z": 205.75
+    },
+    "net": {
+     "x": 17.75,
+     "y": -161.92,
+     "z": 202.97
+    },
+    "distance": 203.74
+   }
+  },
+  {
+   "file": "BVH/climb_stairs_up.bvh",
+   "name": "climb_stairs_up",
+   "seconds": 7.0,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 34.4,
+     "y": 200.77,
+     "z": 226.08
+    },
+    "net": {
+     "x": 21.66,
+     "y": 200.19,
+     "z": 225.59
+    },
+    "distance": 226.63
+   }
+  },
+  {
+   "file": "BVH/comb_hair.bvh",
+   "name": "comb_hair",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.06,
+     "y": 0.84,
+     "z": 4.44
+    },
+    "net": {
+     "x": -2.69,
+     "y": -0.12,
+     "z": -1.18
+    },
+    "distance": 2.94
+   }
+  },
+  {
+   "file": "BVH/drink_from_cup.bvh",
+   "name": "drink_from_cup",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.55,
+     "y": 0.27,
+     "z": 3.35
+    },
+    "net": {
+     "x": 0.45,
+     "y": -0.09,
+     "z": 1.04
+    },
+    "distance": 1.13
+   }
+  },
+  {
+   "file": "BVH/eat_with_fork.bvh",
+   "name": "eat_with_fork",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.67,
+     "y": 0.64,
+     "z": 1.27
+    },
+    "net": {
+     "x": -0.59,
+     "y": 0.31,
+     "z": 0.49
+    },
+    "distance": 0.77
+   }
+  },
+  {
+   "file": "BVH/get_up_from_bed.bvh",
+   "name": "get_up_from_bed",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 49.66,
+     "y": 56.64,
+     "z": 73.92
+    },
+    "net": {
+     "x": 45.88,
+     "y": 55.15,
+     "z": 68.67
+    },
+    "distance": 82.59
+   }
+  },
+  {
+   "file": "BVH/get_up_from_floor.bvh",
+   "name": "get_up_from_floor",
+   "seconds": 7.0,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 14.03,
+     "y": 91.82,
+     "z": 120.91
+    },
+    "net": {
+     "x": -11.55,
+     "y": 91.12,
+     "z": -110.68
+    },
+    "distance": 111.28
+   }
+  },
+  {
+   "file": "BVH/hug_greeting.bvh",
+   "name": "hug_greeting",
+   "seconds": 7.0,
+   "frames": 210,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.31,
+     "y": 1.09,
+     "z": 12.11
+    },
+    "net": {
+     "x": 1.25,
+     "y": -0.0,
+     "z": 0.87
+    },
+    "distance": 1.52
+   }
+  },
+  {
+   "file": "BVH/knock_on_door.bvh",
+   "name": "knock_on_door",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 5.35,
+     "y": 1.32,
+     "z": 6.92
+    },
+    "net": {
+     "x": -0.98,
+     "y": 0.7,
+     "z": 1.28
+    },
+    "distance": 1.61
+   }
+  },
+  {
+   "file": "BVH/lie_down_on_bed.bvh",
+   "name": "lie_down_on_bed",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 30.15,
+     "y": 60.92,
+     "z": 145.13
+    },
+    "net": {
+     "x": 2.93,
+     "y": -54.37,
+     "z": 130.16
+    },
+    "distance": 130.19
+   }
+  },
+  {
+   "file": "BVH/nod_yes.bvh",
+   "name": "nod_yes",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 11.69,
+     "y": 1.06,
+     "z": 4.92
+    },
+    "net": {
+     "x": -0.45,
+     "y": 0.07,
+     "z": -1.14
+    },
+    "distance": 1.23
+   }
+  },
+  {
+   "file": "BVH/open_refrigerator.bvh",
+   "name": "open_refrigerator",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 3.39,
+     "y": 0.65,
+     "z": 3.45
+    },
+    "net": {
+     "x": -0.61,
+     "y": 0.02,
+     "z": 0.61
+    },
+    "distance": 0.86
+   }
+  },
+  {
+   "file": "BVH/pick_up_object_floor.bvh",
+   "name": "pick_up_object_floor",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.02,
+     "y": 54.52,
+     "z": 16.51
+    },
+    "net": {
+     "x": -0.93,
+     "y": -0.08,
+     "z": -3.09
+    },
+    "distance": 3.23
+   }
+  },
+  {
+   "file": "BVH/pick_up_object_table.bvh",
+   "name": "pick_up_object_table",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.6,
+     "y": 0.21,
+     "z": 1.97
+    },
+    "net": {
+     "x": -0.04,
+     "y": -0.1,
+     "z": -0.41
+    },
+    "distance": 0.41
+   }
+  },
+  {
+   "file": "BVH/present_to_audience.bvh",
+   "name": "present_to_audience",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 20.72,
+     "y": 1.42,
+     "z": 10.14
+    },
+    "net": {
+     "x": 1.62,
+     "y": 0.03,
+     "z": 4.9
+    },
+    "distance": 5.16
+   }
+  },
+  {
+   "file": "BVH/pull_open_drawer.bvh",
+   "name": "pull_open_drawer",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 5.0,
+     "y": 6.91,
+     "z": 18.09
+    },
+    "net": {
+     "x": 0.13,
+     "y": -0.49,
+     "z": 1.08
+    },
+    "distance": 1.09
+   }
+  },
+  {
+   "file": "BVH/push_open_door.bvh",
+   "name": "push_open_door",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 22.34,
+     "y": 6.28,
+     "z": 80.76
+    },
+    "net": {
+     "x": 0.58,
+     "y": -0.23,
+     "z": 79.99
+    },
+    "distance": 79.99
+   }
+  },
+  {
+   "file": "BVH/push_shopping_cart.bvh",
+   "name": "push_shopping_cart",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 46.63,
+     "y": 6.24,
+     "z": 942.49
+    },
+    "net": {
+     "x": -41.88,
+     "y": 1.07,
+     "z": 942.49
+    },
+    "distance": 943.42
+   }
+  },
+  {
+   "file": "BVH/put_down_object_table.bvh",
+   "name": "put_down_object_table",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.9,
+     "y": 0.72,
+     "z": 5.35
+    },
+    "net": {
+     "x": -0.28,
+     "y": 0.09,
+     "z": 1.16
+    },
+    "distance": 1.19
+   }
+  },
+  {
+   "file": "BVH/put_on_jacket.bvh",
+   "name": "put_on_jacket",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 4.05,
+     "y": 0.78,
+     "z": 5.4
+    },
+    "net": {
+     "x": 1.29,
+     "y": 0.19,
+     "z": 0.98
+    },
+    "distance": 1.62
+   }
+  },
+  {
+   "file": "BVH/shake_hands.bvh",
+   "name": "shake_hands",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.79,
+     "y": 0.25,
+     "z": 2.95
+    },
+    "net": {
+     "x": 0.25,
+     "y": 0.11,
+     "z": -0.76
+    },
+    "distance": 0.8
+   }
+  },
+  {
+   "file": "BVH/shake_head_no.bvh",
+   "name": "shake_head_no",
+   "seconds": 4.0,
+   "frames": 120,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.71,
+     "y": 0.27,
+     "z": 1.16
+    },
+    "net": {
+     "x": 0.38,
+     "y": 0.1,
+     "z": -0.37
+    },
+    "distance": 0.53
+   }
+  },
+  {
+   "file": "BVH/sit_down_chair.bvh",
+   "name": "sit_down_chair",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 51.94,
+     "y": 40.45,
+     "z": 51.86
+    },
+    "net": {
+     "x": -48.07,
+     "y": -39.89,
+     "z": 47.85
+    },
+    "distance": 67.83
+   }
+  },
+  {
+   "file": "BVH/sit_idle_slouched.bvh",
+   "name": "sit_idle_slouched",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.39,
+     "y": 0.28,
+     "z": 0.51
+    },
+    "net": {
+     "x": -0.03,
+     "y": -0.03,
+     "z": 0.26
+    },
+    "distance": 0.26
+   }
+  },
+  {
+   "file": "BVH/sit_idle_upright.bvh",
+   "name": "sit_idle_upright",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.59,
+     "y": 0.24,
+     "z": 0.59
+    },
+    "net": {
+     "x": -0.35,
+     "y": -0.1,
+     "z": 0.51
+    },
+    "distance": 0.62
+   }
+  },
+  {
+   "file": "BVH/stand_up_from_chair.bvh",
+   "name": "stand_up_from_chair",
+   "seconds": 5.0,
+   "frames": 150,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 9.49,
+     "y": 87.75,
+     "z": 61.15
+    },
+    "net": {
+     "x": 0.35,
+     "y": 87.11,
+     "z": 59.3
+    },
+    "distance": 59.3
+   }
+  },
+  {
+   "file": "BVH/stretch_morning.bvh",
+   "name": "stretch_morning",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.71,
+     "y": 0.45,
+     "z": 3.0
+    },
+    "net": {
+     "x": -0.53,
+     "y": -0.25,
+     "z": 1.45
+    },
+    "distance": 1.54
+   }
+  },
+  {
+   "file": "BVH/sweep_floor.bvh",
+   "name": "sweep_floor",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 37.33,
+     "y": 5.57,
+     "z": 28.82
+    },
+    "net": {
+     "x": -9.24,
+     "y": -0.09,
+     "z": -21.76
+    },
+    "distance": 23.64
+   }
+  },
+  {
+   "file": "BVH/take_photo_with_phone.bvh",
+   "name": "take_photo_with_phone",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 15.82,
+     "y": 0.8,
+     "z": 6.41
+    },
+    "net": {
+     "x": 8.38,
+     "y": -0.09,
+     "z": -2.64
+    },
+    "distance": 8.79
+   }
+  },
+  {
+   "file": "BVH/tie_shoelaces.bvh",
+   "name": "tie_shoelaces",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 14.09,
+     "y": 0.74,
+     "z": 12.89
+    },
+    "net": {
+     "x": 0.51,
+     "y": -0.06,
+     "z": 3.2
+    },
+    "distance": 3.24
+   }
+  },
+  {
+   "file": "BVH/type_on_keyboard.bvh",
+   "name": "type_on_keyboard",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 0.49,
+     "y": 0.66,
+     "z": 1.13
+    },
+    "net": {
+     "x": 0.12,
+     "y": 0.37,
+     "z": 0.46
+    },
+    "distance": 0.48
+   }
+  },
+  {
+   "file": "BVH/wash_hands.bvh",
+   "name": "wash_hands",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.04,
+     "y": 1.07,
+     "z": 7.48
+    },
+    "net": {
+     "x": 0.87,
+     "y": -0.23,
+     "z": 3.0
+    },
+    "distance": 3.12
+   }
+  },
+  {
+   "file": "BVH/wave_hello.bvh",
+   "name": "wave_hello",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 1.37,
+     "y": 0.26,
+     "z": 1.34
+    },
+    "net": {
+     "x": -0.12,
+     "y": 0.05,
+     "z": 0.87
+    },
+    "distance": 0.88
+   }
+  },
+  {
+   "file": "BVH/write_on_whiteboard.bvh",
+   "name": "write_on_whiteboard",
+   "seconds": 10.0,
+   "frames": 300,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.28,
+     "y": 1.29,
+     "z": 2.75
+    },
+    "net": {
+     "x": 1.07,
+     "y": 0.28,
+     "z": 0.42
+    },
+    "distance": 1.15
+   }
+  },
+  {
+   "file": "BVH/yawn_and_stretch.bvh",
+   "name": "yawn_and_stretch",
+   "seconds": 6.0,
+   "frames": 180,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "Hips",
+    "span": {
+     "x": 2.12,
+     "y": 0.44,
+     "z": 2.17
+    },
+    "net": {
+     "x": -2.01,
+     "y": -0.02,
+     "z": 0.44
+    },
+    "distance": 2.06
+   }
+  }
+ ]
+}

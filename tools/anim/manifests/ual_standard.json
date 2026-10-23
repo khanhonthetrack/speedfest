@@ -1,0 +1,3806 @@
+{
+ "pack": "ual_standard",
+ "files": 4,
+ "clips": 172,
+ "seconds": 264.8,
+ "formats": [
+  {
+   "format": "fbx7400",
+   "up_axis": "Z",
+   "unit_scale": 100.0,
+   "files": 2
+  },
+  {
+   "format": "glb",
+   "up_axis": "Y",
+   "unit_scale": 100.0,
+   "files": 2
+  }
+ ],
+ "skeletons": [
+  {
+   "bones": 67,
+   "files": 2,
+   "names": [
+    "Armature",
+    "Mannequin",
+    "root",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "neck_01",
+    "Head",
+    "clavicle_l",
+    "upperarm_l",
+    "lowerarm_l",
+    "hand_l",
+    "index_01_l",
+    "index_02_l",
+    "index_03_l",
+    "index_04_leaf_l",
+    "middle_01_l",
+    "middle_02_l",
+    "middle_03_l",
+    "middle_04_leaf_l",
+    "pinky_01_l",
+    "pinky_02_l",
+    "pinky_03_l",
+    "pinky_04_leaf_l",
+    "ring_01_l",
+    "ring_02_l",
+    "ring_03_l",
+    "ring_04_leaf_l",
+    "thumb_01_l",
+    "thumb_02_l",
+    "thumb_03_l",
+    "thumb_04_leaf_l",
+    "clavicle_r",
+    "upperarm_r",
+    "lowerarm_r",
+    "hand_r",
+    "index_01_r",
+    "index_02_r",
+    "index_03_r",
+    "index_04_leaf_r",
+    "middle_01_r",
+    "middle_02_r",
+    "middle_03_r",
+    "middle_04_leaf_r",
+    "pinky_01_r",
+    "pinky_02_r",
+    "pinky_03_r",
+    "pinky_04_leaf_r",
+    "ring_01_r",
+    "ring_02_r",
+    "ring_03_r",
+    "ring_04_leaf_r",
+    "thumb_01_r",
+    "thumb_02_r",
+    "thumb_03_r",
+    "thumb_04_leaf_r",
+    "thigh_l",
+    "calf_l",
+    "foot_l",
+    "ball_l",
+    "ball_leaf_l",
+    "thigh_r",
+    "calf_r",
+    "foot_r",
+    "ball_r",
+    "ball_leaf_r"
+   ]
+  },
+  {
+   "bones": 65,
+   "files": 2,
+   "names": [
+    "root",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "neck_01",
+    "Head",
+    "clavicle_l",
+    "upperarm_l",
+    "lowerarm_l",
+    "hand_l",
+    "index_01_l",
+    "index_02_l",
+    "index_03_l",
+    "index_04_leaf_l",
+    "middle_01_l",
+    "middle_02_l",
+    "middle_03_l",
+    "middle_04_leaf_l",
+    "pinky_01_l",
+    "pinky_02_l",
+    "pinky_03_l",
+    "pinky_04_leaf_l",
+    "ring_01_l",
+    "ring_02_l",
+    "ring_03_l",
+    "ring_04_leaf_l",
+    "thumb_01_l",
+    "thumb_02_l",
+    "thumb_03_l",
+    "thumb_04_leaf_l",
+    "clavicle_r",
+    "upperarm_r",
+    "lowerarm_r",
+    "hand_r",
+    "index_01_r",
+    "index_02_r",
+    "index_03_r",
+    "index_04_leaf_r",
+    "middle_01_r",
+    "middle_02_r",
+    "middle_03_r",
+    "middle_04_leaf_r",
+    "pinky_01_r",
+    "pinky_02_r",
+    "pinky_03_r",
+    "pinky_04_leaf_r",
+    "ring_01_r",
+    "ring_02_r",
+    "ring_03_r",
+    "ring_04_leaf_r",
+    "thumb_01_r",
+    "thumb_02_r",
+    "thumb_03_r",
+    "thumb_04_leaf_r",
+    "thigh_l",
+    "calf_l",
+    "foot_l",
+    "ball_l",
+    "ball_leaf_l",
+    "thigh_r",
+    "calf_r",
+    "foot_r",
+    "ball_r",
+    "ball_leaf_r"
+   ]
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Mannequin.001",
+   "vertices": 6994,
+   "polygons": 7218,
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx"
+  },
+  {
+   "name": "Mannequin.001",
+   "vertices": 6994,
+   "polygons": 7218,
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx"
+  },
+  {
+   "name": "Mannequin",
+   "vertices": 8546,
+   "triangles": 13744,
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Mannequin",
+   "vertices": 8546,
+   "triangles": 13744,
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  }
+ ],
+ "clip_list": [
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "A_TPose",
+   "seconds": 2.5,
+   "frames": 76,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Crouch_Fwd_Loop",
+   "seconds": 2.0,
+   "frames": 61,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Crouch_Idle_Loop",
+   "seconds": 2.933,
+   "frames": 89,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Dance_Loop",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Death01",
+   "seconds": 2.4,
+   "frames": 73,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Driving_Loop",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Fixing_Kneeling",
+   "seconds": 5.2,
+   "frames": 157,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Hit_Chest",
+   "seconds": 0.333,
+   "frames": 11,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Hit_Head",
+   "seconds": 0.433,
+   "frames": 14,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Idle_Loop",
+   "seconds": 2.5,
+   "frames": 76,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Idle_Talking_Loop",
+   "seconds": 2.933,
+   "frames": 89,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Idle_Torch_Loop",
+   "seconds": 1.267,
+   "frames": 39,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Interact",
+   "seconds": 2.0,
+   "frames": 61,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Jog_Fwd_Loop",
+   "seconds": 0.933,
+   "frames": 29,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Jump_Land",
+   "seconds": 1.267,
+   "frames": 39,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Jump_Loop",
+   "seconds": 2.5,
+   "frames": 76,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Jump_Start",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "PickUp_Table",
+   "seconds": 0.833,
+   "frames": 26,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Pistol_Aim_Down",
+   "seconds": 0.167,
+   "frames": 6,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Pistol_Aim_Neutral",
+   "seconds": 0.167,
+   "frames": 6,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Pistol_Aim_Up",
+   "seconds": 0.167,
+   "frames": 6,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Pistol_Idle_Loop",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Pistol_Reload",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Pistol_Shoot",
+   "seconds": 0.633,
+   "frames": 20,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Punch_Cross",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Punch_Jab",
+   "seconds": 0.867,
+   "frames": 27,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Push_Loop",
+   "seconds": 2.667,
+   "frames": 81,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Roll",
+   "seconds": 1.467,
+   "frames": 45,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sitting_Enter",
+   "seconds": 1.3,
+   "frames": 40,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sitting_Exit",
+   "seconds": 1.033,
+   "frames": 32,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sitting_Idle_Loop",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sitting_Talking_Loop",
+   "seconds": 2.933,
+   "frames": 89,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Spell_Simple_Enter",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Spell_Simple_Exit",
+   "seconds": 0.433,
+   "frames": 14,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Spell_Simple_Idle_Loop",
+   "seconds": 2.1,
+   "frames": 64,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Spell_Simple_Shoot",
+   "seconds": 0.5,
+   "frames": 16,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sprint_Loop",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Swim_Fwd_Loop",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Swim_Idle_Loop",
+   "seconds": 3.333,
+   "frames": 101,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sword_Attack",
+   "seconds": 1.533,
+   "frames": 47,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Sword_Idle",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Walk_Formal_Loop",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "name": "Walk_Loop",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "A_TPose",
+   "seconds": 2.5,
+   "frames": 76,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Crouch_Fwd_Loop",
+   "seconds": 2.0,
+   "frames": 61,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 1.5,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -1.5,
+     "z": 0.0
+    },
+    "distance": 1.5
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Crouch_Idle_Loop",
+   "seconds": 2.933,
+   "frames": 89,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Dance_Loop",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Death01",
+   "seconds": 2.4,
+   "frames": 73,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.65,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.65,
+     "z": 0.0
+    },
+    "distance": 0.65
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Driving_Loop",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Fixing_Kneeling",
+   "seconds": 5.2,
+   "frames": 157,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Hit_Chest",
+   "seconds": 0.333,
+   "frames": 11,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Hit_Head",
+   "seconds": 0.433,
+   "frames": 14,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Idle_Loop",
+   "seconds": 2.5,
+   "frames": 76,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Idle_Talking_Loop",
+   "seconds": 2.933,
+   "frames": 89,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Idle_Torch_Loop",
+   "seconds": 1.267,
+   "frames": 39,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Interact",
+   "seconds": 2.0,
+   "frames": 61,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Jog_Fwd_Loop",
+   "seconds": 0.933,
+   "frames": 29,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 5.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -5.0,
+     "z": 0.0
+    },
+    "distance": 5.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Jump_Land",
+   "seconds": 1.267,
+   "frames": 39,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Jump_Loop",
+   "seconds": 2.5,
+   "frames": 76,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Jump_Start",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "PickUp_Table",
+   "seconds": 0.833,
+   "frames": 26,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Pistol_Aim_Down",
+   "seconds": 0.167,
+   "frames": 6,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Pistol_Aim_Neutral",
+   "seconds": 0.167,
+   "frames": 6,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Pistol_Aim_Up",
+   "seconds": 0.167,
+   "frames": 6,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Pistol_Idle_Loop",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Pistol_Reload",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Pistol_Shoot",
+   "seconds": 0.633,
+   "frames": 20,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Punch_Cross",
+   "seconds": 1.0,
+   "frames": 31,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Punch_Jab",
+   "seconds": 0.867,
+   "frames": 27,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Push_Loop",
+   "seconds": 2.667,
+   "frames": 81,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.8,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -0.8,
+     "z": 0.0
+    },
+    "distance": 0.8
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Roll",
+   "seconds": 1.467,
+   "frames": 45,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 4.99,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -4.99,
+     "z": 0.0
+    },
+    "distance": 4.99
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sitting_Enter",
+   "seconds": 1.3,
+   "frames": 40,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sitting_Exit",
+   "seconds": 1.033,
+   "frames": 32,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sitting_Idle_Loop",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sitting_Talking_Loop",
+   "seconds": 2.933,
+   "frames": 89,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Spell_Simple_Enter",
+   "seconds": 0.533,
+   "frames": 17,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Spell_Simple_Exit",
+   "seconds": 0.433,
+   "frames": 14,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Spell_Simple_Idle_Loop",
+   "seconds": 2.1,
+   "frames": 64,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Spell_Simple_Shoot",
+   "seconds": 0.5,
+   "frames": 16,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sprint_Loop",
+   "seconds": 0.667,
+   "frames": 21,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 5.5,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -5.5,
+     "z": 0.0
+    },
+    "distance": 5.5
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Swim_Fwd_Loop",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 2.9,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -2.9,
+     "z": 0.0
+    },
+    "distance": 2.9
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Swim_Idle_Loop",
+   "seconds": 3.333,
+   "frames": 101,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sword_Attack",
+   "seconds": 1.533,
+   "frames": 47,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 1.5,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -1.5,
+     "z": 0.0
+    },
+    "distance": 1.5
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Sword_Idle",
+   "seconds": 1.667,
+   "frames": 51,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Walk_Formal_Loop",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 1.3,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -1.3,
+     "z": 0.0
+    },
+    "distance": 1.3
+   }
+  },
+  {
+   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "name": "Walk_Loop",
+   "seconds": 1.333,
+   "frames": 41,
+   "fps": 30.0,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 1.3,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": -1.3,
+     "z": 0.0
+    },
+    "distance": 1.3
+   }
+  },
+  {
+   "name": "A_TPose",
+   "seconds": 2.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Crouch_Fwd_Loop",
+   "seconds": 2,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Crouch_Idle_Loop",
+   "seconds": 2.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Dance_Loop",
+   "seconds": 1,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Death01",
+   "seconds": 2.4,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Driving_Loop",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Fixing_Kneeling",
+   "seconds": 5.2,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Hit_Chest",
+   "seconds": 0.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Hit_Head",
+   "seconds": 0.433,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Idle_Loop",
+   "seconds": 2.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Idle_Talking_Loop",
+   "seconds": 2.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Idle_Torch_Loop",
+   "seconds": 1.267,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Interact",
+   "seconds": 2,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Jog_Fwd_Loop",
+   "seconds": 0.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Jump_Land",
+   "seconds": 1.267,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Jump_Loop",
+   "seconds": 2.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Jump_Start",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "PickUp_Table",
+   "seconds": 0.833,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Pistol_Aim_Down",
+   "seconds": 0.167,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Pistol_Aim_Neutral",
+   "seconds": 0.167,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Pistol_Aim_Up",
+   "seconds": 0.167,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Pistol_Idle_Loop",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Pistol_Reload",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Pistol_Shoot",
+   "seconds": 0.633,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Punch_Cross",
+   "seconds": 1,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Punch_Jab",
+   "seconds": 0.867,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Push_Loop",
+   "seconds": 2.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Roll",
+   "seconds": 1.467,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sitting_Enter",
+   "seconds": 1.3,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sitting_Exit",
+   "seconds": 1.033,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sitting_Idle_Loop",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sitting_Talking_Loop",
+   "seconds": 2.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Spell_Simple_Enter",
+   "seconds": 0.533,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Spell_Simple_Exit",
+   "seconds": 0.433,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Spell_Simple_Idle_Loop",
+   "seconds": 2.1,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Spell_Simple_Shoot",
+   "seconds": 0.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sprint_Loop",
+   "seconds": 0.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Swim_Fwd_Loop",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Swim_Idle_Loop",
+   "seconds": 3.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sword_Attack",
+   "seconds": 1.533,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Sword_Idle",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Walk_Formal_Loop",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "Walk_Loop",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+  },
+  {
+   "name": "A_TPose",
+   "seconds": 2.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Crouch_Fwd_Loop",
+   "seconds": 2,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.5
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.5
+    },
+    "distance": 1.5
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Crouch_Idle_Loop",
+   "seconds": 2.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Dance_Loop",
+   "seconds": 1,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Death01",
+   "seconds": 2.4,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.65
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": -0.65
+    },
+    "distance": 0.65
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Driving_Loop",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Fixing_Kneeling",
+   "seconds": 5.2,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Hit_Chest",
+   "seconds": 0.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Hit_Head",
+   "seconds": 0.433,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Idle_Loop",
+   "seconds": 2.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Idle_Talking_Loop",
+   "seconds": 2.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Idle_Torch_Loop",
+   "seconds": 1.267,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Interact",
+   "seconds": 2,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Jog_Fwd_Loop",
+   "seconds": 0.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 5.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 5.0
+    },
+    "distance": 5.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Jump_Land",
+   "seconds": 1.267,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Jump_Loop",
+   "seconds": 2.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Jump_Start",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "PickUp_Table",
+   "seconds": 0.833,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Pistol_Aim_Down",
+   "seconds": 0.167,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Pistol_Aim_Neutral",
+   "seconds": 0.167,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Pistol_Aim_Up",
+   "seconds": 0.167,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Pistol_Idle_Loop",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Pistol_Reload",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Pistol_Shoot",
+   "seconds": 0.633,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Punch_Cross",
+   "seconds": 1,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Punch_Jab",
+   "seconds": 0.867,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Push_Loop",
+   "seconds": 2.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.8
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.8
+    },
+    "distance": 0.8
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Roll",
+   "seconds": 1.467,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 4.991
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 4.991
+    },
+    "distance": 4.991
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sitting_Enter",
+   "seconds": 1.3,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sitting_Exit",
+   "seconds": 1.033,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sitting_Idle_Loop",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sitting_Talking_Loop",
+   "seconds": 2.933,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Spell_Simple_Enter",
+   "seconds": 0.533,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Spell_Simple_Exit",
+   "seconds": 0.433,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Spell_Simple_Idle_Loop",
+   "seconds": 2.1,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Spell_Simple_Shoot",
+   "seconds": 0.5,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sprint_Loop",
+   "seconds": 0.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 5.5
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 5.5
+    },
+    "distance": 5.5
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Swim_Fwd_Loop",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 2.9
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 2.9
+    },
+    "distance": 2.9
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Swim_Idle_Loop",
+   "seconds": 3.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sword_Attack",
+   "seconds": 1.533,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.501
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.501
+    },
+    "distance": 1.501
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Sword_Idle",
+   "seconds": 1.667,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "distance": 0.0
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Walk_Formal_Loop",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.3
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.3
+    },
+    "distance": 1.3
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  },
+  {
+   "name": "Walk_Loop",
+   "seconds": 1.333,
+   "channels": 195,
+   "animated_bones": 65,
+   "root_motion": {
+    "bone": "root",
+    "span": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.3
+    },
+    "net": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.3
+    },
+    "distance": 1.3
+   },
+   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+  }
+ ]
+}

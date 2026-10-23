@@ -71,7 +71,15 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-23. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
+  using it yet. `assets/anim/ual/` is Quaternius' CC0 library (43 clips, a 65-bone Unreal-style
+  rig, a Mannequin; imports and plays as it is). Three more packs the owner bought -- 118
+  locomotion clips (walk 2.00 / run 4.00 / sprint 6.00 m/s, 8 directions) and 70 emote and
+  daily-life clips -- may be used in the game but not redistributed, so they stay out of this
+  public repo: `tools/anim/stage_packs.sh <dir with the zips>` stages them, inventories are in
+  `tools/anim/manifests/`. **Read `docs/ANIMATIONS.md` before touching any of it** (three
+  different skeletons, rig-mapping traps, which clips lie about what they do).
 - **Sky City (PLAN M19, 22-23 Oct, branch `ccr-198135bf-7uoo98` from `stadium`):** the campaign's
   seventh series **Sky** (G01-G10, `"scenery": "sky"`): the road 200-440 m over the City's streets
   between towers (`env/tm_sky_city.gd`), our own road beside TMNF's blocks (`race/tm_sky_track.gd`: a
