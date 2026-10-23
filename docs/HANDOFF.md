@@ -18,7 +18,15 @@
   `story/scenes/look_test.json` (a look test, not story); the run: `story/story_flow.gd` (StoryFlow),
   `story/story_race.gd` (race.gd `--story`), `story/story_play.tscn` (`--story_auto` plays a save);
   `tests/test_story_scenes` in the gate. README "Story mode" says how to look at a scene.
-- **Next**: the pitch (three premises) to the owner; then, on their pick, `docs/STORY.md`. The
+- **The pitch is with the owner** (`docs/STORY_PITCH.md`; also a claude.ai page with the look-test
+  stills): A Previous Owner (a legend's car, a satnav of nine pins), B Static Hour (a radio phone-in
+  reopens a fatal race; the grey car was green), C Ten Keys (a debt paid off one keyed car a night;
+  the Ring is the street), plus the brief's nine questions with recommended answers. **Wait for their
+  pick** before writing `docs/STORY.md`. How they were made: a workflow of writers and judges, cut
+  short by the account's usage limit after two writers (four premises); the main session judged,
+  repaired (C's twist changed from "your sister" to "the street") and wrote them up.
+- **Next, on the owner's pick**: `docs/STORY.md` (fact table, ten nights, exits, endings, every scene
+  with its beats), then the real `story/story.json` graph and night 1 (H01-H03) as the slice. The
   asset hunt so far: Quaternius' Universal Base Characters (CC0) share the UAL rig's bone names and
   hierarchy (clips play on them as they are); a copy waits untracked in `stadium/tests/tmp/ubc/`
   (gitignored) to be tried in StoryPerson; his Ultimate Modular Men/Women (clothed, CC0) are on a

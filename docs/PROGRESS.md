@@ -4207,3 +4207,18 @@ story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save
   His Ultimate Modular Men / Women (CC0, casual clothes) are on Google Drive, refused today ("too many
   users"); his Background Posed Humans, Cyberpunk kit and Downtown City kit are CC0 too.
 
+### M20-1: the pitch, three premises (session 21)
+- `docs/STORY_PITCH.md`: **A Previous Owner** (Kit buys the street legend Vesper's car, which went off
+  a toll bridge eight years ago; nine satnav pins; the mechanic is Vesper), **B Static Hour** (a radio
+  phone-in reopens Glass Night, where Remi's brother took the blame; under sodium lamps the grey car was
+  Mum's green sedan), **C Ten Keys** (Teo pays off a bought debt one keyed car a night, a different car
+  each night; the Ring is his own street, organised by his sister), and *Account Eleven* in an appendix.
+  Each keeps the owner's session-11 ending (push, crash, walk up, take the car) as one ending of three
+  plus a secret one. The brief's nine questions are at the end, each with a recommendation.
+- Made by a workflow (five writers in turn, two judges, a head writer, a skeptic; one agent at a time,
+  text only). The account's usage limit stopped it after two writers: their four premises were judged
+  and repaired in the main session instead. Lesson: long fan-outs cost the usage the owner's rule
+  protects; keep workflows short and push before them.
+- Shown to the owner as a claude.ai page with four look-test stills (flank dolly, walk-away, phone
+  thread, crane in rain).
+
