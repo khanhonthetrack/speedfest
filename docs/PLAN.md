@@ -335,7 +335,8 @@ seconds. Potentially maps with multiple finishes"
 - [x] 3. The bot drives them, every way of a fork too (`tests/test_tracks`; the fastest way sets
       the medals)
 - [x] 4. Ten maps G01-G10, 10-40 s, eight at night, three with two finishes: the campaign's Sky series
-- [ ] 5. The owner's verdict after playing them; menu pictures for the cards (`tools/icons/thumbs.sh G01 ..`)
+- [x] 5. The cards' pictures (`tools/icons/thumbs.sh G01 .. G10`); screenshots for the owner (a gallery page)
+- [ ] 6. The owner's verdict after playing them; merge into `stadium`
 
 ### M18 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☑
 (M17 on its branch until it met `stadium`, whose M16 is the menu look.)

@@ -48,8 +48,11 @@
   down). Scratch tools (untracked, `stadium/tests/tmp/`, excluded in `.git/info/exclude`):
   `sky_layout` (a track's map, levels, length), `sky_probe` (rays onto the road), `sky_hit` (what
   collides near a point).
-- Next: the owner's verdict after playing; the cards' pictures (`stadium/tools/icons/thumbs.sh G01 ..
-  G10`); merge into `stadium`.
+- The cards' pictures are in (`assets/ui/thumbs/G01..G10.jpg`, `tools/icons/thumbs.sh`); a gallery of
+  one shot per map was shown to the owner (a claude.ai page).
+- Next: the owner's verdict after playing; merge into `stadium`; maybe more Sky ideas: a road through
+  a tower's lobby, a wallride round the inside of a hollow tower (bank 90: `_hub` skips its building
+  for now), a loop between towers.
 
 ## Earlier (22 Oct, session 17, cloud): the road cars, tuning and the new menu look, all on `stadium`
 - Owner: "merge this with the menu branch, as we now have a modernized menu". `stadium` (PLAN M16,

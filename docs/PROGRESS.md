@@ -4009,4 +4009,9 @@ buildings, futuristic, mostly at night, neon, 10-40 s, maybe several finishes.
 - Scenery fixes after looking: the plain sky road was black at night (only coloured neon light):
   street lights on its rails every 40 m (TmStreetLights, the City's lamps); the tower budget went to
   far lots first: lots are now taken nearest the road first (36 towers).
+- Medals reruns: G04's barrel rolls lengthened to 6 blocks (at the top grip the car reached 384 km/h
+  after the spiral and the 5-block roll threw it off; now every grip finishes, 407 km/h); G08's long
+  jump's landing roof lengthened (at the top grip it flew over its finish gate).
+- The cards' pictures (`tools/icons/thumbs.sh G01 .. G10`); a gallery of one in-game shot per map
+  shown to the owner.
 - Gate: STADIUM_TESTS PASS (the Sky series' first, G01, is driven by `test_tracks` within gold).
