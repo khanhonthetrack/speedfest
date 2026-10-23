@@ -72,6 +72,13 @@ Commit like this, so a failing gate never lands:
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
 Updated 2026-10-22 (`stadium` holds everything for v0.7: v0.6 + M11-2..4/M11-8 + the city work). Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Sky City (PLAN M19, 22-23 Oct, branch `ccr-198135bf-7uoo98` from `stadium`):** the campaign's
+  seventh series **Sky** (G01-G10, `"scenery": "sky"`): the road 200-440 m over the City's streets
+  between towers (`env/tm_sky_city.gd`), our own road beside TMNF's blocks (`race/tm_sky_track.gd`: a
+  3D turtle, walls, faces, twists, banks, kickers, ski jumps, rooftops; built by
+  `env/tm_sky_pieces.gd`), mag-road (`TmBody.mag_surface`, surface 40: gravity towards the road where
+  it leans; TMNF maps unchanged), rooftop splits and forks to a second finish (the track test drives
+  every way; the fastest sets the medals), a fall respawns by itself on Sky maps. README "Sky maps".
 - **Our own menu look (PLAN M16, 22 Oct):** the menus left TMNF's look: `ui/sf_ui.gd` (charcoal,
   red and violet accents, Montserrat), `ui/sf_header.gd` (tabs; Story locked), `ui/sf_tile.gd`
   (home's picture panels, rendered by `tools/icons/menu_art.sh`), Options as explained rows. The

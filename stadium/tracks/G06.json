@@ -4,5 +4,7 @@
 	"mood": "night",
 	"scenery": "sky",
 	"start": [6, 18, 2, 0],
+	"medals": {"author": 15670, "gold": 16700, "silver": 19000, "bronze": 24000},
+	"bot_grip": 75,
 	"pieces": [["start"], ["s", 2], ["roof", 3, 2], ["kick", 10, 20], ["gap", 3, 1], ["roof", 3, 3], ["s", 1], ["cp"], ["gt", 3, "r"], ["roof", 3, 6], ["split", "r", [["kick", 12, 24], ["gap", 4, 4], ["roof", 3, 4], ["finish"]]], ["s", 2], ["twist", "l", 90, 3], ["sky", 2], ["twist", "r", 90, 3], ["gt", 3, "l"], ["s", 1], ["finish"]]
 }

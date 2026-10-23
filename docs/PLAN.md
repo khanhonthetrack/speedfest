@@ -322,15 +322,20 @@ between buildings, between skyscrapers. Some "lol" maps where you ride "on a bui
 on a building. Be creating. Or you jump and fly between building. Still futuristic, most of them at
 night, still neon. But more "LOL" maps using the night city setting. Tracks varying between 10 and 40
 seconds. Potentially maps with multiple finishes"
-- [ ] 1. Sky scenery (`"scenery": "sky"`): the city's streets far below the road, towers on the
-      field rising past it, rooftops just under it, pylons under raised road; a fall into the
-      streets respawns the car
-- [ ] 2. Pieces of our own (`TmChallenge.extras`, built beside TMNF's blocks): roads swept along
-      any curve (banks, quarter pipes, spirals, drops), rooftop pads, magnetic mag-road (holds the
-      car to a wall or a tower's face: wallrides, up and over buildings), forks to a second finish
-- [ ] 3. The bot drives them (medals); tests
-- [ ] 4. Ten maps G01-G10, 10-40 s, most at night, some with two finishes; the campaign's Sky series
-- [ ] 5. Screenshots for the owner; docs
+- [x] 1. Sky scenery (`"scenery": "sky"`, `env/tm_sky_city.gd`): the city's streets 200 m under the
+      field's level, towers beside the road rising past it, a building under every rooftop, behind
+      every wall and face the road rides, a round tower inside every spiral, pylons, street lights on
+      the road, traffic streaming far below; a fall 45 m under the lowest road respawns the car
+- [x] 2. Pieces of our own (`race/tm_sky_track.gd` lays them, `env/tm_sky_pieces.gd` builds them;
+      `TmChallenge.extras`): roads swept along any curve (straights, turns in the road's plane,
+      eased quarter pitches, twists, banked climbing turns), kickers and gaps, ski jumps (a landing
+      hill under the flight), rooftops; mag-road (`TmBody.mag_surface`: gravity pulls towards the
+      road where it leans: wallrides, up and over towers, upside down); two finishes: rooftop
+      splits side by side and T-junction forks
+- [x] 3. The bot drives them, every way of a fork too (`tests/test_tracks`; the fastest way sets
+      the medals)
+- [x] 4. Ten maps G01-G10, 10-40 s, eight at night, three with two finishes: the campaign's Sky series
+- [ ] 5. The owner's verdict after playing them; menu pictures for the cards (`tools/icons/thumbs.sh G01 ..`)
 
 ### M18 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☑
 (M17 on its branch until it met `stadium`, whose M16 is the menu look.)

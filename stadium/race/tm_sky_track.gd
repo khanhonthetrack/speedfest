@@ -271,7 +271,6 @@ func _pitch_eased(upward: bool, r: float) -> void:
 	var p := pos
 	var f := fwd
 	var u := up
-	var ang := 0.0
 	var start_f := fwd
 	var start_u := up
 	for i in range(1, n + 1):
@@ -287,7 +286,6 @@ func _pitch_eased(upward: bool, r: float) -> void:
 		u = r1 * start_u
 		var kk := _ease_k(t1, a) * kmax
 		_frame(p, f, u, length / n, 0.0, 0.0, 0.0 if upward else (1.0 / maxf(kk, 1e-4)) * CREST_MARGIN if kk > 1e-4 else 0.0)
-		ang = a1
 	# exactly on the quarter
 	var q := Basis(rt, sgn * PI * 0.5)
 	fwd = q * start_f

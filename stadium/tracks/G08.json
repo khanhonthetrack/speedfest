@@ -3,6 +3,8 @@
 	"author": "SpeedFest",
 	"mood": "day",
 	"scenery": "sky",
-	"start": [4, 24, 3, 0],
-	"pieces": [["start"], ["s", 1], ["roof", 3, 3], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["roof", 3, 2], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["turbo"], ["roof", 3, 2], ["kick", 12, 24], ["gap", 5, 4], ["roof", 3, 4], ["s", 1], ["finish"]]
+	"start": [4, 24, 11, 0],
+	"medals": {"author": 21310, "gold": 22600, "silver": 26000, "bronze": 32000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 1], ["roof", 3, 3], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["roof", 3, 2], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["roof", 3, 6], ["split", "l", [["kick", 14, 28], ["gap", 6, 8], ["roof", 3, 4], ["finish"]]], ["kick", 12, 24], ["gap", 4, 4], ["roof", 1, 4], ["s", 3], ["finish"]]
 }

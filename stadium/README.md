@@ -95,6 +95,31 @@ builder dresses it by itself (`race/tm_track_decor.gd`; `"decorate": false` turn
 puts road to stop on after the finish line. Look at
 it with `race/map_view.tscn -- --track=<ID> --shot=/abs/out.png`.
 
+### Sky maps (the Sky series, G01-G10: high between the skyscrapers)
+`"scenery": "sky"` races the track over the City's streets, 200 m under the field's level
+(`env/tm_sky_city.gd`: towers beside the road rising past it, a building under every rooftop and
+behind every wall the road rides, a round tower inside every spiral, pylons, traffic far below);
+a car that falls 45 m under the lowest road respawns by itself. Beside TMNF's blocks the road can be
+our own (`race/tm_sky_track.gd`, built by `env/tm_sky_pieces.gd`), a 3D turtle whose lengths are
+blocks of 32 m:
+`["sky", n]` straight, `["go", m]` metres (up a face: whole levels), `["sl", k]` / `["sr", k]` a
+quarter turn in the road's own plane (radius 32k - 16; upside down, left is the world's right),
+`["pu", r]` / `["pd", r]` a quarter pitch up (a quarter pipe, up a tower's face) / down (over an
+edge: the car holds only up to sqrt(25 r) m/s), `["twist", "l"|"r", deg, n]` a roll about the line
+(90: a wall on that side, 180: upside down; at most 0.025 rad/m, so 3 blocks for 90 and 5 for 180),
+`["bank", "l"|"r", k, deg, levels]` a banked, climbing quarter turn (a spiral: a round tower inside),
+`["kick", deg, m]` a kicker, `["gap", n, levels]` a flight to a level landing n blocks from the
+kicker's foot (`levels` lower), `["drop", n, levels, deg, r]` a ski jump (a landing hill under the
+flight; the test prints its design speed), `["roof", w, n]` a rooftop (w odd cells wide),
+`["rails", "both"|"none"|"l"|"r"]`. Where the road leans more than 16 degrees it is **mag-road**
+(violet chevrons): magnetic, gravity pulls the car to it (`TmBody.mag_surface`), so walls, faces and
+upside down drive like the flat. Two finishes: `["split", "l"|"r", [pieces]]` right after a rooftop
+3 cells wide (best 6 long: the lane change at speed) leaves its far edge a lane over at full speed;
+`["fork", "l"|"r", [pieces]]` a T junction. The track test drives every way, and the fastest sets the
+medals. Lessons from the bot: a 10-degree kicker at 200-210 km/h lands ~105 m on (2 levels down: a
+3-block gap); at 360 km/h it flies ~290 m; tighter twists lift two wheels off; layout errors name a
+road under a rooftop or through a spiral's tower (their buildings stand from the streets up).
+
 ## The track editor
 Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;
 `-- --edit=<file.sftrack>` opens one). TMNF's Stadium blocks sit in a palette by family (roads,

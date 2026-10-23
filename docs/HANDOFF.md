@@ -1,6 +1,57 @@
 # HANDOFF: start here
 
-## Latest (22 Oct, session 17, cloud): the road cars, tuning and the new menu look, all on `stadium`
+## Latest (22-23 Oct, session 18, cloud): Sky City, ten maps high between the skyscrapers (PLAN M19)
+- Owner (TRANSCRIPT, session 18): "Build 10 city maps, where instead of being on the ground ... you
+  are really high, between buildings, between skyscrapers. Some "lol" maps where you ride "on a
+  building", or wallride on a building ... jump and fly between building ... most of them at night
+  ... between 10 and 40 seconds. Potentially maps with multiple finishes". Branch
+  `ccr-198135bf-7uoo98` (from `stadium` fd66aff); merge it into `stadium` when the owner says.
+- The campaign's seventh series **Sky**, `tracks/G01..G10.json` (`"scenery": "sky"`), bot times (author medals):
+  G01 Skyway (night; a first wallride along a tower's face; author 14.45 s), G02 Window Washer (night;
+  three wallrides, both sides; 23.66), G03 Elevator (day; up a tower's face, over its edge, across the
+  roof, a jump to the next roof; 18.80), G04 Corkscrew (night; a banked spiral down round a tower,
+  two barrel rolls; 17.41), G05 Lemming (night; a ski jump off the tallest tower, 176 m down, 360+
+  km/h at the bottom; 10.46), G06 Two Roofs (night; roof to roof, then a rooftop split: the road on
+  and a wallride, or a jump down to the other finish; safe 18.25, shortcut 15.67 = author), G07
+  Upside Down (night; barrel rolls, a turn upside down; 20.01), G08 Rooftop Rally (day; three
+  roof-to-roof jumps, a split: a short jump to a narrow roof or a long one down 8 levels; 21.62 /
+  21.31), G09 Up and Over (night; up one face of a tower, across its roof and down the other face;
+  23.90), G10 Last Exit (night, the finale; a climb, a roof hop, a wallride, a climbing spiral, a
+  rooftop split: down a tower's face to a finish 200 m lower or a jump; 35.19 / 29.92)
+- **Sky scenery** (`env/tm_sky_city.gd`, TmStage): the streets `TmSkyCity.DROP` (200 m) under the
+  field's level (the City around lowered with them), no ground on the field; towers on the lots
+  nearest the road first, rising 30-260 m past it (a fifth just under it), lower blocks under the
+  road, a building under every rooftop, behind every wall and face the road rides, a round tower
+  inside every spiral; pylons; street lights on the road's rails (`TmSkyPieces.lamp_feet`);
+  traffic streaks far below (`env/tm_traffic.gdshader`). A fall 45 m under the lowest road
+  respawns the car (`race.gd` `_fall_y`).
+- **Our own road** (`race/tm_sky_track.gd`, TmSkyTrack; README "Sky maps" lists the pieces): a 3D
+  turtle beside TMNF's blocks (it steps back onto the grid for them): straights, turns in the
+  road's plane, eased quarter pitches (curvature ramps in and out: a straight meeting a circle
+  threw the car off at roof edges), twists at an even rate (max 0.025 rad/m: tighter lifts two
+  wheels), banked climbing turns, kickers and gaps, ski jumps (a landing hill under the flight,
+  its design speed in the test's TRACK_NOTE), rooftops. `env/tm_sky_pieces.gd` builds it: a deck in
+  8 strips across (one diagonal across a twisting deck left a washboard), rails as tall as TMNF's
+  curbs, neon, coloured lights. Mag-road (`env/tm_mag_road.gdshader`) wherever it leans > 16 deg.
+- **Mag-road physics** (`core/tm_body.gd` `mag_surface`, `TmTuning.MAG_SURFACE` 40, `MAG_HOLD`
+  0.2 s): gravity pulls towards the road the wheels stand on and the force model takes its normal
+  for up; any other surface under a wheel: TMNF's gravity at once. TMNF maps are untouched (B08's
+  time identical to the 10 ms before and after). Crests: the car holds over an edge only up to
+  sqrt(25 r) once a wheel lifts (air gravity), so the bot's crest radius is CREST_MARGIN 0.6.
+- **Two finishes**: `["split", side, [pieces]]` right after a rooftop 3 wide (6 long: the lane
+  change at speed) leaves its far edge a lane over (G06, G08, G10); `["fork", ...]` a T junction
+  (slow: its corner). `TmChallenge.alt_paths`; `tests/test_tracks` drives every way and the fastest
+  sets the medals (`_way2_finishes` checks). The builder refuses a road under a rooftop or through a
+  spiral's tower (their buildings stand from the streets up).
+- Look: `stadium/tools/run.sh res://race/map_view.tscn -- --track=G05 --view=path:0.27:14:5
+  --frames=60 --shot=/abs.png` (the path view now takes the road's normal for up: walls, upside
+  down). Scratch tools (untracked, `stadium/tests/tmp/`, excluded in `.git/info/exclude`):
+  `sky_layout` (a track's map, levels, length), `sky_probe` (rays onto the road), `sky_hit` (what
+  collides near a point).
+- Next: the owner's verdict after playing; the cards' pictures (`stadium/tools/icons/thumbs.sh G01 ..
+  G10`); merge into `stadium`.
+
+## Earlier (22 Oct, session 17, cloud): the road cars, tuning and the new menu look, all on `stadium`
 - Owner: "merge this with the menu branch, as we now have a modernized menu". `stadium` (PLAN M16,
   our own panel-based menus) was merged into the road cars' branch, then (owner: "Yes", "Try
   again") `stadium` fast-forwarded to it: `stadium` and `claude/nice-ride-q9yx1h` are the same

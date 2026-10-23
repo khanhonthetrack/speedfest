@@ -4,5 +4,7 @@
 	"mood": "night",
 	"scenery": "sky",
 	"start": [16, 28, 30, 2],
-	"pieces": [["start"], ["s", 2], ["cp"], ["s", 1], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 0, -3], ["s", 2], ["cp"], ["sky", 1], ["twist", "l", 180, 5], ["sky", 2], ["twist", "l", 180, 5], ["s", 1], ["finish"]]
+	"medals": {"author": 17410, "gold": 18500, "silver": 21000, "bronze": 27000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 2], ["cp"], ["s", 1], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 50, -3], ["bank", "r", 3, 0, -3], ["s", 1], ["cp"], ["sky", 1], ["twist", "l", 180, 6], ["sky", 1], ["twist", "l", 180, 6], ["s", 1], ["finish"]]
 }

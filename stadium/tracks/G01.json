@@ -4,5 +4,7 @@
 	"mood": "night",
 	"scenery": "sky",
 	"start": [8, 16, 4, 0],
+	"medals": {"author": 14450, "gold": 15400, "silver": 18000, "bronze": 22000},
+	"bot_grip": 75,
 	"pieces": [["start"], ["s", 3], ["gt", 3, "r"], ["s", 2], ["cp"], ["s", 1], ["sky", 1], ["twist", "l", 90, 3], ["sky", 3], ["twist", "r", 90, 3], ["sky", 1], ["gt", 3, "l"], ["s", 2], ["finish"]]
 }

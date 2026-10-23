@@ -3957,3 +3957,56 @@ git; retried on the owner's word, it went through: `stadium` fast-forwarded dd67
 (18 commits: the road cars M17, tuning M18, the underglow, the new menu with the Garage, Tuning
 and the Garage in the neon city, the Home pictures). `stadium` and `claude/nice-ride-q9yx1h` are
 the same again; continue on `stadium`.
+
+## 2026-10-22/23 — Session 18 (cloud, branch `ccr-198135bf-7uoo98`): Sky City, ten maps high between the skyscrapers (PLAN M19)
+Owner (TRANSCRIPT, session 18): ten city maps "really high, between buildings, between
+skyscrapers", "lol" maps where you ride on a building or wallride on one, jumps and flights between
+buildings, futuristic, mostly at night, neon, 10-40 s, maybe several finishes.
+- **What was built** (README "Sky maps", HANDOFF): `"scenery": "sky"` (TmSkyCity: the streets 200 m
+  under the field), our own road beside TMNF's blocks (TmSkyTrack, a 3D turtle; TmSkyPieces builds
+  it), mag-road (TmBody.mag_surface), rooftop splits and forks to a second finish, auto-respawn
+  after a fall, street lights on the sky road, the track test driving every way of a fork.
+- **Mag-road**: on surface 40 gravity pulls towards the road the wheels stand on (their contact
+  normal), the force model's slope adherence takes that normal for up; held 0.2 s after the last
+  touch (bumps, crests); a wheel on anything else gives TMNF's gravity back at once. Checked neutral
+  on TMNF maps: B08 drove 1:56.97 before and after (a pre-existing miss of its gold, not in the gate).
+- **What the bot taught us** (each found by tracing it, `test_tracks --trace --trace_ms=100
+  --trace_from= --trace_to=`, which now prints the car's up and the magnet's):
+  - one diagonal across a twisting deck's quad left a 0.1-0.6 m washboard down its middle: the car
+    bounced off at the twist's start. The deck is now 8 strips across, frames every 2 m.
+  - twists: the car is rigid over its 3 m wheelbase; a twist of 90 deg in 2 blocks (smoothstep:
+    0.037 rad/m at its peak) lifts two wheels, 180 in 3 blocks threw the car off. Now an even rate
+    eased over 20% at each end, at most 0.025 rad/m (3 blocks for 90, 5 for 180); the builder notes
+    a tighter one.
+  - over an edge (a convex quarter pitch) the springs, loaded at 3 g on the straight, unload at
+    once where the circle starts and throw the car off even under the limit; and once a wheel lifts
+    the pull is air gravity (2.5 g): the real limit is sqrt(25 r). Quarter pitches now ease their
+    curvature in and out over 30% (same displacement, so the grid still meets), and the bot takes
+    crests at sqrt(0.6 x 30 r).
+  - a free fall into a far catcher can't take the spread of speeds: the ski jump instead lays a
+    landing hill under the flight off the lip at a design speed (as real ski jumps): slower cars
+    land early on its parabola, faster ones on its straight, both at a shallow angle (G05: 176 m
+    down, 362 km/h at the bottom).
+  - kickers: 10 deg over 20 m at 200-210 km/h lands ~105 m from the kicker's foot two levels down
+    (3-block gaps); after a turbo (365 km/h) the same flies ~290 m and over the landing.
+  - a T junction's fork costs a 16 m corner: the shortcut's kicker came at 90 km/h. Splits off a
+    rooftop leave a lane over at full speed; the lane change needs a roof ~6 blocks long (the
+    blend over 2 blocks asked 260 m/s^2 of the bot and it caught the main road's curb end).
+  - a shortcut's 3-wide landing roof one lane over stood (its building) where the main way dived
+    down a tower: the builder now refuses any road under a rooftop or through a spiral's tower.
+- **The maps** (bot times; medals: author = the bot's best of 5 grips and of every way):
+  G01 Skyway (night; a first wallride along a tower's face; author 14.45 s), G02 Window Washer (night;
+  three wallrides, both sides; 23.66), G03 Elevator (day; up a tower's face, over its edge, across the
+  roof, a jump to the next roof; 18.80), G04 Corkscrew (night; a banked spiral down round a tower,
+  two barrel rolls; 17.41), G05 Lemming (night; a ski jump off the tallest tower, 176 m down, 360+
+  km/h at the bottom; 10.46), G06 Two Roofs (night; roof to roof, then a rooftop split: the road on
+  and a wallride, or a jump down to the other finish; safe 18.25, shortcut 15.67 = author), G07
+  Upside Down (night; barrel rolls, a turn upside down; 20.01), G08 Rooftop Rally (day; three
+  roof-to-roof jumps, a split: a short jump to a narrow roof or a long one down 8 levels; 21.62 /
+  21.31), G09 Up and Over (night; up one face of a tower, across its roof and down the other face;
+  23.90), G10 Last Exit (night, the finale; a climb, a roof hop, a wallride, a climbing spiral, a
+  rooftop split: down a tower's face to a finish 200 m lower or a jump; 35.19 / 29.92)
+- Scenery fixes after looking: the plain sky road was black at night (only coloured neon light):
+  street lights on its rails every 40 m (TmStreetLights, the City's lamps); the tower budget went to
+  far lots first: lots are now taken nearest the road first (36 towers).
+- Gate: STADIUM_TESTS PASS (the Sky series' first, G01, is driven by `test_tracks` within gold).

@@ -4,5 +4,7 @@
 	"mood": "day",
 	"scenery": "sky",
 	"start": [16, 4, 2, 0],
+	"medals": {"author": 18800, "gold": 20000, "silver": 23000, "bronze": 29000},
+	"bot_grip": 30,
 	"pieces": [["start"], ["s", 4], ["cp"], ["s", 1], ["sky", 1], ["pu", 48], ["go", 120], ["pd", 48], ["roof", 3, 3], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["s", 1], ["finish"]]
 }
