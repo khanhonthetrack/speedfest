@@ -9,36 +9,31 @@ would take to put it on screen in Godot 4.7.2.
 Read with it: `stadium/assets/anim/CREDITS.md` (sources and licences),
 `tools/anim/manifests/*.json` (the machine-readable inventories this page is drawn from).
 
-| Pack | Author | Clips | Rig | Format | Licence | In the repo |
+All four are in the repo, as they shipped, under `stadium/assets/anim/`.
+
+| Pack | Author | Clips | Rig | Format | Licence | Folder |
 |---|---|---:|---|---|---|---|
-| Universal Animation Library [Standard] | Quaternius | 43 | 65-bone Unreal-style, with a Mannequin mesh | `.glb` + `.fbx` | **CC0 1.0** | **yes**, `stadium/assets/anim/ual/` |
-| Human Basic Motions 2.4 FREE | Kevin Iglesias | 118 | 56-bone Blender-style, two body meshes | `.fbx` | Unity Asset Store EULA | no (see below) |
-| Motifect Emotes & Social v1.0 | Motifect AI | 30 | 77-bone, no mesh | `.fbx` + `.bvh` | free in a project, no redistribution | no |
-| Motifect Daily Life v1.0 | Motifect AI | 40 | the same 77-bone rig | `.fbx` + `.bvh` | the same | no |
+| Universal Animation Library [Standard] | Quaternius | 43 | 65-bone Unreal-style, with a Mannequin mesh | `.glb` + `.fbx` | **CC0 1.0** | `ual_standard/` |
+| Human Basic Motions 2.4 FREE | Kevin Iglesias | 118 | 56-bone Blender-style, two body meshes | `.fbx` | Unity Asset Store EULA | `human_basic_motions/` |
+| Motifect Emotes & Social v1.0 | Motifect AI | 30 | 77-bone, no mesh | `.fbx` + `.bvh` | free in a project, no redistribution | `motifect_emotes_social/` |
+| Motifect Daily Life v1.0 | Motifect AI | 40 | the same 77-bone rig | `.fbx` + `.bvh` | the same | `motifect_daily_life/` |
 
-## Licences, and why only one pack is committed
+## Licences
 
-This repository is public, so committing a pack publishes it. Only Quaternius' library is under a
-licence that allows that (CC0: public domain). The other three are licensed for **use in a
-project** and expressly not for passing the source clips on:
+Only Quaternius' library is public domain (CC0). The other three are licensed **to** this project,
+not released **by** it, and keeping them in the repository does not change their terms:
 
 - **Human Basic Motions** ships under the Unity Asset Store Standard EULA ("royalty-free and
-  allowed for commercial use", "resale not allowed", keviniglesias.com/#license). That covers the
-  clips inside a built game; a public repo of the `.fbx` files is distribution of the asset itself.
-- **Motifect** states it plainly in its READMEs: "Free for personal and commercial use in your
-  projects. Do not redistribute or resell these raw animation files as a standalone product."
+  allowed for commercial use", "resale not allowed", keviniglesias.com/#license).
+- **Motifect**, in both READMEs: "Free for personal and commercial use in your projects. Do not
+  redistribute or resell these raw animation files as a standalone product."
 
-So all four may be **used in SpeedFest** and shipped inside a build. Three of them live only with
-the owner, staged when needed:
-
-    tools/anim/stage_packs.sh <dir holding the four zips>
-
-which unpacks them into the untracked `assets/anim/` at the repo root (where the owner's other
-source material already sits) and rebuilds `tools/anim/manifests/*.json`. Everything this page
-knows was measured from the files, so a later agent needs the originals only to use them, never to
-plan with them. If the owner would rather have all four in the repo, that is their call to make --
-the two Motifect packs are the easier case, since only "redistribute ... as a standalone product"
-is forbidden; the Unity EULA pack is the one to leave out either way.
+The owner asked for all four to be committed anyway (TRANSCRIPT, session 19: "Yes, commit all four
+packs"), with those terms in front of them, and the repository is public. So the obligations ride
+with the files: never sell or re-license them, and never offer them as a download in their own
+right -- no pack zip on the Releases page, no clip handed out on its own. Inside a game build they
+are exactly what they were bought for. `stadium/assets/anim/CREDITS.md` is the authoritative list
+and stays current when a pack is replaced.
 
 ## Three rigs, and how they line up
 
@@ -82,10 +77,11 @@ skeleton and give it a **BoneMap** over `SkeletonProfileHumanoid`, filled in fro
 for that pack. The import then rewrites the tracks onto the profile's names and rest pose, which
 is what makes clips from different packs playable on one character.
 
-## Universal Animation Library [Standard] -- Quaternius, CC0 (in the repo)
+## Universal Animation Library [Standard] -- Quaternius, CC0
 
-`stadium/assets/anim/ual/ual_standard.glb` and `ual_standard_rm.glb`, 7.6 MB each. The pack also
-ships Unity `.fbx` builds of the same 43 clips; they are redundant for us and are left out.
+`stadium/assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb` and `UAL1_Standard_RM.glb`,
+7.6 MB each, are the build to use. `Unity/` holds the same 43 clips as FBX for that engine, and
+`*_Setup.png` the author's import notes; neither is needed here.
 
 Verified in Godot 4.7.2 (`godot --headless --path stadium -s ...`): both files import as they are,
 each giving one `AnimationPlayer` with **43 animations, 66.2 s in total**, over a **65-bone**
@@ -143,7 +139,7 @@ For SpeedFest the useful ones are `Driving_Loop`, `Sitting_Enter/Idle/Exit` (a d
 mechanic in the Garage). Roughly a third of the pack is fantasy/shooter (`Pistol_*`, `Spell_*`,
 `Sword_*`, `Punch_*`) and will never be used here.
 
-## Human Basic Motions 2.4 FREE -- Kevin Iglesias (with the owner, not in the repo)
+## Human Basic Motions 2.4 FREE -- Kevin Iglesias
 
 118 clips in 120 `.fbx` files, 95.8 s in total, FBX 7700, **Z up, units in centimetres**, 30 fps,
 on a 56-bone Blender-named rig (`B-root`, `B-hips`, ... with `.L`/`.R` sides) under a `Rig` null.
@@ -172,7 +168,7 @@ from the table above.
 Why it matters: these are the only clips in the four packs that make a **crowd walk convincingly**
 -- an 8-way set at three speeds, with turns and idles, male and female.
 
-## Motifect Emotes & Social v1.0 (with the owner, not in the repo)
+## Motifect Emotes & Social v1.0 -- Motifect AI
 
 30 clips, 190 s, on a 77-bone rig, shipped twice: `.fbx` (Y up, centimetres, 30 fps) and `.bvh`
 (the same motion as text). No mesh. The clips are long by game standards -- 4 to 10 s -- and
@@ -215,7 +211,7 @@ For a racing game this is the podium and the lobby: `fist_pump_victory`, `cheer_
 `clap_enthusiastic`, `slump_defeated`, `facepalm`, `shrug_i_dont_know`, `thumbs_up`/`_down`, the
 three `taunt_*` and the two `dance_*` are a ready-made emote wheel for an online round.
 
-## Motifect Daily Life v1.0 (with the owner, not in the repo)
+## Motifect Daily Life v1.0 -- Motifect AI
 
 40 clips, 315 s, the same 77-bone rig and the same two formats. More of it travels, and the hips
 are where you would expect them: seated clips sit at 0.57 m, the stairs climb 2 m.
@@ -319,9 +315,13 @@ All of this was checked in this version, in a container with no Blender and no F
 
 ## Rebuilding the inventory
 
-    tools/anim/stage_packs.sh <dir with the zips>     # unpack + rebuild every manifest
+    tools/anim/update_packs.sh                        # rebuild every manifest from the packs
+    tools/anim/update_packs.sh <dir with zips>        # replace a pack from a newer zip, then rebuild
     python3 tools/anim/inspect_packs.py <pack dir> --pack <id> [--json tools/anim/manifests/<id>.json]
     python3 tools/anim/fbx_reader.py <file.fbx>       # one file: header, objects, bone list
+
+After replacing a pack, run `godot --headless --path stadium --import` and commit the `.import`
+files Godot writes beside the clips.
 
 `inspect_packs.py` reads `.glb`, `.fbx` and `.bvh` with nothing but the standard library --
 `fbx_reader.py` is our own reader for binary FBX. Godot can import an FBX, but it cannot hand you

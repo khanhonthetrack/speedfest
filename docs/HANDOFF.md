@@ -12,23 +12,26 @@
   and only the main session writes and commits.
 
 ## Earlier (23 Oct, session 19, cloud, `stadium`): four humanoid animation packs, learnt and stored
-- Owner: "learn and store these" (four zips). **`docs/ANIMATIONS.md` is the study** -- 231 clips
-  over three skeletons, every length and every root travel measured from the files, plus the rig
-  mapping, the Godot import facts and the clips worth using here. Inventories:
-  `tools/anim/manifests/*.json`. Licences: `stadium/assets/anim/CREDITS.md`.
-- **In the repo**: Quaternius' Universal Animation Library (CC0) at `stadium/assets/anim/ual/`
-  (`ual_standard.glb`, `ual_standard_rm.glb`): 43 clips, a 65-bone Unreal-style rig and a
-  13,744-triangle Mannequin, 1.83 m. Imported and checked headless in Godot 4.7.2; usable now,
-  no retargeting (`docs/research/ual_poses.png` shows six of the clips).
-- **Not in the repo**: Human Basic Motions FREE (Kevin Iglesias, 118 clips, the locomotion set:
-  walk 2.00 / run 4.00 / sprint 6.00 m/s, 8 directions) and the two Motifect packs (70 emote and
-  daily-life clips). All three are licensed for **use in the game** but not for redistribution,
-  and this repo is public. They stay with the owner; `tools/anim/stage_packs.sh <dir with the
-  zips>` puts them back under the untracked `assets/anim/` and rebuilds the manifests.
-- **Waiting on the owner**: what the characters are for (a driver in the car, a mechanic in the
-  Garage, street life in the neon City, emotes on the podium and in online lobbies -- all of it
-  possible with these), and whether they want the three non-CC0 packs committed anyway.
-  No game code touched, no milestone opened.
+- Owner: "learn and store these" (four zips), then "Yes, commit all four packs".
+  **`docs/ANIMATIONS.md` is the study** -- 231 clips over three skeletons, every length and every
+  root travel measured from the files, plus the rig mapping, the Godot import facts and the clips
+  worth using here. Inventories: `tools/anim/manifests/*.json` (rebuild:
+  `tools/anim/update_packs.sh`). Licences and what they still require:
+  `stadium/assets/anim/CREDITS.md`.
+- **All four are in `stadium/assets/anim/`**, as they shipped, and all of their 190 `.fbx` import
+  in Godot 4.7.2 natively (no FBX2glTF, no Blender; the whole project imports in ~25 s):
+  - `ual_standard/` **CC0**, Quaternius: 43 clips, a 65-bone Unreal-style rig and a
+    13,744-triangle Mannequin, 1.83 m. The one to reach for first -- `Unreal-Godot/*.glb` plays
+    as it is, no retargeting (`docs/research/ual_poses.png` shows six of the clips).
+  - `human_basic_motions/` Kevin Iglesias: 118 clips, the locomotion set (walk 2.00 / run 4.00 /
+    sprint 6.00 m/s, 8 directions, in-place and root-motion pairs), two body meshes.
+  - `motifect_emotes_social/` (30) and `motifect_daily_life/` (40), one 77-bone rig, FBX + BVH.
+- **The last three are not redistributable** (Unity Asset Store EULA; Motifect's "do not
+  redistribute or resell these raw animation files"). They are in the repo at the owner's word,
+  and the terms ride with them: never sell or re-license them, never put them on a Releases page
+  or hand a clip out on its own. In a game build they are exactly what they were bought for.
+- What the characters are for was answered the same day: **story mode** (PLAN M20, above), whose
+  brief leans on these packs. Nothing else uses them yet, and no game code was touched here.
 
 ## Earlier (23 Oct, session 18, cloud): **`stadium-v0.9`** = `stadium` + the Sky series (M19)
 - Owner: "Yes, tag stadium-v0.9 and release it". v0.9 carries everything since v0.8: our hypercar

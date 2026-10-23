@@ -12,7 +12,7 @@ usage: python3 tools/anim/inspect_packs.py <dir> --pack <id> [--json tools/anim/
 needs: nothing but the standard library
 
 The manifests under tools/anim/manifests/ are the committed inventories; docs/ANIMATIONS.md reads
-them. Re-run after staging the packs (tools/anim/stage_packs.sh) to rebuild one.
+them. tools/anim/update_packs.sh rebuilds them all from stadium/assets/anim/.
 """
 import argparse
 import hashlib
@@ -356,7 +356,7 @@ def manifest(pack, files):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("dir", help="the staged pack directory")
+    ap.add_argument("dir", help="the pack directory, e.g. stadium/assets/anim/ual_standard")
     ap.add_argument("--pack", required=True, help="pack id, e.g. motifect_emotes_social")
     ap.add_argument("--json", help="write the manifest here")
     ap.add_argument("--quiet", action="store_true", help="no table, just write the manifest")

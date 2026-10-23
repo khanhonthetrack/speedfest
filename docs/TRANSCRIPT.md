@@ -1370,9 +1370,17 @@ skeletons, every length and root motion measured from the files. Stored: Quatern
 Animation Library is CC0, so it is in the repo at `stadium/assets/anim/ual/`, imported and checked
 in Godot. The other three may be used in the game but not redistributed, and this repo is public,
 so they stay with the owner: the repo keeps their full inventories
-(`tools/anim/manifests/*.json`), the tools that read them, and `tools/anim/stage_packs.sh` to put
-them back on any machine. Nothing was asked about what the characters are for; waiting on the
-owner.)
+(`tools/anim/manifests/*.json`) and the tools that read them. Nothing was asked about what the
+characters are for; waiting on the owner.) [Superseded later the same day: the owner asked for all
+four to be committed, below.]
+
+### User (verbatim, asked whether to commit the three packs whose licences forbid redistribution)
+
+> Yes, commit all four packs
+
+(Done: all four are in `stadium/assets/anim/` as they shipped. The licence terms still hold and are
+recorded in `stadium/assets/anim/CREDITS.md` -- no resale, and none of these packs may be offered
+as a download in its own right -- but where they sit is the owner's call, and this is it.)
 
 ## Session 20 — 2026-10-23 (cloud, branch `stadium`): story mode, the brief
 

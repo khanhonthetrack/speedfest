@@ -26,6 +26,7 @@ stadium/server/data/
 # the tunnel token for the Pi (stadium/server/docker-compose.yml)
 stadium/server/.env
 
-# the owner's source material at the repo root (third-party packs, blends, raw art):
-# staged locally, never committed -- see docs/ANIMATIONS.md and stadium/assets/*/CREDITS.md
+# the owner's source material at the repo root (blends, raw art, whatever they are working from):
+# local only, never committed. Third-party assets the project actually uses live inside the Godot
+# project with a licence beside them (stadium/assets/*/CREDITS.md).
 /assets/

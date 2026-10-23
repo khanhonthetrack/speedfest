@@ -4074,6 +4074,34 @@ everything so far is procedural. Study: **`docs/ANIMATIONS.md`**; inventories:
 - Not touched: no game code uses any of this yet, and no milestone was opened. What the characters
   are for -- a driver in the car, a mechanic in the Garage, street life in the neon City, podium
   and lobby emotes online -- is the owner's call.
+
+### Same session: all four packs committed (owner: "Yes, commit all four packs")
+The three packs held back for their licences are in the repo too, at the owner's word. Layout:
+every pack as it shipped, one folder each under `stadium/assets/anim/` (`ual_standard/`,
+`human_basic_motions/`, `motifect_emotes_social/`, `motifect_daily_life/`); the CC0 library's two
+`.glb` moved from `anim/ual/` into the pack's own `ual_standard/Unreal-Godot/` with the rest of it,
+so all four read the same way and the manifests index exactly what is on disk.
+- **Terms recorded, not waived** (`stadium/assets/anim/CREDITS.md`, rewritten): the Unity Asset
+  Store EULA and Motifect's "do not redistribute or resell these raw animation files" still hold.
+  Never sell or re-license them; never offer them as a download of their own (no pack zip on the
+  Releases page, no single clip handed out). Inside a game build they are what they were bought
+  for. The owner decided this with the terms in front of them (TRANSCRIPT).
+- **Cost measured before committing**: 232 MB of working tree (171 MB of clips plus Quaternius'
+  47 MB Unity build, kept so every pack is complete), but FBX deflates to 15-19%, so the history
+  grows by roughly 40 MB. Godot imports all 190 `.fbx` natively in ~13 s (whole project ~25 s
+  from cold), well inside `test_all.sh`'s 300 s import step, so no `.gdignore` and no change to
+  the gate was needed. Checked by loading clips with their shipped names (`@`, spaces and `[RM]`
+  in a file name are all fine): 56-bone and 77-bone skeletons, one take each.
+- **The export is barely touched**: the preset takes `all_resources` minus `tests/ tools/
+  server/`, so these ship, but all 198 imported assets come to **13.5 MB** of `.scn` -- Godot's
+  imported animation is a fraction of the FBX it came from. On a 164 MB release that is not worth
+  an exclude filter, and it means a clip is there the moment something uses one.
+- `tools/anim/stage_packs.sh` is gone, replaced by **`tools/anim/update_packs.sh`**: with no
+  arguments it rebuilds every manifest from the committed packs; given zips it replaces those
+  packs from them (stripping Quaternius' wrapper folder so every pack sits the same way) and
+  rebuilds. Both paths exercised. `docs/ANIMATIONS.md`, `docs/ASSETS.md`, `stadium/README.md` and
+  `stadium/CLAUDE.md` follow.
+
 ## 2026-10-23 — Session 20 (cloud): the story-mode brief
 Owner: "Generate the best prompt for AI to do this task" (story mode in the night city: 10
 non-linear chapters, 3 time-attack maps each, gold gated by a difficulty picked at the start, the

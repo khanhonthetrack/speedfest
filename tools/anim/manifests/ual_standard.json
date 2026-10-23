@@ -168,30 +168,30 @@
    "name": "Mannequin.001",
    "vertices": 6994,
    "polygons": 7218,
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx"
+   "file": "Unity/UAL1_Standard.fbx"
   },
   {
    "name": "Mannequin.001",
    "vertices": 6994,
    "polygons": 7218,
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx"
+   "file": "Unity/UAL1_Standard_RM.fbx"
   },
   {
    "name": "Mannequin",
    "vertices": 8546,
    "triangles": 13744,
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Mannequin",
    "vertices": 8546,
    "triangles": 13744,
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   }
  ],
  "clip_list": [
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "A_TPose",
    "seconds": 2.5,
    "frames": 76,
@@ -212,7 +212,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Crouch_Fwd_Loop",
    "seconds": 2.0,
    "frames": 61,
@@ -233,7 +233,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Crouch_Idle_Loop",
    "seconds": 2.933,
    "frames": 89,
@@ -254,7 +254,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Dance_Loop",
    "seconds": 1.0,
    "frames": 31,
@@ -275,7 +275,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Death01",
    "seconds": 2.4,
    "frames": 73,
@@ -296,7 +296,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Driving_Loop",
    "seconds": 1.667,
    "frames": 51,
@@ -317,7 +317,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Fixing_Kneeling",
    "seconds": 5.2,
    "frames": 157,
@@ -338,7 +338,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Hit_Chest",
    "seconds": 0.333,
    "frames": 11,
@@ -359,7 +359,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Hit_Head",
    "seconds": 0.433,
    "frames": 14,
@@ -380,7 +380,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Idle_Loop",
    "seconds": 2.5,
    "frames": 76,
@@ -401,7 +401,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Idle_Talking_Loop",
    "seconds": 2.933,
    "frames": 89,
@@ -422,7 +422,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Idle_Torch_Loop",
    "seconds": 1.267,
    "frames": 39,
@@ -443,7 +443,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Interact",
    "seconds": 2.0,
    "frames": 61,
@@ -464,7 +464,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Jog_Fwd_Loop",
    "seconds": 0.933,
    "frames": 29,
@@ -485,7 +485,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Jump_Land",
    "seconds": 1.267,
    "frames": 39,
@@ -506,7 +506,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Jump_Loop",
    "seconds": 2.5,
    "frames": 76,
@@ -527,7 +527,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Jump_Start",
    "seconds": 1.333,
    "frames": 41,
@@ -548,7 +548,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "PickUp_Table",
    "seconds": 0.833,
    "frames": 26,
@@ -569,7 +569,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Pistol_Aim_Down",
    "seconds": 0.167,
    "frames": 6,
@@ -590,7 +590,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Pistol_Aim_Neutral",
    "seconds": 0.167,
    "frames": 6,
@@ -611,7 +611,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Pistol_Aim_Up",
    "seconds": 0.167,
    "frames": 6,
@@ -632,7 +632,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Pistol_Idle_Loop",
    "seconds": 1.667,
    "frames": 51,
@@ -653,7 +653,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Pistol_Reload",
    "seconds": 1.667,
    "frames": 51,
@@ -674,7 +674,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Pistol_Shoot",
    "seconds": 0.633,
    "frames": 20,
@@ -695,7 +695,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Punch_Cross",
    "seconds": 1.0,
    "frames": 31,
@@ -716,7 +716,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Punch_Jab",
    "seconds": 0.867,
    "frames": 27,
@@ -737,7 +737,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Push_Loop",
    "seconds": 2.667,
    "frames": 81,
@@ -758,7 +758,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Roll",
    "seconds": 1.467,
    "frames": 45,
@@ -779,7 +779,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sitting_Enter",
    "seconds": 1.3,
    "frames": 40,
@@ -800,7 +800,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sitting_Exit",
    "seconds": 1.033,
    "frames": 32,
@@ -821,7 +821,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sitting_Idle_Loop",
    "seconds": 1.667,
    "frames": 51,
@@ -842,7 +842,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sitting_Talking_Loop",
    "seconds": 2.933,
    "frames": 89,
@@ -863,7 +863,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Spell_Simple_Enter",
    "seconds": 0.533,
    "frames": 17,
@@ -884,7 +884,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Spell_Simple_Exit",
    "seconds": 0.433,
    "frames": 14,
@@ -905,7 +905,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Spell_Simple_Idle_Loop",
    "seconds": 2.1,
    "frames": 64,
@@ -926,7 +926,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Spell_Simple_Shoot",
    "seconds": 0.5,
    "frames": 16,
@@ -947,7 +947,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sprint_Loop",
    "seconds": 0.667,
    "frames": 21,
@@ -968,7 +968,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Swim_Fwd_Loop",
    "seconds": 1.333,
    "frames": 41,
@@ -989,7 +989,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Swim_Idle_Loop",
    "seconds": 3.333,
    "frames": 101,
@@ -1010,7 +1010,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sword_Attack",
    "seconds": 1.533,
    "frames": 47,
@@ -1031,7 +1031,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Sword_Idle",
    "seconds": 1.667,
    "frames": 51,
@@ -1052,7 +1052,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Walk_Formal_Loop",
    "seconds": 1.333,
    "frames": 41,
@@ -1073,7 +1073,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx",
+   "file": "Unity/UAL1_Standard.fbx",
    "name": "Walk_Loop",
    "seconds": 1.333,
    "frames": 41,
@@ -1094,7 +1094,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "A_TPose",
    "seconds": 2.5,
    "frames": 76,
@@ -1115,7 +1115,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Crouch_Fwd_Loop",
    "seconds": 2.0,
    "frames": 61,
@@ -1136,7 +1136,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Crouch_Idle_Loop",
    "seconds": 2.933,
    "frames": 89,
@@ -1157,7 +1157,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Dance_Loop",
    "seconds": 1.0,
    "frames": 31,
@@ -1178,7 +1178,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Death01",
    "seconds": 2.4,
    "frames": 73,
@@ -1199,7 +1199,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Driving_Loop",
    "seconds": 1.667,
    "frames": 51,
@@ -1220,7 +1220,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Fixing_Kneeling",
    "seconds": 5.2,
    "frames": 157,
@@ -1241,7 +1241,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Hit_Chest",
    "seconds": 0.333,
    "frames": 11,
@@ -1262,7 +1262,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Hit_Head",
    "seconds": 0.433,
    "frames": 14,
@@ -1283,7 +1283,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Idle_Loop",
    "seconds": 2.5,
    "frames": 76,
@@ -1304,7 +1304,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Idle_Talking_Loop",
    "seconds": 2.933,
    "frames": 89,
@@ -1325,7 +1325,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Idle_Torch_Loop",
    "seconds": 1.267,
    "frames": 39,
@@ -1346,7 +1346,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Interact",
    "seconds": 2.0,
    "frames": 61,
@@ -1367,7 +1367,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Jog_Fwd_Loop",
    "seconds": 0.933,
    "frames": 29,
@@ -1388,7 +1388,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Jump_Land",
    "seconds": 1.267,
    "frames": 39,
@@ -1409,7 +1409,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Jump_Loop",
    "seconds": 2.5,
    "frames": 76,
@@ -1430,7 +1430,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Jump_Start",
    "seconds": 1.333,
    "frames": 41,
@@ -1451,7 +1451,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "PickUp_Table",
    "seconds": 0.833,
    "frames": 26,
@@ -1472,7 +1472,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Pistol_Aim_Down",
    "seconds": 0.167,
    "frames": 6,
@@ -1493,7 +1493,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Pistol_Aim_Neutral",
    "seconds": 0.167,
    "frames": 6,
@@ -1514,7 +1514,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Pistol_Aim_Up",
    "seconds": 0.167,
    "frames": 6,
@@ -1535,7 +1535,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Pistol_Idle_Loop",
    "seconds": 1.667,
    "frames": 51,
@@ -1556,7 +1556,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Pistol_Reload",
    "seconds": 1.667,
    "frames": 51,
@@ -1577,7 +1577,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Pistol_Shoot",
    "seconds": 0.633,
    "frames": 20,
@@ -1598,7 +1598,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Punch_Cross",
    "seconds": 1.0,
    "frames": 31,
@@ -1619,7 +1619,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Punch_Jab",
    "seconds": 0.867,
    "frames": 27,
@@ -1640,7 +1640,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Push_Loop",
    "seconds": 2.667,
    "frames": 81,
@@ -1661,7 +1661,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Roll",
    "seconds": 1.467,
    "frames": 45,
@@ -1682,7 +1682,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sitting_Enter",
    "seconds": 1.3,
    "frames": 40,
@@ -1703,7 +1703,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sitting_Exit",
    "seconds": 1.033,
    "frames": 32,
@@ -1724,7 +1724,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sitting_Idle_Loop",
    "seconds": 1.667,
    "frames": 51,
@@ -1745,7 +1745,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sitting_Talking_Loop",
    "seconds": 2.933,
    "frames": 89,
@@ -1766,7 +1766,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Spell_Simple_Enter",
    "seconds": 0.533,
    "frames": 17,
@@ -1787,7 +1787,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Spell_Simple_Exit",
    "seconds": 0.433,
    "frames": 14,
@@ -1808,7 +1808,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Spell_Simple_Idle_Loop",
    "seconds": 2.1,
    "frames": 64,
@@ -1829,7 +1829,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Spell_Simple_Shoot",
    "seconds": 0.5,
    "frames": 16,
@@ -1850,7 +1850,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sprint_Loop",
    "seconds": 0.667,
    "frames": 21,
@@ -1871,7 +1871,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Swim_Fwd_Loop",
    "seconds": 1.333,
    "frames": 41,
@@ -1892,7 +1892,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Swim_Idle_Loop",
    "seconds": 3.333,
    "frames": 101,
@@ -1913,7 +1913,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sword_Attack",
    "seconds": 1.533,
    "frames": 47,
@@ -1934,7 +1934,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Sword_Idle",
    "seconds": 1.667,
    "frames": 51,
@@ -1955,7 +1955,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Walk_Formal_Loop",
    "seconds": 1.333,
    "frames": 41,
@@ -1976,7 +1976,7 @@
    }
   },
   {
-   "file": "Universal Animation Library[Standard]/Unity/UAL1_Standard_RM.fbx",
+   "file": "Unity/UAL1_Standard_RM.fbx",
    "name": "Walk_Loop",
    "seconds": 1.333,
    "frames": 41,
@@ -2015,7 +2015,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Crouch_Fwd_Loop",
@@ -2036,7 +2036,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Crouch_Idle_Loop",
@@ -2057,7 +2057,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Dance_Loop",
@@ -2078,7 +2078,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Death01",
@@ -2099,7 +2099,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Driving_Loop",
@@ -2120,7 +2120,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Fixing_Kneeling",
@@ -2141,7 +2141,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Hit_Chest",
@@ -2162,7 +2162,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Hit_Head",
@@ -2183,7 +2183,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Idle_Loop",
@@ -2204,7 +2204,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Idle_Talking_Loop",
@@ -2225,7 +2225,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Idle_Torch_Loop",
@@ -2246,7 +2246,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Interact",
@@ -2267,7 +2267,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Jog_Fwd_Loop",
@@ -2288,7 +2288,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Jump_Land",
@@ -2309,7 +2309,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Jump_Loop",
@@ -2330,7 +2330,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Jump_Start",
@@ -2351,7 +2351,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "PickUp_Table",
@@ -2372,7 +2372,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Pistol_Aim_Down",
@@ -2393,7 +2393,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Pistol_Aim_Neutral",
@@ -2414,7 +2414,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Pistol_Aim_Up",
@@ -2435,7 +2435,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Pistol_Idle_Loop",
@@ -2456,7 +2456,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Pistol_Reload",
@@ -2477,7 +2477,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Pistol_Shoot",
@@ -2498,7 +2498,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Punch_Cross",
@@ -2519,7 +2519,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Punch_Jab",
@@ -2540,7 +2540,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Push_Loop",
@@ -2561,7 +2561,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Roll",
@@ -2582,7 +2582,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sitting_Enter",
@@ -2603,7 +2603,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sitting_Exit",
@@ -2624,7 +2624,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sitting_Idle_Loop",
@@ -2645,7 +2645,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sitting_Talking_Loop",
@@ -2666,7 +2666,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Spell_Simple_Enter",
@@ -2687,7 +2687,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Spell_Simple_Exit",
@@ -2708,7 +2708,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Spell_Simple_Idle_Loop",
@@ -2729,7 +2729,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Spell_Simple_Shoot",
@@ -2750,7 +2750,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sprint_Loop",
@@ -2771,7 +2771,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Swim_Fwd_Loop",
@@ -2792,7 +2792,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Swim_Idle_Loop",
@@ -2813,7 +2813,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sword_Attack",
@@ -2834,7 +2834,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Sword_Idle",
@@ -2855,7 +2855,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Walk_Formal_Loop",
@@ -2876,7 +2876,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "Walk_Loop",
@@ -2897,7 +2897,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
+   "file": "Unreal-Godot/UAL1_Standard.glb"
   },
   {
    "name": "A_TPose",
@@ -2918,7 +2918,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Crouch_Fwd_Loop",
@@ -2939,7 +2939,7 @@
     },
     "distance": 1.5
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Crouch_Idle_Loop",
@@ -2960,7 +2960,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Dance_Loop",
@@ -2981,7 +2981,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Death01",
@@ -3002,7 +3002,7 @@
     },
     "distance": 0.65
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Driving_Loop",
@@ -3023,7 +3023,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Fixing_Kneeling",
@@ -3044,7 +3044,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Hit_Chest",
@@ -3065,7 +3065,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Hit_Head",
@@ -3086,7 +3086,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Idle_Loop",
@@ -3107,7 +3107,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Idle_Talking_Loop",
@@ -3128,7 +3128,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Idle_Torch_Loop",
@@ -3149,7 +3149,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Interact",
@@ -3170,7 +3170,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Jog_Fwd_Loop",
@@ -3191,7 +3191,7 @@
     },
     "distance": 5.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Jump_Land",
@@ -3212,7 +3212,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Jump_Loop",
@@ -3233,7 +3233,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Jump_Start",
@@ -3254,7 +3254,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "PickUp_Table",
@@ -3275,7 +3275,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Pistol_Aim_Down",
@@ -3296,7 +3296,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Pistol_Aim_Neutral",
@@ -3317,7 +3317,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Pistol_Aim_Up",
@@ -3338,7 +3338,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Pistol_Idle_Loop",
@@ -3359,7 +3359,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Pistol_Reload",
@@ -3380,7 +3380,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Pistol_Shoot",
@@ -3401,7 +3401,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Punch_Cross",
@@ -3422,7 +3422,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Punch_Jab",
@@ -3443,7 +3443,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Push_Loop",
@@ -3464,7 +3464,7 @@
     },
     "distance": 0.8
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Roll",
@@ -3485,7 +3485,7 @@
     },
     "distance": 4.991
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sitting_Enter",
@@ -3506,7 +3506,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sitting_Exit",
@@ -3527,7 +3527,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sitting_Idle_Loop",
@@ -3548,7 +3548,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sitting_Talking_Loop",
@@ -3569,7 +3569,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Spell_Simple_Enter",
@@ -3590,7 +3590,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Spell_Simple_Exit",
@@ -3611,7 +3611,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Spell_Simple_Idle_Loop",
@@ -3632,7 +3632,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Spell_Simple_Shoot",
@@ -3653,7 +3653,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sprint_Loop",
@@ -3674,7 +3674,7 @@
     },
     "distance": 5.5
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Swim_Fwd_Loop",
@@ -3695,7 +3695,7 @@
     },
     "distance": 2.9
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Swim_Idle_Loop",
@@ -3716,7 +3716,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sword_Attack",
@@ -3737,7 +3737,7 @@
     },
     "distance": 1.501
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Sword_Idle",
@@ -3758,7 +3758,7 @@
     },
     "distance": 0.0
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Walk_Formal_Loop",
@@ -3779,7 +3779,7 @@
     },
     "distance": 1.3
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   },
   {
    "name": "Walk_Loop",
@@ -3800,7 +3800,7 @@
     },
     "distance": 1.3
    },
-   "file": "Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb"
+   "file": "Unreal-Godot/UAL1_Standard_RM.glb"
   }
  ]
 }

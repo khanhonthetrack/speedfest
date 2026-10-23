@@ -102,14 +102,17 @@ locked — that test must be updated in the same commit that unlocks it.
 `user://replays`, `user://tracks`. Tests override them with `--settings=`, `--records=` etc. Follow
 that pattern for story saves so the gate never touches the owner's own progress.
 
-**Characters are now possible (new, 23 Oct).** `stadium/assets/anim/ual/` holds Quaternius'
-**Universal Animation Library** under CC0: 43 clips on a 65-bone Unreal-style rig, plus a
-13,744-triangle Mannequin 1.83 m tall, in two builds (`ual_standard.glb` on the spot,
-`ual_standard_rm.glb` with root motion baked). It loads in Godot 4.7.2 as it is: no retargeting, no
-Blender. The owner also has three more packs (188 clips: Human Basic Motions, Motifect Emotes &
-Social, Motifect Daily Life) which **may be used in the game but not committed to this public
-repo** — `tools/anim/stage_packs.sh <dir with the zips>` puts them back on any machine, and
-`tools/anim/manifests/*.json` holds their full inventories so you can plan without them.
+**Characters are now possible (new, 23 Oct).** All four of the owner's animation packs are in the
+repo under `stadium/assets/anim/`, 231 clips in all, and every `.fbx` among them imports in Godot
+4.7.2 as it is — no retargeting for the first one, no FBX2glTF, no Blender:
+`ual_standard/` (Quaternius, **CC0**: 43 clips on a 65-bone Unreal-style rig plus a
+13,744-triangle Mannequin 1.83 m tall; `Unreal-Godot/UAL1_Standard.glb` on the spot,
+`UAL1_Standard_RM.glb` with root motion baked), `human_basic_motions/` (118 clips: walk 2.00 /
+run 4.00 / sprint 6.00 m/s in eight directions, with turns, jumps and idles — the set that makes
+a crowd or a walk-up read), `motifect_emotes_social/` (30) and `motifect_daily_life/` (40). The
+last three are **not redistributable**: use them in the game, never sell them and never ship them
+as a pack of their own (`stadium/assets/anim/CREDITS.md`). `tools/anim/manifests/*.json` is the
+clip-by-clip inventory; `tools/anim/update_packs.sh` rebuilds it.
 **Read `docs/ANIMATIONS.md` before you touch any of it**: it is the study of all four packs (which
 clips are usable, which lie about what they do, the three rigs' bone maps, and the traps — e.g.
 Motifect's `LeftLeg` is the thigh, not the calf). What is missing: any clothed character mesh of
@@ -250,8 +253,8 @@ Chosen once when a story save is created (ask the owner whether it can be change
 
 The owner's warning ("I know you suck doing cutscenes, humans etc.") predates the animation packs
 that landed on 23 Oct, so the honest position is now: **full-body human acting is on the table,
-faces are not.** You have 43 CC0 clips and a Mannequin in the repo, 188 more clips the owner can
-stage, a city, cars, rain, neon, lights and text. What you do not have is a face rig, lip sync, or a
+faces are not.** You have 231 clips and a Mannequin in the repo, a city, cars, rain, neon, lights
+and text. What you do not have is a face rig, lip sync, or a
 character mesh that looks like a person in this game's world. So: stage people in full body and in
 silhouette, and let the subtitles carry every word. The reference is the NFS Underground 2 intro,
 *Drive*, *Collateral*, *Blade Runner* — bodies, headlights and rain, not close-ups of faces.
@@ -267,8 +270,10 @@ silhouette, and let the subtitles carry every word. The reference is the NFS Und
   leaning on a door, throwing keys, turning their back, sitting on a kerb, a crowd at a start line.
   Keep the camera at body distance or further, backlit, in rain, behind glass or in silhouette;
   cut **on** a gesture, never hold on a head. The UAL clips cover idle, walk, run, sit, point, wave,
-  cheer, die and more (see `docs/ANIMATIONS.md`); the owner's staged packs add daily-life and
-  social emotes. **Lines appear as subtitles with the speaker's name** — that is the owner's
+  cheer, die and more; Human Basic Motions carries the locomotion, and the two Motifect packs add
+  daily life and social emotes — `fist_pump_victory`, `slump_defeated`, `taunt_come_here`,
+  `check_phone_standing`, `wave_hello`, `shake_hands` (see `docs/ANIMATIONS.md`, and its warning
+  that three Motifect clips do not do what their names say). **Lines appear as subtitles with the speaker's name** — that is the owner's
   accepted convention, so a speaker whose face you never see is the style, not a compromise.
 - Where a body would hurt the shot, use what the city gives you: a silhouette behind a lit window, a
   phone screen filling the frame, a message thread, a voicemail waveform, a photo on a dashboard,
@@ -418,8 +423,9 @@ asks. Do not run parallel sessions or parallel subagents (owner's rule).
 6. **Branch count:** 3 gates per branching map everywhere, or 3 in some and 5 in others?
 7. **Carry-over:** do cars won from bosses change which car you drive in later chapters (it affects
    every medal time), or is the car fixed per chapter for fairness?
-8. **Characters:** may the three non-CC0 animation packs ship inside the build (the two Motifect
-   ones are the easy case)? And do they want a proper cast modelled, or people kept in silhouette?
+8. **Characters:** the packs' licences allow shipping them inside a game build, and the export
+   preset takes them in by default (13.5 MB imported, measured), so that is settled. Still open:
+   does the owner want a proper cast modelled, or people kept in silhouette?
 9. **Scope check:** 30 new maps + ~40 cutscenes is many sessions of work. Confirm the order of
    delivery (vertical slice first) and whether the owner wants to play chapter 1 before the rest is
    written.

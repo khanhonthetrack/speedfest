@@ -1,37 +1,48 @@
 # Humanoid animation: sources and licences
 
 The owner bought four humanoid animation packs and gave them to the project on 23 Oct 2026
-(session 19). **Only the CC0 one is in the repo**; the other three may not be redistributed, and
-this repo is public. `docs/ANIMATIONS.md` holds the study of all four -- every clip, its length,
-its skeleton and what it is good for -- and `tools/anim/manifests/*.json` the machine-readable
-inventories, so nothing about them is lost by leaving their files out.
+(session 19: "learn and store these", then "Yes, commit all four packs"). All four are here as
+they shipped, one folder each. `docs/ANIMATIONS.md` is the study of them -- every clip, its
+length, its skeleton, what it is good for -- and `tools/anim/manifests/*.json` the
+machine-readable inventories.
 
-## In the repo (`ual/`)
+| Folder | Pack | Author | Clips | Licence |
+|---|---|---|---:|---|
+| `ual_standard/` | Universal Animation Library [Standard] | **Quaternius**, quaternius.com (patreon.com/quaternius) | 43 | **CC0 1.0**, public domain (`ual_standard/License.txt`) |
+| `human_basic_motions/` | Human Basic Motions 2.4 FREE | **Kevin Iglesias**, keviniglesias.com | 118 | Unity Asset Store **Standard EULA**: royalty-free, commercial use allowed, **resale not allowed** (keviniglesias.com/#license, and the pack's own PDF) |
+| `motifect_emotes_social/` | Motifect Emotes & Social v1.0 | **Motifect AI**, motifect.io | 30 | "Free for personal and commercial use in your projects. **Do not redistribute or resell these raw animation files as a standalone product.**" (`README.txt`) |
+| `motifect_daily_life/` | Motifect Daily Life v1.0 | **Motifect AI**, motifect.io | 40 | the same (`README.txt`) |
 
-| Files | Pack | Author | Source | Licence |
-|---|---|---|---|---|
-| `ual_standard.glb`, `ual_standard_rm.glb` | Universal Animation Library [Standard] | **Quaternius** (patreon.com/quaternius) | quaternius.com, "Unreal-Godot" build of the pack | **CC0 1.0** (`LICENSE-CC0.txt`) |
+## What the licences still require
 
-43 clips on a 65-bone Unreal-style rig (`root`, `pelvis`, `spine_01..03`, `clavicle/upperarm/
-lowerarm/hand` with all five fingers, `thigh/calf/foot/ball`), plus the pack's own 13,744-triangle
-Mannequin, 1.83 m tall, which makes a stand-in character until we have our own. `_rm` is the same
-43 clips with root motion baked into the `root` bone; the other has the character running on the
-spot. Both load in Godot 4.7.2 as they are -- no retargeting, no Blender.
+Only the Quaternius pack is public domain. The other three are licensed to this project, not
+released by it, and the owner's decision to keep them in the repository does not change their
+terms. What that means for anyone working here:
 
-Godot's importer eats the `_Loop` name suffix and turns it into the clip's loop mode, so
-`Walk_Loop` arrives as `Walk` set to loop and `Jump_Start` as `Jump_Start` set not to. Clip names
-in `docs/ANIMATIONS.md` are the ones the file carries; the names in the game are those without
-`_Loop`.
+- **Never sell or re-license them**, as files or as part of anything that is itself an animation
+  product. Shipping them inside the game is what they are for; shipping them *as* a pack is not.
+- **Never present them as a download in their own right** -- no "animation pack" release asset, no
+  zip of `assets/anim/` on the Releases page, no linking a clip for someone to grab. The game's
+  build zips are fine; a bundle whose point is the clips is not.
+- **Keep this file accurate.** If a pack is replaced or upgraded, its row and its own README or
+  PDF go with it.
+- Anyone who wants these packs should get them from their authors. They are worth paying for.
 
-## Not in the repo
+The repository is public, so these files are readable by anyone who finds them. That was the
+owner's call, made with the terms above in front of them (TRANSCRIPT, session 19).
 
-| Pack | Author | Licence | Why it is out |
-|---|---|---|---|
-| Human Basic Motions 2.4 FREE | Kevin Iglesias (keviniglesias.com) | Unity Asset Store Standard EULA: royalty-free in a project, **resale and redistribution not allowed** | the EULA covers the built game, not a public repository of the source clips |
-| Motifect Emotes & Social v1.0 | Motifect AI (motifect.io) | free for personal and commercial use in a project, **"do not redistribute or resell these raw animation files"** | committing the raw `.fbx`/`.bvh` to a public repo is that redistribution |
-| Motifect Daily Life v1.0 | Motifect AI (motifect.io) | the same | the same |
+## Shapes and sizes
 
-All three may be **used in the game**: what their licences forbid is handing the source clips on.
-Baked into a build they are fine; sitting in a public GitHub repo they are not. The owner's copies
-stage into the untracked `assets/anim/` at the repo root with
-`tools/anim/stage_packs.sh <dir with the zips>`, which also rebuilds the manifests.
+- `ual_standard/` -- `Unreal-Godot/UAL1_Standard.glb` (and `_RM`) is the build to use: Godot
+  imports it as it is, 43 clips on a 65-bone Unreal-style rig, with the pack's own 13,744-triangle
+  Mannequin, 1.83 m tall, which serves as a stand-in character until we have our own. `Unity/`
+  holds the same 43 clips as FBX for that engine; `*_Setup.png` are the author's import notes.
+- `human_basic_motions/` -- 118 clips as single-take FBX under `Animations/` (female, male and two
+  masked hand poses), `Models/` two body meshes, `Textures/` their colour palette, plus the pack's
+  PDF and a zip of its Blender sources. The locomotion set: walk, run and sprint in eight
+  directions, in-place and root-motion pairs.
+- `motifect_emotes_social/`, `motifect_daily_life/` -- each clip twice, `Animations/*.fbx` and
+  `BVH/*.bvh`, on one 77-bone rig. No mesh: motion only, to retarget onto a character.
+
+Godot imports every `.fbx` here natively (no FBX2glTF, no Blender) and ignores the `.bvh`
+entirely. `docs/ANIMATIONS.md` has the rig mapping, the import gotchas and the clips worth using.
