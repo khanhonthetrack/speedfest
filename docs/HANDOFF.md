@@ -5,8 +5,11 @@
   (M15), our own menu look (M16), the 16 road cars (M17), tuning (M18) and the Sky series (M19).
   `stadium/PLAYING.txt` (in the zips, and the Release's notes) rewritten: a NEW IN 0.9 list, the
   new menus' names (Solo, Multiplayer, Garage, Editor, Browse), 80 tracks in seven series.
-- Tagged on the gated `stadium` commit; CI "Stadium builds" attaches the zips to the Release.
-  Continue on `stadium`.
+- **Not tagged yet:** the cloud session's tag push was refused (HTTP 403, as for v0.7; branch
+  pushes work). Tag 03abaa4 (gated, STADIUM_TESTS PASS) from the PC:
+  `git fetch origin && git tag -a stadium-v0.9 -m "SpeedFest Stadium v0.9" origin/stadium && git push origin stadium-v0.9`
+  (if `stadium` has moved past 03abaa4 by then, tag 03abaa4 or re-gate the newer one); CI "Stadium
+  builds" then creates the Release with the zips and PLAYING.txt as its notes. Continue on `stadium`.
 
 ## Earlier (22-23 Oct, session 18, cloud): Sky City, ten maps high between the skyscrapers (PLAN M19)
 - Owner (TRANSCRIPT, session 18): "Build 10 city maps, where instead of being on the ground ... you
