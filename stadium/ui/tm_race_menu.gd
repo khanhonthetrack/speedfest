@@ -15,10 +15,14 @@ signal save_replay
 signal opponent_chosen(kind: String)
 signal select_opponent
 signal story_continue
+signal story_settle
+signal story_again
 
 var has_next := false
 var story := false                 ## a story night's map: the time to beat instead of medals
-var can_continue := false          ## story: the last finish beat it (CONTINUE)
+## story: its 7-minute session (StoryRace): "open" (RETRY, END SESSION), "pass" (CONTINUE, TRY
+## AGAIN) or "fail" (TRY AGAIN)
+var story_state := "open"
 var online := false                ## in a server: "menu" leaves it
 var editing := false               ## testing a track from the editor: "menu" goes back to it
 var _panel: PanelContainer
@@ -168,8 +172,16 @@ func show_finish(result := {}) -> void:
 		_result = result
 		_replay_saved = false
 	var items := [["Retry", func() -> void: _emit(restarted)]]
-	if story and can_continue:
-		items.push_front(["Continue", func() -> void: _emit(story_continue)])
+	if story:
+		var st: Dictionary = _result.get("story", {})
+		match story_state:
+			"pass":
+				items = [["Continue", func() -> void: _emit(story_continue)], ["Try again", func() -> void: _emit(story_again)]]
+			"fail":
+				items = [["Try again", func() -> void: _emit(story_again)]]
+			_:
+				if int(st.get("best_ms", -1)) > 0:
+					items.append(["End session", func() -> void: _emit(story_settle)])
 	if not online:
 		items.append(["Replay", func() -> void: _emit(watch_replay)])
 		items.append(["Save replay", func() -> void: save_replay.emit()])
@@ -209,8 +221,11 @@ static func _result_card(r: Dictionary) -> Control:
 	if not story.is_empty():
 		# story mode: beaten or not, against the time to beat on the finish crossed
 		var ok := bool(story.get("pass", false))
-		line.add_child(TmUi.label("Target beaten" if ok else "Beat %s to go on" % TmRace.time_text(int(story.get("target", -1))),
-			28, TmUi.TM_GREEN if ok else TmRaceHud.BEHIND, TmUi.SANS_BOLD))
+		var over := bool(story.get("settled", false))
+		var say := ("Target beaten" if ok else "Beat %s to go on" % TmRace.time_text(int(story.get("target", -1))))
+		if over:
+			say = ("Session over: target beaten" if ok else "Session over: not beaten") if ms > 0 else "Session over: no finish"
+		line.add_child(TmUi.label(say, 28, TmUi.TM_GREEN if ok else TmRaceHud.BEHIND, TmUi.SANS_BOLD))
 	elif won.is_empty():
 		line.add_child(TmUi.label("No medal", 28, TmUi.DIM, TmUi.SANS_BOLD))
 	else:
@@ -223,6 +238,11 @@ static func _result_card(r: Dictionary) -> Control:
 		var d := ms - prev
 		line.add_child(TmUi.label(TmRaceHud.delta_text(d), 28, TmRaceHud.AHEAD if d <= 0 else TmRaceHud.BEHIND, TmUi.SANS_BOLD))
 	card.add_child(line)
+	if not story.is_empty() and not bool(story.get("settled", false)) and int(story.get("best_ms", -1)) > 0:
+		var b := TmUi.label("Best this session %s   ·   %s left" % [TmRace.time_text(int(story["best_ms"])),
+			TmRace.time_text(int(story.get("left_ms", 0))).left(-3)], 22, TmUi.DIM, TmUi.SANS_BOLD)
+		b.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(b)
 	if int(r.get("ways", 1)) > 1:
 		# several finishes: which one this run crossed (story mode names it: the decision it makes)
 		var label := String(r.get("way_label", ""))

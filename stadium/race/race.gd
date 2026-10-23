@@ -180,7 +180,10 @@ func _ready() -> void:
 		hud.challenge = challenge
 		menu.has_next = false
 		menu.story = true
+		menu.story_state = "open"
 		menu.story_continue.connect(func() -> void: story.go_on(get_tree()))
+		menu.story_settle.connect(func() -> void: story.end_now(self))
+		menu.story_again.connect(func() -> void: story.new_session(self))
 	menu.restarted.connect(restart)
 	menu.next_track.connect(_next_track)
 	menu.to_menu.connect(_to_menu)
@@ -299,6 +302,10 @@ func _physics_process(_delta: float) -> void:
 			return
 		race.countdown_ms = TmRace.TICK_MS     # this tick starts the race
 	race.tick()
+	if story != null:
+		story.tick(self)            # the story's 7-minute session clock
+		if story.settled:
+			return
 	_show_ghost()
 	if race.state == TmRace.State.COUNTDOWN:
 		return
@@ -410,8 +417,8 @@ func _on_finished(time_ms: int) -> void:
 		"validated": _validated_ms == time_ms, "way": finish_way, "ways": challenge.ways(),
 		"way_medals": challenge.medals_of(finish_way)}
 	if story != null:
-		story.finish(result, time_ms, finish_way)
-		menu.can_continue = story.can_go_on()
+		story.finish(self, result, time_ms, finish_way)
+		menu.story_state = "open" if not story.settled else ("pass" if story.passed() else "fail")
 	_result = result
 	# the crowd cheers by medal, as TMNF's: big for gold and author, smaller for silver and bronze
 	var medal := TmRace.medal(time_ms, challenge)
@@ -598,6 +605,8 @@ func synced_round() -> bool:
 func restart(force := false) -> void:
 	if not force and synced_round():
 		return
+	if story != null and story.settled:
+		return                      # the story's session is over: TRY AGAIN starts a new one
 	menu.hide_all()
 	race.restart()
 	marks.clear()

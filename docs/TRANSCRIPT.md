@@ -1459,3 +1459,30 @@ only the main session commits.)
 
 (Carried on: the gated cutscene player pushed first, then the pitch.)
 
+### User (verbatim, on the pitch: `docs/STORY_PITCH.md` and its page)
+
+> 1. I like A the most.  Can we put some horror twists in the cutscene delivery. For example, a cutscene (a nightmare? Then main character wakes up?) where the main character drives, looks at the rear view, car comes closer,  looks ahead then again rear view car closer, then ahead and suddenly looks at the mirror and there is a ghost of someone dead in the back seat(vesper or someone). What do u think?
+>
+> We can phrase the main character as a student who want to buy a car cheap, so attends the auction.
+>
+> 2. Up to you.
+>
+> 3, 4, 5, 6 up to you.
+>
+> 7. I dont know, it depends - whether it matches the story.
+>
+> 8. Up to you for now. But in the end i want modelled cast, with best graphics.
+>
+> 9. Yes, would be good.
+>
+>
+> Recall that with 3 maps per chapter, we do time attack of 7 minutes, the best time with a finish decides the ending (of the third map). Understand?
+
+(Read as: premise A, "Previous Owner", with horror in how the cutscenes are delivered (nightmares,
+the rear-view mirror and a drowned passenger in the back seat), Kit a student after a cheap car;
+endings, order, finale, difficulty and finish count left to Claude; the car to fit the story; people
+in silhouette for now and a modelled cast with the best graphics in the end; night 1 first as a
+playable slice. The rule: every map is a 7-minute time attack, the best run in the 7 minutes counts,
+and on map 3 the finish of that best run is the decision. Confirmed back in those words, with the
+consequence: the cruel line is the fastest, so it pulls the best time towards it.)
+

@@ -4222,3 +4222,25 @@ story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save
 - Shown to the owner as a claude.ai page with four look-test stills (flank dolly, walk-away, phone
   thread, crane in rain).
 
+### The owner picks A; 7-minute time-attack sessions on story maps (session 21)
+- Owner (verbatim in TRANSCRIPT): premise **A, Previous Owner**, with horror in the cutscenes (a
+  nightmare: the rear-view mirror, a car closing in, a dead passenger in the back seat), Kit a student
+  after a cheap car; endings, order, finale, difficulty and finish count left to Claude; the car "if it
+  matches the story"; people in silhouette for now, a modelled cast with the best graphics in the end;
+  night 1 first as a slice. And the rule: **each map is a 7-minute time attack; the best run counts,
+  and on map 3 its finish is the decision.**
+- `story/story_race.gd` now plays that rule: a session clock (7:00, on-track time only: countdown and
+  runs, not menus or pause), restarts as often as you like, a run under way at time-up may finish (up
+  to a minute more), then the session settles on its best run; it must beat the time to beat on its
+  finish; on map 3 that finish is the decision. Over the race: the clock and the best so far (and on
+  map 3 the decision it would make). The finish panel: RETRY / END SESSION while it runs; then
+  CONTINUE and TRY AGAIN (a new 7 minutes), or TRY AGAIN alone. `story_session_ms` in story.json,
+  `--story_session_ms=` in tests.
+- `tests/test_story_scenes`: a 4-second session on G06: the bot's run, still going at time-up, counts,
+  the session settles on it with the second finish's decision, no new run starts after it, and
+  CONTINUE writes it into the save. Gate: STADIUM_TESTS PASS.
+- `docs/STORY.md`: the story bible for A (draft for the owner): rules, the satnav frame, the horror layer
+  (THE PASSENGER: the mirror nightmare in five forms chosen by what Kit knows, and every waking-world
+  scare explained in the finale), the cast, the fact table, the nine nights and the bridge with maps,
+  scenes, gates and exits, four endings, flags and tiers, the decision graph.
+

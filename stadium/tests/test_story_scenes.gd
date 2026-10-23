@@ -10,9 +10,10 @@ extends Node
 ##   skipping it at any point ends it at once with its flags set, as if it had played;
 ## - a line's conditions pick its variant: a cold, warm or hot save hears different lines;
 ## - with its track built, a shot puts the camera and its cars where the scene says;
-## - a story map in the race (race.gd --story): the bot's run on G06's second finish beats the time
-##   to beat on that finish, the panel names the decision, CONTINUE is offered and writes the
-##   decision into the save.
+## - a story map in the race (race.gd --story), a time-attack session (short here: 4 s): the bot's
+##   run on G06's second finish, still under way when time is up, counts; the session settles on it,
+##   it beats the time to beat on that finish, the panel names the decision, no new run starts, and
+##   CONTINUE writes the decision into the save.
 
 const SPECIAL := ["tier=", "facts", "done:", "way:", "count:"]
 
@@ -225,8 +226,8 @@ func _story_race() -> void:
 	st.map_done(0)
 	st.map_done(1)
 	st.save()
-	for k: String in ["track", "story", "story_map", "bot"]:
-		TestHooks.args[k] = {"track": "G06", "story": night, "story_map": "2", "bot": true}[k]
+	for k: String in ["track", "story", "story_map", "bot", "story_session_ms"]:
+		TestHooks.args[k] = {"track": "G06", "story": night, "story_map": "2", "bot": true, "story_session_ms": "4000"}[k]
 	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
 	add_child(scene)
 	while not scene.ready_to_race:
@@ -241,16 +242,20 @@ func _story_race() -> void:
 	var r: Dictionary = scene._result
 	var story: StoryRace = scene.story
 	var want := "Decision: %s" % String(g.exit_of(night, 1).get("label", ""))
-	TestHooks.check(story != null and int(r.get("way", -1)) == 1 and bool(r.get("story", {}).get("pass", false))
-		and String(r.get("way_label", "")) == want and scene.menu.can_continue and int(r["story"]["target"]) == story.target(1),
-		"story_race_finish", "%s / %s" % [r, want])
+	# the 4 s session ran out during the run: the run still counts, and the session settles on it
+	TestHooks.check(story != null and story.settled and story.passed() and int(story.best["way"]) == 1
+		and int(r.get("way", -1)) == 1 and bool(r.get("story", {}).get("settled", false))
+		and String(r.get("way_label", "")) == want and scene.menu.story_state == "pass" and int(r["story"]["target"]) == story.target(1),
+		"story_race_session_settles_on_its_best", "%s / %s" % [r, want])
+	scene.restart()
+	TestHooks.check(race.state == TmRace.State.FINISHED, "story_race_no_run_after_the_session")
 	story.go_on(null)
 	var back := StoryState.load_file()
 	TestHooks.check(back != null and back.is_done(night) and int(back.decisions[night]["way"]) == 1
 		and back.best_time("G06", 1) == race.finish_ms, "story_race_continue_decides", "%s" % [back.to_dict() if back else {}])
 	scene.queue_free()
 	await get_tree().physics_frame
-	for k: String in ["track", "story", "story_map", "bot", "story_save"]:
+	for k: String in ["track", "story", "story_map", "bot", "story_save", "story_session_ms"]:
 		TestHooks.args.erase(k)
 	TmRecords.clear()
 
