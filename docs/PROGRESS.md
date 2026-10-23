@@ -4074,3 +4074,21 @@ everything so far is procedural. Study: **`docs/ANIMATIONS.md`**; inventories:
 - Not touched: no game code uses any of this yet, and no milestone was opened. What the characters
   are for -- a driver in the car, a mechanic in the Garage, street life in the neon City, podium
   and lobby emotes online -- is the owner's call.
+## 2026-10-23 — Session 20 (cloud): the story-mode brief
+Owner: "Generate the best prompt for AI to do this task" (story mode in the night city: 10
+non-linear chapters, 3 time-attack maps each, gold gated by a difficulty picked at the start, the
+third map's several finish lines choosing the next chapter, dialogue-heavy cutscenes with subtitles,
+assets looked for before anything is modelled; TRANSCRIPT, session 19). Written:
+`docs/STORY_MODE_PROMPT.md`, a self-contained brief for the session that builds it. No code touched.
+It names what the mode can stand on today (City night scenery and F01-F05, `["fork"]`/`["split"]`
+alternate finishes with `TmChallenge.alt_paths`, `tools/icons/menu_art.gd` as the cutscene camera
+rig, the 16 road cars, the locked Story tab, `user://` saves, the bot's `--write_medals` at
+gold = author x 1.06) and the five gaps it must close (`TmRace.finished` carries no finish-gate
+identity, one medal set per track, no difficulty, no dialogue/subtitle system, no story save), plus
+the knowledge-flag model for any-order chapters, the no-humans shot grammar, the licence rules for
+BlendSwap/itch.io hunting, milestones M20-1..8 with their gates, and the open questions. The
+unmerged `docs/STORY.md` on `origin/ccr-be8add6f-thdbey` ("Rear View", session 11) is flagged as the
+candidate story to adapt. Rebased onto session 19's animation packs and rewritten for them: with
+Quaternius' CC0 library and Mannequin in the repo, full-body human acting is on the table and only
+faces are not, so the brief now asks for bodies in silhouette, backlit and in rain, cut on a
+gesture, with a clothed character mesh on the UAL rig as the first thing to hunt for.

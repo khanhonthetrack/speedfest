@@ -1373,3 +1373,49 @@ so they stay with the owner: the repo keeps their full inventories
 (`tools/anim/manifests/*.json`), the tools that read them, and `tools/anim/stage_packs.sh` to put
 them back on any machine. Nothing was asked about what the characters are for; waiting on the
 owner.)
+
+## Session 20 — 2026-10-23 (cloud, branch `stadium`): story mode, the brief
+
+### User (verbatim)
+
+> Generate the best prompt for AI to do this task:
+>
+> This is a big project - the goal will be to implement a story mode (currently locked). IT should
+> be based in the city, at night,dark,neon (basically the city maps
+>
+> 1. Generate a script, a story. I want it to be cinematics, with cinematic cutscenes. I imagine 10
+> Chapters. But just like non-linear books, we want the story to make sense whatever the order,
+> chosen by the player. HOW? as follows.
+> 2.  In each chapter there will be three tracks from Trackmania, a players has to beat gold (the
+> gold time is set based on difficulty level picked by the player at the beginning) to move
+> forwards. IN the third track, the map has a few finish lines ( 3 or 5 or whatever), which dictates
+> to which chapter to go into.
+> 3. IN-between tracks, or when chapter starts or ends, design game cutscenes which tell the story.
+> it should be cinematic. should be dialogue-based, not just a few sentences. ( we start with
+> subtitiles, no voices).
+> 4. technicalities: I know you suck doing cutscences, humans etc. So, first: look for realistic
+> assets. BlendSwap, itch.io, or if we already have assets in the repo.
+
+### Claude
+
+- Nothing built: the deliverable asked for was the prompt itself, `docs/STORY_MODE_PROMPT.md` (give
+  it to a fresh session on `stadium`). It carries the owner's brief verbatim, the repo facts a story
+  mode has to build on (City night scenery and the F tracks, `fork`/`split` alternate finishes and
+  `alt_paths`, `tools/icons/menu_art.gd` as a ready camera rig, `TmCarVisual` and the road cars, the
+  locked Story tab in `sf_header.gd`/`tm_menu.gd`, `user://` save conventions, the bot's medal
+  writing at gold = author x 1.06), the five gaps it must close (no finish-gate identity in
+  `TmRace`, one medal set per track, no difficulty, no dialogue system, no story save), a
+  knowledge-flag recipe for chapters that read in any order, the cutscene plan with no human
+  characters, the licence rules for hunting assets, an eight-step milestone order (M20) with the
+  gates, and eight questions for the owner.
+- Flagged the unmerged `docs/STORY.md` on `origin/ccr-be8add6f-thdbey` (the 671-line "Rear View"
+  thriller written for this same pitch in session 11) as the candidate spine: it already matches
+  ten chapters, three maps each and a decision taken at the finish gate, but it is a Memento-style
+  reverse-linear story ending on a sunset coast road, so the any-order structure and the
+  city-at-night setting are the two things the owner has to rule on first.
+- Session 19's animation packs landed on `stadium` while this was being written, so the brief was
+  rewritten around them: the owner's "you suck at humans" predates them, and with the CC0 Mannequin
+  and 43 clips (231 with the staged packs) full-body acting is possible — faces, lip sync and a
+  clothed cast are what is still missing, so the shot grammar keeps people at body distance,
+  backlit and in rain, and a character mesh that the UAL clips can drive is the first asset to
+  hunt for.
