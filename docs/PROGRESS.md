@@ -4026,3 +4026,11 @@ cloud was refused (HTTP 403; branch pushes work), so the tag waits for the owner
 Owner, on the PC: "release it". Tagged `stadium-v0.9` on ce82298 (03abaa4 plus docs only) and
 pushed; CI "Stadium builds" run 49 green: the Release carries `SpeedFestStadium-windows.zip`
 (164.7 MB) and `SpeedFestStadium-linux.zip` (155.1 MB).
+
+## 2026-10-23 — Session 19 (cloud, branch `ccr-eb7ad165-dmwdnu`): itch.io MCP, asset search
+Owner: "Install itch.io mcp". The only one is npm `itch-io-mcp` 0.0.1 (community, read-only: own
+games, download keys, purchases; no uploads). Code reviewed, connects; adding `.mcp.json` was
+blocked by the permission check, so not installed (options in TRANSCRIPT). Owner: "then can you
+browse to look for assets?": itch.io browsing (RSS: browse URL + `.xml`) and free downloads work
+from the cloud; searched itch.io and Blend Swap (BlendSwap MCP) for the session-15 wishlist, licences
+checked; shortlist and how-to in `docs/research/asset_search_itch_blendswap.md`. Nothing downloaded.

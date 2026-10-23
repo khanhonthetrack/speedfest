@@ -1,5 +1,12 @@
 # HANDOFF: start here
 
+## Also 23 Oct (session 19, cloud, branch `ccr-eb7ad165-dmwdnu`): itch.io MCP and an asset search
+- itch.io MCP (npm `itch-io-mcp` 0.0.1) **not installed**: read-only (own games, keys, purchases),
+  and the permission check blocked adding it to `.mcp.json`. Waiting on the owner (TRANSCRIPT).
+- Asset search for the session-15 wishlist (neon/billboards, storefronts, street props, trees):
+  shortlist with licences and how to browse/download itch.io from the cloud in
+  `docs/research/asset_search_itch_blendswap.md`. Nothing downloaded; the owner picks.
+
 ## Latest (23 Oct, session 18, cloud): **`stadium-v0.9`** = `stadium` + the Sky series (M19)
 - Owner: "Yes, tag stadium-v0.9 and release it". v0.9 carries everything since v0.8: our hypercar
   (M15), our own menu look (M16), the 16 road cars (M17), tuning (M18) and the Sky series (M19).

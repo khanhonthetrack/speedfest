@@ -1358,3 +1358,26 @@ Release's notes, rewritten for it.)
 > git fetch origin && git tag -a stadium-v0.9 -m "SpeedFest Stadium v0.9" origin/stadium && git push origin stadium-v0.9
 
 (Tagged ce82298 and pushed; CI "Stadium builds" made the Release with the Windows and Linux zips.)
+
+## Session 19 — 2026-10-23 (cloud, branch `ccr-eb7ad165-dmwdnu`): itch.io and asset search
+
+### User (verbatim)
+
+> Install itch.io mcp
+
+(No itch.io connector in Claude's directory. The only itch.io MCP server is a community npm package,
+`itch-io-mcp` 0.0.1 (one release, no source repo); its code was read and is clean, and Claude Code
+connected to it in a test. It is read-only: your games and earnings, download keys, purchases; it
+can't upload (that's butler). Adding it to `.mcp.json` was blocked by the session's permission check
+(untrusted code in the repo), so nothing was installed; offered: install as is, vendor the reviewed
+code, or a butler upload script instead. Waiting on the owner.)
+
+### User (verbatim)
+
+> then can you browse to look for assets?
+
+(Yes: itch.io's browse pages have RSS twins and free downloads work from the cloud, no MCP needed;
+the BlendSwap MCP was connected too. Searched the session-15 wishlist (neon/billboards, storefronts,
+street props, trees), checked each licence; shortlist in `docs/research/asset_search_itch_blendswap.md`.
+Best find: Quaternius' Downtown City MegaKit (CC0, modular NYC blocks with storefronts). Nothing
+downloaded; the owner picks.)
