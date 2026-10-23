@@ -336,7 +336,8 @@ seconds. Potentially maps with multiple finishes"
       the medals)
 - [x] 4. Ten maps G01-G10, 10-40 s, eight at night, three with two finishes: the campaign's Sky series
 - [x] 5. The cards' pictures (`tools/icons/thumbs.sh G01 .. G10`); screenshots for the owner (a gallery page)
-- [ ] 6. The owner's verdict after playing them; merge into `stadium`
+- [x] 6. Merged into `stadium` (owner, 23 Oct)
+- [ ] 7. The owner's verdict after playing them
 
 ### M18 — Tuning: spoilers, rims, underglow, hoods (owner, 22 Oct) ☑
 (M17 on its branch until it met `stadium`, whose M16 is the menu look.)

@@ -1336,3 +1336,10 @@ streets between towers that rise past the road; new pieces of our own beside TMN
 swept along any curve, magnetic "mag-road" that holds the car on a wall or a tower's face (wallrides,
 driving up and over buildings), rooftops to land on, jumps between buildings, and forks to a second
 finish.)
+
+### User (verbatim, after the Sky series and its gallery)
+
+> merge with stadium and open the game for me
+
+(`stadium` fast-forwarded to `ccr-198135bf-7uoo98` (the Sky series, M19); a cloud session can't open
+a window on the owner's PC, so the game comes as CI's "Stadium builds" Windows zip from that push.)

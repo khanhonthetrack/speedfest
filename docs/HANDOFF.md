@@ -5,7 +5,8 @@
   are really high, between buildings, between skyscrapers. Some "lol" maps where you ride "on a
   building", or wallride on a building ... jump and fly between building ... most of them at night
   ... between 10 and 40 seconds. Potentially maps with multiple finishes". Branch
-  `ccr-198135bf-7uoo98` (from `stadium` fd66aff); merge it into `stadium` when the owner says.
+  `ccr-198135bf-7uoo98` (from `stadium` fd66aff); merged into `stadium` on the owner's word ("merge
+  with stadium and open the game for me": a fast-forward); continue on `stadium`.
 - The campaign's seventh series **Sky**, `tracks/G01..G10.json` (`"scenery": "sky"`), bot times (author medals):
   G01 Skyway (night; a first wallride along a tower's face; author 14.45 s), G02 Window Washer (night;
   three wallrides, both sides; 23.66), G03 Elevator (day; up a tower's face, over its edge, across the
@@ -50,7 +51,7 @@
   collides near a point).
 - The cards' pictures are in (`assets/ui/thumbs/G01..G10.jpg`, `tools/icons/thumbs.sh`); a gallery of
   one shot per map was shown to the owner (a claude.ai page).
-- Next: the owner's verdict after playing; merge into `stadium`; maybe more Sky ideas: a road through
+- Next: the owner's verdict after playing (CI "Stadium builds" from the merge push has the zips); maybe more Sky ideas: a road through
   a tower's lobby, a wallride round the inside of a hollow tower (bank 90: `_hub` skips its building
   for now), a loop between towers.
 
