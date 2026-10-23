@@ -1350,3 +1350,11 @@ a window on the owner's PC, so the game comes as CI's "Stadium builds" Windows z
 
 (`stadium-v0.9` = `stadium` + the Sky series (M19), with M15-M18 since v0.8; PLAYING.txt, the
 Release's notes, rewritten for it.)
+
+### User (verbatim, on the PC, after the cloud's tag push was refused)
+
+> release it
+>
+> git fetch origin && git tag -a stadium-v0.9 -m "SpeedFest Stadium v0.9" origin/stadium && git push origin stadium-v0.9
+
+(Tagged ce82298 and pushed; CI "Stadium builds" made the Release with the Windows and Linux zips.)

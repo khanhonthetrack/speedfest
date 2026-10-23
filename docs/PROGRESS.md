@@ -4023,3 +4023,6 @@ then "Yes, tag stadium-v0.9 and release it". PLAYING.txt (the zips' how-to-play 
 notes) rewritten for 0.9: a NEW IN 0.9 list (Sky, the Garage and tuning, the new menus), the menus'
 current names, 80 tracks in seven series. Gate: STADIUM_TESTS PASS on 03abaa4. The tag push from the
 cloud was refused (HTTP 403; branch pushes work), so the tag waits for the owner's PC (HANDOFF).
+Owner, on the PC: "release it". Tagged `stadium-v0.9` on ce82298 (03abaa4 plus docs only) and
+pushed; CI "Stadium builds" run 49 green: the Release carries `SpeedFestStadium-windows.zip`
+(164.7 MB) and `SpeedFestStadium-linux.zip` (155.1 MB).
