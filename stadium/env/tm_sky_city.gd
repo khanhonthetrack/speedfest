@@ -17,7 +17,7 @@ const LOT := 64.0
 const INSET := 6.0
 const CLEAR := 16.0              ## m: nothing stands closer than this under the road
 const FACE_DEPTH := 40.0         ## m: a ridden face's building, back from its face
-const MAX_TOWERS := 30
+const MAX_TOWERS := 36
 const PYLON := 3.2               ## m square
 const SHIP_RISE := 190.0         ## m: the airship flies this much higher than over the City (over the towers)
 
@@ -63,53 +63,65 @@ static func build(builder: TmMapBuilder) -> Node3D:
 	for e: Dictionary in ch.extras:
 		if String(e["kind"]) == "ribbon":
 			_faces(blocks, roofs, body, e["frames"], ch.extras, rng, used, neon)
-	# the lots
-	var count := 0
+	# the lots, nearest the road first (the towers beside it come before the downtown's mix)
+	var lots: Array = []
 	for lz in 16:
 		for lx in 16:
 			var cells: Array[Vector2i] = [Vector2i(lx * 2, lz * 2), Vector2i(lx * 2 + 1, lz * 2),
 				Vector2i(lx * 2, lz * 2 + 1), Vector2i(lx * 2 + 1, lz * 2 + 1)]
-			var ceiling := INF
-			var taken := 0
-			var top_near := -INF
+			var d := 99
 			for c in cells:
-				ceiling = minf(ceiling, float(lows.get(c, INF)))
-				taken += 1 if used.has(c) else 0
-				top_near = maxf(top_near, float(near.get(c, -INF)))
-			if taken > 0:
-				if taken < 4:
-					# what's left of a lot beside a road's building: low blocks in its free cells
-					for c in cells:
-						if not used.has(c):
-							_low(blocks, roofs, body, c, float(lows.get(c, INF)), rng, neon)
-				continue
-			var at := Vector2(-(lx * 2 + 1) * 32.0, (lz * 2 + 1) * 32.0)     # the lot's centre (Godot x, z)
-			var room := LOT - INSET * 2.0
-			if ceiling < INF:
-				# under the road: lower blocks, well under it
-				var hmax := ceiling - CLEAR - STREET_Y
-				if hmax < 14.0 or rng.randf() < 0.12:
-					continue
+				for dx in range(-3, 4):
+					for dz in range(-3, 4):
+						if lows.has(c + Vector2i(dx, dz)):
+							d = mini(d, maxi(absi(dx), absi(dz)))
+			lots.append([d, rng.randf(), lx, lz, cells])
+	lots.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0] or (a[0] == b[0] and a[1] < b[1]))
+	var count := 0
+	for lot: Array in lots:
+		var lx: int = lot[2]
+		var lz: int = lot[3]
+		var cells: Array[Vector2i] = lot[4]
+		var ceiling := INF
+		var taken := 0
+		var top_near := -INF
+		for c in cells:
+			ceiling = minf(ceiling, float(lows.get(c, INF)))
+			taken += 1 if used.has(c) else 0
+			top_near = maxf(top_near, float(near.get(c, -INF)))
+		if taken > 0:
+			if taken < 4:
+				# what's left of a lot beside a road's building: low blocks in its free cells
 				for c in cells:
-					_low(blocks, roofs, body, c, ceiling, rng, neon)
+					if not used.has(c):
+						_low(blocks, roofs, body, c, float(lows.get(c, INF)), rng, neon)
+			continue
+		var at := Vector2(-(lx * 2 + 1) * 32.0, (lz * 2 + 1) * 32.0)     # the lot's centre (Godot x, z)
+		var room := LOT - INSET * 2.0
+		if ceiling < INF:
+			# under the road: lower blocks, well under it
+			if ceiling - CLEAR - STREET_Y < 14.0 or rng.randf() < 0.12:
 				continue
-			if top_near > -INF and count < MAX_TOWERS and rng.randf() < 0.85:
-				# beside the road: a tower past it, or (a few) one whose roof lies just under it
-				var road_h := top_near - STREET_Y
-				var h := road_h + rng.randf_range(30.0, 260.0)
-				if rng.randf() < 0.22:
-					h = road_h - rng.randf_range(14.0, 55.0)
-				_tower(towers, body, at, room, h, rng, count)
-				count += 1
-				continue
-			# further out: the downtown's mix
-			if count < MAX_TOWERS and rng.randf() < 0.35:
-				_tower(towers, body, at, room, rng.randf_range(220.0, 560.0), rng, count)
-				count += 1
-			else:
-				for c in cells:
-					if rng.randf() < 0.8:
-						_low(blocks, roofs, body, c, INF, rng, neon)
+			for c in cells:
+				_low(blocks, roofs, body, c, ceiling, rng, neon)
+			continue
+		if top_near > -INF and count < MAX_TOWERS and rng.randf() < 0.9:
+			# beside the road: a tower past it, or (a few) one whose roof lies just under it
+			var road_h := top_near - STREET_Y
+			var h := road_h + rng.randf_range(30.0, 260.0)
+			if rng.randf() < 0.22:
+				h = road_h - rng.randf_range(14.0, 55.0)
+			_tower(towers, body, at, room, h, rng, count)
+			count += 1
+			continue
+		# further out: the downtown's mix
+		if count < MAX_TOWERS and rng.randf() < 0.3:
+			_tower(towers, body, at, room, rng.randf_range(220.0, 560.0), rng, count)
+			count += 1
+		else:
+			for c in cells:
+				if rng.randf() < 0.8:
+					_low(blocks, roofs, body, c, INF, rng, neon)
 	_pylons(root, ch, lows, neon)
 	TmSkyline._add_blocks(root, blocks, true)
 	TmTower.add_mesh(root, roofs, TmTower.shared("roof"), "Roofs", true)

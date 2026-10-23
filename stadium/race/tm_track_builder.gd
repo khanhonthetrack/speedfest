@@ -21,6 +21,8 @@ extends RefCounted
 ##   with two clips, entered at its first).
 ##   ["fork", "l" | "r", [pieces]] (a T junction: the pieces in the list leave it to that side, a
 ##   second way to its own finish (after the last checkpoint); the track goes on straight),
+##   ["split", "l" | "r", [pieces]] (right after a rooftop 3 cells wide or more: the pieces leave its
+##   far edge a cell to that side of the road, side by side with it, at full speed),
 ##   and the Sky maps' road of our own (TmSkyTrack: walls, faces, twists, banks, kickers, gaps,
 ##   drops, rooftops; "scenery": "sky").
 ## Surfaces (the pieces after it are laid on it; the join is placed where it changes):
@@ -101,6 +103,8 @@ static func build(spec: Dictionary) -> TmTrackBuilder:
 		b.areas.finish()
 	if b.errors.is_empty():
 		b.ease_loops()
+	if b.errors.is_empty():
+		b._check_buildings()
 	if b.errors.is_empty() and b.laps > 1 and not b._closed:
 		b.errors.append("a lap race ends with [\"close\"], back onto its start/finish line")
 	var in_sky := String(spec.get("scenery", "")) == "sky"
@@ -425,6 +429,9 @@ func piece(p: Array) -> void:
 			sky = TmSkyTrack.new(self)
 		sky.piece(p)
 		return
+	if kind == "split":
+		_split(String(p[1]) == "l", p[2] if p.size() > 2 else [])
+		return
 	if sky != null and sky.on and not sky.land():
 		return
 	if kind == "fork":
@@ -613,6 +620,93 @@ func _fork(left: bool, branch: Array) -> void:
 	cell = keep["cell"]
 	heading = keep["heading"]
 	_segment(a, h, entry_face(), h)
+
+
+## A split off a rooftop (multiple finishes, at speed): the pieces in `branch` leave the roof's far
+## edge a cell to the left or right of the road, heading the same way. Its line: the road's over the
+## roof, drifting over to that lane across the roof's last two blocks, then the branch's own.
+func _split(left: bool, branch: Array) -> void:
+	var roof: Dictionary = extras[-1] if not extras.is_empty() else {}
+	if sky == null or not sky.on or String(roof.get("kind", "")) != "roof" or sky.pos.distance_to(roof["exit"]) > 0.1:
+		errors.append("a split (piece %d) comes right after a rooftop" % _pieces)
+		return
+	var w := absf(((roof["hi"] as Vector3) - (roof["lo"] as Vector3)).dot(TmSkyTrack.right_of(roof["f"], Vector3.UP)))
+	if w < 3.0 * 32.0 - 0.1:
+		errors.append("a split (piece %d) needs a rooftop 3 cells wide" % _pieces)
+		return
+	var f: Vector3 = roof["f"]
+	var side := TmSkyTrack.right_of(f, Vector3.UP) * (-32.0 if left else 32.0)
+	var keep := {"path": path, "cell": cell, "heading": heading, "pieces": _pieces}
+	# the branch's line: the road's up to the roof, then over to the lane across the roof's length
+	var span := (roof["entry"] as Vector3).distance_to(roof["exit"]) - 8.0
+	var exit_g := to_godot(roof["exit"])
+	var start_g := to_godot((roof["exit"] as Vector3) - f * span)
+	var line: Array = []
+	for pt: Dictionary in path:
+		if (pt["p"] as Vector3).distance_to(exit_g) < span - 0.1 and (pt["p"] as Vector3).distance_to(start_g) < span + 0.1 \
+				and bool(pt.get("sky", false)):
+			continue
+		line.append(pt)
+	var n := ceili(span / STEP)
+	var r_min := span * span / (6.0 * 32.0)            # the blend's tightest bend (its steepest curvature)
+	for i in range(1, n + 1):
+		var t := float(i) / n
+		var e := t * t * (3.0 - 2.0 * t)
+		var q := (roof["exit"] as Vector3) - f * span * (1.0 - t) + side * e
+		var slope := 6.0 * t * (1.0 - t) * 32.0 / span
+		var dir := (f + side.normalized() * slope).normalized()
+		var bend := 6.0 * (1.0 - 2.0 * t) * 32.0 / (span * span)
+		var toward_left := (side.dot(TmSkyTrack.right_of(f, Vector3.UP)) < 0.0) == (bend > 0.0)
+		line.append({"p": to_godot(q), "dir": to_godot(dir), "mode": Drive.STEER, "r": r_min / maxf(absf(1.0 - 2.0 * t), 0.2),
+			"k": absf(bend) * (1.0 if toward_left else -1.0), "sky": true})
+	path = line
+	var saved_sky := sky
+	sky = null
+	var h := TmSkyTrack._axis(f)
+	var c := (roof["exit"] as Vector3) + side + f * 16.0
+	cell = Vector3i(floori(c.x / 32.0), roundi(((roof["exit"] as Vector3).y - ROAD_Y) / 8.0), floori(c.z / 32.0))
+	heading = h
+	var finishes_before := finishes
+	for bp: Array in branch:
+		piece(bp)
+		if not errors.is_empty():
+			return
+	if sky != null and sky.on:
+		sky.flush()
+	if finishes == finishes_before:
+		errors.append("a split's way (piece %d) ends with its own [\"finish\"]" % keep["pieces"])
+		return
+	alt_paths.append(path)
+	path = keep["path"]
+	cell = keep["cell"]
+	heading = keep["heading"]
+	sky = saved_sky
+
+
+## The road's own buildings stand from the streets up (TmSkyCity): no road may pass under a
+## rooftop, or through a spiral's round tower.
+func _check_buildings() -> void:
+	for e: Dictionary in extras:
+		var kind := String(e["kind"])
+		if kind != "roof" and kind != "hub":
+			continue
+		for line: Array in [path] + alt_paths:
+			for pt: Dictionary in line:
+				var p := to_godot(pt["p"])          # (back to TMNF's axes)
+				var inside := false
+				if kind == "roof":
+					var lo: Vector3 = e["lo"]
+					var hi: Vector3 = e["hi"]
+					inside = p.x > lo.x + 2.0 and p.x < hi.x - 2.0 and p.z > lo.z + 2.0 and p.z < hi.z - 2.0 \
+						and p.y < float(e["y"]) - 2.0
+				else:
+					var c: Vector3 = e["c"]
+					var half := (float(e["r"]) - TmSkyTrack.EDGE - 5.0) * 0.7
+					inside = float(e["bank"]) <= deg_to_rad(70.0) and absf(p.x - c.x) < half and absf(p.z - c.z) < half
+				if inside:
+					errors.append("the road passes %s at %s" % ["under a rooftop (its building)" if kind == "roof"
+						else "through a spiral's tower", p.snapped(Vector3.ONE * 0.1)])
+					return
 
 
 ## The finish with road to stop on: TMNF's through start/finish line block (it finishes a

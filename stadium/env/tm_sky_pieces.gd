@@ -18,6 +18,7 @@ const S_ROAD := 16
 const S_METAL := 4
 const LIGHT_EVERY := 40.0        ## m between the coloured lights, each side (staggered)
 const TUBE_R := 0.11
+const LAMP_EVERY := 40.0         ## m between the street lights along the road (sides alternating)
 const STRIPS := 8                ## the deck's strips across
 
 static var _made := false
@@ -245,3 +246,47 @@ static func lights(extras: Array, night: bool) -> Node3D:
 				l.position = TmGeo.g(_at(fr, (HALF - 1.2) * (-1.0 if side == 0 else 1.0), RAIL_UP + 0.4))
 				root.add_child(l)
 	return root
+
+
+## Street lights along a Sky map's road (its main light at night, as the City's street lights):
+## the feet (Godot transforms for TmStreetLights.row: up the road's normal, the arm reaching in
+## over the road) on the rails' tops every LAMP_EVERY m, sides alternating; on the sky road where
+## it lies near level (walls and twists glow by themselves), and on TMNF's road (its curbs' tops).
+static func lamp_feet(ch: TmChallenge) -> Array:
+	var feet := []
+	for e: Dictionary in ch.extras:
+		if String(e["kind"]) != "ribbon":
+			continue
+		var next := LAMP_EVERY * 0.5
+		var side := 1.0
+		for fr: Dictionary in e["frames"]:
+			var u: Vector3 = fr["u"]
+			if float(fr["s"]) < next or u.y < 0.95 or not _has_rail(fr, side < 0.0):
+				continue
+			next = float(fr["s"]) + LAMP_EVERY
+			var out := TmSkyTrack.right_of(fr["f"], u) * side
+			feet.append(_foot(TmGeo.g(_at(fr, side * (HALF + RAIL_IN + 0.3), RAIL_UP)), TmGeo.g(u), TmGeo.g(out)))
+			side = -side
+	var run := 0.0
+	var next_tm := LAMP_EVERY * 0.5
+	var side_tm := 1.0
+	var path: Array = ch.path
+	for i in range(1, path.size()):
+		var a: Dictionary = path[i - 1]
+		var b: Dictionary = path[i]
+		run += (b["p"] as Vector3).distance_to(a["p"])
+		if bool(b.get("sky", false)) or int(b["mode"]) != TmTrackBuilder.Drive.STEER or run < next_tm:
+			continue
+		next_tm = run + LAMP_EVERY
+		var dir: Vector3 = b["dir"]
+		var right := dir.cross(Vector3.UP).normalized()
+		feet.append(_foot((b["p"] as Vector3) + right * side_tm * TmNeon.RAIL + Vector3.UP * TmNeon.RAIL_UP, Vector3.UP, right * side_tm))
+		side_tm = -side_tm
+	return feet
+
+
+## A lamp's foot (Godot): up, and out (away from the road: its arm reaches along -z).
+static func _foot(at: Vector3, up: Vector3, out: Vector3) -> Transform3D:
+	var z := (out - up * out.dot(up)).normalized()
+	return Transform3D(Basis(up.cross(z), up, z), at)
+

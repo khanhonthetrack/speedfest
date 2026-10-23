@@ -161,6 +161,8 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 			parent.add_child(TmSkyCity.build(builder))
 			parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
 			parent.add_child(TmSkyPieces.lights(builder.challenge.extras, TmStadiumEnv.night))
+			parent.add_child(TmStreetLights.row(TmSkyPieces.lamp_feet(builder.challenge), TmStadiumEnv.night,
+				1 + absi(hash(builder.challenge.uid)) % TmStreetLights.LAMPS))
 			var ship := TmAirshipOrbit.make(TmStadiumEnv.night)
 			if ship != null:
 				ship.position.y += TmSkyCity.SHIP_RISE

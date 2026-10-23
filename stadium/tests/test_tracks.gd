@@ -191,6 +191,17 @@ func _track(id: String, drive := true) -> int:
 			best["grip"] = g
 	var ms: int = best.get("ms", -1)
 	TestHooks.check(ms > 0, "%s_bot_finishes" % id, "no finish with grip %s" % [grips])
+	# a fork's other ways (multiple finishes): the bot drives each to its own finish too, and the
+	# fastest way sets the medals (a risky shortcut is worth the author's time)
+	for k in ch.alt_paths.size():
+		var g: float = best.get("grip", grips[0])
+		var alt := await _drive(id, g, k)
+		print("TRACK %s way %d (grip %.0f): %s, %d/%d checkpoints, at point %d/%d %s" % [id, k + 2, g,
+			TmRace.time_text(alt["ms"]) if alt["ms"] > 0 else "DNF", alt["taken"], b.checkpoints, alt["index"],
+			(ch.alt_paths[k] as Array).size(), alt["why"]])
+		TestHooks.check(alt["ms"] > 0 and alt["taken"] == b.checkpoints, "%s_way%d_finishes" % [id, k + 2], alt["why"])
+		if alt["ms"] > 0 and alt["taken"] == b.checkpoints and alt["ms"] < ms:
+			ms = alt["ms"]
 	if ms > 0 and ch.gold_ms > 0 and not TestHooks.has_arg("write_medals"):
 		TestHooks.check(ms <= ch.gold_ms, "%s_bot_within_gold" % id, "%d > %d" % [ms, ch.gold_ms])
 	if ms > 0 and TestHooks.has_arg("write_medals"):
@@ -198,8 +209,9 @@ func _track(id: String, drive := true) -> int:
 	return ms
 
 
-## One run of the bot in the race scene: {ms (-1: no finish), taken, top, index, why}.
-func _drive(id: String, grip: float) -> Dictionary:
+## One run of the bot in the race scene: {ms (-1: no finish), taken, top, index, why}. way >= 0:
+## along a fork's other way (TmChallenge.alt_paths) to its finish.
+func _drive(id: String, grip: float, way := -1) -> Dictionary:
 	TestHooks.args["track"] = id
 	TestHooks.args["bot"] = true
 	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
@@ -208,6 +220,9 @@ func _drive(id: String, grip: float) -> Dictionary:
 		await get_tree().physics_frame
 	var bot: TmBot = scene.bot
 	bot.grip = grip
+	if way >= 0:
+		bot.path = scene.challenge.alt_paths[way]
+		bot.reset()
 	var race: TmRace = scene.race
 	var top := 0.0
 	# long tracks (endurance, laps) get longer: at least 12 m/s along the whole line
