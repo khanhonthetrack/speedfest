@@ -1,6 +1,17 @@
 # HANDOFF: start here
 
-## Latest (23 Oct, session 19, cloud, `stadium`): four humanoid animation packs, learnt and stored
+## Latest (23 Oct, session 21, cloud, `stadium`): story mode started (PLAN M20)
+- The owner handed `docs/STORY_MODE_PROMPT.md` (the brief, session 20) to this session: **that
+  brief is the spec of record; read it first.** PLAN M20 lists the eight steps.
+- **Step 1 (script) begins with a pitch**: three premises go to the owner before any script is
+  written (`docs/STORY_PITCH.md` once written). Nothing story-specific gets built until they
+  pick one. The old "Rear View" draft (`origin/ccr-be8add6f-thdbey`) is rejected: never revive it.
+- While the owner chooses, the story-agnostic plumbing goes ahead (M20-4: which finish gate a run
+  crossed, per-gate medals; M20-2: the chapter graph, the save, difficulty).
+- Owner rule kept: no parallel agents. Workflow agents run one at a time, return text only,
+  and only the main session writes and commits.
+
+## Earlier (23 Oct, session 19, cloud, `stadium`): four humanoid animation packs, learnt and stored
 - Owner: "learn and store these" (four zips). **`docs/ANIMATIONS.md` is the study** -- 231 clips
   over three skeletons, every length and every root travel measured from the files, plus the rig
   mapping, the Godot import facts and the clips worth using here. Inventories:

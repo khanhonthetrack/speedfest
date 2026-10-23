@@ -316,6 +316,33 @@ outside the repo (`stadium/tools/compat/`).
       skins (`compat_run.py cars`: stopped, owner: "dont download cars. no need."); a large TMX
       Stadium sample (TMNF-X + TMUF-X, 20,256 tracks: running, resumable)
 
+### M20 — Story mode: ten nights in the neon city, in any order (owner, 23 Oct) ☐
+The owner's brief, verbatim in `docs/TRANSCRIPT.md` (session 20) and expanded in
+`docs/STORY_MODE_PROMPT.md` (the spec of record): a story mode in the City at night, 10 chapters
+readable in any order, 3 time-attack maps each, gold scaled by a difficulty picked at the start,
+the third map's 3-5 finish lines choosing the next chapter, cinematic dialogue-based cutscenes
+(subtitles first), realistic assets looked for before anything is modelled. The old "Rear View"
+draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out of
+`tracks/campaign.json` (listed in `stadium/story/story.json`, `"online": false`).
+- [ ] 1. Script: three premises to the owner first (`docs/STORY_PITCH.md`), then on their pick
+      `docs/STORY.md` (premise, cast, the fact table, 10 chapters with maps and exits, the decision
+      graph, the endings, every scene with its beats) and the full dialogue; owner sign-off before 5
+- [ ] 2. Data + save: `story/story_graph.gd` (StoryGraph), `story/story_state.gd` (StoryState,
+      `user://story.json`, `--story_save=`), `story/story.json`, difficulty; `tests/test_story_graph`
+      (every chapter reachable, no dead ends, no orphan exits, the finale gated, 10,000 random walks finish)
+- [ ] 3. Cutscene player: `story/story_scene.gd` (StoryScene: shots, camera keyframes, actors, characters,
+      lines), SfUi subtitles, letterbox, skip, `story/story_lab.tscn` (screenshots);
+      `tests/test_story_scenes`; one real scene rendered at Ultra and shown to the owner
+- [ ] 4. Branching plumbing: `TmRace` reports which finish gate was crossed; per-gate medals in the
+      track JSON and `TmChallenge`; `test_tracks --write_medals` writes a set per way; records and
+      replays carry the gate; the finish menu shows the decision the held run makes
+- [ ] 5. Chapter 1 end to end (vertical slice): `tracks/H01..H03.json` (City night), bot medals,
+      4-5 cutscenes, a 3-way branching map 3, the decision saved, the next chapter chosen
+- [ ] 6. Story menu: the tab unlocked (`sf_header.gd` `LOCKED`, `tm_menu.gd`), new save / continue,
+      difficulty, the chapter board, the journal, replay a cutscene, times per map; `tests/test_menu`
+- [ ] 7. Chapters 2-9, in batches: tracks -> medals -> scenes -> exits -> gate -> commit -> push
+- [ ] 8. The finale and the endings, credits, a full-game headless playthrough test
+
 ### M19 — Sky City: maps high between the skyscrapers (owner, 22 Oct) ☐
 "Build 10 city maps, where instead of being on the ground like the first 5, you are really high,
 between buildings, between skyscrapers. Some "lol" maps where you ride "on a building", or wallride

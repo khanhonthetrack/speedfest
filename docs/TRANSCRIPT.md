@@ -1433,3 +1433,14 @@ played in any order (a question, not a countdown; the whole cast reachable every
 its own goal plus one hard fact; told in cars, not in rooms), and three example seeds marked as
 shapes to beat, not to use. The session-11 ending beats are now a question for the owner rather
 than an inheritance.)
+
+## Session 21 — 2026-10-23 (cloud, branch `stadium`): story mode, the build starts (M20)
+
+### User (verbatim)
+
+> /workflow-authoring
+
+(With `STORY_MODE_PROMPT.md` attached, the session-20 brief unchanged: the owner handed it to a
+fresh session, as the brief says. Read as "start M20". Ultracode was on, so the work runs as
+workflows whose agents work one at a time, never in parallel (the owner's rule of 15 Oct), and
+only the main session commits.)

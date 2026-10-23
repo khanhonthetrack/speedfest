@@ -4096,3 +4096,10 @@ order. Rebased onto session 19's animation packs and rewritten for them: with
 Quaternius' CC0 library and Mannequin in the repo, full-body human acting is on the table and only
 faces are not, so the brief now asks for bodies in silhouette, backlit and in rain, cut on a
 gesture, with a clothed character mesh on the UAL rig as the first thing to hunt for.
+
+## 2026-10-23 — Session 21 (cloud): story mode, M20 opened
+The owner gave this session the brief (`docs/STORY_MODE_PROMPT.md`, unchanged from session 20).
+Opened PLAN M20 (eight steps, as the brief orders them) and recorded the session in TRANSCRIPT.
+First step: a three-premise pitch to the owner (M20-1) before any script, while the
+story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save).
+
