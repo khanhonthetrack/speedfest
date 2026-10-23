@@ -4,29 +4,44 @@ SPEEDFEST STADIUM - how to play
 1. Unzip this folder anywhere and run SpeedFestStadium.exe (Linux: SpeedFestStadium.x86_64).
    Nothing else to install. Windows may warn "Windows protected your PC" because the game
    isn't signed: click "More info" -> "Run anyway".
-2. SOLO -> CAMPAIGN races SpeedFest's own campaign: 70 tracks in six series (White, Green,
-   Blue, Red, Black and City), each with author, gold, silver and bronze times. The City series
-   races through a neon city of skyscrapers instead of the Stadium; three of its five tracks are
-   at night: wet streets mirroring the neon, street lights, searchlights, an airship overhead
-   (graphics on Ultra for the reflections and the glow). Your best times and the
-   ghost of your best run are saved. SOLO -> REPLAYS plays back the runs you saved. Before
-   your first run on a track (or Escape -> SELECT OPPONENTS) pick the ghost you race against: a
-   gold, silver or bronze medal run, or your personal best.
-3. ONLINE: log in or register to climb the ladder and keep online records, or play as a guest.
-   Pick a server from the list and JOIN (or SPECTATE), or type its address under JOIN BY
+
+NEW IN 0.9
+- SKY: a seventh series of ten tracks raced 200-440 m above the city's streets, between
+  skyscrapers. Ride walls and the faces of towers, drive up one side of a skyscraper and down
+  the other, spiral round a tower, roll upside down, jump roof to roof, ski-jump off the tallest
+  tower. Where the road glows violet it is mag-road: it holds the car like a magnet, on walls and
+  upside down. Three tracks have two finishes: a safe way and a faster, riskier jump. Fall off and
+  you respawn at the last checkpoint by yourself. Brake before a roof's edge: over it the road only
+  holds you at about 130-170 km/h.
+- The GARAGE: sixteen road cars of our own with five liveries each, and our Le Mans hypercar.
+  Tuning: spoilers, rims, underglow and hoods, ten of each.
+- New menus of our own look: tabs along the top (Home, Solo, Multiplayer, Garage, Community,
+  Editor), your profile at the top right.
+
+2. SOLO races SpeedFest's own campaign: 80 tracks in seven series (White, Green, Blue, Red,
+   Black, City and Sky), each with author, gold, silver and bronze times. The City series races
+   through a neon city of skyscrapers instead of the Stadium; three of its five tracks are at
+   night: wet streets mirroring the neon, street lights, searchlights, an airship overhead. The
+   Sky series is high above that city, eight of its ten tracks at night (graphics on Ultra for the
+   reflections and the glow). Your best times and the ghost of your best run are saved.
+   SOLO -> REPLAYS plays back the runs you saved. Before your first run on a track (or Escape ->
+   SELECT OPPONENTS) pick the ghost you race against: a gold, silver or bronze medal run, or your
+   personal best.
+3. MULTIPLAYER: log in or register to climb the ladder and keep online records, or play as a
+   guest. Pick a server from the list and JOIN (or SPECTATE), or type its address under JOIN BY
    ADDRESS. World and zone rankings are there too.
-4. EDITORS -> TRACK EDITOR: build your own track from the Stadium's blocks and drive it to the
-   finish to validate it. PROFILE sets your nickname (TrackMania's $-colour codes work), zone
-   and car colour.
+4. GARAGE: pick your car and its livery, then TUNING for its spoiler, rims, underglow and hood.
+   EDITOR: build your own track from the Stadium's blocks and drive it to the finish to validate
+   it. Your profile (top right) sets your nickname (TrackMania's $-colour codes work) and zone.
 5. COMMUNITY: TrackMania players' cars (ManiaPark) and tracks (TrackMania Exchange), shown by
    their pictures. Download a car and pick "Drive this car" to race with it (online too), or
    download a track and Play it. TEXTURE MODS re-skins the Stadium with a mod made for
    TrackMania. What you download stays under My Cars and My Tracks.
 
-TrackMania tracks too: SOLO -> OPEN A TRACK FILE races any TrackMania Nations Forever track file
+TrackMania tracks too: SOLO -> BROWSE races any TrackMania Nations Forever track file
 (.Challenge.Gbx), yours or downloaded.
 
-Straight into a track: SpeedFestStadium.exe -- --race=A01
+Straight into a track: SpeedFestStadium.exe -- --race=G05
 
 Keys: arrows / WASD or a gamepad to drive, Enter respawns at the last checkpoint, Backspace
 restarts, Escape pauses, 1 / 2 / 3 change the camera (close behind, far behind, the cockpit).
@@ -38,5 +53,5 @@ screen (in a race: move the mouse to the top edge) has the volumes, the display 
 the clock too.
 
 Music and sounds: open-licensed works by their authors; see CREDITS-music.md and
-CREDITS-sounds.md. The city's buildings and street lights: see CREDITS-city.md. Fonts: Orbitron
-and Rajdhani (SIL Open Font License).
+CREDITS-sounds.md. The city's buildings and street lights: see CREDITS-city.md. Fonts: Montserrat,
+Cabin, Orbitron, Rajdhani and DSEG (SIL Open Font License).

@@ -1,6 +1,14 @@
 # HANDOFF: start here
 
-## Latest (22-23 Oct, session 18, cloud): Sky City, ten maps high between the skyscrapers (PLAN M19)
+## Latest (23 Oct, session 18, cloud): **`stadium-v0.9`** = `stadium` + the Sky series (M19)
+- Owner: "Yes, tag stadium-v0.9 and release it". v0.9 carries everything since v0.8: our hypercar
+  (M15), our own menu look (M16), the 16 road cars (M17), tuning (M18) and the Sky series (M19).
+  `stadium/PLAYING.txt` (in the zips, and the Release's notes) rewritten: a NEW IN 0.9 list, the
+  new menus' names (Solo, Multiplayer, Garage, Editor, Browse), 80 tracks in seven series.
+- Tagged on the gated `stadium` commit; CI "Stadium builds" attaches the zips to the Release.
+  Continue on `stadium`.
+
+## Earlier (22-23 Oct, session 18, cloud): Sky City, ten maps high between the skyscrapers (PLAN M19)
 - Owner (TRANSCRIPT, session 18): "Build 10 city maps, where instead of being on the ground ... you
   are really high, between buildings, between skyscrapers. Some "lol" maps where you ride "on a
   building", or wallride on a building ... jump and fly between building ... most of them at night

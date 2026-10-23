@@ -1343,3 +1343,10 @@ finish.)
 
 (`stadium` fast-forwarded to `ccr-198135bf-7uoo98` (the Sky series, M19); a cloud session can't open
 a window on the owner's PC, so the game comes as CI's "Stadium builds" Windows zip from that push.)
+
+### User (verbatim, offered a release for an easy public link)
+
+> Yes, tag stadium-v0.9 and release it
+
+(`stadium-v0.9` = `stadium` + the Sky series (M19), with M15-M18 since v0.8; PLAYING.txt, the
+Release's notes, rewritten for it.)

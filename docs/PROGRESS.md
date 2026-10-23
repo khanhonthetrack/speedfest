@@ -4015,3 +4015,10 @@ buildings, futuristic, mostly at night, neon, 10-40 s, maybe several finishes.
 - The cards' pictures (`tools/icons/thumbs.sh G01 .. G10`); a gallery of one in-game shot per map
   shown to the owner.
 - Gate: STADIUM_TESTS PASS (the Sky series' first, G01, is driven by `test_tracks` within gold).
+
+## 2026-10-23 — Session 18 (cloud): `stadium-v0.9`
+Owner: "merge with stadium and open the game for me" (`stadium` fast-forwarded to the Sky branch;
+CI "Stadium builds" run 47 built the zips; a cloud session can't open a window on the owner's PC),
+then "Yes, tag stadium-v0.9 and release it". PLAYING.txt (the zips' how-to-play and the Release's
+notes) rewritten for 0.9: a NEW IN 0.9 list (Sky, the Garage and tuning, the new menus), the menus'
+current names, 80 tracks in seven series. Gate: STADIUM_TESTS PASS on the tagged commit.
