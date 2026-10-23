@@ -57,6 +57,7 @@ var _triggers: Array = []          ## [{index, kind, xform, trig}]: waypoints wi
 var _prev := Vector3.ZERO          ## the car's position at the previous tick
 var _cp_states := {}               ## checkpoint index -> the car as it crossed it {xform, lin, ang}
 var _result := {}                  ## the finish menu's result (TmRaceMenu.show_finish); {} before
+var finish_way := 0                ## the way whose finish the last run crossed (TmChallenge.way_of; 0: the main way)
 var _tail_ms := 0                  ## recorded so far after the finish (TmReplay.TAIL_MS)
 ## A Sky map (M19): a car that falls this far under the lowest road respawns by itself (the streets
 ## are 200 m down); -INF elsewhere (TMNF's way: Enter respawns).
@@ -366,6 +367,7 @@ func _show_ghost() -> void:
 
 func _on_finished(time_ms: int) -> void:
 	_gate_time(time_ms)
+	finish_way = way_at(race.finish_index)
 	if input_script or TestHooks.has_arg("record_inputs"):
 		print("INPUTS_RUN splits=%s finish=%d" % [str(race.splits), time_ms])
 	if TestHooks.has_arg("record_inputs"):
@@ -380,7 +382,8 @@ func _on_finished(time_ms: int) -> void:
 	replay.record(time_ms, car)
 	replay.finish_ms = time_ms
 	replay.splits = race.splits.map(func(v: int) -> int: return v)
-	new_record = TmRecords.submit(challenge, time_ms, race.splits, run)
+	replay.way = finish_way
+	new_record = TmRecords.submit(challenge, time_ms, race.splits, run, finish_way)
 	if new_record:
 		replay.save(TmReplay.autosave_path(challenge))
 	if editing() and TmUserTracks.validate_file(String(TestHooks.arg("map", "")), time_ms):
@@ -396,7 +399,8 @@ func _on_finished(time_ms: int) -> void:
 	hud.show_finish(time_ms, best, new_record)
 	var result := {"name": challenge.name, "time_ms": time_ms, "prev_ms": int(best.get("time_ms", -1)), "record": new_record,
 		"medals": {"author": challenge.author_ms, "gold": challenge.gold_ms, "silver": challenge.silver_ms, "bronze": challenge.bronze_ms},
-		"validated": _validated_ms == time_ms}
+		"validated": _validated_ms == time_ms, "way": finish_way, "ways": challenge.ways(),
+		"way_medals": challenge.medals_of(finish_way)}
 	_result = result
 	# the crowd cheers by medal, as TMNF's: big for gold and author, smaller for silver and bronze
 	var medal := TmRace.medal(time_ms, challenge)
@@ -417,6 +421,13 @@ func _on_finished(time_ms: int) -> void:
 	get_tree().create_timer(TmRaceHud.FINISH_FLASH).timeout.connect(func() -> void:
 		if run == this_run and race.state == TmRace.State.FINISHED:
 			menu.show_finish(result))
+
+
+## The way a finish waypoint ends (several finishes: which one a run crossed); 0 when unknown.
+func way_at(waypoint: int) -> int:
+	if waypoint < 0 or waypoint >= builder.waypoints.size():
+		return 0
+	return challenge.way_of(builder.waypoints[waypoint].get("coord", Vector3i.ZERO))
 
 
 func _unhandled_input(event: InputEvent) -> void:

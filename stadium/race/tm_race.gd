@@ -32,6 +32,7 @@ var taken := {}                     ## waypoint index -> true: checkpoints taken
 var splits: Array[int] = []         ## clock at each checkpoint and lap line, the whole race
 var respawn_index := -1             ## waypoint of the last checkpoint / lap line taken; -1: none
 var finish_ms := -1
+var finish_index := -1              ## the waypoint whose line finished the race (several finishes: which)
 
 
 func _init(cp_count: int = 0, lap_count: int = 1) -> void:
@@ -48,6 +49,7 @@ func restart() -> void:
 	splits.clear()
 	respawn_index = -1
 	finish_ms = -1
+	finish_index = -1
 
 
 ## One 10 ms tick: the countdown, or the clock while racing.
@@ -81,12 +83,14 @@ func cross(index: int, kind: int) -> void:
 			checkpoint_taken.emit(taken.size(), time_ms)
 		TmBlockCatalogue.Waypoint.FINISH:
 			if taken.size() >= checkpoint_count:
+				finish_index = index
 				_finish()
 		TmBlockCatalogue.Waypoint.START_FINISH:
 			if taken.size() < checkpoint_count:
 				return
 			lap += 1
 			if lap >= laps:
+				finish_index = index
 				_finish()
 				return
 			splits.append(time_ms)

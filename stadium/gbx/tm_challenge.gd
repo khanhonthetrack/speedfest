@@ -34,9 +34,41 @@ var blocks: Array = []
 var path: Array = []           ## our own tracks only (TmTrackBuilder): the line the driving bot follows
 var extras: Array = []         ## our own pieces beside the blocks (TmTrackBuilder.extras: the Sky maps' road, TmSkyPieces)
 var alt_paths: Array = []      ## the lines to a fork's other finishes (TmTrackBuilder.alt_paths)
+## Our own tracks with several finishes: which way each finish block ends ([{coord (Vector3i),
+## way}], TmTrackBuilder.finish_ways; 0 the main way, k + 1 alt_paths[k]) and each way's own medal
+## set (way_medals[way]: {author, gold, silver, bronze} ms, the track's "way_medals"; written by
+## tests/test_tracks --write_medals). Empty for a TMNF track: every finish is way 0.
+var finish_ways: Array = []
+var way_medals: Array = []
 ## A TMUnlimiter 2 track: TMNF's block list is a placeholder (its one block's name says the track
 ## needs TMUnlimiter) and the real blocks are in Unlimiter's own chunks.
 var unlimiter := false
+
+
+## A medal set from a track's JSON ({author, gold, silver, bronze}, missing ones -1).
+static func medal_set(m: Dictionary) -> Dictionary:
+	return {"author": int(m.get("author", -1)), "gold": int(m.get("gold", -1)), "silver": int(m.get("silver", -1)),
+		"bronze": int(m.get("bronze", -1))}
+
+
+## How many ways lead to a finish (1 + the forks' and splits' ways).
+func ways() -> int:
+	return 1 + alt_paths.size()
+
+
+## The way a finish block at `coord` ends (0 when the track doesn't say: the main way).
+func way_of(coord: Vector3i) -> int:
+	for f: Dictionary in finish_ways:
+		if f["coord"] == coord:
+			return int(f["way"])
+	return 0
+
+
+## A way's own medal set; the track's medals when it has none of its own.
+func medals_of(way: int) -> Dictionary:
+	if way >= 0 and way < way_medals.size() and int((way_medals[way] as Dictionary).get("author", -1)) > 0:
+		return way_medals[way]
+	return {"author": author_ms, "gold": gold_ms, "silver": silver_ms, "bronze": bronze_ms}
 
 
 ## header_only: just the header (name, author, uid, medal times; no blocks): quick, for lists.

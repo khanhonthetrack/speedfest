@@ -18,7 +18,7 @@ static func key(ch: TmChallenge) -> String:
 	return out if not out.is_empty() else "unnamed"
 
 
-## The best run on a track: {time_ms, splits, name}; {} if none yet.
+## The best run on a track: {time_ms, splits, name, way (its finish; older records lack it)}; {} if none yet.
 static func best(ch: TmChallenge) -> Dictionary:
 	var f := FileAccess.open(dir().path_join(key(ch) + ".json"), FileAccess.READ)
 	if f == null:
@@ -35,8 +35,8 @@ static func ghost(ch: TmChallenge) -> TmGhost:
 
 
 ## Offers a finished run; it becomes the track's record (with its ghost) when it beats the best.
-## Returns true for a new record.
-static func submit(ch: TmChallenge, time_ms: int, splits: Array, run: TmGhost) -> bool:
+## way: which finish it crossed (TmChallenge.way_of), kept with the record. Returns true for a new record.
+static func submit(ch: TmChallenge, time_ms: int, splits: Array, run: TmGhost, way := 0) -> bool:
 	if time_ms <= 0:
 		return false
 	var prev := best(ch)
@@ -46,7 +46,7 @@ static func submit(ch: TmChallenge, time_ms: int, splits: Array, run: TmGhost) -
 	var f := FileAccess.open(dir().path_join(key(ch) + ".json"), FileAccess.WRITE)
 	if f == null:
 		return false
-	f.store_string(JSON.stringify({"time_ms": time_ms, "splits": splits, "name": ch.name}))
+	f.store_string(JSON.stringify({"time_ms": time_ms, "splits": splits, "name": ch.name, "way": way}))
 	if run != null:
 		run.save(dir().path_join(key(ch) + ".ghost"))
 	return true

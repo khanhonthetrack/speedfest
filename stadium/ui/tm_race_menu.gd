@@ -157,7 +157,8 @@ func resume() -> void:
 
 ## The panel after the finish, with the run's result (kept for when the pause menu closes):
 ## {name, time_ms, prev_ms (the record before this run, -1: none), record (a new one),
-## medals: {author, gold, silver, bronze: ms, -1 if the track has none}}.
+## medals: {author, gold, silver, bronze: ms, -1 if the track has none}, way / ways (several
+## finishes: which one it crossed, of how many), way_label (optional: what that finish means)}.
 func show_finish(result := {}) -> void:
 	finished = true
 	if not result.is_empty():
@@ -211,6 +212,13 @@ static func _result_card(r: Dictionary) -> Control:
 		var d := ms - prev
 		line.add_child(TmUi.label(TmRaceHud.delta_text(d), 28, TmRaceHud.AHEAD if d <= 0 else TmRaceHud.BEHIND, TmUi.SANS_BOLD))
 	card.add_child(line)
+	if int(r.get("ways", 1)) > 1:
+		# several finishes: which one this run crossed (story mode names it: the decision it makes)
+		var label := String(r.get("way_label", ""))
+		var w := TmUi.label(label if not label.is_empty() else "Finish %d of %d" % [int(r.get("way", 0)) + 1, int(r["ways"])],
+			24, TmUi.TEXT, TmUi.SANS_BOLD)
+		w.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(w)
 	if bool(r.get("validated", false)):
 		var v := TmUi.label("Track validated: its medals are set from this run", 22, TmUi.TM_GREEN, TmUi.SANS_BOLD)
 		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

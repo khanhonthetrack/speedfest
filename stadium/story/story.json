@@ -1,0 +1,574 @@
+{
+	"version": 1,
+	"title": "Story mode (draft graph: the story waits for the owner's pick, docs/STORY_PITCH.md)",
+	"draft": true,
+	"start": [
+		"c01"
+	],
+	"finale": "c10",
+	"finale_after": 8,
+	"finale_mode": "offer",
+	"choice": "route",
+	"tiers": {
+		"warm": 3,
+		"hot": 7
+	},
+	"difficulties": [
+		{
+			"id": "cruise",
+			"name": "Cruise",
+			"gold": 1.3,
+			"note": "for the story: the bot's time plus 30%"
+		},
+		{
+			"id": "street",
+			"name": "Street",
+			"gold": 1.18,
+			"note": "the bot's time plus 18%"
+		},
+		{
+			"id": "racer",
+			"name": "Racer",
+			"gold": 1.08,
+			"note": "about the campaign's gold"
+		},
+		{
+			"id": "author",
+			"name": "Author",
+			"gold": 1.0,
+			"note": "match the bot's author run"
+		}
+	],
+	"chapters": [
+		{
+			"id": "c01",
+			"title": "Night 1",
+			"place": "",
+			"fact": "fact_c01",
+			"tracks": [
+				"H01",
+				"H02",
+				"H03"
+			],
+			"scenes": {
+				"open": "c01_open",
+				"after1": "c01_after1",
+				"after2": "c01_after2",
+				"decision": "c01_decision",
+				"close": "c01_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c01_x0",
+					"label": "Exit A",
+					"to": "c02",
+					"set": [
+						"c01_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c01_x1",
+					"label": "Exit B",
+					"to": "c04",
+					"set": [
+						"c01_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c01_x2",
+					"label": "Exit C",
+					"to": "c06",
+					"set": [
+						"c01_x2",
+						"dark_c01"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c02",
+			"title": "Night 2",
+			"place": "",
+			"fact": "fact_c02",
+			"tracks": [
+				"H04",
+				"H05",
+				"H06"
+			],
+			"scenes": {
+				"open": "c02_open",
+				"after1": "c02_after1",
+				"after2": "c02_after2",
+				"decision": "c02_decision",
+				"close": "c02_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c02_x0",
+					"label": "Exit A",
+					"to": "c03",
+					"set": [
+						"c02_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c02_x1",
+					"label": "Exit B",
+					"to": "c05",
+					"set": [
+						"c02_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c02_x2",
+					"label": "Exit C",
+					"to": "c07",
+					"set": [
+						"c02_x2",
+						"dark_c02"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c03",
+			"title": "Night 3",
+			"place": "",
+			"fact": "fact_c03",
+			"tracks": [
+				"H07",
+				"H08",
+				"H09"
+			],
+			"scenes": {
+				"open": "c03_open",
+				"after1": "c03_after1",
+				"after2": "c03_after2",
+				"decision": "c03_decision",
+				"close": "c03_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c03_x0",
+					"label": "Exit A",
+					"to": "c04",
+					"set": [
+						"c03_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c03_x1",
+					"label": "Exit B",
+					"to": "c06",
+					"set": [
+						"c03_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c03_x2",
+					"label": "Exit C",
+					"to": "c08",
+					"set": [
+						"c03_x2",
+						"dark_c03"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c04",
+			"title": "Night 4",
+			"place": "",
+			"fact": "fact_c04",
+			"tracks": [
+				"H10",
+				"H11",
+				"H12"
+			],
+			"scenes": {
+				"open": "c04_open",
+				"after1": "c04_after1",
+				"after2": "c04_after2",
+				"decision": "c04_decision",
+				"close": "c04_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c04_x0",
+					"label": "Exit A",
+					"to": "c05",
+					"set": [
+						"c04_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c04_x1",
+					"label": "Exit B",
+					"to": "c07",
+					"set": [
+						"c04_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c04_x2",
+					"label": "Exit C",
+					"to": "c09",
+					"set": [
+						"c04_x2",
+						"dark_c04"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c05",
+			"title": "Night 5",
+			"place": "",
+			"fact": "fact_c05",
+			"tracks": [
+				"H13",
+				"H14",
+				"H15"
+			],
+			"scenes": {
+				"open": "c05_open",
+				"after1": "c05_after1",
+				"after2": "c05_after2",
+				"decision": "c05_decision",
+				"close": "c05_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c05_x0",
+					"label": "Exit A",
+					"to": "c06",
+					"set": [
+						"c05_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c05_x1",
+					"label": "Exit B",
+					"to": "c08",
+					"set": [
+						"c05_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c05_x2",
+					"label": "Exit C",
+					"to": "c01",
+					"set": [
+						"c05_x2",
+						"dark_c05"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c06",
+			"title": "Night 6",
+			"place": "",
+			"fact": "fact_c06",
+			"tracks": [
+				"H16",
+				"H17",
+				"H18"
+			],
+			"scenes": {
+				"open": "c06_open",
+				"after1": "c06_after1",
+				"after2": "c06_after2",
+				"decision": "c06_decision",
+				"close": "c06_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c06_x0",
+					"label": "Exit A",
+					"to": "c07",
+					"set": [
+						"c06_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c06_x1",
+					"label": "Exit B",
+					"to": "c09",
+					"set": [
+						"c06_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c06_x2",
+					"label": "Exit C",
+					"to": "c02",
+					"set": [
+						"c06_x2",
+						"dark_c06"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c07",
+			"title": "Night 7",
+			"place": "",
+			"fact": "fact_c07",
+			"tracks": [
+				"H19",
+				"H20",
+				"H21"
+			],
+			"scenes": {
+				"open": "c07_open",
+				"after1": "c07_after1",
+				"after2": "c07_after2",
+				"decision": "c07_decision",
+				"close": "c07_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c07_x0",
+					"label": "Exit A",
+					"to": "c08",
+					"set": [
+						"c07_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c07_x1",
+					"label": "Exit B",
+					"to": "c01",
+					"set": [
+						"c07_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c07_x2",
+					"label": "Exit C",
+					"to": "c03",
+					"set": [
+						"c07_x2",
+						"dark_c07"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c08",
+			"title": "Night 8",
+			"place": "",
+			"fact": "fact_c08",
+			"tracks": [
+				"H22",
+				"H23",
+				"H24"
+			],
+			"scenes": {
+				"open": "c08_open",
+				"after1": "c08_after1",
+				"after2": "c08_after2",
+				"decision": "c08_decision",
+				"close": "c08_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c08_x0",
+					"label": "Exit A",
+					"to": "c09",
+					"set": [
+						"c08_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c08_x1",
+					"label": "Exit B",
+					"to": "c02",
+					"set": [
+						"c08_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c08_x2",
+					"label": "Exit C",
+					"to": "c04",
+					"set": [
+						"c08_x2",
+						"dark_c08"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c09",
+			"title": "Night 9",
+			"place": "",
+			"fact": "fact_c09",
+			"tracks": [
+				"H25",
+				"H26",
+				"H27"
+			],
+			"scenes": {
+				"open": "c09_open",
+				"after1": "c09_after1",
+				"after2": "c09_after2",
+				"decision": "c09_decision",
+				"close": "c09_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c09_x0",
+					"label": "Exit A",
+					"to": "c01",
+					"set": [
+						"c09_x0"
+					]
+				},
+				{
+					"way": 1,
+					"id": "c09_x1",
+					"label": "Exit B",
+					"to": "c03",
+					"set": [
+						"c09_x1"
+					]
+				},
+				{
+					"way": 2,
+					"id": "c09_x2",
+					"label": "Exit C",
+					"to": "c05",
+					"set": [
+						"c09_x2",
+						"dark_c09"
+					],
+					"dark": true
+				}
+			]
+		},
+		{
+			"id": "c10",
+			"title": "The Last Night",
+			"place": "",
+			"fact": "fact_c10",
+			"tracks": [
+				"H28",
+				"H29",
+				"H30"
+			],
+			"scenes": {
+				"open": "c10_open",
+				"after1": "c10_after1",
+				"after2": "c10_after2",
+				"decision": "c10_decision",
+				"close": "c10_close"
+			},
+			"exits": [
+				{
+					"way": 0,
+					"id": "c10_x0",
+					"label": "Exit A",
+					"set": [
+						"c10_x0"
+					],
+					"endings": [
+						{
+							"id": "ending_dark",
+							"if": "count:dark_>=5"
+						},
+						{
+							"id": "ending_even"
+						}
+					]
+				},
+				{
+					"way": 1,
+					"id": "c10_x1",
+					"label": "Exit B",
+					"set": [
+						"c10_x1"
+					],
+					"endings": [
+						{
+							"id": "ending_dark",
+							"if": "count:dark_>=7"
+						},
+						{
+							"id": "ending_even",
+							"if": "count:dark_>=3"
+						},
+						{
+							"id": "ending_light"
+						}
+					]
+				},
+				{
+					"way": 2,
+					"id": "c10_x2",
+					"label": "Exit C",
+					"set": [
+						"c10_x2"
+					],
+					"dark": true,
+					"endings": [
+						{
+							"id": "ending_dark"
+						}
+					]
+				}
+			]
+		}
+	],
+	"endings": [
+		{
+			"id": "ending_dark",
+			"title": "Dark ending",
+			"scene": "end_dark"
+		},
+		{
+			"id": "ending_even",
+			"title": "Even ending",
+			"scene": "end_even"
+		},
+		{
+			"id": "ending_light",
+			"title": "Light ending",
+			"scene": "end_light"
+		}
+	]
+}

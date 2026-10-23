@@ -27,6 +27,7 @@ const F_SLIDE0 := 512             ## bits 9-12: each wheel sliding (its tyre mar
 var samples := PackedFloat32Array()
 var finish_ms := -1               ## the run's time; -1 if it didn't finish
 var splits: Array = []            ## the clock at each checkpoint and lap line (ms)
+var way := 0                      ## which finish the run crossed (TmChallenge.way_of; 0 the main way)
 var laps := 0                     ## the race's laps and checkpoints per lap (0 and -1: not
 var checkpoints := -1             ## recorded; the viewer takes them from the track)
 var track := ""                   ## our track's id (TmTracks), or
@@ -176,7 +177,7 @@ func to_ghost() -> TmGhost:
 func header() -> Dictionary:
 	return {"track": track, "map": map, "uid": uid, "track_name": track_name, "player": player,
 		"colour": [colour.r, colour.g, colour.b], "model": model, "livery": livery, "tuning": tuning, "date": date, "finish_ms": finish_ms, "splits": splits, "laps": laps,
-		"checkpoints": checkpoints}
+		"checkpoints": checkpoints, "way": way}
 
 
 func _set_header(h: Dictionary) -> void:
@@ -196,6 +197,7 @@ func _set_header(h: Dictionary) -> void:
 	splits = (h.get("splits", []) as Array).map(func(v: Variant) -> int: return int(v))
 	laps = int(h.get("laps", 0))
 	checkpoints = int(h.get("checkpoints", -1))
+	way = int(h.get("way", 0))
 
 
 func save(to: String) -> bool:

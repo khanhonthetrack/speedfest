@@ -4131,3 +4131,38 @@ Opened PLAN M20 (eight steps, as the brief orders them) and recorded the session
 First step: a three-premise pitch to the owner (M20-1) before any script, while the
 story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save).
 
+### M20-4 and M20-2: which finish, per-way medals, the chapter graph and the save (session 21)
+- **Which finish a run crossed**: `TmTrackBuilder` notes each finish line's way while it lays it
+  (`finish_ways`: 0 the main way, k + 1 the k-th fork or split, in the order they appear; a fork's
+  slot is taken before its pieces, so a fork inside a fork numbers after it); `TmChallenge.way_of(coord)`,
+  `ways()`, `medals_of(way)`; `TmMapBuilder` waypoints carry their block's cell; `TmRace.finish_index`
+  (the signal is unchanged); `race.gd` `finish_way` goes into the finish result (`way`, `ways`,
+  `way_medals`), the record (`TmRecords.submit(..., way)`) and the replay header (`way`). The finish
+  panel says "Finish 2 of 2" on a map with several (or `way_label`, for story mode's decisions).
+- **Per-way medals**: `"way_medals": [{author, gold, silver, bronze, bot_grip}, ...]` (way 0 first);
+  `test_tracks --write_medals` sweeps the grips on every way and writes them; the fastest way still sets
+  `"medals"`. Written for G06, G08, G10 (their `"medals"` came out the same).
+- **Checks** (`tests/test_tracks`): every track's finish lines map one to one onto its ways
+  (`<id>_finish_ways`, all 80 tracks); a driven way crosses its own finish (`<id>_main_way_finish`,
+  `<id>_wayN_own_finish`), within its own gold once it has one; G06's split is driven in the default
+  gate and must report way 1 in the race, the result and the record (`finish_way_reported_G06`).
+- **The chapter graph** (`story/story_graph.gd`, StoryGraph, from `story/story.json`): routing (the
+  exit's own night if unplayed, then its preferences, then the map's other exits' nights, else the
+  board), the finale opening after `finale_after` nights (`"offer"`: beside the next night, or
+  `"route"`), `"choice": "route" | "free"`, endings chosen by conditions, difficulty targets
+  (`target_ms` = author x multiplier, up to 10 ms; per way from `medals_of`), `validate()`.
+- **The save** (`story/story_state.gd`, StoryState): `user://story.json` or `--story_save=`; difficulty,
+  the night and step, nights done in order, decisions, flags, best time per map and way, endings,
+  scenes seen, the car. Conditions: `flag`, `!flag`, `done:`, `way:c03=2`, `tier=cold|warm|hot`,
+  `facts>=n`, `count:<prefix>>=n`, arrays and `any`/`all`/`not`.
+- **Tests in the gate**: `test_story_graph` (validate; every reachable state of the graph explored:
+  every night reachable, no dead end, never a night twice, the finale only once open, a decision whose
+  night is unplayed goes there; 10,000 random playthroughs on real saves finish and reach every
+  ending; a hand-made graph for the routing rules; conditions; tiers) and `test_story_save`.
+- **A finding for the owner**: with one fixed first night and the finish alone deciding, the draft
+  graph (three exits a night) gives **294 different orders** of the nine nights, every night able to
+  come in 6-7 different places. A "free" board (any unplayed night) gives all of them; the owner's
+  call (question 3 of the brief).
+- Difficulty names in the draft: Cruise x1.30, Street x1.18, Racer x1.08, **Author** x1.00 (the
+  brief's "Saint" was the rejected story's antagonist's name, so it is not used).
+

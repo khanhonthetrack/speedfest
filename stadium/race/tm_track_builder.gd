@@ -79,6 +79,11 @@ var sky: TmSkyTrack
 ## The other ways to a finish (forks): each a whole line from the start, through its fork.
 var alt_paths: Array = []
 var finishes := 0                ## finish lines laid (a fork's way has its own)
+## The way the turtle is laying: 0 the main way, k + 1 a fork's or a split's (alt_paths[k]).
+var way := 0
+## Each finish line laid and its way: [{coord (Vector3i, the finish block's), way}], so a run
+## can tell which finish it crossed (TmChallenge.way_of; story mode's decisions).
+var finish_ways: Array = []
 var notes: Array[String] = []    ## for whoever lays the track out (a ski jump's design speed)
 
 const DIRT_DECK := 0.4           ## the dirt road's top: 0.6 m into the grass (9 m; blocks/shapes/dirt.gd)
@@ -203,6 +208,10 @@ static func challenge(spec: Dictionary) -> TmChallenge:
 	ch.path = b.path
 	ch.extras = b.extras
 	ch.alt_paths = b.alt_paths
+	ch.finish_ways = b.finish_ways
+	ch.way_medals = []
+	for wm: Variant in spec.get("way_medals", []):
+		ch.way_medals.append(TmChallenge.medal_set(wm as Dictionary) if wm is Dictionary else {})
 	if not b.errors.is_empty():
 		ch.error = "track %s: %s" % [spec.get("id", "?"), "; ".join(b.errors)]
 	return ch
@@ -463,6 +472,8 @@ func piece(p: Array) -> void:
 				finishes += 1              # (a lap race finishes on its start/finish line)
 			var res := place(line, -1, 0)
 			if not res.is_empty():
+				if laps > 1:
+					finish_ways.append({"coord": res["coord"], "way": way})
 				cell = res["exit_cell"]
 				heading = res["exit_heading"]
 				_point(entry_face(), vec(heading))
@@ -605,6 +616,11 @@ func _fork(left: bool, branch: Array) -> void:
 	var finishes_before := finishes
 	var saved_sky := sky
 	sky = null
+	# the way's slot is taken before its pieces, so a fork inside it numbers after it
+	var slot := alt_paths.size()
+	alt_paths.append([])
+	var outer_way := way
+	way = slot + 1
 	for bp: Array in branch:
 		piece(bp)
 		if not errors.is_empty():
@@ -615,7 +631,8 @@ func _fork(left: bool, branch: Array) -> void:
 	if finishes == finishes_before:
 		errors.append("a fork's way (piece %d) ends with its own [\"finish\"]" % keep["pieces"])
 		return
-	alt_paths.append(path)
+	alt_paths[slot] = path
+	way = outer_way
 	path = keep["path"]
 	cell = keep["cell"]
 	heading = keep["heading"]
@@ -667,6 +684,10 @@ func _split(left: bool, branch: Array) -> void:
 	cell = Vector3i(floori(c.x / 32.0), roundi(((roof["exit"] as Vector3).y - ROAD_Y) / 8.0), floori(c.z / 32.0))
 	heading = h
 	var finishes_before := finishes
+	var slot := alt_paths.size()
+	alt_paths.append([])
+	var outer_way := way
+	way = slot + 1
 	for bp: Array in branch:
 		piece(bp)
 		if not errors.is_empty():
@@ -676,7 +697,8 @@ func _split(left: bool, branch: Array) -> void:
 	if finishes == finishes_before:
 		errors.append("a split's way (piece %d) ends with its own [\"finish\"]" % keep["pieces"])
 		return
-	alt_paths.append(path)
+	alt_paths[slot] = path
+	way = outer_way
 	path = keep["path"]
 	cell = keep["cell"]
 	heading = keep["heading"]
@@ -724,10 +746,12 @@ func _finish() -> void:
 		var a := entry_face()
 		if place("StadiumRoadMainFinishLine", 0, -1).is_empty():
 			return
+		finish_ways.append({"coord": blocks[-1]["coord"], "way": way})
 		_segment(a, heading, a + vec(heading) * 64.0, heading)
 		return
 	if not _through("StadiumRoadMainStartFinishLine", 1, 0):
 		return
+	finish_ways.append({"coord": blocks[-1]["coord"], "way": way})
 	for _i in mini(RUN_OFF, free - 2):
 		if not _through("StadiumRoadMain", 0, 1, 0.0, 3, [0, 2]):
 			return

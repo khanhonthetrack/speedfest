@@ -6,5 +6,6 @@
 	"start": [10, 10, 2, 0],
 	"medals": {"author": 29920, "gold": 31800, "silver": 36000, "bronze": 45000},
 	"bot_grip": 75,
+	"way_medals": [{"author": 35190, "gold": 37400, "silver": 43000, "bronze": 53000, "bot_grip": 75}, {"author": 29920, "gold": 31800, "silver": 36000, "bronze": 45000, "bot_grip": 75}],
 	"pieces": [["start"], ["s", 2], ["cp"], ["sky", 1], ["pu", 48], ["go", 16], ["pd", 48], ["roof", 3, 2], ["kick", 10, 20], ["gap", 3, 2], ["roof", 3, 3], ["cp"], ["gt", 3, "r"], ["sky", 1], ["twist", "l", 90, 3], ["sky", 2], ["twist", "r", 90, 3], ["bank", "l", 3, 45, 2], ["bank", "l", 3, 0, 2], ["s", 1], ["cp"], ["s", 1], ["roof", 3, 6], ["split", "l", [["kick", 12, 24], ["gap", 4, 4], ["roof", 1, 4], ["finish"]]], ["sky", 1], ["pd", 80], ["go", 64], ["pu", 48], ["s", 1], ["finish"]]
 }

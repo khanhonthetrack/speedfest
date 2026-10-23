@@ -327,15 +327,18 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
 - [ ] 1. Script: three premises to the owner first (`docs/STORY_PITCH.md`), then on their pick
       `docs/STORY.md` (premise, cast, the fact table, 10 chapters with maps and exits, the decision
       graph, the endings, every scene with its beats) and the full dialogue; owner sign-off before 5
-- [ ] 2. Data + save: `story/story_graph.gd` (StoryGraph), `story/story_state.gd` (StoryState,
+- [x] 2. Data + save: `story/story_graph.gd` (StoryGraph), `story/story_state.gd` (StoryState,
       `user://story.json`, `--story_save=`), `story/story.json`, difficulty; `tests/test_story_graph`
       (every chapter reachable, no dead ends, no orphan exits, the finale gated, 10,000 random walks finish)
+      -- done on a draft graph (c01-c10, H01-H30 not made yet): the exhaustive proof runs over every
+      reachable state; the real exits come with the script
 - [ ] 3. Cutscene player: `story/story_scene.gd` (StoryScene: shots, camera keyframes, actors, characters,
       lines), SfUi subtitles, letterbox, skip, `story/story_lab.tscn` (screenshots);
       `tests/test_story_scenes`; one real scene rendered at Ultra and shown to the owner
-- [ ] 4. Branching plumbing: `TmRace` reports which finish gate was crossed; per-gate medals in the
+- [x] 4. Branching plumbing: `TmRace` reports which finish gate was crossed; per-gate medals in the
       track JSON and `TmChallenge`; `test_tracks --write_medals` writes a set per way; records and
-      replays carry the gate; the finish menu shows the decision the held run makes
+      replays carry the gate; the finish menu shows the finish crossed (G06, G08, G10 have their
+      `way_medals`); the story's own finish panel (the decision's name, CONTINUE) comes with step 5
 - [ ] 5. Chapter 1 end to end (vertical slice): `tracks/H01..H03.json` (City night), bot medals,
       4-5 cutscenes, a 3-way branching map 3, the decision saved, the next chapter chosen
 - [ ] 6. Story menu: the tab unlocked (`sf_header.gd` `LOCKED`, `tm_menu.gd`), new save / continue,

@@ -14,8 +14,8 @@ var _start_is_line := false
 var checkpoints: Array[Transform3D] = []
 var finishes: Array[Transform3D] = []
 ## Waypoint blocks for the race: [{kind (TmBlockCatalogue.Waypoint), block (id), xform (block,
-## Godot), spawn (world Transform3D, TmCar frame), built (false: a placeholder)}]; their triggers:
-## TmTriggers.
+## Godot), spawn (world Transform3D, TmCar frame), built (false: a placeholder), coord (the block's
+## cell: which way a finish ends, TmChallenge.way_of)}]; their triggers: TmTriggers.
 var waypoints: Array = []
 var stats := {"blocks": 0, "built": 0, "empty": 0, "placeholder": 0, "unknown": 0}
 var missing := {}                   ## shape name -> count (no generator yet)
@@ -60,7 +60,7 @@ func _build() -> void:
 		var shape := TmBlockCatalogue.shape_name(entry, ground, flags & 0x3F, (flags >> 6) & 0x3F)
 		var xf := TmBlockCatalogue.block_transform(entry, coord, dir, ground)
 		var node: Node3D = null if shape.is_empty() else lib.make(shape, entry, ground)
-		_waypoint(id, entry, ground, xf, node != null or shape.is_empty())
+		_waypoint(id, entry, ground, xf, node != null or shape.is_empty(), coord)
 		if shape.is_empty():
 			stats["empty"] += 1      # this variant has no geometry (e.g. a support's bare position)
 			continue
@@ -95,12 +95,12 @@ func _build() -> void:
 
 ## Records a waypoint block (start, finish, checkpoint, lap line) for the race, whether or not its
 ## shape is recreated yet (built false: a placeholder without a floor).
-func _waypoint(id: String, entry: Dictionary, ground: bool, xf: Transform3D, built: bool) -> void:
+func _waypoint(id: String, entry: Dictionary, ground: bool, xf: Transform3D, built: bool, coord := Vector3i.ZERO) -> void:
 	var wp := int(entry.get("waypoint", TmBlockCatalogue.Waypoint.NONE))
 	if wp == TmBlockCatalogue.Waypoint.NONE:
 		return
 	var spawn_world := xf * TmBlockCatalogue.spawn(entry, ground)
-	waypoints.append({"kind": wp, "block": id, "xform": xf, "spawn": spawn_world, "built": built})
+	waypoints.append({"kind": wp, "block": id, "xform": xf, "spawn": spawn_world, "built": built, "coord": coord})
 	match wp:
 		TmBlockCatalogue.Waypoint.START, TmBlockCatalogue.Waypoint.START_FINISH:
 			# a start/finish line is the start of a lap race; with a start line too (our tracks

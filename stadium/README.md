@@ -49,6 +49,7 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 | `env/` | the Stadium around the map (`tm_stadium_build.gd`), Day sky and sun (`tm_stadium_env.gd`) |
 | `audio/` | recorded open-licensed sounds (`audio/sfx`), music (`audio/music`, `tm_music.gd`), the race's engine and cues (`tm_car_audio.gd`) |
 | `ui/` | the menus in our own look (`tm_menu.gd`, the main scene; `sf_ui.gd` the palette, Montserrat and boxes; `sf_header.gd` the tabs; `sf_tile.gd` the home page's picture panels, whose pictures `tools/icons/menu_art.sh` renders), the race's pause and finish menus in TMNF's glass theme (`tm_glass_box.gd`, `tm_ui.gd`), $-code nicknames (`tm_nick.gd`) |
+| `story/` | story mode (PLAN M20): `story.json` the chapters and how their finishes join them, `story_graph.gd` (StoryGraph: routing, the finale's opening, endings, difficulty targets), `story_state.gd` (StoryState: the save, `user://story.json` or `--story_save=`, flags and conditions) |
 | `tests/` | headless labs and scene tests |
 | `tools/run.sh` | run a scene (100 fps fixed, Forward+ under Xvfb, or `--headless`) |
 
@@ -120,7 +121,10 @@ flight; the test prints its design speed), `["roof", w, n]` a rooftop (w odd cel
 upside down drive like the flat. Two finishes: `["split", "l"|"r", [pieces]]` right after a rooftop
 3 cells wide (best 6 long: the lane change at speed) leaves its far edge a lane over at full speed;
 `["fork", "l"|"r", [pieces]]` a T junction. The track test drives every way, and the fastest sets the
-medals. Lessons from the bot: a 10-degree kicker at 200-210 km/h lands ~105 m on (2 levels down: a
+medals; `--write_medals` also writes each way's own set (`"way_medals"`, way 0 the main way, then the
+forks and splits in the order they appear, each with its `bot_grip`). The race knows which finish a run
+crossed (`race.gd` `finish_way`, `TmChallenge.way_of`): the finish panel says "Finish 2 of 2", and
+records and replays keep it (story mode's decisions are those finishes). Lessons from the bot: a 10-degree kicker at 200-210 km/h lands ~105 m on (2 levels down: a
 3-block gap); at 360 km/h it flies ~290 m; tighter twists lift two wheels off; layout errors name a
 road under a rooftop or through a spiral's tower (their buildings stand from the streets up).
 

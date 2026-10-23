@@ -6,8 +6,16 @@
 - **Step 1 (script) begins with a pitch**: three premises go to the owner before any script is
   written (`docs/STORY_PITCH.md` once written). Nothing story-specific gets built until they
   pick one. The old "Rear View" draft (`origin/ccr-be8add6f-thdbey`) is rejected: never revive it.
-- While the owner chooses, the story-agnostic plumbing goes ahead (M20-4: which finish gate a run
-  crossed, per-gate medals; M20-2: the chapter graph, the save, difficulty).
+- **Done while the owner chooses (gated, pushed)**: M20-4, which finish a run crossed
+  (`TmChallenge.way_of`, `race.gd` `finish_way`, in the result, the record and the replay; per-way
+  medals `"way_medals"`, written by `test_tracks --write_medals`, already in G06/G08/G10); M20-2,
+  `story/story_graph.gd` (StoryGraph), `story/story_state.gd` (StoryState), `story/story.json` (a
+  **draft** graph: c01-c10, tracks H01-H30 not made yet), `tests/test_story_graph` (every reachable
+  state explored, 10,000 random playthroughs) and `tests/test_story_save`, both in the gate. Details:
+  PROGRESS, session 21.
+- **In progress**: M20-3, the cutscene player (`story/story_scene.gd`, `story_person.gd`,
+  `story_subtitles.gd`, `story_lab.tscn`, `story/scenes/look_test.json`), and the asset hunt
+  (Quaternius' CC0 character packs: Universal Base Characters fit the UAL rig).
 - Owner rule kept: no parallel agents. Workflow agents run one at a time, return text only,
   and only the main session writes and commits.
 

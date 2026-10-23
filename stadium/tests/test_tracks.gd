@@ -6,7 +6,9 @@ extends Node
 ## it short) each series' first track by default; --tracks=all every campaign track,
 ## --series=White one series, --tracks=A01,A02 those; --grip=40 tries another cornering grip; --write_medals: the bot drives each track at several grips and the
 ## best finish sets its medals (author = the bot's time, gold +6%, silver +20%, bronze +50%,
-## rounded up to 10 ms / 0.1 s / 1 s) and bot_grip, written back to the track's file.
+## rounded up to 10 ms / 0.1 s / 1 s) and bot_grip, written back to the track's file; a track with
+## several finishes also gets each way's own set ("way_medals", each with its own bot_grip: story
+## mode's decisions are timed per finish) while the fastest way sets "medals".
 
 const LIMIT_MS := 240000
 
@@ -48,6 +50,8 @@ func _ready() -> void:
 		await _respawn_check(road)
 		await _input_script_check(road)
 		await _steer_check(road)
+		if TmTracks.has("G06"):
+			await _finish_way_check("G06")
 	TestHooks.finish()
 
 
@@ -127,6 +131,22 @@ func _steer_check(id: String) -> void:
 		TestHooks.args.erase(k)
 
 
+## A run along a split's other way finishes on that way's own line, and the race says so (its
+## finish_way, the finish menu's result, the record), as story mode's decisions need.
+func _finish_way_check(id: String) -> void:
+	TestHooks.args["records"] = "user://test_records_ways"
+	TmRecords.clear()
+	var ch := TmTracks.challenge(id)
+	var spec := TmTracks.spec(id)
+	var run := await _drive(id, float(spec.get("bot_grip", 40.0)), 0)
+	var rec := TmRecords.best(ch)
+	TestHooks.check(run["ms"] > 0 and int(run["way"]) == 1 and int(run["result"].get("way", -1)) == 1
+		and int(run["result"].get("ways", 0)) == 2 and int(rec.get("way", -1)) == 1, "finish_way_reported_" + id,
+		"%s way %d, result %s, record %s" % [TmRace.time_text(run["ms"]), run["way"], run["result"], rec])
+	TmRecords.clear()
+	TestHooks.args["records"] = "user://test_records_tracks"
+
+
 ## Runs race.tscn (with the current args) until the finish or LIMIT_MS: {splits, finish (-1: none)}.
 func _race_to_finish() -> Dictionary:
 	var scene: Node = (load("res://race/race.tscn") as PackedScene).instantiate()
@@ -169,6 +189,16 @@ func _track(id: String, drive := true) -> int:
 		# the finish: a start/finish line with road after it (or, where that doesn't fit, a finish)
 		if int(wp["kind"]) in [TmBlockCatalogue.Waypoint.FINISH, TmBlockCatalogue.Waypoint.START_FINISH]:
 			finishes += 1
+	# several finishes: each finish line belongs to exactly one way, and every way has its line
+	var ways := {}
+	for wp: Dictionary in mb.waypoints:
+		if int(wp["kind"]) in [TmBlockCatalogue.Waypoint.FINISH, TmBlockCatalogue.Waypoint.START_FINISH]:
+			var w := ch.way_of(wp["coord"])
+			ways[w] = int(ways.get(w, 0)) + 1
+	var want_ways := range(ch.ways())
+	TestHooks.check(b.finish_ways.size() == b.finishes and ways.keys().all(func(w: int) -> bool: return w in want_ways)
+		and want_ways.all(func(w: int) -> bool: return ways.has(w)), "%s_finish_ways" % id,
+		"%d finishes, %d recorded, ways crossed %s, want %s" % [b.finishes, b.finish_ways.size(), ways, want_ways])
 	TestHooks.check(int(mb.stats["placeholder"]) == 0 and int(mb.stats["unknown"]) == 0 and mb.has_start
 		and mb.checkpoints.size() == b.checkpoints and finishes == b.finishes and b.finishes >= 1, "%s_builds" % id,
 		"%s start %s cps %d/%d finishes %d/%d" % [mb.stats, mb.has_start, mb.checkpoints.size(), b.checkpoints, finishes,
@@ -191,21 +221,42 @@ func _track(id: String, drive := true) -> int:
 			best["grip"] = g
 	var ms: int = best.get("ms", -1)
 	TestHooks.check(ms > 0, "%s_bot_finishes" % id, "no finish with grip %s" % [grips])
+	if ms > 0 and ch.ways() > 1:
+		TestHooks.check(int(best["way"]) == 0, "%s_main_way_finish" % id, "crossed way %d's finish" % best["way"])
 	# a fork's other ways (multiple finishes): the bot drives each to its own finish too, and the
-	# fastest way sets the medals (a risky shortcut is worth the author's time)
+	# fastest way sets the medals (a risky shortcut is worth the author's time); each way keeps its
+	# own set too (way_medals), at its own best grip
+	var way_best: Array = [best]
+	var spec_ways: Array = spec.get("way_medals", [])
 	for k in ch.alt_paths.size():
-		var g: float = best.get("grip", grips[0])
-		var alt := await _drive(id, g, k)
-		print("TRACK %s way %d (grip %.0f): %s, %d/%d checkpoints, at point %d/%d %s" % [id, k + 2, g,
-			TmRace.time_text(alt["ms"]) if alt["ms"] > 0 else "DNF", alt["taken"], b.checkpoints, alt["index"],
-			(ch.alt_paths[k] as Array).size(), alt["why"]])
-		TestHooks.check(alt["ms"] > 0 and alt["taken"] == b.checkpoints, "%s_way%d_finishes" % [id, k + 2], alt["why"])
-		if alt["ms"] > 0 and alt["taken"] == b.checkpoints and alt["ms"] < ms:
-			ms = alt["ms"]
+		var way_grips: Array = [float(best.get("grip", grips[0]))]
+		if k + 1 < spec_ways.size() and spec_ways[k + 1] is Dictionary and (spec_ways[k + 1] as Dictionary).has("bot_grip"):
+			way_grips = [float(spec_ways[k + 1]["bot_grip"])]
+		if TestHooks.has_arg("write_medals") and not TestHooks.has_arg("grip"):
+			way_grips = grips
+		var alt_best := {}
+		for g: float in way_grips:
+			var alt := await _drive(id, g, k)
+			print("TRACK %s way %d (grip %.0f): %s, %d/%d checkpoints, at point %d/%d %s" % [id, k + 2, g,
+				TmRace.time_text(alt["ms"]) if alt["ms"] > 0 else "DNF", alt["taken"], b.checkpoints, alt["index"],
+				(ch.alt_paths[k] as Array).size(), alt["why"]])
+			if alt["ms"] > 0 and alt["taken"] == b.checkpoints and (alt_best.is_empty() or alt["ms"] < alt_best["ms"]):
+				alt_best = alt
+				alt_best["grip"] = g
+		TestHooks.check(not alt_best.is_empty(), "%s_way%d_finishes" % [id, k + 2], "no finish with grip %s" % [way_grips])
+		way_best.append(alt_best)
+		if alt_best.is_empty():
+			continue
+		TestHooks.check(int(alt_best["way"]) == k + 1, "%s_way%d_own_finish" % [id, k + 2], "crossed way %d's finish" % alt_best["way"])
+		if alt_best["ms"] < ms:
+			ms = alt_best["ms"]
+		var wg := int(ch.medals_of(k + 1)["gold"])
+		if wg > 0 and not TestHooks.has_arg("write_medals") and k + 1 < ch.way_medals.size():
+			TestHooks.check(int(alt_best["ms"]) <= wg, "%s_way%d_within_its_gold" % [id, k + 2], "%d > %d" % [alt_best["ms"], wg])
 	if ms > 0 and ch.gold_ms > 0 and not TestHooks.has_arg("write_medals"):
 		TestHooks.check(ms <= ch.gold_ms, "%s_bot_within_gold" % id, "%d > %d" % [ms, ch.gold_ms])
 	if ms > 0 and TestHooks.has_arg("write_medals"):
-		_write_medals(id, ms, best["grip"])
+		_write_medals(id, ms, best["grip"], way_best if ch.ways() > 1 else [])
 	return ms
 
 
@@ -244,7 +295,8 @@ func _drive(id: String, grip: float, way := -1) -> Dictionary:
 				scene.car.global_transform.basis.y.snapped(Vector3.ONE * 0.01), scene.car.body.mag_up.snapped(Vector3.ONE * 0.01)])
 	var ms := race.finish_ms if race.state == TmRace.State.FINISHED else -1
 	var why := bot.failed if not bot.failed.is_empty() else ("over %d s" % (limit / 1000) if ms < 0 else "")
-	var out := {"ms": ms, "taken": race.taken.size(), "top": top, "index": bot.index, "why": why}
+	var out := {"ms": ms, "taken": race.taken.size(), "top": top, "index": bot.index, "why": why,
+		"way": scene.finish_way if ms > 0 else -1, "result": (scene._result as Dictionary).duplicate()}
 	scene.queue_free()
 	await get_tree().physics_frame
 	TestHooks.args.erase("bot")
@@ -262,14 +314,25 @@ static func medals(author_ms: int) -> Dictionary:
 		"bronze": _round_up(int(a * 1.5), 1000)}
 
 
-func _write_medals(id: String, ms: int, grip: float) -> void:
+## ways: each way's best run ({ms, grip}, [] for a track with one finish): a "way_medals" line too.
+func _write_medals(id: String, ms: int, grip: float, ways: Array = []) -> void:
 	var path := TmTracks.DIR.path_join(id + ".json")
 	var text := FileAccess.get_file_as_string(path)
 	var m := medals(ms)
 	var lines := "\t\"medals\": {\"author\": %d, \"gold\": %d, \"silver\": %d, \"bronze\": %d},\n\t\"bot_grip\": %d," % [
 		m["author"], m["gold"], m["silver"], m["bronze"], int(grip)]
+	if not ways.is_empty():
+		var sets: Array[String] = []
+		for w: Dictionary in ways:
+			if w.is_empty():
+				sets.append("{}")
+				continue
+			var wm := medals(int(w["ms"]))
+			sets.append("{\"author\": %d, \"gold\": %d, \"silver\": %d, \"bronze\": %d, \"bot_grip\": %d}" % [wm["author"],
+				wm["gold"], wm["silver"], wm["bronze"], int(w["grip"])])
+		lines += "\n\t\"way_medals\": [%s]," % ", ".join(sets)
 	# the old medal and grip lines out, the new ones in before the pieces
-	text = RegEx.create_from_string("\\t\"(medals|bot_grip)\": [^\\n]*\\n").sub(text, "", true)
+	text = RegEx.create_from_string("\\t\"(medals|bot_grip|way_medals)\": [^\\n]*\\n").sub(text, "", true)
 	text = text.replace("\n\t\"pieces\"", "\n" + lines + "\n\t\"pieces\"")
 	var f :=FileAccess.open(ProjectSettings.globalize_path(path), FileAccess.WRITE)
 	f.store_string(text)
