@@ -19,8 +19,7 @@ func _ready() -> void:
 	if not g.ok():
 		TestHooks.finish()
 		return
-	var draft := bool(g.data.get("draft", false))
-	var bad := g.validate(not draft)
+	var bad := g.validate(true)
 	TestHooks.check(bad.is_empty(), "story_graph_valid", "; ".join(bad))
 	TestHooks.check(g.ids().size() == 10 and g.regular().size() == 9, "story_has_ten_nights", "%d" % g.ids().size())
 	_targets(g)

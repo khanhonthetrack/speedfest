@@ -1,0 +1,132 @@
+{
+	"id": "prologue",
+	"chapter": "",
+	"title": "Lane 3",
+	"shots": [
+		{
+			"id": "years",
+			"black": true,
+			"dur": 3.0,
+			"card": {
+				"title": "Eight years ago",
+				"subtitle": "The Halloran toll bridge"
+			}
+		},
+		{
+			"id": "cctv",
+			"track": "H01",
+			"at": 0.33,
+			"dur": 7.0,
+			"rain": 0.9,
+			"ambience": "rain",
+			"cctv": {
+				"label": "Halloran Plaza  Cam 3  Lane 3",
+				"clock": "03:12:01"
+			},
+			"cars": [
+				{
+					"id": "vesper",
+					"model": "nemesis",
+					"livery": 2,
+					"tuning": "0.0.6.0",
+					"lights": true,
+					"ahead": -120.0,
+					"speed": 34.0
+				},
+				{
+					"id": "second",
+					"model": "argent",
+					"livery": 0,
+					"lights": true,
+					"ahead": -133.0,
+					"speed": 34.0
+				}
+			],
+			"camera": {
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-7.0,
+							9.0,
+							30.0
+						],
+						"look": [
+							0.0,
+							0.0,
+							-40.0
+						],
+						"fov": 58
+					}
+				]
+			}
+		},
+		{
+			"id": "empty",
+			"track": "H01",
+			"at": 0.33,
+			"dur": 2.6,
+			"rain": 0.9,
+			"ambience": "rain",
+			"cctv": {
+				"label": "Halloran Plaza  Cam 3  Lane 3",
+				"clock": "03:12:08"
+			},
+			"camera": {
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-7.0,
+							9.0,
+							30.0
+						],
+						"look": [
+							0.0,
+							0.0,
+							-40.0
+						],
+						"fov": 58
+					}
+				]
+			}
+		},
+		{
+			"id": "radio",
+			"black": true,
+			"lead": 0.8,
+			"tail": 1.0,
+			"lines": [
+				{
+					"id": "prologue_001",
+					"speaker": "Radio",
+					"text": "Police divers recovered a car from the river below the Halloran toll bridge this morning."
+				},
+				{
+					"id": "prologue_002",
+					"speaker": "Radio",
+					"text": "The car, a white coupe, was found with its doors shut and its windows up."
+				},
+				{
+					"id": "prologue_003",
+					"speaker": "Radio",
+					"text": "The driver has not been found."
+				},
+				{
+					"id": "prologue_004",
+					"speaker": "Radio",
+					"text": "Halloran Holdings says the bridge will stay closed until further notice."
+				}
+			]
+		},
+		{
+			"id": "title",
+			"black": true,
+			"dur": 4.0,
+			"card": {
+				"title": "Previous Owner",
+				"subtitle": "A SpeedFest story"
+			}
+		}
+	]
+}

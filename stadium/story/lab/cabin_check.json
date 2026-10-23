@@ -1,0 +1,159 @@
+{
+	"id": "cabin_check",
+	"chapter": "c01",
+	"title": "A cabin seen from its mirror, beside it and over it (story_lab --file; no track: no city)",
+	"shots": [
+		{
+			"id": "mir",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"dome": 1.4
+				}
+			],
+			"people": [
+				{
+					"id": "passenger",
+					"car": "kit",
+					"seat": "rear",
+					"clip": "Sitting_Idle",
+					"look": "drowned"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"pos": "mirror",
+				"look": [
+					0.0,
+					0.92,
+					-6.0
+				],
+				"fov": 40
+			}
+		},
+		{
+			"id": "side",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"dome": 1.4
+				}
+			],
+			"people": [
+				{
+					"id": "passenger",
+					"car": "kit",
+					"seat": "rear",
+					"clip": "Sitting_Idle",
+					"look": "drowned"
+				},
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Sitting_Idle"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"pos": [
+					3.2,
+					1.6,
+					-0.6
+				],
+				"look": [
+					0.0,
+					0.9,
+					-0.5
+				],
+				"fov": 40
+			}
+		},
+		{
+			"id": "top",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"dome": 1.4
+				}
+			],
+			"people": [
+				{
+					"id": "passenger",
+					"car": "kit",
+					"seat": "rear",
+					"clip": "Sitting_Idle",
+					"look": "drowned"
+				},
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Sitting_Idle"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"pos": [
+					0.0,
+					4.5,
+					-0.3
+				],
+				"look": [
+					0.0,
+					0.5,
+					-0.29
+				],
+				"fov": 45
+			}
+		},
+		{
+			"id": "pov",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"dome": 1.4
+				}
+			],
+			"people": [
+				{
+					"id": "passenger",
+					"car": "kit",
+					"seat": "rear",
+					"clip": "Sitting_Idle",
+					"look": "drowned"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"pos": "driver_head",
+				"look": [
+					0.3,
+					1.0,
+					25.0
+				],
+				"fov": 62
+			}
+		}
+	]
+}

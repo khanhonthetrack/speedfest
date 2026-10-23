@@ -3,8 +3,8 @@ extends Control
 ## The menus' header (PLAN M16; tabs across the top as in RaceRoom's menus, which the owner pointed
 ## to, in our own look): our wordmark at the left, a back arrow, the tabs (Home, Solo, Multiplayer,
 ## Garage, Story, Community, Editor) with a red-to-violet line under the current one, and at the
-## right you (your nickname and zone: the profile), options and quit. Story is locked (the owner:
-## "building a story mode is one of the next steps"): its tab shows a padlock and only says so.
+## right you (your nickname and zone: the profile), options and quit. A tab in LOCKED shows a
+## padlock and only says so (Story was, until night 1 could be played: PLAN M20-6).
 
 signal page_pressed(page: String)    ## a tab's page (TmMenu.show_page), "profile" or "options"
 signal back_pressed
@@ -14,7 +14,7 @@ signal locked_pressed(page: String)
 const HEIGHT := 76.0
 const TABS := [["main", "Home"], ["solo", "Solo"], ["online", "Multiplayer"], ["garage", "Garage"], ["story", "Story"],
 	["community", "Community"], ["editors", "Editor"]]
-const LOCKED := ["story"]
+const LOCKED: Array[String] = []
 const UNDER := {"replays": "solo", "campaign": "solo", "tuning": "garage"}     ## pages that light their parent's tab
 
 var tabs := {}                       ## page -> its tab (also "profile": you, "options": the gear)

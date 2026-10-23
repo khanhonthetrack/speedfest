@@ -35,6 +35,9 @@ func _ready() -> void:
 		if (d.get("shots", []) as Array).is_empty():
 			bad.append("no shots")
 		for s: Dictionary in d.get("shots", []):
+			for f in _flags_read(s.get("if", null)):
+				if not set_somewhere.has(f):
+					bad.append("shot %s reads %s, which nothing sets" % [s.get("id", "?"), f])
 			var track := String(s.get("track", d.get("track", "")))
 			if not track.is_empty() and not TmTracks.has(track):
 				bad.append("shot %s: no track %s" % [s.get("id", "?"), track])
@@ -42,6 +45,11 @@ func _ready() -> void:
 				var m := String(c.get("model", "hyper"))
 				if not (m in ["", "hyper"] or TmRoadCars.is_road(m)):
 					bad.append("shot %s: no car %s" % [s.get("id", "?"), m])
+			for which in ["camera", "mirror"]:
+				var cam: Dictionary = s.get(which, {})
+				for k: Dictionary in cam.get("keys", [cam]):
+					if k.get("pos") is String and (not String(k["pos"]) in ["driver_head", "mirror"] or not cam.has("follow")):
+						bad.append("shot %s: %s at %s, not a place in a followed car" % [s.get("id", "?"), which, k["pos"]])
 			for p: Dictionary in s.get("people", []):
 				if not String(p.get("clip", "Idle")) in clips:
 					bad.append("shot %s: no clip %s" % [s.get("id", "?"), p.get("clip", "")])
@@ -65,10 +73,33 @@ func _ready() -> void:
 		TestHooks.check(bad.is_empty(), "story_scene_sound_" + id, "; ".join(bad))
 		if not d.is_empty():
 			await _plays(id, d)
+	_cabins()
 	await _variants()
 	await _staged()
 	await _story_race()
 	TestHooks.finish()
+
+
+## Every road car's cabin (StoryCabin) fits under its own roof: a seated head's crown
+## (StoryCabin.CROWN) and the mirror under the roof's line less its skin, the mirror ahead of the
+## driver's eyes (a first cabin, built to the car's box, put the heads through the coupe's falling
+## roof and the mirror outside the windscreen).
+func _cabins() -> void:
+	var bad: Array[String] = []
+	for c: Array in TmRoadCars.CARS:
+		var id := String(c[0])
+		var m := TmRoadCars.manifest(id)
+		var pts := StoryCabin.points(id)
+		for seat in ["driver", "passenger", "rear"]:
+			var p: Vector3 = pts[seat]
+			var crown := p.y + StoryCabin.CROWN.x
+			var roof := StoryCabin.line(m, "top", p.z + StoryCabin.CROWN.y) - 0.04
+			if crown > roof:
+				bad.append("%s %s: head to %.2f m, roof %.2f" % [id, seat, crown, roof])
+		var mir: Vector3 = pts["mirror"]
+		if mir.y + 0.04 > StoryCabin.line(m, "top", mir.z) - 0.03 or mir.z < (pts["driver_head"] as Vector3).z + 0.3:
+			bad.append("%s mirror at %s" % [id, mir])
+	TestHooks.check(bad.is_empty(), "story_cabins_fit", "; ".join(bad))
 
 
 ## Every flag something sets: exits, facts, scenes, lines.

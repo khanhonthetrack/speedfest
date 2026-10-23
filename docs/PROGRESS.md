@@ -4244,3 +4244,55 @@ story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save
   scare explained in the finale), the cast, the fact table, the nine nights and the bridge with maps,
   scenes, gates and exits, four endings, flags and tiers, the decision graph.
 
+### Night 1, the slice: the graph for A, tracks H01-H03, the horror tools, the scenes (session 21)
+- `story/story.json` is now **Previous Owner**: ten nights c01-c10 with their places, facts, tracks
+  H01-H30 and exits (`docs/STORY.md` section 11), the finale after 7, four endings chosen by flags
+  (VESPER on the cold line; WHITE secret; INES; SALVAGE), a `"prologue"` scene played once
+  (StoryFlow), `"ready"` on nights whose tracks exist (StoryGraph.validate checks those). The graph
+  test: **2,994 different orders** to the finale, every night able to come in 7-8 places, all four
+  endings reached by the random playthroughs.
+- Tracks (City night, `"online": false`, not in the campaign): **H01 Lot 47** (author 22.86 s), **H02
+  Container Canyon** (26.44 s), **H03 Crane Hook** (four finishes: the main way straight on, the cold
+  line, 16.48 s; three forks 20.36 / 20.76 / 20.87 s). A fork's corner always costs time, so on a forked
+  map the straight-on way is the cruel one; H03's exits follow the bot's times. (A first H03 had a
+  turbo and a jump before its last finish: the car flew over the line at 416-500 km/h.)
+- Horror tools in the cutscene player: `story/story_cabin.gd` (a car's inside for shots in it: seats,
+  dash glow, the satnav's screen, the parcel shelf; fitted under each car's own roof from its
+  manifest's body lines (`anchors`: the roof's crown, the window line, the width along the car), the
+  mirror hung from the windscreen's header; `fit_car` clears the glass and lines the body from inside
+  with its own surfaces drawn from behind only, so the roof and doors seen from the seats follow the
+  body exactly and the lining never shows outside; the road cars' paint runs on under the windscreen
+  and the rear window (the glass laid over it, flush), so the lining leaves out every face under the
+  glass, halving the triangles that cross a window's outline three times so the pillars' edges come
+  out clean (`StoryCabin.GlassMask`: the glass's planes in a 3 cm grid; 0.7 s a model, once, done when
+  a scene is set up). Seats from the library's seated poses measured in Godot (`StoryCabin.CROWN`:
+  the crown 1.43 m over the root, the 1.83 m mannequin's skull 0.26 m over its head bone), dropped as
+  far as each car's roof needs (a Corrida's is 1.12 m); camera keys can name a place in the followed
+  car, `"pos": "driver_head"` / `"mirror"`; `tests/test_story_scenes` checks every road car's seats
+  and mirror fit under its roof). Trap: a `PackedInt32Array` read out of a Dictionary is a copy, so
+  `(grid[key] as PackedInt32Array).append(i)` appends to nothing (the grid kept one triangle a cell). A first cabin built to the car's
+  box poked through the coupe's falling roof and put the mirror camera outside the windscreen: the
+  mirror showed the car's own roof from above, not the back seat (debug views without the city, 20 s a
+  render: a scene file with a camera at the mirror, beside the car, over it), `story/story_satnav.gd` (the satnav's map: nine violet pins, red once learnt, the bridge
+  greyed), `story/story_sounds.gd` (synthesized sting, rain, heartbeat, chime, thump); StoryScene: the
+  rear-view mirror (`"mirror"`: a second camera, its picture flipped in a housing), rain on the
+  windscreen (`"glass"`), white flashes, flickering lights, sounds and ambience, a security camera's
+  look (`"cctv"`: grey, grain, scanlines, a running clock), people seated in a car (`"car"`, `"seat"`),
+  people and cars on screen only for part of a shot (`"from"`, `"to"`), shots that play only for a
+  decision (`"if"`); StoryPerson's `"drowned"` look (the living are dark shapes, the dead
+  one cold grey and soaked, dripping; the courtesy light just ahead of its head leaves the face black
+  under a wet outline).
+- Scenes with full dialogue: `prologue` (CCTV at the toll plaza, eight years ago; the radio), `c01_open`
+  (the auction, 24 lines), `c01_after1` (Triple: Gus wants the car back; Tibor), `c01_after2` (The File:
+  the river, the white paint under the black, the chassis number), `c01_decision` (one version per
+  finish), `c01_close` (THE MIRROR: the owner's nightmare, then Dee knocking on the glass).
+
+- The Story page (PLAN M20-6): Story is unlocked (`SfHeader.LOCKED` empty; the home panel reads
+  "Night n of 10", or NEW with no save). `TmMenu._page_story`: Continue (a save in progress), New
+  story (the four difficulties with how their gold is set; over a save in progress the first press
+  only asks again), Back; beside them the save: tonight (the night and its map, or the satnav
+  waiting), the difficulty, Vesper's satnav with a red pin per fact, and the journal (each night
+  played, the decision taken, the line Kit writes down once its fact is known: `"journal"` per
+  chapter in `story.json`). A start goes to `story/story_play.tscn` (`story_started`; `--menu_dry`
+  only records it). `tests/test_menu`: the tab and panel open it, a new save at a difficulty,
+  Continue, the journal after a night, a new story over one in progress asks again.

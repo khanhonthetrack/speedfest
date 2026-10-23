@@ -1,0 +1,371 @@
+{
+	"id": "c01_after2",
+	"chapter": "c01",
+	"title": "The File",
+	"shots": [
+		{
+			"id": "cabin",
+			"track": "H03",
+			"at": 0.32,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0"
+				}
+			],
+			"people": [
+				{
+					"id": "gus",
+					"clip": "Idle_Talking",
+					"pos": [
+						6.0,
+						0,
+						0.2
+					],
+					"face": -90,
+					"scale": 1.08
+				},
+				{
+					"id": "kit",
+					"clip": "Idle",
+					"pos": [
+						2.0,
+						0,
+						0.6
+					],
+					"face": 90
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						6.5,
+						2.4,
+						-0.5
+					],
+					"colour": "#ffcf8a",
+					"energy": 6.0,
+					"range": 10.0
+				}
+			],
+			"camera": {
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-3.0,
+							1.6,
+							-6.0
+						],
+						"look": [
+							3.5,
+							1.2,
+							0.5
+						],
+						"fov": 38
+					},
+					{
+						"u": 1,
+						"pos": [
+							-2.0,
+							1.5,
+							-4.5
+						],
+						"look": [
+							3.8,
+							1.2,
+							0.5
+						],
+						"fov": 34
+					}
+				]
+			},
+			"lines": [
+				{
+					"id": "c01_after2_001",
+					"speaker": "Gus",
+					"text": "Tibor says you drive like you stole it."
+				},
+				{
+					"id": "c01_after2_002",
+					"speaker": "Kit",
+					"text": "I bought it. From you. An hour ago."
+				},
+				{
+					"id": "c01_after2_003",
+					"speaker": "Gus",
+					"text": "Yeah. You know what you bought?"
+				},
+				{
+					"id": "c01_after2_004",
+					"speaker": "Kit",
+					"text": "A car."
+				},
+				{
+					"id": "c01_after2_005",
+					"speaker": "Gus",
+					"text": "Eight years ago I winched that car out of the river. Under the Halloran Bridge."
+				},
+				{
+					"id": "c01_after2_006",
+					"speaker": "Gus",
+					"text": "She was white then. Doors shut, windows up. Nobody inside."
+				},
+				{
+					"id": "c01_after2_007",
+					"speaker": "Kit",
+					"text": "That's not funny."
+				},
+				{
+					"id": "c01_after2_008",
+					"speaker": "Gus",
+					"text": "Nobody laughed then either."
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						8.5,
+						0,
+						0
+					],
+					"yaw": 0,
+					"stack": 1,
+					"colour": 4
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-12,
+						0,
+						6
+					],
+					"yaw": 0,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-26
+					],
+					"yaw": 0,
+					"height": 26,
+					"span": 28,
+					"hook": 20
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						4,
+						0,
+						-6
+					],
+					"yaw": 0,
+					"height": 9,
+					"energy": 6
+				}
+			]
+		},
+		{
+			"id": "sill",
+			"track": "H03",
+			"at": 0.32,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0"
+				}
+			],
+			"people": [
+				{
+					"id": "gus",
+					"clip": "Idle_Talking",
+					"pos": [
+						6.0,
+						0,
+						0.2
+					],
+					"face": -90,
+					"scale": 1.08
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						6.5,
+						2.4,
+						-0.5
+					],
+					"colour": "#ffcf8a",
+					"energy": 6.0,
+					"range": 10.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						1.6,
+						1.2,
+						0.4
+					],
+					"look": [
+						1.0,
+						0.3,
+						0.4
+					],
+					"colour": "#ffffff",
+					"energy": 4.0,
+					"range": 4.0,
+					"angle": 25.0
+				}
+			],
+			"camera": {
+				"ease": "linear",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							1.9,
+							0.55,
+							1.1
+						],
+						"look": [
+							0.9,
+							0.35,
+							0.3
+						],
+						"fov": 30,
+						"dof": [
+							2,
+							1.5,
+							0.2
+						]
+					},
+					{
+						"u": 1,
+						"pos": [
+							1.8,
+							0.5,
+							0.9
+						],
+						"look": [
+							0.9,
+							0.35,
+							0.3
+						],
+						"fov": 26,
+						"dof": [
+							2,
+							1.5,
+							0.2
+						]
+					}
+				]
+			},
+			"lines": [
+				{
+					"id": "c01_after2_009",
+					"speaker": "Gus",
+					"text": "Somebody painted her black and put her in my auction. I didn't look close. Should've."
+				},
+				{
+					"id": "c01_after2_010",
+					"speaker": "Gus",
+					"text": "Scrape the sill under the door. Go on."
+				},
+				{
+					"id": "c01_after2_011",
+					"speaker": "Kit",
+					"text": "...It's white under here.",
+					"gap": 1.2
+				},
+				{
+					"id": "c01_after2_012",
+					"speaker": "Gus",
+					"text": "Chassis number's in the recovery file. Police copy. I kept it."
+				},
+				{
+					"id": "c01_after2_013",
+					"speaker": "Kit",
+					"text": "It's the same number."
+				},
+				{
+					"id": "c01_after2_014",
+					"speaker": "Kit",
+					"text": "Whose car was it?"
+				},
+				{
+					"id": "c01_after2_015",
+					"speaker": "Gus",
+					"text": "Everybody in this town knows that car, kid. You just don't know it yet."
+				},
+				{
+					"id": "c01_after2_016",
+					"speaker": "Gus",
+					"text": "File's in my cabin. Halloran's man wants the car. I'd say you've got about ten minutes to decide which of us you trust least."
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						8.5,
+						0,
+						0
+					],
+					"yaw": 0,
+					"stack": 1,
+					"colour": 4
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-12,
+						0,
+						6
+					],
+					"yaw": 0,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-26
+					],
+					"yaw": 0,
+					"height": 26,
+					"span": 28,
+					"hook": 20
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						4,
+						0,
+						-6
+					],
+					"yaw": 0,
+					"height": 9,
+					"energy": 6
+				}
+			]
+		}
+	]
+}

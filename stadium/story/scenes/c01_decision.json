@@ -1,0 +1,399 @@
+{
+	"id": "c01_decision",
+	"chapter": "c01",
+	"title": "The Yard Decides",
+	"shots": [
+		{
+			"id": "choice",
+			"track": "H03",
+			"at": 0.9,
+			"rain": 0.6,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"lights": true
+				}
+			],
+			"people": [
+				{
+					"id": "gus",
+					"clip": "Idle_Talking",
+					"pos": [
+						-2.6,
+						0,
+						1.2
+					],
+					"face": 90,
+					"scale": 1.08
+				}
+			],
+			"camera": {
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							5.0,
+							1.3,
+							-4.0
+						],
+						"look": [
+							-1.0,
+							1.0,
+							1.0
+						],
+						"fov": 36
+					},
+					{
+						"u": 1,
+						"pos": [
+							4.0,
+							1.2,
+							-3.0
+						],
+						"look": [
+							-1.2,
+							1.0,
+							1.0
+						],
+						"fov": 32
+					}
+				]
+			},
+			"lines": [
+				{
+					"id": "c01_decision_001",
+					"speaker": "Kit",
+					"text": "Arch Nine. Under the railway viaduct. Dee Sandoval. She rebuilds things.",
+					"if": "way:c01=0"
+				},
+				{
+					"id": "c01_decision_002",
+					"speaker": "Gus",
+					"text": "That's worth something to the right people.",
+					"if": "way:c01=0"
+				},
+				{
+					"id": "c01_decision_003",
+					"speaker": "Kit",
+					"text": "She's my friend.",
+					"if": "way:c01=0"
+				},
+				{
+					"id": "c01_decision_004",
+					"speaker": "Gus",
+					"text": "Then you shouldn't have said her name.",
+					"if": "way:c01=0"
+				},
+				{
+					"id": "c01_decision_005",
+					"speaker": "Kit",
+					"text": "Here. That's the rest of my rent. Tell your man it's sold.",
+					"if": "way:c01=1"
+				},
+				{
+					"id": "c01_decision_006",
+					"speaker": "Gus",
+					"text": "Noodles for a month, kid.",
+					"if": "way:c01=1"
+				},
+				{
+					"id": "c01_decision_007",
+					"speaker": "Kit",
+					"text": "I deliver noodles. I'll eat the mistakes.",
+					"if": "way:c01=1"
+				},
+				{
+					"id": "c01_decision_008",
+					"speaker": "Gus",
+					"text": "Fair. And the file's yours. I never had it.",
+					"if": "way:c01=1"
+				},
+				{
+					"id": "c01_decision_009",
+					"speaker": "Gus",
+					"text": "He'll check the number, you know. These people check everything.",
+					"if": "way:c01=2"
+				},
+				{
+					"id": "c01_decision_010",
+					"speaker": "Kit",
+					"text": "Then read him the wrong one slowly.",
+					"if": "way:c01=2"
+				},
+				{
+					"id": "c01_decision_011",
+					"speaker": "Gus",
+					"text": "Four... seven... nine... You're a bad influence, student.",
+					"if": "way:c01=2"
+				},
+				{
+					"id": "c01_decision_012",
+					"speaker": "Gus",
+					"text": "There's a cop at the gate. Been there since you drove in.",
+					"if": "way:c01=3"
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						8.5,
+						0,
+						0
+					],
+					"yaw": 0,
+					"stack": 1,
+					"colour": 4
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-12,
+						0,
+						6
+					],
+					"yaw": 0,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-26
+					],
+					"yaw": 0,
+					"height": 26,
+					"span": 28,
+					"hook": 20
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						4,
+						0,
+						-6
+					],
+					"yaw": 0,
+					"height": 9,
+					"energy": 6
+				}
+			]
+		},
+		{
+			"id": "voss",
+			"track": "H03",
+			"at": 0.9,
+			"rain": 0.6,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"lights": true
+				},
+				{
+					"id": "voss",
+					"model": "kobold",
+					"livery": 0,
+					"lights": true,
+					"left": -6.0,
+					"ahead": 8.0,
+					"yaw": 160
+				}
+			],
+			"people": [
+				{
+					"id": "voss_p",
+					"clip": "Idle",
+					"pos": [
+						-4.4,
+						0,
+						6.5
+					],
+					"face": 120
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						-6.0,
+						1.2,
+						9.0
+					],
+					"colour": "#4f7dff",
+					"energy": 3.0,
+					"range": 8.0
+				}
+			],
+			"camera": {
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							1.8,
+							1.3,
+							-2.5
+						],
+						"look": [
+							-4.5,
+							1.2,
+							6.5
+						],
+						"fov": 34,
+						"dof": [
+							9,
+							6,
+							0.08
+						]
+					}
+				]
+			},
+			"lines": [
+				{
+					"id": "c01_decision_013",
+					"speaker": "Voss",
+					"text": "Gus Pell doesn't keep files. Gus Pell sells them.",
+					"if": "way:c01=3"
+				},
+				{
+					"id": "c01_decision_014",
+					"speaker": "Kit",
+					"text": "Then I'm giving you one.",
+					"if": "way:c01=3"
+				},
+				{
+					"id": "c01_decision_015",
+					"speaker": "Voss",
+					"text": "Where did you get this car?",
+					"if": "way:c01=3"
+				},
+				{
+					"id": "c01_decision_016",
+					"speaker": "Kit",
+					"text": "Here. Tonight. Nine hundred.",
+					"if": "way:c01=3"
+				},
+				{
+					"id": "c01_decision_017",
+					"speaker": "Voss",
+					"text": "Then you've had it about four hours too long. Drive carefully, student. Especially on bridges.",
+					"if": "way:c01=3"
+				}
+			],
+			"if": "way:c01=3",
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						8.5,
+						0,
+						0
+					],
+					"yaw": 0,
+					"stack": 1,
+					"colour": 4
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-12,
+						0,
+						6
+					],
+					"yaw": 0,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-26
+					],
+					"yaw": 0,
+					"height": 26,
+					"span": 28,
+					"hook": 20
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						4,
+						0,
+						-6
+					],
+					"yaw": 0,
+					"height": 9,
+					"energy": 6
+				}
+			]
+		},
+		{
+			"id": "recalc",
+			"track": "H03",
+			"at": 0.9,
+			"rain": 0.6,
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 1
+				}
+			],
+			"sounds": [
+				{
+					"at": 0.6,
+					"cue": "chime"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.12,
+							1.0,
+							0.35
+						],
+						"look": [
+							0.0,
+							0.86,
+							0.95
+						],
+						"fov": 30,
+						"dof": [
+							0.8,
+							1.0,
+							0.2
+						]
+					}
+				]
+			},
+			"lead": 0.8,
+			"tail": 1.2,
+			"lines": [
+				{
+					"id": "c01_decision_018",
+					"speaker": "Satnav",
+					"text": "Recalculating."
+				}
+			]
+		}
+	]
+}

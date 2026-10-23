@@ -327,6 +327,8 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
 - [ ] 1. Script: three premises to the owner first (`docs/STORY_PITCH.md`), then on their pick
       `docs/STORY.md` (premise, cast, the fact table, 10 chapters with maps and exits, the decision
       graph, the endings, every scene with its beats) and the full dialogue; owner sign-off before 5
+      -- the owner picked A, Previous Owner (session 21); `docs/STORY.md` is the bible (a draft for
+      their sign-off); night 1's dialogue is written (the slice), nights 2-10 in batches with step 7
 - [x] 2. Data + save: `story/story_graph.gd` (StoryGraph), `story/story_state.gd` (StoryState,
       `user://story.json`, `--story_save=`), `story/story.json`, difficulty; `tests/test_story_graph`
       (every chapter reachable, no dead ends, no orphan exits, the finale gated, 10,000 random walks finish)
@@ -335,16 +337,22 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
 - [ ] 3. Cutscene player: `story/story_scene.gd` (StoryScene: shots, camera keyframes, actors, characters,
       lines), SfUi subtitles, letterbox, skip, `story/story_lab.tscn` (screenshots);
       `tests/test_story_scenes`; one real scene rendered at Ultra and shown to the owner
-      -- the player, the lab and the tests are in; a look test's stills (not story) go to the owner
-      with the pitch; the real chapter-1 opening waits for the script
+      -- the player, the lab and the tests are in; the horror layer too (the rear-view mirror, rain
+      on the glass, flashes, flicker, sounds, CCTV, seated people in a lined cabin under each car's
+      own roof); night 1's scenes are written and rendered: stills to the owner with the slice
 - [x] 4. Branching plumbing: `TmRace` reports which finish gate was crossed; per-gate medals in the
       track JSON and `TmChallenge`; `test_tracks --write_medals` writes a set per way; records and
       replays carry the gate; the finish menu shows the finish crossed (G06, G08, G10 have their
       `way_medals`); the story's own finish panel (the decision's name, CONTINUE) comes with step 5
 - [ ] 5. Chapter 1 end to end (vertical slice): `tracks/H01..H03.json` (City night), bot medals,
       4-5 cutscenes, a 3-way branching map 3, the decision saved, the next chapter chosen
+      -- H01-H03 made (H03: four finishes), the prologue and five night-1 scenes, StoryFlow and the
+      7-minute sessions; left: the owner plays it (from the Story page) and signs off
 - [ ] 6. Story menu: the tab unlocked (`sf_header.gd` `LOCKED`, `tm_menu.gd`), new save / continue,
       difficulty, the chapter board, the journal, replay a cutscene, times per map; `tests/test_menu`
+      -- the tab and the home panel open the Story page: Continue, New story (the four difficulties,
+      asked again over a save in progress), the save (tonight, the difficulty, the satnav's red pins),
+      the journal (nights, decisions, what Kit wrote down); left: replay a cutscene, times per map
 - [ ] 7. Chapters 2-9, in batches: tracks -> medals -> scenes -> exits -> gate -> commit -> push
 - [ ] 8. The finale and the endings, credits, a full-game headless playthrough test
 

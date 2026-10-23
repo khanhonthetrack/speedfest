@@ -55,8 +55,8 @@ The car is TMNF's force model 6 with the real tuning `20juin2006`, from our reve
 
 ## Play it
 1. Install Godot 4.7.2, clone this repo, check out branch `stadium`, open `stadium/project.godot`
-   and press Play (F5): the menu (tabs across the top: Home, Solo, Multiplayer, Story (still to
-   come), Community, Editor; you, options and quit at the right). Solo lists our campaign (a row per
+   and press Play (F5): the menu (tabs across the top: Home, Solo, Multiplayer, Garage, Story,
+   Community, Editor; you, options and quit at the right). Solo lists our campaign (a row per
    series, your best time and medal on each track); a track's card starts it. Straight into a race: run
    `race/race.tscn` with `-- --track=SF03`. Profile sets your nickname (TMNF's $-codes: `$f00`
    red, `$o` bold, `$i` italic ...), zone, car (the open-wheeler or the Le Mans hypercar) and its colour.
@@ -146,6 +146,14 @@ menus' look). Look at one:
 `story/story_play.tscn` (StoryFlow: scenes, then each map in the race with `--story=<night>
 --story_map=0..2`, whose finish panel shows the time to beat and, on map 3, the decision the finish
 makes; CONTINUE writes it into the save). `--story_new=street --story_auto` plays a whole save headless.
+The menu's Story page starts one (New story: the difficulty), continues it and keeps its journal;
+night 1 (H01-H03, the prologue and five scenes) is playable, the other nights come in batches.
+Horror shots: a car with `"cabin": true` gets seats, a dash and its body lined from inside under its
+own roof; `"mirror"` puts a rear-view mirror's picture over the shot, its camera at the car's
+`"pos": "mirror"`. A shot without the city, to check a cabin (`story/lab/cabin_check.json`):
+
+    stadium/tools/run.sh res://story/story_lab.tscn -- --file=$PWD/stadium/story/lab/cabin_check.json \
+        --ts=0.6,2.6,4.6 --every=20 --frames=60 --shots=/abs/a.png@19,/abs/b.png@39,/abs/c.png@59
 
 ## The track editor
 Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;

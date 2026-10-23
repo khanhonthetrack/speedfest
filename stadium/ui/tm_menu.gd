@@ -2,14 +2,16 @@ class_name TmMenu
 extends Node3D
 ## The game's menus (the project's main scene) in our own look (PLAN M16; SfUi: charcoal, a hint of
 ## red and violet, Montserrat): our header across the top (SfHeader: the wordmark, the tabs Home,
-## Solo, Multiplayer, Story (locked), Community, Editor; you, options, quit), the backdrop's slow
+## Solo, Multiplayer, Garage, Story, Community, Editor; you, options, quit), the backdrop's slow
 ## glows behind (sf_backdrop.gdshader). The home page is picture panels (SfTile, after RaceRoom's
 ## DRIVE page the owner pointed to); the other pages keep a column of entries down the left (the
 ## page's title above them, the current one marked red, Back at its foot) and panels beside it. The
 ## profile shows our car on the field instead of the backdrop, the garage and tuning show it in a
 ## dark neon city at night (_use_city). Pages:
-## - main (home): Solo and Multiplayer large; Story (locked: Story mode is still to be built),
-##   Community, Track editor and Replays; your campaign's medals along the foot;
+## - main (home): Solo, Multiplayer and the Garage large; Story, Community, Track editor and Replays;
+##   your campaign's medals along the foot;
+## - story: your story save (where you are, the difficulty, the satnav's red pins, the journal),
+##   Continue, New story (the difficulty, asked again over a save) (_page_story);
 ## - solo (also "campaign"): the series down the left (White .. City), the series' tracks as cards
 ##   in a grid (a press races; the focused track's medal times and your best above the grid),
 ##   Replays, Browse (any .Challenge.Gbx or .sftrack), Back;
@@ -25,16 +27,18 @@ extends Node3D
 ##   a car (races, online, the profile), play a track (_page_community).
 ## Race starts race/race.tscn with the track in TestHooks' args.
 ## Args: --race=SF01 (straight into that track; exported builds can't be given a scene),
-## --page=main|solo|campaign|replays|editors|online|profile|options|community (--community_tab=tracks),
-## --track=SF01 (selected), --menu_dry (tests: Race only records the choice).
+## --page=main|solo|campaign|replays|editors|online|profile|options|community|story
+## (--community_tab=tracks), --track=SF01 (selected), --menu_dry (tests: Race and the story's start
+## only record the choice).
 
 signal raced(track: String, map: String)
 signal watched(replay: String)
 signal edited(track_file: String)
+signal story_started(difficulty: String)      ## the Story page started a save ("": Continue)
 
 const CENTRE := Vector3(-512.0, 9.0, 512.0)   ## the field's centre (Godot)
 const PAGES := {"main": "", "solo": "main", "campaign": "main", "replays": "solo", "editors": "main", "online": "main", "profile": "main",
-	"options": "main", "community": "main", "garage": "main", "tuning": "garage"}
+	"options": "main", "community": "main", "garage": "main", "tuning": "garage", "story": "main"}
 const MEDALS := ["author", "gold", "silver", "bronze"]
 ## The profile's grade over the car on the field: dark behind the page's panels at the left.
 const GRADE := """shader_type canvas_item;
@@ -82,7 +86,7 @@ const TOP := 100.0                 ## the panels start under the header
 const RIGHT := Rect2(390, 100, 1178, 0)  ## the right of the column, under the header
 var nav: SfHeader                   ## the header: the tabs across the top; you, options, quit
 const CARD := Vector2(220, 168)    ## a track's card on the Solo page (5 across)
-const LOCKED_NOTE := "Story mode is on its way: it is one of the next steps."
+const LOCKED_NOTE := "This is on its way: it is one of the next steps."
 
 
 func _ready() -> void:
@@ -521,6 +525,8 @@ func show_page(name: String) -> void:
 			_page_garage()
 		"tuning":
 			_page_tuning()
+		"story":
+			_page_story()
 		_:
 			_page_main()
 
@@ -532,8 +538,8 @@ func back() -> void:
 
 
 ## Home: picture panels as RaceRoom's DRIVE page (the owner's reference), in our look: Solo,
-## Multiplayer and the Garage large on top; Story (locked), Community, Track editor and Replays
-## under them; your campaign's medals along the foot.
+## Multiplayer and the Garage large on top; Story, Community, Track editor and Replays under them;
+## your campaign's medals along the foot.
 func _page_main() -> void:
 	var root := Control.new()
 	root.theme = SfUi.theme()
@@ -564,11 +570,12 @@ func _page_main() -> void:
 	solo.focus_point = Vector2(0.62, 0.5)
 	_home_tile(top, "online", "Multiplayer", "Race the world online", "multiplayer", true)
 	_home_tile(top, "garage", "Garage", "Your cars, liveries and tuning", "garage", true)
-	var story := _home_tile(low, "story", "Story", "Chapter one is on its way", "story")
-	story.locked = true
-	story.badge = "Coming soon"
-	story.tooltip_text = LOCKED_NOTE
-	story.locked_pressed.connect(func() -> void: notice(LOCKED_NOTE))
+	var story := _home_tile(low, "story", "Story", "Previous Owner: a dead racer's car", "story")
+	var save := StoryState.load_file()
+	if save != null:
+		story.info = "The end" if save.complete() else "Night %d of 10" % mini(save.done.size() + (0 if save.current.is_empty() else 1), 10)
+	else:
+		story.badge = "New"
 	_home_tile(low, "community", "Community", "Cars, tracks and mods", "community")
 	_home_tile(low, "editors", "Track editor", "Build your own tracks", "editor")
 	_home_tile(low, "replays", "Replays", "Watch your best runs", "replays")
@@ -603,10 +610,126 @@ func _home_tile(row: HBoxContainer, to: String, title: String, sub: String, pic:
 	var t := SfTile.new(title, sub, pic, big)
 	t.name = "Tile_" + to
 	t.set_meta("parent_row", row)
-	if to != "story":
-		t.pressed.connect(func() -> void: show_page(to))
+	t.pressed.connect(func() -> void: show_page(to))
 	home_tiles[to] = t
 	return t
+
+
+var story_graph: StoryGraph          ## the story (loaded when the Story page first opens)
+var _story_new := false              ## the Story page shows the difficulty pick (New story)
+var _story_armed := ""               ## a difficulty pressed once over a save in progress (press again)
+
+
+## Story (PLAN M20-6): down the left Continue (a save in progress), New story and Back; beside them
+## your save: where you are (the night and its map, or the satnav waiting for a choice), the
+## difficulty, the satnav with a red pin per fact learnt, and the journal (the nights played, what
+## you decided at each, what Kit wrote down). New story shows the difficulties (gold on every map:
+## the bot's author time scaled) and asks again before it replaces a save in progress.
+func _page_story() -> void:
+	if story_graph == null:
+		story_graph = StoryGraph.load_file()
+	var st := StoryState.load_file()
+	var root := _root("Story", String(story_graph.data.get("title", "")), "icon_story")
+	var picking := _story_new or st == null or st.complete()
+	if st != null and not st.complete():
+		_row("Continue", "", func() -> void: _story_start(""), false, not picking)
+	_row("New story", "", func() -> void:
+		_story_new = true
+		_story_armed = ""
+		show_page("story"), false, picking)
+	_row("Back", "icon_back", func() -> void:
+		_story_new = false
+		back(), true)
+	if picking:
+		_story_difficulties(root, st)
+	else:
+		_story_save(root, st)
+	(_rows.get_child(0) as Control).grab_focus.call_deferred()
+
+
+## Your save: where you are, the difficulty, the satnav; the journal beside it.
+func _story_save(root: Control, st: StoryState) -> void:
+	var col := _panel(root, "Your story", Rect2(RIGHT.position, Vector2(560, 0)))
+	col.add_child(SfUi.caption("Tonight"))
+	var where := "The satnav waits: choose tonight's pin"
+	if not st.current.is_empty():
+		var c := story_graph.chapter(st.current)
+		where = "Night %d: %s   ·   %s" % [st.done.size() + 1, String(c.get("title", st.current)), "map %d of 3" % (st.step + 1) if st.step < 3 else "the night's end"]
+	elif st.done.is_empty():
+		where = "Night 1: the auction"
+	col.add_child(_text(where, 24, SfUi.TEXT, SfUi.BOLD))
+	col.add_child(SfUi.caption("Difficulty"))
+	var dif := story_graph.difficulty(st.difficulty)
+	col.add_child(_text("%s   ·   gold is %s" % [String(dif.get("name", st.difficulty)), String(dif.get("note", ""))], 20, SfUi.DIM))
+	col.add_child(HSeparator.new())
+	col.add_child(SfUi.caption("Vesper's satnav"))
+	var map := TextureRect.new()
+	map.texture = StorySatnav.texture(st.facts())
+	map.custom_minimum_size = Vector2(StorySatnav.SIZE) * 1.35
+	map.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	map.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	map.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	col.add_child(map)
+	col.add_child(_text("%d of 9 pins red" % st.facts(), 20, SfUi.DIM))
+	var j := _panel(root, "Journal", Rect2(RIGHT.position + Vector2(590, 0), Vector2(588, 0)))
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(560, 600)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	j.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 6)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	if st.done.is_empty():
+		list.add_child(_text("Nothing yet. A student, a cheap car, an auction at midnight.", 20, SfUi.DIM))
+	for i in st.done.size():
+		var id := st.done[i]
+		var c := story_graph.chapter(id)
+		list.add_child(_text("%d.  %s   ·   %s" % [i + 1, String(c.get("title", id)), String(c.get("place", ""))], 20, SfUi.TEXT, SfUi.BOLD))
+		var way := int((st.decisions.get(id, {}) as Dictionary).get("way", 0))
+		var exit := story_graph.exit_of(id, way)
+		if not exit.is_empty():
+			list.add_child(_text("You chose: " + String(exit.get("label", "")), 18, SfUi.VIOLET if bool(exit.get("dark", false)) else SfUi.DIM))
+		if st.flags.has(String(c.get("fact", ""))) and c.has("journal"):
+			var note := _text(String(c["journal"]), 18, SfUi.DIM)
+			note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			note.custom_minimum_size = Vector2(540, 0)
+			list.add_child(note)
+	for e: String in st.endings:
+		list.add_child(_text("The end: " + String(story_graph.ending_info(e).get("title", e)), 20, SfUi.TEXT, SfUi.BOLD))
+
+
+## New story: a button per difficulty (its name and how its gold is set); over a save in progress the
+## first press only asks again.
+func _story_difficulties(root: Control, st: StoryState) -> void:
+	var col := _panel(root, "New story", Rect2(RIGHT.position, Vector2(700, 0)))
+	var intro := _text("Kit is a student with a few hundred in savings and an auction at midnight. Every map is a seven-minute time attack: your best run counts, and on each night's last map the finish you cross decides where the story goes. Pick how hard the clock is:", 20, SfUi.DIM)
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro.custom_minimum_size = Vector2(650, 0)
+	col.add_child(intro)
+	var playing := st != null and not st.complete() and (not st.done.is_empty() or not st.current.is_empty())
+	for d: Dictionary in story_graph.difficulties():
+		var id := String(d.get("id", ""))
+		var b := SfUi.button("%s   ·   gold is %s" % [String(d.get("name", id)), String(d.get("note", ""))], func() -> void:
+			if playing and _story_armed != id:
+				_story_armed = id
+				notice("Press again: a new story replaces the one you're playing")
+				return
+			_story_armed = ""
+			_story_start(id), 650, id == "street")
+		b.name = "Difficulty_" + id
+		col.add_child(b)
+
+
+## Starts the story player (story/story_play.tscn) on the save, a new one at `difficulty` first.
+func _story_start(difficulty: String) -> void:
+	if not difficulty.is_empty():
+		StoryState.create(story_graph, difficulty, Time.get_datetime_string_from_system(false, true)).save()
+	_story_new = false
+	story_started.emit(difficulty)
+	if TestHooks.arg("menu_dry", false):
+		return
+	TmLoading.change_scene(get_tree(), "res://story/story_play.tscn")
 
 
 ## A series' flag icon (assets/ui/flag_<name>), the white one for others.

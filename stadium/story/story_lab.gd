@@ -1,11 +1,12 @@
 extends Node
-## Looks at a cutscene (PLAN M20-3): --scene=<id> (story/scenes/<id>.json) seeked to --t=<s> and
-## held there for the screenshot (--frames=N --shot=/abs.png; give SDFGI and the city a few dozen
-## frames), or --play [--t=<s>] plays it on from there to its end at the fixed frame rate and quits
-## (headless tests). --flags=a,b,c sets those flags on the save the conditions read (--tier=hot:
-## enough facts for it); --no_stage leaves the tracks out (logic only). Prints the scene's timeline.
-## Several stills in one run (the city and SDFGI built once): --ts=8.5,14,25 --every=60 holds each
-## time for that many frames; give TestHooks --shots=/abs/a.png@59,/abs/b.png@119,... to match.
+## Looks at a cutscene (PLAN M20-3): --scene=<id> (story/scenes/<id>.json; --file=<abs path> for one
+## kept elsewhere) seeked to --t=<s> and held there for the screenshot (--frames=N --shot=/abs.png;
+## give SDFGI and the city a few dozen frames), or --play [--t=<s>] plays it on from there to its
+## end at the fixed frame rate and quits (headless tests). --flags=a,b,c sets those flags on the save
+## the conditions read (--tier=hot: enough facts for it); --no_stage leaves the tracks out (logic
+## only). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
+## --ts=8.5,14,25 --every=60 holds each time for that many frames; give TestHooks
+## --shots=/abs/a.png@59,/abs/b.png@119,... to match.
 
 var scene: StoryScene
 
@@ -13,6 +14,10 @@ var scene: StoryScene
 func _ready() -> void:
 	var id := String(TestHooks.arg("scene", ""))
 	var d := StoryScene.load_data(id)
+	if TestHooks.has_arg("file"):            # a scene file anywhere (a debug set-up kept out of the story)
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(String(TestHooks.arg("file", ""))))
+		d = parsed if parsed is Dictionary else {}
+		id = String(d.get("id", "file"))
 	if d.is_empty():
 		push_error("story_lab: no scene %s" % id)
 		TestHooks.fail("story_scene_loads", id)

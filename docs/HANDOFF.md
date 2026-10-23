@@ -18,7 +18,25 @@
   `story/scenes/look_test.json` (a look test, not story); the run: `story/story_flow.gd` (StoryFlow),
   `story/story_race.gd` (race.gd `--story`), `story/story_play.tscn` (`--story_auto` plays a save);
   `tests/test_story_scenes` in the gate. README "Story mode" says how to look at a scene.
-- **The pitch is with the owner** (`docs/STORY_PITCH.md`; also a claude.ai page with the look-test
+- **The owner picked A, "Previous Owner"** (TRANSCRIPT, session 21), with horror in the cutscenes
+  (the rear-view-mirror nightmare), Kit a student, night 1 first as a playable slice, and the rule:
+  **every story map is a 7-minute time attack; the best run counts; on map 3 its finish is the
+  decision** (`story/story_race.gd`, gated and pushed). `docs/STORY.md` is the bible (a draft for the
+  owner): rules, the satnav frame, the horror layer, cast, facts, the ten nights, exits, endings.
+- **Night 1, the slice (in progress)**: `story/story.json` is A's graph (2,994 orders; night 1 fixed
+  first; finale after 7); tracks `H01` Lot 47, `H02` Container Canyon, `H03` Crane Hook (four
+  finishes; the straight-on main way is the cruel line, 16.5 s against ~20.5 s); scenes `prologue`,
+  `c01_open`, `c01_after1`, `c01_after2`, `c01_decision`, `c01_close` (the mirror nightmare) with
+  full dialogue; horror tools (`story_cabin.gd`, `story_satnav.gd`, `story_sounds.gd`,
+  `story_props.gd`; StoryScene's mirror, glass, flash, flicker, cctv, seated people, shot
+  conditions). The cabin fits under each car's own roof (manifest `anchors`) and is lined from
+  inside (`StoryCabin.fit_car`); the mirror shows the back seat and THE PASSENGER. The Story page
+  (M20-6) starts a save (difficulty), continues it and shows the journal. Still to do for the
+  slice: stills for the owner and their sign-off; then nights 2-9 (M20-7). Iterate on a shot
+  without the city first (`story_lab --file=<abs path>/stadium/story/lab/cabin_check.json`: a
+  camera at the mirror, beside the car, over it, 20 s a render), then with the city
+  (`tools/run.sh ... --timeout 1500`: run.sh's default 240 s cuts a city render short).
+- **Earlier: the pitch** (now decided) (`docs/STORY_PITCH.md`; also a claude.ai page with the look-test
   stills): A Previous Owner (a legend's car, a satnav of nine pins), B Static Hour (a radio phone-in
   reopens a fatal race; the grey car was green), C Ten Keys (a debt paid off one keyed car a night;
   the Ring is the street), plus the brief's nine questions with recommended answers. **Wait for their

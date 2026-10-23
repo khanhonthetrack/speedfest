@@ -1,0 +1,11 @@
+{
+	"name": "Container Canyon",
+	"author": "SpeedFest",
+	"mood": "night",
+	"scenery": "city",
+	"online": false,
+	"start": [24, 1, 3, 0],
+	"medals": {"author": 26440, "gold": 28100, "silver": 32000, "bronze": 40000},
+	"bot_grip": 75,
+	"pieces": [["start"], ["s", 2], ["turbo"], ["s", 3], ["l"], ["r"], ["s", 3], ["cp"], ["s", 2], ["gt", 2, "l"], ["s", 2], ["jump", 2], ["s", 3], ["r"], ["s", 2], ["cp"], ["s", 3], ["l"], ["s", 2], ["gt", 2, "r"], ["s", 3], ["finish"]]
+}

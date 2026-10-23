@@ -1,0 +1,340 @@
+{
+	"id": "c01_after1",
+	"chapter": "c01",
+	"title": "Triple",
+	"shots": [
+		{
+			"id": "quay",
+			"track": "H01",
+			"at": 0.42,
+			"rain": 0.6,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"lights": true,
+					"speed": 16.0
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "linear",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							2.6,
+							1.4,
+							-6.5
+						],
+						"look": [
+							0.0,
+							0.8,
+							6.0
+						],
+						"fov": 44
+					},
+					{
+						"u": 1,
+						"pos": [
+							2.9,
+							1.5,
+							-7.0
+						],
+						"look": [
+							0.0,
+							0.8,
+							6.0
+						],
+						"fov": 44
+					}
+				]
+			},
+			"lines": [
+				{
+					"id": "c01_after1_001",
+					"speaker": "Gus",
+					"text": "Kid. Where are you?"
+				},
+				{
+					"id": "c01_after1_002",
+					"speaker": "Kit",
+					"text": "Driving. It pulls a bit left. Is that normal?"
+				},
+				{
+					"id": "c01_after1_003",
+					"speaker": "Gus",
+					"text": "Bring it back."
+				},
+				{
+					"id": "c01_after1_004",
+					"speaker": "Kit",
+					"text": "I paid you."
+				},
+				{
+					"id": "c01_after1_005",
+					"speaker": "Gus",
+					"text": "And I'm paying you back. Plus a hundred for your trouble."
+				},
+				{
+					"id": "c01_after1_006",
+					"speaker": "Kit",
+					"text": "Why?"
+				},
+				{
+					"id": "c01_after1_007",
+					"speaker": "Gus",
+					"text": "A man rang. He wants that car. He's offering triple."
+				},
+				{
+					"id": "c01_after1_008",
+					"speaker": "Kit",
+					"text": "Then tell him it's sold."
+				},
+				{
+					"id": "c01_after1_009",
+					"speaker": "Gus",
+					"text": "You don't tell those people anything, kid. That's Halloran money."
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						9,
+						0,
+						10
+					],
+					"yaw": 0,
+					"stack": 2,
+					"colour": 1
+				},
+				{
+					"kind": "container",
+					"pos": [
+						9,
+						0,
+						24
+					],
+					"yaw": 0,
+					"stack": 3,
+					"colour": 4
+				},
+				{
+					"kind": "container",
+					"pos": [
+						9,
+						0,
+						38
+					],
+					"yaw": 0,
+					"stack": 2,
+					"colour": 0
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-10,
+						0,
+						18
+					],
+					"yaw": 0,
+					"stack": 2,
+					"colour": 3
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						52
+					],
+					"yaw": 0,
+					"height": 30,
+					"span": 26,
+					"hook": 18
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-8,
+						0,
+						30
+					],
+					"yaw": 90,
+					"height": 10,
+					"energy": 7
+				}
+			]
+		},
+		{
+			"id": "tibor",
+			"track": "H01",
+			"at": 0.42,
+			"rain": 0.6,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"lights": true,
+					"speed": 0.0,
+					"ahead": 0.0
+				},
+				{
+					"id": "tibor",
+					"model": "halberd",
+					"livery": 4,
+					"lights": true,
+					"left": 9.0,
+					"ahead": 38.0,
+					"yaw": -90,
+					"from": 0.0
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.37,
+							1.15,
+							0.0
+						],
+						"look": [
+							3.0,
+							0.9,
+							30.0
+						],
+						"fov": 46
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.37,
+							1.15,
+							0.0
+						],
+						"look": [
+							6.0,
+							0.9,
+							36.0
+						],
+						"fov": 36
+					}
+				]
+			},
+			"glass": 0.6,
+			"lines": [
+				{
+					"id": "c01_after1_010",
+					"speaker": "Gus",
+					"text": "Tibor's coming for it. Don't make him chase you."
+				},
+				{
+					"id": "c01_after1_011",
+					"speaker": "Kit",
+					"text": "Dee, someone wants to buy my car."
+				},
+				{
+					"id": "c01_after1_012",
+					"speaker": "Dee",
+					"text": "Sell it."
+				},
+				{
+					"id": "c01_after1_013",
+					"speaker": "Kit",
+					"text": "He's offering triple. And now there's a man in a rally car in front of me with his lights on."
+				},
+				{
+					"id": "c01_after1_014",
+					"speaker": "Dee",
+					"text": "Then sell it twice.",
+					"gap": 0.6
+				},
+				{
+					"id": "c01_after1_015",
+					"speaker": "Dee",
+					"text": "...Or don't let him catch you.",
+					"gap": 1.4
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						9,
+						0,
+						10
+					],
+					"yaw": 0,
+					"stack": 2,
+					"colour": 1
+				},
+				{
+					"kind": "container",
+					"pos": [
+						9,
+						0,
+						24
+					],
+					"yaw": 0,
+					"stack": 3,
+					"colour": 4
+				},
+				{
+					"kind": "container",
+					"pos": [
+						9,
+						0,
+						38
+					],
+					"yaw": 0,
+					"stack": 2,
+					"colour": 0
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-10,
+						0,
+						18
+					],
+					"yaw": 0,
+					"stack": 2,
+					"colour": 3
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						52
+					],
+					"yaw": 0,
+					"height": 30,
+					"span": 26,
+					"hook": 18
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-8,
+						0,
+						30
+					],
+					"yaw": 90,
+					"height": 10,
+					"energy": 7
+				}
+			]
+		}
+	]
+}

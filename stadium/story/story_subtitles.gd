@@ -22,6 +22,57 @@ var _phone_who: Label
 var _phone_list: VBoxContainer
 var _skip: HBoxContainer
 var _skip_bar: ProgressBar
+var _glass: ColorRect              ## rain on the windscreen (a shot's "glass")
+var _mirror_frame: PanelContainer  ## the rear-view mirror: its housing and its flipped picture
+var _mirror: TextureRect
+var _mirror_rect := Rect2()
+var _flash: ColorRect
+var _cctv: ColorRect               ## a security camera's picture (a shot's "cctv"): grey, grain, lines
+var _cctv_label: Label
+var _cctv_clock: Label
+const CCTV := """shader_type canvas_item;
+uniform sampler2D screen : hint_screen_texture, filter_linear_mipmap;
+uniform float time = 0.0;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233)) + time * 37.0) * 43758.5453); }
+void fragment() {
+	vec2 uv = SCREEN_UV;
+	uv.x += (hash(vec2(floor(uv.y * 90.0), 1.0)) - 0.5) * 0.002;
+	vec3 c = textureLod(screen, uv, 1.2).rgb;
+	float g = dot(c, vec3(0.3, 0.59, 0.11)) * 1.5;
+	g += (hash(uv * 900.0) - 0.5) * 0.14;
+	g *= 0.82 + 0.18 * sin(uv.y * 900.0);
+	vec2 q = uv - 0.5;
+	g *= 1.0 - dot(q, q) * 1.3;
+	COLOR = vec4(vec3(g * 0.92, g, g * 0.95), 1.0);
+}
+"""
+const GLASS := """shader_type canvas_item;
+// rain on a windscreen at night: drops that bend the picture and slide down, the glass between
+// them a little soft
+uniform sampler2D screen : hint_screen_texture, filter_linear_mipmap;
+uniform float amount = 0.0;
+uniform float time = 0.0;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+vec2 drops(vec2 uv, float scale, float speed) {
+	vec2 g = uv * scale;
+	vec2 id = floor(g);
+	vec2 f = fract(g) - 0.5;
+	float h = hash(id);
+	float y = fract(h * 7.0 - time * speed * (0.3 + h)) - 0.5;
+	vec2 d = f - vec2((h - 0.5) * 0.6, -y);
+	float r = 0.1 + 0.12 * h;
+	float m = smoothstep(r, r * 0.55, length(d * vec2(1.0, 0.75))) * step(0.35, h);
+	return d * m;
+}
+void fragment() {
+	vec2 uv = SCREEN_UV;
+	vec2 a = uv * vec2(1.7, 1.0);
+	vec2 o = drops(a, 8.0, 0.22) * 0.7 + drops(a + 0.37, 15.0, 0.35) * 0.4 + drops(a + 0.71, 26.0, 0.0) * 0.3;
+	float l = length(o);
+	vec3 c = textureLod(screen, uv + o * 0.12 * amount, mix(1.6, 0.0, smoothstep(0.0, 0.05, l)) * amount).rgb;
+	COLOR = vec4(c + vec3(0.02, 0.025, 0.03) * amount * smoothstep(0.02, 0.06, l), 1.0);
+}
+"""
 var bars := 1.0                    ## 0..1: how far in the bars are
 
 
@@ -31,6 +82,48 @@ func _ready() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	_glass = ColorRect.new()
+	_glass.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_glass.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var gm := ShaderMaterial.new()
+	gm.shader = Shader.new()
+	gm.shader.code = GLASS
+	_glass.material = gm
+	_glass.visible = false
+	root.add_child(_glass)
+	root.move_child(_glass, 0)
+	_mirror_frame = PanelContainer.new()
+	var mb := StyleBoxFlat.new()
+	mb.bg_color = Color(0.01, 0.01, 0.012)
+	mb.set_corner_radius_all(18)
+	mb.set_content_margin_all(7)
+	mb.shadow_color = Color(0, 0, 0, 0.6)
+	mb.shadow_size = 18
+	_mirror_frame.add_theme_stylebox_override("panel", mb)
+	_mirror_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_mirror = TextureRect.new()
+	_mirror.flip_h = true                 # a mirror: left and right swapped
+	_mirror.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_mirror.stretch_mode = TextureRect.STRETCH_SCALE
+	_mirror_frame.add_child(_mirror)
+	_mirror_frame.visible = false
+	root.add_child(_mirror_frame)
+	root.move_child(_mirror_frame, 1)
+	_cctv = ColorRect.new()
+	_cctv.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_cctv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var cm := ShaderMaterial.new()
+	cm.shader = Shader.new()
+	cm.shader.code = CCTV
+	_cctv.material = cm
+	_cctv.visible = false
+	root.add_child(_cctv)
+	root.move_child(_cctv, 2)
+	_cctv_label = SfUi.label("", 20, Color(0.85, 0.9, 0.85), SfUi.BOLD, 2, true)
+	_cctv_clock = SfUi.label("", 20, Color(0.85, 0.9, 0.85), SfUi.BOLD, 2)
+	for l: Label in [_cctv_label, _cctv_clock]:
+		l.visible = false
+		root.add_child(l)
 	_black = ColorRect.new()
 	_black.color = Color.BLACK
 	_black.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -105,6 +198,12 @@ func _ready() -> void:
 	col.add_child(_phone_list)
 	_phone.visible = false
 	root.add_child(_black)
+	_flash = ColorRect.new()
+	_flash.color = Color(1, 1, 1)
+	_flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_flash.modulate.a = 0.0
+	root.add_child(_flash)
 	# skip: bottom right, under the picture
 	_skip = HBoxContainer.new()
 	_skip.add_theme_constant_override("separation", 10)
@@ -141,6 +240,13 @@ func _layout() -> void:
 	_phone.size = Vector2(360, 520)
 	_phone.position = Vector2(vs.x * 0.68, (vs.y - 520.0) * 0.5)
 	_skip.position = Vector2(vs.x - 290.0, vs.y - 34.0)
+	if _mirror_frame != null:
+		_mirror_frame.position = _mirror_rect.position * vs
+		_mirror_frame.size = _mirror_rect.size * vs
+	if _cctv_label != null:
+		var top := maxf(0.0, (vs.y - vs.x / ASPECT) * 0.5) * bars + 18.0
+		_cctv_label.position = Vector2(40.0, top)
+		_cctv_clock.position = Vector2(vs.x - 260.0, top)
 
 
 ## What shows at this moment: line ({speaker, text} or {}), fade (0 clear .. 1 black), card
@@ -201,3 +307,40 @@ func _bubble() -> PanelContainer:
 	p.custom_minimum_size = Vector2(120, 0)
 	p.add_child(l)
 	return p
+
+
+## Rain on the windscreen (0: none), its drops moving with the scene's time.
+func set_glass(amount: float, time: float) -> void:
+	_glass.visible = amount > 0.001
+	if _glass.visible:
+		(_glass.material as ShaderMaterial).set_shader_parameter("amount", amount)
+		(_glass.material as ShaderMaterial).set_shader_parameter("time", time)
+
+
+## The rear-view mirror's picture in its housing at `rect` (fractions of the screen); null hides it.
+func show_mirror(tex: Texture2D, rect: Rect2) -> void:
+	_mirror_frame.visible = tex != null
+	_mirror.texture = tex
+	_mirror_rect = rect
+	_layout()
+
+
+## A white frame (0..1).
+func set_flash(a: float) -> void:
+	_flash.modulate.a = clampf(a, 0.0, 1.0)
+
+
+## A security camera's picture: grey, grainy, its label and a running clock ({} hides it).
+func set_cctv(c: Dictionary, local: float, time: float) -> void:
+	var on := not c.is_empty()
+	_cctv.visible = on
+	_cctv_label.visible = on
+	_cctv_clock.visible = on
+	if not on:
+		return
+	(_cctv.material as ShaderMaterial).set_shader_parameter("time", time)
+	_cctv_label.text = String(c.get("label", "CAM 1"))
+	var hms := String(c.get("clock", "00:00:00")).split(":")
+	var secs := int(hms[0]) * 3600 + int(hms[1]) * 60 + int(hms[2]) + int(local) if hms.size() == 3 else int(local)
+	_cctv_clock.text = "%02d:%02d:%02d" % [(secs / 3600) % 24, (secs / 60) % 60, secs % 60]
+

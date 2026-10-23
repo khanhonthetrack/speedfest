@@ -1,0 +1,141 @@
+class_name StoryProps
+extends RefCounted
+## Set dressing for the cutscenes (PLAN M20-3; docs/STORY.md, production notes: every set is a corner
+## of the same City): shipping containers (stacked, ribbed, a little rust), a gantry crane with its hook
+## and warning light, floodlight poles that light what is under them, and toll booths. Made here in
+## code like the rest of the game; placed by a shot's "props": [{"kind", "pos": [x, y, z] (the shot's
+## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on)}].
+
+const CONTAINER := Vector3(2.44, 2.6, 12.2)      ## an ISO 40-foot box (m)
+const RIBS := """shader_type spatial;
+// a container's corrugated steel: vertical ribs along its length, paint worn to rust at the edges
+uniform vec3 paint : source_color = vec3(0.55, 0.12, 0.08);
+varying vec3 lp;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(41.3, 289.1))) * 13758.5453); }
+void vertex() { lp = VERTEX; }
+void fragment() {
+	float along = abs(NORMAL.x) > 0.5 ? lp.z : lp.x;
+	float rib = sin(along * 9.0);
+	NORMAL = normalize(NORMAL + (VIEW_MATRIX * vec4(abs(NORMAL.x) > 0.5 ? vec3(0.0, 0.0, rib * 0.35) : vec3(rib * 0.35, 0.0, 0.0), 0.0)).xyz);
+	float edge = max(smoothstep(1.1, 1.3, abs(lp.y)), 0.0);
+	float rust = smoothstep(0.55, 0.95, hash(floor(lp.xz * 3.0) + floor(lp.y * 4.0)) * 0.6 + edge);
+	ALBEDO = mix(paint, vec3(0.22, 0.1, 0.05), rust * 0.7) * (0.85 + 0.15 * rib);
+	ROUGHNESS = 0.55 + 0.3 * rust;
+	METALLIC = 0.4;
+}
+"""
+
+static var _ribs: Shader
+
+
+## Builds a shot's props under `parent`, placed in the anchor frame `anchor`.
+static func build(parent: Node3D, list: Array, anchor: Transform3D) -> void:
+	for p: Dictionary in list:
+		var node: Node3D
+		match String(p.get("kind", "")):
+			"container":
+				node = _containers(p)
+			"crane":
+				node = _crane(p)
+			"pole":
+				node = _pole(p)
+			"booth":
+				node = _booth(p)
+			_:
+				continue
+		parent.add_child(node)
+		var pos: Array = p.get("pos", [0, 0, 0])
+		node.global_transform = anchor * Transform3D(Basis(Vector3.UP, deg_to_rad(float(p.get("yaw", 0.0)))),
+			Vector3(float(pos[0]), float(pos[1]), float(pos[2])))
+
+
+static func _mat(c: Color, rough := 0.7, metal := 0.2) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = c
+	m.roughness = rough
+	m.metallic = metal
+	return m
+
+
+static func _box(parent: Node3D, at: Vector3, size: Vector3, mat: Material) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = size
+	mi.mesh = bm
+	mi.material_override = mat
+	mi.position = at
+	parent.add_child(mi)
+	return mi
+
+
+static func _containers(p: Dictionary) -> Node3D:
+	if _ribs == null:
+		_ribs = Shader.new()
+		_ribs.code = RIBS
+	var root := Node3D.new()
+	var colours := [Color("8c2a1c"), Color("1f4f7a"), Color("2f5a33"), Color("9a6a1a"), Color("3a3f45")]
+	var base := int(p.get("colour", 0))
+	for k in int(p.get("stack", 1)):
+		var m := ShaderMaterial.new()
+		m.shader = _ribs
+		var c: Color = colours[(base + k * 2) % colours.size()]
+		m.set_shader_parameter("paint", Vector3(c.r, c.g, c.b))
+		_box(root, Vector3(0.0, CONTAINER.y * (k + 0.5), 0.0), CONTAINER, m)
+	return root
+
+
+static func _crane(p: Dictionary) -> Node3D:
+	var root := Node3D.new()
+	var steel := _mat(Color(0.75, 0.42, 0.08), 0.6, 0.5)
+	var h := float(p.get("height", 26.0))
+	var span := float(p.get("span", 20.0))
+	for side: float in [-1.0, 1.0]:
+		_box(root, Vector3(span * 0.5 * side, h * 0.5, 0.0), Vector3(1.0, h, 1.0), steel)
+		_box(root, Vector3(span * 0.5 * side, h * 0.5, 6.0), Vector3(1.0, h, 1.0), steel)
+	_box(root, Vector3(0.0, h, 3.0), Vector3(span + 1.2, 1.4, 7.4), steel)
+	_box(root, Vector3(0.0, h + 1.2, 3.0), Vector3(3.0, 1.0, 3.0), _mat(Color(0.2, 0.2, 0.22)))
+	var drop := float(p.get("hook", 14.0))
+	_box(root, Vector3(0.0, h - drop * 0.5, 3.0), Vector3(0.06, drop, 0.06), _mat(Color(0.1, 0.1, 0.1), 0.4, 0.8))
+	_box(root, Vector3(0.0, h - drop - 0.6, 3.0), Vector3(1.2, 1.2, 0.6), _mat(Color(0.85, 0.65, 0.1), 0.5, 0.4))
+	var warn := OmniLight3D.new()
+	warn.light_color = Color(1.0, 0.1, 0.05)
+	warn.light_energy = 2.5
+	warn.omni_range = 9.0
+	warn.position = Vector3(0.0, h + 2.0, 3.0)
+	root.add_child(warn)
+	return root
+
+
+static func _pole(p: Dictionary) -> Node3D:
+	var root := Node3D.new()
+	var h := float(p.get("height", 10.0))
+	_box(root, Vector3(0.0, h * 0.5, 0.0), Vector3(0.25, h, 0.25), _mat(Color(0.3, 0.3, 0.32), 0.5, 0.6))
+	var head_mat := StandardMaterial3D.new()
+	head_mat.emission_enabled = true
+	head_mat.emission = Color(1.0, 0.95, 0.85)
+	head_mat.emission_energy_multiplier = 6.0 if bool(p.get("light", true)) else 0.0
+	_box(root, Vector3(0.0, h, 0.6), Vector3(0.9, 0.3, 0.6), head_mat)
+	if bool(p.get("light", true)):
+		var s := SpotLight3D.new()
+		s.light_color = Color(String(p.get("colour", "#e8eeff")))
+		s.light_energy = float(p.get("energy", 9.0))
+		s.spot_range = h * 2.5
+		s.spot_angle = 42.0
+		s.shadow_enabled = true
+		s.position = Vector3(0.0, h - 0.2, 0.6)
+		s.rotation = Vector3(-PI * 0.5 + 0.2, 0.0, 0.0)          # down, a little outwards
+		root.add_child(s)
+	return root
+
+
+static func _booth(p: Dictionary) -> Node3D:
+	var root := Node3D.new()
+	_box(root, Vector3(0.0, 1.3, 0.0), Vector3(1.6, 2.6, 2.4), _mat(Color(0.82, 0.83, 0.85), 0.6, 0.1))
+	_box(root, Vector3(0.0, 2.75, 0.0), Vector3(2.2, 0.25, 3.0), _mat(Color(0.15, 0.15, 0.17)))
+	var glass := StandardMaterial3D.new()
+	glass.albedo_color = Color(0.1, 0.12, 0.14)
+	glass.emission_enabled = bool(p.get("light", false))
+	glass.emission = Color(1.0, 0.85, 0.6)
+	glass.emission_energy_multiplier = 1.5
+	_box(root, Vector3(0.81, 1.6, 0.0), Vector3(0.02, 1.0, 1.6), glass)
+	return root

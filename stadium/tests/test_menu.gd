@@ -1,7 +1,8 @@
 extends Node
-## Menus (our own look, PLAN M16): the header's tabs (Home, Solo, Multiplayer, Garage, Story locked,
+## Menus (our own look, PLAN M16): the header's tabs (Home, Solo, Multiplayer, Garage, Story,
 ## Community, Editor; you, options, quit), the home page's picture panels (Solo, Multiplayer,
-## Garage; Story locked: it only says so; Community, Track editor, Replays), Solo (a row per series,
+## Garage; Story, Community, Track editor, Replays), the Story page (a new save at a difficulty,
+## asked again over one in progress; Continue; the save and its journal), Solo (a row per series,
 ## a card per track with your medal, the focused track's details, a card's press handing the track
 ## to the race scene), going back, the profile (nickname with $-codes, zone), online and options;
 ## TmNick's $-codes; the garage (the previous / next car, a livery's pick, both kept as settings;
@@ -20,6 +21,8 @@ func _ready() -> void:
 	TestHooks.args["master"] = "http://127.0.0.1:9"    # no master: the online page offers logging in
 	TestHooks.args["community"] = "http://127.0.0.1:9"  # nor TMX / ManiaPark (the Community page opens)
 	TestHooks.args["community_dir"] = "user://test_community_menu"
+	TestHooks.args["story_save"] = "user://test_story_menu.json"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_story_menu.json"))
 	TmRecords.clear()
 	_nick()
 	var menu: TmMenu = (load("res://ui/menu.tscn") as PackedScene).instantiate()
@@ -37,6 +40,7 @@ func _ready() -> void:
 	TestHooks.check(menu.page == "main", "menu_back_to_main", menu.page)
 	await _profile(menu)
 	await _garage(menu)
+	await _story(menu)
 	menu.show_page("online")
 	await get_tree().process_frame
 	names = _buttons(menu).map(_name)
@@ -61,22 +65,20 @@ func _ready() -> void:
 	TestHooks.finish()
 
 
-## The header's tabs and the home page's panels: Story is locked (its panel and tab only say so and
-## stay home), the others open their pages.
+## The header's tabs and the home page's panels open their pages.
 func _home(menu: TmMenu) -> void:
 	var tabs: Array = menu.nav.tabs.keys()
 	TestHooks.check(tabs.slice(0, 7) == ["main", "solo", "online", "garage", "story", "community", "editors"] and tabs.has("profile")
 		and tabs.has("options") and menu.nav.current == "main", "menu_header_tabs", str(tabs))
 	var tiles: Array = menu.home_tiles.keys()
 	TestHooks.check(menu.page == "main" and tiles == ["solo", "online", "garage", "story", "community", "editors", "replays"]
-		and (menu.home_tiles["story"] as SfTile).locked and not (menu.home_tiles["solo"] as SfTile).locked, "menu_home_panels", str(tiles))
-	(menu.home_tiles["story"] as SfTile).pressed.emit()
+		and not (menu.home_tiles["story"] as SfTile).locked and (menu.home_tiles["story"] as SfTile).badge == "New", "menu_home_panels", str(tiles))
 	(menu.nav.tabs["story"] as Button).pressed.emit()
 	await get_tree().process_frame
-	var notes := _all(menu, []).filter(func(c: Node) -> bool: return String(c.name).begins_with("Notice"))
-	TestHooks.check(menu.page == "main" and notes.size() == 2 and _labels(notes[0]).has(TmMenu.LOCKED_NOTE), "menu_story_locked",
-		"%s, %d notices" % [menu.page, notes.size()])
-	for to: String in ["online", "garage", "community", "editors", "replays"]:
+	TestHooks.check(menu.page == "story" and menu.nav.current == "story", "menu_header_story", menu.page)
+	(menu.nav.tabs["main"] as Button).pressed.emit()
+	await get_tree().process_frame
+	for to: String in ["online", "garage", "story", "community", "editors", "replays"]:
 		(menu.home_tiles[to] as SfTile).pressed.emit()
 		await get_tree().process_frame
 		TestHooks.check(menu.page == to and menu.nav.current == ("solo" if to == "replays" else to), "menu_home_opens_" + to,
@@ -88,6 +90,63 @@ func _home(menu: TmMenu) -> void:
 	menu.nav.back_pressed.emit()
 	await get_tree().process_frame
 	TestHooks.check(menu.page == "main", "menu_header_back", menu.page)
+
+
+## The Story page (PLAN M20-6): with no save, New story's difficulties (a press makes the save and
+## starts the story); then Continue and the save (where you are, the satnav, the journal: a night
+## played, what was decided, what Kit wrote down); a new story over one in progress asks again.
+func _story(menu: TmMenu) -> void:
+	var started: Array[String] = []
+	menu.story_started.connect(func(d: String) -> void: started.append(d))
+	menu.show_page("story")
+	await get_tree().process_frame
+	var names := _buttons(menu).map(_name)
+	var difs := _buttons(menu).filter(func(b: Button) -> bool: return String(b.name).begins_with("Difficulty_"))
+	TestHooks.check(menu.page == "story" and names.has("New story") and names.has("Back") and not names.has("Continue") and difs.size() == 4,
+		"menu_story_new", str(names))
+	_press_named(menu, "Difficulty_racer")
+	var st := StoryState.load_file()
+	TestHooks.check(started == ["racer"] and st != null and st.difficulty == "racer" and st.done.is_empty(), "menu_story_starts",
+		"%s, %s" % [started, st.to_dict() if st else "no save"])
+	menu.show_page("story")
+	await get_tree().process_frame
+	names = _buttons(menu).map(_name)
+	var texts := _labels(menu)
+	TestHooks.check(names.has("Continue") and texts.has("Night 1: the auction") and texts.has("0 of 9 pins red"), "menu_story_save", str(texts))
+	# a night played: its line in the journal, the decision, the fact
+	st.done.append("c01")
+	st.decisions["c01"] = {"way": 1, "exit": "pay"}
+	st.flags["fact_chassis"] = true
+	st.save()
+	menu.show_page("story")
+	await get_tree().process_frame
+	texts = _labels(menu)
+	var c01 := menu.story_graph.chapter("c01")
+	TestHooks.check(texts.has("1.  %s   ·   %s" % [c01["title"], c01["place"]]) and texts.has("You chose: " + String(menu.story_graph.exit_of("c01", 1)["label"]))
+		and texts.has(String(c01["journal"])) and texts.has("1 of 9 pins red"), "menu_story_journal", str(texts))
+	_press(menu, "Continue")
+	TestHooks.check(started == ["racer", ""], "menu_story_continue", str(started))
+	# a new story over one in progress: the first press asks again
+	menu.show_page("story")
+	_press(menu, "New story")
+	await get_tree().process_frame
+	_press_named(menu, "Difficulty_street")
+	var asked := StoryState.load_file().done.size() == 1 and started.size() == 2
+	_press_named(menu, "Difficulty_street")
+	st = StoryState.load_file()
+	TestHooks.check(asked and started == ["racer", "", "street"] and st.difficulty == "street" and st.done.is_empty(), "menu_story_new_asks_again",
+		"%s, %s" % [started, st.to_dict()])
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_story_menu.json"))
+	menu.show_page("main")
+	await get_tree().process_frame
+
+
+func _press_named(menu: Node, node_name: String) -> void:
+	for b: Button in _buttons(menu):
+		if String(b.name) == node_name:
+			b.pressed.emit()
+			return
+	TestHooks.check(false, "menu_press_" + node_name, "no button %s" % node_name)
 
 
 ## TMNF's $-codes.

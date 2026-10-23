@@ -8,6 +8,7 @@ extends RefCounted
 ##
 ## story.json: {"version", "title",
 ##   "start": [chapter ids a new save may open with: one is a fixed first night, several a choice],
+##   "prologue": a scene played once, before the first night,
 ##   "finale": id, "finale_after": n (other nights done before the finale opens),
 ##   "finale_mode": "offer" (once open, offered beside the next night) | "route" (the next decision
 ##     goes there),
@@ -15,7 +16,9 @@ extends RefCounted
 ##     "free" (the board offers every night not yet played as well),
 ##   "tiers": {"warm": n, "hot": n} (facts known for each tier of dialogue: cold below warm),
 ##   "difficulties": [{"id", "name", "gold" (target = the bot's author time x this), "note"}],
-##   "chapters": [{"id", "title", "place", "fact" (the flag its night gives), "tracks": [3 ids],
+##   "chapters": [{"id", "title", "place", "fact" (the flag its night gives), "journal" (what Kit
+##     writes down once the fact is known: the Story page's journal), "tracks": [3 ids],
+##     "ready": true once its tracks are made (validate(true) checks them),
 ##     "scenes": {"open", "after1", "after2", "decision", "close"} (story/scenes/<id>.json),
 ##     "exits": [{"way" (the finish: 0 the main way, k + 1 the track's k-th fork or split), "id",
 ##       "label" (the decision, as the finish menu says it), "to": id | [ids, preferred first],
@@ -227,7 +230,8 @@ func ending_info(id: String) -> Dictionary:
 
 ## What is wrong with the story's data (tests/test_story_graph): missing chapters, exits that go
 ## nowhere or back to their own night, a map 3 without 3-5 exits, ways given twice, a finale that
-## can never open, unknown endings. tracks: also check every track exists and has a finish per exit.
+## can never open, unknown endings. tracks: also check that every ready night's tracks exist and its
+## third has a finish per exit.
 func validate(tracks := false) -> Array[String]:
 	var out: Array[String] = []
 	var all := ids()
@@ -282,7 +286,7 @@ func validate(tracks := false) -> Array[String]:
 			if not ways.has(k):
 				out.append("%s: ways not 0..%d" % [id, ways.size() - 1])
 				break
-		if tracks:
+		if tracks and bool(c.get("ready", false)):
 			for t: Variant in c.get("tracks", []):
 				if not TmTracks.has(String(t)):
 					out.append("%s: track %s missing" % [id, t])

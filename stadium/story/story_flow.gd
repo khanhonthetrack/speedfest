@@ -5,6 +5,7 @@ extends RefCounted
 ## the choice of the next night. Pure rules over StoryGraph and StoryState, so the menu, the race and
 ## the cutscene player only ask next() and report back (scene_done, map_done, decided, begin).
 ##
+## Before the first night, the story's prologue scene (once).
 ## A step: {"kind": "choose", "options": [night ids], "after": night, "way": finish} (the board, or
 ## the routed night alone) | {"kind": "scene", "id": scene id, "night"} | {"kind": "race", "night",
 ## "map": 0..2, "track": id} | {"kind": "end", "ending": id} (the story is over).
@@ -30,6 +31,9 @@ func next() -> Dictionary:
 	var night := state.current
 	if night.is_empty() and state.complete():
 		return {"kind": "end", "ending": state.endings[-1]}
+	var prologue := String(graph.data.get("prologue", ""))
+	if night.is_empty() and state.done.is_empty() and _pending(prologue):
+		return {"kind": "scene", "id": prologue, "night": ""}
 	if night.is_empty():
 		var last := state.done[-1] if not state.done.is_empty() else ""
 		var way := int((state.decisions.get(last, {}) as Dictionary).get("way", 0))

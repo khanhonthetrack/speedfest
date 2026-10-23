@@ -1,14 +1,15 @@
 {
 	"version": 1,
-	"title": "Story mode (draft graph: the story waits for the owner's pick, docs/STORY_PITCH.md)",
-	"draft": true,
+	"title": "Previous Owner",
+	"prologue": "prologue",
 	"start": [
 		"c01"
 	],
 	"finale": "c10",
-	"finale_after": 8,
+	"finale_after": 7,
 	"finale_mode": "offer",
 	"choice": "route",
+	"session_ms": 420000,
 	"tiers": {
 		"warm": 3,
 		"hot": 7
@@ -18,7 +19,7 @@
 			"id": "cruise",
 			"name": "Cruise",
 			"gold": 1.3,
-			"note": "for the story: the bot's time plus 30%"
+			"note": "the bot's time plus 30%"
 		},
 		{
 			"id": "street",
@@ -42,9 +43,10 @@
 	"chapters": [
 		{
 			"id": "c01",
-			"title": "Night 1",
-			"place": "",
-			"fact": "fact_c01",
+			"title": "The Yard",
+			"place": "Gus Pell's salvage docks",
+			"fact": "fact_chassis",
+			"journal": "The chassis stamp under the black paint is the white coupe from the river. This is Vesper's car.",
 			"tracks": [
 				"H01",
 				"H02",
@@ -60,40 +62,51 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c01_x0",
-					"label": "Exit A",
-					"to": "c02",
+					"id": "sell_gus_the_arch's_name",
+					"label": "Sell Gus the arch's name",
+					"to": "c06",
 					"set": [
-						"c01_x0"
-					]
+						"dark_c01",
+						"dee_minus_c01"
+					],
+					"dark": true
 				},
 				{
 					"way": 1,
-					"id": "c01_x1",
-					"label": "Exit B",
-					"to": "c04",
+					"id": "pay_gus_the_difference",
+					"label": "Pay Gus the difference",
+					"to": "c02",
 					"set": [
-						"c01_x1"
+						"paid_gus"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c01_x2",
-					"label": "Exit C",
-					"to": "c06",
+					"id": "feed_halloran_a_false_ch",
+					"label": "Feed Halloran a false chassis",
+					"to": "c04",
 					"set": [
-						"c01_x2",
-						"dark_c01"
-					],
-					"dark": true
+						"lied_chassis"
+					]
+				},
+				{
+					"way": 3,
+					"id": "give_the_file_to_voss",
+					"label": "Give the file to Voss",
+					"to": "c08",
+					"set": [
+						"voss_c01"
+					]
 				}
-			]
+			],
+			"ready": true
 		},
 		{
 			"id": "c02",
-			"title": "Night 2",
-			"place": "",
-			"fact": "fact_c02",
+			"title": "The Roof",
+			"place": "the car-park roof over the night market",
+			"fact": "fact_rival",
+			"journal": "Vesper raced one driver only: Cass Halloran. Thirty-one times on the bridge at 3 a.m. Never for money, never a loss.",
 			"tracks": [
 				"H04",
 				"H05",
@@ -109,29 +122,37 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c02_x0",
-					"label": "Exit A",
+					"id": "let_moth_post_it",
+					"label": "Let Moth post it",
 					"to": "c03",
 					"set": [
-						"c02_x0"
+						"moth_posted"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c02_x1",
-					"label": "Exit B",
+					"id": "make_moth_delete_it",
+					"label": "Make Moth delete it",
 					"to": "c05",
 					"set": [
-						"c02_x1"
+						"moth_broken"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c02_x2",
-					"label": "Exit C",
-					"to": "c07",
+					"id": "bring_moth_in",
+					"label": "Bring Moth in",
+					"to": "c06",
 					"set": [
-						"c02_x2",
+						"moth_ally"
+					]
+				},
+				{
+					"way": 3,
+					"id": "take_moth's_archive",
+					"label": "Take Moth's archive",
+					"to": "c09",
+					"set": [
 						"dark_c02"
 					],
 					"dark": true
@@ -140,9 +161,10 @@
 		},
 		{
 			"id": "c03",
-			"title": "Night 3",
-			"place": "",
-			"fact": "fact_c03",
+			"title": "The Plaza",
+			"place": "the closed Halloran toll plaza",
+			"fact": "fact_barrier",
+			"journal": "03:12, Lane 3: two cars nose to tail. The barrier went up for the second from Halloran's control room. The second car was silver.",
 			"tracks": [
 				"H07",
 				"H08",
@@ -158,30 +180,39 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c03_x0",
-					"label": "Exit A",
+					"id": "tip_off_voss",
+					"label": "Tip off Voss",
 					"to": "c04",
 					"set": [
-						"c03_x0"
+						"voss_c03"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c03_x1",
-					"label": "Exit B",
-					"to": "c06",
+					"id": "take_the_roll_to_dee",
+					"label": "Take the roll to Dee",
+					"to": "c07",
 					"set": [
-						"c03_x1"
+						"dee_plus_c03"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c03_x2",
-					"label": "Exit C",
-					"to": "c08",
+					"id": "burn_the_booth",
+					"label": "Burn the booth",
+					"to": "c09",
 					"set": [
-						"c03_x2",
-						"dark_c03"
+						"burned_booth"
+					]
+				},
+				{
+					"way": 3,
+					"id": "sell_it_back_to_halloran",
+					"label": "Sell it back to Halloran",
+					"to": "c02",
+					"set": [
+						"dark_c03",
+						"paid_c03"
 					],
 					"dark": true
 				}
@@ -189,9 +220,10 @@
 		},
 		{
 			"id": "c04",
-			"title": "Night 4",
-			"place": "",
-			"fact": "fact_c04",
+			"title": "The Body Shop",
+			"place": "Ferro Coachworks",
+			"fact": "fact_dent",
+			"journal": "Next morning Cass's silver saloon came in crushed front-left, white paint in the dent. Paid in cash. No record.",
 			"tracks": [
 				"H10",
 				"H11",
@@ -207,30 +239,39 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c04_x0",
-					"label": "Exit A",
-					"to": "c05",
+					"id": "give_the_card_to_voss",
+					"label": "Give the card to Voss",
+					"to": "c08",
 					"set": [
-						"c04_x0"
+						"voss_c04"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c04_x1",
-					"label": "Exit B",
-					"to": "c07",
+					"id": "give_it_to_moth",
+					"label": "Give it to Moth",
+					"to": "c02",
 					"set": [
-						"c04_x1"
+						"moth_card"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c04_x2",
-					"label": "Exit C",
-					"to": "c09",
+					"id": "give_it_back_to_the_fore",
+					"label": "Give it back to the foreman",
+					"to": "c05",
 					"set": [
-						"c04_x2",
-						"dark_c04"
+						"kind_c04"
+					]
+				},
+				{
+					"way": 3,
+					"id": "squeeze_cass_for_money",
+					"label": "Squeeze Cass for money",
+					"to": "c07",
+					"set": [
+						"dark_c04",
+						"paid_c04"
 					],
 					"dark": true
 				}
@@ -238,9 +279,10 @@
 		},
 		{
 			"id": "c05",
-			"title": "Night 5",
-			"place": "",
-			"fact": "fact_c05",
+			"title": "The Noodle Strip",
+			"place": "Lucky Eight, under the railway",
+			"fact": "fact_bet",
+			"journal": "Vesper's last bet slip: win, and she takes the keys of Halloran Holdings; lose, and she leaves the city. Witnessed, E.H.",
 			"tracks": [
 				"H13",
 				"H14",
@@ -256,30 +298,39 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c05_x0",
-					"label": "Exit A",
+					"id": "give_the_envelope_to_dee",
+					"label": "Give the envelope to Dee",
 					"to": "c06",
 					"set": [
-						"c05_x0"
+						"dee_plus_c05"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c05_x1",
-					"label": "Exit B",
-					"to": "c08",
+					"id": "give_it_to_voss",
+					"label": "Give it to Voss",
+					"to": "c09",
 					"set": [
-						"c05_x1"
+						"voss_c05"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c05_x2",
-					"label": "Exit C",
-					"to": "c01",
+					"id": "burn_it_in_pim's_stove",
+					"label": "Burn it in Pim's stove",
+					"to": "c03",
 					"set": [
-						"c05_x2",
-						"dark_c05"
+						"kind_c05"
+					]
+				},
+				{
+					"way": 3,
+					"id": "sell_it_to_edgar's_drive",
+					"label": "Sell it to Edgar's driver",
+					"to": "c04",
+					"set": [
+						"dark_c05",
+						"paid_c05"
 					],
 					"dark": true
 				}
@@ -287,9 +338,10 @@
 		},
 		{
 			"id": "c06",
-			"title": "Night 6",
-			"place": "",
-			"fact": "fact_c06",
+			"title": "The Lock",
+			"place": "the river lock under the bridge",
+			"fact": "fact_alive",
+			"journal": "03:40: a soaked woman climbed the lock ladder, used the keeper's phone and walked off up the towpath. Vesper lived.",
 			"tracks": [
 				"H16",
 				"H17",
@@ -305,30 +357,39 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c06_x0",
-					"label": "Exit A",
+					"id": "keep_the_old_man's_secre",
+					"label": "Keep the old man's secret",
 					"to": "c07",
 					"set": [
-						"c06_x0"
+						"kind_c06"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c06_x1",
-					"label": "Exit B",
-					"to": "c09",
+					"id": "bring_him_to_voss",
+					"label": "Bring him to Voss",
+					"to": "c08",
 					"set": [
-						"c06_x1"
+						"voss_c06"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c06_x2",
-					"label": "Exit C",
-					"to": "c02",
+					"id": "pay_him_to_forget",
+					"label": "Pay him to forget",
+					"to": "c05",
 					"set": [
-						"c06_x2",
-						"dark_c06"
+						"paid_off_c06"
+					]
+				},
+				{
+					"way": 3,
+					"id": "tell_cass_there's_a_witn",
+					"label": "Tell Cass there's a witness",
+					"to": "c09",
+					"set": [
+						"dark_c06",
+						"told_cass"
 					],
 					"dark": true
 				}
@@ -336,9 +397,10 @@
 		},
 		{
 			"id": "c07",
-			"title": "Night 7",
-			"place": "",
-			"fact": "fact_c07",
+			"title": "The Hill",
+			"place": "the cemetery above the city",
+			"fact": "fact_ines",
+			"journal": "Ines Halloran \"died abroad\" that week. Her one photo: a white coupe, violet underglow. Vesper was Ines.",
 			"tracks": [
 				"H19",
 				"H20",
@@ -354,29 +416,37 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c07_x0",
-					"label": "Exit A",
-					"to": "c08",
+					"id": "leave_the_photograph",
+					"label": "Leave the photograph",
+					"to": "c09",
 					"set": [
-						"c07_x0"
+						"kind_c07"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c07_x1",
-					"label": "Exit B",
-					"to": "c01",
+					"id": "give_it_to_dee",
+					"label": "Give it to Dee",
+					"to": "c03",
 					"set": [
-						"c07_x1"
+						"dee_plus_c07"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c07_x2",
-					"label": "Exit C",
-					"to": "c03",
+					"id": "confront_edgar",
+					"label": "Confront Edgar",
+					"to": "c08",
 					"set": [
-						"c07_x2",
+						"deal_edgar"
+					]
+				},
+				{
+					"way": 3,
+					"id": "show_it_to_cass",
+					"label": "Show it to Cass",
+					"to": "c02",
+					"set": [
 						"dark_c07"
 					],
 					"dark": true
@@ -385,9 +455,10 @@
 		},
 		{
 			"id": "c08",
-			"title": "Night 8",
-			"place": "",
-			"fact": "fact_c08",
+			"title": "The Patrol",
+			"place": "the ring road and its services",
+			"fact": "fact_ram",
+			"journal": "The bridge rail was hit from the left at about 190 km/h: a ram, not a crash. The case closed 36 hours after Edgar phoned.",
 			"tracks": [
 				"H22",
 				"H23",
@@ -403,29 +474,37 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c08_x0",
-					"label": "Exit A",
-					"to": "c09",
+					"id": "give_voss_everything",
+					"label": "Give Voss everything",
+					"to": "c04",
 					"set": [
-						"c08_x0"
+						"voss_c08"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c08_x1",
-					"label": "Exit B",
-					"to": "c02",
+					"id": "keep_dee's_name_out_of_i",
+					"label": "Keep Dee's name out of it",
+					"to": "c05",
 					"set": [
-						"c08_x1"
+						"dee_plus_c08"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c08_x2",
-					"label": "Exit C",
-					"to": "c04",
+					"id": "drop_voss_at_the_service",
+					"label": "Drop Voss at the services",
+					"to": "c03",
 					"set": [
-						"c08_x2",
+						"alone_c08"
+					]
+				},
+				{
+					"way": 3,
+					"id": "sell_voss_out",
+					"label": "Sell Voss out",
+					"to": "c06",
+					"set": [
 						"dark_c08"
 					],
 					"dark": true
@@ -434,9 +513,10 @@
 		},
 		{
 			"id": "c09",
-			"title": "Night 9",
-			"place": "",
-			"fact": "fact_c09",
+			"title": "The Market",
+			"place": "the night market under the flyover",
+			"fact": "fact_chosen",
+			"journal": "The satnav was built two years after the bridge; its pins went in five weeks ago. The top bid was withdrawn. Someone chose me.",
 			"tracks": [
 				"H25",
 				"H26",
@@ -452,30 +532,40 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c09_x0",
-					"label": "Exit A",
-					"to": "c01",
+					"id": "ask_dee_who_did_this",
+					"label": "Ask Dee who did this",
+					"to": "c07",
 					"set": [
-						"c09_x0"
+						"dee_plus_c09"
 					]
 				},
 				{
 					"way": 1,
-					"id": "c09_x1",
-					"label": "Exit B",
+					"id": "keep_following_the_pins",
+					"label": "Keep following the pins",
 					"to": "c03",
 					"set": [
-						"c09_x1"
+						"kept_pins"
 					]
 				},
 				{
 					"way": 2,
-					"id": "c09_x2",
-					"label": "Exit C",
+					"id": "wipe_the_pins",
+					"label": "Wipe the pins",
+					"to": "c04",
+					"set": [
+						"wiped_pins"
+					]
+				},
+				{
+					"way": 3,
+					"id": "sell_the_unit_to_hallora",
+					"label": "Sell the unit to Halloran",
 					"to": "c05",
 					"set": [
-						"c09_x2",
-						"dark_c09"
+						"dark_c09",
+						"paid_c09",
+						"dee_minus_c09"
 					],
 					"dark": true
 				}
@@ -483,9 +573,9 @@
 		},
 		{
 			"id": "c10",
-			"title": "The Last Night",
-			"place": "",
-			"fact": "fact_c10",
+			"title": "The Bridge",
+			"place": "the Halloran Bridge, in rain",
+			"fact": "knows_dee",
 			"tracks": [
 				"H28",
 				"H29",
@@ -501,53 +591,87 @@
 			"exits": [
 				{
 					"way": 0,
-					"id": "c10_x0",
-					"label": "Exit A",
+					"id": "inside_rail",
+					"label": "The inside rail",
 					"set": [
-						"c10_x0"
+						"dark_c10"
 					],
+					"dark": true,
 					"endings": [
 						{
-							"id": "ending_dark",
-							"if": "count:dark_>=5"
-						},
-						{
-							"id": "ending_even"
+							"id": "vesper"
 						}
 					]
 				},
 				{
 					"way": 1,
-					"id": "c10_x1",
-					"label": "Exit B",
+					"id": "clean_line",
+					"label": "The clean line",
 					"set": [
-						"c10_x1"
+						"clean_c10"
 					],
 					"endings": [
 						{
-							"id": "ending_dark",
-							"if": "count:dark_>=7"
+							"id": "salvage",
+							"if": {
+								"any": [
+									"count:paid_>=2",
+									"count:dee_minus_>=1"
+								]
+							}
 						},
 						{
-							"id": "ending_even",
-							"if": "count:dark_>=3"
-						},
-						{
-							"id": "ending_light"
+							"id": "ines"
 						}
 					]
 				},
 				{
 					"way": 2,
-					"id": "c10_x2",
-					"label": "Exit C",
+					"id": "stop_at_the_rail",
+					"label": "Stop at the rail",
 					"set": [
-						"c10_x2"
+						"stop_c10"
 					],
-					"dark": true,
 					"endings": [
 						{
-							"id": "ending_dark"
+							"id": "white",
+							"if": [
+								"count:fact_>=9",
+								"count:dee_plus_>=3",
+								{
+									"not": {
+										"any": [
+											"count:paid_>=2",
+											"count:dee_minus_>=1"
+										]
+									}
+								}
+							]
+						},
+						{
+							"id": "salvage",
+							"if": {
+								"any": [
+									"count:paid_>=2",
+									"count:dee_minus_>=1"
+								]
+							}
+						},
+						{
+							"id": "ines"
+						}
+					]
+				},
+				{
+					"way": 3,
+					"id": "exit_ramp",
+					"label": "The exit ramp",
+					"set": [
+						"ramp_c10"
+					],
+					"endings": [
+						{
+							"id": "salvage"
 						}
 					]
 				}
@@ -556,19 +680,25 @@
 	],
 	"endings": [
 		{
-			"id": "ending_dark",
-			"title": "Dark ending",
-			"scene": "end_dark"
+			"id": "vesper",
+			"title": "Vesper",
+			"scene": "end_vesper"
 		},
 		{
-			"id": "ending_even",
-			"title": "Even ending",
-			"scene": "end_even"
+			"id": "ines",
+			"title": "Ines",
+			"scene": "end_ines"
 		},
 		{
-			"id": "ending_light",
-			"title": "Light ending",
-			"scene": "end_light"
+			"id": "salvage",
+			"title": "Salvage",
+			"scene": "end_salvage"
+		},
+		{
+			"id": "white",
+			"title": "White",
+			"scene": "end_white",
+			"secret": true
 		}
 	]
 }

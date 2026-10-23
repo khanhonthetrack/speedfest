@@ -12,7 +12,8 @@ extends Node3D
 ## "pos": [x, y, z] (the shot's anchor frame: x left, y up, z ahead), "face": degrees (0 faces +z,
 ## 90 faces +x: the anchor's left), "path": [[x, z], ...] walked at "speed" m/s from "walk_at" s
 ## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36), "look": "coat" (default, near
-## black cloth) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m)}
+## black cloth) | "drowned" (pale, soaked, glossy, dripping) | "grey" (the mannequin as it comes),
+## "scale": 1.0 (1.83 m)}
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
 ## The clips' own travel speed (docs/ANIMATIONS.md, measured from the _rm file's root track).
@@ -23,6 +24,7 @@ static var _coat: StandardMaterial3D
 static var _clips: PackedStringArray = []
 
 var spec := {}
+var in_car := ""                   ## seated in this car of the shot (StoryScene moves it with the car)
 var _player: AnimationPlayer
 var _anim: Animation
 var _path: Array[Vector3] = []     ## walked points (anchor frame), with their cumulative lengths
@@ -59,6 +61,58 @@ static func coat() -> StandardMaterial3D:
 	return _coat
 
 
+## Soaked: black and glossy, the light running off it (the passenger in the mirror).
+static func drowned() -> StandardMaterial3D:
+	# the living are dark shapes; the dead one is pale: cold grey skin, soaked, shining
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.16, 0.19, 0.2)
+	m.roughness = 0.4
+	m.metallic_specular = 0.7
+	m.clearcoat_enabled = true
+	m.clearcoat = 1.0
+	m.clearcoat_roughness = 0.05
+	m.rim_enabled = true
+	m.rim = 0.8
+	m.rim_tint = 0.1
+	return m
+
+
+## Water dripping off a seated, soaked figure.
+static func _drips() -> GPUParticles3D:
+	var p := GPUParticles3D.new()
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	pm.emission_box_extents = Vector3(0.22, 0.25, 0.12)
+	pm.direction = Vector3(0, -1, 0)
+	pm.spread = 3.0
+	pm.initial_velocity_min = 0.2
+	pm.initial_velocity_max = 0.6
+	pm.gravity = Vector3(0, -6.0, 0)
+	pm.particle_flag_align_y = true
+	p.process_material = pm
+	var q := QuadMesh.new()
+	q.size = Vector2(0.003, 0.04)
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_color = Color(0.7, 0.8, 1.0, 0.25)
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	m.billboard_keep_scale = true
+	q.material = m
+	p.draw_pass_1 = q
+	p.amount = 60
+	p.lifetime = 0.5
+	p.position = Vector3(0, 1.0, 0.05)
+	p.local_coords = false
+	return p
+
+
+## A seated person's frame: the car's road frame, which moves (StoryScene calls it each frame).
+func rebase(base: Transform3D) -> void:
+	_base = base
+	_ground = Callable()
+
+
 ## base: the anchor frame in the world; ground: snaps an anchor-frame point to the ground (world).
 func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	spec = s
@@ -74,10 +128,14 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	_anim = _player.get_animation(clip)
 	_player.play(clip)
 	_player.pause()
-	if String(s.get("look", "coat")) == "coat":
+	var look := String(s.get("look", "coat"))
+	if look in ["coat", "drowned"]:
+		var m := coat() if look == "coat" else drowned()
 		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
 			for k in mi.mesh.get_surface_count():
-				mi.set_surface_override_material(k, coat())
+				mi.set_surface_override_material(k, m)
+	if look == "drowned":
+		add_child(_drips())
 	var sc := float(s.get("scale", 1.0))
 	body.scale = Vector3.ONE * sc
 	var p: Array = s.get("pos", [0.0, 0.0, 0.0])

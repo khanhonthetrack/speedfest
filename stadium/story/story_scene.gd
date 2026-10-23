@@ -9,19 +9,33 @@ extends Node3D
 ##
 ## Scene: {"id", "chapter", "title", "track" (default for its shots), "at" (default anchor),
 ##   "set": [flags the scene sets when it ends or is skipped], "shots": [shot, ...]}
-## Shot: {"id", "track", "at" (fraction of the track's racing line where the shot's anchor stands),
+## Shot: {"id", "if" (StoryState.holds: the shot plays only then), "track", "at" (fraction of the
+##   track's racing line where the shot's anchor stands),
 ##   "left", "ahead" (m off that point), "dur" (s; default: as long as its lines need, "lead"
 ##   before the first and "tail" after the last), "min" (s, default 2.5),
-##   "camera": {"keys": [{"u" (0..1 of the shot) | "t" (s), "pos": [x, y, z], "look": [x, y, z],
+##   "camera": {"keys": [{"u" (0..1 of the shot) | "t" (s), "pos": [x, y, z] | a place in the
+##     followed car ("driver_head", "mirror": StoryCabin.points), "look": [x, y, z],
 ##     "fov" (40), "roll" (deg), "dof": [far m, transition m, amount]}], "ease": "inout" | "linear" |
 ##     "in" | "out", "follow": a car's id (its frame instead of the anchor's), "shake": m},
 ##   "cars": [{"id", "model" (TmCarVisual.model: a road car's id, "hyper", "" the open-wheeler),
 ##     "livery", "colour" (TmUi.CAR_COLOURS index), "tuning": "spoiler.rims.glow.hood", "ghost",
 ##     "left", "ahead" (m from the anchor along the line), "lift", "yaw" (deg), "lights" (headlights),
-##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0)}],
-##   "people": [StoryPerson spec], "lights": [{"kind": "omni" | "spot", "pos", "look", "colour",
-##     "energy", "range", "angle"}], "rain": 0..1, "fade_in", "fade_out" (s), "black": true (no
-##   picture: a title card on black), "card": {"title", "subtitle"},
+##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
+##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
+##     clear: for shots inside it), "dome" (its courtesy light's energy: a passenger lit in the
+##     mirror), "from", "to" (s: on screen only then)}],
+##   "people": [StoryPerson spec, plus "car": a car's id and "seat": "driver" | "passenger" |
+##     "rear" (seated in it, moving with it), "from", "to"], "lights": [{"kind": "omni" | "spot",
+##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on)}], "rain": 0..1,
+##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
+##   "subtitle"},
+##   the horror layer (docs/STORY.md, THE PASSENGER): "mirror": {camera keys like "camera", "follow",
+##     "rect": [x, y, w, h] (fractions of the screen)} (a rear-view mirror: a second camera, its
+##     picture flipped and framed), "glass": 0..1 (rain on the windscreen), "flash": [[at, s], ...]
+##     (white frames), "flicker": {"rate", "depth"} (the lights stutter), "sounds": [{"at", "cue"}]
+##     (StorySounds: sting, chime, thump), "ambience": a looping cue (rain, heartbeat),
+##   "cctv": {"label", "clock": "03:12:04"} (a security camera's grey, grainy picture),
+##   "props": [StoryProps: containers, a crane, floodlight poles, toll booths],
 ##   "lines": [{"id", "speaker", "text", "kind": "say" (a subtitle) | "text" (a message arriving on
 ##     the phone: "mine" for the player's own) | "phone" (the thread's name: {"from"}), "hold" (s;
 ##     default from the text's length), "gap" (s before it), "at" (s into the shot, else after the
@@ -55,6 +69,11 @@ var _props: Node3D
 var _rain: GPUParticles3D
 var _attrs: CameraAttributesPractical
 var _done := false
+var _mirror_vp: SubViewport           ## the rear-view mirror's picture (a shot's "mirror")
+var _mirror_cam: Camera3D
+var _players := {}                     ## sound cue -> AudioStreamPlayer
+var _fired := {}                       ## "shot:index" -> true: the shot's sounds already played
+var _last_local := -1.0
 
 
 static func path_of(id: String) -> String:
@@ -93,6 +112,24 @@ func setup(d: Dictionary, st: StoryState = null, stage := true) -> void:
 	add_child(_props)
 	subtitles = StorySubtitles.new()
 	add_child(subtitles)
+	if with_stage:
+		_line_cabins()
+
+
+## Lines every cabin car of the scene now (StoryCabin.fit_car: a fraction of a second a model, once),
+## so a cut to a shot inside a car doesn't stall.
+func _line_cabins() -> void:
+	var models := {}
+	for s: Dictionary in shots:
+		for c: Dictionary in s.get("cars", []):
+			if bool(c.get("cabin", false)):
+				models[String(c.get("model", "hyper"))] = true
+	for m: String in models:
+		var car := TmCarVisual.new()
+		car.model = m
+		add_child(car)
+		StoryCabin.fit_car(car)
+		car.free()
 
 
 ## Times every shot and line, the lines whose conditions fail left out (so a cold, warm or hot
@@ -101,6 +138,8 @@ func resolve() -> void:
 	shots.clear()
 	var at := 0.0
 	for s: Dictionary in data.get("shots", []):
+		if not state.holds(s.get("if", null)):
+			continue                      # a shot for another decision or another tier
 		var shot := s.duplicate(true)
 		var lines: Array = []
 		var cur := float(s.get("lead", 0.6))
@@ -234,6 +273,8 @@ func _enter(i: int) -> void:
 		_build_stage(track)
 	for c: Dictionary in _cars.values():
 		(c["node"] as Node).queue_free()
+		if c.has("cabin"):
+			(c["cabin"] as Node).queue_free()
 	_cars.clear()
 	for p in _people:
 		p.queue_free()
@@ -246,11 +287,26 @@ func _enter(i: int) -> void:
 	for p: Dictionary in s.get("people", []):
 		var person := StoryPerson.new()
 		add_child(person)
-		person.setup(p, _anchor, func(q: Vector3) -> Vector3: return _ground(_anchor * q))
+		var spec := p
+		var car_id := String(p.get("car", ""))
+		if not car_id.is_empty() and _cars.has(car_id):
+			# seated in a car: its road frame, no ground under it
+			spec = p.duplicate()
+			var model := String((_cars[car_id]["spec"] as Dictionary).get("model", "hyper"))
+			if p.has("seat"):
+				var at: Vector3 = StoryCabin.points(model).get(String(p["seat"]), Vector3.ZERO)
+				spec["pos"] = [at.x, at.y, at.z]
+			person.setup(spec, _anchor, Callable())
+			person.in_car = car_id
+		else:
+			person.setup(spec, _anchor, func(q: Vector3) -> Vector3: return _ground(_anchor * q))
 		_people.append(person)
 	for l: Dictionary in s.get("lights", []):
 		_add_light(l)
+	StoryProps.build(_props, s.get("props", []), _anchor)
 	_set_rain(float(s.get("rain", data.get("rain", 0.0))))
+	_set_mirror(s)
+	_set_ambience(String(s.get("ambience", "")))
 
 
 func _build_stage(track: String) -> void:
@@ -334,7 +390,14 @@ func _add_car(c: Dictionary) -> void:
 			sl.position = Vector3(0.62 * side, 0.15, 1.9)
 			sl.rotation = Vector3(deg_to_rad(-4.0), PI, 0.0)    # spot lights shine along -z: turned to face ahead
 			car.add_child(sl)
-	_cars[String(c.get("id", "car%d" % _cars.size()))] = {"node": car, "spec": c}
+	var entry := {"node": car, "spec": c}
+	if bool(c.get("cabin", false)):
+		StoryCabin.fit_car(car)
+		var pins := int(c.get("pins", state.facts() if state != null else 0))
+		var cabin := StoryCabin.make(car.model, pins, float(c.get("dome", 0.0)))
+		add_child(cabin)
+		entry["cabin"] = cabin
+	_cars[String(c.get("id", "car%d" % _cars.size()))] = entry
 
 
 func _add_light(l: Dictionary) -> void:
@@ -434,10 +497,19 @@ func _pose(local: float) -> void:
 		var car := c["node"] as TmCarVisual
 		car.global_transform = Transform3D(basis, xf * (Basis(Vector3.UP, yaw) * (TmCarVisual.VIS + Vector3(0.0, lift, 0.0))))
 		car.ghost_speed = v0 + a * tt
-		c["xf"] = xf
+		car.visible = _on_screen(spec, local)
+		c["xf"] = Transform3D(basis, xf.origin)
+		if c.has("cabin"):
+			(c["cabin"] as Node3D).global_transform = c["xf"]
 	for p in _people:
+		if not p.in_car.is_empty() and _cars.has(p.in_car):
+			p.rebase(_cars[p.in_car]["xf"])
 		p.pose(local)
-	_pose_camera(s, local, dur)
+		p.visible = _on_screen(p.spec, local)
+	_aim(s.get("camera", {}), camera, _attrs, local, dur)
+	if _mirror_cam != null and s.has("mirror"):
+		_aim(s["mirror"], _mirror_cam, null, local, dur)
+	_flicker(s, local)
 	if _rain != null and camera != null:
 		_rain.global_position = camera.global_position + Vector3(0.0, 8.0, 0.0)
 	# the 2D layer
@@ -457,11 +529,24 @@ func _pose(local: float) -> void:
 	if subtitles != null and subtitles.is_inside_tree():
 		subtitles.show_state(line_at(t), fade, card, phone_at(t), skip_held / StorySubtitles.SKIP_HOLD,
 			float(s.get("bars", data.get("bars", 1.0))))
+		subtitles.set_glass(float(s.get("glass", 0.0)), t)
+		subtitles.set_cctv(s.get("cctv", {}), local, t)
+		var flash := 0.0
+		for f: Array in s.get("flash", []):
+			var d := local - float(f[0])
+			if d >= 0.0 and d < float(f[1]):
+				flash = maxf(flash, 1.0 - d / float(f[1]))
+		subtitles.set_flash(flash)
+	if playing:
+		_sounds(s, local)
+	_last_local = local
 
 
-func _pose_camera(s: Dictionary, local: float, dur: float) -> void:
-	var cam: Dictionary = s.get("camera", {})
+## Puts a camera where a shot's camera (or mirror) keys say at this moment.
+func _aim(cam: Dictionary, which: Camera3D, attrs: CameraAttributesPractical, local: float, dur: float) -> void:
 	var keys: Array = cam.get("keys", [])
+	if keys.is_empty() and cam.has("pos"):
+		keys = [cam]
 	if keys.is_empty():
 		keys = [{"u": 0.0, "pos": [4.0, 1.5, 7.0], "look": [0.0, 0.7, 0.0]}]
 	var u := local / maxf(dur, 0.001)
@@ -481,28 +566,120 @@ func _pose_camera(s: Dictionary, local: float, dur: float) -> void:
 	var frame := _anchor
 	if cam.has("follow") and _cars.has(String(cam["follow"])):
 		frame = _cars[String(cam["follow"])].get("xf", _anchor)
-	var pos := _vec(a.get("pos", [4, 1.5, 7])).lerp(_vec(b.get("pos", a.get("pos", [4, 1.5, 7]))), f)
+	var model := ""
+	if cam.has("follow") and _cars.has(String(cam["follow"])):
+		model = String((_cars[String(cam["follow"])]["spec"] as Dictionary).get("model", "hyper"))
+	var pos := _at(a.get("pos", [4, 1.5, 7]), model).lerp(_at(b.get("pos", a.get("pos", [4, 1.5, 7])), model), f)
 	var look := _vec(a.get("look", [0, 0.7, 0])).lerp(_vec(b.get("look", a.get("look", [0, 0.7, 0]))), f)
 	var shake := float(cam.get("shake", 0.0))
 	if shake > 0.0:
 		pos += Vector3(sin(t * 13.1) + sin(t * 7.3), sin(t * 11.7) * 0.6, sin(t * 5.9)) * shake * 0.5
-	camera.global_position = frame * pos
+	which.global_position = frame * pos
 	var target := frame * look
-	if not camera.global_position.is_equal_approx(target):
-		camera.look_at(target, frame.basis.y)
+	if not which.global_position.is_equal_approx(target):
+		which.look_at(target, frame.basis.y)
 	var roll := lerpf(float(a.get("roll", 0.0)), float(b.get("roll", a.get("roll", 0.0))), f)
 	if roll != 0.0:
-		camera.rotate_object_local(Vector3.FORWARD, deg_to_rad(roll))
-	camera.fov = lerpf(float(a.get("fov", 40.0)), float(b.get("fov", a.get("fov", 40.0))), f)
+		which.rotate_object_local(Vector3.FORWARD, deg_to_rad(roll))
+	which.fov = lerpf(float(a.get("fov", 40.0)), float(b.get("fov", a.get("fov", 40.0))), f)
+	if attrs == null:
+		return
 	var da: Array = a.get("dof", [])
 	var db: Array = b.get("dof", da)
-	_attrs.dof_blur_far_enabled = da.size() == 3
+	attrs.dof_blur_far_enabled = da.size() == 3
 	if da.size() == 3:
 		if db.size() != 3:
 			db = da
-		_attrs.dof_blur_far_distance = lerpf(float(da[0]), float(db[0]), f)
-		_attrs.dof_blur_far_transition = lerpf(float(da[1]), float(db[1]), f)
-		_attrs.dof_blur_amount = lerpf(float(da[2]), float(db[2]), f)
+		attrs.dof_blur_far_distance = lerpf(float(da[0]), float(db[0]), f)
+		attrs.dof_blur_far_transition = lerpf(float(da[1]), float(db[1]), f)
+		attrs.dof_blur_amount = lerpf(float(da[2]), float(db[2]), f)
+
+
+## A car or a person with "from" / "to" is on screen only between them (shot seconds).
+static func _on_screen(spec: Dictionary, local: float) -> bool:
+	return local >= float(spec.get("from", -1.0e9)) and local < float(spec.get("to", 1.0e9))
+
+
+## The shot's rear-view mirror: a second camera into a picture the 2D layer frames and flips.
+func _set_mirror(s: Dictionary) -> void:
+	if not s.has("mirror"):
+		if subtitles != null:
+			subtitles.show_mirror(null, Rect2())
+		return
+	var r: Array = (s["mirror"] as Dictionary).get("rect", [0.3, 0.06, 0.4, 0.2])
+	var rect := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+	if _mirror_vp == null:
+		_mirror_vp = SubViewport.new()
+		_mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		add_child(_mirror_vp)
+		_mirror_cam = Camera3D.new()
+		_mirror_cam.far = TmSkyline.FAR
+		var ma := CameraAttributesPractical.new()
+		ma.exposure_multiplier = 2.4            # a mirror shot reads the dark car behind and the back seat
+		_mirror_cam.attributes = ma
+		_mirror_vp.add_child(_mirror_cam)
+		_mirror_cam.current = true
+	var vs := get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1600, 900)
+	_mirror_vp.size = Vector2i(maxi(64, int(vs.x * rect.size.x)), maxi(32, int(vs.y * rect.size.y)))
+	if subtitles != null:
+		subtitles.show_mirror(_mirror_vp.get_texture(), rect)
+
+
+## "flicker": every light of the shot (its props and the cars' cabins) stutters.
+func _flicker(s: Dictionary, local: float) -> void:
+	var fl: Dictionary = s.get("flicker", {})
+	var lights: Array = _props.find_children("*", "Light3D", true, false)
+	for c: Dictionary in _cars.values():
+		if c.has("cabin"):
+			lights.append_array((c["cabin"] as Node).find_children("*", "Light3D", true, false))
+	for l: Light3D in lights:
+		if not l.has_meta("energy"):
+			l.set_meta("energy", l.light_energy)
+		var base := float(l.get_meta("energy"))
+		if fl.is_empty():
+			l.light_energy = base
+			continue
+		var rate := float(fl.get("rate", 9.0))
+		var n := sin(local * rate * 6.1) * sin(local * rate * 2.3 + 1.7)
+		l.light_energy = base * (1.0 - float(fl.get("depth", 0.8)) * (1.0 if n > 0.35 else 0.0))
+
+
+## A shot's sounds, each once, as the playing scene passes its moment.
+func _sounds(s: Dictionary, local: float) -> void:
+	var list: Array = s.get("sounds", [])
+	for k in list.size():
+		var key := "%d:%d" % [_shot, k]
+		var at := float((list[k] as Dictionary).get("at", 0.0))
+		if _fired.has(key) or local < at or _last_local > at + 0.25:
+			continue
+		_fired[key] = true
+		_play(String(list[k]["cue"]), float(list[k].get("db", 0.0)))
+
+
+func _play(cue: String, db := 0.0) -> AudioStreamPlayer:
+	var stream := StorySounds.get_stream(cue)
+	if stream == null:
+		return null
+	var p: AudioStreamPlayer = _players.get(cue, null)
+	if p == null:
+		p = AudioStreamPlayer.new()
+		add_child(p)
+		_players[cue] = p
+	p.stream = stream
+	p.volume_db = db
+	p.play()
+	return p
+
+
+## A shot's looping sound (rain on the roof, a heartbeat), only while the scene plays.
+func _set_ambience(cue: String) -> void:
+	for name: String in _players:
+		if StorySounds.loops(name) and name != cue:
+			(_players[name] as AudioStreamPlayer).stop()
+	if playing and not cue.is_empty():
+		var p: AudioStreamPlayer = _players.get(cue, null)
+		if p == null or not p.playing:
+			_play(cue, -6.0)
 
 
 static func _ease(f: float, kind: String) -> float:
@@ -515,6 +692,14 @@ static func _ease(f: float, kind: String) -> float:
 			return 1.0 - (1.0 - f) * (1.0 - f)
 		_:
 			return f * f * (3.0 - 2.0 * f)
+
+
+## A camera key's place: [x, y, z], or the name of a place in the followed car (StoryCabin.points:
+## "driver_head", "mirror"), so a shot from the seat or in the mirror fits any car.
+static func _at(v: Variant, model: String) -> Vector3:
+	if v is String:
+		return StoryCabin.points(model if not model.is_empty() else "hyper").get(v, Vector3.ZERO)
+	return _vec(v)
 
 
 static func _vec(v: Variant) -> Vector3:

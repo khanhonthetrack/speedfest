@@ -87,10 +87,15 @@ func _flow(g: StoryGraph, diff: String) -> void:
 			"race":
 				trail.append("race %d %s" % [st["map"], st["track"]])
 				f.map_done(int(st["map"]), String(st["track"]), 30000, 1 if int(st["map"]) == 2 else 0)
-	# the first night: everything up to the second choice
-	for i in range(1, trail.size()):
+	# the prologue once, then the first night: everything up to the second choice
+	var prologue := String(g.data.get("prologue", ""))
+	var at := 0
+	if not prologue.is_empty():
+		TestHooks.check(trail[0] == prologue and trail.count(prologue) == 1, "story_flow_prologue_once", str(trail.slice(0, 3)))
+		at = 1
+	for i in range(at + 1, trail.size()):
 		if trail[i].begins_with("choose "):
-			first_night = trail.slice(0, i)
+			first_night = trail.slice(at, i)
 			break
 	var c1 := String(first_night[0]).trim_prefix("choose ") if not first_night.is_empty() else ""
 	if c1.is_empty():

@@ -201,12 +201,14 @@ beyond the fence.*
     Dee looks at the satnav for a long moment: "Huh. Nine pins."
 - **Fact:** the chassis stamp under the black paint matches the white coupe pulled out of the river
   eight years ago. You are driving Vesper's car.
-- **Gates (H03):** (0) pay Gus the difference out of your savings (the wide, safe line) → THE ROOF;
-  (1) get Gus to feed the Halloran buyer a false chassis number → THE BODY SHOP; (2) hand the recovery
-  file to Sgt. Voss, who is waiting at the dock gate → THE PATROL; (3, cold) sell Gus the name of the
-  arch that rebuilt the car, Dee's, so he can sell it on to the Hallorans (the fastest line, under the
-  swinging crane hook) → THE LOCK.
-- **Flags:** (0) `paid_gus`; (1) `lied_chassis`; (2) `voss_c01`; (3) `dark_c01`, `dee_minus_c01`.
+- **Gates (H03; the numbers are the track's ways, the main way 0 then its three forks):** (0, cold)
+  sell Gus the name of the arch that rebuilt the car, Dee's, so he can sell it on to the Hallorans
+  (the main way, flat out under the swinging crane hook: the fastest line) →
+  THE LOCK; (1) pay Gus the difference out of your savings (the first fork, wide and safe) → THE
+  ROOF; (2) get Gus to feed the Halloran buyer a false chassis number → THE BODY SHOP; (3) hand the
+  recovery file to Sgt. Voss, who is waiting at the dock gate → THE PATROL. (A fork's corner always
+  costs time, so on a forked map the straight-on way is the cold one.)
+- **Flags:** (0) `dark_c01`, `dee_minus_c01`; (1) `paid_gus`; (2) `lied_chassis`; (3) `voss_c01`.
 
 ### Night 2: THE ROOF
 
@@ -434,7 +436,7 @@ The finish of the best run on H30 picks the ending, with the flags (first that h
 
 | Night | gate 0 | gate 1 | gate 2 | gate 3 (cold) |
 |---|---|---|---|---|
-| c01 THE YARD | c02 Roof | c04 Body Shop | c08 Patrol | c06 Lock |
+| c01 THE YARD (track ways: 0 cold Lock, 1 Roof, 2 Body Shop, 3 Patrol) | c02 Roof | c04 Body Shop | c08 Patrol | c06 Lock |
 | c02 THE ROOF | c03 Plaza | c05 Noodle | c06 Lock | c09 Market |
 | c03 THE PLAZA | c04 Body Shop | c07 Hill | c09 Market | c02 Roof |
 | c04 THE BODY SHOP | c08 Patrol | c02 Roof | c05 Noodle | c07 Hill |
