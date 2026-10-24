@@ -1,0 +1,104 @@
+{
+ "assets": [
+  "clothes/male_casualsuit05",
+  "clothes/toigo_ankle_boots_male",
+  "eyebrows/eyebrow009",
+  "eyelashes/eyelashes01",
+  "eyes/high-poly",
+  "hair/short04",
+  "skins/jartur69_middleage_slavic_male_with_genitals_and_beard",
+  "teeth/teeth_base",
+  "tongue/tongue01"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.8204,
+ "face_shapes": [
+  "browDownLeft",
+  "browDownRight",
+  "browInnerUp",
+  "eyeBlinkLeft",
+  "eyeBlinkRight",
+  "eyeLookDownLeft",
+  "eyeLookDownRight",
+  "eyeLookInLeft",
+  "eyeLookInRight",
+  "eyeLookOutLeft",
+  "eyeLookOutRight",
+  "eyeLookUpLeft",
+  "eyeLookUpRight",
+  "eyeSquintLeft",
+  "eyeSquintRight",
+  "jawOpen",
+  "mouthClose",
+  "mouthFrownLeft",
+  "mouthFrownRight",
+  "mouthSmileLeft",
+  "mouthSmileRight",
+  "viseme_CH",
+  "viseme_DD",
+  "viseme_E",
+  "viseme_FF",
+  "viseme_I",
+  "viseme_O",
+  "viseme_PP",
+  "viseme_RR",
+  "viseme_SS",
+  "viseme_TH",
+  "viseme_U",
+  "viseme_aa",
+  "viseme_kk",
+  "viseme_nn"
+ ],
+ "head": 1.7805,
+ "height": 1.9527,
+ "id": "gus",
+ "materials": {
+  "brow__eyebrow009": {
+   "desaturate": true,
+   "role": "brow",
+   "tint": "#bdb8b0"
+  },
+  "cloth__male_casualsuit05": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__toigo_ankle_boots_male": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "eye__high-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__short04": {
+   "desaturate": true,
+   "role": "hair",
+   "tint": "#d6d2cc"
+  },
+  "hivis__hivis_vest": {
+   "role": "hivis",
+   "tint": "#ffffff"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  },
+  "teeth__teeth_base": {
+   "role": "teeth",
+   "tint": "#ffffff"
+  },
+  "tongue__tongue01": {
+   "role": "tongue",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "Gus Pell",
+ "pelvis": 1.0658,
+ "spec": "gus.json",
+ "triangles": 41136
+}

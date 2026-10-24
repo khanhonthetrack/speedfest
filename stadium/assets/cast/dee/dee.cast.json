@@ -1,0 +1,98 @@
+{
+ "assets": [
+  "clothes/male_worksuit01",
+  "clothes/toigo_ankle_boots_female",
+  "eyebrows/eyebrow010",
+  "eyelashes/eyelashes02",
+  "eyes/high-poly",
+  "hair/elvs_50s_updo",
+  "skins/young_caucasian_female",
+  "teeth/teeth_base",
+  "tongue/tongue01"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.4873,
+ "face_shapes": [
+  "browDownLeft",
+  "browDownRight",
+  "browInnerUp",
+  "eyeBlinkLeft",
+  "eyeBlinkRight",
+  "eyeLookDownLeft",
+  "eyeLookDownRight",
+  "eyeLookInLeft",
+  "eyeLookInRight",
+  "eyeLookOutLeft",
+  "eyeLookOutRight",
+  "eyeLookUpLeft",
+  "eyeLookUpRight",
+  "eyeSquintLeft",
+  "eyeSquintRight",
+  "jawOpen",
+  "mouthClose",
+  "mouthFrownLeft",
+  "mouthFrownRight",
+  "mouthSmileLeft",
+  "mouthSmileRight",
+  "viseme_CH",
+  "viseme_DD",
+  "viseme_E",
+  "viseme_FF",
+  "viseme_I",
+  "viseme_O",
+  "viseme_PP",
+  "viseme_RR",
+  "viseme_SS",
+  "viseme_TH",
+  "viseme_U",
+  "viseme_aa",
+  "viseme_kk",
+  "viseme_nn"
+ ],
+ "head": 1.4549,
+ "height": 1.5982,
+ "id": "dee",
+ "materials": {
+  "brow__eyebrow010": {
+   "role": "brow",
+   "tint": "#5a4636"
+  },
+  "cloth__male_worksuit01": {
+   "role": "cloth",
+   "tint": "#5d6f8f"
+  },
+  "cloth__toigo_ankle_boots_female": {
+   "role": "cloth",
+   "tint": "#4a362a"
+  },
+  "eye__high-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__elvs_50s_updo": {
+   "role": "hair",
+   "tint": "#4a3426"
+  },
+  "lash__eyelashes02": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  },
+  "teeth__teeth_base": {
+   "role": "teeth",
+   "tint": "#ffffff"
+  },
+  "tongue__tongue01": {
+   "role": "tongue",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "Dee Sandoval",
+ "pelvis": 0.8317,
+ "spec": "dee.json",
+ "triangles": 40387
+}

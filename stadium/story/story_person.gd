@@ -2,7 +2,9 @@ class_name StoryPerson
 extends Node3D
 ## A person in a cutscene (PLAN M20-3): Quaternius' Mannequin (assets/anim/ual, CC0;
 ## docs/ANIMATIONS.md) playing one of the library's clips, dressed dark so it reads as a figure in
-## the night (the shot grammar keeps people in silhouette, backlit, at body distance: no faces).
+## the night (the shot grammar keeps people in silhouette, backlit, at body distance: no faces);
+## or, with "who", a member of the modelled cast (StoryCast, PLAN M20-9) playing the same clips in
+## its own clothes, lifted onto the ground per clip (StoryCast.ground), walking at its own stride.
 ## Everything is a function of the scene's time (pose(t)), so a cutscene can be seeked to any
 ## frame and plays the same headless.
 ##
@@ -11,13 +13,15 @@ extends Node3D
 ## (default: the clip's own), "start": s into the clip at t = 0, "rate": playback speed,
 ## "pos": [x, y, z] (the shot's anchor frame: x left, y up, z ahead), "face": degrees (0 faces +z,
 ## 90 faces +x: the anchor's left), "path": [[x, z], ...] walked at "speed" m/s from "walk_at" s
-## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36), "look": "coat" (default, near
-## black cloth) | "drowned" (pale, soaked, glossy, dripping) | "grey" (the mannequin as it comes),
-## "scale": 1.0 (1.83 m)}
+## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36; a cast member's scaled by its height
+## over the Mannequin's), "who": a cast member ("dee", ...; none: the Mannequin), "look": "coat"
+## (default, near black cloth; a cast member keeps its clothes) | "drowned" (pale, soaked, glossy,
+## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height)}
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
 ## The clips' own travel speed (docs/ANIMATIONS.md, measured from the _rm file's root track).
 const SPEED := {"Walk": 0.98, "Walk_Formal": 0.98, "Jog_Fwd": 5.36, "Sprint": 8.25, "Crouch_Fwd": 0.75}
+const MANNEQUIN_HEIGHT := 1.83
 
 static var _scene: PackedScene
 static var _coat: StandardMaterial3D
@@ -25,6 +29,7 @@ static var _clips: PackedStringArray = []
 
 var spec := {}
 var in_car := ""                   ## seated in this car of the shot (StoryScene moves it with the car)
+var who := ""                      ## the cast member (StoryCast), "" for the Mannequin
 var _player: AnimationPlayer
 var _anim: Animation
 var _path: Array[Vector3] = []     ## walked points (anchor frame), with their cumulative lengths
@@ -77,6 +82,22 @@ static func drowned() -> StandardMaterial3D:
 	return m
 
 
+## A cast member's own material soaked: darker, shining, the skin gone pale and cold.
+static func soaked(src: StandardMaterial3D) -> StandardMaterial3D:
+	var m := src.duplicate() as StandardMaterial3D
+	var skin := src.resource_name.begins_with("skin__")
+	m.albedo_color = (src.albedo_color.lerp(Color(0.6, 0.68, 0.72), 0.55) if skin else src.albedo_color * 0.55)
+	m.albedo_color.a = src.albedo_color.a
+	m.roughness = 0.18 if skin else 0.22
+	m.clearcoat_enabled = true
+	m.clearcoat = 1.0
+	m.clearcoat_roughness = 0.05
+	m.rim_enabled = true
+	m.rim = 0.6
+	m.rim_tint = 0.1
+	return m
+
+
 ## Water dripping off a seated, soaked figure.
 static func _drips() -> GPUParticles3D:
 	var p := GPUParticles3D.new()
@@ -118,7 +139,11 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	spec = s
 	_base = base
 	_ground = ground
-	var body := _load().instantiate()
+	who = String(s.get("who", ""))
+	if who != "" and not StoryCast.has(who):
+		push_warning("story: no cast member %s, the Mannequin instead" % who)
+		who = ""
+	var body: Node3D = StoryCast.instance(who) if who != "" else _load().instantiate()
 	add_child(body)
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	var clip := String(s.get("clip", "Idle"))
@@ -126,18 +151,25 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		push_warning("story: no clip %s, Idle instead" % clip)
 		clip = "Idle"
 	_anim = _player.get_animation(clip)
+	# a cast member standing (a ground under it; seats place the seated) meets the ground in this clip
+	var lift := StoryCast.ground(who, body, clip) if who != "" and ground.is_valid() else 0.0
 	_player.play(clip)
 	_player.pause()
 	var look := String(s.get("look", "coat"))
-	if look in ["coat", "drowned"]:
+	if look in ["coat", "drowned"] and who == "":
 		var m := coat() if look == "coat" else drowned()
 		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
 			for k in mi.mesh.get_surface_count():
 				mi.set_surface_override_material(k, m)
+	elif look == "drowned":
+		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
+			for k in mi.mesh.get_surface_count():
+				mi.set_surface_override_material(k, soaked(mi.mesh.surface_get_material(k) as StandardMaterial3D))
 	if look == "drowned":
 		add_child(_drips())
 	var sc := float(s.get("scale", 1.0))
 	body.scale = Vector3.ONE * sc
+	body.position.y = lift * sc
 	var p: Array = s.get("pos", [0.0, 0.0, 0.0])
 	_path = [Vector3(float(p[0]), float(p[1]), float(p[2]))]
 	for q: Array in s.get("path", []):
@@ -145,7 +177,9 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	_lengths = [0.0]
 	for i in range(1, _path.size()):
 		_lengths.append(_lengths[-1] + _path[i].distance_to(_path[i - 1]))
-	_speed = float(s.get("speed", SPEED.get(clip, 1.0) * float(s.get("rate", 1.0))))
+	# a shorter body takes shorter strides: the clip's speed scaled by the height over the Mannequin's
+	var stride := float(StoryCast.meta(who).get("height", MANNEQUIN_HEIGHT)) / MANNEQUIN_HEIGHT if who != "" else 1.0
+	_speed = float(s.get("speed", SPEED.get(clip, 1.0) * float(s.get("rate", 1.0)) * stride))
 
 
 ## The person at scene time t (seconds since the shot began).

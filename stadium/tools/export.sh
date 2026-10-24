@@ -23,6 +23,7 @@ for os in windows linux; do
   cp "$ROOT/audio/music/CREDITS.md" "$OUT/$os/CREDITS-music.md"
   cp "$ROOT/audio/sfx/CREDITS.md" "$OUT/$os/CREDITS-sounds.md"
   cp "$ROOT/assets/city/CREDITS.md" "$OUT/$os/CREDITS-city.md"
+  cp "$ROOT/assets/cast/CREDITS.md" "$OUT/$os/CREDITS-cast.md"
   cp "$ROOT/assets/fonts/OFL-Orbitron.txt" "$ROOT/assets/fonts/OFL-Rajdhani.txt" "$OUT/$os/"
   "$PY" - "$OUT/$os" "$OUT/SpeedFestStadium-$os.zip" <<'PYEOF'
 import os, sys, zipfile

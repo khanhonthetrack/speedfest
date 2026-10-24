@@ -155,6 +155,28 @@ own roof; `"mirror"` puts a rear-view mirror's picture over the shot, its camera
     stadium/tools/run.sh res://story/story_lab.tscn -- --file=$PWD/stadium/story/lab/cabin_check.json \
         --ts=0.6,2.6,4.6 --every=20 --frames=60 --shots=/abs/a.png@19,/abs/b.png@39,/abs/c.png@59
 
+### The cast (PLAN M20-9)
+Modelled people for the cutscenes: MakeHuman's body through MPFB 2 in Blender, dressed from the
+MakeHuman community's packs (CC0 and CC BY only), one spec each in `tools/cast/specs/<id>.json`
+(height in metres, phenotype, face targets, skin, eyes and their colour, brows, lashes, hair, clothes,
+tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Built into
+`assets/cast/<id>/` (glTF + sidecar `<id>.cast.json`), textures shared in `assets/cast/tex/`:
+
+    stadium/tools/cast/setup.sh                  # once: Blender 4.5.15, MPFB 2.0.18, the packs (~3 GB, CAST_CACHE)
+    stadium/tools/cast/build.sh [id ...]         # licence gate, build, textures, import; CREDITS.md rewritten
+    python3 -I stadium/tools/cast/licences.py $CAST_CACHE/zips --spec stadium/tools/cast/specs/x.json
+    stadium/tools/run.sh res://story/cast_lab.tscn -- --who=kit_f,dee,gus,mannequin --frames=40 --shot=/abs/out.png
+    stadium/tools/run.sh res://story/cast_lab.tscn -- --who=dee --mode=face --shapes=eyeBlinkLeft:1,jawOpen:0.6 ...
+
+A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports
+retarget onto Godot's humanoid skeleton through `assets/cast/bonemap.tres`). `StoryCast` loads them
+(`instance`, `meta`, `set_shape` for the 35 face shapes, `ground` for the per-clip lift).
+`tests/test_cast_models` checks each one. Traps: an asset's pack list can claim CC0 while its own
+file says AGPL (the gate reads both); MakeHuman's strand brows and lashes cost ~47k triangles (use
+the card ones); boots taller than the trousers' cuffs poke through; a texture's `.import` must come
+from `post.py` (headless import leaves it uncompressed without mipmaps); a garment mesh can hold
+several layers (rays must pass through all of them).
+
 ## The track editor
 Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;
 `-- --edit=<file.sftrack>` opens one). TMNF's Stadium blocks sit in a palette by family (roads,

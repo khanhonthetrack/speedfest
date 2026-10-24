@@ -4305,3 +4305,50 @@ story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save
   Dee knocking stood too tall for the side window: she crouches (`Crouch_Idle`: Godot drops the
   library's `_Loop` suffix, so clip names are as `StoryPerson.clip_names()` lists them).
   `tests/test_story_scenes`: the black layer under the words, no car starting inside a container.
+
+### 24 Oct (session 21, cont.): the modelled cast, Kit (A and B), Dee and Gus (PLAN M20-9)
+The owner: "Start modelling". The survey (a workflow of proposals and judges) chose MakeHuman's body
+through MPFB 2 in Blender, with CC0 and CC BY assets, a licence gate and a spike with go/no-go checks.
+- Pipeline, all in `stadium/tools/cast/` (README "The cast"): `setup.sh` (Blender 4.5.15, MPFB 2.0.18,
+  27 asset packs, each checked by sha256, in a cache outside the repo), `licences.py` (the gate: each
+  asset's own header against its pack's list, the stricter wins; `--spec` checks what the specs name,
+  `--credits` writes `assets/cast/CREDITS.md`), `blender/gen_char.py` (a spec in `specs/<id>.json`
+  -> glTF: the height solved for metres, the clothes refitted, the body's shape baked, then 35 face
+  shapes (ARKit blinks, gaze, squint, brows, jaw, smile, frown; 14 Meta visemes) pruned per part;
+  alternative materials (eye colour); a cover mask (the body hidden wherever a garment covers it
+  closely, a ring kept at each opening); a bespoke hi-vis vest (`"vest"`: the torso pushed out past
+  every garment layer, given thickness, banded); materials named by role), `post.py` (textures
+  shared in `assets/cast/tex/`: JPEG for opaque colour, PNG where alpha matters and for normals; a
+  spec's `"desaturate"` for grey hair; each texture's `.import` written by us: VRAM compressed with
+  mipmaps; each character's `.gltf.import` with the retarget onto Godot's humanoid), `build.sh`
+  (licences -> build -> post -> prune unused textures -> import). Deterministic: two builds of Dee
+  give the same bytes (sha256).
+- In the game: `assets/cast/<id>/` (glTF, bin, sidecar `<id>.cast.json`), `cast_import.gd` (a material
+  per role: skin with subsurface scattering, hair/brows/lashes blended over a depth pre-pass, eyes cut
+  with a wet coat, cloth both sides, "hivis" with a faint glow), `bonemap.tres` (shared with the UAL
+  import, which now retargets the Mannequin's clips onto the same humanoid skeleton: one library for
+  everyone; the Mannequin's poses unchanged within 0.2 mm). `story/story_cast.gd` (StoryCast: ids,
+  sidecar, an instance playing the shared library, face shapes, `ground()`: the per-clip lift that
+  puts a character's soles on the ground). StoryPerson takes `"who"` (a cast member in its own
+  clothes, lifted per clip, walking at its own stride; `"drowned"` soaks its own materials); no
+  `"who"`, the Mannequin as before. `story/cast_lab.tscn` looks at them (line-up, face, full).
+- Kit A (`kit_f`, 1.68 m) and Kit B (`kit_m`, 1.77 m) wear the same (hooded jacket, jeans, sneakers),
+  so the owner picks the person; Dee (1.60 m, overalls, updo, ankle boots); Gus (1.95 m, grey, jacket,
+  the vest). 40-59k triangles each, 2.7-3.8 MB each plus 21 MB of shared textures (34 MB in all).
+- What the spike found: MakeHuman's "brown" iris is red (light brown instead); alpha-to-coverage left
+  the hairline a hard edge and the card brows stippled, plain blending sorted hair cards wrong: the
+  depth pre-pass is right (and survives DLSS and path tracing, which break alpha-to-coverage); the
+  strand-mesh brows and lashes cost 47k triangles (MakeHuman's card ones instead: Dee 105k -> 40k);
+  biker boots poked through the overalls; a pack PNG with a bad iCCP checksum stopped PIL
+  (`LOAD_TRUNCATED_IMAGES` skips it); headless import never marks a texture as used in 3D, so the
+  cast's stayed uncompressed without mipmaps (denim shimmered) until post.py wrote their imports;
+  the two rigs put their foot bones in different places, so feet are tested on the skinned soles;
+  shoes put soles under MakeHuman's bare feet (Dee 1.8 cm) and other legs fold differently (her
+  crouch floats 2.6 cm, Kit's 3.7 cm): hence `StoryCast.ground` per clip; a ray stops at its first hit,
+  and Gus's suit is a shirt under a jacket in one mesh (the vest went between them): rays go through
+  every layer of the stack on the body. The knock in night 1 needs re-blocking once Dee is modelled
+  there (a 1.60 m woman's face stands above the side window; crouching hides it): night 1 stays on
+  the Mannequin until all its people exist.
+- `tests/test_cast_models` (in the gate): per character, the humanoid bones, the clips reach them,
+  materials by role, face shapes on the parts that move, budgets (70k triangles, 12 MB), credited,
+  stands as built, soles on the ground in Idle/Walk/Crouch_Idle, the same pose whatever the seek order.

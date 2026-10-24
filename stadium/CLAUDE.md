@@ -71,7 +71,15 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-23. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-24. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+- **Story mode (PLAN M20, 23-24 Oct, session 21):** premise A "Previous Owner" (`docs/STORY.md`, the
+  bible; the brief `docs/STORY_MODE_PROMPT.md`); night 1 is playable from the Story page (H01-H03, the
+  prologue and five scenes, the mirror nightmare) and waits for the owner's sign-off (stills page in
+  HANDOFF); every story map is a 7-minute time attack whose best run counts. README "Story mode".
+- **The modelled cast (PLAN M20-9, 24 Oct):** Kit A/B, Dee and Gus built by `tools/cast/` (MPFB 2 in
+  Blender, a licence gate, `build.sh`) into `assets/cast/`; `story/story_cast.gd`, StoryPerson's
+  `"who"`, `story/cast_lab.tscn`, `tests/test_cast_models`. Night 1 still uses the Mannequin. Next: the
+  owner's picks, faces, the rest of the people. README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone
@@ -90,7 +98,7 @@ Updated 2026-10-23. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   it leans; TMNF maps unchanged), rooftop splits and forks to a second finish (the track test drives
   every way; the fastest sets the medals), a fall respawns by itself on Sky maps. README "Sky maps".
 - **Our own menu look (PLAN M16, 22 Oct):** the menus left TMNF's look: `ui/sf_ui.gd` (charcoal,
-  red and violet accents, Montserrat), `ui/sf_header.gd` (tabs; Story locked), `ui/sf_tile.gd`
+  red and violet accents, Montserrat), `ui/sf_header.gd` (tabs; Story unlocked since M20-6), `ui/sf_tile.gd`
   (home's picture panels, rendered by `tools/icons/menu_art.sh`), Options as explained rows. The
   race's overlays keep TMNF's look for now (next). With the road cars (M17) and tuning (M18), all
   on `stadium` (22 Oct): a Garage tab and Home panel, the Garage/Tuning pages in SfUi;

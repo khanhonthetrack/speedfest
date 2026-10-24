@@ -1,5 +1,27 @@
 # HANDOFF: start here
 
+## Latest (24 Oct, session 21 cont., cloud, `stadium`): the modelled cast (PLAN M20-9)
+- The owner: **"Start modelling"** (Kit, Dee and Gus first, with the best graphics). The survey chose
+  MakeHuman's body through MPFB 2 in Blender (CC0 and CC BY assets only, each checked by
+  `tools/cast/licences.py`, credited in `assets/cast/CREDITS.md`, shipped as `CREDITS-cast.md`).
+- **Built**: `kit_f` and `kit_m` (Kit A and B, the same clothes: the owner picks the person), `dee`,
+  `gus` (a generated hi-vis vest) in `stadium/assets/cast/`. Rebuild: `stadium/tools/cast/setup.sh`
+  once (about 3 GB cache, `CAST_CACHE`), then `stadium/tools/cast/build.sh [id ...]`. A new person:
+  write `tools/cast/specs/<id>.json` (copy one; assets by folder name from the packs; `licences.py
+  <zips> --spec` says if they may be used), build, look (`story/cast_lab.tscn`), run
+  `tests/test_cast_models`. README "The cast" has the details and the traps.
+- **In cutscenes**: a person spec's `"who": "dee"` puts a cast member in StoryPerson (own clothes,
+  lifted onto the ground per clip, own stride); without it, the Mannequin as before. **Night 1 still
+  uses the Mannequin** until all its people exist (the passenger, Tibor, the auction crowd); then the
+  knock is re-blocked (Dee stands; the camera in the seat looks up at her face).
+- **Next**: a line-up and close-ups at Ultra for the owner, with the questions (Kit A or B; this
+  look, or more stylised: Quaternius' UBC, CC0, is plan B); then faces (`story_face.gd`: blinks,
+  visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),
+  seating per height (`StoryCabin` uses the Mannequin's crown), the passenger (Dee's double, long
+  hair let down over the face, soaked), Tibor, the crowd (a lighter tier), Cass, Voss, Moth, Pim.
+  Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
+  biggest files (PNG with alpha, 2.4-3.5 MB each).
+
 ## Latest (23 Oct, session 21, cloud, `stadium`): story mode started (PLAN M20)
 - The owner handed `docs/STORY_MODE_PROMPT.md` (the brief, session 20) to this session: **that
   brief is the spec of record; read it first.** PLAN M20 lists the eight steps.

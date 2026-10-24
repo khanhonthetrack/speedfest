@@ -1,0 +1,103 @@
+{
+ "assets": [
+  "clothes/elvs_hooded_sweat_jacket1",
+  "clothes/elvs_jeans_straight_leg",
+  "clothes/punkduck_comfortable_sneakers",
+  "eyebrows/eyebrow001",
+  "eyelashes/eyelashes01",
+  "eyes/high-poly",
+  "hair/short02",
+  "skins/young_asian_male",
+  "teeth/teeth_base",
+  "tongue/tongue01"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.6494,
+ "face_shapes": [
+  "browDownLeft",
+  "browDownRight",
+  "browInnerUp",
+  "eyeBlinkLeft",
+  "eyeBlinkRight",
+  "eyeLookDownLeft",
+  "eyeLookDownRight",
+  "eyeLookInLeft",
+  "eyeLookInRight",
+  "eyeLookOutLeft",
+  "eyeLookOutRight",
+  "eyeLookUpLeft",
+  "eyeLookUpRight",
+  "eyeSquintLeft",
+  "eyeSquintRight",
+  "jawOpen",
+  "mouthClose",
+  "mouthFrownLeft",
+  "mouthFrownRight",
+  "mouthSmileLeft",
+  "mouthSmileRight",
+  "viseme_CH",
+  "viseme_DD",
+  "viseme_E",
+  "viseme_FF",
+  "viseme_I",
+  "viseme_O",
+  "viseme_PP",
+  "viseme_RR",
+  "viseme_SS",
+  "viseme_TH",
+  "viseme_U",
+  "viseme_aa",
+  "viseme_kk",
+  "viseme_nn"
+ ],
+ "head": 1.6063,
+ "height": 1.772,
+ "id": "kit_m",
+ "materials": {
+  "brow__eyebrow001": {
+   "role": "brow",
+   "tint": "#3a2e28"
+  },
+  "cloth__elvs_hooded_sweat_jacket1": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__elvs_jeans_straight_leg": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__punkduck_comfortable_sneakers": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "eye__high-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__short02": {
+   "role": "hair",
+   "tint": "#ffffff"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  },
+  "teeth__teeth_base": {
+   "role": "teeth",
+   "tint": "#ffffff"
+  },
+  "tongue__tongue01": {
+   "role": "tongue",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "Kit Arlen (B)",
+ "pelvis": 0.95,
+ "spec": "kit_m.json",
+ "triangles": 57180
+}
