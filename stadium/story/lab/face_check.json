@@ -1,0 +1,23 @@
+{
+ "id": "face_check",
+ "title": "Faces in a cutscene (StoryFace): Dee speaks, Kit listens and looks at her; a look without the city",
+ "shots": [
+  {
+   "id": "talk",
+   "dur": 8.0,
+   "people": [
+    {"id": "dee", "who": "dee", "clip": "Idle_Talking", "pos": [0.55, 0.0, 0.0], "face": -35},
+    {"id": "kit", "who": "kit", "clip": "Idle", "pos": [-0.55, 0.0, 0.2], "face": 20}
+   ],
+   "lights": [
+    {"kind": "spot", "pos": [-1.5, 2.6, 3.0], "look": [0.0, 1.4, 0.0], "colour": "#ffe0c2", "energy": 9.0, "range": 12.0, "angle": 35.0},
+    {"kind": "omni", "pos": [1.5, 1.8, -1.2], "colour": "#9a6bff", "energy": 3.0, "range": 6.0}
+   ],
+   "camera": {"keys": [{"u": 0, "pos": [0.25, 1.52, 1.25], "look": [0.35, 1.45, 0.0], "fov": 30}]},
+   "lines": [
+    {"speaker": "Dee", "text": "Gone six. You slept in it.", "at": 1.0, "hold": 3.0},
+    {"speaker": "Kit", "text": "What time is it?", "at": 4.6, "hold": 2.4}
+   ]
+  }
+ ]
+}

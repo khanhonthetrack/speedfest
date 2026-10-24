@@ -16,7 +16,10 @@ extends Node3D
 ## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36; a cast member's scaled by its legs
 ## over the Mannequin's: StoryCast.stride), "who": a cast member ("dee", ...; none: the Mannequin), "look": "coat"
 ## (default, near black cloth; a cast member keeps its clothes) | "drowned" (pale, soaked, glossy,
-## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height)}
+## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height),
+## "speaker": the name its lines carry (default: the cast member's first name, else the id),
+## "gaze": "camera" | a person's id (default: whoever on screen is speaking, else straight ahead)}
+## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
 ## The clips' own travel speed (docs/ANIMATIONS.md, measured from the _rm file's root track).
@@ -29,6 +32,7 @@ static var _clips: PackedStringArray = []
 var spec := {}
 var in_car := ""                   ## seated in this car of the shot (StoryScene moves it with the car)
 var who := ""                      ## the cast member (StoryCast), "" for the Mannequin
+var face: StoryFace                ## a cast member's face (StoryScene drives it), null for the Mannequin
 var _player: AnimationPlayer
 var _anim: Animation
 var _path: Array[Vector3] = []     ## walked points (anchor frame), with their cumulative lengths
@@ -79,6 +83,26 @@ static func drowned() -> StandardMaterial3D:
 	m.rim = 0.8
 	m.rim_tint = 0.1
 	return m
+
+
+## Whether a line's speaker is this person: its "speaker", else the cast member's first name, else its id.
+func speaks(name: String) -> bool:
+	if name.is_empty():
+		return false
+	var mine := String(spec.get("speaker", ""))
+	if mine.is_empty() and who != "":
+		mine = String(StoryCast.meta(who).get("name", "")).get_slice(" ", 0)
+	if mine.is_empty():
+		mine = String(spec.get("id", ""))
+	return mine.to_lower() == name.to_lower()
+
+
+## Between this person's eyes (world): what others look at.
+func eyes_point() -> Vector3:
+	var sk := StoryCast.skeleton(self)
+	if sk == null or sk.find_bone("Head") < 0:
+		return global_position + global_basis.y * 1.6
+	return (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Head"))).origin + global_basis.y.normalized() * 0.07
 
 
 ## A cast member's own material soaked: darker, shining, the skin gone pale and cold.
@@ -144,6 +168,8 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		who = ""
 	var body: Node3D = StoryCast.instance(who) if who != "" else _load().instantiate()
 	add_child(body)
+	if who != "":
+		face = StoryFace.new(body, String(s.get("id", who)).hash())
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	var clip := String(s.get("clip", "Idle"))
 	if not _player.has_animation(clip):

@@ -4396,3 +4396,21 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   it), specs moved to `tools/cast/specs_stylised/` (`build.sh` finds them there by id), the
   builder and the Quaternius bone map kept. Kit keeps the long straight hair (the bob question went
   unanswered). `CREDITS.md` regenerated from what ships (no Quaternius line now).
+
+### 24 Oct (session 21, cont.): faces in cutscenes (M20-9)
+- `story/story_face.gd` (StoryFace): a cast member's face as a function of the scene's time (seekable,
+  the same headless). Blinks at times fixed by the person (every 2-5.5 s, 0.22 s each, the lids and
+  the lashes together); the mouth reads its own lines' text as mouth shapes (letters to Meta's
+  visemes: "th", "ch"/"sh", "ph" as one; vowels longer; spaces and stops rest the mouth), spread over
+  the time the line is spoken (its subtitle's hold, at most 13 shapes a second), each easing into the
+  next, the jaw open on the vowels; the eyes turn to a point (ARKit's eyeLook shapes, 30 degrees aside
+  and 25 up/down at full). StoryPerson gives every cast member a face (`face`), `speaks(name)` (its
+  `"speaker"`, else the cast member's first name, else its id) and `eyes_point()`; StoryScene poses
+  the faces each frame: a person's own spoken lines (subtitles, not texts; a line with `"voice": true`
+  is heard, not seen, and moves no mouth), and where it looks (`"gaze"`: "camera" or a person's id;
+  default: whoever else on screen is speaking, else ahead).
+- `tests/test_story_face` (in the gate): blinks (fixed, per person, the eyes open 95% of the time),
+  text to sounds, the mouth only within its line, the shapes on Dee's meshes (jaw, visemes, lids and
+  lashes), the eyes' directions, and a scene: only the speaker on screen talks, the listener looks at
+  her, a voice off moves nothing, the same face whatever the seek order. `story/lab/face_check.json`:
+  Dee talking to Kit, close (a look without the city: `story_lab --file=... --no_stage`).

@@ -29,7 +29,10 @@
 - **Decided** (24 Oct): "I like realistic". The stylised trio is set aside (`kit_s`, `dee_s`, `gus_s`
   removed from `assets/cast/`; their specs in `tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds
   one; `gen_stylised.py` and `bonemap_quaternius.tres` kept). Kit keeps the long straight hair.
-- **Next**: faces (`story_face.gd`: blinks,
+- **Faces are in** (24 Oct): `story/story_face.gd` (blinks, a mouth that reads its own lines, eyes on
+  the speaker), StoryPerson `"speaker"`/`"gaze"`, a line's `"voice": true`; `tests/test_story_face`;
+  `story/lab/face_check.json`.
+- **Next**: faces' polish (head turns, expressions per line) (`story_face.gd`: blinks,
   visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),
   seating per height (`StoryCabin` uses the Mannequin's crown), the passenger (Dee's double, long
   hair let down over the face, soaked), Tibor, the crowd (a lighter tier), Cass, Voss, Moth, Pim.

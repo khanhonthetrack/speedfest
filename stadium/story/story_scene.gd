@@ -24,8 +24,8 @@ extends Node3D
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
 ##     clear: for shots inside it), "dome" (its courtesy light's energy: a passenger lit in the
 ##     mirror), "from", "to" (s: on screen only then)}],
-##   "people": [StoryPerson spec, plus "car": a car's id and "seat": "driver" | "passenger" |
-##     "rear" (seated in it, moving with it), "from", "to"], "lights": [{"kind": "omni" | "spot",
+##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze"), plus "car": a car's
+##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it), "from", "to"], "lights": [{"kind": "omni" | "spot",
 ##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on)}], "rain": 0..1,
 ##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
 ##   "subtitle"},
@@ -39,7 +39,8 @@ extends Node3D
 ##   "lines": [{"id", "speaker", "text", "kind": "say" (a subtitle) | "text" (a message arriving on
 ##     the phone: "mine" for the player's own) | "phone" (the thread's name: {"from"}), "hold" (s;
 ##     default from the text's length), "gap" (s before it), "at" (s into the shot, else after the
-##     line before), "if" (StoryState.holds), "set": [flags]}]}
+##     line before), "if" (StoryState.holds), "set": [flags], "voice": true (heard, not seen: off
+##     screen, a radio, a phone call; no mouth moves)}]}
 ## Positions are in the shot's anchor frame: x left, y up, z ahead along the line (menu_art's).
 
 signal finished(skipped: bool)
@@ -506,6 +507,9 @@ func _pose(local: float) -> void:
 			p.rebase(_cars[p.in_car]["xf"])
 		p.pose(local)
 		p.visible = _on_screen(p.spec, local)
+	for p in _people:
+		if p.face != null and p.visible:
+			p.face.pose(t, _lines_of(p, s), _gaze_of(p, s))
 	_aim(s.get("camera", {}), camera, _attrs, local, dur)
 	if _mirror_cam != null and s.has("mirror"):
 		_aim(s["mirror"], _mirror_cam, null, local, dur)
@@ -540,6 +544,32 @@ func _pose(local: float) -> void:
 	if playing:
 		_sounds(s, local)
 	_last_local = local
+
+
+## A person's own spoken lines in the shot (subtitles it says on screen: not texts, not a voice off).
+func _lines_of(p: StoryPerson, s: Dictionary) -> Array:
+	var out := []
+	for l: Dictionary in s.get("lines", []):
+		if String(l.get("kind", "say")) == "say" and not bool(l.get("voice", false)) and p.speaks(String(l.get("speaker", ""))):
+			out.append(l)
+	return out
+
+
+## Where a person looks: its "gaze" (the camera, or a person), else whoever else is speaking on screen.
+func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
+	var g := String(p.spec.get("gaze", ""))
+	if g == "camera" and camera != null:
+		return camera.global_position
+	if g != "":
+		for q in _people:
+			if String(q.spec.get("id", "")) == g and q != p:
+				return q.eyes_point()
+	var l := line_at(t)
+	if not l.is_empty() and String(l.get("kind", "say")) == "say" and not p.speaks(String(l.get("speaker", ""))):
+		for q in _people:
+			if q != p and q.visible and q.speaks(String(l.get("speaker", ""))):
+				return q.eyes_point()
+	return null
 
 
 ## Puts a camera where a shot's camera (or mirror) keys say at this moment.
