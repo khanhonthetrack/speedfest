@@ -1486,3 +1486,15 @@ playable slice. The rule: every map is a 7-minute time attack, the best run in t
 and on map 3 the finish of that best run is the decision. Confirmed back in those words, with the
 consequence: the cruel line is the fastest, so it pulls the best time towards it.)
 
+
+(Carried on: night 1 playable from the Story page, gated and pushed; its Ultra stills on a claude.ai
+page with three questions: the Mirror, sign-off, and the cast: silhouettes to the end, or model
+Kit, Dee and Gus first.)
+
+### User (verbatim, invoking `/workflow-authoring`)
+
+> Start modelling
+
+(Read as: the answer to the third question: start the modelled cast now, rather than keeping
+silhouettes until every night is written; in the owner's words from the pitch, "modelled cast, with
+best graphics". The other two questions stay open.)

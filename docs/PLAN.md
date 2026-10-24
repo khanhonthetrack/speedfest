@@ -355,6 +355,11 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
       the journal (nights, decisions, what Kit wrote down); left: replay a cutscene, times per map
 - [ ] 7. Chapters 2-9, in batches: tracks -> medals -> scenes -> exits -> gate -> commit -> push
 - [ ] 8. The finale and the endings, credits, a full-game headless playthrough test
+- [ ] 9. The modelled cast (owner, 24 Oct: "Start modelling"; at the pitch: "in the end i want
+      modelled cast, with best graphics"): Kit, Dee and Gus first, then the rest of the cast and the
+      crowds, in place of the mannequin silhouettes; playing the animation library's clips, seated in
+      cars; a line-up still at Ultra for the owner. A survey and design workflow picks the pipeline
+      (Quaternius' CC0 bodies on the UAL rig, MakeHuman/MPFB2 retargeted, or a mix)
 
 ### M19 — Sky City: maps high between the skyscrapers (owner, 22 Oct) ☐
 "Build 10 city maps, where instead of being on the ground like the first 5, you are really high,
