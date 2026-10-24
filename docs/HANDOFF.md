@@ -31,8 +31,13 @@
   `story_props.gd`; StoryScene's mirror, glass, flash, flicker, cctv, seated people, shot
   conditions). The cabin fits under each car's own roof (manifest `anchors`) and is lined from
   inside (`StoryCabin.fit_car`); the mirror shows the back seat and THE PASSENGER. The Story page
-  (M20-6) starts a save (difficulty), continues it and shows the journal. Still to do for the
-  slice: stills for the owner and their sign-off; then nights 2-9 (M20-7). Iterate on a shot
+  (M20-6) starts a save (difficulty), continues it and shows the journal. **With the owner for
+  sign-off** (24 Oct): Ultra stills of every night-1 cutscene and the Story page on a claude.ai page,
+  https://claude.ai/artifact/Q791Mpj7u9UdjKp7fBounV, with three questions (is the Mirror the scare
+  they pictured; sign off night 1 so nights 2-9 start; silhouettes until the end or model Kit, Dee
+  and Gus first). On their answer: M20-7, nights 2-9 in batches. Known polish: the lining's cut
+  still shows small teeth along the A-pillars this close (`_clip` depth 3; 4 halves them), Tibor's
+  headlights light the road but their lenses don't glow. Iterate on a shot
   without the city first (`story_lab --file=<abs path>/stadium/story/lab/cabin_check.json`: a
   camera at the mirror, beside the car, over it, 20 s a render), then with the city
   (`tools/run.sh ... --timeout 1500`: run.sh's default 240 s cuts a city render short).
