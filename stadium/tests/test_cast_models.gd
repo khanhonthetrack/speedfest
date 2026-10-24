@@ -1,6 +1,7 @@
 extends Node3D
 ## The story's modelled cast (StoryCast, PLAN M20-9; built by tools/cast/build.sh): every character in
-## assets/cast/ loads on Godot's humanoid skeleton with the bones the UAL clips drive, each surface in
+## assets/cast/ (the stylised ones too: Quaternius' rig through its own bone map, flat materials, no
+## face shapes) loads on Godot's humanoid skeleton with the bones the UAL clips drive, each surface in
 ## its role's material (skin with subsurface scattering, hair/brows/lashes blended over a depth
 ## pre-pass, the rest opaque), the face shapes its sidecar lists on the parts that move with them,
 ## within the budgets (triangles, megabytes), credited (CREDITS.md names every asset it is made of);
@@ -44,7 +45,11 @@ func _ready() -> void:
 		if sk == null or ap == null:
 			root.free()
 			continue
-		var missing := BONES.filter(func(b: String) -> bool: return sk.find_bone(b) < 0)
+		# its own bone map (the stylised cast's Quaternius rig maps no fingers and has no toes)
+		var bmap: BoneMap = load(String(meta.get("bonemap", BONE_MAP.resource_path)))
+		var stylised := String(meta.get("style", "")) == "stylised"
+		var missing := BONES.filter(func(b: String) -> bool:
+			return bmap.get_skeleton_bone_name(b) != &"" and sk.find_bone(b) < 0)
 		TestHooks.check(missing.is_empty(), "cast_%s_humanoid_bones" % id, "missing %s" % [missing])
 		# every track of the clips cutscenes use reaches a bone (else that part of the body stays put)
 		var lost := {}
@@ -55,14 +60,14 @@ func _ready() -> void:
 				continue
 			for t in a.get_track_count():
 				var bone := String(a.track_get_path(t).get_concatenated_subnames())
-				if bone != "" and sk.find_bone(bone) < 0:
+				if bone != "" and sk.find_bone(bone) < 0 and bmap.get_skeleton_bone_name(bone) != &"":
 					lost[bone] = clip
 		# and every bone the bone map maps is in the skeleton and moved by the clips (a lost mapping
 		# leaves its part of the body still: a shoulder, a finger)
 		var lib := StoryCast.library()
-		for b in BONE_MAP.profile.bone_size:
-			var name := BONE_MAP.profile.get_bone_name(b)
-			if BONE_MAP.get_skeleton_bone_name(name) == &"" or name == &"Root":
+		for b in bmap.profile.bone_size:
+			var name := bmap.profile.get_bone_name(b)
+			if bmap.get_skeleton_bone_name(name) == &"" or name == &"Root":
 				continue
 			if sk.find_bone(name) < 0:
 				lost[name] = "not in the skeleton"
@@ -70,12 +75,15 @@ func _ready() -> void:
 					return lib.get_animation(c).find_track(NodePath("%GeneralSkeleton:" + name), Animation.TYPE_ROTATION_3D) >= 0):
 				lost[name] = "no clip moves it"
 		TestHooks.check(lost.is_empty(), "cast_%s_clips_reach_bones" % id, str(lost))
-		_materials(id, root, meta)
-		_shapes(id, root, meta)
+		_materials(id, root, meta, stylised)
+		if not stylised:                 # Quaternius' faces are flat colours: no shapes to drive
+			_shapes(id, root, meta)
 		_budget(id, root, meta)
 		var unlisted: Array = (meta.get("assets", []) as Array).filter(func(a: String) -> bool:
 			return not credits.contains("**%s**" % a.get_slice("/", 1)))
-		TestHooks.check(meta.has("assets") and unlisted.is_empty(), "cast_%s_credited" % id, "not in CREDITS.md: %s" % [unlisted])
+		unlisted += (meta.get("credits", []) as Array).filter(func(c: String) -> bool: return not credits.contains(c))
+		TestHooks.check(meta.has("assets") and unlisted.is_empty() and (meta["assets"].size() > 0 or meta.get("credits", []).size() > 0),
+			"cast_%s_credited" % id, "not in CREDITS.md: %s" % [unlisted])
 		# standing height: the head bone in Idle where the build measured it
 		var idle_lift := StoryCast.ground(id, root, "Idle")
 		ap.play("Idle")
@@ -128,7 +136,7 @@ func _ready() -> void:
 	TestHooks.finish()
 
 
-func _materials(id: String, root: Node, meta: Dictionary) -> void:
+func _materials(id: String, root: Node, meta: Dictionary, stylised: bool) -> void:
 	var bad := []
 	var roles := {}
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
@@ -148,7 +156,7 @@ func _materials(id: String, root: Node, meta: Dictionary) -> void:
 				bad.append("%s: %s transparency %d" % [mi.name, m.resource_name, m.transparency])
 			if not (meta.get("materials", {}) as Dictionary).has(m.resource_name):
 				bad.append("%s not in the sidecar" % m.resource_name)
-	for need in ["skin", "eye", "teeth", "cloth"]:
+	for need in (["flat"] if stylised else ["skin", "eye", "teeth", "cloth"]):
 		if not roles.has(need):
 			bad.append("no " + need)
 	TestHooks.check(bad.is_empty(), "cast_%s_materials_by_role" % id, str(bad) if not bad.is_empty() else str(roles.keys()))

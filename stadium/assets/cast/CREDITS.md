@@ -36,3 +36,8 @@ version, these credits follow CC BY 4.0, the version MakeHuman's CC-BY FAQ point
 - **young_caucasian_female** (skins) by Data Collection AB, http://www.makehumancommunity.org; pack `makehuman_system_assets_cc0`; used by dee. Licence: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 - **teeth_base** (teeth) by Data Collection AB, http://www.makehumancommunity.org; pack `makehuman_system_assets_cc0`; used by dee, gus, kit. Licence: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 - **tongue01** (tongue) by Data Collection AB, http://www.makehumancommunity.org; pack `makehuman_system_assets_cc0`; used by dee, gus, kit. Licence: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+
+## Other sources (CC0)
+
+- Ultimate Modular Men (Feb 2022) by Quaternius, https://quaternius.com/packs/ultimatemodularcharacters.html, CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/): parts recombined, recoloured, the crown removed, feet re-parented to the shins; used by gus_s.
+- Ultimate Modular Women (April 2022) by Quaternius, https://quaternius.com/packs/ultimatemodularwomen.html, CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/): parts recombined, recoloured, feet re-parented to the shins; used by dee_s, kit_s.

@@ -22,7 +22,9 @@
 - **The owner's answers** (24 Oct): Kit A (now `kit`, with MakeHuman's long01 hair as asked), and
   "show me both side by side first": a stylised trio `kit_s`, `dee_s`, `gus_s` from Quaternius'
   Ultimate Modular Women/Men (CC0; `tools/cast/blender/gen_stylised.py`, specs with "style":
-  "stylised", `bonemap_quaternius.tres`), on the same page for the owner to choose. On their pick:
+  "stylised", `bonemap_quaternius.tres`), on the same page for the owner to choose (round 2 of
+  https://claude.ai/artifact/14ifwdVU5TkLSUEZa4STpr: the yard at Ultra both ways, pairs, faces, Kit's
+  hair from behind, long or a shoulder-length bob; questions: which look, which hair). On their pick:
   the other style's characters go (keep the tools).
 - **Next**: on their answers; meanwhile faces (`story_face.gd`: blinks,
   visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),

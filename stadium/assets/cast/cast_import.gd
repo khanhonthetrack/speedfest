@@ -10,7 +10,8 @@ extends EditorScenePostImport
 ## the pre-pass keeps the textures' feathered hairline and is right under DLSS and path tracing,
 ## which break alpha-to-coverage); eyes -- the cornea's see-through texels cut, a wet highlight;
 ## teeth, tongue -- opaque, a little shine; hivis (a bespoke vest, gen_char.py) -- cloth with a faint
-## fluorescent glow, so it reads in the dark.
+## fluorescent glow, so it reads in the dark; flat (the stylised cast, gen_stylised.py: flat colours,
+## low poly) -- opaque, matte, both sides.
 ## Thin parts (brows, lashes) cast no shadow.
 
 const ALPHA_ROLES := ["hair", "brow", "lash"]
@@ -69,6 +70,9 @@ static func material(role: String, src: BaseMaterial3D, tint: Color) -> Standard
 			m.clearcoat_roughness = 0.02
 		"teeth", "tongue":
 			m.roughness = 0.35
+		"flat":
+			m.roughness = 0.8
+			m.cull_mode = BaseMaterial3D.CULL_DISABLED
 		"hivis":
 			m.roughness = 0.7
 			m.cull_mode = BaseMaterial3D.CULL_DISABLED

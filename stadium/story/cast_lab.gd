@@ -1,7 +1,7 @@
 extends Node3D
 ## Looks at the modelled cast (StoryCast, PLAN M20-9) in a studio: --who=kit,dee,mannequin
 ## --mode=lineup|face|full --clip=Idle --t=1.0 --shapes=eyeBlinkLeft:1,jawOpen:0.6 (face shapes)
-## --frames=30 --shot=/abs.png. "face" frames the first one's head (a 250-px head at 1600x900,
+## --turn=180 (their backs) --frames=30 --shot=/abs.png. "face" frames the first one's head (a 250-px head at 1600x900,
 ## the size a cutscene's close-up gives it); "lineup" stands everyone in a row on their own feet
 ## (StoryCast.ground), the Mannequin for scale. Prints each one's height and feet.
 
@@ -43,6 +43,7 @@ func _ready() -> void:
 		if p == null:
 			continue
 		p.position.x += x
+		p.rotation_degrees.y = float(TestHooks.arg("turn", 0.0))
 		x += GAP
 		people.append(p)
 	if people.is_empty():

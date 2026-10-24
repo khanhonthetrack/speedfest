@@ -1,0 +1,64 @@
+{
+ "assets": [],
+ "blender": "4.5.15 LTS",
+ "bonemap": "res://assets/cast/bonemap_quaternius.tres",
+ "bones": 60,
+ "credits": [
+  "Ultimate Modular Men (Feb 2022) by Quaternius, https://quaternius.com/packs/ultimatemodularcharacters.html, CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/): parts recombined, recoloured, the crown removed, feet re-parented to the shins"
+ ],
+ "face_shapes": [],
+ "head": 1.6785,
+ "height": 1.95,
+ "id": "gus_s",
+ "materials": {
+  "flat__casual2_legs_lightblue": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__king_head_eye": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__king_head_gold": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__king_head_hair_white": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__king_head_skin": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__worker_body_lightbrown": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__worker_body_skin": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__worker_body_worker_vest": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__worker_body_worker_yellow": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__worker_feet_black": {
+   "role": "flat",
+   "tint": "#ffffff"
+  },
+  "flat__worker_feet_grey": {
+   "role": "flat",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "Gus Pell (stylised)",
+ "pelvis": 0.9151,
+ "spec": "gus_s.json",
+ "style": "stylised",
+ "triangles": 7052
+}
