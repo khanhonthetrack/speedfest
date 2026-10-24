@@ -19,6 +19,11 @@
   or the player chooses; realistic pushed further, or stylised (Quaternius' UBC, CC0, plan B); what to
   change. The still: `story_lab --file=<abs>/stadium/story/lab/cast_yard.json --set_quality=2 --t=2
   --frames=70` (about 11 minutes with the city); the studio ones: `story/cast_lab.tscn`.
+- **The owner's answers** (24 Oct): Kit A (now `kit`, with MakeHuman's long01 hair as asked), and
+  "show me both side by side first": a stylised trio `kit_s`, `dee_s`, `gus_s` from Quaternius'
+  Ultimate Modular Women/Men (CC0; `tools/cast/blender/gen_stylised.py`, specs with "style":
+  "stylised", `bonemap_quaternius.tres`), on the same page for the owner to choose. On their pick:
+  the other style's characters go (keep the tools).
 - **Next**: on their answers; meanwhile faces (`story_face.gd`: blinks,
   visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),
   seating per height (`StoryCabin` uses the Mannequin's crown), the passenger (Dee's double, long

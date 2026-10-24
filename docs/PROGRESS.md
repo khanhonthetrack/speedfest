@@ -4367,3 +4367,28 @@ through MPFB 2 in Blender, with CC0 and CC BY assets, a licence gate and a spike
   the cast lab holds the pose at `--t`. `test_cast_models` now fails on a lost bone mapping too (it
   found that no UAL clip moves `spine_01`: Quaternius holds it at rest in all 43, so the import drops
   the constant track; listed as such).
+
+### 24 Oct (session 21, cont.): Kit A with long hair; a stylised cast beside the realistic one (M20-9)
+The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Changes: Kit A hair longer".
+- Kit is `kit` (Kit A; Kit B dropped). Four longer hairstyles tried on her (MakeHuman's long01,
+  o4saken's long01, Toigo's curled-under bob, Elvaerwyn's Katherine): long01 (the longest, clean),
+  the bob the most natural but only to the shoulders, o4saken's messy cards, Katherine's fringe over
+  the eyes. Kit wears long01.
+- The stylised cast: a research workflow (survey, then a second agent downloading and opening each
+  candidate) compared Quaternius' modular packs and Universal Base Characters, KayKit, Kenney,
+  EduSilvArt, 100Avatars, Sketchfab and others; the pick is Quaternius' Ultimate Modular Women and
+  Men (CC0; low poly, flat colours, four swappable parts per character, real clothes: the Worker's
+  hi-vis vest, a one-piece suit that reads as coveralls, an updo, the King's grey hair and beard).
+  Google Drive refuses this container, so the files come from a public GitHub mirror pinned at a
+  commit and checked by sha256 (`packs.lock.json` "stylised"; a second, independent mirror's Git
+  LFS pointer carries the same sha256 for Worker.gltf: the originals). `tools/cast/blender/
+  gen_stylised.py` puts a spec's parts on one rig, recolours each part on its own (the packs share
+  material names), drops surfaces (the crown) and loose pieces behind the torso (the Adventurer's
+  backpack, where Kit's hair hangs), moves the feet from Root (Quaternius' IK) under the shins,
+  sizes the body (height, and width for Gus), and hangs a low-poly hair panel from Kit's own hair
+  (raycast off the clothes, weighted head, neck, chest). Godot retargets the rig through
+  `assets/cast/bonemap_quaternius.tres` (Hips = Body, Hand = Wrist; no fingers: the UAL fingers'
+  curls made claws of Quaternius' hands, so they stay as modelled; no toes). `kit_s`, `dee_s`,
+  `gus_s` play the same UAL clips (7-8k triangles, under 1 MB each); `test_cast_models` checks them
+  too (their own bone map, flat materials, no face shapes, Quaternius in CREDITS.md).
+- `story/lab/cast_yard_stylised.json`: the yard still with the stylised trio, beside `cast_yard.json`.

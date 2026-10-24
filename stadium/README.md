@@ -171,7 +171,11 @@ tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Buil
 A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports
 retarget onto Godot's humanoid skeleton through `assets/cast/bonemap.tres`). `StoryCast` loads them
 (`instance`, `meta`, `set_shape` for the 35 face shapes, `ground` for the per-clip lift).
-`tests/test_cast_models` checks each one. Traps: an asset's pack list can claim CC0 while its own
+The stylised cast (`"style": "stylised"` specs: Quaternius' Ultimate Modular Women/Men, CC0,
+fetched by `setup.sh`) is built by `blender/gen_stylised.py` from parts (`{"file", "mesh",
+"colours", "drop", "drop_behind"}`), sized (`height_m`, `width`), with an optional hanging hair
+panel (`"hair"`), and retargeted through `bonemap_quaternius.tres` (no fingers: the UAL curls make
+claws of those hands). `tests/test_cast_models` checks each one. Traps: an asset's pack list can claim CC0 while its own
 file says AGPL (the gate reads both); MakeHuman's strand brows and lashes cost ~47k triangles (use
 the card ones); boots taller than the trousers' cuffs poke through; a texture's `.import` must come
 from `post.py` (headless import leaves it uncompressed without mipmaps); a garment mesh can hold
