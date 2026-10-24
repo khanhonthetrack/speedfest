@@ -1,0 +1,287 @@
+{
+	"id": "seat_check",
+	"chapter": "c01",
+	"title": "The cast seated by their own heights, the car a ghost to see in: Gus driving and Dee behind, Kit beside and Gus behind; Kit's nemesis and the corrida, where Gus's seat goes down most (story_lab --file=<abs> --no_stage --ts=1,3,5,7 --every=40 --shots=...)",
+	"shots": [
+		{
+			"id": "nemesis_l",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "car",
+					"model": "nemesis",
+					"livery": 1,
+					"cabin": true,
+					"dome": 1.4,
+					"ghost": true
+				}
+			],
+			"people": [
+				{
+					"id": "gus",
+					"who": "gus",
+					"car": "car",
+					"seat": "driver",
+					"clip": "Driving"
+				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"car": "car",
+					"seat": "rear",
+					"clip": "Sitting_Idle"
+				}
+			],
+			"camera": {
+				"pos": [
+					3.0,
+					1.3,
+					-0.4
+				],
+				"look": [
+					0.0,
+					0.85,
+					-0.4
+				],
+				"fov": 42,
+				"follow": "car"
+			},
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						2.6,
+						2.2,
+						-0.3
+					],
+					"colour": "#fff4e6",
+					"energy": 2.5,
+					"range": 7,
+					"shadow": false
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						0.0,
+						3.0,
+						-0.4
+					],
+					"colour": "#dfe8ff",
+					"energy": 1.2,
+					"range": 6,
+					"shadow": false
+				}
+			]
+		},
+		{
+			"id": "nemesis_r",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "car",
+					"model": "nemesis",
+					"livery": 1,
+					"cabin": true,
+					"dome": 1.4,
+					"ghost": true
+				}
+			],
+			"people": [
+				{
+					"id": "kit",
+					"who": "kit",
+					"car": "car",
+					"seat": "passenger",
+					"clip": "Sitting_Idle"
+				},
+				{
+					"id": "gus",
+					"who": "gus",
+					"car": "car",
+					"seat": "rear",
+					"clip": "Sitting_Idle"
+				}
+			],
+			"camera": {
+				"pos": [
+					-3.0,
+					1.3,
+					-0.4
+				],
+				"look": [
+					0.0,
+					0.85,
+					-0.4
+				],
+				"fov": 42,
+				"follow": "car"
+			},
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						-2.6,
+						2.2,
+						-0.3
+					],
+					"colour": "#fff4e6",
+					"energy": 2.5,
+					"range": 7,
+					"shadow": false
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						0.0,
+						3.0,
+						-0.4
+					],
+					"colour": "#dfe8ff",
+					"energy": 1.2,
+					"range": 6,
+					"shadow": false
+				}
+			]
+		},
+		{
+			"id": "tight_l",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "car",
+					"model": "corrida",
+					"livery": 1,
+					"cabin": true,
+					"dome": 1.4,
+					"ghost": true
+				}
+			],
+			"people": [
+				{
+					"id": "gus",
+					"who": "gus",
+					"car": "car",
+					"seat": "driver",
+					"clip": "Driving"
+				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"car": "car",
+					"seat": "rear",
+					"clip": "Sitting_Idle"
+				}
+			],
+			"camera": {
+				"pos": [
+					3.0,
+					1.3,
+					-0.4
+				],
+				"look": [
+					0.0,
+					0.85,
+					-0.4
+				],
+				"fov": 42,
+				"follow": "car"
+			},
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						2.6,
+						2.2,
+						-0.3
+					],
+					"colour": "#fff4e6",
+					"energy": 2.5,
+					"range": 7,
+					"shadow": false
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						0.0,
+						3.0,
+						-0.4
+					],
+					"colour": "#dfe8ff",
+					"energy": 1.2,
+					"range": 6,
+					"shadow": false
+				}
+			]
+		},
+		{
+			"id": "tight_r",
+			"dur": 2.0,
+			"cars": [
+				{
+					"id": "car",
+					"model": "corrida",
+					"livery": 1,
+					"cabin": true,
+					"dome": 1.4,
+					"ghost": true
+				}
+			],
+			"people": [
+				{
+					"id": "kit",
+					"who": "kit",
+					"car": "car",
+					"seat": "passenger",
+					"clip": "Sitting_Idle"
+				},
+				{
+					"id": "gus",
+					"who": "gus",
+					"car": "car",
+					"seat": "rear",
+					"clip": "Sitting_Idle"
+				}
+			],
+			"camera": {
+				"pos": [
+					-3.0,
+					1.3,
+					-0.4
+				],
+				"look": [
+					0.0,
+					0.85,
+					-0.4
+				],
+				"fov": 42,
+				"follow": "car"
+			},
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						-2.6,
+						2.2,
+						-0.3
+					],
+					"colour": "#fff4e6",
+					"energy": 2.5,
+					"range": 7,
+					"shadow": false
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						0.0,
+						3.0,
+						-0.4
+					],
+					"colour": "#dfe8ff",
+					"energy": 1.2,
+					"range": 6,
+					"shadow": false
+				}
+			]
+		}
+	]
+}

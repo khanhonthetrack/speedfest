@@ -12,6 +12,7 @@ static var _lib: AnimationLibrary
 static var _meta := {}
 static var _scenes := {}
 static var _ground := {}
+static var _seated := {}
 static var _mannequin_scale := 0.0
 
 
@@ -103,6 +104,67 @@ static func ground(id: String, root: Node, clip: String) -> float:
 	return _ground[key]
 
 
+## A seated character's body in a clip, in its own frame (it faces +z), skinned on the CPU in the
+## clip's first frame: "seat" (y: the lowest point of what it sits on, the hips and thighs under the
+## hip joints; z: the back of it, against the seat's back) and "crown" (the top of its head, hair and
+## all, and how far along). Measured once per character and clip (id "": the Mannequin). Seeks the
+## character's player.
+static func seated(id: String, root: Node, clip: String) -> Dictionary:
+	var key := "%s:%s" % [id, clip]
+	if _seated.has(key):
+		return _seated[key]
+	var sk := skeleton(root)
+	var ap := root.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+	ap.play(clip)
+	ap.seek(0.0, true)
+	var sits := {}
+	for b in ["Hips", "LeftUpperLeg", "RightUpperLeg"]:
+		sits[sk.find_bone(b)] = true
+	var frame := (root as Node3D).global_transform.affine_inverse() * sk.global_transform
+	var hip_y := (frame * sk.get_bone_global_pose(sk.find_bone("Hips"))).origin.y
+	var seat := Vector2(INF, INF)
+	var crown := Vector2(-INF, 0.0)
+	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		if mi.skin == null:
+			continue
+		for i in mi.mesh.get_surface_count():
+			var arr := mi.mesh.surface_get_arrays(i)
+			var verts := arr[Mesh.ARRAY_VERTEX] as PackedVector3Array
+			var part := [mi.skin, verts, arr[Mesh.ARRAY_BONES], arr[Mesh.ARRAY_WEIGHTS]]
+			var at := _skinned(sk, root, part, range(verts.size()))
+			var bones := part[2] as PackedInt32Array
+			var weights := part[3] as PackedFloat32Array
+			var per := bones.size() / verts.size()
+			for v in at.size():
+				if at[v].y > crown.x:
+					crown = Vector2(at[v].y, at[v].z)
+				if at[v].y > hip_y:
+					continue
+				var best := 0
+				for k in per:
+					if weights[v * per + k] > weights[v * per + best]:
+						best = k
+				if sits.has(_bone_of(sk, mi.skin, bones[v * per + best])):
+					seat = Vector2(minf(seat.x, at[v].y), minf(seat.y, at[v].z))
+	_seated[key] = {"seat": seat, "crown": crown}
+	return _seated[key]
+
+
+## The Mannequin seated in a clip (seated), measured on one made for it under `parent` (in the tree):
+## where everyone's seat rests, the seats being laid out for it (StoryCabin).
+static func mannequin_seated(parent: Node, clip: String) -> Dictionary:
+	if not _seated.has(":" + clip):
+		var m := (load(StoryPerson.GLB) as PackedScene).instantiate()
+		parent.add_child(m)
+		seated("", m, clip)
+		m.free()
+	return _seated[":" + clip]
+
+
+static func _bone_of(sk: Skeleton3D, skin: Skin, bind: int) -> int:
+	return sk.find_bone(skin.get_bind_name(bind)) if skin.get_bind_name(bind) != &"" else skin.get_bind_bone(bind)
+
+
 ## The lowest any skinned vertex of the feet (below 15 cm in the first frame of Idle) goes over
 ## `samples` frames of the clip, in the character's own frame, skinned on the CPU.
 static func lowest_sole(root: Node, clip: String, samples: int) -> float:
@@ -141,10 +203,7 @@ static func _skinned(sk: Skeleton3D, root: Node, part: Array, which: Variant) ->
 	var frame := (root as Node3D).global_transform.affine_inverse() * sk.global_transform
 	var mats: Array[Transform3D] = []
 	for b in skin.get_bind_count():
-		var bone := skin.get_bind_bone(b)
-		if skin.get_bind_name(b) != &"":
-			bone = sk.find_bone(skin.get_bind_name(b))
-		mats.append(frame * sk.get_bone_global_pose(maxi(bone, 0)) * skin.get_bind_pose(b))
+		mats.append(frame * sk.get_bone_global_pose(maxi(_bone_of(sk, skin, b), 0)) * skin.get_bind_pose(b))
 	var verts := part[1] as PackedVector3Array
 	var bones := part[2] as PackedInt32Array
 	var weights := part[3] as PackedFloat32Array

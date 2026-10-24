@@ -32,10 +32,15 @@
 - **Faces are in** (24 Oct): `story/story_face.gd` (blinks, a mouth that reads its own lines, eyes on
   the speaker), StoryPerson `"speaker"`/`"gaze"`, a line's `"voice": true`; `tests/test_story_face`;
   `story/lab/face_check.json`.
+- **Seated by height** (24 Oct): everyone in a car seat sits by their own body (`StoryCast.seated`:
+  the seat and the crown, measured in the clip; a cast member's seat where the Mannequin's rests in
+  that clip; a crown within 5 cm of the roof takes the seat down, `StoryCabin.lower`; the Mannequin
+  too, its head further back as it drives); `tests/test_cast_seats`; `story/lab/seat_check.json`.
 - **Next**: faces' polish (head turns, expressions per line) (`story_face.gd`: blinks,
   visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),
-  seating per height (`StoryCabin` uses the Mannequin's crown), the passenger (Dee's double, long
-  hair let down over the face, soaked), Tibor, the crowd (a lighter tier), Cass, Voss, Moth, Pim.
+  the passenger (Dee's double, long hair let down over the face, soaked), Tibor, the crowd (a
+  lighter tier), then night 1 switched to the cast; Cass, Voss, Moth, Pim. A seated driver's eyes
+  ("driver_head", the camera from the seat) and the wheel are still the Mannequin's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).
 

@@ -25,7 +25,9 @@ extends Node3D
 ##     clear: for shots inside it), "dome" (its courtesy light's energy: a passenger lit in the
 ##     mirror), "from", "to" (s: on screen only then)}],
 ##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze"), plus "car": a car's
-##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it), "from", "to"], "lights": [{"kind": "omni" | "spot",
+##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; a cast member
+##     where its own seat rests on the cushion, a tall one lowered with the seat under a low roof),
+##     "from", "to"], "lights": [{"kind": "omni" | "spot",
 ##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on)}], "rain": 0..1,
 ##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
 ##   "subtitle"},
@@ -294,11 +296,19 @@ func _enter(i: int) -> void:
 			# seated in a car: its road frame, no ground under it
 			spec = p.duplicate()
 			var model := String((_cars[car_id]["spec"] as Dictionary).get("model", "hyper"))
+			var at := Vector3.ZERO
 			if p.has("seat"):
-				var at: Vector3 = StoryCabin.points(model).get(String(p["seat"]), Vector3.ZERO)
+				at = StoryCabin.points(model).get(String(p["seat"]), Vector3.ZERO)
 				spec["pos"] = [at.x, at.y, at.z]
 			person.setup(spec, _anchor, Callable())
 			person.in_car = car_id
+			# a crown within 5 cm of a low car's roof (taller than the Mannequin, or its head back as it
+			# drives): down with the seat
+			var room := StoryCabin.headroom(model, at + person.crown) if p.has("seat") else 0.0
+			if room < 0.0:
+				person.sink(-room)
+				if _cars[car_id].has("cabin"):
+					(_cars[car_id]["cabin"] as StoryCabin).lower(String(p["seat"]), -room)
 		else:
 			person.setup(spec, _anchor, func(q: Vector3) -> Vector3: return _ground(_anchor * q))
 		_people.append(person)

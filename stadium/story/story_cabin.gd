@@ -13,12 +13,17 @@ const FLOOR_Y := 0.24
 ## A seated person's crown over their root, and how far behind it (m): the library's Sitting and
 ## Driving clips hold the pelvis 0.54 m over the feet and 0.33 m behind them, the head bone at
 ## 1.17 m, the 1.83 m mannequin's skull 0.26 m over that bone (measured in Godot: tests/tmp/crown_probe)
+## (the layout's; seated people are measured in their own clips, StoryCast.seated: a cast member sits
+## where the Mannequin's seat rests, and anyone whose crown would come within 5 cm of the roof goes
+## down with the seat, StoryScene)
 const CROWN := Vector2(1.43, -0.11)
 
 var satnav: MeshInstance3D
 var mirror_point := Vector3.ZERO   ## the rear-view mirror's place (road frame)
 var driver_head := Vector3.ZERO    ## the driver's eyes
 var rear_seat := Vector3.ZERO      ## the rear bench's middle, where a passenger sits (hips)
+var _seats := {}                   ## "driver" / "passenger" / "rear" -> its cushion, back (and headrest)
+var _drops := {}                   ## a seat -> how far it was lowered (lower)
 
 
 ## Where people sit and look from in a car (road frame): "driver" / "passenger" (feet on the floor,
@@ -26,6 +31,12 @@ var rear_seat := Vector3.ZERO      ## the rear bench's middle, where a passenger
 ## "mirror" (the rear-view mirror's glass: a mirror shot's camera).
 static func points(model: String) -> Dictionary:
 	return _layout(TmRoadCars.manifest(model))
+
+
+## How far a seated person's crown at p (road frame) is under the roof's line less 5 cm, the room
+## the layout leaves the Mannequin (negative: into it).
+static func headroom(model: String, p: Vector3) -> float:
+	return line(TmRoadCars.manifest(model), "top", p.z) - 0.05 - p.y
 
 
 ## dome: the courtesy light over the rear bench (0: off), cold white; it lights a passenger.
@@ -107,11 +118,12 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	trim.roughness = 0.8
 	for side: float in [1.0, -1.0]:
 		var x := 0.37 * side
-		_box(Vector3(x, hip, front_z), Vector3(0.5, 0.12, 0.52), leather)                       # cushion
-		_box(Vector3(x, hip + 0.31, front_z - 0.3), Vector3(0.48, 0.56, 0.12), leather, -12.0)    # back
-		_box(Vector3(x, hip + 0.68, front_z - 0.35), Vector3(0.24, 0.16, 0.1), leather, -8.0)     # headrest
-	_box(Vector3(0.0, rear_hip, rear_z), Vector3(half * 2.0 - 0.2, 0.12, 0.46), leather)
-	_box(Vector3(0.0, rear_hip + 0.3, rear_z - 0.28), Vector3(half * 2.0 - 0.2, 0.54, 0.12), leather, -18.0)
+		_seats["driver" if side > 0.0 else "passenger"] = [
+			_box(Vector3(x, hip, front_z), Vector3(0.5, 0.12, 0.52), leather),                       # cushion
+			_box(Vector3(x, hip + 0.31, front_z - 0.3), Vector3(0.48, 0.56, 0.12), leather, -12.0),    # back
+			_box(Vector3(x, hip + 0.68, front_z - 0.35), Vector3(0.24, 0.16, 0.1), leather, -8.0)]     # headrest
+	_seats["rear"] = [_box(Vector3(0.0, rear_hip, rear_z), Vector3(half * 2.0 - 0.2, 0.12, 0.46), leather),
+		_box(Vector3(0.0, rear_hip + 0.3, rear_z - 0.28), Vector3(half * 2.0 - 0.2, 0.54, 0.12), leather, -18.0)]
 	_box(Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5), Vector3(half * 2.0, 0.04, wheelbase * 0.9), trim)
 	var dash_z := front_z + 0.85
 	_box(Vector3(0.0, hip + 0.42, dash_z), Vector3(half * 2.0, 0.22, 0.4), trim)
@@ -170,6 +182,15 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	_box(mirror_point + Vector3(0.0, 0.0, 0.03), Vector3(0.24, 0.07, 0.03), trim)   # ahead of its glass
 	driver_head = pts["driver_head"]
 	rear_seat = pts["rear"]
+
+
+## Lowers a seat (its cushion, back and headrest) to `by` under where it was built: a tall sitter's
+## crown would meet a low car's roof (StoryScene sinks the sitter as far).
+func lower(seat: String, by: float) -> void:
+	var d := by - float(_drops.get(seat, 0.0))
+	_drops[seat] = by
+	for n: Node3D in _seats.get(seat, []):
+		n.position.y -= d
 
 
 ## Readies a car for shots from inside: its glass tinted but clear (the game's road glass is dark
@@ -362,7 +383,7 @@ static var _lining: StandardMaterial3D
 static var _linings := {}             ## a body's mesh -> its lining (made once a model)
 
 
-func _box(at: Vector3, size: Vector3, mat: Material, tilt_deg := 0.0) -> void:
+func _box(at: Vector3, size: Vector3, mat: Material, tilt_deg := 0.0) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var bm := BoxMesh.new()
 	bm.size = size
@@ -371,3 +392,4 @@ func _box(at: Vector3, size: Vector3, mat: Material, tilt_deg := 0.0) -> void:
 	mi.position = at
 	mi.rotation = Vector3(deg_to_rad(tilt_deg), 0.0, 0.0)
 	add_child(mi)
+	return mi

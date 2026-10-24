@@ -171,6 +171,12 @@ tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Buil
 A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports
 retarget onto Godot's humanoid skeleton through `assets/cast/bonemap.tres`). `StoryCast` loads them
 (`instance`, `meta`, `set_shape` for the 35 face shapes, `ground` for the per-clip lift).
+Seated in a car (`"car"`, `"seat"`), everyone sits by their own body: `StoryCast.seated` measures,
+in the clip, the seat (the lowest of the hips and thighs, and the back of them) and the crown (hair
+and all); the cabins are laid out for the Mannequin, so a cast member's seat goes where the
+Mannequin's rests in that clip, and anyone whose crown would come within 5 cm of the roof goes down
+with the seat (`StoryCabin.lower`; Gus driving the corrida, 7.6 cm). `tests/test_cast_seats` sits
+them all in every road car; `story/lab/seat_check.json` shows them (the car a ghost).
 The stylised cast (set aside: the owner chose realistic, 24 Oct; `"style": "stylised"` specs in
 `tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds one: Quaternius' Ultimate Modular Women/Men, CC0,
 fetched by `setup.sh`) is built by `blender/gen_stylised.py` from parts (`{"file", "mesh",

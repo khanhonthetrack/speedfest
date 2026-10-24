@@ -4424,3 +4424,26 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   aside, a crouched head, a look at a moving camera, the lids read on the body mesh, a line longer
   than its subtitle, every shape compared after seeking from mid-line, from after it and from the
   other shot.
+
+### 24 Oct (session 21, cont.): seated by their own heights (M20-9)
+- The cabins (StoryCabin) are laid out for the 1.83 m Mannequin; a cast member put at its seat
+  point sat into the cushion (Dee, 13 cm shorter seated) or with the head in a low roof (Gus).
+  `StoryCast.seated(id, root, clip)` measures a seated body in its clip, skinned on the CPU: the seat
+  (the lowest of the hips and thighs under the hip joints, the back of them) and the crown (hair and
+  all); `mannequin_seated` measures the Mannequin the same way (once per clip). StoryPerson puts a
+  seated person's own seat where the Mannequin's rests in that clip (measured: the Mannequin's seat is
+  1.3 cm higher and 2 cm further forward as it drives than sitting, and its head 36 cm behind its
+  feet, not the 11 cm the layout assumed); StoryScene lowers anyone whose crown would come within
+  5 cm of the roof, the seat with them (`StoryCabin.lower`, `StoryPerson.sink`, `StoryCabin.headroom`).
+  Measured: Gus 1.50 m crown seated, Kit 1.33, Dee 1.30, the Mannequin 1.44. In the sixteen road
+  cars 48 of 144 sitters go down: Gus driving by 2-7.6 cm (most in the corrida), the Mannequin
+  driving by up to 4.7 cm; night 1's Mannequin in Kit's nemesis (Sitting_Idle) by 4 mm.
+- `tests/test_cast_seats` (in the gate, 16 s): the Mannequin's measure against the layout; Gus,
+  Kit, the Mannequin and Dee in every road car, each in every seat, the drivers driving: the seat
+  as deep in the cushion and as far back as the Mannequin's, the crown under the roof, a seat lowered
+  only where it must be and then to 5 cm; every body skinned as it is in the shot, its crown clear of
+  the roof and where the measure put it. Checked by undoing each part: no sink, no lowered cushion,
+  no own measure, one clip's reference for all, no roof check: each fails. `story/lab/seat_check.json`
+  shows them (the car a ghost, lit): Gus driving Kit's nemesis and the corrida, Dee behind; Kit beside,
+  Gus behind. Left: a cast driver's eyes ("driver_head") and the wheel are the Mannequin's; Kit's long
+  hair hangs into the seat's back.

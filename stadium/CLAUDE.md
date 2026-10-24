@@ -80,8 +80,9 @@ Updated 2026-10-24. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   Blender, a licence gate, `build.sh`) into `assets/cast/`; `story/story_cast.gd`, StoryPerson's
   `"who"`, `story/cast_lab.tscn`, `tests/test_cast_models`. Night 1 still uses the Mannequin. The look is
   realistic (owner, 24 Oct, after a side-by-side with a stylised set, set aside: `specs_stylised/`).
-  Faces in cutscenes: `story/story_face.gd` (`tests/test_story_face`).
-  Next: seating per height, the rest of night 1's people, then night 1 switched to the cast. README "The cast".
+  Faces in cutscenes: `story/story_face.gd` (`tests/test_story_face`). Seated by their own heights
+  (`StoryCast.seated`, `StoryCabin.lower`; `tests/test_cast_seats`).
+  Next: the rest of night 1's people, then night 1 switched to the cast. README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone

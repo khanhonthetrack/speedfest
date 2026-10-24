@@ -33,6 +33,8 @@ var spec := {}
 var in_car := ""                   ## seated in this car of the shot (StoryScene moves it with the car)
 var who := ""                      ## the cast member (StoryCast), "" for the Mannequin
 var face: StoryFace                ## a cast member's face (StoryScene drives it), null for the Mannequin
+var crown := Vector3.ZERO          ## seated: the top of the head, hair and all, in this person's frame
+var _body: Node3D
 var _player: AnimationPlayer
 var _anim: Animation
 var _path: Array[Vector3] = []     ## walked points (anchor frame), with their cumulative lengths
@@ -168,6 +170,7 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		who = ""
 	var body: Node3D = StoryCast.instance(who) if who != "" else _load().instantiate()
 	add_child(body)
+	_body = body
 	if who != "":
 		face = StoryFace.new(body, String(s.get("id", who)).hash())
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
@@ -176,8 +179,12 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		push_warning("story: no clip %s, Idle instead" % clip)
 		clip = "Idle"
 	_anim = _player.get_animation(clip)
-	# a cast member standing (a ground under it; seats place the seated) meets the ground in this clip
+	# a cast member standing (a ground under it) meets the ground in this clip; anyone seated ("seat":
+	# placed where the Mannequin sits) rests its own seat where the Mannequin's rests in this clip
 	var lift := StoryCast.ground(who, body, clip) if who != "" and ground.is_valid() else 0.0
+	var sits := s.has("seat") and not ground.is_valid()
+	var ref: Dictionary = StoryCast.mannequin_seated(self, clip) if sits else {}
+	var own: Dictionary = StoryCast.seated(who, body, clip) if sits and who != "" else ref
 	_player.play(clip)
 	_player.pause()
 	var look := String(s.get("look", "coat"))
@@ -195,6 +202,11 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	var sc := float(s.get("scale", 1.0))
 	body.scale = Vector3.ONE * sc
 	body.position.y = lift * sc
+	if sits:
+		var seat: Vector2 = (ref["seat"] as Vector2) - (own["seat"] as Vector2) * sc
+		var top: Vector2 = own["crown"]
+		body.position = Vector3(0.0, seat.x, seat.y)
+		crown = body.position + Vector3(0.0, top.x, top.y) * sc
 	var p: Array = s.get("pos", [0.0, 0.0, 0.0])
 	_path = [Vector3(float(p[0]), float(p[1]), float(p[2]))]
 	for q: Array in s.get("path", []):
@@ -205,6 +217,12 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	# shorter legs take shorter strides: the clip's speed scaled as the retarget scales its motion
 	var stride := StoryCast.stride(body) if who != "" else 1.0
 	_speed = float(s.get("speed", SPEED.get(clip, 1.0) * float(s.get("rate", 1.0)) * stride))
+
+
+## Lowers a seated person whose crown would meet the roof (StoryScene lowers the seat as far).
+func sink(by: float) -> void:
+	_body.position.y -= by
+	crown.y -= by
 
 
 ## The person at scene time t (seconds since the shot began).
