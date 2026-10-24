@@ -50,6 +50,10 @@ func _ready() -> void:
 				for k: Dictionary in cam.get("keys", [cam]):
 					if k.get("pos") is String and (not String(k["pos"]) in ["driver_head", "mirror"] or not cam.has("follow")):
 						bad.append("shot %s: %s at %s, not a place in a followed car" % [s.get("id", "?"), which, k["pos"]])
+			for c: Dictionary in s.get("cars", []):
+				var box := _in_container(c, s.get("props", []))
+				if not box.is_empty():
+					bad.append("shot %s: car %s inside the container at %s" % [s.get("id", "?"), c.get("id", "?"), box])
 			for p: Dictionary in s.get("people", []):
 				if not String(p.get("clip", "Idle")) in clips:
 					bad.append("shot %s: no clip %s" % [s.get("id", "?"), p.get("clip", "")])
@@ -74,6 +78,7 @@ func _ready() -> void:
 		if not d.is_empty():
 			await _plays(id, d)
 	_cabins()
+	_layers()
 	await _variants()
 	await _staged()
 	await _story_race()
@@ -100,6 +105,32 @@ func _cabins() -> void:
 		if mir.y + 0.04 > StoryCabin.line(m, "top", mir.z) - 0.03 or mir.z < (pts["driver_head"] as Vector3).z + 0.3:
 			bad.append("%s mirror at %s" % [id, mir])
 	TestHooks.check(bad.is_empty(), "story_cabins_fit", "; ".join(bad))
+
+
+## The container (its "pos") a car starts inside, if any: both in the shot's anchor frame (x left,
+## z ahead; a car's "left" / "ahead" on a straight line), a car taken as 2 m round (Tibor's rally car
+## once stood inside a stack of them).
+static func _in_container(car: Dictionary, props: Array) -> Array:
+	var at := Vector2(float(car.get("left", 0.0)), float(car.get("ahead", 0.0)))
+	for p: Dictionary in props:
+		if String(p.get("kind", "")) != "container":
+			continue
+		var pos: Array = p.get("pos", [0, 0, 0])
+		var local := (at - Vector2(float(pos[0]), float(pos[2]))).rotated(deg_to_rad(float(p.get("yaw", 0.0))))
+		if absf(local.x) < StoryProps.CONTAINER.x * 0.5 + 1.0 and absf(local.y) < StoryProps.CONTAINER.z * 0.5 + 2.0:
+			return pos
+	return []
+
+
+## The 2D layer: a black shot or a fade covers the picture, never the subtitles, the title card or
+## the phone's texts (a "black" shot once hid the prologue's radio lines).
+func _layers() -> void:
+	var sub := StorySubtitles.new()
+	add_child(sub)
+	var black := sub._black.get_index()
+	TestHooks.check(black < sub._sub.get_index() and black < sub._card.get_index() and black < sub._phone.get_index(),
+		"story_black_under_the_words", "black %d, subtitles %d, card %d, phone %d" % [black, sub._sub.get_index(), sub._card.get_index(), sub._phone.get_index()])
+	sub.queue_free()
 
 
 ## Every flag something sets: exits, facts, scenes, lines.

@@ -198,6 +198,7 @@ func _ready() -> void:
 	col.add_child(_phone_list)
 	_phone.visible = false
 	root.add_child(_black)
+	root.move_child(_black, _sub.get_index())    # under the subtitles, cards and texts: a black shot still reads
 	_flash = ColorRect.new()
 	_flash.color = Color(1, 1, 1)
 	_flash.set_anchors_preset(Control.PRESET_FULL_RECT)

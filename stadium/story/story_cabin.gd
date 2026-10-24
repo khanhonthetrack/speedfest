@@ -115,6 +115,25 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	_box(Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5), Vector3(half * 2.0, 0.04, wheelbase * 0.9), trim)
 	var dash_z := front_z + 0.85
 	_box(Vector3(0.0, hip + 0.42, dash_z), Vector3(half * 2.0, 0.22, 0.4), trim)
+	# the steering wheel, a hand's reach ahead of the driver's chest, a third of a metre under the eyes
+	var wheel := MeshInstance3D.new()
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.165
+	ring.outer_radius = 0.19
+	ring.rings = 32
+	wheel.mesh = ring
+	wheel.material_override = leather
+	wheel.position = Vector3(0.37, (pts["driver_head"] as Vector3).y - 0.33, front_z + 0.42)
+	wheel.rotation = Vector3(deg_to_rad(70.0), 0.0, 0.0)          # its axis up the column to the driver
+	add_child(wheel)
+	var hub := MeshInstance3D.new()
+	var boss := CylinderMesh.new()
+	boss.top_radius = 0.05
+	boss.bottom_radius = 0.06
+	boss.height = 0.08
+	hub.mesh = boss
+	hub.material_override = trim
+	wheel.add_child(hub)
 	# behind the bench: a bulkhead up to the parcel shelf, the shelf under the rear window, so a look
 	# back shows the window and what follows, not the boot (the body itself is lined by fit_car)
 	var shelf_z := rear_z - 0.62

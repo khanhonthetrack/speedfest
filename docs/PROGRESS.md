@@ -4296,3 +4296,12 @@ story-agnostic plumbing starts (M20-4 finish-gate identity, M20-2 graph and save
   chapter in `story.json`). A start goes to `story/story_play.tscn` (`story_started`; `--menu_dry`
   only records it). `tests/test_menu`: the tab and panel open it, a new save at a difficulty,
   Continue, the journal after a night, a new story over one in progress asks again.
+- Night 1 at Ultra for the owner, and what the stills showed: a `"black"` shot hid its own subtitles,
+  title card and texts (the black layer was drawn over them; the prologue's radio lines never showed);
+  the auction's lots stood nose to tail (yaw 90 turns a car along the row, not across it); Tibor's rally
+  car stood inside a stack of containers (a prop and a car in the same place); Kit asleep could not be
+  seen from outside (a dark shape behind tinted glass): the shot moved inside, from behind the
+  passenger seat, Kit against the driver's window and the satnav's glow; the cabin has a steering wheel;
+  Dee knocking stood too tall for the side window: she crouches (`Crouch_Idle`: Godot drops the
+  library's `_Loop` suffix, so clip names are as `StoryPerson.clip_names()` lists them).
+  `tests/test_story_scenes`: the black layer under the words, no car starting inside a container.
