@@ -4414,3 +4414,13 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   lashes), the eyes' directions, and a scene: only the speaker on screen talks, the listener looks at
   her, a voice off moves nothing, the same face whatever the seek order. `story/lab/face_check.json`:
   Dee talking to Kit, close (a look without the city: `story_lab --file=... --no_stage`).
+- Review of the faces (a sequential review workflow; its last verifiers stopped at the account's usage
+  limit): a look at the camera read last frame's camera (the faces are posed after the cameras now);
+  the eyes aimed in the body's frame while the clips turn the head (Crouch_Idle tips it 45 degrees
+  down): they aim from the head's own turn now; a target behind the head flipped the eyes from side to
+  side (they drift back to the middle past 90 degrees now); a voice off drew the listeners' eyes (not
+  any more). `test_story_face` now catches each of these (checked by undoing the fixes one at a time):
+  two shots (scene time is not shot time), ids that differ from the speakers' names, a body turned
+  aside, a crouched head, a look at a moving camera, the lids read on the body mesh, a line longer
+  than its subtitle, every shape compared after seeking from mid-line, from after it and from the
+  other shot.

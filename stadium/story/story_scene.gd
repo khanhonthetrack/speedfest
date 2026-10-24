@@ -507,12 +507,13 @@ func _pose(local: float) -> void:
 			p.rebase(_cars[p.in_car]["xf"])
 		p.pose(local)
 		p.visible = _on_screen(p.spec, local)
-	for p in _people:
-		if p.face != null and p.visible:
-			p.face.pose(t, _lines_of(p, s), _gaze_of(p, s))
 	_aim(s.get("camera", {}), camera, _attrs, local, dur)
 	if _mirror_cam != null and s.has("mirror"):
 		_aim(s["mirror"], _mirror_cam, null, local, dur)
+	# the faces after the people and the cameras: a look at the camera is at this frame's camera
+	for p in _people:
+		if p.face != null and p.visible:
+			p.face.pose(t, _lines_of(p, s), _gaze_of(p, s))
 	_flicker(s, local)
 	if _rain != null and camera != null:
 		_rain.global_position = camera.global_position + Vector3(0.0, 8.0, 0.0)
@@ -555,7 +556,8 @@ func _lines_of(p: StoryPerson, s: Dictionary) -> Array:
 	return out
 
 
-## Where a person looks: its "gaze" (the camera, or a person), else whoever else is speaking on screen.
+## Where a person looks: its "gaze" (the camera, or a person), else whoever else is speaking on screen
+## (a voice off draws no eyes: it is heard, not seen).
 func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 	var g := String(p.spec.get("gaze", ""))
 	if g == "camera" and camera != null:
@@ -565,7 +567,8 @@ func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 			if String(q.spec.get("id", "")) == g and q != p:
 				return q.eyes_point()
 	var l := line_at(t)
-	if not l.is_empty() and String(l.get("kind", "say")) == "say" and not p.speaks(String(l.get("speaker", ""))):
+	if not l.is_empty() and String(l.get("kind", "say")) == "say" and not bool(l.get("voice", false)) \
+			and not p.speaks(String(l.get("speaker", ""))):
 		for q in _people:
 			if q != p and q.visible and q.speaks(String(l.get("speaker", ""))):
 				return q.eyes_point()

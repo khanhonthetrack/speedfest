@@ -176,21 +176,29 @@ static func _mix(a: Dictionary, b: Dictionary) -> Dictionary:
 	return out
 
 
-## The eye shapes that look at a world point: in the body's frame (it faces +z, its left is +x),
-## from between the eyes.
+## The eye shapes that look at a world point, from between the eyes, in the head's frame: the eyes
+## turn inside the head, and the clips turn the head (Crouch_Idle tips it 45 degrees down, Sitting_Idle
+## and Driving turn it 11 aside). The head's frame is the body's (it faces +z, its left is +x) turned
+## as the head turned from its rest. Past what eyes reach (90 degrees aside) they drift back to the
+## middle, so a target passing behind the head never flips them from one side to the other.
 func eyes_towards(target: Vector3) -> Dictionary:
 	var sk := StoryCast.skeleton(root)
 	if sk == null:
 		return {}
 	var i := sk.find_bone("Head")
-	var head := (sk.global_transform * sk.get_bone_global_pose(i)).origin + root.global_basis.y.normalized() * 0.07
-	var d := root.global_basis.inverse() * (target - head)
+	if i < 0:
+		return {}
+	var hp := sk.get_bone_global_pose(i)
+	var head := (sk.global_transform * hp).origin + root.global_basis.y.normalized() * 0.07
+	var turn := (hp.basis * sk.get_bone_global_rest(i).basis.inverse()).orthonormalized()
+	var d := turn.inverse() * (root.global_basis.orthonormalized().inverse() * (target - head))
 	if d.length() < 0.05:
 		return {}
 	var side := rad_to_deg(atan2(d.x, d.z))                     # + : to its left
 	var up := rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length()))
-	var h := clampf(absf(side) / EYE_SIDE, 0.0, 1.0)
-	var v := clampf(absf(up) / EYE_UPDOWN, 0.0, 1.0)
+	var reach := clampf((120.0 - absf(side)) / 30.0, 0.0, 1.0)
+	var h := clampf(absf(side) / EYE_SIDE, 0.0, 1.0) * reach
+	var v := clampf(absf(up) / EYE_UPDOWN, 0.0, 1.0) * reach
 	var out := {}
 	if side > 0.0:              # to its left: the left eye looks out, the right eye in
 		out["eyeLookOutLeft"] = h
