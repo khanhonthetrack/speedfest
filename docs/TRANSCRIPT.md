@@ -1529,3 +1529,12 @@ which look, Kit's hair long or a shoulder-length bob.)
 
 (Read as: the cast stays realistic (MakeHuman/MPFB); the stylised trio is set aside, its tools kept.
 The hair question went unanswered: Kit keeps the long straight hair she has.)
+
+(Carried on: the owner chose realistic; faces in cutscenes built and pushed; a review of them
+reported while the account neared its usage limit.)
+
+### User (verbatim)
+
+> Continue
+
+(Read as: carry on: apply the faces review, then the plan's next items.)
