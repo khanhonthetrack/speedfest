@@ -14,8 +14,12 @@
   lifted onto the ground per clip, own stride); without it, the Mannequin as before. **Night 1 still
   uses the Mannequin** until all its people exist (the passenger, Tibor, the auction crowd); then the
   knock is re-blocked (Dee stands; the camera in the seat looks up at her face).
-- **Next**: a line-up and close-ups at Ultra for the owner, with the questions (Kit A or B; this
-  look, or more stylised: Quaternius' UBC, CC0, is plan B); then faces (`story_face.gd`: blinks,
+- **With the owner** (24 Oct): https://claude.ai/artifact/14ifwdVU5TkLSUEZa4STpr, the four in the yard at
+  night (Ultra, in the game), a studio line-up, faces, Dee's face shapes; three questions: Kit A, B
+  or the player chooses; realistic pushed further, or stylised (Quaternius' UBC, CC0, plan B); what to
+  change. The still: `story_lab --file=<abs>/stadium/story/lab/cast_yard.json --set_quality=2 --t=2
+  --frames=70` (about 11 minutes with the city); the studio ones: `story/cast_lab.tscn`.
+- **Next**: on their answers; meanwhile faces (`story_face.gd`: blinks,
   visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),
   seating per height (`StoryCabin` uses the Mannequin's crown), the passenger (Dee's double, long
   hair let down over the face, soaked), Tibor, the crowd (a lighter tier), Cass, Voss, Moth, Pim.

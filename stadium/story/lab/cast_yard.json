@@ -1,0 +1,154 @@
+{
+ "id": "cast_yard",
+ "title": "The cast, at night in the yard (a still for the owner)",
+ "shots": [
+  {
+   "id": "lineup",
+   "track": "H01",
+   "at": 0.03,
+   "rain": 0.0,
+   "dur": 6.0,
+   "cars": [
+    {
+     "id": "kit",
+     "model": "nemesis",
+     "livery": 1,
+     "tuning": "0.5.6.0",
+     "left": 0.0,
+     "ahead": 1.0,
+     "yaw": 0
+    }
+   ],
+   "people": [
+    {
+     "id": "kit_f",
+     "who": "kit_f",
+     "clip": "Idle",
+     "pos": [
+      2.1,
+      0,
+      4.6
+     ],
+     "face": 14,
+     "start": 1.7
+    },
+    {
+     "id": "kit_m",
+     "who": "kit_m",
+     "clip": "Idle",
+     "pos": [
+      0.75,
+      0,
+      4.9
+     ],
+     "face": -6,
+     "start": 0.4
+    },
+    {
+     "id": "dee",
+     "who": "dee",
+     "clip": "Idle_Talking",
+     "pos": [
+      -0.6,
+      0,
+      4.8
+     ],
+     "face": 12,
+     "start": 0.3
+    },
+    {
+     "id": "gus",
+     "who": "gus",
+     "clip": "Idle_Talking",
+     "pos": [
+      -2.0,
+      0,
+      4.5
+     ],
+     "face": -18,
+     "start": 1.4
+    }
+   ],
+   "lights": [
+    {
+     "kind": "spot",
+     "pos": [
+      -4.0,
+      5.5,
+      11.0
+     ],
+     "look": [
+      0.0,
+      1.1,
+      4.7
+     ],
+     "colour": "#ffe0c2",
+     "energy": 16.0,
+     "range": 25.0,
+     "angle": 30.0,
+     "shadow": true
+    },
+    {
+     "kind": "spot",
+     "pos": [
+      5.0,
+      4.0,
+      10.0
+     ],
+     "look": [
+      0.0,
+      1.0,
+      4.7
+     ],
+     "colour": "#cfdcff",
+     "energy": 5.0,
+     "range": 25.0,
+     "angle": 34.0
+    },
+    {
+     "kind": "omni",
+     "pos": [
+      0.0,
+      3.2,
+      1.5
+     ],
+     "colour": "#9a6bff",
+     "energy": 6.0,
+     "range": 9.0
+    }
+   ],
+   "camera": {
+    "keys": [
+     {
+      "u": 0,
+      "pos": [
+       0.3,
+       1.45,
+       11.2
+      ],
+      "look": [
+       0.0,
+       1.05,
+       4.7
+      ],
+      "fov": 34
+     },
+     {
+      "u": 1,
+      "pos": [
+       0.3,
+       1.45,
+       11.0
+      ],
+      "look": [
+       0.0,
+       1.05,
+       4.7
+      ],
+      "fov": 34
+     }
+    ]
+   }
+  }
+ ]
+}
