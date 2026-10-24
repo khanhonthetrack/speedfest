@@ -36,7 +36,7 @@
  "skin": "young_asian_male/young_asian_male.mhmat",
  "eyes": "high-poly/high-poly.mhclo",
  "materials": {
-  "eyes": "materials/brownlight.mhmat"
+  "eyes": "materials/brown.mhmat"
  },
  "eyebrows": "eyebrow001/eyebrow001.mhclo",
  "eyelashes": "eyelashes01/eyelashes01.mhclo",
@@ -49,7 +49,12 @@
   "punkduck_comfortable_sneakers/punkduck_comfortable_sneakers.mhclo"
  ],
  "tint": {
-  "brow": "#3a2e28"
+  "brow": "#3a2e28",
+  "hair": "#4a3c34",
+  "eye": "#e8dccf"
  },
- "texture_max": 2048
+ "texture_max": 2048,
+ "desaturate": [
+  "eye"
+ ]
 }

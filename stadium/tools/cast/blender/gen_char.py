@@ -390,7 +390,7 @@ for name in sorted(materials):
         if key == role or key in base:
             tint = value
     meta["materials"][name] = {"role": role, "tint": tint}
-    if role in SPEC.get("desaturate", []) or any(k in base for k in SPEC.get("desaturate", [])):
+    if role in SPEC.get("desaturate", []) or base in SPEC.get("desaturate", []):   # exactly: "eye" is in "eyebrow011"
         meta["materials"][name]["desaturate"] = True       # post.py: its colour map in greys (grey hair)
 
 # 5. measures: standing height, the pelvis, the eyes (a seat and a camera need them)

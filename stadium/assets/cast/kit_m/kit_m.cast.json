@@ -57,7 +57,7 @@
  "materials": {
   "brow__eyebrow001": {
    "role": "brow",
-   "tint": "#3a2e28"
+   "tint": "#e8dccf"
   },
   "cloth__elvs_hooded_sweat_jacket1": {
    "role": "cloth",
@@ -72,16 +72,17 @@
    "tint": "#ffffff"
   },
   "eye__high-poly": {
+   "desaturate": true,
    "role": "eye",
-   "tint": "#ffffff"
+   "tint": "#e8dccf"
   },
   "hair__short02": {
    "role": "hair",
-   "tint": "#ffffff"
+   "tint": "#4a3c34"
   },
   "lash__eyelashes01": {
    "role": "lash",
-   "tint": "#ffffff"
+   "tint": "#e8dccf"
   },
   "skin__body": {
    "role": "skin",

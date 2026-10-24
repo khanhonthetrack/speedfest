@@ -75,7 +75,7 @@ func _ready() -> void:
 func _lights() -> void:
 	var key := SpotLight3D.new()
 	key.light_color = Color(1.0, 0.93, 0.85)
-	key.light_energy = 14.0
+	key.light_energy = 8.0
 	key.spot_range = 14.0
 	key.spot_angle = 40.0
 	key.shadow_enabled = true
