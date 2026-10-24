@@ -165,7 +165,7 @@ tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Buil
     stadium/tools/cast/setup.sh                  # once: Blender 4.5.15, MPFB 2.0.18, the packs (~3 GB, CAST_CACHE)
     stadium/tools/cast/build.sh [id ...]         # licence gate, build, textures, import; CREDITS.md rewritten
     python3 -I stadium/tools/cast/licences.py $CAST_CACHE/zips --spec stadium/tools/cast/specs/x.json
-    stadium/tools/run.sh res://story/cast_lab.tscn -- --who=kit_f,dee,gus,mannequin --frames=40 --shot=/abs/out.png
+    stadium/tools/run.sh res://story/cast_lab.tscn -- --who=kit,dee,gus,mannequin --frames=40 --shot=/abs/out.png
     stadium/tools/run.sh res://story/cast_lab.tscn -- --who=dee --mode=face --shapes=eyeBlinkLeft:1,jawOpen:0.6 ...
 
 A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports

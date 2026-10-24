@@ -4,7 +4,7 @@
 - The owner: **"Start modelling"** (Kit, Dee and Gus first, with the best graphics). The survey chose
   MakeHuman's body through MPFB 2 in Blender (CC0 and CC BY assets only, each checked by
   `tools/cast/licences.py`, credited in `assets/cast/CREDITS.md`, shipped as `CREDITS-cast.md`).
-- **Built**: `kit_f` and `kit_m` (Kit A and B, the same clothes: the owner picks the person), `dee`,
+- **Built**: `kit` (the owner picked Kit A of two, 24 Oct, and asked for longer hair: MakeHuman's `long01`), `dee`,
   `gus` (a generated hi-vis vest) in `stadium/assets/cast/`. Rebuild: `stadium/tools/cast/setup.sh`
   once (about 3 GB cache, `CAST_CACHE`), then `stadium/tools/cast/build.sh [id ...]`. A new person:
   write `tools/cast/specs/<id>.json` (copy one; assets by folder name from the packs; `licences.py

@@ -76,10 +76,10 @@ Updated 2026-10-24. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   bible; the brief `docs/STORY_MODE_PROMPT.md`); night 1 is playable from the Story page (H01-H03, the
   prologue and five scenes, the mirror nightmare) and waits for the owner's sign-off (stills page in
   HANDOFF); every story map is a 7-minute time attack whose best run counts. README "Story mode".
-- **The modelled cast (PLAN M20-9, 24 Oct):** Kit A/B, Dee and Gus built by `tools/cast/` (MPFB 2 in
+- **The modelled cast (PLAN M20-9, 24 Oct):** Kit (the owner's pick: Kit A, longer hair), Dee and Gus built by `tools/cast/` (MPFB 2 in
   Blender, a licence gate, `build.sh`) into `assets/cast/`; `story/story_cast.gd`, StoryPerson's
-  `"who"`, `story/cast_lab.tscn`, `tests/test_cast_models`. Night 1 still uses the Mannequin. Next: the
-  owner's picks, faces, the rest of the people. README "The cast".
+  `"who"`, `story/cast_lab.tscn`, `tests/test_cast_models`. Night 1 still uses the Mannequin. Next: a
+  stylised version beside them (the owner: "show me both side by side first"), faces, the rest. README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone

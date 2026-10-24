@@ -1,5 +1,5 @@
 extends Node3D
-## Looks at the modelled cast (StoryCast, PLAN M20-9) in a studio: --who=kit_f,dee,mannequin
+## Looks at the modelled cast (StoryCast, PLAN M20-9) in a studio: --who=kit,dee,mannequin
 ## --mode=lineup|face|full --clip=Idle --t=1.0 --shapes=eyeBlinkLeft:1,jawOpen:0.6 (face shapes)
 ## --frames=30 --shot=/abs.png. "face" frames the first one's head (a 250-px head at 1600x900,
 ## the size a cutscene's close-up gives it); "lineup" stands everyone in a row on their own feet

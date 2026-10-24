@@ -362,9 +362,9 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
       (Quaternius' CC0 bodies on the UAL rig, MakeHuman/MPFB2 retargeted, or a mix)
       -- the survey chose MakeHuman/MPFB 2 (CC0/CC BY assets, a licence gate); the pipeline is in
       (`tools/cast/`: setup, licences, gen_char, post, build; `story/story_cast.gd`; StoryPerson's
-      `"who"`; `story/cast_lab.tscn`; `tests/test_cast_models` in the gate); built: Kit A and Kit B
-      (same clothes: the owner picks), Dee, Gus (a generated hi-vis vest); left: the owner's picks
-      (Kit, the look), faces in cutscenes (`story_face.gd`: blinks, visemes from the text, gaze),
+      `"who"`; `story/cast_lab.tscn`; `tests/test_cast_models` in the gate); built: Kit (the owner
+      picked Kit A, hair longer), Dee, Gus (a generated hi-vis vest); left: the look (the owner wants
+      realistic and stylised side by side first), faces in cutscenes (`story_face.gd`: blinks, visemes from the text, gaze),
       seating per height, the rest of night 1's people (the passenger, Tibor, the crowd), then night
       1 switched to the cast (the knock re-blocked: Dee stands, the camera looks up), Cass, Voss,
       Moth, Pim, Edgar, crowds (a lighter tier)

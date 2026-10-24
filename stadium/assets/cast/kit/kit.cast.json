@@ -6,7 +6,7 @@
   "eyebrows/eyebrow011",
   "eyelashes/eyelashes02",
   "eyes/high-poly",
-  "hair/ponytail01",
+  "hair/long01",
   "skins/young_asian_female",
   "teeth/teeth_base",
   "tongue/tongue01"
@@ -53,7 +53,7 @@
  ],
  "head": 1.5242,
  "height": 1.6787,
- "id": "kit_f",
+ "id": "kit",
  "materials": {
   "brow__eyebrow011": {
    "role": "brow",
@@ -76,7 +76,7 @@
    "role": "eye",
    "tint": "#e8dccf"
   },
-  "hair__ponytail01": {
+  "hair__long01": {
    "role": "hair",
    "tint": "#5a4a40"
   },
@@ -97,8 +97,8 @@
    "tint": "#ffffff"
   }
  },
- "name": "Kit Arlen (A)",
+ "name": "Kit Arlen",
  "pelvis": 0.9027,
- "spec": "kit_f.json",
- "triangles": 58958
+ "spec": "kit.json",
+ "triangles": 57714
 }

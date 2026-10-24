@@ -1,14 +1,16 @@
 {
- "id": "kit_m",
- "name": "Kit Arlen (B)",
- "_look": "docs/STORY.md section 5: 20, engineering student, noodle-delivery driver, the player; hooded jacket, backpack (a prop). Kit A and Kit B wear the same, so the owner picks the person",
- "height_m": 1.77,
+ "id": "kit",
+ "name": "Kit Arlen",
+ "_look": "docs/STORY.md section 5: 20, engineering student, noodle-delivery driver, the player; hooded jacket, backpack (a prop). The owner picked Kit A (24 Oct) and asked for longer hair: MakeHuman's long01",
+ "height_m": 1.68,
  "phenotype": {
-  "gender": 1.0,
+  "gender": 0.0,
   "age": 0.39,
   "muscle": 0.5,
   "weight": 0.42,
   "proportions": 0.6,
+  "cupsize": 0.4,
+  "firmness": 0.55,
   "race": {
    "african": 0.05,
    "asian": 0.7,
@@ -18,31 +20,35 @@
  "targets": [
   {
    "target": "head-oval",
-   "value": 0.2
+   "value": 0.3
   },
   {
    "target": "eye-scale-incr",
-   "value": 0.05
+   "value": 0.1
+  },
+  {
+   "target": "mouth-lowerlip-volume-incr",
+   "value": 0.2
   },
   {
    "target": "nose-scale-horiz-decr",
-   "value": 0.1
+   "value": 0.15
   },
   {
    "target": "chin-width-decr",
-   "value": 0.1
+   "value": 0.2
   }
  ],
- "skin": "young_asian_male/young_asian_male.mhmat",
+ "skin": "young_asian_female/young_asian_female.mhmat",
  "eyes": "high-poly/high-poly.mhclo",
  "materials": {
   "eyes": "materials/brown.mhmat"
  },
- "eyebrows": "eyebrow001/eyebrow001.mhclo",
- "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "eyebrows": "eyebrow011/eyebrow011.mhclo",
+ "eyelashes": "eyelashes02/eyelashes02.mhclo",
  "teeth": "teeth_base/teeth_base.mhclo",
  "tongue": "tongue01/tongue01.mhclo",
- "hair": "short02/short02.mhclo",
+ "hair": "long01/long01.mhclo",
  "clothes": [
   "elvs_hooded_sweat_jacket1/elvs_hooded_sweat_jacket1.mhclo",
   "elvs_jeans_straight_leg/elvs_jeans_straight_leg.mhclo",
@@ -50,7 +56,7 @@
  ],
  "tint": {
   "brow": "#3a2e28",
-  "hair": "#4a3c34",
+  "hair": "#5a4a40",
   "eye": "#e8dccf"
  },
  "texture_max": 2048,

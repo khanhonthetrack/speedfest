@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dnqq6rj45w1eo"
-path="res://.godot/imported/kit_m.gltf-d53c5df57701a475c0deafa0a3cecf30.scn"
+uid="uid://dyeynffpkxcy5"
+path="res://.godot/imported/kit.gltf-17a97f4697c321641fa659cac38b019e.scn"
 
 [deps]
 
-source_file="res://assets/cast/kit_m/kit_m.gltf"
-dest_files=["res://.godot/imported/kit_m.gltf-d53c5df57701a475c0deafa0a3cecf30.scn"]
+source_file="res://assets/cast/kit/kit.gltf"
+dest_files=["res://.godot/imported/kit.gltf-17a97f4697c321641fa659cac38b019e.scn"]
 
 [params]
 
@@ -41,7 +41,7 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "nodes": {
-"PATH:kit_m/Skeleton3D": {
+"PATH:kit/Skeleton3D": {
 "retarget/bone_map": Resource("res://assets/cast/bonemap.tres"),
 "retarget/bone_renamer/rename_bones": true,
 "retarget/bone_renamer/unique_node/make_unique": true,

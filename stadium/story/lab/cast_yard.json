@@ -21,35 +21,23 @@
    ],
    "people": [
     {
-     "id": "kit_f",
-     "who": "kit_f",
+     "id": "kit",
+     "who": "kit",
      "clip": "Idle",
      "pos": [
-      2.1,
+      1.4,
       0,
-      4.6
+      4.7
      ],
      "face": 14,
      "start": 1.7
-    },
-    {
-     "id": "kit_m",
-     "who": "kit_m",
-     "clip": "Idle",
-     "pos": [
-      0.75,
-      0,
-      4.9
-     ],
-     "face": -6,
-     "start": 0.4
     },
     {
      "id": "dee",
      "who": "dee",
      "clip": "Idle_Talking",
      "pos": [
-      -0.6,
+      0.0,
       0,
       4.8
      ],
@@ -61,7 +49,7 @@
      "who": "gus",
      "clip": "Idle_Talking",
      "pos": [
-      -2.0,
+      -1.5,
       0,
       4.5
      ],
