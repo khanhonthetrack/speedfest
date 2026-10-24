@@ -219,6 +219,11 @@ def vest(basemesh, rig, spec):
     for v in b.verts:
         v.co += v.normal * out[v]
     bmesh.ops.solidify(b, geom=list(b.faces), thickness=-0.004)
+    # solidify adds its rim faces in an order that changes from run to run: sort them (deterministic)
+    b.verts.index_update()
+    rank = {f: n for n, f in enumerate(sorted(b.faces, key=lambda f: sorted(v.index for v in f.verts)))}
+    b.faces.sort(key=lambda f: rank[f])
+    b.faces.index_update()
     # painted by height: one column of texels; u is the same everywhere
     zs = [(mw @ v.co).z for v in b.verts]
     z0, z1 = min(zs), max(zs)

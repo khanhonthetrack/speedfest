@@ -1,3 +1,7 @@
 {
- "_note": "Assets whose own header carries no licence, reviewed by hand: key kind/asset -> {licence, why}. Empty so far: every asset the cast uses has a licence line in its header (licences.py)."
+ "_note": "Assets whose own file carries no licence line, reviewed by hand (licences.py fails them otherwise): key kind/asset -> {licence, why}.",
+ "skins/jartur69_middleage_slavic_male_with_genitals_and_beard": {
+  "licence": "CC0",
+  "why": "its .mhmat has no licence line; its pack skins02_cc0 lists it as CC0 (author jartur69), and MakeHuman's asset-pack page (static.makehumancommunity.org/assets/assetpacks.html, checked 24 Oct 2026) lists Skins 02 under 'Material assets, shared under CC0'"
+ }
 }

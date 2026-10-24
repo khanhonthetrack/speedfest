@@ -7,9 +7,10 @@ and unknown fail, unless an asset is in allow.json with the reason it was review
 
 usage: python3 -I licences.py <zips dir> [--json out.json] [--show ASSET]
        python3 -I licences.py <zips dir> --check kind/asset ...   (exit 1 if any fails)
-       python3 -I licences.py <zips dir> --spec specs/<id>.json ... [--credits CREDITS.md]
-           every asset the specs name (exit 1 if any fails); --credits writes the cast's credit
-           lines (each CC BY asset: its author, source, pack and licence; CC0 listed too)
+       python3 -I licences.py <zips dir> --spec specs/<id>.json ...   (every asset the specs name)
+       python3 -I licences.py <zips dir> --built <repo>/stadium/assets/cast --credits CREDITS.md
+           every asset the built characters use (their sidecars), exit 1 if any fails; --credits
+           writes the cast's credits (author, source, pack, licence and its link, what was changed)
 """
 import json
 import os
@@ -107,11 +108,36 @@ def scan(zips_dir):
             e["allowed_because"] = allow[key]["why"]
         e["licence"] = lic
         e["ok"] = rank(lic) <= 1
+        # a list alone is not to be trusted (see above): no licence in its own file -> reviewed by hand
+        if e["header"] == "" and key not in allow:
+            e["ok"] = False
+            e["needs_review"] = True
     return out
+
+
+def why_not(key, e):
+    """Why an asset fails the gate, in words."""
+    if e is None:
+        return "%s: not in any pack" % key
+    if e.get("needs_review"):
+        return "%s: no licence in its own file (its pack's list says %s): review it, then add it to allow.json" % (
+            key, e["listed"] or "nothing")
+    return "%s: %s" % (key, e["licence"] or "no licence")
 
 
 PART_KINDS = {"eyes": "eyes", "eyebrows": "eyebrows", "eyelashes": "eyelashes", "teeth": "teeth",
               "tongue": "tongue", "hair": "hair", "skin": "skins", "proxy": "proxymeshes"}
+
+
+def built_assets(cast):
+    """{kind/asset: {ids}} for what assets/cast/ ships: each character's sidecar names its assets."""
+    used = {}
+    for cid in sorted(os.listdir(cast)):
+        side = os.path.join(cast, cid, cid + ".cast.json")
+        if os.path.isfile(side):
+            for key in json.load(open(side)).get("assets", []):
+                used.setdefault(key, set()).add(cid)
+    return used
 
 
 def spec_assets(path):
@@ -126,25 +152,39 @@ def spec_assets(path):
     return out
 
 
+LICENCE_URL = {"CC0": "https://creativecommons.org/publicdomain/zero/1.0/",
+               "CC-BY-3.0": "https://creativecommons.org/licenses/by/3.0/",
+               "CC-BY-4.0": "https://creativecommons.org/licenses/by/4.0/",
+               "CC-BY": "https://creativecommons.org/licenses/by/4.0/"}
+
+
 def credits(table, used):
-    """The cast's CREDITS.md: one line per asset, CC BY first (the licence asks for it)."""
+    """The cast's CREDITS.md (shipped as CREDITS-cast.md): one line per asset, CC BY first, each with
+    its author, source, licence and the licence's link, and what was changed (CC BY asks for both)."""
     lines = ["# The story's cast: credits", "",
-             "Built by `stadium/tools/cast/build.sh` (MakeHuman's base mesh through MPFB, CC0) from these",
-             "MakeHuman community assets (makehumancommunity.org asset packs, `tools/cast/packs.lock.json`).",
-             "Each one's licence is the stricter of its own file's header and its pack's list",
-             "(`tools/cast/licences.py`). Written by `licences.py --credits`: do not edit by hand.", ""]
+             "The story's people are built by `stadium/tools/cast/build.sh` (MakeHuman's base mesh through",
+             "MPFB, CC0) from these MakeHuman community assets (the asset packs at",
+             "https://static.makehumancommunity.org/assets/assetpacks.html, `tools/cast/packs.lock.json`; the",
+             "asset pages linked below are the authors' original ones). Each one's licence is the stricter of its own file's header and",
+             "its pack's list (`tools/cast/licences.py`). Written by `licences.py --credits`: do not edit by hand.", ""]
     for title, want in (("CC BY (attribution required)", lambda l: l.startswith("CC-BY")), ("CC0", lambda l: l == "CC0")):
         rows = [k for k in sorted(used) if want(table[k]["licence"])]
         if not rows:
             continue
         lines += ["## " + title, ""]
+        if title.startswith("CC BY"):
+            lines += ["Changed for SpeedFest: fitted to each character's body by MPFB, textures re-encoded",
+                      "(JPEG/PNG, some made grey) and tinted in the game. Where an author wrote \"CC BY\" with no",
+                      "version, these credits follow CC BY 4.0, the version MakeHuman's CC-BY FAQ points to.", ""]
         for k in rows:
             e = table[k]
             author = re.sub(r"^copyright\s*(\(c\))?\s*\d{4}(-\d{4})?\s*", "", e["author"] or "", flags=re.I).split(",")[0].strip()
-            lic = {"CC-BY": "CC BY", "CC-BY-3.0": "CC BY 3.0", "CC-BY-4.0": "CC BY 4.0"}.get(e["licence"], e["licence"])
-            lines.append("- **%s** (%s) by %s, %s; pack `%s`; used by %s." % (
+            lic = {"CC-BY": "CC BY (no version given: 4.0)", "CC-BY-3.0": "CC BY 3.0", "CC-BY-4.0": "CC BY 4.0",
+                   "CC0": "CC0 1.0"}.get(e["licence"], e["licence"])
+            lines.append("- **%s** (%s) by %s, %s; pack `%s`; used by %s. Licence: [%s](%s)%s." % (
                 e["asset"], e["kind"], author or "unknown author", e["source"] or "makehumancommunity.org",
-                e["pack"], ", ".join(sorted(used[k]))) + ("" if e["licence"] == "CC0" else " Licence: " + lic + "."))
+                e["pack"], ", ".join(sorted(used[k])), lic, LICENCE_URL.get(e["licence"], ""),
+                "; reviewed: " + e["allowed_because"] if e.get("allowed_because") else ""))
         lines.append("")
     return "\n".join(lines)
 
@@ -162,21 +202,24 @@ def main():
         for key in args[args.index("--check") + 1:]:
             e = table.get(key)
             if e is None or not e["ok"]:
-                bad.append("%s: %s" % (key, "not in any pack" if e is None else e["licence"] or "no licence"))
+                bad.append(why_not(key, e))
         for b in bad:
             print("LICENCE_FAIL " + b)
         print("LICENCE_CHECK %s" % ("FAIL" if bad else "PASS"))
         sys.exit(1 if bad else 0)
-    if "--spec" in args:
+    if "--spec" in args or "--built" in args:
         used, bad = {}, []
-        for path in [a for a in args[args.index("--spec") + 1:] if a.endswith(".json")]:
-            cid = os.path.basename(path)[:-5]
-            for key in spec_assets(path):
-                used.setdefault(key, set()).add(cid)
+        if "--built" in args:          # what ships: the built characters' sidecars
+            used = built_assets(args[args.index("--built") + 1])
+        else:
+            for path in [a for a in args[args.index("--spec") + 1:] if a.endswith(".json")]:
+                cid = os.path.basename(path)[:-5]
+                for key in spec_assets(path):
+                    used.setdefault(key, set()).add(cid)
         for key in sorted(used):
             e = table.get(key)
             if e is None or not e["ok"]:
-                bad.append("%s: %s" % (key, "not in any pack" if e is None else e["licence"] or "no licence"))
+                bad.append(why_not(key, e))
         for b in bad:
             print("LICENCE_FAIL " + b)
         if not bad and "--credits" in args:

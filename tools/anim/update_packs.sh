@@ -10,7 +10,8 @@
 #        tools/anim/update_packs.sh <pack.zip> ...         # the same, named one by one
 #
 # After replacing a pack, run `godot --headless --path stadium --import` so Godot picks the new
-# files up, and commit the .import files it writes beside them.
+# files up, and commit the .import files it writes beside them. A replaced file keeps its old
+# .import (its settings: the UAL import's retarget, PLAN M20-9); a new file gets Godot's default.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -44,6 +45,12 @@ for zip in ${zips+"${zips[@]}"}; do
         continue
     fi
     echo "== $id <- $(basename "$zip")"
+    # keep the .import files: they hold settings the game depends on (UAL1_Standard.glb.import
+    # retargets the clips onto the humanoid skeleton the story's cast shares, PLAN M20-9)
+    keep="$(mktemp -d)"
+    if [ -d "$packs/$id" ]; then
+        (cd "$packs/$id" && find . -name '*.import' -print0 | xargs -0 -r cp --parents -t "$keep")
+    fi
     rm -rf "$packs/$id"
     mkdir -p "$packs/$id"
     python3 -c "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" \
@@ -54,6 +61,11 @@ for zip in ${zips+"${zips[@]}"}; do
     if [ "$(printf '%s\n' "$inner" | wc -l)" -eq 1 ] && [ -d "$inner" ]; then
         mv "$inner"/* "$packs/$id/" && rmdir "$inner"
     fi
+    # put back each kept .import whose file is still in the pack
+    (cd "$keep" && find . -name '*.import' -print0 | while IFS= read -r -d '' f; do
+        if [ -f "$packs/$id/${f%.import}" ]; then cp "$f" "$packs/$id/$f"; fi
+    done)
+    rm -rf "$keep"
 done
 
 for dir in "$packs"/*/; do

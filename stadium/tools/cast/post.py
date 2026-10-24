@@ -9,8 +9,10 @@
 - a material the sidecar marks "desaturate" (the spec's "desaturate": roles or assets) gets its
   colour map in greys, a little lighter, as <name>_grey (grey hair; the tint then colours it);
 - every texture's .import is ours (VRAM compressed, mipmaps, normal maps flagged: texture_import);
-- every texture goes to <cast>/tex/, named after its source and shared by the whole cast (the same
-  eyes, teeth and boots are not stored twice; a different picture under a taken name gets a hash);
+- every texture goes to <cast>/tex/ as <source name>_<first 8 hex of its bytes' sha256>, so the
+  whole cast shares one file per picture (the same eyes, teeth and boots stored once), two pictures
+  never share a name, and a name never depends on what is already there; names are made URI-safe
+  (Blender writes a URI quoted, the file not: "Sagerfrog%27s_Glasses_03.png");
 - the glTF, its .bin and the sidecar <id>.cast.json go to <cast>/<id>/, the glTF's image URIs
   rewritten to ../tex/; a new character gets its <id>.gltf.import (the retarget onto Godot's
   humanoid through bonemap.tres, cast_import.gd); an existing one keeps Godot's (and its uid).
@@ -20,8 +22,10 @@ import hashlib
 import io
 import json
 import os
+import re
 import shutil
 import sys
+import urllib.parse
 
 from PIL import Image, ImageFile
 
@@ -178,14 +182,14 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     report = []
     for i, image in enumerate(g.get("images", [])):
-        path = os.path.join(src, image["uri"])
-        im = Image.open(path)
+        rel = urllib.parse.unquote(image["uri"])
+        im = Image.open(os.path.join(src, rel))
         kinds = use.get(i, {("color", "cloth")})
         roles = {r for _, r in kinds}
         is_normal = any(k == "normal" for k, _ in kinds)
         has_alpha = im.mode in ("RGBA", "LA") and im.getchannel("A").getextrema()[0] < 250
         keep_alpha = has_alpha and bool(roles & set(ALPHA_ROLES + ("eye",)))
-        base = os.path.splitext(os.path.basename(image["uri"]))[0]
+        base = re.sub(r"[^A-Za-z0-9_.-]", "_", os.path.splitext(os.path.basename(rel))[0])
         if i in grey:                     # the spec's "desaturate": greys, a little lighter (grey hair)
             alpha = im.getchannel("A") if im.mode in ("RGBA", "LA") else None
             im = im.convert("L").point(lambda x: min(255, int(x * 1.25 + 20))).convert("RGB")
@@ -201,11 +205,8 @@ def main():
             data, ext, mime = encode(im.convert("RGBA"), "PNG"), "png", "image/png"
         else:
             data, ext, mime = encode(im.convert("RGB"), "JPEG"), "jpg", "image/jpeg"
-        name = "%s.%s" % (base, ext)
+        name = "%s_%s.%s" % (base, hashlib.sha256(data).hexdigest()[:8], ext)
         dest = os.path.join(tex_dir, name)
-        if os.path.exists(dest) and open(dest, "rb").read() != data:
-            name = "%s_%s.%s" % (base, hashlib.sha256(data).hexdigest()[:8], ext)
-            dest = os.path.join(tex_dir, name)
         if not os.path.exists(dest):
             open(dest, "wb").write(data)
         texture_import(dest, is_normal)
@@ -214,7 +215,7 @@ def main():
         report.append("%-44s %-4s %5d KB  %s" % (name, ext, len(data) // 1024, ",".join(sorted("%s:%s" % k for k in kinds))))
     json.dump(g, open(os.path.join(out_dir, cid + ".gltf"), "w"), indent=1)
     for buf in g.get("buffers", []):
-        shutil.copyfile(os.path.join(src, buf["uri"]), os.path.join(out_dir, buf["uri"]))
+        shutil.copyfile(os.path.join(src, urllib.parse.unquote(buf["uri"])), os.path.join(out_dir, buf["uri"]))
     json.dump(meta, open(os.path.join(out_dir, cid + ".cast.json"), "w"), indent=1, sort_keys=True)
     imp = os.path.join(out_dir, cid + ".gltf.import")
     if not os.path.exists(imp):
