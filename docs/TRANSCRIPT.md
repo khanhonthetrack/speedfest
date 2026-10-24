@@ -1507,3 +1507,15 @@ mid-render.)
 > COntinue
 
 (Read as: carry on with the cast where it stopped: gate and push it, then the line-up for the owner.)
+
+(Carried on: the cast's first look on a claude.ai page with three questions: which Kit, this look or
+stylised, what to change.)
+
+### User (verbatim)
+
+> 1. Kit: Kit A.
+> 2. The look: show me both side by side first.
+> 3. Changes: Kit A hair longer
+
+(Read as: Kit is Kit A (Kit B is dropped); before choosing realistic or stylised, the owner wants to
+see the two looks side by side; Kit A's hair should be longer than the ponytail.)
