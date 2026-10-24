@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# The cast's tools (PLAN M20-9): Blender 4.5.15 LTS, the MPFB 2.0.18 add-on and the MakeHuman asset
-# packs in packs.lock.json, each checked by sha256, into a cache outside the repo (about 3 GB):
+# The cast's tools (PLAN M20-9): Blender 4.5.15 LTS, the MPFB 2.0.18 add-on, the MakeHuman asset
+# packs and the stylised cast's Quaternius packs in packs.lock.json, each checked by sha256, into a
+# cache outside the repo (about 3 GB):
 #   CAST_CACHE=<dir> stadium/tools/cast/setup.sh      (default ~/.cache/speedfest-cast)
 # then `source $CAST_CACHE/env.sh` gives BLENDER and BLENDER_USER_RESOURCES for build.sh.
 # Downloads resume (curl -C -) and are skipped when the file in the cache already matches.
@@ -52,6 +53,13 @@ while read -r file sum url; do
     python3 -I -c "import zipfile,sys; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" "$CACHE/zips/$file" "$DATA"
     touch "$mark"
   fi
+done
+
+# the stylised cast's sources (Quaternius' modular packs, CC0) into $CACHE/stylised/<pack>/
+python3 -I -c "import json; [print(f['pack'], f['file'].replace(' ', '%20'), f['sha256'], f['url']) for f in json.load(open('$LOCK'))['stylised']['files']]" |
+while read -r pack file sum url; do
+  mkdir -p "$CACHE/stylised/$pack"
+  fetch "$url" "$sum" "$CACHE/stylised/$pack/${file//%20/ }"
 done
 
 cat > "$CACHE/env.sh" <<EOF

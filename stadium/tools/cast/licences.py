@@ -140,11 +140,24 @@ def built_assets(cast):
     return used
 
 
+def built_credits(cast):
+    """{credit line: {ids}}: the sidecars' own "credits" (the stylised cast's Quaternius packs)."""
+    out = {}
+    for cid in sorted(os.listdir(cast)):
+        side = os.path.join(cast, cid, cid + ".cast.json")
+        if os.path.isfile(side):
+            for line in json.load(open(side)).get("credits", []):
+                out.setdefault(line, set()).add(cid)
+    return out
+
+
 def spec_assets(path):
     """{kind/asset: [ids]} for the assets a spec names (its parts, clothes and skin; the base
     mesh's targets come with MPFB, CC0)."""
     spec = json.load(open(path))
     out = []
+    if spec.get("style") == "stylised":       # Quaternius' packs (CC0, their own credit lines)
+        return out
     for k, kind in PART_KINDS.items():
         if spec.get(k):
             out.append("%s/%s" % (kind, spec[k].split("/")[0]))
@@ -158,7 +171,7 @@ LICENCE_URL = {"CC0": "https://creativecommons.org/publicdomain/zero/1.0/",
                "CC-BY": "https://creativecommons.org/licenses/by/4.0/"}
 
 
-def credits(table, used):
+def credits(table, used, other=None):
     """The cast's CREDITS.md (shipped as CREDITS-cast.md): one line per asset, CC BY first, each with
     its author, source, licence and the licence's link, and what was changed (CC BY asks for both)."""
     lines = ["# The story's cast: credits", "",
@@ -185,6 +198,10 @@ def credits(table, used):
                 e["asset"], e["kind"], author or "unknown author", e["source"] or "makehumancommunity.org",
                 e["pack"], ", ".join(sorted(used[k])), lic, LICENCE_URL.get(e["licence"], ""),
                 "; reviewed: " + e["allowed_because"] if e.get("allowed_because") else ""))
+        lines.append("")
+    if other:
+        lines += ["## Other sources (CC0)", ""]
+        lines += ["- %s; used by %s." % (line, ", ".join(sorted(ids))) for line, ids in sorted(other.items())]
         lines.append("")
     return "\n".join(lines)
 
@@ -223,7 +240,8 @@ def main():
         for b in bad:
             print("LICENCE_FAIL " + b)
         if not bad and "--credits" in args:
-            open(args[args.index("--credits") + 1], "w").write(credits(table, used))
+            other = built_credits(args[args.index("--built") + 1]) if "--built" in args else {}
+            open(args[args.index("--credits") + 1], "w").write(credits(table, used, other))
         print("LICENCE_CHECK %s (%d assets)" % ("FAIL" if bad else "PASS", len(used)))
         sys.exit(1 if bad else 0)
     if "--show" in args:

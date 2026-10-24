@@ -15,7 +15,7 @@
   (Blender writes a URI quoted, the file not: "Sagerfrog%27s_Glasses_03.png");
 - the glTF, its .bin and the sidecar <id>.cast.json go to <cast>/<id>/, the glTF's image URIs
   rewritten to ../tex/; a new character gets its <id>.gltf.import (the retarget onto Godot's
-  humanoid through bonemap.tres, cast_import.gd); an existing one keeps Godot's (and its uid).
+  humanoid through bonemap.tres, or the sidecar's "bonemap" for the stylised cast; cast_import.gd); an existing one keeps Godot's (and its uid).
 Deterministic: the same input gives the same bytes (PIL's encoders, no timestamps).
 """
 import hashlib
@@ -62,7 +62,7 @@ import_script/path="res://assets/cast/cast_import.gd"
 _subresources={
 "nodes": {
 "PATH:%(id)s/Skeleton3D": {
-"retarget/bone_map": Resource("res://assets/cast/bonemap.tres"),
+"retarget/bone_map": Resource("%(bonemap)s"),
 "retarget/bone_renamer/rename_bones": true,
 "retarget/bone_renamer/unique_node/make_unique": true,
 "retarget/bone_renamer/unique_node/skeleton_name": "GeneralSkeleton",
@@ -219,7 +219,7 @@ def main():
     json.dump(meta, open(os.path.join(out_dir, cid + ".cast.json"), "w"), indent=1, sort_keys=True)
     imp = os.path.join(out_dir, cid + ".gltf.import")
     if not os.path.exists(imp):
-        open(imp, "w").write(IMPORT % {"id": cid})
+        open(imp, "w").write(IMPORT % {"id": cid, "bonemap": meta.get("bonemap", "res://assets/cast/bonemap.tres")})
     for r in report:
         print("POST", cid, r)
     size = sum(os.path.getsize(os.path.join(out_dir, f)) for f in os.listdir(out_dir))

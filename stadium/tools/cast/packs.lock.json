@@ -176,5 +176,81 @@
    "sha256": "a69ab6fb95ddd5f56f70acc7e859f5f9c6ae613c527d577ea1571eff2183d29e",
    "bytes": 130733
   }
- ]
+ ],
+ "stylised": {
+  "_note": "Quaternius' Ultimate Modular Women (April 2022) and Men (Feb 2022), CC0 1.0 (their License.txt; quaternius.com/packs/ultimatemodularwomen.html, ultimatemodularcharacters.html). Quaternius hosts them on Google Drive, which refuses this container's downloads; these come from a public GitHub mirror pinned at a commit. A second, independent mirror (fda0/Treasure, Git LFS) has Worker.gltf with the same sha256: the files are the originals. Only the files the stylised specs use.",
+  "commit": "108740bd2b28687f95584808f60180341cec64be",
+  "files": [
+   {
+    "pack": "women",
+    "file": "Soldier.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Women%20-%20April%202022/Individual%20Characters/glTF/Soldier.gltf",
+    "sha256": "37112e60af92ff84d882a34e21f0f78a2afc14282e950fb0e3652e51d06e0b2d",
+    "bytes": 3349914
+   },
+   {
+    "pack": "women",
+    "file": "Adventurer.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Women%20-%20April%202022/Individual%20Characters/glTF/Adventurer.gltf",
+    "sha256": "65094211e53b49f6a834c617cc056834686fe794a0b515a6b97faa3e1130cc95",
+    "bytes": 3205962
+   },
+   {
+    "pack": "women",
+    "file": "Casual.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Women%20-%20April%202022/Individual%20Characters/glTF/Casual.gltf",
+    "sha256": "b0fe6e92219cd71808844a20a1a8b960fd1cf640a6546dc6362b5add6604e87c",
+    "bytes": 3131788
+   },
+   {
+    "pack": "women",
+    "file": "Formal.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Women%20-%20April%202022/Individual%20Characters/glTF/Formal.gltf",
+    "sha256": "fdfcf454c4de037d31973eb28d8591bd7763035d49f46b380e63b1c832dc7ddf",
+    "bytes": 3082953
+   },
+   {
+    "pack": "women",
+    "file": "SciFi.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Women%20-%20April%202022/Individual%20Characters/glTF/SciFi.gltf",
+    "sha256": "86bcb11a1bc18c744a23abe5e7bd4cc95e636ba1f405cecdbd5a0e2f7214b802",
+    "bytes": 3309414
+   },
+   {
+    "pack": "women",
+    "file": "License.txt",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Women%20-%20April%202022/License.txt",
+    "sha256": "c8929d84bbf1481a6a1349de95173c17050da75a8f6fb3ac56b1c6b8c5d7dd33",
+    "bytes": 360
+   },
+   {
+    "pack": "men",
+    "file": "King.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Men-%20Feb%202022/Individual%20Characters/glTF/King.gltf",
+    "sha256": "659c7d84dcea8c6331698c3430484861944c83e629389425664b782d4aecd17c",
+    "bytes": 3790158
+   },
+   {
+    "pack": "men",
+    "file": "Worker.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Men-%20Feb%202022/Worker.gltf",
+    "sha256": "e49f8ec0f8a7de72dd26b1c01e6413c9a87a9116eeee21f9364ccd36bc286335",
+    "bytes": 2967023
+   },
+   {
+    "pack": "men",
+    "file": "Casual_2.gltf",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Men-%20Feb%202022/Individual%20Characters/glTF/Casual_2.gltf",
+    "sha256": "55c654d09a2a5ff6e3bd6158d4a1b462f181cd6f1e12a0f5e9d959f9c3abc438",
+    "bytes": 3058092
+   },
+   {
+    "pack": "men",
+    "file": "License.txt",
+    "url": "https://raw.githubusercontent.com/osman-1002/3D-3rd-Person-Godot-Game-With-GenAI-Integration/108740bd2b28687f95584808f60180341cec64be/addons/Ultimate%20Modular%20Men-%20Feb%202022/License.txt",
+    "sha256": "c8929d84bbf1481a6a1349de95173c17050da75a8f6fb3ac56b1c6b8c5d7dd33",
+    "bytes": 360
+   }
+  ]
+ }
 }

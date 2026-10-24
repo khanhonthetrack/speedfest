@@ -1,0 +1,47 @@
+{
+ "id": "dee_s",
+ "name": "Dee Sandoval (stylised)",
+ "style": "stylised",
+ "pack": "women",
+ "_look": "the stylised Dee: a navy one-piece (the SciFi suit) for coveralls, the updo, work boots",
+ "parts": [
+  {
+   "file": "Formal.gltf",
+   "mesh": "Formad_Head",
+   "colours": {
+    "Red": "#4a3426"
+   }
+  },
+  {
+   "file": "SciFi.gltf",
+   "mesh": "SciFi_Body",
+   "colours": {
+    "Black": "#2e3b52",
+    "Metal": "#232a36",
+    "LightBlue": "#3d4f6e",
+    "Blue": "#33435f"
+   }
+  },
+  {
+   "file": "SciFi.gltf",
+   "mesh": "SciFi_Legs",
+   "colours": {
+    "Black": "#2e3b52",
+    "Metal": "#232a36",
+    "LightBlue": "#3d4f6e"
+   }
+  },
+  {
+   "file": "Soldier.gltf",
+   "mesh": "Soldier_Feet",
+   "colours": {
+    "Grey": "#3a2c22",
+    "Black": "#1f1915"
+   }
+  }
+ ],
+ "height_m": 1.6,
+ "credits": [
+  "Ultimate Modular Women (April 2022) by Quaternius, https://quaternius.com/packs/ultimatemodularwomen.html, CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/): parts recombined, recoloured, feet re-parented to the shins"
+ ]
+}

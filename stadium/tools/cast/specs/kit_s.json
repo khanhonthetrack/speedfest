@@ -1,0 +1,50 @@
+{
+ "id": "kit_s",
+ "name": "Kit Arlen (stylised)",
+ "style": "stylised",
+ "pack": "women",
+ "_look": "the stylised Kit beside the realistic one (owner, 24 Oct: 'show me both side by side first'); long hair as asked",
+ "parts": [
+  {
+   "file": "Soldier.gltf",
+   "mesh": "Soldier_Head",
+   "colours": {
+    "Hair_Brown": "#3a2f28"
+   }
+  },
+  {
+   "file": "Adventurer.gltf",
+   "mesh": "Adventurer_Body",
+   "colours": {
+    "White": "#34333c",
+    "Green": "#3b3a44",
+    "LightGreen": "#3b3a44",
+    "Brown2": "#2a2630"
+   },
+   "drop_behind": 0.04
+  },
+  {
+   "file": "Casual.gltf",
+   "mesh": "Casual_Legs",
+   "colours": {
+    "Orange": "#2f3f66"
+   }
+  },
+  {
+   "file": "Casual.gltf",
+   "mesh": "Casual_Feet",
+   "colours": {
+    "Grey": "#e6e6e6"
+   }
+  }
+ ],
+ "height_m": 1.68,
+ "hair": {
+  "length": 0.36,
+  "colour": "#3a2f28",
+  "spread": 75
+ },
+ "credits": [
+  "Ultimate Modular Women (April 2022) by Quaternius, https://quaternius.com/packs/ultimatemodularwomen.html, CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/): parts recombined, recoloured, feet re-parented to the shins"
+ ]
+}

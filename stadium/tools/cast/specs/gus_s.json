@@ -1,0 +1,44 @@
+{
+ "id": "gus_s",
+ "name": "Gus Pell (stylised)",
+ "style": "stylised",
+ "pack": "men",
+ "_look": "the stylised Gus: the King's grey hair and beard without the crown, the Worker's hi-vis vest, jeans, boots; bigger",
+ "parts": [
+  {
+   "file": "King.gltf",
+   "mesh": "King_Head",
+   "colours": {
+    "Hair_White": "#cfcac2"
+   },
+   "drop": [
+    "Gold"
+   ]
+  },
+  {
+   "file": "Worker.gltf",
+   "mesh": "Worker_Body",
+   "colours": {
+    "Worker_Vest": "#cbff1f",
+    "Worker_Yellow": "#d0d0d0",
+    "LightBrown": "#3d4a3a"
+   }
+  },
+  {
+   "file": "Casual_2.gltf",
+   "mesh": "Casual2_Legs",
+   "colours": {
+    "LightBlue": "#33465e"
+   }
+  },
+  {
+   "file": "Worker.gltf",
+   "mesh": "Worker_Feet"
+  }
+ ],
+ "height_m": 1.95,
+ "width": 1.12,
+ "credits": [
+  "Ultimate Modular Men (Feb 2022) by Quaternius, https://quaternius.com/packs/ultimatemodularcharacters.html, CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/): parts recombined, recoloured, the crown removed, feet re-parented to the shins"
+ ]
+}

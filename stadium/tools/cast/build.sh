@@ -25,7 +25,9 @@ python3 -I "$HERE/licences.py" "$CACHE/zips" --spec "${SPECS[@]}" ||
 for id in "${ids[@]}"; do
   out="$CACHE/out/$id"
   rm -rf "$out"
-  "$BLENDER" -b -noaudio -P "$HERE/blender/gen_char.py" -- "$HERE/specs/$id.json" "$out" 2>&1 |
+  gen=gen_char.py      # MakeHuman through MPFB; "style": "stylised" -> Quaternius' modular packs
+  grep -q '"style": "stylised"' "$HERE/specs/$id.json" && gen=gen_stylised.py
+  CAST_CACHE="$CACHE" "$BLENDER" -b -noaudio -P "$HERE/blender/$gen" -- "$HERE/specs/$id.json" "$out" 2>&1 |
     grep -E "^CAST |Error|Traceback" || true
   [[ -f "$out/$id.gltf" ]] || { echo "BUILD_FAIL $id: no glTF" >&2; exit 1; }
   python3 -I "$HERE/post.py" "$out" "$CAST" | tail -1
