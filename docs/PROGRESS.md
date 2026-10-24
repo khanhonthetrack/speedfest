@@ -4392,3 +4392,7 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   `gus_s` play the same UAL clips (7-8k triangles, under 1 MB each); `test_cast_models` checks them
   too (their own bone map, flat materials, no face shapes, Quaternius in CREDITS.md).
 - `story/lab/cast_yard_stylised.json`: the yard still with the stylised trio, beside `cast_yard.json`.
+- The owner: "I like realistic". The stylised trio is set aside: removed from `assets/cast/` (git keeps
+  it), specs moved to `tools/cast/specs_stylised/` (`build.sh` finds them there by id), the
+  builder and the Quaternius bone map kept. Kit keeps the long straight hair (the bob question went
+  unanswered). `CREDITS.md` regenerated from what ships (no Quaternius line now).

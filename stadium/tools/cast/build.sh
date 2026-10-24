@@ -3,7 +3,8 @@
 # (blender/gen_char.py), its textures converted and shared (post.py) into assets/cast/, the textures
 # no one uses any more deleted, then Godot's import (cast_import.gd gives the materials).
 #   stadium/tools/cast/setup.sh                 # once: Blender, MPFB, the packs (CAST_CACHE)
-#   stadium/tools/cast/build.sh [id ...]        # every spec, or only these
+#   stadium/tools/cast/build.sh [id ...]        # every spec in specs/, or only these (also from
+#                                               # specs_stylised/: kit_s, dee_s, gus_s, set aside)
 # Every asset a spec names must pass the licence gate first (licences.py --spec); the credits are
 # rewritten from what ships (--built).
 set -euo pipefail
@@ -19,15 +20,18 @@ ids=("$@")
 if [[ ${#ids[@]} -eq 0 ]]; then
   for f in "$HERE"/specs/*.json; do ids+=("$(basename "$f" .json)"); done
 fi
-SPECS=(); for id in "${ids[@]}"; do SPECS+=("$HERE/specs/$id.json"); done
+spec_of() {   # specs/<id>.json; the stylised set (set aside by the owner, 24 Oct) in specs_stylised/
+  if [[ -f "$HERE/specs/$1.json" ]]; then echo "$HERE/specs/$1.json"; else echo "$HERE/specs_stylised/$1.json"; fi
+}
+SPECS=(); for id in "${ids[@]}"; do SPECS+=("$(spec_of "$id")"); done
 python3 -I "$HERE/licences.py" "$CACHE/zips" --spec "${SPECS[@]}" ||
   { echo "BUILD_FAIL licences" >&2; exit 1; }
 for id in "${ids[@]}"; do
   out="$CACHE/out/$id"
   rm -rf "$out"
   gen=gen_char.py      # MakeHuman through MPFB; "style": "stylised" -> Quaternius' modular packs
-  grep -q '"style": "stylised"' "$HERE/specs/$id.json" && gen=gen_stylised.py
-  CAST_CACHE="$CACHE" "$BLENDER" -b -noaudio -P "$HERE/blender/$gen" -- "$HERE/specs/$id.json" "$out" 2>&1 |
+  grep -q '"style": "stylised"' "$(spec_of "$id")" && gen=gen_stylised.py
+  CAST_CACHE="$CACHE" "$BLENDER" -b -noaudio -P "$HERE/blender/$gen" -- "$(spec_of "$id")" "$out" 2>&1 |
     grep -E "^CAST |Error|Traceback" || true
   [[ -f "$out/$id.gltf" ]] || { echo "BUILD_FAIL $id: no glTF" >&2; exit 1; }
   python3 -I "$HERE/post.py" "$out" "$CAST" | tail -1

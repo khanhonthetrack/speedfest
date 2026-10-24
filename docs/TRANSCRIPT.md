@@ -1519,3 +1519,13 @@ stylised, what to change.)
 
 (Read as: Kit is Kit A (Kit B is dropped); before choosing realistic or stylised, the owner wants to
 see the two looks side by side; Kit A's hair should be longer than the ponytail.)
+
+(Carried on: round 2 of the cast page: realistic and stylised Kit, Dee and Gus side by side; questions:
+which look, Kit's hair long or a shoulder-length bob.)
+
+### User (verbatim)
+
+> I like realistic
+
+(Read as: the cast stays realistic (MakeHuman/MPFB); the stylised trio is set aside, its tools kept.
+The hair question went unanswered: Kit keeps the long straight hair she has.)

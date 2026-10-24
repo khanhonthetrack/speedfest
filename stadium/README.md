@@ -171,7 +171,8 @@ tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Buil
 A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports
 retarget onto Godot's humanoid skeleton through `assets/cast/bonemap.tres`). `StoryCast` loads them
 (`instance`, `meta`, `set_shape` for the 35 face shapes, `ground` for the per-clip lift).
-The stylised cast (`"style": "stylised"` specs: Quaternius' Ultimate Modular Women/Men, CC0,
+The stylised cast (set aside: the owner chose realistic, 24 Oct; `"style": "stylised"` specs in
+`tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds one: Quaternius' Ultimate Modular Women/Men, CC0,
 fetched by `setup.sh`) is built by `blender/gen_stylised.py` from parts (`{"file", "mesh",
 "colours", "drop", "drop_behind"}`), sized (`height_m`, `width`), with an optional hanging hair
 panel (`"hair"`), and retargeted through `bonemap_quaternius.tres` (no fingers: the UAL curls make

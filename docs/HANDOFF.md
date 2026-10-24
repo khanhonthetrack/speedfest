@@ -26,7 +26,10 @@
   https://claude.ai/artifact/14ifwdVU5TkLSUEZa4STpr: the yard at Ultra both ways, pairs, faces, Kit's
   hair from behind, long or a shoulder-length bob; questions: which look, which hair). On their pick:
   the other style's characters go (keep the tools).
-- **Next**: on their answers; meanwhile faces (`story_face.gd`: blinks,
+- **Decided** (24 Oct): "I like realistic". The stylised trio is set aside (`kit_s`, `dee_s`, `gus_s`
+  removed from `assets/cast/`; their specs in `tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds
+  one; `gen_stylised.py` and `bonemap_quaternius.tres` kept). Kit keeps the long straight hair.
+- **Next**: faces (`story_face.gd`: blinks,
   visemes from a line's text, gaze; a speaker's `who` drives the mouth, voice-only lines move none),
   seating per height (`StoryCabin` uses the Mannequin's crown), the passenger (Dee's double, long
   hair let down over the face, soaked), Tibor, the crowd (a lighter tier), Cass, Voss, Moth, Pim.
