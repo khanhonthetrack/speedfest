@@ -1498,3 +1498,12 @@ Kit, Dee and Gus first.)
 (Read as: the answer to the third question: start the modelled cast now, rather than keeping
 silhouettes until every night is written; in the owner's words from the pitch, "modelled cast, with
 best graphics". The other two questions stay open.)
+
+(Carried on: the cast pipeline; Kit A and B, Dee and Gus built; the session's worker restarted
+mid-render.)
+
+### User (verbatim)
+
+> COntinue
+
+(Read as: carry on with the cast where it stopped: gate and push it, then the line-up for the owner.)
