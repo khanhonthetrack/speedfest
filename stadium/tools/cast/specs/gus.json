@@ -1,0 +1,81 @@
+{
+ "id": "gus",
+ "name": "Gus Pell",
+ "_look": "docs/STORY.md section 5: owns the salvage docks, runs the night auction; big, hi-vis vest (bespoke: gen_char.py's vest), grey hair, a beard",
+ "height_m": 1.95,
+ "phenotype": {
+  "gender": 1.0,
+  "age": 0.74,
+  "muscle": 0.62,
+  "weight": 0.86,
+  "proportions": 0.4,
+  "race": {
+   "african": 0.05,
+   "asian": 0.05,
+   "caucasian": 0.9
+  }
+ },
+ "targets": [
+  {
+   "target": "nose-scale-horiz-incr",
+   "value": 0.35
+  },
+  {
+   "target": "nose-hump-incr",
+   "value": 0.4
+  },
+  {
+   "target": "chin-width-incr",
+   "value": 0.4
+  },
+  {
+   "target": "head-square",
+   "value": 0.4
+  },
+  {
+   "target": "neck-double-incr",
+   "value": 0.3
+  },
+  {
+   "target": "eyebrows-trans-down",
+   "value": 0.3
+  }
+ ],
+ "skin": "jartur69_middleage_slavic_male_with_genitals_and_beard/jartur69_middleage_slavic_male_with_genitals_and_beard.mhmat",
+ "eyes": "high-poly/high-poly.mhclo",
+ "materials": {
+  "eyes": "materials/grey.mhmat"
+ },
+ "eyebrows": "eyebrow009/eyebrow009.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "teeth": "teeth_base/teeth_base.mhclo",
+ "tongue": "tongue01/tongue01.mhclo",
+ "hair": "short04/short04.mhclo",
+ "clothes": [
+  "male_casualsuit05/male_casualsuit05.mhclo",
+  "toigo_ankle_boots_male/toigo_ankle_boots_male.mhclo"
+ ],
+ "tint": {
+  "hair": "#d6d2cc",
+  "brow": "#bdb8b0"
+ },
+ "texture_max": 2048,
+ "vest": {
+  "colour": "#cbff1f",
+  "bands": [
+   [
+    0.16,
+    0.24
+   ],
+   [
+    0.5,
+    0.58
+   ]
+  ],
+  "hem": -0.05
+ },
+ "desaturate": [
+  "hair",
+  "brow"
+ ]
+}

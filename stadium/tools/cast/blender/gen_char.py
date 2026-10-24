@@ -27,8 +27,9 @@ CID = SPEC["id"]
 os.makedirs(OUT, exist_ok=True)
 
 importlib.import_module("bl_ext.user_default.mpfb")
-from bl_ext.user_default.mpfb.services import HumanService, ExportService, ObjectService, TargetService  # noqa: E402
+from bl_ext.user_default.mpfb.services import AssetService, HumanService, ExportService, ObjectService, TargetService  # noqa: E402
 from bl_ext.user_default.mpfb.services.faceservice import FaceService  # noqa: E402
+from bl_ext.user_default.mpfb.entities.objectproperties import GeneralObjectProperties  # noqa: E402
 
 T0 = time.time()
 ROLES = {"Basemesh": "skin", "Eyes": "eye", "Eyebrows": "brow", "Eyelashes": "lash", "Teeth": "teeth",
@@ -71,6 +72,23 @@ def targets():
     return out
 
 
+def alternative_materials():
+    """The spec's "materials" ({part or garment: its .mhmat, relative to the part's folder, e.g.
+    "eyes": "materials/brownlight.mhmat"}) as MPFB wants them: keyed by the asset's uuid."""
+    out = {}
+    for key, mhmat in SPEC.get("materials", {}).items():
+        if key in ("eyes", "eyebrows", "eyelashes", "teeth", "tongue", "hair"):
+            subdir, ref = key, SPEC[key]
+        else:
+            subdir, ref = "clothes", next(c for c in SPEC.get("clothes", []) if c.split("/")[0] == key)
+        path = AssetService.find_asset_absolute_path(ref, asset_subdir=subdir)
+        uuid = next((ln.split()[1] for ln in open(path, encoding="utf-8", errors="replace") if ln.startswith("uuid ")), None)
+        if uuid is None or AssetService.find_asset_absolute_path(mhmat, asset_subdir=subdir) is None:
+            raise ValueError("no material %s for %s" % (mhmat, key))
+        out[uuid] = mhmat
+    return out
+
+
 def info_dict(phenotype, parts=True):
     info = HumanService._create_default_human_info_dict()
     info["name"] = CID
@@ -86,6 +104,7 @@ def info_dict(phenotype, parts=True):
             if SPEC.get(k):
                 info[k] = SPEC[k]
         info["clothes"] = list(SPEC.get("clothes", []))
+        info["alternative_materials"] = alternative_materials()
         info["skin_mhmat"] = SPEC.get("skin", "")
         info["skin_material_type"] = "GAMEENGINE"
         info["eyes_material_type"] = "GAMEENGINE"
@@ -123,6 +142,163 @@ def solve_height(want):
     return mid
 
 
+def vest(basemesh, rig, spec):
+    """A garment no pack has (Gus's hi-vis vest): the body's torso -- its vertices weighted to the
+    spine, clavicles and pelvis above the belt, not to the arms or the neck, so it has armholes and a
+    neckline -- pushed out along its normals until it clears the outermost garment (raycasts, the
+    distances smoothed so it hangs, not clings), given thickness, its weights the body's, and a
+    texture painted by height (spec "colour", the reflective "bands" as [from, to] fractions of
+    its height). Its role is "hivis" (cast_import.gd: a faint fluorescent glow)."""
+    import bmesh
+    from mathutils.bvhtree import BVHTree
+    deps = bpy.context.evaluated_depsgraph_get()
+    trees = []
+    for g in rig.children:
+        if g.type == 'MESH' and ObjectService.get_object_type(g) == "Clothes" and not any(
+                k in g.name.lower() for k in ("boot", "shoe", "sneaker")):
+            b = bmesh.new()
+            b.from_object(g, deps)
+            b.transform(g.matrix_world)
+            trees.append(BVHTree.FromBMesh(b))
+            b.free()
+    names = {g.index: g.name for g in basemesh.vertex_groups}
+    torso, arms, neck = ("spine_01", "spine_02", "spine_03", "clavicle_l", "clavicle_r", "pelvis"), \
+        ("upperarm_l", "upperarm_r", "lowerarm_l", "lowerarm_r"), ("neck_01", "head")
+    hem = (rig.matrix_world @ rig.data.bones["pelvis"].head_local).z + float(spec.get("hem", 0.05))
+    mw = basemesh.matrix_world
+    keep = set()
+    for v in basemesh.data.vertices:
+        w = {names[g.group]: g.weight for g in v.groups if g.group in names}
+        if "body" not in w or (mw @ v.co).z < hem:
+            continue
+        if sum(w.get(n, 0.0) for n in torso) >= 0.6 and sum(w.get(n, 0.0) for n in arms) < 0.2 \
+                and sum(w.get(n, 0.0) for n in neck) < 0.25:
+            keep.add(v.index)
+    obj = basemesh.copy()
+    obj.data = basemesh.data.copy()
+    obj.name = "%s.hivis_vest" % CID
+    bpy.context.collection.objects.link(obj)
+    for m in list(obj.modifiers):
+        if m.type != 'ARMATURE':
+            obj.modifiers.remove(m)
+    GeneralObjectProperties.set_value("object_type", "Clothes", entity_reference=obj)
+    obj["cast_role"] = "hivis"
+    b = bmesh.new()
+    b.from_mesh(obj.data)
+    b.verts.ensure_lookup_table()
+    bmesh.ops.delete(b, geom=[f for f in b.faces if not all(v.index in keep for v in f.verts)], context='FACES')
+    bmesh.ops.delete(b, geom=[v for v in b.verts if not v.link_faces], context='VERTS')
+    # the outline (armholes, neckline, hem) follows whole quads: relax it along itself
+    edge = {v: [e.other_vert(v) for e in v.link_edges if e.is_boundary] for v in b.verts if v.is_boundary}
+    for _ in range(int(spec.get("relax", 6))):
+        moved = {v: v.co * 0.5 + (ns[0].co + ns[1].co) * 0.25 for v, ns in edge.items() if len(ns) == 2}
+        for v, co in moved.items():
+            v.co = co
+    b.normal_update()
+    # how far out each vertex must go: past the farthest garment along its normal, then smoothed
+    out = {}
+    for v in b.verts:
+        p, n = mw @ v.co, (mw.to_3x3() @ v.normal).normalized()
+        far = 0.0
+        for t in trees:
+            # through every layer (one garment can be a shirt under a jacket): a ray stops at the first
+            # -- but only the stack of layers on the body (pockets too): a gap over 4.5 cm means the ray left
+            # the clothes and found something else (a sleeve, from the torso's sides)
+            start = at = p - n * 0.002
+            for _ in range(8):
+                hit = t.ray_cast(at, n, 0.1 - (at - start).length)
+                if hit[0] is None or (hit[0] - at).length > 0.045 and far > 0.0:
+                    break
+                far = max(far, (hit[0] - start).length)
+                at = hit[0] + n * 0.0005
+        out[v] = far + 0.007 if far > 0.0 else 0.010
+    need = dict(out)                       # never inside a garment: smoothing only lets it hang further out
+    for _ in range(6):
+        out = {v: max(need[v], 0.5 * (out[v] + sum(out[e.other_vert(v)] for e in v.link_edges) / max(1, len(v.link_edges))))
+               for v in b.verts}
+    for v in b.verts:
+        v.co += v.normal * out[v]
+    bmesh.ops.solidify(b, geom=list(b.faces), thickness=-0.004)
+    # painted by height: one column of texels; u is the same everywhere
+    zs = [(mw @ v.co).z for v in b.verts]
+    z0, z1 = min(zs), max(zs)
+    uv = b.loops.layers.uv.active or b.loops.layers.uv.new()
+    for f in b.faces:
+        for lp in f.loops:
+            lp[uv].uv = (0.5, ((mw @ lp.vert.co).z - z0) / (z1 - z0))
+    b.to_mesh(obj.data)
+    b.free()
+    while len(obj.data.uv_layers) > 1:
+        obj.data.uv_layers.remove(obj.data.uv_layers[0] if obj.data.uv_layers[0] != obj.data.uv_layers.active else obj.data.uv_layers[1])
+    if obj.data.shape_keys:
+        obj.shape_key_clear()
+    base = [int(spec.get("colour", "#cbff1f").lstrip("#")[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+    img = bpy.data.images.new("hivis_vest", 4, 256)
+    px = []
+    for row in range(256):
+        f = (row + 0.5) / 256.0
+        band = any(a <= f <= c for a, c in spec.get("bands", [[0.16, 0.24], [0.5, 0.58]]))
+        px += ([0.72, 0.74, 0.76] if band else base) + [1.0]
+    img.pixels = [c for row in range(256) for c in px[row * 4:row * 4 + 4] * 4]
+    mat = bpy.data.materials.new("hivis_vest")
+    mat.use_nodes = True
+    tex = mat.node_tree.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    mat.node_tree.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    obj.data.materials.clear()
+    obj.data.materials.append(mat)
+    obj.parent = rig
+    obj.matrix_parent_inverse = basemesh.matrix_parent_inverse.copy()
+    log("vest: %d faces, %.3f-%.3f m" % (len(obj.data.polygons), z0, z1))
+    return obj
+
+
+def cover_mask(basemesh, rig, reach):
+    """Hides the body wherever a garment covers it closely (within `reach` m along the body's
+    normal): some garments hide nothing (the hoodie, cortu's cargo pants: no delete_verts), and a
+    hidden body costs triangles and pokes through when the clothes bend. Each opening keeps a
+    ring of body (only vertices whose neighbours are all covered are hidden), so no cuff or collar
+    shows a gap. A Mask modifier, baked with MPFB's own."""
+    import bmesh
+    from mathutils.bvhtree import BVHTree
+    deps = bpy.context.evaluated_depsgraph_get()
+    trees = []
+    for g in rig.children:
+        if g.type == 'MESH' and ObjectService.get_object_type(g) == "Clothes":
+            b = bmesh.new()
+            b.from_object(g, deps)
+            b.transform(g.matrix_world)
+            trees.append(BVHTree.FromBMesh(b))
+            b.free()
+    body = basemesh.vertex_groups.get("body")
+    if not trees or body is None:
+        return 0
+    mw, nm = basemesh.matrix_world, basemesh.matrix_world.to_3x3()
+    covered = set()
+    for v in basemesh.data.vertices:
+        if not any(g.group == body.index for g in v.groups):
+            continue
+        p, n = mw @ v.co, (nm @ v.normal).normalized()
+        if any(t.ray_cast(p, n, reach)[0] is not None for t in trees):
+            covered.add(v.index)
+    near = {i: set() for i in covered}
+    for e in basemesh.data.edges:
+        a, b = e.vertices
+        if a in near:
+            near[a].add(b)
+        if b in near:
+            near[b].add(a)
+    hide = sorted(i for i in covered if near[i] <= covered)
+    group = basemesh.vertex_groups.new(name="cast_covered")
+    group.add(hide, 1.0, 'REPLACE')
+    m = basemesh.modifiers.new("cast covered", 'MASK')
+    m.vertex_group = group.name
+    m.invert_vertex_group = True
+    log("cover mask: %d body vertices hidden" % len(hide))
+    return len(hide)
+
+
 # 1. the body: its height solved, then built with everything it wears
 phenotype = dict(SPEC["phenotype"])
 if "height_m" in SPEC:
@@ -134,6 +310,10 @@ if SPEC.get("refit", True):
 rig = basemesh.parent
 TargetService.bake_targets(basemesh)
 HEIGHT = body_top(basemesh)               # before the masks take the scalp under the hair away
+if SPEC.get("vest"):
+    vest(basemesh, rig, SPEC["vest"])
+if SPEC.get("cover_mask", True):
+    cover_mask(basemesh, rig, float(SPEC.get("cover_reach", 0.04)))
 
 # 2. the face's shapes, after the bake, pruned to the ones we drive
 keep = set(SPEC.get("face_shapes", FACE_DEFAULT))
@@ -176,7 +356,7 @@ for child in sorted(rig.children, key=lambda c: c.name):
     if child.type != 'MESH':
         continue
     otype = ObjectService.get_object_type(child)
-    role = ROLES.get(otype, "cloth")
+    role = child.get("cast_role", ROLES.get(otype, "cloth"))
     # MPFB names an asset's object "<human>.<asset>" and its material after the human: name both
     # after the asset, so two garments never share a material's name
     asset = (child.name.split(".", 1)[1] if "." in child.name else child.name).lower().replace(" ", "_")
@@ -198,6 +378,11 @@ for child in sorted(rig.children, key=lambda c: c.name):
 
 meta = {"id": CID, "name": SPEC.get("name", CID), "materials": {}, "blender": bpy.app.version_string,
         "spec": os.path.basename(argv[0])}
+# what it is made of (licences.py checks them and writes their credits; test_cast_models matches them)
+PARTS = {"eyes": "eyes", "eyebrows": "eyebrows", "eyelashes": "eyelashes", "teeth": "teeth", "tongue": "tongue",
+         "hair": "hair", "skin": "skins", "proxy": "proxymeshes"}
+meta["assets"] = sorted(["%s/%s" % (kind, SPEC[k].split("/")[0]) for k, kind in PARTS.items() if SPEC.get(k)]
+                        + ["clothes/" + c.split("/")[0] for c in SPEC.get("clothes", [])])
 for name in sorted(materials):
     role, base = name.split("__", 1)
     tint = "#ffffff"
@@ -205,6 +390,8 @@ for name in sorted(materials):
         if key == role or key in base:
             tint = value
     meta["materials"][name] = {"role": role, "tint": tint}
+    if role in SPEC.get("desaturate", []) or any(k in base for k in SPEC.get("desaturate", [])):
+        meta["materials"][name]["desaturate"] = True       # post.py: its colour map in greys (grey hair)
 
 # 5. measures: standing height, the pelvis, the eyes (a seat and a camera need them)
 def bone_z(name):

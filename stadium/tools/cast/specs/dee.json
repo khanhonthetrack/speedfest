@@ -2,25 +2,66 @@
  "id": "dee",
  "name": "Dee Sandoval",
  "_look": "docs/STORY.md section 5: the night mechanic at Arch 9, about 30, short; hair in a bun (long when let down: the passenger), overalls, a welding mask pushed up; warm, teasing, practical",
- "height_m": 1.60,
- "phenotype": {"gender": 0.0, "age": 0.54, "muscle": 0.56, "weight": 0.47, "proportions": 0.62, "cupsize": 0.45, "firmness": 0.55,
-               "race": {"african": 0.12, "asian": 0.16, "caucasian": 0.72}},
+ "height_m": 1.6,
+ "phenotype": {
+  "gender": 0.0,
+  "age": 0.54,
+  "muscle": 0.56,
+  "weight": 0.47,
+  "proportions": 0.62,
+  "cupsize": 0.45,
+  "firmness": 0.55,
+  "race": {
+   "african": 0.12,
+   "asian": 0.16,
+   "caucasian": 0.72
+  }
+ },
  "targets": [
-  {"target": "nose-scale-horiz-decr", "value": 0.25},
-  {"target": "nose-point-up", "value": 0.3},
-  {"target": "chin-prominent-incr", "value": 0.2},
-  {"target": "cheek-bones-incr", "value": 0.35},
-  {"target": "mouth-scale-horiz-incr", "value": 0.15},
-  {"target": "eye-scale-incr", "value": 0.12}
+  {
+   "target": "nose-scale-horiz-decr",
+   "value": 0.25
+  },
+  {
+   "target": "nose-point-up",
+   "value": 0.3
+  },
+  {
+   "target": "chin-prominent-incr",
+   "value": 0.2
+  },
+  {
+   "target": "cheek-bones-incr",
+   "value": 0.35
+  },
+  {
+   "target": "mouth-scale-horiz-incr",
+   "value": 0.15
+  },
+  {
+   "target": "eye-scale-incr",
+   "value": 0.12
+  }
  ],
  "skin": "young_caucasian_female/young_caucasian_female.mhmat",
  "eyes": "high-poly/high-poly.mhclo",
- "eyebrows": "mindfront_eyebrows_03/mindfront_eyebrows_03.mhclo",
- "eyelashes": "mindfront_eyelashes_02/mindfront_eyelashes_02.mhclo",
+ "eyebrows": "eyebrow010/eyebrow010.mhclo",
+ "eyelashes": "eyelashes02/eyelashes02.mhclo",
  "teeth": "teeth_base/teeth_base.mhclo",
  "tongue": "tongue01/tongue01.mhclo",
- "hair": "elvs_braid_bun/elvs_braid_bun.mhclo",
- "clothes": ["male_worksuit01/male_worksuit01.mhclo", "toigo_ankle_boots_female/toigo_ankle_boots_female.mhclo"],
- "tint": {"male_worksuit01": "#5d6f8f", "hair": "#4a3426"},
- "texture_max": 2048
+ "hair": "elvs_50s_updo/elvs_50s_updo.mhclo",
+ "clothes": [
+  "male_worksuit01/male_worksuit01.mhclo",
+  "toigo_ankle_boots_female/toigo_ankle_boots_female.mhclo"
+ ],
+ "tint": {
+  "male_worksuit01": "#5d6f8f",
+  "hair": "#4a3426",
+  "brow": "#5a4636",
+  "toigo_ankle_boots_female": "#4a362a"
+ },
+ "texture_max": 2048,
+ "materials": {
+  "eyes": "materials/brownlight.mhmat"
+ }
 }

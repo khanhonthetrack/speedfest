@@ -1,0 +1,55 @@
+{
+ "id": "kit_m",
+ "name": "Kit Arlen (B)",
+ "_look": "docs/STORY.md section 5: 20, engineering student, noodle-delivery driver, the player; hooded jacket, backpack (a prop). Kit A and Kit B wear the same, so the owner picks the person",
+ "height_m": 1.77,
+ "phenotype": {
+  "gender": 1.0,
+  "age": 0.39,
+  "muscle": 0.5,
+  "weight": 0.42,
+  "proportions": 0.6,
+  "race": {
+   "african": 0.05,
+   "asian": 0.7,
+   "caucasian": 0.25
+  }
+ },
+ "targets": [
+  {
+   "target": "head-oval",
+   "value": 0.2
+  },
+  {
+   "target": "eye-scale-incr",
+   "value": 0.05
+  },
+  {
+   "target": "nose-scale-horiz-decr",
+   "value": 0.1
+  },
+  {
+   "target": "chin-width-decr",
+   "value": 0.1
+  }
+ ],
+ "skin": "young_asian_male/young_asian_male.mhmat",
+ "eyes": "high-poly/high-poly.mhclo",
+ "materials": {
+  "eyes": "materials/brownlight.mhmat"
+ },
+ "eyebrows": "eyebrow001/eyebrow001.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "teeth": "teeth_base/teeth_base.mhclo",
+ "tongue": "tongue01/tongue01.mhclo",
+ "hair": "short02/short02.mhclo",
+ "clothes": [
+  "elvs_hooded_sweat_jacket1/elvs_hooded_sweat_jacket1.mhclo",
+  "elvs_jeans_straight_leg/elvs_jeans_straight_leg.mhclo",
+  "punkduck_comfortable_sneakers/punkduck_comfortable_sneakers.mhclo"
+ ],
+ "tint": {
+  "brow": "#3a2e28"
+ },
+ "texture_max": 2048
+}
