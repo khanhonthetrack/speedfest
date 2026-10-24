@@ -1,0 +1,3 @@
+{
+ "_note": "Assets whose own header carries no licence, reviewed by hand: key kind/asset -> {licence, why}. Empty so far: every asset the cast uses has a licence line in its header (licences.py)."
+}
