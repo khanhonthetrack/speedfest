@@ -4352,3 +4352,18 @@ through MPFB 2 in Blender, with CC0 and CC BY assets, a licence gate and a spike
 - `tests/test_cast_models` (in the gate): per character, the humanoid bones, the clips reach them,
   materials by role, face shapes on the parts that move, budgets (70k triangles, 12 MB), credited,
   stands as built, soles on the ground in Idle/Walk/Crouch_Idle, the same pose whatever the seek order.
+- Review of the cast work (a sequential review workflow: 21 findings, each checked by a second agent;
+  11 held): the credits now link each licence and say what was changed (CC BY asks for both; an
+  author's bare "CC BY" is credited under 4.0, the version MakeHuman's CC-BY FAQ points to); they list
+  what ships (`licences.py --built`: the built characters' sidecars), not what the specs say now, and
+  `build.sh` fails loudly when that gate fails or Godot is missing; an asset whose own file states no
+  licence fails until reviewed into `allow.json` (Gus's skin: Skins 02 is listed under CC0 on
+  MakeHuman's asset-pack page); shared textures are named after their bytes' sha256 (a name never
+  depends on what is already in `tex/`), Blender's quoted URIs are decoded; the vest's solidify added
+  its rim faces in a run-dependent order (sorted now: two full builds give identical files); a cast
+  member walks at the retarget's own stride (`StoryCast.stride`: hips height, so legs, not height);
+  `StoryCast.instance` plays deterministically (nothing of one clip stays in the next, now tested);
+  `tools/anim/update_packs.sh` keeps a replaced pack's `.import` files (the UAL retarget lives there);
+  the cast lab holds the pose at `--t`. `test_cast_models` now fails on a lost bone mapping too (it
+  found that no UAL clip moves `spine_01`: Quaternius holds it at rest in all 43, so the import drops
+  the constant track; listed as such).

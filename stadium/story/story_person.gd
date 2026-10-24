@@ -13,15 +13,14 @@ extends Node3D
 ## (default: the clip's own), "start": s into the clip at t = 0, "rate": playback speed,
 ## "pos": [x, y, z] (the shot's anchor frame: x left, y up, z ahead), "face": degrees (0 faces +z,
 ## 90 faces +x: the anchor's left), "path": [[x, z], ...] walked at "speed" m/s from "walk_at" s
-## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36; a cast member's scaled by its height
-## over the Mannequin's), "who": a cast member ("dee", ...; none: the Mannequin), "look": "coat"
+## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36; a cast member's scaled by its legs
+## over the Mannequin's: StoryCast.stride), "who": a cast member ("dee", ...; none: the Mannequin), "look": "coat"
 ## (default, near black cloth; a cast member keeps its clothes) | "drowned" (pale, soaked, glossy,
 ## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height)}
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
 ## The clips' own travel speed (docs/ANIMATIONS.md, measured from the _rm file's root track).
 const SPEED := {"Walk": 0.98, "Walk_Formal": 0.98, "Jog_Fwd": 5.36, "Sprint": 8.25, "Crouch_Fwd": 0.75}
-const MANNEQUIN_HEIGHT := 1.83
 
 static var _scene: PackedScene
 static var _coat: StandardMaterial3D
@@ -177,8 +176,8 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	_lengths = [0.0]
 	for i in range(1, _path.size()):
 		_lengths.append(_lengths[-1] + _path[i].distance_to(_path[i - 1]))
-	# a shorter body takes shorter strides: the clip's speed scaled by the height over the Mannequin's
-	var stride := float(StoryCast.meta(who).get("height", MANNEQUIN_HEIGHT)) / MANNEQUIN_HEIGHT if who != "" else 1.0
+	# shorter legs take shorter strides: the clip's speed scaled as the retarget scales its motion
+	var stride := StoryCast.stride(body) if who != "" else 1.0
 	_speed = float(s.get("speed", SPEED.get(clip, 1.0) * float(s.get("rate", 1.0)) * stride))
 
 

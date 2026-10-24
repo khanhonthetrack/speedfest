@@ -7,13 +7,17 @@ extends Node3D
 ## it stands as tall as built; lifted by StoryCast.ground (a few centimetres: shoes, other legs) its
 ## soles meet the ground in the standing clips (Idle, Walk, Crouch_Idle: the skinned mesh's lowest
 ## point, measured as the Mannequin's is), and the shared clips pose it the same whichever order a
-## cutscene seeks in.
+## cutscene seeks in, and leave nothing of one clip in the next.
 ## Run: stadium/tools/run.sh res://tests/test_cast_models.tscn --headless
 
 const BONES := ["Hips", "Spine", "Chest", "Neck", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm",
 	"RightLowerArm", "RightHand", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToes", "RightUpperLeg",
 	"RightLowerLeg", "RightFoot", "RightToes"]
 const CLIPS := ["Idle", "Walk", "Crouch_Idle"]
+const BONE_MAP := preload("res://assets/cast/bonemap.tres")
+## Bones no clip moves: Quaternius' clips hold spine_01 at its rest rotation in all 43 (checked in
+## the glb, 24 Oct), so the import drops the constant track; anything else missing is a lost mapping.
+const STILL := [&"Spine"]
 const MAX_TRIANGLES := 70000          ## a lead on a strong PC (the owner's target); crowds get a lighter tier
 const MAX_MB := 12.0                 ## its mesh and every texture it uses
 const FEET_TOLERANCE := 0.015        ## m, the soles off the ground at worst, lifted
@@ -51,8 +55,20 @@ func _ready() -> void:
 				continue
 			for t in a.get_track_count():
 				var bone := String(a.track_get_path(t).get_concatenated_subnames())
-				if bone != "" and sk.find_bone(bone) < 0 and BONES.has(bone):
+				if bone != "" and sk.find_bone(bone) < 0:
 					lost[bone] = clip
+		# and every bone the bone map maps is in the skeleton and moved by the clips (a lost mapping
+		# leaves its part of the body still: a shoulder, a finger)
+		var lib := StoryCast.library()
+		for b in BONE_MAP.profile.bone_size:
+			var name := BONE_MAP.profile.get_bone_name(b)
+			if BONE_MAP.get_skeleton_bone_name(name) == &"" or name == &"Root":
+				continue
+			if sk.find_bone(name) < 0:
+				lost[name] = "not in the skeleton"
+			elif not STILL.has(name) and not Array(lib.get_animation_list()).any(func(c: StringName) -> bool:
+					return lib.get_animation(c).find_track(NodePath("%GeneralSkeleton:" + name), Animation.TYPE_ROTATION_3D) >= 0):
+				lost[name] = "no clip moves it"
 		TestHooks.check(lost.is_empty(), "cast_%s_clips_reach_bones" % id, str(lost))
 		_materials(id, root, meta)
 		_shapes(id, root, meta)
@@ -90,6 +106,23 @@ func _ready() -> void:
 		for i in a.size():
 			worst = maxf(worst, a[i].origin.distance_to(b[i].origin))
 		TestHooks.check(worst < 1e-4, "cast_%s_seek_order_free" % id, "%.6f m" % worst)
+		# nothing of one clip stays in the next: a clip after Walk poses it as on a fresh character
+		ap.play("Walk")
+		ap.seek(0.9, true)
+		ap.play("Idle_Talking")
+		ap.seek(1.0, true)
+		var after := _poses(sk)
+		var fresh := StoryCast.instance(id)
+		add_child(fresh)
+		var fap := StoryCast.player(fresh)
+		fap.play("Idle_Talking")
+		fap.seek(1.0, true)
+		var clean := _poses(StoryCast.skeleton(fresh))
+		var leak := 0.0
+		for i in after.size():
+			leak = maxf(leak, after[i].origin.distance_to(clean[i].origin))
+		TestHooks.check(leak < 1e-4, "cast_%s_no_pose_leaks" % id, "%.6f m after Walk" % leak)
+		fresh.free()
 		root.free()
 	mannequin.free()
 	TestHooks.finish()

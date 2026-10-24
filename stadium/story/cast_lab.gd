@@ -115,6 +115,7 @@ func _person(w: String, clip: String, t: float) -> Node3D:
 		for kv in String(TestHooks.arg("shapes", "")).split(",", false):
 			StoryCast.set_shape(root, kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 	ap.play(clip)
+	ap.pause()                          # held at --t: the still, the printout and the camera agree
 	ap.seek(t, true)
 	var sk := StoryCast.skeleton(root)
 	print("CAST_LAB %s %s t=%.2f lift=%.3f head=%.3f m %d bones" % [w, clip, t, root.position.y,

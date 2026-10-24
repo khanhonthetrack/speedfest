@@ -1925,57 +1925,57 @@
   {
    "mimeType": "image/png",
    "name": "eyebrow001",
-   "uri": "../tex/eyebrow001.png"
+   "uri": "../tex/eyebrow001_3dd927e4.png"
   },
   {
    "mimeType": "image/png",
    "name": "normalshoodie",
-   "uri": "../tex/normalshoodie.png"
+   "uri": "../tex/normalshoodie_888ee561.png"
   },
   {
    "mimeType": "image/jpeg",
    "name": "hoodietex1",
-   "uri": "../tex/hoodietex1.jpg"
+   "uri": "../tex/hoodietex1_af0656b9.jpg"
   },
   {
    "mimeType": "image/jpeg",
    "name": "jeanstex1",
-   "uri": "../tex/jeanstex1.jpg"
+   "uri": "../tex/jeanstex1_1ac97994.jpg"
   },
   {
    "mimeType": "image/jpeg",
    "name": "sneakers",
-   "uri": "../tex/sneakers.jpg"
+   "uri": "../tex/sneakers_f418f08a.jpg"
   },
   {
    "mimeType": "image/png",
    "name": "brown_eye",
-   "uri": "../tex/brown_eye_grey.png"
+   "uri": "../tex/brown_eye_grey_3620c80c.png"
   },
   {
    "mimeType": "image/png",
    "name": "short02_diffuse",
-   "uri": "../tex/short02_diffuse.png"
+   "uri": "../tex/short02_diffuse_4aa40f87.png"
   },
   {
    "mimeType": "image/png",
    "name": "eyelashes01",
-   "uri": "../tex/eyelashes01.png"
+   "uri": "../tex/eyelashes01_a7b766f5.png"
   },
   {
    "mimeType": "image/jpeg",
    "name": "young_lightskinned_male_diffuse3",
-   "uri": "../tex/young_lightskinned_male_diffuse3.jpg"
+   "uri": "../tex/young_lightskinned_male_diffuse3_be721b5f.jpg"
   },
   {
    "mimeType": "image/jpeg",
    "name": "teeth",
-   "uri": "../tex/teeth.jpg"
+   "uri": "../tex/teeth_3e83857b.jpg"
   },
   {
    "mimeType": "image/jpeg",
    "name": "tongue01_diffuse",
-   "uri": "../tex/tongue01_diffuse.jpg"
+   "uri": "../tex/tongue01_diffuse_18883d6a.jpg"
   }
  ],
  "skins": [

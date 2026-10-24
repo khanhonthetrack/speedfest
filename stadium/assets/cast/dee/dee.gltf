@@ -1941,62 +1941,62 @@
   {
    "mimeType": "image/png",
    "name": "eyebrow010",
-   "uri": "../tex/eyebrow010.png"
+   "uri": "../tex/eyebrow010_a6a35024.png"
   },
   {
    "mimeType": "image/png",
    "name": "male_worksuit01_normal",
-   "uri": "../tex/male_worksuit01_normal.png"
+   "uri": "../tex/male_worksuit01_normal_a17e82a5.png"
   },
   {
    "mimeType": "image/jpeg",
    "name": "male_worksuit01_diffuse",
-   "uri": "../tex/male_worksuit01_diffuse.jpg"
+   "uri": "../tex/male_worksuit01_diffuse_fb24f091.jpg"
   },
   {
    "mimeType": "image/png",
    "name": "BootsAnkle-norm",
-   "uri": "../tex/BootsAnkle-norm.png"
+   "uri": "../tex/BootsAnkle-norm_7b04f166.png"
   },
   {
    "mimeType": "image/jpeg",
    "name": "BootsAnkle",
-   "uri": "../tex/BootsAnkle.jpg"
+   "uri": "../tex/BootsAnkle_ad095090.jpg"
   },
   {
    "mimeType": "image/png",
    "name": "brownlight_eye",
-   "uri": "../tex/brownlight_eye.png"
+   "uri": "../tex/brownlight_eye_7d1c0e10.png"
   },
   {
    "mimeType": "image/png",
    "name": "normals",
-   "uri": "../tex/normals.png"
+   "uri": "../tex/normals_f0fe58fc.png"
   },
   {
    "mimeType": "image/png",
    "name": "patsytex1",
-   "uri": "../tex/patsytex1.png"
+   "uri": "../tex/patsytex1_8d972ad6.png"
   },
   {
    "mimeType": "image/png",
    "name": "eyelashes02",
-   "uri": "../tex/eyelashes02.png"
+   "uri": "../tex/eyelashes02_56b8e789.png"
   },
   {
    "mimeType": "image/jpeg",
    "name": "young_lightskinned_female_diffuse",
-   "uri": "../tex/young_lightskinned_female_diffuse.jpg"
+   "uri": "../tex/young_lightskinned_female_diffuse_850ba1e7.jpg"
   },
   {
    "mimeType": "image/jpeg",
    "name": "teeth",
-   "uri": "../tex/teeth.jpg"
+   "uri": "../tex/teeth_3e83857b.jpg"
   },
   {
    "mimeType": "image/jpeg",
    "name": "tongue01_diffuse",
-   "uri": "../tex/tongue01_diffuse.jpg"
+   "uri": "../tex/tongue01_diffuse_18883d6a.jpg"
   }
  ],
  "skins": [

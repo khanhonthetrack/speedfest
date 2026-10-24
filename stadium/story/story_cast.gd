@@ -12,6 +12,7 @@ static var _lib: AnimationLibrary
 static var _meta := {}
 static var _scenes := {}
 static var _ground := {}
+static var _mannequin_scale := 0.0
 
 
 ## The characters there are (a folder with its glTF).
@@ -45,8 +46,17 @@ static func library() -> AnimationLibrary:
 	if _lib == null:
 		var n := (load(StoryPerson.GLB) as PackedScene).instantiate()
 		_lib = (n.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer).get_animation_library("")
+		_mannequin_scale = skeleton(n).motion_scale
 		n.free()
 	return _lib
+
+
+## How much longer a character's strides are than the Mannequin's in the same clip: the retarget
+## scales the clips' motion by the hips' height (Skeleton3D.motion_scale), so legs, not height.
+static func stride(root: Node) -> float:
+	library()
+	var sk := skeleton(root)
+	return sk.motion_scale / _mannequin_scale if sk != null and _mannequin_scale > 0.0 else 1.0
 
 
 ## The character with an AnimationPlayer ("Anim") playing the shared library; null if there is none.
@@ -58,6 +68,7 @@ static func instance(id: String) -> Node3D:
 	var root := (_scenes[id] as PackedScene).instantiate() as Node3D
 	var ap := AnimationPlayer.new()
 	ap.name = "Anim"
+	ap.deterministic = true            # a bone the clip has no track for goes back to rest, whatever played before
 	root.add_child(ap)
 	ap.root_node = NodePath("..")
 	ap.add_animation_library("", library())
