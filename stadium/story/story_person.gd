@@ -44,11 +44,14 @@ var _base := Transform3D()         ## the anchor frame (world) this person stand
 var _ground: Callable              ## (anchor-frame point) -> world point on the ground
 
 
+## The clips a scene can name: the library's, the standing takes and their aliases (StoryCast.take).
 static func clip_names() -> PackedStringArray:
 	if _clips.is_empty():
+		StoryCast.library()                # adds the standing takes to the library the Mannequin holds
 		var n := _load().instantiate()
 		var ap := n.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 		_clips = ap.get_animation_list()
+		_clips.append_array(PackedStringArray(["Stand", "Stand_B", "Stand_Talk"]))
 		n.free()
 	return _clips
 
@@ -174,7 +177,8 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	if who != "":
 		face = StoryFace.new(body, String(s.get("id", who)).hash())
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
-	var clip := String(s.get("clip", "Idle"))
+	StoryCast.library()
+	var clip := StoryCast.take(who, String(s.get("clip", "Idle")))
 	if not _player.has_animation(clip):
 		push_warning("story: no clip %s, Idle instead" % clip)
 		clip = "Idle"

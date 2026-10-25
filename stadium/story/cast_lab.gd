@@ -1,7 +1,7 @@
 extends Node3D
 ## Looks at the modelled cast (StoryCast, PLAN M20-9) in a studio: --who=kit,dee,mannequin
-## --mode=lineup|face|full --clip=Idle --t=1.0 --shapes=eyeBlinkLeft:1,jawOpen:0.6 (face shapes)
-## --turn=180 (their backs) --frames=30 --shot=/abs.png. "face" frames the first one's head (a 250-px head at 1600x900,
+## --mode=lineup|face|full --clip=Idle (or Stand, Stand_B, Stand_Talk: each one's own take) --t=1.0 --shapes=eyeBlinkLeft:1,jawOpen:0.6 (face shapes)
+## --turn=180 (their backs) --play (the clip plays on from --t: for tools/clip.sh) --frames=30 --shot=/abs.png. "face" frames the first one's head (a 250-px head at 1600x900,
 ## the size a cutscene's close-up gives it); "lineup" stands everyone in a row on their own feet
 ## (StoryCast.ground), the Mannequin for scale. Prints each one's height and feet.
 
@@ -101,6 +101,8 @@ func _person(w: String, clip: String, t: float) -> Node3D:
 	var root: Node3D
 	var ap: AnimationPlayer
 	var id := w
+	StoryCast.library()                 # the standing takes too
+	clip = StoryCast.take("" if w == "mannequin" else w, clip)   # "Stand": hers or his
 	if w == "mannequin":
 		root = (load(StoryPerson.GLB) as PackedScene).instantiate()
 		add_child(root)
@@ -116,8 +118,9 @@ func _person(w: String, clip: String, t: float) -> Node3D:
 		for kv in String(TestHooks.arg("shapes", "")).split(",", false):
 			StoryCast.set_shape(root, kv.get_slice(":", 0), float(kv.get_slice(":", 1)))
 	ap.play(clip)
-	ap.pause()                          # held at --t: the still, the printout and the camera agree
 	ap.seek(t, true)
+	if not TestHooks.has_arg("play"):
+		ap.pause()                      # held at --t: the still, the printout and the camera agree
 	var sk := StoryCast.skeleton(root)
 	print("CAST_LAB %s %s t=%.2f lift=%.3f head=%.3f m %d bones" % [w, clip, t, root.position.y,
 		_head(root).y, sk.get_bone_count()])

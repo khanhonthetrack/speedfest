@@ -50,6 +50,7 @@
  },
  "name": "The auction crowd: a courier",
  "pelvis": 0.9588,
+ "sex": "m",
  "spec": "crowd1.json",
  "tier": "crowd",
  "triangles": 25378

@@ -93,6 +93,8 @@
  },
  "name": "Sgt. Lena Voss",
  "pelvis": 0.909,
+ "sex": "f",
  "spec": "voss.json",
+ "tier": "lead",
  "triangles": 44694
 }

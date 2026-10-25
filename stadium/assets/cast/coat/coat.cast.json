@@ -109,6 +109,7 @@
  },
  "name": "The man in the long coat",
  "pelvis": 1.0612,
+ "sex": "m",
  "spec": "coat.json",
  "tier": "lead",
  "triangles": 50758

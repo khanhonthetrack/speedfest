@@ -93,6 +93,8 @@
  },
  "name": "The passenger",
  "pelvis": 0.8317,
+ "sex": "f",
  "spec": "passenger.json",
+ "tier": "lead",
  "triangles": 41818
 }

@@ -55,6 +55,7 @@
  },
  "name": "The auction crowd: a student",
  "pelvis": 0.868,
+ "sex": "f",
  "spec": "crowd2.json",
  "tier": "crowd",
  "triangles": 28608

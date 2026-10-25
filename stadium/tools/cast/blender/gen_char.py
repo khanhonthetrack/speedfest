@@ -474,7 +474,8 @@ for child in sorted(rig.children, key=lambda c: c.name):
     child.name = "%s__%s" % (role, asset.lower())
 
 meta = {"id": CID, "name": SPEC.get("name", CID), "materials": {}, "blender": bpy.app.version_string,
-        "spec": os.path.basename(argv[0]), "tier": SPEC.get("tier", "lead")}
+        "spec": os.path.basename(argv[0]), "tier": SPEC.get("tier", "lead"),
+        "sex": "f" if float(SPEC["phenotype"].get("gender", 1.0)) < 0.5 else "m"}
 # what it is made of (licences.py checks them and writes their credits; test_cast_models matches them)
 PARTS = {"eyes": "eyes", "eyebrows": "eyebrows", "eyelashes": "eyelashes", "teeth": "teeth", "tongue": "tongue",
          "hair": "hair", "skin": "skins", "proxy": "proxymeshes"}

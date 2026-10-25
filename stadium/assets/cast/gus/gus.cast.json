@@ -99,6 +99,8 @@
  },
  "name": "Gus Pell",
  "pelvis": 1.0658,
+ "sex": "m",
  "spec": "gus.json",
+ "tier": "lead",
  "triangles": 41136
 }

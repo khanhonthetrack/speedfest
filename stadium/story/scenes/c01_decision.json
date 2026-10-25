@@ -21,7 +21,7 @@
 			"people": [
 				{
 					"id": "gus",
-					"clip": "Idle_Talking",
+					"clip": "Stand_Talk",
 					"pos": [
 						-2.6,
 						0,
@@ -213,7 +213,7 @@
 			"people": [
 				{
 					"id": "voss_p",
-					"clip": "Idle",
+					"clip": "Stand",
 					"pos": [
 						-4.4,
 						0,

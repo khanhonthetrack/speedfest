@@ -93,6 +93,8 @@
  },
  "name": "Dee Sandoval",
  "pelvis": 0.8317,
+ "sex": "f",
  "spec": "dee.json",
+ "tier": "lead",
  "triangles": 40387
 }

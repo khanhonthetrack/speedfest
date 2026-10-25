@@ -148,7 +148,7 @@ func _measure_people() -> void:
 			cars[String(c.get("id", ""))] = true
 		for p: Dictionary in s.get("people", []):
 			var who := String(p.get("who", ""))
-			var clip := String(p.get("clip", "Idle")) if String(p.get("clip", "Idle")) in clips else "Idle"
+			var clip := StoryCast.take(who, String(p.get("clip", "Idle")) if String(p.get("clip", "Idle")) in clips else "Idle")
 			var sits := cars.has(String(p.get("car", "")))
 			if sits:
 				StoryCast.mannequin_seated(self, clip)

@@ -55,6 +55,7 @@
  },
  "name": "The auction crowd: a dealer",
  "pelvis": 0.8621,
+ "sex": "f",
  "spec": "crowd5.json",
  "tier": "crowd",
  "triangles": 27932

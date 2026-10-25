@@ -55,6 +55,7 @@
  },
  "name": "The auction crowd: a racer",
  "pelvis": 0.9831,
+ "sex": "m",
  "spec": "crowd4.json",
  "tier": "crowd",
  "triangles": 30620

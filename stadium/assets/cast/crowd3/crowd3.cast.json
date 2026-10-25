@@ -57,6 +57,7 @@
  },
  "name": "The auction crowd: a dock hand",
  "pelvis": 0.9404,
+ "sex": "m",
  "spec": "crowd3.json",
  "tier": "crowd",
  "triangles": 29236

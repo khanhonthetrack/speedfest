@@ -6,7 +6,7 @@ extends Node3D
 ## pre-pass, the rest opaque), the face shapes its sidecar lists on the parts that move with them,
 ## within the budgets (triangles, megabytes), credited (CREDITS.md names every asset it is made of);
 ## it stands as tall as built; lifted by StoryCast.ground (a few centimetres: shoes, other legs) its
-## soles meet the ground in the standing clips (Idle, Walk, Crouch_Idle: the skinned mesh's lowest
+## soles meet the ground in the standing clips (Idle, Walk, Crouch_Idle, the standing takes: the skinned mesh's lowest
 ## point, measured as the Mannequin's is), and the shared clips pose it the same whichever order a
 ## cutscene seeks in, and leave nothing of one clip in the next.
 ## Run: stadium/tools/run.sh res://tests/test_cast_models.tscn --headless
@@ -14,7 +14,7 @@ extends Node3D
 const BONES := ["Hips", "Spine", "Chest", "Neck", "Head", "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm",
 	"RightLowerArm", "RightHand", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToes", "RightUpperLeg",
 	"RightLowerLeg", "RightFoot", "RightToes"]
-const CLIPS := ["Idle", "Walk", "Crouch_Idle"]
+const CLIPS := ["Idle", "Walk", "Crouch_Idle", "Stand", "Stand_B", "Stand_Talk"]   ## Stand*: each one's own take
 const BONE_MAP := preload("res://assets/cast/bonemap.tres")
 ## Bones no clip moves: Quaternius' clips hold spine_01 at its rest rotation in all 43 (checked in
 ## the glb, 24 Oct), so the import drops the constant track; anything else missing is a lost mapping.
@@ -57,6 +57,7 @@ func _ready() -> void:
 		# every track of the clips cutscenes use reaches a bone (else that part of the body stays put)
 		var lost := {}
 		for clip in CLIPS + ["Sitting_Idle", "Driving", "Idle_Talking"]:
+			clip = StoryCast.take(id, clip)
 			var a := ap.get_animation(clip)
 			if a == null:
 				lost[clip] = "no clip"
@@ -100,6 +101,7 @@ func _ready() -> void:
 		var feet := []
 		var feet_ok := true
 		for clip in CLIPS:
+			clip = StoryCast.take(id, clip)
 			var lift := StoryCast.ground(id, root, clip)
 			var low := StoryCast.lowest_sole(root, clip, 16) + lift
 			feet.append("%s lift %.3f, soles %.3f" % [clip, lift, low])

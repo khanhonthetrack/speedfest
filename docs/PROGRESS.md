@@ -4503,3 +4503,24 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
 - Not a hang: `story_lab --ts=... --shots=...` runs went on after their last still until their
   timeout because they had no `--frames` (TestHooks quits at `--frames` only; the README's example
   has it). With `--frames=<last shot's frame + 1>` they quit (checked: a two-still run, cast and all).
+
+### 25 Oct (session 21, cont.): the owner on night 1 with the cast; standing like people (M20-9)
+The owner: "1. The Mirror: scarier. 2. Night 1: not yet (see notes). 3. The knock: keep. Notes:
+Peoples positions are weird when standing. Their legs should be next to each other, they are not
+planning to fight... Next time, i want to see clips, not just stills."
+- **Standing**: the UAL library's `Idle` stands ready for a fight (legs wide, arms bent, fists).
+  Human Basic Motions' idles and talk (Kevin Iglesias; licensed to the project for its builds, in the
+  repo since session 19) are retargeted at import onto the humanoid skeleton (`bonemap_hbm.tres`, the
+  six clips' `.import` set as the library's), and `StoryCast.library()` adds them to the library the
+  Mannequin and the cast share: `Stand_F/M`, `Stand_B_F/M` (the second idle), `Stand_Talk_F/M`; a
+  scene names `Stand`, `Stand_B` or `Stand_Talk` and gets the person's own (`StoryCast.take`, by the
+  sidecar's new `"sex"`; the Mannequin a man's). The takes hold the upper arms 20 degrees out (24 on
+  our bodies: an A-pose): turned in 13 degrees about each upper arm's own x as the library loads them
+  (10 degrees from the sides now, measured); the talk take throws both arms wide every 2.3 s, so its
+  arms and hands are brought halfway from the idle's pose (the head and body talk as they did).
+  Night 1's cast stand in `Stand` / `Stand_B` (the crowd mixed) and talk in `Stand_Talk`.
+  `test_cast_models` checks feet and bones in the takes too (123 checks).
+- **Clips**: `stadium/tools/clip.sh <out.mp4> <scene> [--fps] [--seconds] -- <args>`: Godot's Movie
+  Maker writes every frame at a fixed rate with the game's sound, ffmpeg makes an H.264 MP4
+  (`cast_lab --play` plays the clip instead of holding a frame). A 5 s studio clip renders in about
+  6 minutes (2.3 s a frame at 1600x900 on the software renderer).

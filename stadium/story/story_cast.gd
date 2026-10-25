@@ -7,6 +7,18 @@ class_name StoryCast
 ## import retargets them onto the same humanoid skeleton, so one AnimationLibrary serves everyone.
 
 const DIR := "res://assets/cast"
+const HBM := "res://assets/anim/human_basic_motions/Animations/"
+## How people stand: Human Basic Motions' idles and talk (Kevin Iglesias; retargeted onto the humanoid
+## skeleton at import through bonemap_hbm.tres), feet together, weight shifting; the UAL library's Idle
+## stands ready for a fight (the owner, 25 Oct: "they are not planning to fight").
+const STAND := {
+	"Stand_F": HBM + "Female/Idles/HumanF@Idle01.fbx", "Stand_M": HBM + "Male/Idles/HumanM@Idle01.fbx",
+	"Stand_B_F": HBM + "Female/Idles/HumanF@Idle02.fbx", "Stand_B_M": HBM + "Male/Idles/HumanM@Idle02.fbx",
+	"Stand_Talk_F": HBM + "Female/Social/Conversation/HumanF@Talk01.fbx",
+	"Stand_Talk_M": HBM + "Male/Social/Conversation/HumanM@Talk01.fbx",
+}
+const ARMS_IN := 13.0           ## degrees the idles' upper arms turn in (_arms_in)
+const TALK_ARMS := 0.5          ## how much of the talk's arm gestures is kept (_calm)
 
 static var _lib: AnimationLibrary
 static var _meta := {}
@@ -42,14 +54,66 @@ static func meta(id: String) -> Dictionary:
 	return _meta[id]
 
 
-## The UAL library (the Mannequin's clips, on the humanoid skeleton).
+## The UAL library (the Mannequin's clips, on the humanoid skeleton), with Human Basic Motions'
+## standing takes added (STAND). The Mannequin's own player holds the same library, so it has them too.
 static func library() -> AnimationLibrary:
 	if _lib == null:
 		var n := (load(StoryPerson.GLB) as PackedScene).instantiate()
 		_lib = (n.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer).get_animation_library("")
 		_mannequin_scale = skeleton(n).motion_scale
 		n.free()
+		for clip: String in STAND:
+			if _lib.has_animation(clip) or not ResourceLoader.exists(STAND[clip]):
+				continue
+			var s := (load(STAND[clip]) as PackedScene).instantiate()
+			var ap := s.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+			var a := ap.get_animation(ap.get_animation_list()[0])
+			a.loop_mode = Animation.LOOP_LINEAR
+			if clip.contains("Talk"):         # (after the idles: STAND lists them first)
+				_calm(a, _lib.get_animation(clip.replace("Talk_", "")), TALK_ARMS)
+			else:
+				_arms_in(a, ARMS_IN)
+			_lib.add_animation(clip, a)
+			s.free()
 	return _lib
+
+
+## The takes hold the upper arms about 20 degrees out from the sides (24 on our bodies: an A-pose);
+## turned in about each upper arm's own x (the humanoid profile's axes, the same for both sides).
+static func _arms_in(a: Animation, degrees: float) -> void:
+	var q := Quaternion(Vector3.RIGHT, deg_to_rad(degrees))
+	for t in a.get_track_count():
+		var bone := String(a.track_get_path(t).get_concatenated_subnames())
+		if a.track_get_type(t) != Animation.TYPE_ROTATION_3D or not bone in ["LeftUpperArm", "RightUpperArm"]:
+			continue
+		for k in a.track_get_key_count(t):
+			a.track_set_key_value(t, k, (a.track_get_key_value(t, k) as Quaternion) * q)
+
+
+## The talk take throws both arms wide, palms up, every 2.3 s: on a loop under every line, a shrug
+## that never stops. Its arms and hands are brought `keep` of the way from the idle's first pose
+## towards their own (the head and the body talk as they do; the face does the rest).
+static func _calm(talk: Animation, idle: Animation, keep: float) -> void:
+	for t in talk.get_track_count():
+		var bone := String(talk.track_get_path(t).get_concatenated_subnames())
+		if talk.track_get_type(t) != Animation.TYPE_ROTATION_3D or not (bone.contains("Arm") or bone.contains("Hand")
+				or bone.contains("Shoulder") or bone.contains("Thumb") or bone.contains("Index") or bone.contains("Middle")
+				or bone.contains("Ring") or bone.contains("Little")):
+			continue
+		var it := idle.find_track(talk.track_get_path(t), Animation.TYPE_ROTATION_3D)
+		if it < 0:
+			continue
+		var rest := idle.rotation_track_interpolate(it, 0.0)
+		for k in talk.track_get_key_count(t):
+			talk.track_set_key_value(t, k, rest.slerp(talk.track_get_key_value(t, k) as Quaternion, keep))
+
+
+## A scene's clip for this person: "Stand", "Stand_B" and "Stand_Talk" are a woman's or a man's take
+## (the cast's sidecar "sex"; the Mannequin a man's); any other name as it is.
+static func take(id: String, clip: String) -> String:
+	if not clip in ["Stand", "Stand_B", "Stand_Talk"]:
+		return clip
+	return clip + ("_F" if id != "" and String(meta(id).get("sex", "m")) == "f" else "_M")
 
 
 ## How much longer a character's strides are than the Mannequin's in the same clip: the retarget

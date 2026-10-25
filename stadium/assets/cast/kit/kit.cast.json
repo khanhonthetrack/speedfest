@@ -99,6 +99,8 @@
  },
  "name": "Kit Arlen",
  "pelvis": 0.9027,
+ "sex": "f",
  "spec": "kit.json",
+ "tier": "lead",
  "triangles": 57714
 }
