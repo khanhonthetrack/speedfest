@@ -43,7 +43,12 @@
 - **Night 1's other people** (25 Oct): `passenger` (Dee's double, hair over the face: spec
   `"hair_veil"`), `coat` (the man in the long coat: `"loose"`), `voss`, and the auction crowd
   `crowd1`-`crowd5` (`"tier": "crowd"`). Tibor is never on screen in night 1 (his car only).
-- **Next**: the owner's look at night 1 with the cast (a page); faces' polish (head turns,
+- **With the owner** (25 Oct): https://claude.ai/artifact/EQPzEeBAKgj6xxQ4rsewd8, night 1 with the cast,
+  each shot beside its Mannequin version (same second; stills at Ultra), the new people; questions:
+  the Mirror scare as pictured?, night 1 signed off?, keep the re-blocked knock?, anything else.
+  The page is built by a script in the session scratchpad (stills from `story_lab --set_quality=2
+  --ts=... --every=60 --shots=...`; the old page's stills extracted from its HTML).
+- **Next**: the owner's answers on that page; faces' polish (head turns,
   expressions per line); Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the

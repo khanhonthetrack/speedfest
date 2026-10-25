@@ -4498,6 +4498,8 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   the shorter student there her whole face filled the frame, so the tall racer stands there now (c2
   and c4 swapped). `story_lab --ways=c01=3` plays a decision's shots ("way:" conditions).
   `test_story_scenes` checks every `"who"` is a built cast member.
+- For the owner: https://claude.ai/artifact/EQPzEeBAKgj6xxQ4rsewd8 (night 1 with the cast beside the
+  Mannequin's, shot by shot; the Mirror, sign-off and the knock asked).
 - Known: a windowed `story_lab` run with cast members writes its stills and then hangs on exit (until
   its timeout); headless runs and `cast_lab` exit. Rendering stills: stop it once the last still is
   written (by pid). To look into: whether the game itself hangs on quitting after a cutscene.
