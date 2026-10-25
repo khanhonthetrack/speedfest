@@ -1,0 +1,115 @@
+{
+ "assets": [
+  "clothes/fedora01",
+  "clothes/mindfront_cardigan_long_open_front",
+  "clothes/mindfront_shoes_oxford_male",
+  "clothes/toigo_fisherman_sweater",
+  "clothes/toigo_wool_pants",
+  "eyebrows/eyebrow003",
+  "eyelashes/eyelashes01",
+  "eyes/high-poly",
+  "hair/short02",
+  "skins/middleage_caucasian_male",
+  "teeth/teeth_base",
+  "tongue/tongue01"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.809,
+ "face_shapes": [
+  "browDownLeft",
+  "browDownRight",
+  "browInnerUp",
+  "eyeBlinkLeft",
+  "eyeBlinkRight",
+  "eyeLookDownLeft",
+  "eyeLookDownRight",
+  "eyeLookInLeft",
+  "eyeLookInRight",
+  "eyeLookOutLeft",
+  "eyeLookOutRight",
+  "eyeLookUpLeft",
+  "eyeLookUpRight",
+  "eyeSquintLeft",
+  "eyeSquintRight",
+  "jawOpen",
+  "mouthClose",
+  "mouthFrownLeft",
+  "mouthFrownRight",
+  "mouthSmileLeft",
+  "mouthSmileRight",
+  "viseme_CH",
+  "viseme_DD",
+  "viseme_E",
+  "viseme_FF",
+  "viseme_I",
+  "viseme_O",
+  "viseme_PP",
+  "viseme_RR",
+  "viseme_SS",
+  "viseme_TH",
+  "viseme_U",
+  "viseme_aa",
+  "viseme_kk",
+  "viseme_nn"
+ ],
+ "head": 1.7684,
+ "height": 1.9389,
+ "id": "coat",
+ "materials": {
+  "brow__eyebrow003": {
+   "role": "brow",
+   "tint": "#3a3330"
+  },
+  "cloth__fedora01": {
+   "role": "cloth",
+   "tint": "#2c2c32"
+  },
+  "cloth__mindfront_cardigan_long_open_front": {
+   "loose": true,
+   "role": "cloth",
+   "tint": "#2a2a30"
+  },
+  "cloth__mindfront_shoes_oxford_male": {
+   "role": "cloth",
+   "tint": "#2a2422"
+  },
+  "cloth__toigo_fisherman_sweater": {
+   "role": "cloth",
+   "tint": "#3a3a3e"
+  },
+  "cloth__toigo_wool_pants": {
+   "role": "cloth",
+   "tint": "#242428"
+  },
+  "eye__high-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__short02": {
+   "role": "hair",
+   "tint": "#3a3330"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  },
+  "teeth__teeth_base": {
+   "role": "teeth",
+   "tint": "#ffffff"
+  },
+  "tongue__tongue01": {
+   "role": "tongue",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "The man in the long coat",
+ "pelvis": 1.0612,
+ "spec": "coat.json",
+ "tier": "lead",
+ "triangles": 50758
+}

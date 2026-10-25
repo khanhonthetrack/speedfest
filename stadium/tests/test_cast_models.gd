@@ -21,6 +21,9 @@ const BONE_MAP := preload("res://assets/cast/bonemap.tres")
 const STILL := [&"Spine"]
 const MAX_TRIANGLES := 70000          ## a lead on a strong PC (the owner's target); crowds get a lighter tier
 const MAX_MB := 12.0                 ## its mesh and every texture it uses
+## the crowd's tier (a spec's "tier": "crowd"): blinks only, low-poly eyes, no teeth, smaller textures
+const CROWD_TRIANGLES := 32000
+const CROWD_MB := 5.0
 const FEET_TOLERANCE := 0.015        ## m, the soles off the ground at worst, lifted
 const MAX_LIFT := 0.07               ## m either way (a crouch can lower): more means the retarget is broken
 
@@ -156,7 +159,8 @@ func _materials(id: String, root: Node, meta: Dictionary, stylised: bool) -> voi
 				bad.append("%s: %s transparency %d" % [mi.name, m.resource_name, m.transparency])
 			if not (meta.get("materials", {}) as Dictionary).has(m.resource_name):
 				bad.append("%s not in the sidecar" % m.resource_name)
-	for need in (["flat"] if stylised else ["skin", "eye", "teeth", "cloth"]):
+	var crowd := String(meta.get("tier", "lead")) == "crowd"
+	for need in (["flat"] if stylised else ["skin", "eye", "cloth"] if crowd else ["skin", "eye", "teeth", "cloth"]):
 		if not roles.has(need):
 			bad.append("no " + need)
 	TestHooks.check(bad.is_empty(), "cast_%s_materials_by_role" % id, str(bad) if not bad.is_empty() else str(roles.keys()))
@@ -167,13 +171,17 @@ func _shapes(id: String, root: Node, meta: Dictionary) -> void:
 	var lash := root.find_children("lash__*", "MeshInstance3D", true, false)
 	var eyes := root.find_children("eye__*", "MeshInstance3D", true, false)
 	var shapes: Array = meta.get("face_shapes", [])
+	var crowd := String(meta.get("tier", "lead")) == "crowd"
 	var missing := shapes.filter(func(s: String) -> bool: return body == null or body.find_blend_shape_by_name(s) < 0)
-	# the lids carry their lashes, the gaze turns the eyes
+	for s in ["eyeBlinkLeft", "eyeBlinkRight"]:
+		if not s in shapes:
+			missing.append(s)
+	# the lids carry their lashes, the gaze turns the eyes (a crowd only blinks)
 	if lash.is_empty() or (lash[0] as MeshInstance3D).find_blend_shape_by_name("eyeBlinkLeft") < 0:
 		missing.append("lashes: eyeBlinkLeft")
-	if eyes.is_empty() or (eyes[0] as MeshInstance3D).find_blend_shape_by_name("eyeLookUpLeft") < 0:
+	if not crowd and (eyes.is_empty() or (eyes[0] as MeshInstance3D).find_blend_shape_by_name("eyeLookUpLeft") < 0):
 		missing.append("eyes: eyeLookUpLeft")
-	TestHooks.check(shapes.size() >= 30 and missing.is_empty(), "cast_%s_face_shapes" % id,
+	TestHooks.check((crowd or shapes.size() >= 30) and missing.is_empty(), "cast_%s_face_shapes" % id,
 		"%d shapes, missing %s" % [shapes.size(), missing])
 
 
@@ -191,8 +199,10 @@ func _budget(id: String, root: Node, meta: Dictionary) -> void:
 		for im: Dictionary in g.get("images", []):
 			bytes += _size(dir + String(im["uri"]))
 	var mb := bytes / 1048576.0
-	TestHooks.check(tris <= MAX_TRIANGLES and mb > 0.5 and mb <= MAX_MB, "cast_%s_budget" % id,
-		"%d triangles (built %s), %.1f MB with its textures" % [tris, meta.get("triangles", "?"), mb])
+	var crowd := String(meta.get("tier", "lead")) == "crowd"
+	TestHooks.check(tris <= (CROWD_TRIANGLES if crowd else MAX_TRIANGLES) and mb > 0.5 and mb <= (CROWD_MB if crowd else MAX_MB),
+		"cast_%s_budget" % id, "%d triangles (built %s), %.1f MB with its textures (%s tier)" % [tris, meta.get("triangles", "?"),
+		mb, meta.get("tier", "lead")])
 
 
 func _size(path: String) -> int:

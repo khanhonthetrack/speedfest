@@ -1,0 +1,45 @@
+{
+ "id": "crowd5",
+ "name": "The auction crowd: a dealer",
+ "_look": "docs/STORY.md c01_open, the night auction on the docks: a woman in her forties, a knitted sweater, wool trousers, ankle boots, a blunt bob; talking (c01_open c5); the crowd's lighter tier",
+ "height_m": 1.66,
+ "phenotype": {
+  "gender": 0.0,
+  "age": 0.64,
+  "muscle": 0.5,
+  "weight": 0.58,
+  "proportions": 0.55,
+  "cupsize": 0.5,
+  "firmness": 0.5,
+  "race": {
+   "african": 0.85,
+   "asian": 0.05,
+   "caucasian": 0.1
+  }
+ },
+ "skin": "middleage_african_female/middleage_african_female.mhmat",
+ "eyebrows": "eyebrow011/eyebrow011.mhclo",
+ "hair": "toigo_blunt_bob/toigo_blunt_bob.mhclo",
+ "clothes": [
+  "mindfront_knitted_sweater_01/mindfront_knitted_sweater_01.mhclo",
+  "toigo_wool_pants/toigo_wool_pants.mhclo",
+  "toigo_ankle_boots_female/toigo_ankle_boots_female.mhclo"
+ ],
+ "tint": {
+  "hair": "#120f0e",
+  "brow": "#120f0e",
+  "toigo_wool_pants": "#2c2a30",
+  "toigo_ankle_boots_female": "#2c2420"
+ },
+ "materials": {
+  "eyes": "materials/brownlight.mhmat"
+ },
+ "eyes": "low-poly/low-poly.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "texture_max": 1024,
+ "tier": "crowd",
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ]
+}

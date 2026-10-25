@@ -365,9 +365,10 @@ draft is rejected (session 20): the story is new. Track ids `H01..H30`, kept out
       `"who"`; `story/cast_lab.tscn`; `tests/test_cast_models` in the gate); built: Kit (the owner
       picked Kit A, hair longer), Dee, Gus (a generated hi-vis vest); the look: realistic (owner, 24
       Oct, after a side-by-side with a stylised trio from Quaternius' packs, set aside); left: (done: faces in cutscenes, `story_face.gd`: blinks, visemes from the text, gaze;
-      seating per height, `StoryCast.seated`, a seat lowered under a low roof), the rest of night 1's people (the passenger, Tibor, the crowd), then night
-      1 switched to the cast (the knock re-blocked: Dee stands, the camera looks up), Cass, Voss,
-      Moth, Pim, Edgar, crowds (a lighter tier)
+      seating per height, `StoryCast.seated`, a seat lowered under a low roof; night 1's people: the
+      passenger, the coat man, Voss, the auction crowd as a lighter tier), then night 1 switched
+      to the cast (the knock re-blocked: Dee stands, the camera looks up), Cass, Moth, Pim, Edgar,
+      more crowds
 
 ### M19 — Sky City: maps high between the skyscrapers (owner, 22 Oct) ☐
 "Build 10 city maps, where instead of being on the ground like the first 5, you are really high,

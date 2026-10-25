@@ -1,0 +1,61 @@
+{
+ "assets": [
+  "clothes/mindfront_knitted_sweater_01",
+  "clothes/toigo_ankle_boots_female",
+  "clothes/toigo_wool_pants",
+  "eyebrows/eyebrow011",
+  "eyelashes/eyelashes01",
+  "eyes/low-poly",
+  "hair/toigo_blunt_bob",
+  "skins/middleage_african_female"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.5438,
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ],
+ "head": 1.4968,
+ "height": 1.656,
+ "id": "crowd5",
+ "materials": {
+  "brow__eyebrow011": {
+   "role": "brow",
+   "tint": "#120f0e"
+  },
+  "cloth__mindfront_knitted_sweater_01": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__toigo_ankle_boots_female": {
+   "role": "cloth",
+   "tint": "#2c2420"
+  },
+  "cloth__toigo_wool_pants": {
+   "role": "cloth",
+   "tint": "#2c2a30"
+  },
+  "eye__low-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__toigo_blunt_bob": {
+   "role": "hair",
+   "tint": "#120f0e"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "The auction crowd: a dealer",
+ "pelvis": 0.8621,
+ "spec": "crowd5.json",
+ "tier": "crowd",
+ "triangles": 27932
+}

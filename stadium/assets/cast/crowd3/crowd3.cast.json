@@ -1,0 +1,63 @@
+{
+ "assets": [
+  "clothes/mindfront_lusekofta",
+  "clothes/shoes03",
+  "clothes/toigo_wool_pants",
+  "eyebrows/eyebrow005",
+  "eyelashes/eyelashes01",
+  "eyes/low-poly",
+  "hair/short01",
+  "skins/old_caucasian_male"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.6204,
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ],
+ "head": 1.5832,
+ "height": 1.7447,
+ "id": "crowd3",
+ "materials": {
+  "brow__eyebrow005": {
+   "desaturate": true,
+   "role": "brow",
+   "tint": "#bdb6aa"
+  },
+  "cloth__mindfront_lusekofta": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__shoes03": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__toigo_wool_pants": {
+   "role": "cloth",
+   "tint": "#3e3a34"
+  },
+  "eye__low-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__short01": {
+   "desaturate": true,
+   "role": "hair",
+   "tint": "#cfcac2"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "The auction crowd: a dock hand",
+ "pelvis": 0.9404,
+ "spec": "crowd3.json",
+ "tier": "crowd",
+ "triangles": 29236
+}

@@ -1,0 +1,43 @@
+{
+ "id": "crowd4",
+ "name": "The auction crowd: a racer",
+ "_look": "docs/STORY.md c01_open, the night auction on the docks: a man in his early twenties, a polo shirt and dark trousers, running shoes, short hair (c01_open c4); the crowd's lighter tier",
+ "height_m": 1.82,
+ "phenotype": {
+  "gender": 1.0,
+  "age": 0.46,
+  "muscle": 0.5,
+  "weight": 0.42,
+  "proportions": 0.6,
+  "race": {
+   "african": 0.05,
+   "asian": 0.1,
+   "caucasian": 0.85
+  }
+ },
+ "skin": "young_caucasian_male2/young_caucasian_male2.mhmat",
+ "eyebrows": "eyebrow004/eyebrow004.mhclo",
+ "hair": "short02/short02.mhclo",
+ "clothes": [
+  "namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+  "toigo_wool_pants/toigo_wool_pants.mhclo",
+  "punkduck_running_shoes_01/punkduck_running_shoes_01.mhclo"
+ ],
+ "tint": {
+  "hair": "#5a4026",
+  "brow": "#4a3420",
+  "namuhekam_male_polo_shirt": "#4a5560",
+  "toigo_wool_pants": "#2e3036"
+ },
+ "materials": {
+  "eyes": "materials/bluegreen.mhmat"
+ },
+ "eyes": "low-poly/low-poly.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "texture_max": 1024,
+ "tier": "crowd",
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ]
+}

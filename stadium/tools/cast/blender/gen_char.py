@@ -259,6 +259,89 @@ def vest(basemesh, rig, spec):
     return obj
 
 
+def hair_veil(basemesh, rig, spec):
+    """The hair let down over the face (the passenger in the mirror): the hair turned about the
+    skull's vertical axis (spec "turn", degrees: 180 brings a long back down over the face and the
+    chest), whatever then lies inside the body or on it pushed out to "clear" m off the skin (the
+    distances smoothed along the hair, never less than measured, so the strands hang rather than
+    kink), and weighted again from the nearest body vertex: over the face it follows the head, over
+    the chest the chest."""
+    import bmesh
+    from mathutils import Matrix, Vector
+    from mathutils.bvhtree import BVHTree
+    from mathutils.kdtree import KDTree
+    hair = next((g for g in rig.children if g.type == 'MESH' and ObjectService.get_object_type(g) == "Hair"), None)
+    body = basemesh.vertex_groups.get("body")
+    if hair is None or body is None:
+        return
+    mw = basemesh.matrix_world
+    # the body's skin only (the basemesh also holds MakeHuman's helper meshes)
+    b = bmesh.new()
+    b.from_mesh(basemesh.data)
+    dl = b.verts.layers.deform.active
+    b.transform(mw)
+    bmesh.ops.delete(b, geom=[f for f in b.faces if not all(body.index in v[dl] for v in f.verts)], context='FACES')
+    bmesh.ops.delete(b, geom=[v for v in b.verts if not v.link_faces], context='VERTS')
+    b.normal_update()
+    skin = BVHTree.FromBMesh(b)
+    b.free()
+    # the turn, about the vertical through the middle of the hair's cap (what lies above the head bone)
+    hw = hair.matrix_world
+    top = (rig.matrix_world @ rig.data.bones["head"].head_local).z + 0.08
+    cap = [hw @ v.co for v in hair.data.vertices if (hw @ v.co).z > top] or [hw @ v.co for v in hair.data.vertices]
+    pivot = Vector((sum(p.x for p in cap) / len(cap), sum(p.y for p in cap) / len(cap), 0.0))
+    turn = Matrix.Translation(pivot) @ Matrix.Rotation(math.radians(float(spec.get("turn", 180.0))), 4, 'Z') \
+        @ Matrix.Translation(-pivot)
+    hb = bmesh.new()
+    hb.from_mesh(hair.data)
+    hb.transform(turn @ hw)
+    clear = float(spec.get("clear", 0.012))
+    need = {}
+    for v in hb.verts:
+        loc, n, _i, dist = skin.find_nearest(v.co, 0.15)
+        if loc is None:
+            need[v] = 0.0
+            continue
+        need[v] = max(0.0, clear - (v.co - loc).dot(n))
+    out = dict(need)
+    for _ in range(int(spec.get("smooth", 4))):
+        out = {v: max(need[v], 0.5 * (out[v] + sum(out[e.other_vert(v)] for e in v.link_edges) / max(1, len(v.link_edges))))
+               for v in hb.verts}
+    moved = 0
+    for v in hb.verts:
+        if out[v] > 0.0:
+            loc, n, _i, _d = skin.find_nearest(v.co, 0.15)
+            if loc is not None:
+                v.co += n * out[v]
+                moved += 1
+    hb.transform(hw.inverted())
+    hb.to_mesh(hair.data)
+    hb.free()
+    hair.data.update()
+    # weighted again from the nearest body vertex (its bones only)
+    bones = set(rig.data.bones.keys())
+    names = {g.index: g.name for g in basemesh.vertex_groups}
+    verts = [v for v in basemesh.data.vertices if any(g.group == body.index for g in v.groups)]
+    kd = KDTree(len(verts))
+    for k, v in enumerate(verts):
+        kd.insert(mw @ v.co, k)
+    kd.balance()
+    for g in list(hair.vertex_groups):
+        if g.name in bones:
+            hair.vertex_groups.remove(g)
+    groups = {}
+    for hv in hair.data.vertices:
+        _co, k, _d = kd.find(hw @ hv.co)
+        for g in verts[k].groups:
+            name = names.get(g.group)
+            if name in bones and g.weight > 0.0:
+                if name not in groups:
+                    groups[name] = hair.vertex_groups.new(name=name)
+                groups[name].add([hv.index], g.weight, 'REPLACE')
+    log("hair veil: turned %.0f degrees, %d of %d vertices pushed off the skin, weights from %d bones" % (
+        float(spec.get("turn", 180.0)), moved, len(hair.data.vertices), len(groups)))
+
+
 def cover_mask(basemesh, rig, reach):
     """Hides the body wherever a garment covers it closely (within `reach` m along the body's
     normal): some garments hide nothing (the hoodie, cortu's cargo pants: no delete_verts), and a
@@ -317,6 +400,8 @@ TargetService.bake_targets(basemesh)
 HEIGHT = body_top(basemesh)               # before the masks take the scalp under the hair away
 if SPEC.get("vest"):
     vest(basemesh, rig, SPEC["vest"])
+if SPEC.get("hair_veil"):
+    hair_veil(basemesh, rig, SPEC["hair_veil"])
 if SPEC.get("cover_mask", True):
     cover_mask(basemesh, rig, float(SPEC.get("cover_reach", 0.04)))
 
@@ -356,6 +441,8 @@ for o in list(bpy.data.objects):          # strays (bone shapes, empties) never 
 # 4. materials named by role, textures capped; the roles and tints go to the sidecar
 tints = SPEC.get("tint", {})
 tex_max = int(SPEC.get("texture_max", 2048))
+# a crowd seen from afar wears no normal maps (they are the biggest files after the hair)
+normal_maps = bool(SPEC.get("normal_maps", SPEC.get("tier", "lead") != "crowd"))
 materials = {}
 for child in sorted(rig.children, key=lambda c: c.name):
     if child.type != 'MESH':
@@ -374,6 +461,11 @@ for child in sorted(rig.children, key=lambda c: c.name):
         name = "%s__%s%s" % (role, asset, "" if k == 0 else "_%d" % k)
         m.name = name
         materials[m.name] = name
+        if not normal_maps and m.use_nodes:
+            for node in [n for n in m.node_tree.nodes if n.type == 'NORMAL_MAP']:
+                for link in node.inputs["Color"].links:
+                    m.node_tree.nodes.remove(link.from_node)
+                m.node_tree.nodes.remove(node)
         for node in (m.node_tree.nodes if m.use_nodes else []):
             img = getattr(node, "image", None)
             if img is not None and max(img.size) > tex_max:
@@ -382,7 +474,7 @@ for child in sorted(rig.children, key=lambda c: c.name):
     child.name = "%s__%s" % (role, asset.lower())
 
 meta = {"id": CID, "name": SPEC.get("name", CID), "materials": {}, "blender": bpy.app.version_string,
-        "spec": os.path.basename(argv[0])}
+        "spec": os.path.basename(argv[0]), "tier": SPEC.get("tier", "lead")}
 # what it is made of (licences.py checks them and writes their credits; test_cast_models matches them)
 PARTS = {"eyes": "eyes", "eyebrows": "eyebrows", "eyelashes": "eyelashes", "teeth": "teeth", "tongue": "tongue",
          "hair": "hair", "skin": "skins", "proxy": "proxymeshes"}
@@ -397,6 +489,8 @@ for name in sorted(materials):
     meta["materials"][name] = {"role": role, "tint": tint}
     if role in SPEC.get("desaturate", []) or base in SPEC.get("desaturate", []):   # exactly: "eye" is in "eyebrow011"
         meta["materials"][name]["desaturate"] = True       # post.py: its colour map in greys (grey hair)
+    if any(base == a or base.startswith(a + "_") for a in SPEC.get("loose", [])):
+        meta["materials"][name]["loose"] = True            # hangs free (a long coat): not what it sits on
 
 # 5. measures: standing height, the pelvis, the eyes (a seat and a camera need them)
 def bone_z(name):

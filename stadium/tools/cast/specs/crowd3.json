@@ -1,0 +1,46 @@
+{
+ "id": "crowd3",
+ "name": "The auction crowd: a dock hand",
+ "_look": "docs/STORY.md c01_open, the night auction on the docks: a man near sixty, a patterned wool sweater, wool trousers, work shoes, grey hair (c01_open c3); the crowd's lighter tier",
+ "height_m": 1.74,
+ "phenotype": {
+  "gender": 1.0,
+  "age": 0.82,
+  "muscle": 0.55,
+  "weight": 0.7,
+  "proportions": 0.45,
+  "race": {
+   "african": 0.02,
+   "asian": 0.03,
+   "caucasian": 0.95
+  }
+ },
+ "skin": "old_caucasian_male/old_caucasian_male.mhmat",
+ "eyebrows": "eyebrow005/eyebrow005.mhclo",
+ "hair": "short01/short01.mhclo",
+ "clothes": [
+  "mindfront_lusekofta/mindfront_lusekofta.mhclo",
+  "toigo_wool_pants/toigo_wool_pants.mhclo",
+  "shoes03/shoes03.mhclo"
+ ],
+ "tint": {
+  "hair": "#cfcac2",
+  "brow": "#bdb6aa",
+  "toigo_wool_pants": "#3e3a34"
+ },
+ "materials": {
+  "eyes": "materials/grey.mhmat"
+ },
+ "eyes": "low-poly/low-poly.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "texture_max": 1024,
+ "tier": "crowd",
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ],
+ "desaturate": [
+  "hair",
+  "brow"
+ ]
+}

@@ -1,0 +1,61 @@
+{
+ "assets": [
+  "clothes/mindfront_knitted_sweater_02",
+  "clothes/punkduck_female_tight_jeans",
+  "clothes/toigo_ankle_boots_female",
+  "eyebrows/eyebrow010",
+  "eyelashes/eyelashes01",
+  "eyes/low-poly",
+  "hair/bob02",
+  "skins/young_asian_female"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.5316,
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ],
+ "head": 1.4977,
+ "height": 1.6427,
+ "id": "crowd2",
+ "materials": {
+  "brow__eyebrow010": {
+   "role": "brow",
+   "tint": "#1a1512"
+  },
+  "cloth__mindfront_knitted_sweater_02": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__punkduck_female_tight_jeans": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__toigo_ankle_boots_female": {
+   "role": "cloth",
+   "tint": "#2a211c"
+  },
+  "eye__low-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__bob02": {
+   "role": "hair",
+   "tint": "#1a1512"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "The auction crowd: a student",
+ "pelvis": 0.868,
+ "spec": "crowd2.json",
+ "tier": "crowd",
+ "triangles": 28608
+}

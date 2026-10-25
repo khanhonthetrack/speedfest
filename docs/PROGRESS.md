@@ -4447,3 +4447,43 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   shows them (the car a ghost, lit): Gus driving Kit's nemesis and the corrida, Dee behind; Kit beside,
   Gus behind. Left: a cast driver's eyes ("driver_head") and the wheel are the Mannequin's; Kit's long
   hair hangs into the seat's back.
+- Review of the seating (a sequential review workflow, three lenses; its findings checked against the
+  code by hand): **the test seated only the two tallest and the Mannequin** (Dee was never seated,
+  despite what the entry above says): it now seats everyone (every cast member and the Mannequin) in
+  every seat of every road car, counted (`seats_everyone_everywhere`). Fixed: two sitters on one seat
+  (the seat goes down as far as its tallest needs, everyone on it with it; it was the last one set
+  up); a sitter put in a car by `"pos"` alone was not fitted (anyone in a car is seated now, its seat
+  found by `StoryCabin.seat_at`); the driver's wheel stays with a lowered seat; a body that can't be
+  measured (no humanoid skeleton, nothing under its hips) says so and sits as the Mannequin (it put
+  the person at infinity); the measuring is done when the scene is set up (`_measure_people`, also
+  the standing cast's `ground`), not when a shot cuts in (a stall); a seat lowered over 10 cm warns
+  (too tall for that car, or a hat). The test also checks what each body rests on, skinned in the shot
+  (not through the measure): it found the measure taking a jacket's front hem over the knees and a
+  long coat's skirt draped between the thighs as the seat (the coat man floated 4 cm, Voss 1.4 cm);
+  the seat is measured behind the knees now, and a spec's `"loose"` garments (the coat) are left out.
+  Also: every lowered part moved exactly as far, and nothing else (against a cabin built afresh), the
+  measure is done ahead, an unmeasurable body is caught, written so that NaN fails. 9 checks, 581
+  sitters in 194 cars, 36 s. Each fix checked by undoing it (12 ways: each fails the test).
+
+### 25 Oct (session 21, cont.): night 1's other people (M20-9)
+- Built (`tools/cast/specs/`, `build.sh`): **the passenger** (`passenger`: Dee's double, her body and
+  face, MakeHuman's long01 hair turned down over the face by `gen_char.py`'s new `"hair_veil"`: the hair
+  turned 180 degrees about the skull's vertical, what then lies on or in the body pushed 1.2 cm off
+  the skin, the distances smoothed along the hair, weighted again from the nearest body vertex so it
+  follows the head and the chest; soaked in the scene by `"look": "drowned"`; in the mirror shot at
+  night a faceless curtain of wet hair, water running off her), **the man in the long coat** (`coat`,
+  the auction's withdrawn top bid, 1.94 m: Mindfront's long open cardigan (CC BY) tinted near black
+  as the coat over a fisherman sweater, wool trousers, oxfords, a fedora; textures at 1024; the coat
+  `"loose"`), **Sgt. Lena Voss** (`voss`, 1.72 m: a navy double-breasted trouser suit as the uniform
+  coat, a ponytail; c01_decision's shot of her), and **the auction crowd** `crowd1`-`crowd5` (a
+  courier, a student, a dock hand, a racer, a dealer: the c1-c5 of c01_open), the first of the
+  lighter tier (`"tier": "crowd"`: blinks only, low-poly eyes, no teeth or tongue, no normal maps,
+  1024 textures; 25-31k triangles, 2.5-4 MB each). Traps found: a high heel puts the soles 9 cm under
+  the feet (crowd2's half-boots: on tiptoe; flat boots now); culturalibre's boots are 31k triangles and
+  elvs' side-parted hair 99k (lighter ones); cortu's hair has no licence in its own file (the gate
+  refused it); a garment hanging free is not sat on (the coat's skirt, `"loose"`); a new tint alone
+  was never imported (the tints are the sidecar's, applied at import, and Godot imports again only
+  when the glTF changes: `post.py` now writes the materials' hash into the glTF's `asset.extras`);
+  logo t-shirts (MakeHuman's casualsuit02/04) and a sweater the chest shows through were swapped out.
+- `test_cast_models` knows the tier (a crowd's materials need no teeth, its face shapes are the
+  blinks, its budget 32k triangles and 5 MB): 123 checks for the eleven characters.

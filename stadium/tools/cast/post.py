@@ -213,6 +213,10 @@ def main():
         image["uri"] = "../tex/" + name
         image["mimeType"] = mime
         report.append("%-44s %-4s %5d KB  %s" % (name, ext, len(data) // 1024, ",".join(sorted("%s:%s" % k for k in kinds))))
+    # the materials' roles and tints are the sidecar's (cast_import.gd reads them at import), and Godot
+    # imports again only when the glTF changes: the glTF carries their hash, so a new tint is imported
+    g.setdefault("asset", {})["extras"] = {"cast_materials": hashlib.sha256(
+        json.dumps(meta.get("materials", {}), sort_keys=True).encode()).hexdigest()[:16]}
     json.dump(g, open(os.path.join(out_dir, cid + ".gltf"), "w"), indent=1)
     for buf in g.get("buffers", []):
         shutil.copyfile(os.path.join(src, urllib.parse.unquote(buf["uri"])), os.path.join(out_dir, buf["uri"]))

@@ -1,0 +1,56 @@
+{
+ "assets": [
+  "clothes/male_casualsuit03",
+  "clothes/shoes02",
+  "eyebrows/eyebrow002",
+  "eyelashes/eyelashes01",
+  "eyes/low-poly",
+  "hair/short03",
+  "skins/young_african_male"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.6706,
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ],
+ "head": 1.6312,
+ "height": 1.7902,
+ "id": "crowd1",
+ "materials": {
+  "brow__eyebrow002": {
+   "role": "brow",
+   "tint": "#141110"
+  },
+  "cloth__male_casualsuit03": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__shoes02": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "eye__low-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__short03": {
+   "role": "hair",
+   "tint": "#141110"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "The auction crowd: a courier",
+ "pelvis": 0.9588,
+ "spec": "crowd1.json",
+ "tier": "crowd",
+ "triangles": 25378
+}

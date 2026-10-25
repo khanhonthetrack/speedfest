@@ -159,7 +159,10 @@ own roof; `"mirror"` puts a rear-view mirror's picture over the shot, its camera
 Modelled people for the cutscenes: MakeHuman's body through MPFB 2 in Blender, dressed from the
 MakeHuman community's packs (CC0 and CC BY only), one spec each in `tools/cast/specs/<id>.json`
 (height in metres, phenotype, face targets, skin, eyes and their colour, brows, lashes, hair, clothes,
-tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Built into
+tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest, `"hair_veil"` for hair
+turned down over the face (the passenger), `"loose"` for garments that hang free and are not sat on
+(a long coat), `"tier": "crowd"` for the lighter tier: blinks only, low-poly eyes, no teeth, no
+normal maps, 1024 textures, at most 32k triangles and 5 MB). Built into
 `assets/cast/<id>/` (glTF + sidecar `<id>.cast.json`), textures shared in `assets/cast/tex/`:
 
     stadium/tools/cast/setup.sh                  # once: Blender 4.5.15, MPFB 2.0.18, the packs (~3 GB, CAST_CACHE)
@@ -171,12 +174,15 @@ tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest). Buil
 A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports
 retarget onto Godot's humanoid skeleton through `assets/cast/bonemap.tres`). `StoryCast` loads them
 (`instance`, `meta`, `set_shape` for the 35 face shapes, `ground` for the per-clip lift).
-Seated in a car (`"car"`, `"seat"`), everyone sits by their own body: `StoryCast.seated` measures,
-in the clip, the seat (the lowest of the hips and thighs, and the back of them) and the crown (hair
-and all); the cabins are laid out for the Mannequin, so a cast member's seat goes where the
-Mannequin's rests in that clip, and anyone whose crown would come within 5 cm of the roof goes down
-with the seat (`StoryCabin.lower`; Gus driving the corrida, 7.6 cm). `tests/test_cast_seats` sits
-them all in every road car; `story/lab/seat_check.json` shows them (the car a ghost).
+Seated in a car (`"car"` with `"seat"` or a `"pos"`), everyone sits by their own body:
+`StoryCast.seated` measures, in the clip, the seat (the lowest of the hips and thighs behind the
+knees, `"loose"` garments left out, and the back of it) and the crown (hair and hat and all); the
+cabins are laid out for the Mannequin, so a cast member's seat goes where the Mannequin's rests in
+that clip, and a seat whose sitters' crowns would come within 5 cm of the roof goes down as far as
+its tallest needs, everyone on it with it (`StoryCabin.lower`: cushion, back, headrest, the driver's
+wheel; Gus driving the corrida, 7.6 cm; over 10 cm it warns). StoryScene measures everyone when a
+scene is set up. `tests/test_cast_seats` sits everyone in every seat of every road car;
+`story/lab/seat_check.json` shows them (the car a ghost).
 The stylised cast (set aside: the owner chose realistic, 24 Oct; `"style": "stylised"` specs in
 `tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds one: Quaternius' Ultimate Modular Women/Men, CC0,
 fetched by `setup.sh`) is built by `blender/gen_stylised.py` from parts (`{"file", "mesh",
@@ -186,7 +192,9 @@ claws of those hands). `tests/test_cast_models` checks each one. Traps: an asset
 file says AGPL (the gate reads both); MakeHuman's strand brows and lashes cost ~47k triangles (use
 the card ones); boots taller than the trousers' cuffs poke through; a texture's `.import` must come
 from `post.py` (headless import leaves it uncompressed without mipmaps); a garment mesh can hold
-several layers (rays must pass through all of them).
+several layers (rays must pass through all of them); a high heel puts the soles under the feet (the
+character stands on tiptoe: flat shoes); a tint is applied at import, so `post.py` hashes the
+materials into the glTF (a tint change alone would otherwise not reach Godot).
 
 ## The track editor
 Editors (main menu) lists the tracks you made; NEW TRACK opens the editor (`editor/editor.tscn`;

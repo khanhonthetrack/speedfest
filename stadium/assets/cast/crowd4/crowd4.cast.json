@@ -1,0 +1,61 @@
+{
+ "assets": [
+  "clothes/namuhekam_male_polo_shirt",
+  "clothes/punkduck_running_shoes_01",
+  "clothes/toigo_wool_pants",
+  "eyebrows/eyebrow004",
+  "eyelashes/eyelashes01",
+  "eyes/low-poly",
+  "hair/short02",
+  "skins/young_caucasian_male2"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.7008,
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ],
+ "head": 1.6602,
+ "height": 1.8227,
+ "id": "crowd4",
+ "materials": {
+  "brow__eyebrow004": {
+   "role": "brow",
+   "tint": "#4a3420"
+  },
+  "cloth__namuhekam_male_polo_shirt": {
+   "role": "cloth",
+   "tint": "#4a5560"
+  },
+  "cloth__punkduck_running_shoes_01": {
+   "role": "cloth",
+   "tint": "#ffffff"
+  },
+  "cloth__toigo_wool_pants": {
+   "role": "cloth",
+   "tint": "#2e3036"
+  },
+  "eye__low-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__short02": {
+   "role": "hair",
+   "tint": "#5a4026"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "The auction crowd: a racer",
+ "pelvis": 0.9831,
+ "spec": "crowd4.json",
+ "tier": "crowd",
+ "triangles": 30620
+}

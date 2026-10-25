@@ -1,0 +1,62 @@
+{
+ "id": "coat",
+ "name": "The man in the long coat",
+ "_look": "docs/STORY.md c01_open: the top bid at the auction, from a man in a long coat, withdrawn as the hammer falls; tall (the scenes scaled the Mannequin 1.06: 1.94 m), a dark long coat open over a sweater, a fedora, his face in its shadow; textures at 1024 (seen under his hat, in medium and long shots)",
+ "height_m": 1.94,
+ "phenotype": {
+  "gender": 1.0,
+  "age": 0.62,
+  "muscle": 0.5,
+  "weight": 0.45,
+  "proportions": 0.7,
+  "race": {
+   "african": 0.05,
+   "asian": 0.1,
+   "caucasian": 0.85
+  }
+ },
+ "targets": [
+  {
+   "target": "chin-prominent-incr",
+   "value": 0.3
+  },
+  {
+   "target": "cheek-bones-incr",
+   "value": 0.4
+  },
+  {
+   "target": "nose-scale-vert-incr",
+   "value": 0.2
+  }
+ ],
+ "skin": "middleage_caucasian_male/middleage_caucasian_male.mhmat",
+ "eyes": "high-poly/high-poly.mhclo",
+ "materials": {
+  "eyes": "materials/grey.mhmat"
+ },
+ "eyebrows": "eyebrow003/eyebrow003.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "teeth": "teeth_base/teeth_base.mhclo",
+ "tongue": "tongue01/tongue01.mhclo",
+ "hair": "short02/short02.mhclo",
+ "clothes": [
+  "toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
+  "toigo_wool_pants/toigo_wool_pants.mhclo",
+  "mindfront_cardigan_long_open_front/mindfront_cardigan_long_open_front.mhclo",
+  "mindfront_shoes_oxford_male/mindfront_shoes_oxford_male.mhclo",
+  "fedora01/fedora01.mhclo"
+ ],
+ "tint": {
+  "toigo_fisherman_sweater": "#3a3a3e",
+  "toigo_wool_pants": "#242428",
+  "mindfront_cardigan_long_open_front": "#2a2a30",
+  "mindfront_shoes_oxford_male": "#2a2422",
+  "fedora01": "#2c2c32",
+  "hair": "#3a3330",
+  "brow": "#3a3330"
+ },
+ "texture_max": 1024,
+ "loose": [
+  "mindfront_cardigan_long_open_front"
+ ]
+}

@@ -1,0 +1,98 @@
+{
+ "assets": [
+  "clothes/toigo_ankle_boots_female",
+  "clothes/toigo_female_double-breasted_suit",
+  "eyebrows/eyebrow006",
+  "eyelashes/eyelashes01",
+  "eyes/high-poly",
+  "hair/ponytail01",
+  "skins/middleage_caucasian_female",
+  "teeth/teeth_base",
+  "tongue/tongue01"
+ ],
+ "blender": "4.5.15 LTS",
+ "bones": 53,
+ "eyes": 1.604,
+ "face_shapes": [
+  "browDownLeft",
+  "browDownRight",
+  "browInnerUp",
+  "eyeBlinkLeft",
+  "eyeBlinkRight",
+  "eyeLookDownLeft",
+  "eyeLookDownRight",
+  "eyeLookInLeft",
+  "eyeLookInRight",
+  "eyeLookOutLeft",
+  "eyeLookOutRight",
+  "eyeLookUpLeft",
+  "eyeLookUpRight",
+  "eyeSquintLeft",
+  "eyeSquintRight",
+  "jawOpen",
+  "mouthClose",
+  "mouthFrownLeft",
+  "mouthFrownRight",
+  "mouthSmileLeft",
+  "mouthSmileRight",
+  "viseme_CH",
+  "viseme_DD",
+  "viseme_E",
+  "viseme_FF",
+  "viseme_I",
+  "viseme_O",
+  "viseme_PP",
+  "viseme_RR",
+  "viseme_SS",
+  "viseme_TH",
+  "viseme_U",
+  "viseme_aa",
+  "viseme_kk",
+  "viseme_nn"
+ ],
+ "head": 1.5661,
+ "height": 1.7213,
+ "id": "voss",
+ "materials": {
+  "brow__eyebrow006": {
+   "role": "brow",
+   "tint": "#6a5440"
+  },
+  "cloth__toigo_ankle_boots_female": {
+   "role": "cloth",
+   "tint": "#1c1a1a"
+  },
+  "cloth__toigo_female_double-breasted_suit": {
+   "role": "cloth",
+   "tint": "#2a3550"
+  },
+  "eye__high-poly": {
+   "role": "eye",
+   "tint": "#ffffff"
+  },
+  "hair__ponytail01": {
+   "role": "hair",
+   "tint": "#8a6e4e"
+  },
+  "lash__eyelashes01": {
+   "role": "lash",
+   "tint": "#ffffff"
+  },
+  "skin__body": {
+   "role": "skin",
+   "tint": "#ffffff"
+  },
+  "teeth__teeth_base": {
+   "role": "teeth",
+   "tint": "#ffffff"
+  },
+  "tongue__tongue01": {
+   "role": "tongue",
+   "tint": "#ffffff"
+  }
+ },
+ "name": "Sgt. Lena Voss",
+ "pelvis": 0.909,
+ "spec": "voss.json",
+ "triangles": 44694
+}

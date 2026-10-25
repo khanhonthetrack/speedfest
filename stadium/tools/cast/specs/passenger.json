@@ -1,0 +1,71 @@
+{
+ "id": "passenger",
+ "name": "The passenger",
+ "_look": "docs/STORY.md section 4: the woman in the back seat in the mirror: soaked, hair over her face, water running off her (StoryPerson's look \"drowned\" soaks her); Dee's double (her body and face), the hair let down (MakeHuman's long01) and turned over the face (gen_char.py's hair_veil), Dee's overalls darker",
+ "height_m": 1.6,
+ "phenotype": {
+  "gender": 0.0,
+  "age": 0.54,
+  "muscle": 0.56,
+  "weight": 0.47,
+  "proportions": 0.62,
+  "cupsize": 0.45,
+  "firmness": 0.55,
+  "race": {
+   "african": 0.12,
+   "asian": 0.16,
+   "caucasian": 0.72
+  }
+ },
+ "targets": [
+  {
+   "target": "nose-scale-horiz-decr",
+   "value": 0.25
+  },
+  {
+   "target": "nose-point-up",
+   "value": 0.3
+  },
+  {
+   "target": "chin-prominent-incr",
+   "value": 0.2
+  },
+  {
+   "target": "cheek-bones-incr",
+   "value": 0.35
+  },
+  {
+   "target": "mouth-scale-horiz-incr",
+   "value": 0.15
+  },
+  {
+   "target": "eye-scale-incr",
+   "value": 0.12
+  }
+ ],
+ "skin": "young_caucasian_female/young_caucasian_female.mhmat",
+ "eyes": "high-poly/high-poly.mhclo",
+ "eyebrows": "eyebrow010/eyebrow010.mhclo",
+ "eyelashes": "eyelashes02/eyelashes02.mhclo",
+ "teeth": "teeth_base/teeth_base.mhclo",
+ "tongue": "tongue01/tongue01.mhclo",
+ "hair": "long01/long01.mhclo",
+ "clothes": [
+  "male_worksuit01/male_worksuit01.mhclo",
+  "toigo_ankle_boots_female/toigo_ankle_boots_female.mhclo"
+ ],
+ "tint": {
+  "male_worksuit01": "#3c4658",
+  "hair": "#1d1714",
+  "brow": "#3a2c22",
+  "toigo_ankle_boots_female": "#2e241d"
+ },
+ "texture_max": 2048,
+ "materials": {
+  "eyes": "materials/brownlight.mhmat"
+ },
+ "hair_veil": {
+  "turn": 180,
+  "clear": 0.012
+ }
+}

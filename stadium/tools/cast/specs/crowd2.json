@@ -1,0 +1,44 @@
+{
+ "id": "crowd2",
+ "name": "The auction crowd: a student",
+ "_look": "docs/STORY.md c01_open, the night auction on the docks: a woman in her twenties, a knitted sweater, tight jeans, ankle boots, a bob; talking (c01_open c2); the crowd's lighter tier",
+ "height_m": 1.64,
+ "phenotype": {
+  "gender": 0.0,
+  "age": 0.48,
+  "muscle": 0.45,
+  "weight": 0.45,
+  "proportions": 0.6,
+  "cupsize": 0.45,
+  "firmness": 0.55,
+  "race": {
+   "african": 0.05,
+   "asian": 0.85,
+   "caucasian": 0.1
+  }
+ },
+ "skin": "young_asian_female/young_asian_female.mhmat",
+ "eyebrows": "eyebrow010/eyebrow010.mhclo",
+ "hair": "bob02/bob02.mhclo",
+ "clothes": [
+  "mindfront_knitted_sweater_02/mindfront_knitted_sweater_02.mhclo",
+  "punkduck_female_tight_jeans/punkduck_female_tight_jeans.mhclo",
+  "toigo_ankle_boots_female/toigo_ankle_boots_female.mhclo"
+ ],
+ "tint": {
+  "hair": "#1a1512",
+  "brow": "#1a1512",
+  "toigo_ankle_boots_female": "#2a211c"
+ },
+ "materials": {
+  "eyes": "materials/brownlight.mhmat"
+ },
+ "eyes": "low-poly/low-poly.mhclo",
+ "eyelashes": "eyelashes01/eyelashes01.mhclo",
+ "texture_max": 1024,
+ "tier": "crowd",
+ "face_shapes": [
+  "eyeBlinkLeft",
+  "eyeBlinkRight"
+ ]
+}
