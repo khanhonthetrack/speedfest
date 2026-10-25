@@ -78,12 +78,12 @@ Updated 2026-10-24. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   HANDOFF); every story map is a 7-minute time attack whose best run counts. README "Story mode".
 - **The modelled cast (PLAN M20-9, 24 Oct):** Kit (the owner's pick: Kit A, longer hair), Dee and Gus built by `tools/cast/` (MPFB 2 in
   Blender, a licence gate, `build.sh`) into `assets/cast/`; `story/story_cast.gd`, StoryPerson's
-  `"who"`, `story/cast_lab.tscn`, `tests/test_cast_models`. Night 1 still uses the Mannequin. The look is
+  `"who"`, `story/cast_lab.tscn`, `tests/test_cast_models`. Night 1 plays with the cast. The look is
   realistic (owner, 24 Oct, after a side-by-side with a stylised set, set aside: `specs_stylised/`).
   Faces in cutscenes: `story/story_face.gd` (`tests/test_story_face`). Seated by their own heights
   (`StoryCast.seated`, `StoryCabin.lower`; `tests/test_cast_seats`). Night 1's others built: the
   passenger (hair over the face), the coat man, Voss, the auction crowd (a lighter tier).
-  Next: night 1 switched to the cast. README "The cast".
+  Next: faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone

@@ -11,9 +11,11 @@
   <zips> --spec` says if they may be used), build, look (`story/cast_lab.tscn`), run
   `tests/test_cast_models`. README "The cast" has the details and the traps.
 - **In cutscenes**: a person spec's `"who": "dee"` puts a cast member in StoryPerson (own clothes,
-  lifted onto the ground per clip, own stride); without it, the Mannequin as before. **Night 1 still
-  uses the Mannequin** until all its people exist (the passenger, Tibor, the auction crowd); then the
-  knock is re-blocked (Dee stands; the camera in the seat looks up at her face).
+  lifted onto the ground per clip, own stride); without it, the Mannequin as before. **Night 1 plays
+  with the cast** (25 Oct): every person of c01_* has its `"who"` (the Mannequin's scales gone, the
+  coat man and Voss with a `"speaker"`); the knock re-blocked (Dee stands back from the door, the
+  camera in the seat looks up at her face through the side window: standing at the glass her face is
+  above it, crouched it is below the door). `story_lab --ways=c01=3` plays a decision's shots.
 - **With the owner** (24 Oct): https://claude.ai/artifact/14ifwdVU5TkLSUEZa4STpr, the four in the yard at
   night (Ultra, in the game), a studio line-up, faces, Dee's face shapes; three questions: Kit A, B
   or the player chooses; realistic pushed further, or stylised (Quaternius' UBC, CC0, plan B); what to
@@ -41,8 +43,7 @@
 - **Night 1's other people** (25 Oct): `passenger` (Dee's double, hair over the face: spec
   `"hair_veil"`), `coat` (the man in the long coat: `"loose"`), `voss`, and the auction crowd
   `crowd1`-`crowd5` (`"tier": "crowd"`). Tibor is never on screen in night 1 (his car only).
-- **Next**: night 1 switched to the cast (`"who"` on each person of c01_*; the knock re-blocked: Dee
-  stands, the camera in the seat looks up), a night-1 page for the owner; faces' polish (head turns,
+- **Next**: the owner's look at night 1 with the cast (a page); faces' polish (head turns,
   expressions per line); Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the

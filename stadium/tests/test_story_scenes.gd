@@ -4,7 +4,8 @@ extends Node
 ##   scenes: the key a voice or a translation pass swaps by), a known kind, text, and a speaker
 ##   when it is spoken;
 ## - nothing is missing: every track a shot stands on exists, every car is one of ours, every
-##   person's clip is in the animation library, and every flag a condition reads is set somewhere
+##   person's clip is in the animation library and its cast member ("who") built, and every flag a
+##   condition reads is set somewhere
 ##   (a decision's exit, a night's fact, a scene, a line);
 ## - it plays headless from start to end at the fixed frame rate (logic only: no tracks built), and
 ##   skipping it at any point ends it at once with its flags set, as if it had played;
@@ -57,6 +58,9 @@ func _ready() -> void:
 			for p: Dictionary in s.get("people", []):
 				if not String(p.get("clip", "Idle")) in clips:
 					bad.append("shot %s: no clip %s" % [s.get("id", "?"), p.get("clip", "")])
+				# a cast member who isn't built would be the Mannequin, with only a warning
+				if p.has("who") and not StoryCast.has(String(p["who"])):
+					bad.append("shot %s: no cast member %s" % [s.get("id", "?"), p["who"]])
 			for l: Dictionary in s.get("lines", []):
 				var lid := String(l.get("id", ""))
 				var kind := String(l.get("kind", "say"))

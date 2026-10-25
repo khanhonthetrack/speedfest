@@ -4487,3 +4487,17 @@ The owner: "1. Kit: Kit A. 2. The look: show me both side by side first. 3. Chan
   logo t-shirts (MakeHuman's casualsuit02/04) and a sweater the chest shows through were swapped out.
 - `test_cast_models` knows the tier (a crowd's materials need no teeth, its face shapes are the
   blinks, its budget 32k triangles and 5 MB): 123 checks for the eleven characters.
+- **Night 1 plays with the cast**: every person of c01_open, c01_close, c01_after2 and c01_decision
+  has its `"who"` (the auction crowd crowd1-crowd5, Kit, Gus, the coat man, the passenger, Dee,
+  Voss); the Mannequin's scales gone (Gus and the coat man are their own heights), `"speaker"` given
+  where the cast's first name isn't the subtitles' (the coat man is "Coat", Voss's name starts with
+  "Sgt."). The knock re-blocked: Dee stands back from the door (2.1 m out, talking, her eyes on the
+  camera) and the camera in Kit's seat looks up at her through the side window (stood at the glass a
+  1.60 m woman's face is above a coupe's window; crouched it is below the door; checked with three
+  blockings in a lab file). The coat-walks shot framed a crowd member's chest in the foreground; with
+  the shorter student there her whole face filled the frame, so the tall racer stands there now (c2
+  and c4 swapped). `story_lab --ways=c01=3` plays a decision's shots ("way:" conditions).
+  `test_story_scenes` checks every `"who"` is a built cast member.
+- Known: a windowed `story_lab` run with cast members writes its stills and then hangs on exit (until
+  its timeout); headless runs and `cast_lab` exit. Rendering stills: stop it once the last still is
+  written (by pid). To look into: whether the game itself hangs on quitting after a cutscene.

@@ -28,7 +28,7 @@
 						1.2
 					],
 					"face": 90,
-					"scale": 1.08
+					"who": "gus"
 				}
 			],
 			"camera": {
@@ -219,7 +219,9 @@
 						0,
 						6.5
 					],
-					"face": 120
+					"face": 120,
+					"who": "voss",
+					"speaker": "Voss"
 				}
 			],
 			"lights": [

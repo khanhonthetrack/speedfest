@@ -3,7 +3,8 @@ extends Node
 ## kept elsewhere) seeked to --t=<s> and held there for the screenshot (--frames=N --shot=/abs.png;
 ## give SDFGI and the city a few dozen frames), or --play [--t=<s>] plays it on from there to its
 ## end at the fixed frame rate and quits (headless tests). --flags=a,b,c sets those flags on the save
-## the conditions read (--tier=hot: enough facts for it); --no_stage leaves the tracks out (logic
+## the conditions read (--tier=hot: enough facts for it; --ways=c01=3 the finish taken on a night, for
+## a "way:" condition); --no_stage leaves the tracks out (logic
 ## only). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
 ## --ts=8.5,14,25 --every=60 holds each time for that many frames; give TestHooks
 ## --shots=/abs/a.png@59,/abs/b.png@119,... to match.
@@ -26,6 +27,8 @@ func _ready() -> void:
 	var st := StoryState.new()
 	for f in String(TestHooks.arg("flags", "")).split(",", false):
 		st.flags[f] = true
+	for w in String(TestHooks.arg("ways", "")).split(",", false):
+		st.decisions[w.get_slice("=", 0)] = {"way": int(w.get_slice("=", 1)), "exit": ""}
 	var tier := String(TestHooks.arg("tier", ""))
 	for i in (st.hot if tier == "hot" else (st.warm if tier == "warm" else 0)):
 		st.flags["fact_lab%d" % i] = true
