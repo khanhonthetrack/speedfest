@@ -4591,3 +4591,10 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   versions, and why the knock is hard to follow, with fixes to pick from (no establishing shot of
   Arch 9; "my clean seats" in Kit's car; "The bridge" with no bridge in the dream; the nine pins
   never shown; the change of heart on wiping the satnav not signalled).
+- **The yard without its track** (owner: "containers are crossed with track barriers. Just remove the
+  track and checkpoint"): a scene or shot `"bare": true` builds its stage without the track
+  (StoryScene `_build_stage(track, bare)`: the map's `Blocks` and `RoadDecals` freed before it enters
+  the tree, `TmStage.add_environment(..., track = false)` leaves out the neon lights along the road);
+  the paved ground, the city and the light stay, and the track's line still places the shot (the
+  anchor drops onto the ground). `c01_open` is bare. `test_story_scenes` checks a bare F04 stage
+  (32 checks).

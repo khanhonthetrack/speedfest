@@ -2,6 +2,7 @@
 	"id": "c01_open",
 	"chapter": "c01",
 	"title": "The Auction",
+	"bare": true,
 	"shots": [
 		{
 			"track": "H01",

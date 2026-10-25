@@ -11,7 +11,8 @@ extends Node
 ## - it plays headless from start to end at the fixed frame rate (logic only: no tracks built), and
 ##   skipping it at any point ends it at once with its flags set, as if it had played;
 ## - a line's conditions pick its variant: a cold, warm or hot save hears different lines;
-## - with its track built, a shot puts the camera and its cars where the scene says;
+## - with its track built, a shot puts the camera and its cars where the scene says; "bare", the
+##   track is left out (no blocks, road decals or neon along it) and the shot stands on the ground;
 ## - a story map in the race (race.gd --story), a time-attack session (short here: 4 s): the bot's
 ##   run on G06's second finish, still under way when time is up, counts; the session settles on it,
 ##   it beats the time to beat on that finish, the panel names the decision, no new run starts, and
@@ -284,6 +285,29 @@ func _staged() -> void:
 		"camera %s want %s, car at %s, anchor %s" % [sc.camera.global_position, want, car.global_position if car else Vector3.INF,
 		sc._anchor.origin])
 	sc.queue_free()
+	await get_tree().process_frame
+	# the same shot "bare": F04 without its track (no blocks, decals or neon along the road), the city's
+	# paved ground still under the anchor and the car
+	var bd := d.duplicate(true)
+	bd["bare"] = true
+	var bs := StoryScene.new()
+	add_child(bs)
+	bs.setup(bd, StoryState.new(), true)
+	bs.seek(start)
+	for i in 3:
+		await get_tree().physics_frame
+		bs.seek(start)
+	var names := {}
+	for n in bs._stage.find_children("*", "", true, false):
+		names[String(n.name)] = true
+	var bcar := bs._cars.get("hero", {}).get("node", null) as Node3D
+	TestHooks.check(not names.has("Blocks") and not names.has("RoadDecals") and not names.has("NeonLights")
+		and names.has("Terrain") and bs._stage_track == "F04|bare" and bcar != null
+		and absf(bs._anchor.origin.y - TmMapBuilder.GROUND_Y) < 0.3, "story_shot_bare",
+		"stage %s, nodes: blocks %s decals %s neon %s terrain %s; anchor at %s (ground %.1f)" % [bs._stage_track,
+		names.has("Blocks"), names.has("RoadDecals"), names.has("NeonLights"), names.has("Terrain"), bs._anchor.origin,
+		TmMapBuilder.GROUND_Y])
+	bs.queue_free()
 	await get_tree().process_frame
 
 

@@ -10,7 +10,8 @@ extends Node3D
 ## Scene: {"id", "chapter", "title", "track" (default for its shots), "at" (default anchor),
 ##   "set": [flags the scene sets when it ends or is skipped], "shots": [shot, ...]}
 ## Shot: {"id", "if" (StoryState.holds: the shot plays only then), "track", "at" (fraction of the
-##   track's racing line where the shot's anchor stands),
+##   track's racing line where the shot's anchor stands), "bare": true (also the scene's: the track
+##   left out, its road, barriers, checkpoints and the neon along them; the place stays),
 ##   "left", "ahead" (m off that point), "dur" (s; default: as long as its lines need, "lead"
 ##   before the first and "tail" after the last), "min" (s, default 2.5),
 ##   "camera": {"keys": [{"u" (0..1 of the shot) | "t" (s), "pos": [x, y, z] | a place in the
@@ -305,8 +306,9 @@ func _enter(i: int) -> void:
 	_shot = i
 	var s: Dictionary = shots[i]
 	var track := String(s.get("track", data.get("track", "")))
-	if with_stage and not track.is_empty() and track != _stage_track:
-		_build_stage(track)
+	var bare := bool(s.get("bare", data.get("bare", false)))
+	if with_stage and not track.is_empty() and track + ("|bare" if bare else "") != _stage_track:
+		_build_stage(track, bare)
 	for c: Dictionary in _cars.values():
 		(c["node"] as Node).queue_free()
 		if c.has("cabin"):
@@ -366,10 +368,13 @@ func _enter(i: int) -> void:
 	_set_ambience(ambience(s))
 
 
-func _build_stage(track: String) -> void:
+## bare: the place without its track (a yard on a race map): no road, barriers, checkpoints or the
+## neon along them; the ground, the city and the light stay, and the track's line still places the
+## shot (its anchor drops onto the ground).
+func _build_stage(track: String, bare := false) -> void:
 	if _stage != null:
 		_stage.queue_free()
-	_stage_track = track
+	_stage_track = track + ("|bare" if bare else "")
 	_challenge = TmTracks.challenge(track)
 	_stage = Node3D.new()
 	_stage.name = "Stage"
@@ -378,8 +383,13 @@ func _build_stage(track: String) -> void:
 		push_error("story: %s" % _challenge.error)
 		return
 	var b := TmMapBuilder.build(_challenge)
+	if bare:
+		for n in ["Blocks", "RoadDecals"]:
+			var node := b.root.get_node_or_null(n)
+			if node != null:
+				node.free()
 	_stage.add_child(b.root)
-	TmStage.add_environment(_stage, b)
+	TmStage.add_environment(_stage, b, not bare)
 
 
 ## A place on the track's racing line: fraction `at` of it, `left` m to its left, `ahead` m on.

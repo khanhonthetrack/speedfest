@@ -124,7 +124,9 @@ static func field_probe(builder: TmMapBuilder) -> ReflectionProbe:
 ## --city=false) and a city track's towers on the field (TmSkyline.field); around maps of other
 ## sizes plain grass from the map's edge to the horizon (the map's own ground is built with it by
 ## TmMapBuilder).
-static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
+## track: false leaves out what lines the track (the neon lights along a City map's road), for a
+## stage built without its blocks (StoryScene's "bare").
+static func add_environment(parent: Node, builder: TmMapBuilder, track := true) -> void:
 	var we := TmStadiumEnv.add(parent, TmStadiumEnv.mood_of(builder.challenge))
 	var city_map := builder.challenge.scenery == "city"
 	var sky_map := builder.challenge.scenery == "sky"           # (M19: high over the City's streets)
@@ -149,7 +151,8 @@ static func add_environment(parent: Node, builder: TmMapBuilder) -> void:
 			# a City map has no Stadium (owner: "remove the stadium around"): the city reaches the
 			# field's edge, at its level; the airship and the searchlights over it; no floodlights
 			parent.add_child(TmSkyline.field(builder))
-			parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
+			if track:
+				parent.add_child(TmNeon.track_lights(builder.challenge.path, TmStadiumEnv.night))
 			var ship := TmAirshipOrbit.make(TmStadiumEnv.night)
 			if ship != null:
 				parent.add_child(ship)
