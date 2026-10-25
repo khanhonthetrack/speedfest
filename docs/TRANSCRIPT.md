@@ -1548,3 +1548,16 @@ re-blocked; the page for the owner: https://claude.ai/artifact/EQPzEeBAKgj6xxQ4r
 > Let me think
 
 (Read as: the owner is considering the night-1 page's questions; nothing new started until they answer.)
+
+### User (verbatim)
+
+> 1. The Mirror: scarier.
+> 2. Night 1: not yet (see notes).
+> 3. The knock: keep.
+> Notes: Peoples positions are weird when standing. Their legs should be next to each other, they are not planning to fight...
+>
+> Next time, i want to see clips, not just stills.
+
+(Read as: make the mirror scare scarier; night 1 is not signed off because the standing people stand
+wide-legged, like a fighting stance (the library's Idle): they should stand naturally, feet together;
+keep the re-blocked knock; and show cutscenes as video clips from now on, not only stills.)
