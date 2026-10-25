@@ -4580,3 +4580,14 @@ face shows), she sat upright like a statue, and the reveal was a sting and a fla
   Kit stands at the back of the crowd; Gus is heard, not seen, at lot 47; the Mirror's poster no
   longer gives the scare away; and its HTML: labels, contrast, narrow screens).
 
+
+### 25 Oct (session 21, cont.): the owner on night 1 in motion; night 1's script (M20-9)
+The owner (TRANSCRIPT): standing is natural now; night 1 not yet: an aerial intro of the city, the
+track out of the auction yard (its barriers cross the containers), the Mirror redone as a jump scare
+with Kit on screen looking in the mirror; and the full script to read ("I dont understand the knock").
+- **Night 1's script**: https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH (a doc the owner can comment
+  on), copied to `docs/NIGHT1_SCRIPT.md`: every scene with action lines and its dialogue word for word
+  (checked against the scene files: all 89 lines, each with its speaker), the four decision
+  versions, and why the knock is hard to follow, with fixes to pick from (no establishing shot of
+  Arch 9; "my clean seats" in Kit's car; "The bridge" with no bridge in the dream; the nine pins
+  never shown; the change of heart on wiping the satnav not signalled).
