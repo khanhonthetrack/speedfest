@@ -1561,3 +1561,25 @@ re-blocked; the page for the owner: https://claude.ai/artifact/EQPzEeBAKgj6xxQ4r
 (Read as: make the mirror scare scarier; night 1 is not signed off because the standing people stand
 wide-legged, like a fighting stance (the library's Idle): they should stand naturally, feet together;
 keep the re-blocked knock; and show cutscenes as video clips from now on, not only stills.)
+
+(Done: people stand in Human Basic Motions' idles; the Mirror re-cut; clips of night 1 with sound on
+https://claude.ai/artifact/UD1dbmwDiUakFQ8QsQUpVg.)
+
+### User (verbatim)
+
+> Night 1 in motion:
+> 1. The Mirror: different (see notes).
+> 2. Standing: natural now.
+> 3. Night 1: not yet (see notes).
+> Notes: 1. For beginning, aerial shorts of the city as nice intro, cinematic.
+> 2. For auction - containers are crossed with track barriers. Just remove the track and checkpoint.
+> 3. The mirror scene sucks. It should be hour vharacter driving and looking at mirror. So the scene could have a mirror with our character looking at it and the thing behind (cars, and then the girl). You know, typical jumpscare formula.
+>
+> I dont understand the knock. Can you provide full script with dialogues for me to read.
+
+(Read as: standing is signed off. Night 1 is not: (1) open night 1 with cinematic aerial shots of the
+city ("shorts": shots); (2) in the auction yard the track's barriers run through the containers:
+leave the track and its checkpoints out of that scene; (3) redo the Mirror: show Kit ("our
+character") driving and looking at the rear-view mirror, the mirror showing what is behind (the
+cars, then the girl), the classic jump-scare build. And write out night 1's full script with its
+dialogue for the owner to read, because the knock scene doesn't make sense to them.)
