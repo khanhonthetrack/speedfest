@@ -85,8 +85,8 @@ Updated 2026-10-25. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   passenger (hair over the face), the coat man, Voss, the auction crowd (a lighter tier). People
   stand in Human Basic Motions' idles (`"Stand"`, `"Stand_B"`, `"Stand_Talk"`; owner, 25 Oct). The
   Mirror re-cut scarier (25 Oct: the empty seat dripping, then her, bowed, her head coming up, one
-  eye through the parted hair on the mirror). Clips: `tools/clip.sh`. Next: the owner's verdict on
-  the clips; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
+  eye through the parted hair on the mirror). Clips: `tools/clip.sh`; night 1 as clips is with the
+  owner (HANDOFF). Next: the owner's verdict on the clips; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone

@@ -4565,3 +4565,18 @@ face shows), she sat upright like a statue, and the reveal was a sting and a fla
   where eased and linear agree (now a quarter of the way: 33.4 against 29.5 degrees); the README's
   clip ran a few frames into the knock. `test_story_face` now also checks a tilt's side, a held brow
   and the loops starting when a held scene plays (17 checks).
+
+### 25 Oct (session 21, cont.): night 1 as clips for the owner (M20-9)
+- The owner asked for clips, not stills. Rendered with `tools/clip.sh` at Ultra, 24 fps, rendered at
+  1280x720 (the movie comes out at 1600x900): the Mirror (scene 6.0 to 32.6, in two runs joined at the
+  silent cut into "ahead3", 20.8 s: about 8.4 s a frame with the mirror's second camera, 50 minutes
+  for the first half), the knock (31.9 to 59.3: Dee standing the new way, the rain now heard), the
+  auction's yard and lot 47 (0 to 23.3) and the phone call close in the crowd (23.3 to 39.8: about
+  3.5 s a frame), each held a second on its first frame (`--hold=24`, cut by `--skip 1`).
+- A first Mirror render had no rain in its first shot: the held first frame entered the shot before
+  the scene played (fixed in `StoryScene.play`, above); the half rendered before the fix was redone.
+- The page (https://claude.ai/artifact/UD1dbmwDiUakFQ8QsQUpVg) was checked by two read-only agents in
+  turn (its copy against the scenes and code: no bridge is on screen in the dream, it is a city road;
+  Kit stands at the back of the crowd; Gus is heard, not seen, at lot 47; the Mirror's poster no
+  longer gives the scare away; and its HTML: labels, contrast, narrow screens).
+

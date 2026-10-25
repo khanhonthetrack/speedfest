@@ -56,8 +56,13 @@
   parted hair on the mirror, the sting on the cut; PROGRESS has the beat sheet); `tools/clip.sh`
   (README "The cast" has the command: at Ultra about 10 s a frame with the mirror, so render clips
   in the background, two hours at most per run).
-- **Next**: clips of night 1 for the owner (the Mirror, the knock, the auction's standing crowd) on a
-  new page; then their verdict; faces' polish (head turns, expressions per line); Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **With the owner** (25 Oct): https://claude.ai/artifact/UD1dbmwDiUakFQ8QsQUpVg, "Night 1 in Motion":
+  clips with sound at Ultra (the Mirror 0:27, the knock 0:27, the auction's yard 0:23 and the phone
+  call 0:16, a before/now still of the standing); questions: the Mirror scary enough?, people stand
+  naturally?, night 1 signed off?. Clips by `tools/clip.sh` (README "The cast"); the page by a
+  script in the session scratchpad (`page2/build.py`: posters, beats, size checks).
+- **Next**: the owner's answers on that page; faces' polish (head turns, expressions per line); Cass,
+  Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).
