@@ -217,6 +217,8 @@ func flags_set() -> Array[String]:
 func play(from := 0.0) -> void:
 	playing = true
 	seek(from)
+	if _shot >= 0:
+		_set_ambience(ambience(shots[_shot]))   # a shot entered before play (story_lab's held first frame)
 
 
 ## Skips to the end: the scene's flags all set, as if it had played.

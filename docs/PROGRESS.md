@@ -4540,8 +4540,10 @@ face shows), she sat upright like a statue, and the reveal was a sting and a fla
   four seconds then held); the mirror once more: she is there, bowed, still, soaked, lit from above by
   the courtesy light; the mirror creeps in (fov 40 to 22); after a second her head comes up over 1.8 s
   (`"bend"` keys on the neck and head), her eye on the mirror (`"gaze": "mirror"`), never blinking
-  (`"blink": false`), the jaw slack (`"shapes": {"jawOpen": 0.12}`); the sting and a white frame as it
-  hard-cuts to black, the loops cut with it; 0.7 s of silence, then the heartbeat. 4 s longer.
+  (`"blink": false`), the jaw slack (`"shapes": {"jawOpen": 0.12}`); then the sting and a white frame
+  on a shot of their own (0.35 s, the mirror's last framing, no loops: the drip and the drone stop
+  dead and the sting hits over silence), hard cut to black, the sting ringing out into it, the
+  heartbeat 0.65 s in. 6 s longer (the knock at 31.9 s, was 25.9 s).
 - **Code**: StoryPerson `"bend"` (`_bend`: bones turned on top of the clip about the body's axes,
   eased between keys, applied after every seek so it never adds up), `"blink"`, `"shapes"` (StoryFace
   `blinks`, `held`); StoryScene `"gaze": "mirror"`, `"ambience"` a cue or a list (a loop stops at the
@@ -4552,3 +4554,14 @@ face shows), she sat upright like a statue, and the reveal was a sting and a fla
   mirror gaze (16 checks); `test_story_scenes` that every sound and ambience a scene names exists.
 - Clips: `story_lab --hold=N` holds the first frame before playing (the light settles), `clip.sh
   --skip S` cuts it; the clip.sh note named a `--until` story_lab never had (it is `--seconds`).
+- **Reviewed** (a sequential read-only review, each finding checked by a skeptic: ten confirmed,
+  one refuted). Fixed: a held first frame (`story_lab --play --hold`, every clip) entered the first
+  shot before the scene played, so its loops never started (the first 5 s of the Mirror clip had no
+  rain; the knock clip would have had none): `StoryScene.play` now starts the current shot's loops;
+  `"bend"`'s z turned the head to its left though the doc says right (now plain right-handed turns
+  about the body's axes, the scene's key flipped so the shot is unchanged); `"shapes"` held only the
+  blinks, visemes and jaw (now any shape, the gaze too); the sting at full volume over the drip and
+  the drone clipped (moved onto a shot of its own, above); the "eased" check sampled the midpoint,
+  where eased and linear agree (now a quarter of the way: 33.4 against 29.5 degrees); the README's
+  clip ran a few frames into the knock. `test_story_face` now also checks a tilt's side, a held brow
+  and the loops starting when a held scene plays (17 checks).

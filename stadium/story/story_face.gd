@@ -70,6 +70,8 @@ func shape(name: String) -> float:
 ## The face at scene time t: lines = this person's own spoken lines [{at, hold, text}] (scene time),
 ## gaze = a world point to look at, or null (straight ahead).
 func pose(t: float, lines: Array, gaze: Variant) -> void:
+	for k: String in held:                   # held shapes nothing below moves (a raised brow, a frown)
+		set_shape(k, float(held[k]))
 	var b := blink_at(t, seed) if blinks else 0.0
 	set_shape("eyeBlinkLeft", maxf(b, float(held.get("eyeBlinkLeft", 0.0))))
 	set_shape("eyeBlinkRight", maxf(b, float(held.get("eyeBlinkRight", 0.0))))
@@ -82,7 +84,7 @@ func pose(t: float, lines: Array, gaze: Variant) -> void:
 		eyes = eyes_towards(gaze)
 	for k in ["eyeLookInLeft", "eyeLookOutLeft", "eyeLookInRight", "eyeLookOutRight", "eyeLookUpLeft",
 			"eyeLookUpRight", "eyeLookDownLeft", "eyeLookDownRight"]:
-		set_shape(k, float(eyes.get(k, 0.0)))
+		set_shape(k, maxf(float(eyes.get(k, 0.0)), float(held.get(k, 0.0))))
 
 
 ## How shut the eyes are at time t (0 open .. 1 shut): blinks at times fixed by the seed.

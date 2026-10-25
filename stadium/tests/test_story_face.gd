@@ -7,9 +7,11 @@ extends Node3D
 ## screen moves its mouth, the other looks at it, a voice off moves no mouth and draws no eyes, a
 ## look at the camera follows the moving camera, and every shape is the same whichever way a
 ## cutscene seeks to a moment. The passenger in the mirror: a "bend" turns her head on top of the
-## clip by its degrees, eased between keys and held after the last, the same however often or in
-## whatever order a frame is posed; her eyes never shut ("blink": false), her jaw hangs ("shapes"),
-## and her eyes find the mirror ("gaze": "mirror") as it moves.
+## clip by its degrees (x nods it forward, z tilts it to its right), eased between keys and held after
+## the last, the same however often or in whatever order a frame is posed; her eyes never shut
+## ("blink": false), her jaw hangs and a brow stays raised ("shapes"), her eyes find the mirror
+## ("gaze": "mirror") as it moves, and the shot's loops start when a scene held on its first frame
+## begins to play (a clip's held start).
 ## Run: stadium/tools/run.sh res://tests/test_story_face.tscn --headless
 
 const MOUTH := ["jawOpen", "viseme_aa", "viseme_O", "viseme_E", "viseme_I", "viseme_U", "viseme_SS", "viseme_PP",
@@ -226,9 +228,12 @@ func _dead() -> void:
 	var bend := [{"t": 0.0, "Neck": [12, 0, 0], "Head": [28, 0, 0]}, {"t": 1.0, "Neck": [12, 0, 0], "Head": [28, 0, 0]},
 		{"t": 2.8, "Neck": [0, 0, 0], "Head": [-2, 0, 0]}]
 	var d := {"id": "dead_test", "shots": [{"id": "mirror", "dur": 6.0,
+		"ambience": ["drip"],
 		"people": [{"id": "p0", "who": "passenger", "clip": "Sitting_Idle", "rate": 0.0, "pos": [3.0, 0.0, 0.0]},
 			{"id": "p1", "who": "passenger", "clip": "Sitting_Idle", "rate": 0.0, "pos": [0.0, 0.0, 0.0],
-				"gaze": "mirror", "blink": false, "shapes": {"jawOpen": 0.12}, "bend": bend}],
+				"gaze": "mirror", "blink": false, "shapes": {"jawOpen": 0.12, "browInnerUp": 0.6}, "bend": bend},
+			{"id": "p2", "who": "passenger", "clip": "Sitting_Idle", "rate": 0.0, "pos": [-3.0, 0.0, 0.0],
+				"bend": [{"t": 0.0, "Head": [0, 0, 20]}]}],
 		"camera": {"keys": [{"u": 0, "pos": [0.0, 1.6, 4.0], "look": [0.0, 1.2, 0.0]}]},
 		"mirror": {"ease": "linear", "keys": [{"u": 0, "pos": [1.5, 1.3, 1.2], "look": [0.0, 1.2, 0.0]},
 			{"u": 1, "pos": [-1.5, 1.3, 1.2], "look": [0.0, 1.2, 0.0]}]}}]}
@@ -238,7 +243,8 @@ func _dead() -> void:
 	sc.seek(0.5)
 	var p0 := _find(sc, "p0")
 	var p1 := _find(sc, "p1")
-	if p0 == null or p1 == null:
+	var p2 := _find(sc, "p2")
+	if p0 == null or p1 == null or p2 == null:
 		TestHooks.check(false, "dead_bend_turns_the_head", "no people")
 		return
 	# the head's turn against her unbent self (the neck's and the head's degrees add up about one axis)
@@ -251,13 +257,15 @@ func _dead() -> void:
 	sc.seek(0.5)
 	var bowed: float = turn.call()
 	var bowed_dir: Vector3 = face_dir.call()
-	sc.seek(1.9)                                     # halfway between the keys: eased, half of 40 - (-2)
-	var half: float = turn.call()
+	sc.seek(1.45)                                    # a quarter of the way: eased 33.4 (linear would be 29.5)
+	var quarter: float = turn.call()
+	var crown := (_head_q(p2) * _head_q(p0).inverse()) * Vector3.UP     # p2's head tilted z 20
 	sc.seek(4.0)
 	var up: float = turn.call()
-	TestHooks.check(absf(bowed - 40.0) < 2.0 and bowed_dir.y < -0.6 and absf(bowed_dir.x) < 0.05 and absf(half - 19.0) < 4.0
-		and absf(up - 2.0) < 1.5, "dead_bend_turns_the_head",
-		"bowed %.1f deg (her face to %s: down, not aside), halfway %.1f, up %.1f" % [bowed, bowed_dir, half, up])
+	TestHooks.check(absf(bowed - 40.0) < 2.0 and bowed_dir.y < -0.6 and absf(bowed_dir.x) < 0.05 and absf(quarter - 33.4) < 1.5
+		and absf(up - 2.0) < 1.5 and crown.x < -0.25 and absf(crown.z) < 0.05, "dead_bend_turns_the_head",
+		"bowed %.1f deg (her face to %s: down, not aside), a quarter of the way %.1f, up %.1f; z 20 puts the crown at %s (to her right: -x)" % [
+		bowed, bowed_dir, quarter, up, crown])
 	# the same however often a frame is posed (the clip is held: rate 0) and whatever came before
 	sc.seek(0.5)
 	var once := _head_q(p1)
@@ -273,19 +281,28 @@ func _dead() -> void:
 	var shut := 0.0
 	var other := 0.0
 	var jaw := 1.0
+	var brow := 1.0
 	for k in 300:
 		sc.seek(k * 0.02)
 		shut = maxf(shut, p1.face.shape("eyeBlinkLeft"))
 		other = maxf(other, p0.face.shape("eyeBlinkLeft"))
 		jaw = minf(jaw, p1.face.shape("jawOpen"))
-	TestHooks.check(shut == 0.0 and other > 0.5 and absf(jaw - 0.12) < 0.001, "dead_never_blinks",
-		"her lids %.2f (the other %.2f), her jaw %.3f" % [shut, other, jaw])
+		brow = minf(brow, p1.face.shape("browInnerUp"))
+	TestHooks.check(shut == 0.0 and other > 0.5 and absf(jaw - 0.12) < 0.001 and absf(brow - 0.6) < 0.001, "dead_never_blinks",
+		"her lids %.2f (the other %.2f), her jaw %.3f, her brow %.3f (nothing else moves it)" % [shut, other, jaw, brow])
 	# her eyes on the mirror: to her left (+x) at the start, to her right at the end
 	sc.seek(0.3)
 	var early := p1.face.shape("eyeLookOutLeft") - p1.face.shape("eyeLookInLeft")
 	sc.seek(5.7)
 	var late := p1.face.shape("eyeLookOutLeft") - p1.face.shape("eyeLookInLeft")
 	TestHooks.check(early > 0.1 and late < -0.1, "dead_looks_into_the_mirror", "her left eye out %.2f, then %.2f" % [early, late])
+	# held on a frame (not playing: no sound), then played from it: the shot's loop starts
+	var drip: AudioStreamPlayer = sc._players.get("drip", null)
+	var held_quiet := drip == null or not drip.playing
+	sc.play(1.0)
+	drip = sc._players.get("drip", null)
+	TestHooks.check(held_quiet and drip != null and drip.playing, "dead_loops_start_when_played",
+		"quiet while held %s, dripping once played %s" % [held_quiet, drip != null and drip.playing])
 	sc.free()
 
 

@@ -300,7 +300,7 @@ func _bend(t: float) -> void:
 		var da: Array = a.get(name, [0.0, 0.0, 0.0])
 		var db: Array = b.get(name, [0.0, 0.0, 0.0])
 		var deg := Vector3(float(da[0]), float(da[1]), float(da[2])).lerp(Vector3(float(db[0]), float(db[1]), float(db[2])), f)
-		var turn := Basis.from_euler(Vector3(deg_to_rad(deg.x), deg_to_rad(deg.y), deg_to_rad(-deg.z)))
+		var turn := Basis.from_euler(Vector3(deg_to_rad(deg.x), deg_to_rad(deg.y), deg_to_rad(deg.z)))
 		var parent := sk.get_bone_parent(i)
 		var up := sk.get_bone_global_pose(parent) if parent >= 0 else Transform3D()
 		var g := sk.get_bone_global_pose(i)

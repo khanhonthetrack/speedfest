@@ -195,10 +195,11 @@ scene is set up. `tests/test_cast_seats` sits everyone in every seat of every ro
 Clips for the owner (owner, 25 Oct: "i want to see clips, not just stills"): `tools/clip.sh` records
 a scene with Godot's Movie Maker at a fixed frame rate, with its sound, into an H.264 MP4:
 
-    stadium/tools/clip.sh /abs/mirror.mp4 res://story/story_lab.tscn --fps 24 --skip 1 --seconds 27 \
+    stadium/tools/clip.sh /abs/mirror.mp4 res://story/story_lab.tscn --fps 24 --skip 1 --seconds 26.8 \
         -- --scene=c01_close --t=6 --play --hold=24 --set_quality=2
 
-(`--hold` holds the first frame while the city's light settles, `--skip` cuts it; at Ultra a frame
+(from the drive to the black: `--hold` holds the first frame while the city's light settles,
+`--skip` cuts it, and `--seconds` counts the held second; at Ultra a frame
 with the mirror's second camera takes about 10 s in the container, so a 25 s clip is over an hour.)
 The stylised cast (set aside: the owner chose realistic, 24 Oct; `"style": "stylised"` specs in
 `tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds one: Quaternius' Ultimate Modular Women/Men, CC0,

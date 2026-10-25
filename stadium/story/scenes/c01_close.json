@@ -654,7 +654,7 @@
 			"id": "mirror5",
 			"track": "H01",
 			"at": 0.15,
-			"dur": 3.4,
+			"dur": 3.05,
 			"rain": 0.8,
 			"glass": 0.0,
 			"ambience": [
@@ -773,7 +773,92 @@
 							"Head": [
 								-2,
 								0,
-								7
+								-7
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "mirror6",
+			"track": "H01",
+			"at": 0.15,
+			"dur": 0.35,
+			"rain": 0.8,
+			"glass": 0.0,
+			"ambience": "",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"lights": true,
+					"cabin": true,
+					"speed": 20.0,
+					"ahead": 475.0,
+					"dome": 0.8
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "linear",
+				"keys": [
+					{
+						"u": 0,
+						"pos": "driver_head",
+						"look": [
+							0.3,
+							1.0,
+							25.0
+						],
+						"fov": 62
+					}
+				]
+			},
+			"mirror": {
+				"follow": "kit",
+				"rect": [
+					0.07,
+					0.11,
+					0.86,
+					0.6
+				],
+				"pos": "mirror",
+				"look": [
+					0.0,
+					0.9,
+					-0.3
+				],
+				"fov": 22
+			},
+			"people": [
+				{
+					"id": "passenger",
+					"car": "kit",
+					"seat": "rear",
+					"clip": "Sitting_Idle",
+					"rate": 0.0,
+					"look": "drowned",
+					"who": "passenger",
+					"gaze": "mirror",
+					"blink": false,
+					"shapes": {
+						"jawOpen": 0.12
+					},
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								0,
+								0
+							],
+							"Head": [
+								-2,
+								0,
+								-7
 							]
 						}
 					]
@@ -781,14 +866,14 @@
 			],
 			"sounds": [
 				{
-					"at": 3.05,
+					"at": 0.0,
 					"cue": "sting"
 				}
 			],
 			"flash": [
 				[
-					3.05,
-					0.35
+					0.0,
+					0.5
 				]
 			]
 		},
@@ -798,7 +883,7 @@
 			"dur": 1.8,
 			"sounds": [
 				{
-					"at": 0.7,
+					"at": 0.65,
 					"cue": "heartbeat"
 				}
 			]
