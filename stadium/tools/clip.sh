@@ -5,7 +5,8 @@
 #   stadium/tools/clip.sh <out.mp4> <res://scene.tscn> [--fps 30] [--size 1280x720] [--seconds S]
 #                         [--skip S] [--crf 21] [--timeout 7000] -- [the scene's own args]
 # --skip drops the first S seconds (a cutscene held on its first frame while its light settles:
-# story_lab's --hold=<S * fps>); --seconds counts them.
+# story_lab's --hold=<S * fps>); --seconds counts them (both may be fractions). --size is the size
+# rendered (the cost); the movie comes out at the project's 1600x900 all the same.
 # A cutscene: res://story/story_lab.tscn [--seconds 17] -- --scene=c01_close --play [--t=23] (from
 # --t, it quits at the scene's end or after --seconds); the cast: res://story/cast_lab.tscn --seconds 4 -- --who=kit,dee --clip=Stand_Talk --play
 set -uo pipefail
@@ -26,7 +27,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 TMP="$(mktemp -d)"
-QUIT=""; [[ "$SECONDS_" != "0" ]] && QUIT="--quit-after $(( SECONDS_ * FPS ))"
+QUIT=""; [[ "$SECONDS_" != "0" ]] && QUIT="--quit-after $(awk "BEGIN { printf \"%d\", $SECONDS_ * $FPS + 0.5 }")"
 CMD=("$GODOT" --path "$ROOT" --rendering-method forward_plus --resolution "$SIZE" --write-movie "$TMP/clip.avi"
      --fixed-fps "$FPS" $QUIT "$SCENE" -- "$@")
 if command -v xvfb-run >/dev/null; then
