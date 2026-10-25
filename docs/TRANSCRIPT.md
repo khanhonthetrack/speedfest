@@ -1583,3 +1583,13 @@ leave the track and its checkpoints out of that scene; (3) redo the Mirror: show
 character") driving and looking at the rear-view mirror, the mirror showing what is behind (the
 cars, then the girl), the classic jump-scare build. And write out night 1's full script with its
 dialogue for the owner to read, because the knock scene doesn't make sense to them.)
+
+(Done: night 1's script as a doc, https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH, ending with why the
+knock is hard to follow and fixes to pick from; the yard without its track; the new Mirror under way.)
+
+### User (verbatim)
+
+> Can you not ask me for permission, just writr it?
+
+(Read as: don't ask the owner to pick fixes; make the calls and write it: rewrite the knock with the
+fixes from the script's last section, update the script, and carry on the same way from now on.)
