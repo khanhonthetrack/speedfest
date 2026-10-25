@@ -25,9 +25,9 @@ extends Node3D
 ##     clear: for shots inside it), "dome" (its courtesy light's energy: a passenger lit in the
 ##     mirror), "from", "to" (s: on screen only then)}],
 ##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze"), plus "car": a car's
-##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; a cast member
-##     where its own seat rests on the cushion, a tall one lowered with the seat under a low roof),
-##     "from", "to"], "lights": [{"kind": "omni" | "spot",
+##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; or "pos" in its
+##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
+##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot",
 ##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on)}], "rain": 0..1,
 ##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
 ##   "subtitle"},
@@ -117,6 +117,7 @@ func setup(d: Dictionary, st: StoryState = null, stage := true) -> void:
 	add_child(subtitles)
 	if with_stage:
 		_line_cabins()
+	_measure_people()
 
 
 ## Lines every cabin car of the scene now (StoryCabin.fit_car: a fraction of a second a model, once),
@@ -133,6 +134,35 @@ func _line_cabins() -> void:
 		add_child(car)
 		StoryCabin.fit_car(car)
 		car.free()
+
+
+## Measures the scene's people now (StoryCast.ground for a cast member standing, StoryCast.seated and
+## mannequin_seated for anyone in a car: CPU skinning, a fraction of a second each, once per person and
+## clip), so a cut to a shot with them doesn't stall.
+func _measure_people() -> void:
+	var clips := StoryPerson.clip_names()
+	var done := {}
+	for s: Dictionary in shots:
+		var cars := {}
+		for c: Dictionary in s.get("cars", []):
+			cars[String(c.get("id", ""))] = true
+		for p: Dictionary in s.get("people", []):
+			var who := String(p.get("who", ""))
+			var clip := String(p.get("clip", "Idle")) if String(p.get("clip", "Idle")) in clips else "Idle"
+			var sits := cars.has(String(p.get("car", "")))
+			if sits:
+				StoryCast.mannequin_seated(self, clip)
+			var key := "%s:%s:%s" % [who, clip, sits]
+			if who == "" or not StoryCast.has(who) or done.has(key):
+				continue
+			done[key] = true
+			var body := StoryCast.instance(who)
+			add_child(body)
+			if sits:
+				StoryCast.seated(who, body, clip)
+			else:
+				StoryCast.ground(who, body, clip)
+			body.free()
 
 
 ## Times every shot and line, the lines whose conditions fail left out (so a cold, warm or hot
@@ -287,6 +317,7 @@ func _enter(i: int) -> void:
 	_anchor = _road_xf(float(s.get("at", data.get("at", 0.5))), float(s.get("left", 0.0)), float(s.get("ahead", 0.0)))
 	for c: Dictionary in s.get("cars", []):
 		_add_car(c)
+	var seated := {}                  # car -> seat -> [[person, model, its place], ...]
 	for p: Dictionary in s.get("people", []):
 		var person := StoryPerson.new()
 		add_child(person)
@@ -296,22 +327,34 @@ func _enter(i: int) -> void:
 			# seated in a car: its road frame, no ground under it
 			spec = p.duplicate()
 			var model := String((_cars[car_id]["spec"] as Dictionary).get("model", "hyper"))
-			var at := Vector3.ZERO
 			if p.has("seat"):
-				at = StoryCabin.points(model).get(String(p["seat"]), Vector3.ZERO)
-				spec["pos"] = [at.x, at.y, at.z]
+				var pt: Vector3 = StoryCabin.points(model).get(String(p["seat"]), Vector3.ZERO)
+				spec["pos"] = [pt.x, pt.y, pt.z]
 			person.setup(spec, _anchor, Callable())
 			person.in_car = car_id
-			# a crown within 5 cm of a low car's roof (taller than the Mannequin, or its head back as it
-			# drives): down with the seat
-			var room := StoryCabin.headroom(model, at + person.crown) if p.has("seat") else 0.0
-			if room < 0.0:
-				person.sink(-room)
-				if _cars[car_id].has("cabin"):
-					(_cars[car_id]["cabin"] as StoryCabin).lower(String(p["seat"]), -room)
+			var q: Array = spec.get("pos", [0.0, 0.0, 0.0])
+			var at := Vector3(float(q[0]), float(q[1]), float(q[2]))
+			var seat := String(p.get("seat", StoryCabin.seat_at(model, at)))
+			((seated.get_or_add(car_id, {}) as Dictionary).get_or_add(seat, []) as Array).append([person, model, at])
 		else:
 			person.setup(spec, _anchor, func(q: Vector3) -> Vector3: return _ground(_anchor * q))
 		_people.append(person)
+	# a crown within 5 cm of a low car's roof (taller than the Mannequin, or its head back as it
+	# drives): down with the seat, as far as its tallest sitter needs, everyone on it with it
+	for car_id: String in seated:
+		for seat: String in seated[car_id]:
+			var need := 0.0
+			for e: Array in seated[car_id][seat]:
+				need = maxf(need, -StoryCabin.headroom(String(e[1]), (e[2] as Vector3) + (e[0] as StoryPerson).crown))
+			if need <= 0.0:
+				continue
+			if need > 0.1:
+				push_warning("story: the %s's %s seat lowered %.2f m for its tallest (too tall for that car? a hat?)" % [
+					seated[car_id][seat][0][1], seat, need])
+			for e: Array in seated[car_id][seat]:
+				(e[0] as StoryPerson).sink(need)
+			if _cars[car_id].has("cabin"):
+				(_cars[car_id]["cabin"] as StoryCabin).lower(seat, need)
 	for l: Dictionary in s.get("lights", []):
 		_add_light(l)
 	StoryProps.build(_props, s.get("props", []), _anchor)

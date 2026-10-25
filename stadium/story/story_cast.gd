@@ -106,28 +106,41 @@ static func ground(id: String, root: Node, clip: String) -> float:
 
 ## A seated character's body in a clip, in its own frame (it faces +z), skinned on the CPU in the
 ## clip's first frame: "seat" (y: the lowest point of what it sits on, the hips and thighs under the
-## hip joints; z: the back of it, against the seat's back) and "crown" (the top of its head, hair and
-## all, and how far along). Measured once per character and clip (id "": the Mannequin). Seeks the
-## character's player.
+## hip joints and behind the knees (the shins and a jacket's front hem over the knees are not sat on),
+## what hangs free left out (loose); z: the back of it, against the seat's back)
+## and "crown" (the top of its head, hair and all, and how far along). Measured once per character and clip (id "": the Mannequin); {} (and a
+## warning) for a body that can't be measured (no humanoid skeleton, nothing under the hips): its
+## callers then sit it as the Mannequin sits. Seeks the character's player.
 static func seated(id: String, root: Node, clip: String) -> Dictionary:
 	var key := "%s:%s" % [id, clip]
 	if _seated.has(key):
 		return _seated[key]
 	var sk := skeleton(root)
-	var ap := root.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+	var players := root.find_children("*", "AnimationPlayer", true, false)
+	if sk == null or sk.find_bone("Hips") < 0 or players.is_empty():
+		push_warning("story: %s can't be measured seated (no humanoid skeleton)" % (id if id != "" else "the Mannequin"))
+		_seated[key] = {}
+		return _seated[key]
+	var ap := players[0] as AnimationPlayer
 	ap.play(clip)
 	ap.seek(0.0, true)
 	var sits := {}
 	for b in ["Hips", "LeftUpperLeg", "RightUpperLeg"]:
-		sits[sk.find_bone(b)] = true
+		if sk.find_bone(b) >= 0:
+			sits[sk.find_bone(b)] = true
 	var frame := (root as Node3D).global_transform.affine_inverse() * sk.global_transform
 	var hip_y := (frame * sk.get_bone_global_pose(sk.find_bone("Hips"))).origin.y
+	var knee_z := INF
+	for b in ["LeftLowerLeg", "RightLowerLeg"]:
+		if sk.find_bone(b) >= 0:
+			knee_z = minf(knee_z, (frame * sk.get_bone_global_pose(sk.find_bone(b))).origin.z)
 	var seat := Vector2(INF, INF)
 	var crown := Vector2(-INF, 0.0)
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
 		if mi.skin == null:
 			continue
 		for i in mi.mesh.get_surface_count():
+			var free := loose(id, mi.mesh.surface_get_material(i))
 			var arr := mi.mesh.surface_get_arrays(i)
 			var verts := arr[Mesh.ARRAY_VERTEX] as PackedVector3Array
 			var part := [mi.skin, verts, arr[Mesh.ARRAY_BONES], arr[Mesh.ARRAY_WEIGHTS]]
@@ -138,7 +151,7 @@ static func seated(id: String, root: Node, clip: String) -> Dictionary:
 			for v in at.size():
 				if at[v].y > crown.x:
 					crown = Vector2(at[v].y, at[v].z)
-				if at[v].y > hip_y:
+				if free or at[v].y > hip_y or at[v].z > knee_z - 0.15:
 					continue
 				var best := 0
 				for k in per:
@@ -146,6 +159,10 @@ static func seated(id: String, root: Node, clip: String) -> Dictionary:
 						best = k
 				if sits.has(_bone_of(sk, mi.skin, bones[v * per + best])):
 					seat = Vector2(minf(seat.x, at[v].y), minf(seat.y, at[v].z))
+	if not (seat.is_finite() and crown.is_finite()):
+		push_warning("story: %s can't be measured seated (nothing under its hips)" % (id if id != "" else "the Mannequin"))
+		_seated[key] = {}
+		return _seated[key]
 	_seated[key] = {"seat": seat, "crown": crown}
 	return _seated[key]
 
@@ -159,6 +176,14 @@ static func mannequin_seated(parent: Node, clip: String) -> Dictionary:
 		seated("", m, clip)
 		m.free()
 	return _seated[":" + clip]
+
+
+## Whether a material of a character hangs free (its spec's "loose": a long coat's skirt draped between
+## the thighs is pressed flat by a seat, so it is not what the character sits on).
+static func loose(id: String, m: Material) -> bool:
+	if id == "" or m == null:
+		return false
+	return bool(((meta(id).get("materials", {}) as Dictionary).get(m.resource_name, {}) as Dictionary).get("loose", false))
 
 
 static func _bone_of(sk: Skeleton3D, skin: Skin, bind: int) -> int:

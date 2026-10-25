@@ -33,6 +33,14 @@ static func points(model: String) -> Dictionary:
 	return _layout(TmRoadCars.manifest(model))
 
 
+## Which seat a place in the car is on (road frame): the rear bench, or the front seat on its side.
+static func seat_at(model: String, p: Vector3) -> String:
+	var pts := points(model)
+	if absf(p.z - (pts["rear"] as Vector3).z) < absf(p.z - (pts["driver"] as Vector3).z):
+		return "rear"
+	return "driver" if p.x >= 0.0 else "passenger"
+
+
 ## How far a seated person's crown at p (road frame) is under the roof's line less 5 cm, the room
 ## the layout leaves the Mannequin (negative: into it).
 static func headroom(model: String, p: Vector3) -> float:
@@ -138,6 +146,7 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	wheel.position = Vector3(0.37, (pts["driver_head"] as Vector3).y - 0.33, front_z + 0.42)
 	wheel.rotation = Vector3(deg_to_rad(70.0), 0.0, 0.0)          # its axis up the column to the driver
 	add_child(wheel)
+	(_seats["driver"] as Array).append(wheel)                     # a lowered seat takes the wheel down too
 	var hub := MeshInstance3D.new()
 	var boss := CylinderMesh.new()
 	boss.top_radius = 0.05
@@ -184,8 +193,9 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	rear_seat = pts["rear"]
 
 
-## Lowers a seat (its cushion, back and headrest) to `by` under where it was built: a tall sitter's
-## crown would meet a low car's roof (StoryScene sinks the sitter as far).
+## Lowers a seat (its cushion, back and headrest; the driver's the wheel too) to `by` under where it
+## was built: a tall sitter's crown would meet a low car's roof (StoryScene sinks its sitters as far;
+## the "driver_head" and "mirror" points stay the layout's).
 func lower(seat: String, by: float) -> void:
 	var d := by - float(_drops.get(seat, 0.0))
 	_drops[seat] = by

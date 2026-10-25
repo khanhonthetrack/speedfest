@@ -179,12 +179,16 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		push_warning("story: no clip %s, Idle instead" % clip)
 		clip = "Idle"
 	_anim = _player.get_animation(clip)
-	# a cast member standing (a ground under it) meets the ground in this clip; anyone seated ("seat":
-	# placed where the Mannequin sits) rests its own seat where the Mannequin's rests in this clip
+	# a cast member standing (a ground under it) meets the ground in this clip; anyone seated (in a
+	# car, no ground: "pos" or "seat" is where the Mannequin would sit) rests its own seat where the
+	# Mannequin's rests in this clip (a body that can't be measured sits as the Mannequin does)
 	var lift := StoryCast.ground(who, body, clip) if who != "" and ground.is_valid() else 0.0
-	var sits := s.has("seat") and not ground.is_valid()
+	var sits := not ground.is_valid()
 	var ref: Dictionary = StoryCast.mannequin_seated(self, clip) if sits else {}
 	var own: Dictionary = StoryCast.seated(who, body, clip) if sits and who != "" else ref
+	if own.is_empty() or ref.is_empty():
+		own = {"seat": Vector2.ZERO, "crown": Vector2(StoryCabin.CROWN.x, StoryCabin.CROWN.y)}
+		ref = {"seat": Vector2.ZERO}
 	_player.play(clip)
 	_player.pause()
 	var look := String(s.get("look", "coat"))
@@ -203,7 +207,7 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	body.scale = Vector3.ONE * sc
 	body.position.y = lift * sc
 	if sits:
-		var seat: Vector2 = (ref["seat"] as Vector2) - (own["seat"] as Vector2) * sc
+		var seat: Vector2 = (ref["seat"] as Vector2) - (own["seat"] as Vector2) * sc       # (0 for an unscaled Mannequin)
 		var top: Vector2 = own["crown"]
 		body.position = Vector3(0.0, seat.x, seat.y)
 		crown = body.position + Vector3(0.0, top.x, top.y) * sc
