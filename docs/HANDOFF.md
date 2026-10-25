@@ -47,7 +47,8 @@
   each shot beside its Mannequin version (same second; stills at Ultra), the new people; questions:
   the Mirror scare as pictured?, night 1 signed off?, keep the re-blocked knock?, anything else.
   The page is built by a script in the session scratchpad (stills from `story_lab --set_quality=2
-  --ts=... --every=60 --shots=...`; the old page's stills extracted from its HTML).
+  --ts=... --every=60 --shots=... --frames=<last + 1>`, the `--frames` or it never quits; the old
+  page's stills extracted from its HTML).
 - **Next**: the owner's answers on that page; faces' polish (head turns,
   expressions per line); Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.

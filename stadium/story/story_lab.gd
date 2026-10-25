@@ -7,7 +7,7 @@ extends Node
 ## a "way:" condition); --no_stage leaves the tracks out (logic
 ## only). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
 ## --ts=8.5,14,25 --every=60 holds each time for that many frames; give TestHooks
-## --shots=/abs/a.png@59,/abs/b.png@119,... to match.
+## --shots=/abs/a.png@59,/abs/b.png@119,... to match, and --frames=180 to quit after the last.
 
 var scene: StoryScene
 
