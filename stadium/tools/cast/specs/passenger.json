@@ -1,7 +1,7 @@
 {
  "id": "passenger",
  "name": "The passenger",
- "_look": "docs/STORY.md section 4: the woman in the back seat in the mirror: soaked, hair over her face, water running off her (StoryPerson's look \"drowned\" soaks her); Dee's double (her body and face), the hair let down (MakeHuman's long01) and turned over the face (gen_char.py's hair_veil), Dee's overalls darker",
+ "_look": "docs/STORY.md section 4: the woman in the back seat in the mirror: soaked, hair over her face, water running off her (StoryPerson's look \"drowned\" soaks her); Dee's double (her body and face), the hair let down (MakeHuman's long01) and turned over the face and parted down it over her left eye, so the veil reads as a face behind wet hair (gen_char.py's hair_veil, part_veil), Dee's overalls darker",
  "height_m": 1.6,
  "phenotype": {
   "gender": 0.0,
@@ -66,6 +66,10 @@
  },
  "hair_veil": {
   "turn": 180,
-  "clear": 0.012
+  "clear": 0.012,
+  "part": {
+   "width": 0.015,
+   "at": 0.8
+  }
  }
 }

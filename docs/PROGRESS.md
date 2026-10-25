@@ -4524,3 +4524,31 @@ planning to fight... Next time, i want to see clips, not just stills."
   Maker writes every frame at a fixed rate with the game's sound, ffmpeg makes an H.264 MP4
   (`cast_lab --play` plays the clip instead of holding a frame). A 5 s studio clip renders in about
   6 minutes (2.3 s a frame at 1600x900 on the software renderer).
+
+### 25 Oct (session 21, cont.): the Mirror, scarier (M20-9)
+For the owner's "The Mirror: scarier". What was wrong: in the mirror the passenger read as the back
+of someone's head (the hair turned 180 degrees over the face is a long back of hair, nothing of a
+face shows), she sat upright like a statue, and the reveal was a sting and a flash over 1.3 s.
+- **A face behind the hair**: `gen_char.py`'s `part_veil` (spec `"hair_veil": {"part": {"width",
+  "at"}}`) cuts the turned hair down a line over her left eye (rows cut across it first: the hair's
+  quads are large, and deleting the faces the line crosses tore out half the veil) and pulls the two
+  sides apart, the gap widest from the brows to the chin and closed at the hairline and under it: one
+  eye, the corner of a mouth, pale skin through wet hair. The passenger rebuilt.
+- **The re-cut** (`c01_close`, cold tier, she still says nothing): after "Ahead: nothing" the mirror
+  shows the back seat empty, dim, and water dripping (the new `drip` loop) though nobody is there;
+  ahead again, a low drone rises (`drone`: beating 49/51.5 Hz, a thin minor second high, swelling
+  four seconds then held); the mirror once more: she is there, bowed, still, soaked, lit from above by
+  the courtesy light; the mirror creeps in (fov 40 to 22); after a second her head comes up over 1.8 s
+  (`"bend"` keys on the neck and head), her eye on the mirror (`"gaze": "mirror"`), never blinking
+  (`"blink": false`), the jaw slack (`"shapes": {"jawOpen": 0.12}`); the sting and a white frame as it
+  hard-cuts to black, the loops cut with it; 0.7 s of silence, then the heartbeat. 4 s longer.
+- **Code**: StoryPerson `"bend"` (`_bend`: bones turned on top of the clip about the body's axes,
+  eased between keys, applied after every seek so it never adds up), `"blink"`, `"shapes"` (StoryFace
+  `blinks`, `held`); StoryScene `"gaze": "mirror"`, `"ambience"` a cue or a list (a loop stops at the
+  first cut to a shot that doesn't name it; `StoryScene.ambience`); StorySounds `drip`, `drone` (a
+  loop that plays its swell once: `loop_begin`); soaked hair shines in strands (less clearcoat: one
+  glare under the dome light hid her face). `test_story_face` checks the bend (40 degrees bowed, down
+  and not aside, eased, the same however often a frame is posed), no blink, the held jaw and the
+  mirror gaze (16 checks); `test_story_scenes` that every sound and ambience a scene names exists.
+- Clips: `story_lab --hold=N` holds the first frame before playing (the light settles), `clip.sh
+  --skip S` cuts it; the clip.sh note named a `--until` story_lab never had (it is `--seconds`).

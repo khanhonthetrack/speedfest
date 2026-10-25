@@ -160,7 +160,9 @@ Modelled people for the cutscenes: MakeHuman's body through MPFB 2 in Blender, d
 MakeHuman community's packs (CC0 and CC BY only), one spec each in `tools/cast/specs/<id>.json`
 (height in metres, phenotype, face targets, skin, eyes and their colour, brows, lashes, hair, clothes,
 tints, `"desaturate"` for grey hair, `"vest"` for a generated hi-vis vest, `"hair_veil"` for hair
-turned down over the face (the passenger), `"loose"` for garments that hang free and are not sat on
+turned down over the face (the passenger; its `"part": {"width", "at"}` cuts the hair down a line
+and pulls it apart, so one eye and the corner of the mouth show: a face behind wet hair, not the
+back of a head), `"loose"` for garments that hang free and are not sat on
 (a long coat), `"tier": "crowd"` for the lighter tier: blinks only, low-poly eyes, no teeth, no
 normal maps, 1024 textures, at most 32k triangles and 5 MB). Built into
 `assets/cast/<id>/` (glTF + sidecar `<id>.cast.json`), textures shared in `assets/cast/tex/`:
@@ -174,6 +176,13 @@ normal maps, 1024 textures, at most 32k triangles and 5 MB). Built into
 A scene's person takes `"who": "<id>"` (StoryPerson plays the same UAL clips on it: both imports
 retarget onto Godot's humanoid skeleton through `assets/cast/bonemap.tres`). `StoryCast` loads them
 (`instance`, `meta`, `set_shape` for the 35 face shapes, `ground` for the per-clip lift).
+Standing, people use `"clip": "Stand"`, `"Stand_B"` or `"Stand_Talk"`: Human Basic Motions' idles
+and talk (retargeted through `assets/anim/human_basic_motions/bonemap_hbm.tres`), a woman's or a
+man's take by the sidecar's `"sex"` (`StoryCast.take`), the arms brought in, the talk calmed; the
+UAL `Idle` is a fighter's stance (owner, 25 Oct: "they are not planning to fight"). A person can
+also take `"bend"` (bones turned on top of the clip over time: `[{"t": 1.0, "Head": [28, 0, 0]},
+...]`, degrees about the body's axes, eased between keys: a head coming up), `"blink": false`,
+`"shapes": {"jawOpen": 0.12}` (held), and `"gaze": "mirror"` (eyes on the shot's rear-view mirror).
 Seated in a car (`"car"` with `"seat"` or a `"pos"`), everyone sits by their own body:
 `StoryCast.seated` measures, in the clip, the seat (the lowest of the hips and thighs behind the
 knees, `"loose"` garments left out, and the back of it) and the crown (hair and hat and all); the
@@ -183,6 +192,14 @@ its tallest needs, everyone on it with it (`StoryCabin.lower`: cushion, back, he
 wheel; Gus driving the corrida, 7.6 cm; over 10 cm it warns). StoryScene measures everyone when a
 scene is set up. `tests/test_cast_seats` sits everyone in every seat of every road car;
 `story/lab/seat_check.json` shows them (the car a ghost).
+Clips for the owner (owner, 25 Oct: "i want to see clips, not just stills"): `tools/clip.sh` records
+a scene with Godot's Movie Maker at a fixed frame rate, with its sound, into an H.264 MP4:
+
+    stadium/tools/clip.sh /abs/mirror.mp4 res://story/story_lab.tscn --fps 24 --skip 1 --seconds 27 \
+        -- --scene=c01_close --t=6 --play --hold=24 --set_quality=2
+
+(`--hold` holds the first frame while the city's light settles, `--skip` cuts it; at Ultra a frame
+with the mirror's second camera takes about 10 s in the container, so a 25 s clip is over an hour.)
 The stylised cast (set aside: the owner chose realistic, 24 Oct; `"style": "stylised"` specs in
 `tools/cast/specs_stylised/`, `build.sh kit_s` rebuilds one: Quaternius' Ultimate Modular Women/Men, CC0,
 fetched by `setup.sh`) is built by `blender/gen_stylised.py` from parts (`{"file", "mesh",

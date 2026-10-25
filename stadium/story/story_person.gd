@@ -18,7 +18,10 @@ extends Node3D
 ## (default, near black cloth; a cast member keeps its clothes) | "drowned" (pale, soaked, glossy,
 ## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height),
 ## "speaker": the name its lines carry (default: the cast member's first name, else the id),
-## "gaze": "camera" | a person's id (default: whoever on screen is speaking, else straight ahead)}
+## "gaze": "camera" | "mirror" (the shot's rear-view mirror: eyes on the driver's in the glass) | a
+## person's id (default: whoever on screen is speaking, else straight ahead), "bend": bones turned
+## on top of the clip over time (_bend: a head coming up), "blink": false (a cast member's eyes never
+## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
@@ -114,12 +117,13 @@ func eyes_point() -> Vector3:
 static func soaked(src: StandardMaterial3D) -> StandardMaterial3D:
 	var m := src.duplicate() as StandardMaterial3D
 	var skin := src.resource_name.begins_with("skin__")
+	var hair := src.resource_name.begins_with("hair__")
 	m.albedo_color = (src.albedo_color.lerp(Color(0.6, 0.68, 0.72), 0.55) if skin else src.albedo_color * 0.55)
 	m.albedo_color.a = src.albedo_color.a
-	m.roughness = 0.18 if skin else 0.22
+	m.roughness = 0.18 if skin else (0.35 if hair else 0.22)
 	m.clearcoat_enabled = true
-	m.clearcoat = 1.0
-	m.clearcoat_roughness = 0.05
+	m.clearcoat = 0.5 if hair else 1.0             # wet hair shines in strands, not one glare under a lamp
+	m.clearcoat_roughness = 0.3 if hair else 0.05
 	m.rim_enabled = true
 	m.rim = 0.6
 	m.rim_tint = 0.1
@@ -176,6 +180,8 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	_body = body
 	if who != "":
 		face = StoryFace.new(body, String(s.get("id", who)).hash())
+		face.blinks = bool(s.get("blink", true))
+		face.held = s.get("shapes", {})
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	StoryCast.library()
 	var clip := StoryCast.take(who, String(s.get("clip", "Idle")))
@@ -240,6 +246,7 @@ func pose(t: float) -> void:
 	var loop := bool(spec.get("loop", _anim.loop_mode != Animation.LOOP_NONE))
 	ct = fposmod(ct, _anim.length) if loop else clampf(ct, 0.0, _anim.length)
 	_player.seek(ct, true)
+	_bend(t)
 	# where along the walk, and facing which way
 	var walked := maxf(0.0, t - float(spec.get("walk_at", 0.0))) * _speed
 	var p := _path[0]
@@ -259,3 +266,43 @@ func pose(t: float) -> void:
 	var fwd := (_base.basis * Vector3(sin(face), 0.0, cos(face))).normalized()
 	fwd = (fwd - up * fwd.dot(up)).normalized()
 	global_transform = Transform3D(Basis(up.cross(fwd), up, fwd), world)
+
+
+## "bend": bones turned on top of the clip at this moment: keys [{"t": s, "<Bone>": [x, y, z]}, ...]
+## (degrees about the body's own axes: x nods it forward, y turns it to its left, z tilts it to its
+## right), eased between keys and held before the first and after the last; a bone a key leaves out
+## is straight there. A head coming up slowly, a spine leaning in.
+func _bend(t: float) -> void:
+	var keys: Array = spec.get("bend", [])
+	if keys.is_empty():
+		return
+	var sk := StoryCast.skeleton(self)
+	if sk == null:
+		return
+	var a: Dictionary = keys[0]
+	var b: Dictionary = keys[0]
+	var f := 0.0
+	for i in keys.size():
+		if t >= float((keys[i] as Dictionary).get("t", 0.0)):
+			a = keys[i]
+			b = keys[mini(i + 1, keys.size() - 1)]
+			var span := float(b.get("t", 0.0)) - float(a.get("t", 0.0))
+			f = clampf((t - float(a.get("t", 0.0))) / span, 0.0, 1.0) if span > 0.0 else 0.0
+	f = f * f * (3.0 - 2.0 * f)
+	var bones: Array[int] = []
+	for k: String in a.keys() + b.keys():
+		var i := sk.find_bone(k)
+		if k != "t" and i >= 0 and not i in bones:
+			bones.append(i)
+	bones.sort()                                   # parents before their children
+	for i in bones:
+		var name := sk.get_bone_name(i)
+		var da: Array = a.get(name, [0.0, 0.0, 0.0])
+		var db: Array = b.get(name, [0.0, 0.0, 0.0])
+		var deg := Vector3(float(da[0]), float(da[1]), float(da[2])).lerp(Vector3(float(db[0]), float(db[1]), float(db[2])), f)
+		var turn := Basis.from_euler(Vector3(deg_to_rad(deg.x), deg_to_rad(deg.y), deg_to_rad(-deg.z)))
+		var parent := sk.get_bone_parent(i)
+		var up := sk.get_bone_global_pose(parent) if parent >= 0 else Transform3D()
+		var g := sk.get_bone_global_pose(i)
+		var local := up.affine_inverse() * Transform3D(turn * g.basis, g.origin)
+		sk.set_bone_pose_rotation(i, local.basis.orthonormalized().get_rotation_quaternion())

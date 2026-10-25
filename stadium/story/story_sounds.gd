@@ -3,7 +3,9 @@ extends RefCounted
 ## The cutscenes' own sounds (PLAN M20-3, the horror layer): synthesized here, like the race's
 ## stand-in cues (audio/tm_sounds.gd), so no recording is needed: "sting" (a low hit under a
 ## dissonant scrape, for the face in the mirror), "rain" (a loop: hiss on the roof), "heartbeat"
-## (a loop), "chime" (the satnav's two notes), "thump" (a door, a hand on glass).
+## (a loop), "chime" (the satnav's two notes), "thump" (a door, a hand on glass), "drip" (a loop:
+## water dripping off someone soaked into water on the floor), "drone" (a loop: dread, a low beating
+## tone and a thin high one swelling for four seconds, then held).
 
 const RATE := 22050
 static var _cache := {}
@@ -24,15 +26,20 @@ static func get_stream(name: String) -> AudioStream:
 			s = _chime()
 		"thump":
 			s = _thump()
+		"drip":
+			s = _drip()
+		"drone":
+			s = _drone()
 	_cache[name] = s
 	return s
 
 
 static func loops(name: String) -> bool:
-	return name in ["rain", "heartbeat"]
+	return name in ["rain", "heartbeat", "drip", "drone"]
 
 
-static func _wav(x: PackedFloat32Array, loop := false) -> AudioStreamWAV:
+## loop_from: the sample a loop goes back to (a swell played once, then its held part looping).
+static func _wav(x: PackedFloat32Array, loop := false, loop_from := 0) -> AudioStreamWAV:
 	var data := PackedByteArray()
 	data.resize(x.size() * 2)
 	for i in x.size():
@@ -43,6 +50,7 @@ static func _wav(x: PackedFloat32Array, loop := false) -> AudioStreamWAV:
 	w.data = data
 	if loop:
 		w.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		w.loop_begin = loop_from
 		w.loop_end = x.size()
 	return w
 
@@ -111,3 +119,41 @@ static func _thump() -> AudioStreamWAV:
 		var t := float(i) / RATE
 		x[i] = sin(TAU * 70.0 * t) * exp(-t * 14.0) * 0.9
 	return _wav(x)
+
+
+static func _drip() -> AudioStreamWAV:
+	# drops at uneven gaps, each a short tone rising as it rings (a drop into water) and the tick of
+	# it landing; whole seconds, so the loop's seam falls between drops
+	var n := RATE * 4
+	var x := PackedFloat32Array()
+	x.resize(n)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 21
+	var at := 0.08
+	while at < 3.8:
+		var a := rng.randf_range(0.2, 0.55)
+		var f := rng.randf_range(650.0, 1150.0)
+		var i0 := int(at * RATE)
+		for k in mini(int(RATE * 0.09), n - i0):
+			var t := float(k) / RATE
+			var tone := sin(TAU * f * (t + 3.5 * t * t)) * exp(-t * 60.0)
+			x[i0 + k] += a * (tone + rng.randf_range(-1.0, 1.0) * exp(-t * 500.0) * 0.4)
+		at += rng.randf_range(0.16, 0.7)
+	return _wav(x, true)
+
+
+static func _drone() -> AudioStreamWAV:
+	# 49 and 51.5 Hz beating, their octave wavering, a minor second high and thin; every tone a whole
+	# number of cycles over the held two seconds (4 to 6 s), which loop seamlessly
+	var n := RATE * 6
+	var x := PackedFloat32Array()
+	x.resize(n)
+	for i in n:
+		var t := float(i) / RATE
+		var env := minf(t / 4.0, 1.0)
+		env *= env
+		var low := (sin(TAU * 49.0 * t) + sin(TAU * 51.5 * t)) * 0.3
+		var mid := sin(TAU * 98.0 * t + 0.4 * sin(TAU * 0.5 * t)) * 0.18
+		var high := sin(TAU * 2093.0 * t) * 0.035 + sin(TAU * 2217.5 * t) * 0.03
+		x[i] = (low + mid + high) * env
+	return _wav(x, true, RATE * 4)

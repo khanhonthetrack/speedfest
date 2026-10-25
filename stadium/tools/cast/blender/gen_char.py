@@ -259,13 +259,78 @@ def vest(basemesh, rig, spec):
     return obj
 
 
+def part_veil(hb, rig, spec):
+    """A parting in the veil (spec "part": {"width": half the gap, m; "at": 0 the midline .. 1 over
+    her left eye}): the hair over the face cut down a line and its two sides pulled apart, the gap
+    widest from the brows to the chin and closing at the hairline and under the chin, so the veil
+    reads as a face behind wet hair (an eye, the corner of a mouth) and not the back of a head.
+    The hair's quads are large, so rows are cut across the line first, for the gap to taper. hb: the
+    turned hair (world)."""
+    import bmesh
+    from mathutils import Vector
+    eyes = next((g for g in rig.children if g.type == 'MESH' and ObjectService.get_object_type(g) == "Eyes"), None)
+    if eyes is None:
+        return 0
+    ew = eyes.matrix_world
+    pts = [ew @ v.co for v in eyes.data.vertices]
+    left = [p for p in pts if p.x > 0.0]
+    right = [p for p in pts if p.x <= 0.0]
+    if not left or not right:
+        return 0
+    lx = sum(p.x for p in left) / len(left)
+    mid = 0.5 * (lx + sum(p.x for p in right) / len(right))
+    cx = mid + float(spec.get("at", 0.5)) * (lx - mid)
+    ez = sum(p.z for p in pts) / len(pts)
+    front = min(p.y for p in pts) + 0.03          # MPFB faces -y: the hair before this plane covers the face
+    w = float(spec.get("width", 0.015))
+    reach = 3.0 * w
+
+    def smooth(a, b, x):
+        u = min(1.0, max(0.0, (x - a) / (b - a)))
+        return u * u * (3.0 - 2.0 * u)
+
+    def open_at(z):
+        # closed at the hairline, open from the brows to the chin, closed again under it
+        return smooth(ez + 0.09, ez + 0.03, z) if z > ez else smooth(ez - 0.17, ez - 0.11, z)
+
+    def near():
+        fs = [f for f in hb.faces if (lambda c: c.y < front + 0.05 and abs(c.x - cx) < reach + 0.1
+                                      and ez - 0.25 < c.z < ez + 0.15)(f.calc_center_median())]
+        return fs + list({e for f in fs for e in f.edges}) + list({v for f in fs for v in f.verts})
+
+    for z in (0.09, 0.06, 0.03, 0.0, -0.04, -0.08, -0.11, -0.14, -0.17):
+        bmesh.ops.bisect_plane(hb, geom=near(), plane_co=Vector((0.0, 0.0, ez + z)), plane_no=Vector((0.0, 0.0, 1.0)))
+    bmesh.ops.bisect_plane(hb, geom=near(), plane_co=Vector((cx, 0.0, 0.0)), plane_no=Vector((1.0, 0.0, 0.0)))
+
+    def on(v):
+        return abs(v.co.x - cx) < 1e-5 and v.co.y < front
+
+    seam = [e for e in hb.edges if on(e.verts[0]) and on(e.verts[1]) and max(open_at(v.co.z) for v in e.verts) > 0.0]
+    bmesh.ops.split_edges(hb, edges=seam)
+
+    def side(v):
+        if abs(v.co.x - cx) >= 1e-5 or not v.link_faces:
+            return 1.0 if v.co.x >= cx else -1.0
+        return 1.0 if sum(f.calc_center_median().x for f in v.link_faces) / len(v.link_faces) >= cx else -1.0
+
+    moved = 0
+    for v in hb.verts:
+        d = abs(v.co.x - cx)
+        if v.co.y < front and d < reach and open_at(v.co.z) > 0.0:
+            v.co.x += side(v) * w * open_at(v.co.z) * (1.0 - d / reach)
+            moved += 1
+    log("hair veil: parted %.0f mm wide at %.2f toward her left eye (%d edges split, %d vertices moved)" % (
+        2000.0 * w, float(spec.get("at", 0.5)), len(seam), moved))
+    return moved
+
+
 def hair_veil(basemesh, rig, spec):
     """The hair let down over the face (the passenger in the mirror): the hair turned about the
     skull's vertical axis (spec "turn", degrees: 180 brings a long back down over the face and the
     chest), whatever then lies inside the body or on it pushed out to "clear" m off the skin (the
     distances smoothed along the hair, never less than measured, so the strands hang rather than
     kink), and weighted again from the nearest body vertex: over the face it follows the head, over
-    the chest the chest."""
+    the chest the chest. "part" opens a gap in it down the face (part_veil)."""
     import bmesh
     from mathutils import Matrix, Vector
     from mathutils.bvhtree import BVHTree
@@ -295,6 +360,8 @@ def hair_veil(basemesh, rig, spec):
     hb = bmesh.new()
     hb.from_mesh(hair.data)
     hb.transform(turn @ hw)
+    if spec.get("part"):
+        part_veil(hb, rig, spec["part"])
     clear = float(spec.get("clear", 0.012))
     need = {}
     for v in hb.verts:

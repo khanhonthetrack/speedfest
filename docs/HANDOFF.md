@@ -49,8 +49,15 @@
   The page is built by a script in the session scratchpad (stills from `story_lab --set_quality=2
   --ts=... --every=60 --shots=... --frames=<last + 1>`, the `--frames` or it never quits; the old
   page's stills extracted from its HTML).
-- **Next**: the owner's answers on that page; faces' polish (head turns,
-  expressions per line); Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **The owner's answers** (25 Oct): "The Mirror: scarier", night 1 "not yet" (people stood as if to
+  fight), "The knock: keep", and **clips, not just stills, from now on**. Done: people stand in Human
+  Basic Motions' idles (`"Stand"`, `"Stand_B"`, `"Stand_Talk"`, a woman's or a man's take); the Mirror
+  re-cut (the empty seat dripping, a drone, then her, bowed, her head coming up, one eye through the
+  parted hair on the mirror, the sting on the cut; PROGRESS has the beat sheet); `tools/clip.sh`
+  (README "The cast" has the command: at Ultra about 10 s a frame with the mirror, so render clips
+  in the background, two hours at most per run).
+- **Next**: clips of night 1 for the owner (the Mirror, the knock, the auction's standing crowd) on a
+  new page; then their verdict; faces' polish (head turns, expressions per line); Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).

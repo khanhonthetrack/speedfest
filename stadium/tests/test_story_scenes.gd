@@ -4,8 +4,9 @@ extends Node
 ##   scenes: the key a voice or a translation pass swaps by), a known kind, text, and a speaker
 ##   when it is spoken;
 ## - nothing is missing: every track a shot stands on exists, every car is one of ours, every
-##   person's clip is in the animation library and its cast member ("who") built, and every flag a
-##   condition reads is set somewhere
+##   person's clip is in the animation library and its cast member ("who") built, every sound and
+##   ambience is one of StorySounds' (an ambience one that loops), and every flag a condition reads
+##   is set somewhere
 ##   (a decision's exit, a night's fact, a scene, a line);
 ## - it plays headless from start to end at the fixed frame rate (logic only: no tracks built), and
 ##   skipping it at any point ends it at once with its flags set, as if it had played;
@@ -61,6 +62,13 @@ func _ready() -> void:
 				# a cast member who isn't built would be the Mannequin, with only a warning
 				if p.has("who") and not StoryCast.has(String(p["who"])):
 					bad.append("shot %s: no cast member %s" % [s.get("id", "?"), p["who"]])
+			# a sound that isn't one of ours would be silence, without a word
+			for snd: Dictionary in s.get("sounds", []):
+				if StorySounds.get_stream(String(snd.get("cue", ""))) == null:
+					bad.append("shot %s: no sound %s" % [s.get("id", "?"), snd.get("cue", "")])
+			for cue: String in StoryScene.ambience(s):
+				if StorySounds.get_stream(cue) == null or not StorySounds.loops(cue):
+					bad.append("shot %s: no looping sound %s" % [s.get("id", "?"), cue])
 			for l: Dictionary in s.get("lines", []):
 				var lid := String(l.get("id", ""))
 				var kind := String(l.get("kind", "say"))

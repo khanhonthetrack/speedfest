@@ -35,7 +35,8 @@ extends Node3D
 ##     "rect": [x, y, w, h] (fractions of the screen)} (a rear-view mirror: a second camera, its
 ##     picture flipped and framed), "glass": 0..1 (rain on the windscreen), "flash": [[at, s], ...]
 ##     (white frames), "flicker": {"rate", "depth"} (the lights stutter), "sounds": [{"at", "cue"}]
-##     (StorySounds: sting, chime, thump), "ambience": a looping cue (rain, heartbeat),
+##     (StorySounds: sting, chime, thump), "ambience": a looping cue or a list of them (rain,
+##     heartbeat, drip, drone: a loop stops at the first cut to a shot that doesn't name it),
 ##   "cctv": {"label", "clock": "03:12:04"} (a security camera's grey, grainy picture),
 ##   "props": [StoryProps: containers, a crane, floodlight poles, toll booths],
 ##   "lines": [{"id", "speaker", "text", "kind": "say" (a subtitle) | "text" (a message arriving on
@@ -360,7 +361,7 @@ func _enter(i: int) -> void:
 	StoryProps.build(_props, s.get("props", []), _anchor)
 	_set_rain(float(s.get("rain", data.get("rain", 0.0))))
 	_set_mirror(s)
-	_set_ambience(String(s.get("ambience", "")))
+	_set_ambience(ambience(s))
 
 
 func _build_stage(track: String) -> void:
@@ -609,12 +610,14 @@ func _lines_of(p: StoryPerson, s: Dictionary) -> Array:
 	return out
 
 
-## Where a person looks: its "gaze" (the camera, or a person), else whoever else is speaking on screen
+## Where a person looks: its "gaze" (the camera, the mirror, or a person), else whoever else is speaking on screen
 ## (a voice off draws no eyes: it is heard, not seen).
 func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 	var g := String(p.spec.get("gaze", ""))
 	if g == "camera" and camera != null:
 		return camera.global_position
+	if g == "mirror" and _mirror_cam != null and s.has("mirror"):
+		return _mirror_cam.global_position
 	if g != "":
 		for q in _people:
 			if String(q.spec.get("id", "")) == g and q != p:
@@ -757,15 +760,27 @@ func _play(cue: String, db := 0.0) -> AudioStreamPlayer:
 	return p
 
 
-## A shot's looping sound (rain on the roof, a heartbeat), only while the scene plays.
-func _set_ambience(cue: String) -> void:
+## A shot's looping sounds (rain on the roof, a heartbeat, water dripping), only while the scene
+## plays: a loop the next shot doesn't name stops at the cut.
+func _set_ambience(cues: Array) -> void:
 	for name: String in _players:
-		if StorySounds.loops(name) and name != cue:
+		if StorySounds.loops(name) and not name in cues:
 			(_players[name] as AudioStreamPlayer).stop()
-	if playing and not cue.is_empty():
-		var p: AudioStreamPlayer = _players.get(cue, null)
-		if p == null or not p.playing:
-			_play(cue, -6.0)
+	for cue: String in cues:
+		if playing and not cue.is_empty():
+			var p: AudioStreamPlayer = _players.get(cue, null)
+			if p == null or not p.playing:
+				_play(cue, -6.0)
+
+
+## A shot's "ambience": a looping cue, or a list of them.
+static func ambience(s: Dictionary) -> Array:
+	var a: Variant = s.get("ambience", "")
+	var out: Array = []
+	for c: Variant in (a if a is Array else [a]):
+		if not String(c).is_empty():
+			out.append(String(c))
+	return out
 
 
 static func _ease(f: float, kind: String) -> float:

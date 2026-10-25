@@ -6,7 +6,10 @@ extends Node3D
 ## the clip has tipped; in a scene of two shots (scene time is not shot time) only the speaker on
 ## screen moves its mouth, the other looks at it, a voice off moves no mouth and draws no eyes, a
 ## look at the camera follows the moving camera, and every shape is the same whichever way a
-## cutscene seeks to a moment.
+## cutscene seeks to a moment. The passenger in the mirror: a "bend" turns her head on top of the
+## clip by its degrees, eased between keys and held after the last, the same however often or in
+## whatever order a frame is posed; her eyes never shut ("blink": false), her jaw hangs ("shapes"),
+## and her eyes find the mirror ("gaze": "mirror") as it moves.
 ## Run: stadium/tools/run.sh res://tests/test_story_face.tscn --headless
 
 const MOUTH := ["jawOpen", "viseme_aa", "viseme_O", "viseme_E", "viseme_I", "viseme_U", "viseme_SS", "viseme_PP",
@@ -115,6 +118,7 @@ func _ready() -> void:
 		left_ok, right_ok, down_ok, turned_ok, aside, no_flip, tipped])
 	dee.free()
 	await _scene()
+	_dead()
 	TestHooks.finish()
 
 
@@ -214,6 +218,80 @@ func _scene() -> void:
 	var c: Array = shapes.call()
 	TestHooks.check(a == b and b == c, "face_seek_order_free", "%s\n%s\n%s" % [a, b, c] if a != b or b != c else "")
 	sc.queue_free()
+
+
+## The passenger (p1) with her head bowed and coming up, beside herself unbent (p0); a mirror that
+## moves from her left to her right; she never blinks, her jaw hangs.
+func _dead() -> void:
+	var bend := [{"t": 0.0, "Neck": [12, 0, 0], "Head": [28, 0, 0]}, {"t": 1.0, "Neck": [12, 0, 0], "Head": [28, 0, 0]},
+		{"t": 2.8, "Neck": [0, 0, 0], "Head": [-2, 0, 0]}]
+	var d := {"id": "dead_test", "shots": [{"id": "mirror", "dur": 6.0,
+		"people": [{"id": "p0", "who": "passenger", "clip": "Sitting_Idle", "rate": 0.0, "pos": [3.0, 0.0, 0.0]},
+			{"id": "p1", "who": "passenger", "clip": "Sitting_Idle", "rate": 0.0, "pos": [0.0, 0.0, 0.0],
+				"gaze": "mirror", "blink": false, "shapes": {"jawOpen": 0.12}, "bend": bend}],
+		"camera": {"keys": [{"u": 0, "pos": [0.0, 1.6, 4.0], "look": [0.0, 1.2, 0.0]}]},
+		"mirror": {"ease": "linear", "keys": [{"u": 0, "pos": [1.5, 1.3, 1.2], "look": [0.0, 1.2, 0.0]},
+			{"u": 1, "pos": [-1.5, 1.3, 1.2], "look": [0.0, 1.2, 0.0]}]}}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(0.5)
+	var p0 := _find(sc, "p0")
+	var p1 := _find(sc, "p1")
+	if p0 == null or p1 == null:
+		TestHooks.check(false, "dead_bend_turns_the_head", "no people")
+		return
+	# the head's turn against her unbent self (the neck's and the head's degrees add up about one axis)
+	var turn := func() -> float:
+		var a := _head_q(p0)
+		var b := _head_q(p1)
+		return rad_to_deg((a.inverse() * b).get_angle())
+	var face_dir := func() -> Vector3:              # where her face points against her unbent self's
+		return (_head_q(p1) * _head_q(p0).inverse()) * Vector3(0.0, 0.0, 1.0)
+	sc.seek(0.5)
+	var bowed: float = turn.call()
+	var bowed_dir: Vector3 = face_dir.call()
+	sc.seek(1.9)                                     # halfway between the keys: eased, half of 40 - (-2)
+	var half: float = turn.call()
+	sc.seek(4.0)
+	var up: float = turn.call()
+	TestHooks.check(absf(bowed - 40.0) < 2.0 and bowed_dir.y < -0.6 and absf(bowed_dir.x) < 0.05 and absf(half - 19.0) < 4.0
+		and absf(up - 2.0) < 1.5, "dead_bend_turns_the_head",
+		"bowed %.1f deg (her face to %s: down, not aside), halfway %.1f, up %.1f" % [bowed, bowed_dir, half, up])
+	# the same however often a frame is posed (the clip is held: rate 0) and whatever came before
+	sc.seek(0.5)
+	var once := _head_q(p1)
+	for k in 5:
+		sc.seek(0.5)
+	var again := _head_q(p1)
+	sc.seek(4.0)
+	sc.seek(0.5)
+	var after := _head_q(p1)
+	TestHooks.check(once.is_equal_approx(again) and once.is_equal_approx(after), "dead_bend_never_adds_up",
+		"%s / %s / %s" % [once, again, after])
+	# never a blink, the jaw slack, though the unbent one blinks
+	var shut := 0.0
+	var other := 0.0
+	var jaw := 1.0
+	for k in 300:
+		sc.seek(k * 0.02)
+		shut = maxf(shut, p1.face.shape("eyeBlinkLeft"))
+		other = maxf(other, p0.face.shape("eyeBlinkLeft"))
+		jaw = minf(jaw, p1.face.shape("jawOpen"))
+	TestHooks.check(shut == 0.0 and other > 0.5 and absf(jaw - 0.12) < 0.001, "dead_never_blinks",
+		"her lids %.2f (the other %.2f), her jaw %.3f" % [shut, other, jaw])
+	# her eyes on the mirror: to her left (+x) at the start, to her right at the end
+	sc.seek(0.3)
+	var early := p1.face.shape("eyeLookOutLeft") - p1.face.shape("eyeLookInLeft")
+	sc.seek(5.7)
+	var late := p1.face.shape("eyeLookOutLeft") - p1.face.shape("eyeLookInLeft")
+	TestHooks.check(early > 0.1 and late < -0.1, "dead_looks_into_the_mirror", "her left eye out %.2f, then %.2f" % [early, late])
+	sc.free()
+
+
+func _head_q(p: Node3D) -> Quaternion:
+	var sk := StoryCast.skeleton(p)
+	return (p.global_basis.inverse() * sk.global_basis * sk.get_bone_global_pose(sk.find_bone("Head")).basis).get_rotation_quaternion()
 
 
 func _find(sc: Node, id: String) -> StoryPerson:

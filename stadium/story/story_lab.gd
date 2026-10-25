@@ -2,7 +2,8 @@ extends Node
 ## Looks at a cutscene (PLAN M20-3): --scene=<id> (story/scenes/<id>.json; --file=<abs path> for one
 ## kept elsewhere) seeked to --t=<s> and held there for the screenshot (--frames=N --shot=/abs.png;
 ## give SDFGI and the city a few dozen frames), or --play [--t=<s>] plays it on from there to its
-## end at the fixed frame rate and quits (headless tests). --flags=a,b,c sets those flags on the save
+## end at the fixed frame rate and quits (headless tests; --hold=N holds the first frame N frames
+## before it plays, for a clip's light to settle: tools/clip.sh --skip cuts them). --flags=a,b,c sets those flags on the save
 ## the conditions read (--tier=hot: enough facts for it; --ways=c01=3 the finish taken on a night, for
 ## a "way:" condition); --no_stage leaves the tracks out (logic
 ## only). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
@@ -47,6 +48,11 @@ func _ready() -> void:
 			print("SCENE_END %s at %.2f s%s" % [id, scene.t, " (skipped)" if skipped else ""])
 			TestHooks.ok("story_scene_plays_" + id)
 			TestHooks.finish())
+		# a clip's first frames: the city and its light settle on the first frame before it plays
+		scene.seek(at)
+		for k in int(TestHooks.arg("hold", 0)):
+			await get_tree().process_frame
+			scene.seek(at)
 		scene.play(at)
 	else:
 		scene.seek(at)

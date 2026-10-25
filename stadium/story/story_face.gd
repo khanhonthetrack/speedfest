@@ -35,6 +35,8 @@ const STOP := 2.2                       ## at , . ? ! ; :
 
 var root: Node3D
 var seed := 0
+var blinks := true                      ## false: the eyes never shut (the dead)
+var held := {}                          ## face shapes held under whatever else moves (a slack jaw)
 var _shapes := {}                       ## shape -> [[MeshInstance3D, index], ...]
 
 
@@ -68,13 +70,13 @@ func shape(name: String) -> float:
 ## The face at scene time t: lines = this person's own spoken lines [{at, hold, text}] (scene time),
 ## gaze = a world point to look at, or null (straight ahead).
 func pose(t: float, lines: Array, gaze: Variant) -> void:
-	var b := blink_at(t, seed)
-	set_shape("eyeBlinkLeft", b)
-	set_shape("eyeBlinkRight", b)
+	var b := blink_at(t, seed) if blinks else 0.0
+	set_shape("eyeBlinkLeft", maxf(b, float(held.get("eyeBlinkLeft", 0.0))))
+	set_shape("eyeBlinkRight", maxf(b, float(held.get("eyeBlinkRight", 0.0))))
 	var m := mouth_at(t, lines)
 	for v in SHAPE.values():
-		set_shape(v[0], float(m.get(v[0], 0.0)))
-	set_shape("jawOpen", float(m.get("jawOpen", 0.0)))
+		set_shape(v[0], maxf(float(m.get(v[0], 0.0)), float(held.get(v[0], 0.0))))
+	set_shape("jawOpen", maxf(float(m.get("jawOpen", 0.0)), float(held.get("jawOpen", 0.0))))
 	var eyes := {}
 	if gaze is Vector3:
 		eyes = eyes_towards(gaze)

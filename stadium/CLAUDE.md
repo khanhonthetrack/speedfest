@@ -71,7 +71,7 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-24. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-25. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **Story mode (PLAN M20, 23-24 Oct, session 21):** premise A "Previous Owner" (`docs/STORY.md`, the
   bible; the brief `docs/STORY_MODE_PROMPT.md`); night 1 is playable from the Story page (H01-H03, the
   prologue and five scenes, the mirror nightmare) and waits for the owner's sign-off (stills page in
@@ -82,8 +82,11 @@ Updated 2026-10-24. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   realistic (owner, 24 Oct, after a side-by-side with a stylised set, set aside: `specs_stylised/`).
   Faces in cutscenes: `story/story_face.gd` (`tests/test_story_face`). Seated by their own heights
   (`StoryCast.seated`, `StoryCabin.lower`; `tests/test_cast_seats`). Night 1's others built: the
-  passenger (hair over the face), the coat man, Voss, the auction crowd (a lighter tier).
-  Next: faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
+  passenger (hair over the face), the coat man, Voss, the auction crowd (a lighter tier). People
+  stand in Human Basic Motions' idles (`"Stand"`, `"Stand_B"`, `"Stand_Talk"`; owner, 25 Oct). The
+  Mirror re-cut scarier (25 Oct: the empty seat dripping, then her, bowed, her head coming up, one
+  eye through the parted hair on the mirror). Clips: `tools/clip.sh`. Next: the owner's verdict on
+  the clips; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone
