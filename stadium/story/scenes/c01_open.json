@@ -970,7 +970,6 @@
 				}
 			],
 			"id": "yard",
-			"fade_in": 1.5,
 			"people": [
 				{
 					"id": "c1",

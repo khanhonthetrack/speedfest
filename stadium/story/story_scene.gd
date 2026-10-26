@@ -38,10 +38,12 @@ extends Node3D
 ##     picture flipped and framed), or {"glass": true, "follow": a car with a cabin} (the cabin's own
 ##     mirror glass shows what its driver sees in it, from any camera: StoryCabin.reflection), "glass": 0..1 (rain on the windscreen), "flash": [[at, s], ...]
 ##     (white frames), "flicker": {"rate", "depth"} (the lights stutter), "sounds": [{"at", "cue"}]
-##     (StorySounds: sting, chime, thump), "ambience": a looping cue or a list of them (rain,
-##     heartbeat, drip, drone: a loop stops at the first cut to a shot that doesn't name it),
+##     (StorySounds: sting, chime, thump, breath, gasp), "ambience": a looping cue or a list of them
+##     (rain, heartbeat, drip, drone, train: a loop stops at the first cut to a shot that doesn't name
+##     it; the train dies away over 1.5 s),
 ##   "cctv": {"label", "clock": "03:12:04"} (a security camera's grey, grainy picture),
-##   "props": [StoryProps: containers, a crane, floodlight poles, toll booths],
+##   "props": [StoryProps: containers, a crane, floodlight poles, toll booths, a railway viaduct
+##     ("viaduct", its "train")],
 ##   "lines": [{"id", "speaker", "text", "kind": "say" (a subtitle) | "text" (a message arriving on
 ##     the phone: "mine" for the player's own) | "phone" (the thread's name: {"from"}), "hold" (s;
 ##     default from the text's length), "gap" (s before it), "at" (s into the shot, else after the
@@ -53,6 +55,7 @@ signal finished(skipped: bool)
 
 const DIR := "res://story/scenes"
 const READ_CPS := 15.0                 ## subtitle reading speed (characters per second)
+const FADE_OUT := ["train"]            ## loops that die away over a cut instead of stopping dead
 
 var data := {}
 var state: StoryState                  ## the save the conditions read (a fresh one if null)
@@ -309,8 +312,9 @@ func _enter(i: int) -> void:
 	var s: Dictionary = shots[i]
 	var track := String(s.get("track", data.get("track", "")))
 	var bare := bool(s.get("bare", data.get("bare", false)))
-	if with_stage and not track.is_empty() and track + ("|bare" if bare else "") != _stage_track:
-		_build_stage(track, bare)
+	if with_stage and not track.is_empty() and track != _stage_track:
+		_build_stage(track)
+	_set_bare(bare)
 	for c: Dictionary in _cars.values():
 		(c["node"] as Node).queue_free()
 		if c.has("cabin"):
@@ -370,13 +374,10 @@ func _enter(i: int) -> void:
 	_set_ambience(ambience(s))
 
 
-## bare: the place without its track (a yard on a race map): no road, barriers, checkpoints or the
-## neon along them; the ground, the city and the light stay, and the track's line still places the
-## shot (its anchor drops onto the ground).
-func _build_stage(track: String, bare := false) -> void:
+func _build_stage(track: String) -> void:
 	if _stage != null:
 		_stage.queue_free()
-	_stage_track = track + ("|bare" if bare else "")
+	_stage_track = track
 	_challenge = TmTracks.challenge(track)
 	_stage = Node3D.new()
 	_stage.name = "Stage"
@@ -385,13 +386,26 @@ func _build_stage(track: String, bare := false) -> void:
 		push_error("story: %s" % _challenge.error)
 		return
 	var b := TmMapBuilder.build(_challenge)
-	if bare:
-		for n in ["Blocks", "RoadDecals"]:
-			var node := b.root.get_node_or_null(n)
-			if node != null:
-				node.free()
 	_stage.add_child(b.root)
-	TmStage.add_environment(_stage, b, not bare)
+	TmStage.add_environment(_stage, b)
+
+
+## "bare": the place without its track (a yard on a race map): the road, barriers, checkpoints and
+## the neon along them hidden and their collision off, the ground, the city and the light left; the
+## track's line still places the shot (its anchor drops onto the ground). A switch, not a rebuild,
+## so a cut between a bare shot and one on the track never stalls.
+func _set_bare(bare: bool) -> void:
+	if _stage == null:
+		return
+	for n in _stage.find_children("*", "", true, false):
+		if not String(n.name) in ["Blocks", "RoadDecals", "NeonLights"]:
+			continue
+		(n as Node3D).visible = not bare
+		for body in n.find_children("*", "CollisionObject3D", true, false):
+			var co := body as CollisionObject3D
+			if not co.has_meta("layer"):
+				co.set_meta("layer", co.collision_layer)
+			co.collision_layer = 0 if bare else int(co.get_meta("layer"))
 
 
 ## A place on the track's racing line: fraction `at` of it, `left` m to its left, `ahead` m on.
@@ -487,12 +501,15 @@ func _add_light(l: Dictionary) -> void:
 	var p := _vec(l.get("pos", [0, 3, 0]))
 	var car_id := String(l.get("car", ""))
 	if _cars.has(car_id):
-		# riding in the car (its road frame), so it stays with it as it drives
-		var host: Node3D = _cars[car_id].get("cabin", _cars[car_id]["node"])
+		# riding in the car (its road frame), so it stays with it as it drives; without a cabin it rides
+		# on the car body's node, which stands at VIS (+ lift) over the road frame
+		var c: Dictionary = _cars[car_id]
+		var host: Node3D = c.get("cabin", c["node"])
+		var off := Vector3.ZERO if c.has("cabin") else TmCarVisual.VIS + Vector3(0.0, float((c["spec"] as Dictionary).get("lift", 0.0)), 0.0)
 		host.add_child(light)
-		light.position = p
+		light.position = p - off
 		if l.has("look"):
-			light.look_at(host.global_transform * _vec(l["look"]), host.global_basis.y)
+			light.look_at(host.global_transform * (_vec(l["look"]) - off), host.global_basis.y)
 		return
 	_props.add_child(light)
 	light.global_position = _anchor * p
@@ -844,7 +861,18 @@ func _play(cue: String, db := 0.0) -> AudioStreamPlayer:
 func _set_ambience(cues: Array) -> void:
 	for name: String in _players:
 		if StorySounds.loops(name) and not name in cues:
-			(_players[name] as AudioStreamPlayer).stop()
+			var p := _players[name] as AudioStreamPlayer
+			if name in FADE_OUT and p.playing and is_inside_tree():
+				# a train passing on over a cut dies away; it isn't cut dead
+				if not p.has_meta("fading"):
+					p.set_meta("fading", true)
+					var tw := create_tween()
+					tw.tween_property(p, "volume_db", -40.0, 1.5)
+					tw.tween_callback(func() -> void:
+						p.stop()
+						p.remove_meta("fading"))
+			elif not p.has_meta("fading"):
+				p.stop()
 	for cue: String in cues:
 		if playing and not cue.is_empty():
 			var p: AudioStreamPlayer = _players.get(cue, null)

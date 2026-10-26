@@ -62,12 +62,11 @@
   naturally?, night 1 signed off?. Clips by `tools/clip.sh` (README "The cast"); the page by a
   script in the session scratchpad (`page2/build.py`: posters, beats, size checks).
 - **The owner's answers** (25-26 Oct): standing is natural now; night 1 not yet: an aerial intro of
-  the city, the track out of the yard (done: `"bare"`), the Mirror redone as a jump scare with Kit on
+  the city (done: three shots open `c01_open`, city / descent / overhead, 15.5 s, the title "Night 1 / The Yard"), the track out of the yard (done: `"bare"`), the Mirror redone as a jump scare with Kit on
   screen looking in the mirror (done: v3, a real reflecting mirror), the script to read (done:
   https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH, `docs/NIGHT1_SCRIPT.md`), and **"just write it"**:
   make the calls, don't ask (the knock rewritten at Arch 9 that way).
-- **Next**: the aerial intro of the city at the start of `c01_open`; then clips of the intro, the
-  yard, the Mirror and the knock on a new page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **Next**: clips of the intro, the yard, the Mirror and the knock on a new page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).

@@ -220,13 +220,14 @@ static func _viaduct(p: Dictionary) -> Node3D:
 	bulb.light_energy = 3.5
 	bulb.omni_range = 11.0
 	bulb.shadow_enabled = true
-	bulb.position = Vector3(0.0, 3.4, -3.5)
+	bulb.position = Vector3(0.0, 1.95, -3.5)      # hung low on its flex, so it shows under the door
 	root.add_child(bulb)
 	var glow := StandardMaterial3D.new()
 	glow.emission_enabled = true
 	glow.emission = Color(1.0, 0.8, 0.5)
 	glow.emission_energy_multiplier = 8.0
-	_box(root, Vector3(0.0, 3.55, -3.5), Vector3(0.12, 0.16, 0.12), glow)
+	_box(root, Vector3(0.0, 2.1, -3.5), Vector3(0.12, 0.16, 0.12), glow)
+	_box(root, Vector3(0.0, (2.18 + spring + open_w * 0.5) * 0.5, -3.5), Vector3(0.012, spring + open_w * 0.5 - 2.18, 0.012), _mat(Color(0.05, 0.05, 0.05)))
 	var sign := Label3D.new()
 	sign.text = "ARCH 9"
 	sign.font_size = 160

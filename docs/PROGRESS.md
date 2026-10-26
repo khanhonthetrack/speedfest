@@ -4636,3 +4636,16 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   cut to the yard shot. The paths were chosen from stills taken from six sides (a camera beside the
   yard came down inside a tower; the overhead path moved off the crane's top). In the script doc and
   `docs/NIGHT1_SCRIPT.md`.
+- **Reviewed** (a sequential read-only review of the Mirror v3, the knock and the intro, each finding
+  checked by a skeptic: twelve confirmed, three refuted). Fixed: the train ran off the end of the
+  63 m viaduct into the air for the last 1.9 s of the arch shot (the viaduct is now 15 arches, its ends
+  out of frame; the test checked the train when it was wholly off the deck: now over it); the train's
+  rumble stopped dead at the cut while the train was still overhead (it dies away over 1.5 s:
+  StoryScene `FADE_OUT`); the yard kept the fade from black it had when it opened the scene, so the
+  aerial descent blinked to black (gone); Kit fell asleep beside the race track and woke under Arch 9
+  at the same spot (the asleep shot at Arch 9 too) and, so that no cut stalls, `"bare"` is now a switch,
+  not a rebuild (the track's blocks, decals and neon hidden and their collision off, back on for a
+  shot on the track; `test_story_scenes` checks both ways, 39 checks); the bulb hung behind the half-up
+  door (now low on its flex, under it) and "dawn" was night on screen (the script says before dawn,
+  still dark); a light riding a car without a cabin sat 0.44 m high (now in the road frame); the scene
+  format's doc lacked the new sounds and the viaduct; HANDOFF and CLAUDE.md still listed the intro as next.

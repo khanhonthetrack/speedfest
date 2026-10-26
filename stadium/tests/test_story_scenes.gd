@@ -12,7 +12,8 @@ extends Node
 ##   skipping it at any point ends it at once with its flags set, as if it had played;
 ## - a line's conditions pick its variant: a cold, warm or hot save hears different lines;
 ## - with its track built, a shot puts the camera and its cars where the scene says; "bare", the
-##   track is left out (no blocks, road decals or neon along it) and the shot stands on the ground;
+##   track is hidden and its collision off (blocks, road decals, the neon along it), the shot standing
+##   on the ground, and switched back on for a shot on the track, without a rebuild;
 ## - a rear-view mirror on the cabin's glass reflects the driver's eyes truly, its camera runs only in
 ##   shots with a mirror, lights ride in a car, eyes glance at the mirror on cue, water falls with it;
 ## - Arch 9's viaduct stands with its lit arch and number, and its train crosses at the shot's time;
@@ -302,16 +303,35 @@ func _staged() -> void:
 	for i in 3:
 		await get_tree().physics_frame
 		bs.seek(start)
-	var names := {}
+	# the track's parts hidden, their collision off; the ground and the city stay
+	var shown := []
+	var solid := 0
+	var parts := 0
 	for n in bs._stage.find_children("*", "", true, false):
-		names[String(n.name)] = true
+		if String(n.name) in ["Blocks", "RoadDecals", "NeonLights"]:
+			parts += 1
+			if (n as Node3D).visible:
+				shown.append(String(n.name))
+			for b in n.find_children("*", "CollisionObject3D", true, false):
+				if (b as CollisionObject3D).collision_layer != 0:
+					solid += 1
 	var bcar := bs._cars.get("hero", {}).get("node", null) as Node3D
-	TestHooks.check(not names.has("Blocks") and not names.has("RoadDecals") and not names.has("NeonLights")
-		and names.has("Terrain") and bs._stage_track == "F04|bare" and bcar != null
+	var terrain := bs._stage.find_child("Terrain", true, false) as Node3D
+	var hidden_ok := parts >= 2 and shown.is_empty() and solid == 0 and terrain != null and terrain.visible
+	TestHooks.check(hidden_ok and bs._stage_track == "F04" and bcar != null
 		and absf(bs._anchor.origin.y - TmMapBuilder.GROUND_Y) < 0.3, "story_shot_bare",
-		"stage %s, nodes: blocks %s decals %s neon %s terrain %s; anchor at %s (ground %.1f)" % [bs._stage_track,
-		names.has("Blocks"), names.has("RoadDecals"), names.has("NeonLights"), names.has("Terrain"), bs._anchor.origin,
-		TmMapBuilder.GROUND_Y])
+		"stage %s, track parts %d, still shown %s, still solid %d, terrain %s; anchor at %s (ground %.1f)" % [bs._stage_track,
+		parts, shown, solid, terrain != null and terrain.visible, bs._anchor.origin, TmMapBuilder.GROUND_Y])
+	# and back on the track: shown and solid again, the same stage (no rebuild)
+	var stage := bs._stage
+	bs._set_bare(false)
+	var back := 0
+	for n in bs._stage.find_children("Blocks", "", true, false):
+		if (n as Node3D).visible:
+			for b in n.find_children("*", "CollisionObject3D", true, false):
+				if (b as CollisionObject3D).collision_layer != 0:
+					back += 1
+	TestHooks.check(back > 0 and bs._stage == stage, "story_shot_bare_switches_back", "solid track bodies again %d, same stage %s" % [back, bs._stage == stage])
 	bs.queue_free()
 	await get_tree().process_frame
 
@@ -401,10 +421,12 @@ func _viaduct() -> void:
 	var label: Label3D = root.find_children("*", "Label3D", true, false)[0] if not root.find_children("*", "Label3D", true, false).is_empty() else null
 	StoryProps.pose(root, 0.5)
 	var before := train != null and not train.visible
-	StoryProps.pose(root, 3.0)
-	var crossing := train != null and train.visible and absf(train.position.x - (-120.0 + 48.0)) < 0.001
+	StoryProps.pose(root, 7.0)
+	var half := StoryProps.SPAN * 2.5          # arches 2: five spans, the deck from -22.5 to +22.5
+	# the train runs from x - 71.5 (the last car's tail) to x + 10 (the first car's nose): over the deck
+	var crossing := train != null and train.visible and train.position.x + 10.0 > -half and train.position.x - 71.5 < half
 	TestHooks.check(before and crossing and label != null and label.text == "ARCH 9" and not root.find_children("*", "OmniLight3D", true, false).is_empty(),
-		"story_viaduct_and_train", "train hidden before it sets off %s, crossing at 3 s %s (x %s), sign %s" % [before, crossing,
+		"story_viaduct_and_train", "train hidden before it sets off %s, over the deck at 7 s %s (x %s), sign %s" % [before, crossing,
 		train.position.x if train else 0.0, label.text if label else "none"])
 	root.free()
 

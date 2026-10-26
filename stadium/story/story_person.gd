@@ -18,7 +18,8 @@ extends Node3D
 ## (default, near black cloth; a cast member keeps its clothes) | "drowned" (pale, soaked, glossy,
 ## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height),
 ## "speaker": the name its lines carry (default: the cast member's first name, else the id),
-## "gaze": "camera" | "mirror" (the shot's rear-view mirror: eyes on the driver's in the glass) |
+## "gaze": "camera" | "mirror" (the shot's rear-view mirror: eyes on the driver's in the glass; in a
+## shot without one, the glass of the cabin the person sits in) |
 ## "ahead" | a person's id (default: whoever on screen is speaking, else straight ahead), "looks":
 ## [[from, to, gaze], ...] (s into the shot: the eyes there for that while, a glance), "bend": bones turned
 ## on top of the clip over time (_bend: a head coming up), "blink": false (a cast member's eyes never

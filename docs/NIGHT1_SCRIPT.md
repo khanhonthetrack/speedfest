@@ -265,9 +265,9 @@ Gus by the coupe. One of four versions plays, depending on the finish of Kit's b
 
 Rewritten after your note (Kit on screen, driving and checking the mirror; the mirror shows the cars, then the girl). It has no dialogue. About 36 seconds.
 
-**INT. THE COUPE, PARKED. DAWN. RAIN.**
+**INT. THE COUPE, PARKED OUTSIDE ARCH 9. BEFORE DAWN. RAIN.**
 
-Seen from the dash: Kit asleep at the wheel, head against the window, the satnav's violet glow on Kit's face. Behind Kit, between the front seats, the back seat: empty.
+Seen from the dash: Kit asleep at the wheel, head against the window (outside it, the brick of the railway viaduct), the satnav's violet glow on Kit's face. Behind Kit, between the front seats, the back seat: empty.
 
 **INT. THE COUPE, DRIVING. THE DREAM.**
 
@@ -291,7 +291,7 @@ The same frame, but now the car is moving: Kit drives an empty city road in the 
 
 ## Scene 5, continued: The knock
 
-**EXT. ARCH 9, UNDER THE RAILWAY VIADUCT. EARLY MORNING, JUST AFTER SIX. RAIN.**
+**EXT. ARCH 9, UNDER THE RAILWAY VIADUCT. JUST AFTER SIX, STILL DARK. RAIN.**
 
 A row of brick railway arches. One of them, ARCH 9 painted over it, has its roller door half up and a bare bulb burning inside: Dee's workshop. A train rumbles across the viaduct overhead. The black coupe is parked outside. Dee stands at the driver's window and knocks.
 
@@ -335,7 +335,7 @@ The knock now shows where Kit is and what Dee is looking at, and the lines that 
 
 | Before | Now |
 | --- | --- |
-| No sense of place: a street with neon signs | Opens on Arch 9 at dawn: the brick viaduct, the roller door half up, the bulb, a train overhead, Dee knocking at the parked coupe |
+| No sense of place: a street with neon signs | Opens on Arch 9 before dawn, still dark: the brick viaduct, the roller door half up, the bulb, a train overhead, Dee knocking at the parked coupe |
 | "I was driving. The bridge." (no bridge in the dream) | "I was driving. There was a white car right behind me." |
 | "You were drooling on my clean seats." | "You were drooling on the wheel." |
 | "Huh. Nine pins." with the satnav never shown | A close-up of the satnav's nine purple pins as Dee says it |
