@@ -1593,3 +1593,23 @@ knock is hard to follow and fixes to pick from; the yard without its track; the 
 
 (Read as: don't ask the owner to pick fixes; make the calls and write it: rewrite the knock with the
 fixes from the script's last section, update the script, and carry on the same way from now on.)
+
+(Done: the knock rewritten at Arch 9; the take-three page, https://claude.ai/artifact/QN6UyLeBnL4ry3iFp9PyRb,
+with the aerial intro and the bare yard and the Mirror v3 as clips; the knock's clip held back and the
+knock re-cut as shot and reverse shot.)
+
+### User (verbatim)
+
+> Night 1, take three:
+> 1. The opening: change it (see notes).
+> 2. The Mirror: different (see notes).
+> 3. Night 1: not yet (see notes).
+> Notes: The opening - where are containers? Maybe when talking about a car, there should be nice shots of the car instead of a shot of people just standing. Aerial shots looks bad as in the further parts of the city its just flat square blocks...not really city vibes...
+>
+> 2. The mirror scene is weird. The character should sometimes look over their shoulder. They should look scared.
+
+(Read as: night 1 is not signed off. The opening: the auction yard should read as a container yard
+(stacks of containers, which the take-three clip barely shows); while Gus talks about the car, show
+the car itself in good shots rather than people standing; the aerial shots look poor because the far
+city is plain square blocks, not a city. The Mirror: Kit should look back over the shoulder at times
+and look scared.)
