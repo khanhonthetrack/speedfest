@@ -4629,3 +4629,10 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
 - Tests: `test_story_scenes` (38 checks: the reflection's geometry, the picture on the glass, the
   mirror camera off without a mirror, a riding light, the looks and the drips, the viaduct and its
   train); `test_story_face` (17).
+- **The aerial intro** (owner: "aerial shorts of the city as nice intro, cinematic"): three shots
+  open `c01_open` (15.5 s): high over the City at night (the towers, neon, the airship and its
+  searchlights) with the title card "Night 1 / The Yard", a glide down towards the docks (the yard a
+  lit gap among the towers), and straight down over the yard to its five cars and the crowd, then the
+  cut to the yard shot. The paths were chosen from stills taken from six sides (a camera beside the
+  yard came down inside a tower; the overhead path moved off the crane's top). In the script doc and
+  `docs/NIGHT1_SCRIPT.md`.

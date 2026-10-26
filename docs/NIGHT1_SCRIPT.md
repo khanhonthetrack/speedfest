@@ -40,6 +40,10 @@ A grey, grainy security camera picture: HALLORAN PLAZA, CAM 3, LANE 3, the clock
 
 ## Scene 1: The Auction
 
+**EXT. THE CITY. NIGHT. RAIN. (aerial)**
+
+High over the city: towers lit floor by floor, neon along their edges, an airship drifting, searchlights sweeping the clouds. **Title:** NIGHT 1. *The Yard.* We glide down towards the docks, a lit gap among the towers, and come down over the auction yard: five cars in a row under floodlights, a small crowd.
+
 **EXT. GUS PELL'S SALVAGE DOCKS, THE AUCTION YARD. NIGHT. RAIN.**
 
 High above the yard: stacks of shipping containers, floodlights, five cars in a row with lot numbers. Gus Pell, big, in a hi-vis vest, stands by the cars. A small crowd faces him: a courier, a student, a dock hand, a racer, a dealer. Kit, hood up, backpack on, stands at the back of the crowd. Behind everyone, apart, a man in a long dark coat and a hat.

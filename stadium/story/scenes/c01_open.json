@@ -5,6 +5,887 @@
 	"bare": true,
 	"shots": [
 		{
+			"id": "city",
+			"track": "H01",
+			"at": 0.03,
+			"dur": 6.0,
+			"rain": 0.75,
+			"ambience": "rain",
+			"camera": {
+				"ease": "linear",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-215.0,
+							330.0,
+							-280.0
+						],
+						"look": [
+							150.0,
+							0.0,
+							250.0
+						],
+						"fov": 58
+					},
+					{
+						"u": 1,
+						"pos": [
+							-175.0,
+							305.0,
+							-228.0
+						],
+						"look": [
+							150.0,
+							0.0,
+							270.0
+						],
+						"fov": 55
+					}
+				]
+			},
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot45",
+					"model": "stallion",
+					"livery": 0,
+					"left": -3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot48",
+					"model": "ayame",
+					"livery": 3,
+					"left": 3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				}
+			],
+			"people": [
+				{
+					"id": "c1",
+					"clip": "Stand",
+					"pos": [
+						-3.0,
+						0,
+						9.0
+					],
+					"face": 180,
+					"who": "crowd1"
+				},
+				{
+					"id": "c2",
+					"clip": "Stand_Talk",
+					"pos": [
+						-1.6,
+						0,
+						10.2
+					],
+					"face": 170,
+					"who": "crowd4"
+				},
+				{
+					"id": "c3",
+					"clip": "Stand_B",
+					"pos": [
+						1.8,
+						0,
+						9.4
+					],
+					"face": 190,
+					"who": "crowd3"
+				},
+				{
+					"id": "c4",
+					"clip": "Stand",
+					"pos": [
+						3.2,
+						0,
+						10.8
+					],
+					"face": 185,
+					"who": "crowd2"
+				},
+				{
+					"id": "c5",
+					"clip": "Stand_Talk",
+					"pos": [
+						-4.6,
+						0,
+						11.0
+					],
+					"face": 160,
+					"who": "crowd5"
+				},
+				{
+					"id": "kit",
+					"clip": "Stand_B",
+					"pos": [
+						0.4,
+						0,
+						11.2
+					],
+					"face": 180,
+					"start": 0.7,
+					"who": "kit"
+				},
+				{
+					"id": "gus",
+					"clip": "Stand_Talk",
+					"pos": [
+						0.0,
+						0,
+						-2.6
+					],
+					"face": 0,
+					"who": "gus"
+				},
+				{
+					"id": "coat",
+					"clip": "Stand",
+					"pos": [
+						-2.5,
+						0,
+						14.5
+					],
+					"face": 180,
+					"who": "coat",
+					"speaker": "Coat"
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						-14,
+						0,
+						6
+					],
+					"yaw": 90,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-14,
+						0,
+						-8
+					],
+					"yaw": 90,
+					"stack": 2,
+					"colour": 1
+				},
+				{
+					"kind": "container",
+					"pos": [
+						14,
+						0,
+						8
+					],
+					"yaw": 90,
+					"stack": 2,
+					"colour": 3
+				},
+				{
+					"kind": "container",
+					"pos": [
+						14,
+						0,
+						-6
+					],
+					"yaw": 90,
+					"stack": 3,
+					"colour": 2
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-22
+					],
+					"yaw": 0,
+					"height": 28,
+					"span": 30,
+					"hook": 12
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-9,
+						0,
+						-4
+					],
+					"yaw": 180,
+					"height": 11,
+					"energy": 8
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						9,
+						0,
+						-3
+					],
+					"yaw": 180,
+					"height": 11,
+					"energy": 8
+				}
+			],
+			"lights": [
+				{
+					"kind": "spot",
+					"pos": [
+						-5.0,
+						9.0,
+						-2.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						6.0,
+						9.0,
+						-1.0
+					],
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
+				}
+			],
+			"fade_in": 2.0,
+			"card": {
+				"title": "Night 1",
+				"subtitle": "The Yard"
+			}
+		},
+		{
+			"id": "descent",
+			"track": "H01",
+			"at": 0.03,
+			"dur": 5.0,
+			"rain": 0.75,
+			"ambience": "rain",
+			"camera": {
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							205.0,
+							-320.0
+						],
+						"look": [
+							0.0,
+							0.0,
+							60.0
+						],
+						"fov": 50
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.0,
+							105.0,
+							-165.0
+						],
+						"look": [
+							0.0,
+							0.0,
+							25.0
+						],
+						"fov": 46
+					}
+				]
+			},
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot45",
+					"model": "stallion",
+					"livery": 0,
+					"left": -3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot48",
+					"model": "ayame",
+					"livery": 3,
+					"left": 3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				}
+			],
+			"people": [
+				{
+					"id": "c1",
+					"clip": "Stand",
+					"pos": [
+						-3.0,
+						0,
+						9.0
+					],
+					"face": 180,
+					"who": "crowd1"
+				},
+				{
+					"id": "c2",
+					"clip": "Stand_Talk",
+					"pos": [
+						-1.6,
+						0,
+						10.2
+					],
+					"face": 170,
+					"who": "crowd4"
+				},
+				{
+					"id": "c3",
+					"clip": "Stand_B",
+					"pos": [
+						1.8,
+						0,
+						9.4
+					],
+					"face": 190,
+					"who": "crowd3"
+				},
+				{
+					"id": "c4",
+					"clip": "Stand",
+					"pos": [
+						3.2,
+						0,
+						10.8
+					],
+					"face": 185,
+					"who": "crowd2"
+				},
+				{
+					"id": "c5",
+					"clip": "Stand_Talk",
+					"pos": [
+						-4.6,
+						0,
+						11.0
+					],
+					"face": 160,
+					"who": "crowd5"
+				},
+				{
+					"id": "kit",
+					"clip": "Stand_B",
+					"pos": [
+						0.4,
+						0,
+						11.2
+					],
+					"face": 180,
+					"start": 0.7,
+					"who": "kit"
+				},
+				{
+					"id": "gus",
+					"clip": "Stand_Talk",
+					"pos": [
+						0.0,
+						0,
+						-2.6
+					],
+					"face": 0,
+					"who": "gus"
+				},
+				{
+					"id": "coat",
+					"clip": "Stand",
+					"pos": [
+						-2.5,
+						0,
+						14.5
+					],
+					"face": 180,
+					"who": "coat",
+					"speaker": "Coat"
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						-14,
+						0,
+						6
+					],
+					"yaw": 90,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-14,
+						0,
+						-8
+					],
+					"yaw": 90,
+					"stack": 2,
+					"colour": 1
+				},
+				{
+					"kind": "container",
+					"pos": [
+						14,
+						0,
+						8
+					],
+					"yaw": 90,
+					"stack": 2,
+					"colour": 3
+				},
+				{
+					"kind": "container",
+					"pos": [
+						14,
+						0,
+						-6
+					],
+					"yaw": 90,
+					"stack": 3,
+					"colour": 2
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-22
+					],
+					"yaw": 0,
+					"height": 28,
+					"span": 30,
+					"hook": 12
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-9,
+						0,
+						-4
+					],
+					"yaw": 180,
+					"height": 11,
+					"energy": 8
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						9,
+						0,
+						-3
+					],
+					"yaw": 180,
+					"height": 11,
+					"energy": 8
+				}
+			],
+			"lights": [
+				{
+					"kind": "spot",
+					"pos": [
+						-5.0,
+						9.0,
+						-2.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						6.0,
+						9.0,
+						-1.0
+					],
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
+				}
+			]
+		},
+		{
+			"id": "overhead",
+			"track": "H01",
+			"at": 0.03,
+			"dur": 4.5,
+			"rain": 0.75,
+			"ambience": "rain",
+			"camera": {
+				"ease": "out",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							12.0,
+							72.0,
+							-40.0
+						],
+						"look": [
+							0.0,
+							0.0,
+							4.0
+						],
+						"fov": 48
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.0,
+							34.0,
+							-9.0
+						],
+						"look": [
+							0.0,
+							0.0,
+							6.0
+						],
+						"fov": 52
+					}
+				]
+			},
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot45",
+					"model": "stallion",
+					"livery": 0,
+					"left": -3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot48",
+					"model": "ayame",
+					"livery": 3,
+					"left": 3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				}
+			],
+			"people": [
+				{
+					"id": "c1",
+					"clip": "Stand",
+					"pos": [
+						-3.0,
+						0,
+						9.0
+					],
+					"face": 180,
+					"who": "crowd1"
+				},
+				{
+					"id": "c2",
+					"clip": "Stand_Talk",
+					"pos": [
+						-1.6,
+						0,
+						10.2
+					],
+					"face": 170,
+					"who": "crowd4"
+				},
+				{
+					"id": "c3",
+					"clip": "Stand_B",
+					"pos": [
+						1.8,
+						0,
+						9.4
+					],
+					"face": 190,
+					"who": "crowd3"
+				},
+				{
+					"id": "c4",
+					"clip": "Stand",
+					"pos": [
+						3.2,
+						0,
+						10.8
+					],
+					"face": 185,
+					"who": "crowd2"
+				},
+				{
+					"id": "c5",
+					"clip": "Stand_Talk",
+					"pos": [
+						-4.6,
+						0,
+						11.0
+					],
+					"face": 160,
+					"who": "crowd5"
+				},
+				{
+					"id": "kit",
+					"clip": "Stand_B",
+					"pos": [
+						0.4,
+						0,
+						11.2
+					],
+					"face": 180,
+					"start": 0.7,
+					"who": "kit"
+				},
+				{
+					"id": "gus",
+					"clip": "Stand_Talk",
+					"pos": [
+						0.0,
+						0,
+						-2.6
+					],
+					"face": 0,
+					"who": "gus"
+				},
+				{
+					"id": "coat",
+					"clip": "Stand",
+					"pos": [
+						-2.5,
+						0,
+						14.5
+					],
+					"face": 180,
+					"who": "coat",
+					"speaker": "Coat"
+				}
+			],
+			"props": [
+				{
+					"kind": "container",
+					"pos": [
+						-14,
+						0,
+						6
+					],
+					"yaw": 90,
+					"stack": 3,
+					"colour": 0
+				},
+				{
+					"kind": "container",
+					"pos": [
+						-14,
+						0,
+						-8
+					],
+					"yaw": 90,
+					"stack": 2,
+					"colour": 1
+				},
+				{
+					"kind": "container",
+					"pos": [
+						14,
+						0,
+						8
+					],
+					"yaw": 90,
+					"stack": 2,
+					"colour": 3
+				},
+				{
+					"kind": "container",
+					"pos": [
+						14,
+						0,
+						-6
+					],
+					"yaw": 90,
+					"stack": 3,
+					"colour": 2
+				},
+				{
+					"kind": "crane",
+					"pos": [
+						0,
+						0,
+						-22
+					],
+					"yaw": 0,
+					"height": 28,
+					"span": 30,
+					"hook": 12
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-9,
+						0,
+						-4
+					],
+					"yaw": 180,
+					"height": 11,
+					"energy": 8
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						9,
+						0,
+						-3
+					],
+					"yaw": 180,
+					"height": 11,
+					"energy": 8
+				}
+			],
+			"lights": [
+				{
+					"kind": "spot",
+					"pos": [
+						-5.0,
+						9.0,
+						-2.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						6.0,
+						9.0,
+						-1.0
+					],
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
+				}
+			]
+		},
+		{
 			"track": "H01",
 			"at": 0.03,
 			"rain": 0.75,
