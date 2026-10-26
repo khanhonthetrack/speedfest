@@ -14,6 +14,9 @@ extends Node
 ## - with its track built, a shot puts the camera and its cars where the scene says; "bare", the
 ##   track is hidden and its collision off (blocks, road decals, the neon along it), the shot standing
 ##   on the ground, and switched back on for a shot on the track, without a rebuild;
+## - every road car's cabin lining stops at its windows' outlines (no corner of it under the glass:
+##   its edge used to come out in saw teeth across the windows), and on a pane whose share is known
+##   the cut keeps exactly the part off the glass, turned as the face was;
 ## - a rear-view mirror on the cabin's glass reflects the driver's eyes truly, its camera runs only in
 ##   shots with a mirror, lights ride in a car, eyes glance at the mirror on cue, water falls with it;
 ## - Arch 9's viaduct stands with its lit arch and number, and its train crosses at the shot's time;
@@ -95,6 +98,8 @@ func _ready() -> void:
 		if not d.is_empty():
 			await _plays(id, d)
 	_cabins()
+	_linings()
+	_lining_cut()
 	_layers()
 	await _variants()
 	await _staged()
@@ -124,6 +129,74 @@ func _cabins() -> void:
 		if mir.y + 0.04 > StoryCabin.line(m, "top", mir.z) - 0.03 or mir.z < (pts["driver_head"] as Vector3).z + 0.3:
 			bad.append("%s mirror at %s" % [id, mir])
 	TestHooks.check(bad.is_empty(), "story_cabins_fit", "; ".join(bad))
+
+
+## Every road car's lining (StoryCabin.fit_car) stops at its glass: no corner of it lies under a
+## window (StoryCabin.GlassMask, as the lining was cut), so the windows' edges seen from the seats are
+## the glass's outline, not the paint's triangles kept whole as teeth across it.
+func _linings() -> void:
+	var bad: Array[String] = []
+	var slowest := 0
+	for c: Array in TmRoadCars.CARS:
+		var car := TmCarVisual.new()
+		car.model = String(c[0])
+		add_child(car)
+		var t0 := Time.get_ticks_msec()
+		StoryCabin.fit_car(car)
+		slowest = maxi(slowest, Time.get_ticks_msec() - t0)
+		var corners := 0
+		var under := 0
+		var blind := 0                     # a lined mesh whose glass the test didn't find (it would pass blind)
+		for mi: MeshInstance3D in car.find_children("*", "MeshInstance3D", true, false):
+			var lining := mi.get_node_or_null("Lining") as MeshInstance3D
+			if lining == null:
+				continue
+			var glass := StoryCabin.GlassMask.new()
+			for k in mi.mesh.get_surface_count():
+				if mi.get_active_material(k) == StoryCabin._clear_glass:
+					var t: PackedVector3Array = StoryCabin._triangles(mi.mesh, k)[0]
+					for i in range(0, t.size(), 3):
+						glass.add(t[i], t[i + 1], t[i + 2])
+			blind += int(glass.a.is_empty())
+			for k in lining.mesh.get_surface_count():
+				for v: Vector3 in lining.mesh.surface_get_arrays(k)[Mesh.ARRAY_VERTEX]:
+					corners += 1
+					under += int(glass.under(v))
+		if corners == 0 or under > 0 or blind > 0:
+			bad.append("%s: %d of %d corners under the glass, %d lined meshes without glass" % [c[0], under, corners, blind])
+		car.free()
+	print("LINING slowest build %d ms" % slowest)
+	TestHooks.check(bad.is_empty(), "story_cabin_linings_stop_at_the_glass", "; ".join(bad))
+
+
+## The cut on one face whose share under a pane is known (the check above sees only corners under
+## the glass, not a lining stopping short of it or turned the wrong way): the pane x 0..1 (y -1..1,
+## z 0), the face's corners at x -0.5, 0.5, -0.5 just behind it; off the glass is the face (0.5 m^2)
+## less its corner past x = 0 (0.125), less the 2 mm GlassMask.under allows past an edge and the
+## halvings' fifth of a millimetre. Kept or dropped whole (the old rule), the last triangles' teeth
+## miss it by a few hundredths.
+func _lining_cut() -> void:
+	var glass := StoryCabin.GlassMask.new()
+	glass.add(Vector3(0, -1, 0), Vector3(1, -1, 0), Vector3(1, 1, 0))
+	glass.add(Vector3(0, -1, 0), Vector3(1, 1, 0), Vector3(0, 1, 0))
+	var a := Vector3(-0.5, -0.5, 0.005)
+	var b := Vector3(0.5, -0.5, 0.005)
+	var c := Vector3(-0.5, 0.5, 0.005)
+	var n := (b - a).cross(c - a).normalized()
+	var v := PackedVector3Array()
+	var vn := PackedVector3Array()
+	StoryCabin._clip(a, b, c, n, n, n, 3, glass, v, vn)
+	var area := 0.0
+	var turned := 0
+	var under := 0
+	for i in range(0, v.size(), 3):
+		var cr := (v[i + 1] - v[i]).cross(v[i + 2] - v[i])
+		area += cr.length() * 0.5
+		turned += int(cr.dot(n) < -1.0e-9)
+		for j in 3:
+			under += int(glass.under(v[i + j]))
+	TestHooks.check(v.size() > 0 and absf(area - 0.374) < 0.003 and turned == 0 and under == 0,
+		"story_cabin_lining_cut_exact", "area %.4f m^2 (0.374 off the glass), %d turned over, %d corners under the glass" % [area, turned, under])
 
 
 ## The container (its "pos") a car starts inside, if any: both in the shot's anchor frame (x left,

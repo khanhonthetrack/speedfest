@@ -306,22 +306,22 @@ static func _line(mesh: Mesh, glass_k: Array[int], lined_k: Array[int]) -> Array
 
 
 ## Keeps a triangle of the lining, all of it, none (its corners under the glass) or, where it crosses
-## the glass's edge, its quarters by the same rule down `depth` halvings, the last ones by most of
-## their corners (the paint's triangles cross the windows' outlines: cut whole, the pillars' edges
-## come out as saw teeth). The windows are far bigger than the paint's triangles, so a triangle with
-## no corner under the glass is not under it.
+## the glass's edge, its quarters by the same rule down `depth` halvings, the last ones cut where
+## their edges cross the glass's outline (the paint's triangles cross the windows' outlines: kept or
+## dropped whole, the pillars' edges came out as saw teeth, a centimetre or two from the seats). The
+## windows are far bigger than the paint's triangles, so a triangle with no corner under the glass is
+## not under it.
 static func _clip(a: Vector3, b: Vector3, c: Vector3, na: Vector3, nb: Vector3, nc: Vector3, depth: int,
 		glass: GlassMask, out_v: PackedVector3Array, out_n: PackedVector3Array) -> void:
 	var under := int(glass.under(a)) + int(glass.under(b)) + int(glass.under(c))
-	if under == 0 or (depth == 0 and under == 1):
-		out_v.append(a)
-		out_v.append(b)
-		out_v.append(c)
-		out_n.append(na)
-		out_n.append(nb)
-		out_n.append(nc)
+	if under == 0:
+		out_v.append_array([a, b, c])
+		out_n.append_array([na, nb, nc])
 		return
-	if under == 3 or depth == 0:
+	if under == 3:
+		return
+	if depth == 0:
+		_cut(a, b, c, na, nb, nc, glass, out_v, out_n)
 		return
 	var ab := (a + b) * 0.5
 	var bc := (b + c) * 0.5
@@ -333,6 +333,54 @@ static func _clip(a: Vector3, b: Vector3, c: Vector3, na: Vector3, nb: Vector3, 
 	_clip(ab, b, bc, nab, nb, nbc, depth - 1, glass, out_v, out_n)
 	_clip(ca, bc, c, nca, nbc, nc, depth - 1, glass, out_v, out_n)
 	_clip(ab, bc, ca, nab, nbc, nca, depth - 1, glass, out_v, out_n)
+
+
+## The part of a triangle off the glass, one or two of its corners under it: cut where its two
+## crossing edges meet the glass's outline (each found by halving), the corners kept in the triangle's
+## own turn.
+static func _cut(a: Vector3, b: Vector3, c: Vector3, na: Vector3, nb: Vector3, nc: Vector3,
+		glass: GlassMask, out_v: PackedVector3Array, out_n: PackedVector3Array) -> void:
+	var p := [a, b, c]
+	var pn := [na, nb, nc]
+	var u := [glass.under(a), glass.under(b), glass.under(c)]
+	var odd := 0                          # the corner unlike the other two
+	for i in 3:
+		if u[i] != u[(i + 1) % 3] and u[i] != u[(i + 2) % 3]:
+			odd = i
+	var x: Vector3 = p[odd]
+	var y: Vector3 = p[(odd + 1) % 3]
+	var z: Vector3 = p[(odd + 2) % 3]
+	var nx: Vector3 = pn[odd]
+	var ny: Vector3 = pn[(odd + 1) % 3]
+	var nz: Vector3 = pn[(odd + 2) % 3]
+	var fy := _crossing(x, y, u[odd], glass)
+	var fz := _crossing(x, z, u[odd], glass)
+	var xy := x.lerp(y, fy)
+	var xz := x.lerp(z, fz)
+	var nxy := nx.lerp(ny, fy).normalized()
+	var nxz := nx.lerp(nz, fz).normalized()
+	if u[odd]:                            # x alone under the glass: the rest is a quad
+		out_v.append_array([xy, y, z, xy, z, xz])
+		out_n.append_array([nxy, ny, nz, nxy, nz, nxz])
+	else:                                 # x alone off it
+		out_v.append_array([x, xy, xz])
+		out_n.append_array([nx, nxy, nxz])
+
+
+## Where the glass's outline crosses the edge from `from` (under the glass or not) to `to` (the
+## other), as a fraction along it: on the side off the glass, so the lining stops at its edge. Six
+## halvings: the last triangles' edges are millimetres long (median 4, at most about 9 on the
+## coupe), so the cut lands within a fifth of a millimetre.
+static func _crossing(from: Vector3, to: Vector3, from_under: bool, glass: GlassMask) -> float:
+	var lo := 0.0                         # still on from's side
+	var hi := 1.0                         # on to's side
+	for i in 6:
+		var mid := (lo + hi) * 0.5
+		if glass.under(from.lerp(to, mid)) == from_under:
+			lo = mid
+		else:
+			hi = mid
+	return hi if from_under else lo
 
 
 ## A surface's triangles as flat lists of corners and their normals: [corners, normals].

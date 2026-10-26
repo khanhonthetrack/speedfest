@@ -70,9 +70,10 @@
   clips of the aerial intro and the bare yard (0:23) and the Mirror v3 (0:37), beats timed from the
   scenes, the script linked; questions: the opening?, the Mirror as a jump scare?, night 1 signed off?.
   The knock's clip was held back (its conversation was one 38 s shot through the side window, Kit
-  never seen): re-cut it with Kit in frame, then add its clip and question to the same page
+  never seen) and the knock re-cut: shot and reverse shot (Kit from the dash turned to the window, Dee
+  bent in at it; Dee over Kit's shoulder; Kit, just woken, lifts the head at the last knock). Its clip goes on the same page
   (`page3/build.py` in the session scratchpad without `--no-knock`; the template has the knock section).
-- **Next**: the knock re-cut and its clip on the take-three page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **Next**: the knock's clip on the take-three page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).

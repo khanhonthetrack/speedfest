@@ -2304,9 +2304,9 @@
 					"who": "dee",
 					"clip": "Stand",
 					"pos": [
-						2.1,
+						1.4,
 						0.0,
-						0.4
+						0.05
 					],
 					"face": -95,
 					"gaze": ""
@@ -2389,9 +2389,9 @@
 			"id": "knock",
 			"track": "H01",
 			"at": 0.62,
+			"bare": true,
 			"rain": 0.5,
 			"ambience": "rain",
-			"fade_in": 0.4,
 			"cars": [
 				{
 					"id": "kit",
@@ -2404,16 +2404,99 @@
 			],
 			"people": [
 				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								6,
+								0,
+								-4
+							],
+							"Head": [
+								10,
+								0,
+								-12
+							]
+						},
+						{
+							"t": 0.55,
+							"Neck": [
+								6,
+								0,
+								-4
+							],
+							"Head": [
+								10,
+								0,
+								-12
+							]
+						},
+						{
+							"t": 1.1,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					],
+					"looks": [
+						[
+							0.0,
+							0.95,
+							"ahead"
+						]
+					]
+				},
+				{
 					"id": "dee",
 					"who": "dee",
 					"clip": "Stand_Talk",
 					"pos": [
-						2.1,
+						1.35,
 						0.0,
-						0.4
+						0.0
 					],
 					"face": -95,
-					"gaze": "camera"
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
 				}
 			],
 			"lights": [
@@ -2427,12 +2510,32 @@
 					"colour": "#ffd2a1",
 					"energy": 5.0,
 					"range": 12.0
-				}
-			],
-			"sounds": [
+				},
 				{
-					"at": 0.1,
-					"cue": "thump"
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
 				}
 			],
 			"camera": {
@@ -2442,34 +2545,35 @@
 					{
 						"u": 0,
 						"pos": [
-							0.35,
+							-0.12,
+							0.98,
+							0.78
+						],
+						"look": [
+							0.8,
 							1.12,
 							-0.05
 						],
-						"look": [
-							2.1,
-							1.45,
-							0.4
-						],
-						"fov": 55
+						"fov": 50
 					},
 					{
 						"u": 1,
 						"pos": [
-							0.3,
-							1.12,
-							-0.1
+							-0.11,
+							0.98,
+							0.76
 						],
 						"look": [
-							2.1,
-							1.48,
-							0.45
+							0.8,
+							1.12,
+							-0.05
 						],
-						"fov": 50
+						"fov": 48
 					}
 				]
 			},
-			"lead": 1.3,
+			"lead": 1.9,
+			"tail": 0.45,
 			"lines": [
 				{
 					"id": "c01_close_001",
@@ -2480,44 +2584,1247 @@
 					"id": "c01_close_002",
 					"speaker": "Kit",
 					"text": "What... what time is it?"
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			],
+			"fade_in": 0.4,
+			"sounds": [
+				{
+					"at": 0.55,
+					"cue": "thump"
+				}
+			]
+		},
+		{
+			"id": "knock_dee1",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							1.08,
+							-0.55
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 45
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.01,
+							1.08,
+							-0.53
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 43
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.45,
+			"lines": [
 				{
 					"id": "c01_close_003",
 					"speaker": "Dee",
 					"text": "Gone six. You slept in it."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_kit1",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-0.12,
+							0.98,
+							0.78
+						],
+						"look": [
+							0.8,
+							1.12,
+							-0.05
+						],
+						"fov": 50
+					},
+					{
+						"u": 1,
+						"pos": [
+							-0.11,
+							0.98,
+							0.76
+						],
+						"look": [
+							0.8,
+							1.12,
+							-0.05
+						],
+						"fov": 48
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.45,
+			"lines": [
 				{
 					"id": "c01_close_004",
 					"speaker": "Kit",
 					"text": "I wasn't sleeping. I was driving. There was a white car right behind me."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_dee2",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							1.08,
+							-0.55
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 45
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.01,
+							1.08,
+							-0.53
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 43
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.45,
+			"lines": [
 				{
 					"id": "c01_close_005",
 					"speaker": "Dee",
 					"text": "You were drooling on the wheel."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_kit2",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-0.12,
+							0.98,
+							0.78
+						],
+						"look": [
+							0.8,
+							1.12,
+							-0.05
+						],
+						"fov": 50
+					},
+					{
+						"u": 1,
+						"pos": [
+							-0.11,
+							0.98,
+							0.76
+						],
+						"look": [
+							0.8,
+							1.12,
+							-0.05
+						],
+						"fov": 48
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.45,
+			"lines": [
 				{
 					"id": "c01_close_006",
 					"speaker": "Kit",
 					"text": "There was someone in the back."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_dee3",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							1.08,
+							-0.55
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 45
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.01,
+							1.08,
+							-0.53
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 43
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.45,
+			"lines": [
 				{
 					"id": "c01_close_007",
 					"speaker": "Dee",
 					"text": "There's a parcel shelf back there, and a wet patch. You need a new door seal, that's all."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_kit3",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-0.12,
+							0.98,
+							0.78
+						],
+						"look": [
+							0.8,
+							1.12,
+							-0.05
+						],
+						"fov": 50
+					},
+					{
+						"u": 1,
+						"pos": [
+							-0.11,
+							0.98,
+							0.76
+						],
+						"look": [
+							0.8,
+							1.12,
+							-0.05
+						],
+						"fov": 48
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.45,
+			"lines": [
 				{
 					"id": "c01_close_008",
 					"speaker": "Kit",
 					"text": "I saw her in the mirror. She was soaking."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_dee4",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							1.08,
+							-0.55
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 45
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.01,
+							1.08,
+							-0.53
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 43
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.6,
+			"lines": [
 				{
 					"id": "c01_close_009",
 					"speaker": "Dee",
 					"text": "Old cars give you bad dreams. They've been places."
 				}
 			],
-			"bare": true,
 			"props": [
 				{
 					"kind": "viaduct",
@@ -2610,9 +3917,10 @@
 			]
 		},
 		{
-			"id": "knock_end",
+			"id": "knock_kit4",
 			"track": "H01",
 			"at": 0.62,
+			"bare": true,
 			"rain": 0.5,
 			"ambience": "rain",
 			"cars": [
@@ -2627,16 +3935,66 @@
 			],
 			"people": [
 				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
+				},
+				{
 					"id": "dee",
 					"who": "dee",
 					"clip": "Stand_Talk",
 					"pos": [
-						2.1,
+						1.35,
 						0.0,
-						0.4
+						0.0
 					],
 					"face": -95,
-					"gaze": "camera"
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
 				}
 			],
 			"lights": [
@@ -2650,9 +4008,34 @@
 					"colour": "#ffd2a1",
 					"energy": 5.0,
 					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
 				}
 			],
-			"sounds": [],
 			"camera": {
 				"follow": "kit",
 				"ease": "inout",
@@ -2660,52 +4043,221 @@
 					{
 						"u": 0,
 						"pos": [
-							0.35,
+							-0.12,
+							0.98,
+							0.78
+						],
+						"look": [
+							0.8,
 							1.12,
 							-0.05
 						],
-						"look": [
-							2.1,
-							1.45,
-							0.4
-						],
-						"fov": 55
+						"fov": 50
 					},
 					{
 						"u": 1,
 						"pos": [
-							0.3,
-							1.12,
-							-0.1
+							-0.11,
+							0.98,
+							0.76
 						],
 						"look": [
-							2.1,
-							1.48,
-							0.45
+							0.8,
+							1.12,
+							-0.05
 						],
-						"fov": 50
+						"fov": 48
 					}
 				]
 			},
 			"lead": 0.5,
+			"tail": 0.45,
 			"lines": [
 				{
 					"id": "c01_close_011",
 					"speaker": "Kit",
-					"text": "Wipe it. Please.",
-					"gap": 0.0
+					"text": "Wipe it. Please."
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7
+				}
+			]
+		},
+		{
+			"id": "knock_end",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"cabin": true,
+					"pins": 0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.0,
+					"start": 0.0,
+					"gaze": "dee",
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								0,
+								10,
+								0
+							],
+							"Head": [
+								-3,
+								16,
+								0
+							]
+						}
+					]
 				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand_Talk",
+					"pos": [
+						1.35,
+						0.0,
+						0.0
+					],
+					"face": -95,
+					"gaze": "kit_driver",
+					"bend": [
+						{
+							"t": 0.0,
+							"Spine": [
+								38,
+								0,
+								0
+							],
+							"Chest": [
+								38,
+								0,
+								0
+							],
+							"Neck": [
+								-23,
+								0,
+								0
+							],
+							"Head": [
+								-23,
+								0,
+								0
+							]
+						}
+					]
+				}
+			],
+			"lights": [
+				{
+					"kind": "omni",
+					"pos": [
+						4.5,
+						3.2,
+						0.5
+					],
+					"colour": "#ffd2a1",
+					"energy": 5.0,
+					"range": 12.0
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.05,
+						1.0,
+						0.75
+					],
+					"colour": "#9fb8ff",
+					"energy": 0.35,
+					"range": 1.6,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.55,
+						1.12,
+						0.3
+					],
+					"colour": "#c9b8ff",
+					"energy": 0.55,
+					"range": 1.3,
+					"shadow": false
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							1.08,
+							-0.55
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 45
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.01,
+							1.08,
+							-0.53
+						],
+						"look": [
+							1.3,
+							1.25,
+							0.05
+						],
+						"fov": 43
+					}
+				]
+			},
+			"lead": 0.8,
+			"tail": 1.2,
+			"lines": [
 				{
 					"id": "c01_close_012",
 					"speaker": "Dee",
 					"text": "Not yet. Let's see where they go first.",
-					"gap": 0.8,
 					"set": [
 						"seen_nine_pins"
 					]
 				}
 			],
-			"bare": true,
 			"props": [
 				{
 					"kind": "viaduct",

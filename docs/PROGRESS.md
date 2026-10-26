@@ -4671,3 +4671,37 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   frame barely in it and no rain on the glass, so it read as a camera on the ground looking up at Dee.
   The page says so; the knock is being re-cut (Kit waking at the knock and answering, Dee at the
   window, cutting between them) and its clip will be added to the same page.
+
+### 26 Oct (session 21, cont.): the knock re-cut with Kit in frame; window edges without teeth (M20-9)
+- **The knock re-cut** (held back from the take-three page, see above): the conversation is now shot
+  and reverse shot (`c01_close`: `knock`, `knock_dee1`..`knock_dee4`, `knock_kit1`..`knock_kit4`,
+  `knock_end`, the satnav's `pins` insert between). Kit's lines are a two-shot from the dash (Kit turned
+  to the driver's window by a `"bend"` on Neck and Head, eyes on Dee; Dee bent in at the window, the
+  lit arch behind her); Dee's are over Kit's shoulder (her face in the window beside Kit's head). The
+  first shot holds Dee's first call and Kit's answer in the two-shot: Kit, just woken (the gasp in the
+  black), slumped against the window through the fade-in, lifts the head at the last knock (a thump at
+  0.55 s) and turns to her by 1.1 s (eyes ahead until 0.95 s). Dee bends at the waist, Spine and Chest
+  38 degrees each, Neck and Head back 23 each to keep her eyes on Kit: crouched (`Crouch_Idle`) she
+  sat wholly under the window sill; standing, her face was above the roofline from the seats, which is
+  why the old shot looked up at her waist under the headlining. A violet satnav light riding in the car
+  lights her face. In the Arch 9 shot she now stands at the window (1.4 m out, was 2.1). The words are
+  unchanged; the knock runs 53 s (was 48 s with the pins and the end). Shots into the car through its
+  side windows from outside don't work: the paint runs on under the side glass, so nobody inside can
+  be seen. `docs/NIGHT1_SCRIPT.md` and the shared script doc describe the new blocking.
+- **Window edges without teeth** (`StoryCabin._clip`/`_cut`/`_crossing`): the lining kept or dropped
+  the paint's triangles whole at the last halving, so seen from the seats every window's edge was saw
+  teeth a centimetre or two deep; the last triangles are now cut where their edges cross the glass's
+  outline (each crossing found in six halvings of the edge: within a fifth of a millimetre), so the
+  edge is the glass's own. `test_story_scenes`: `story_cabin_linings_stop_at_the_glass` (no corner of
+  any road car's lining under its glass, and the glass found for every lined mesh; with the old rule
+  every car fails, 10,000-18,000 corners each) and `story_cabin_lining_cut_exact` (on a pane whose
+  share is known, the kept area is exactly the part off the glass and no piece is turned over: the
+  first check can't see a lining stopping short or wound the wrong way).
+- **Reviewed** (a sequential read-only review, each finding checked by a skeptic: five confirmed, one
+  refuted). Fixed: the lining check saw only one direction (the exact-cut check added, and a blind mask
+  fails); ten halvings per crossing were far finer than the millimetre edges need and multiplied the
+  lining's build (six now); the lean was written as 38 degrees in all (it is 38 at each of two bones);
+  the script said Dee's lines were over Kit's shoulder "from here on" while her first call plays in
+  the two-shot; the head came up under the fade-in (now after it). Not taken: showing Kit asleep with
+  the eyes shut at the knock (the refuted finding's point: Kit has already gasped awake in the black,
+  so a second wake would contradict it).

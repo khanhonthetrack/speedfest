@@ -297,7 +297,7 @@ A row of brick railway arches. One of them, ARCH 9 painted over it, has its roll
 
 **INT. THE COUPE. CONTINUOUS.**
 
-A last knock. Kit wakes. Seen from the driver's seat, through the side window: Dee, the lit arch behind her.
+Seen from the dash: Kit, just woken, slumped against the side window. A last knock: Kit lifts the head and turns to it. Dee is bent at the window, looking in, the lit arch behind her. Her first call and Kit's answer play on this shot; after that, Kit's lines are seen from the dash, Kit turned to Dee at the window, and Dee's over Kit's shoulder, her face in the window.
 
 > **DEE**: Kit. Kit! Open up.
 >
@@ -321,7 +321,7 @@ Close on the satnav in the dash: the city map, nine purple pins.
 
 > **DEE** *(off)*: Huh. Nine pins.
 
-Back to Dee at the window.
+Back in the car: Kit, turned to Dee at the window.
 
 > **KIT**: Wipe it. Please.
 >
@@ -339,4 +339,5 @@ The knock now shows where Kit is and what Dee is looking at, and the lines that 
 | "I was driving. The bridge." (no bridge in the dream) | "I was driving. There was a white car right behind me." |
 | "You were drooling on my clean seats." | "You were drooling on the wheel." |
 | "Huh. Nine pins." with the satnav never shown | A close-up of the satnav's nine purple pins as Dee says it |
+| One 38-second shot through the side window: Kit never on screen | Shot and reverse shot: Kit from the dash, turned to the window; Dee over Kit's shoulder; Kit, just woken, lifts the head at the last knock |
 | "Can you wipe it?" / "Let's see where they go first." | "Wipe it. Please." / "Not yet. Let's see where they go first." |

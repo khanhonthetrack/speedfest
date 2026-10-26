@@ -127,8 +127,8 @@ func setup(d: Dictionary, st: StoryState = null, stage := true) -> void:
 	_measure_people()
 
 
-## Lines every cabin car of the scene now (StoryCabin.fit_car: a fraction of a second a model, once),
-## so a cut to a shot inside a car doesn't stall.
+## Lines every cabin car of the scene now (StoryCabin.fit_car: up to about 2.5 s a model, once, its
+## windows' edges cut exactly), so a cut to a shot inside a car doesn't stall.
 func _line_cabins() -> void:
 	var models := {}
 	for s: Dictionary in shots:
