@@ -4,7 +4,7 @@ A reading copy of night 1 for the owner (asked 25 Oct: "I dont understand the kn
 full script with dialogues for me to read."), shared as a doc: https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH.
 The dialogue is word for word from `stadium/story/scenes/` (`prologue`, `c01_open`, `c01_after1`,
 `c01_after2`, `c01_decision`, `c01_close`), which stay the source of truth; the action lines describe
-what is on screen as of 25 Oct.
+what is on screen as of 26 Oct (the Mirror and the knock rewritten).
 
 ## How to read this
 
@@ -259,33 +259,41 @@ Gus by the coupe. One of four versions plays, depending on the finish of Kit's b
 
 ## Scene 5: The Mirror
 
-Being redone after your note: Kit on screen, driving and checking the mirror; the mirror shows the headlights, then the car, then the girl; the classic jump-scare build. Below is the version in the last clips. It has no dialogue.
+Rewritten after your note (Kit on screen, driving and checking the mirror; the mirror shows the cars, then the girl). It has no dialogue. About 36 seconds.
 
 **INT. THE COUPE, PARKED. DAWN. RAIN.**
 
-Kit has driven home and fallen asleep at the wheel, the satnav's glow on Kit's face.
+Seen from the dash: Kit asleep at the wheel, head against the window, the satnav's violet glow on Kit's face. Behind Kit, between the front seats, the back seat: empty.
 
 **INT. THE COUPE, DRIVING. THE DREAM.**
 
-Seen from Kit's seat: an empty city road in rain, the wipers. In the rear-view mirror, headlights far back.
+The same frame, but now the car is moving: Kit drives an empty city road in the rain.
 
-- The mirror: the headlights, closer.
-- Closer still: a white coupe with violet light under it, the car from the prologue.
-- Ahead. The rain on the roof gives way to a heartbeat.
-- The mirror: the headlights fill it.
-- Ahead again. The heartbeat stops. Silence.
-- The mirror: the back seat, empty. Water dripping, though nobody is there.
-- Ahead. A low drone.
-- The mirror: a woman in the back seat, soaked, her long hair over her face, water running off her. Her head slowly comes up; one eye, through the hair, on the mirror.
-- The sting and a white flash. Hard cut to black. A heartbeat in the dark.
+- Through the rear window, far back, two pinpricks of headlights. Kit's eyes go up to the rear-view mirror.
+- Over Kit's shoulder, the mirror: the headlights, far back.
+- Kit checks again, sooner, then again. The lights are bigger now, violet light under them.
+- The mirror: a white coupe, violet light under it, the car from the prologue. A heartbeat starts.
+- High beams flood the car from behind. Kit squints and tries to look away, but is drawn back to the mirror.
+- The mirror fills with white. A thump: a tap on the bumper. Whiteout.
+- The mirror: an empty road. The rain comes back. Kit breathes out.
+- Quiet. Somewhere in the car, water drips.
+- Over Kit's shoulder, the mirror: a woman in the back seat, soaked, head bowed, her hair over her face. Kit hasn't seen her. The rain has stopped. A low drone. Kit's eyes lift to the mirror.
+- The mirror, close: her head comes up. Through the wet hair, one eye, on the mirror. On Kit.
+- Kit tears away. Behind Kit, between the seats, the back seat: wet, and empty.
+- Kit forces a look: the mirror shows only the rear window. The drone stops.
+- Dead silence.
+- Her face at Kit's ear. The sting. Hard cut to black.
+- In the black, Kit gasps awake.
 
 ## Scene 5, continued: The knock
 
-**INT. THE COUPE, PARKED. EARLY MORNING, JUST AFTER SIX.**
+**EXT. ARCH 9, UNDER THE RAILWAY VIADUCT. EARLY MORNING, JUST AFTER SIX. RAIN.**
 
-Where Kit is (meant, not shown): outside Arch 9, Dee's workshop under the railway viaduct. Kit drove there after the auction, as Dee said ("Bring it round tomorrow"), and fell asleep in the car.
+A row of brick railway arches. One of them, ARCH 9 painted over it, has its roller door half up and a bare bulb burning inside: Dee's workshop. A train rumbles across the viaduct overhead. The black coupe is parked outside. Dee stands at the driver's window and knocks.
 
-Three knocks on the glass. Kit wakes. Seen from the driver's seat, through the side window: Dee, standing back from the door, looking in.
+**INT. THE COUPE. CONTINUOUS.**
+
+A last knock. Kit wakes. Seen from the driver's seat, through the side window: Dee, the lit arch behind her.
 
 > **DEE**: Kit. Kit! Open up.
 >
@@ -293,9 +301,9 @@ Three knocks on the glass. Kit wakes. Seen from the driver's seat, through the s
 >
 > **DEE**: Gone six. You slept in it.
 >
-> **KIT**: I wasn't sleeping. I was driving. The bridge.
+> **KIT**: I wasn't sleeping. I was driving. There was a white car right behind me.
 >
-> **DEE**: You were drooling on my clean seats.
+> **DEE**: You were drooling on the wheel.
 >
 > **KIT**: There was someone in the back.
 >
@@ -305,26 +313,26 @@ Three knocks on the glass. Kit wakes. Seen from the driver's seat, through the s
 >
 > **DEE**: Old cars give you bad dreams. They've been places.
 
-A pause. Dee looks past Kit at the satnav in the dash.
+Close on the satnav in the dash: the city map, nine purple pins.
 
-> **DEE**: Huh. Nine pins.
+> **DEE** *(off)*: Huh. Nine pins.
+
+Back to Dee at the window.
+
+> **KIT**: Wipe it. Please.
 >
-> **KIT**: Can you wipe it?
->
-> **DEE**: Let's see where they go first.
+> **DEE**: Not yet. Let's see where they go first.
 
 End of night 1.
 
-## Why the knock is hard to follow
+## What changed in the knock
 
-The knock is meant to do three things: wake Kit from the nightmare, let Dee explain it away (an old car, a leaky seal), and set up the whole story: Dee wants to follow the satnav's nine pins, one a night. As it plays, the scene shows none of the context those lines rely on.
+The knock now shows where Kit is and what Dee is looking at, and the lines that didn't connect are fixed (owner, 25 Oct: "just write it").
 
-| What goes wrong | Proposed fix |
+| Before | Now |
 | --- | --- |
-| Nothing shows where Kit is or why Dee is there. The picture is a street with neon signs. | Open on an establishing shot: dawn under the railway viaduct, Arch 9's roller door half up, a bare bulb inside, a train passing overhead, the coupe parked outside. |
-| "You were drooling on my clean seats." It's Kit's car, so "my" makes no sense. | "You were drooling on the wheel." |
-| "I was driving. The bridge." The dream isn't on a bridge, so the line connects to nothing. | Stage the redone Mirror on the bridge (the story bible's version: a bridge in rain that never ends), or cut "The bridge." |
-| "Huh. Nine pins." The satnav is never shown in the knock, and the pins were last mentioned two races ago. | Cut to the satnav screen, the nine purple pins, as Dee says it. |
-| "Can you wipe it?" Kit said "Maybe don't" when Dee offered at the auction; the change of heart (Kit is scared now) isn't signalled. | "Wipe it. Please." Then Dee: "Not yet. Let's see where they go first." |
-
-Leave a comment on any row you want changed, or tell me in the chat, and I'll rewrite the scene and send you a clip.
+| No sense of place: a street with neon signs | Opens on Arch 9 at dawn: the brick viaduct, the roller door half up, the bulb, a train overhead, Dee knocking at the parked coupe |
+| "I was driving. The bridge." (no bridge in the dream) | "I was driving. There was a white car right behind me." |
+| "You were drooling on my clean seats." | "You were drooling on the wheel." |
+| "Huh. Nine pins." with the satnav never shown | A close-up of the satnav's nine purple pins as Dee says it |
+| "Can you wipe it?" / "Let's see where they go first." | "Wipe it. Please." / "Not yet. Let's see where they go first." |

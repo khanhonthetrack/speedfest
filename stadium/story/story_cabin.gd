@@ -3,7 +3,8 @@ extends Node3D
 ## A car's inside for the cutscenes (PLAN M20-3): our road cars are bodies and glass, so a shot from
 ## the driver's seat or in the rear-view mirror needs seats, a dash and a headlining. At night, seen
 ## past a shoulder or in a mirror, simple shapes in dark leather are enough: two front seats, a rear
-## bench, the dash with its glow, the satnav's screen (StorySatnav) and the mirror's housing.
+## bench, the dash with its glow, the satnav's screen (StorySatnav) and the rear-view mirror (its
+## housing and glass: StoryScene shows on the glass what the driver would see in it).
 ## Built in the car's road frame (x left, y up, z ahead, the road under the wheels at y = 0) from
 ## its manifest (TmRoadCars.manifest: wheels, box, and the body's lines along it, "anchors"), so it
 ## fits any of the sixteen under its own roof; fit_car() lines the body itself from inside.
@@ -19,6 +20,10 @@ const FLOOR_Y := 0.24
 const CROWN := Vector2(1.43, -0.11)
 
 var satnav: MeshInstance3D
+var mirror_glass: MeshInstance3D   ## the rear-view mirror's glass (StoryScene shows a reflection on it)
+var mirror_normal := Vector3.BACK  ## the glass's facing (road frame): halfway between the driver's eyes and the rear window
+const GLASS := Vector2(0.26, 0.075)  ## the glass's size (m)
+const MIRROR_LAYER := 19             ## the mirror's own render layer: its camera leaves it out
 var mirror_point := Vector3.ZERO   ## the rear-view mirror's place (road frame)
 var driver_head := Vector3.ZERO    ## the driver's eyes
 var rear_seat := Vector3.ZERO      ## the rear bench's middle, where a passenger sits (hips)
@@ -188,7 +193,33 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	screen_light.position = satnav.position + Vector3(0.0, 0.0, -0.15)
 	add_child(screen_light)
 	mirror_point = pts["mirror"]
-	_box(mirror_point + Vector3(0.0, 0.0, 0.03), Vector3(0.24, 0.07, 0.03), trim)   # ahead of its glass
+	# the glass turned so the driver sees the rear window in it (it faces halfway between the two)
+	var rear_window := Vector3(0.0, (shelf_y + line(m, "top", shelf_z)) * 0.5, shelf_z)
+	mirror_normal = (((pts["driver_head"] as Vector3) - mirror_point).normalized() + (rear_window - mirror_point).normalized()).normalized()
+	mirror_glass = MeshInstance3D.new()
+	var gq := QuadMesh.new()
+	gq.size = GLASS
+	mirror_glass.mesh = gq
+	var gm := StandardMaterial3D.new()
+	gm.albedo_color = Color(0.05, 0.055, 0.06)
+	gm.metallic = 1.0
+	gm.roughness = 0.08
+	mirror_glass.material_override = gm
+	mirror_glass.position = mirror_point
+	mirror_glass.basis = Basis.looking_at(-mirror_normal, Vector3.UP)     # a quad faces +z
+	mirror_glass.layers = 1 << (MIRROR_LAYER - 1)
+	add_child(mirror_glass)
+	# its housing behind it, turned with it, and the stem up to the headlining
+	var housing := MeshInstance3D.new()
+	var hb := BoxMesh.new()
+	hb.size = Vector3(GLASS.x + 0.02, GLASS.y + 0.016, 0.03)
+	housing.mesh = hb
+	housing.material_override = trim
+	housing.position = Vector3(0.0, 0.0, -0.016)
+	housing.layers = 1 << (MIRROR_LAYER - 1)
+	mirror_glass.add_child(housing)
+	var roof := line(m, "top", mirror_point.z) - 0.03
+	_box(Vector3(0.0, (mirror_point.y + roof) * 0.5 + 0.02, mirror_point.z + 0.02), Vector3(0.025, maxf(0.02, roof - mirror_point.y - 0.02), 0.025), trim)
 	driver_head = pts["driver_head"]
 	rear_seat = pts["rear"]
 
@@ -403,3 +434,15 @@ func _box(at: Vector3, size: Vector3, mat: Material, tilt_deg := 0.0) -> MeshIns
 	mi.rotation = Vector3(deg_to_rad(tilt_deg), 0.0, 0.0)
 	add_child(mi)
 	return mi
+
+
+## The camera that sees what the driver sees in the mirror (road frame): the driver's eyes reflected
+## in the glass's plane, looking through the glass's middle, its field of view just the glass
+## (vertical, degrees), its near plane at the glass so nothing between it and the glass (the
+## housing, the windscreen) is drawn. eyes: the driver's eyes (road frame; default the layout's).
+func reflection(eyes := Vector3.INF) -> Dictionary:
+	var e := driver_head if eyes == Vector3.INF else eyes
+	var n := mirror_normal
+	var pos := e - 2.0 * (e - mirror_point).dot(n) * n
+	var d := pos.distance_to(mirror_point)
+	return {"pos": pos, "look": mirror_point, "fov": rad_to_deg(2.0 * atan(GLASS.y * 0.5 / d)), "near": d * 0.98}

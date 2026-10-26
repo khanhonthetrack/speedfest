@@ -18,8 +18,9 @@ extends Node3D
 ## (default, near black cloth; a cast member keeps its clothes) | "drowned" (pale, soaked, glossy,
 ## dripping) | "grey" (the mannequin as it comes), "scale": 1.0 (1.83 m; a cast member its own height),
 ## "speaker": the name its lines carry (default: the cast member's first name, else the id),
-## "gaze": "camera" | "mirror" (the shot's rear-view mirror: eyes on the driver's in the glass) | a
-## person's id (default: whoever on screen is speaking, else straight ahead), "bend": bones turned
+## "gaze": "camera" | "mirror" (the shot's rear-view mirror: eyes on the driver's in the glass) |
+## "ahead" | a person's id (default: whoever on screen is speaking, else straight ahead), "looks":
+## [[from, to, gaze], ...] (s into the shot: the eyes there for that while, a glance), "bend": bones turned
 ## on top of the clip over time (_bend: a head coming up), "blink": false (a cast member's eyes never
 ## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
@@ -212,7 +213,9 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 			for k in mi.mesh.get_surface_count():
 				mi.set_surface_override_material(k, soaked(mi.mesh.surface_get_material(k) as StandardMaterial3D))
 	if look == "drowned":
-		add_child(_drips())
+		var drips := _drips()
+		drips.local_coords = sits         # seated in a moving car the water falls in the car, not behind it
+		add_child(drips)
 	var sc := float(s.get("scale", 1.0))
 	body.scale = Vector3.ONE * sc
 	body.position.y = lift * sc

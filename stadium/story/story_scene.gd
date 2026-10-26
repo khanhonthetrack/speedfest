@@ -29,12 +29,14 @@ extends Node3D
 ##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; or "pos" in its
 ##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
 ##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot",
-##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on)}], "rain": 0..1,
+##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on), "car": a car's id
+##     (riding in it: pos and look in its road frame)}], "rain": 0..1,
 ##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
 ##   "subtitle"},
 ##   the horror layer (docs/STORY.md, THE PASSENGER): "mirror": {camera keys like "camera", "follow",
 ##     "rect": [x, y, w, h] (fractions of the screen)} (a rear-view mirror: a second camera, its
-##     picture flipped and framed), "glass": 0..1 (rain on the windscreen), "flash": [[at, s], ...]
+##     picture flipped and framed), or {"glass": true, "follow": a car with a cabin} (the cabin's own
+##     mirror glass shows what its driver sees in it, from any camera: StoryCabin.reflection), "glass": 0..1 (rain on the windscreen), "flash": [[at, s], ...]
 ##     (white frames), "flicker": {"rate", "depth"} (the lights stutter), "sounds": [{"at", "cue"}]
 ##     (StorySounds: sting, chime, thump), "ambience": a looping cue or a list of them (rain,
 ##     heartbeat, drip, drone: a loop stops at the first cut to a shot that doesn't name it),
@@ -482,8 +484,17 @@ func _add_light(l: Dictionary) -> void:
 	light.light_color = colour
 	light.light_energy = float(l.get("energy", 3.0))
 	light.shadow_enabled = bool(l.get("shadow", true))
-	_props.add_child(light)
 	var p := _vec(l.get("pos", [0, 3, 0]))
+	var car_id := String(l.get("car", ""))
+	if _cars.has(car_id):
+		# riding in the car (its road frame), so it stays with it as it drives
+		var host: Node3D = _cars[car_id].get("cabin", _cars[car_id]["node"])
+		host.add_child(light)
+		light.position = p
+		if l.has("look"):
+			light.look_at(host.global_transform * _vec(l["look"]), host.global_basis.y)
+		return
+	_props.add_child(light)
 	light.global_position = _anchor * p
 	if l.has("look"):
 		light.look_at(_anchor * _vec(l["look"]), _anchor.basis.y)
@@ -573,9 +584,13 @@ func _pose(local: float) -> void:
 			p.rebase(_cars[p.in_car]["xf"])
 		p.pose(local)
 		p.visible = _on_screen(p.spec, local)
+	StoryProps.pose(_props, local)
 	_aim(s.get("camera", {}), camera, _attrs, local, dur)
 	if _mirror_cam != null and s.has("mirror"):
-		_aim(s["mirror"], _mirror_cam, null, local, dur)
+		if _glass() != null:
+			_aim_glass(_glass())
+		else:
+			_aim(s["mirror"], _mirror_cam, null, local, dur)
 	# the faces after the people and the cameras: a look at the camera is at this frame's camera
 	for p in _people:
 		if p.face != null and p.visible:
@@ -626,10 +641,20 @@ func _lines_of(p: StoryPerson, s: Dictionary) -> Array:
 ## (a voice off draws no eyes: it is heard, not seen).
 func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 	var g := String(p.spec.get("gaze", ""))
+	var local := t - float(s.get("start", 0.0))
+	for lk: Array in p.spec.get("looks", []):
+		if local >= float(lk[0]) and local < float(lk[1]):
+			g = String(lk[2])
 	if g == "camera" and camera != null:
 		return camera.global_position
+	if g == "mirror" and _glass() != null:
+		return _glass().mirror_glass.global_position
+	if g == "mirror" and not s.has("mirror") and _cars.has(p.in_car) and _cars[p.in_car].has("cabin"):
+		return (_cars[p.in_car]["cabin"] as StoryCabin).mirror_glass.global_position
 	if g == "mirror" and _mirror_cam != null and s.has("mirror"):
 		return _mirror_cam.global_position
+	if g == "ahead":
+		return null
 	if g != "":
 		for q in _people:
 			if String(q.spec.get("id", "")) == g and q != p:
@@ -706,24 +731,66 @@ func _set_mirror(s: Dictionary) -> void:
 	if not s.has("mirror"):
 		if subtitles != null:
 			subtitles.show_mirror(null, Rect2())
+		if _mirror_vp != null:
+			_mirror_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED     # (a second render a frame)
 		return
 	var r: Array = (s["mirror"] as Dictionary).get("rect", [0.3, 0.06, 0.4, 0.2])
 	var rect := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+	var glass := bool((s["mirror"] as Dictionary).get("glass", false))
 	if _mirror_vp == null:
 		_mirror_vp = SubViewport.new()
 		_mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 		add_child(_mirror_vp)
 		_mirror_cam = Camera3D.new()
 		_mirror_cam.far = TmSkyline.FAR
+		_mirror_cam.cull_mask &= ~(1 << (StoryCabin.MIRROR_LAYER - 1))      # a mirror doesn't see itself
 		var ma := CameraAttributesPractical.new()
 		ma.exposure_multiplier = 2.4            # a mirror shot reads the dark car behind and the back seat
 		_mirror_cam.attributes = ma
 		_mirror_vp.add_child(_mirror_cam)
 		_mirror_cam.current = true
+	_mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	var vs := get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1600, 900)
 	_mirror_vp.size = Vector2i(maxi(64, int(vs.x * rect.size.x)), maxi(32, int(vs.y * rect.size.y)))
+	(_mirror_cam.attributes as CameraAttributesPractical).exposure_multiplier = 1.6 if glass else 2.4
+	_mirror_cam.near = 0.05
+	if glass and _glass() != null:
+		# the picture on the cabin's own glass (what the driver sees in it), not on the screen
+		var w := 1024
+		_mirror_vp.size = Vector2i(w, int(w * StoryCabin.GLASS.y / StoryCabin.GLASS.x))
+		var gm := StandardMaterial3D.new()
+		gm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		gm.albedo_texture = _mirror_vp.get_texture()
+		gm.albedo_color = Color(0.85, 0.85, 0.85)               # a mirror gives back a little less
+		gm.uv1_scale = Vector3(-1.0, 1.0, 1.0)                  # the camera's picture, mirrored
+		gm.uv1_offset = Vector3(1.0, 0.0, 0.0)
+		_glass().mirror_glass.material_override = gm
+		if subtitles != null:
+			subtitles.show_mirror(null, Rect2())
+		return
 	if subtitles != null:
 		subtitles.show_mirror(_mirror_vp.get_texture(), rect)
+
+
+## The shot's mirror on a cabin's glass ("mirror": {"glass": true, "follow": a car}): that car's
+## cabin, or null (a flat mirror on the screen, or none).
+func _glass() -> StoryCabin:
+	if _shot < 0 or _shot >= shots.size():
+		return null
+	var m: Dictionary = (shots[_shot] as Dictionary).get("mirror", {})
+	if not bool(m.get("glass", false)) or not _cars.has(String(m.get("follow", ""))):
+		return null
+	return _cars[String(m["follow"])].get("cabin", null) as StoryCabin
+
+
+## The glass mirror's camera: the driver's eyes reflected in the glass (StoryCabin.reflection).
+func _aim_glass(cabin: StoryCabin) -> void:
+	var r := cabin.reflection()
+	var xf := cabin.global_transform
+	_mirror_cam.global_position = xf * (r["pos"] as Vector3)
+	_mirror_cam.look_at(xf * (r["look"] as Vector3), xf.basis.y)
+	_mirror_cam.fov = float(r["fov"])
+	_mirror_cam.near = float(r["near"])
 
 
 ## "flicker": every light of the shot (its props and the cars' cabins) stutters.

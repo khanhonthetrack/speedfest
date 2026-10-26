@@ -5,7 +5,9 @@ extends RefCounted
 ## dissonant scrape, for the face in the mirror), "rain" (a loop: hiss on the roof), "heartbeat"
 ## (a loop), "chime" (the satnav's two notes), "thump" (a door, a hand on glass), "drip" (a loop:
 ## water dripping off someone soaked into water on the floor), "drone" (a loop: dread, a low beating
-## tone and a thin high one swelling for four seconds, then held).
+## tone and a thin high one swelling for four seconds, then held), "breath" (a breath let out) and
+## "gasp" (a sharp breath in: waking from a nightmare), "train" (a loop: a train over the viaduct,
+## a rumble and its wheels over the rail joints).
 
 const RATE := 22050
 static var _cache := {}
@@ -30,12 +32,18 @@ static func get_stream(name: String) -> AudioStream:
 			s = _drip()
 		"drone":
 			s = _drone()
+		"breath":
+			s = _breath()
+		"gasp":
+			s = _gasp()
+		"train":
+			s = _train()
 	_cache[name] = s
 	return s
 
 
 static func loops(name: String) -> bool:
-	return name in ["rain", "heartbeat", "drip", "drone"]
+	return name in ["rain", "heartbeat", "drip", "drone", "train"]
 
 
 ## loop_from: the sample a loop goes back to (a swell played once, then its held part looping).
@@ -157,3 +165,66 @@ static func _drone() -> AudioStreamWAV:
 		var high := sin(TAU * 2093.0 * t) * 0.035 + sin(TAU * 2217.5 * t) * 0.03
 		x[i] = (low + mid + high) * env
 	return _wav(x, true, RATE * 4)
+
+
+static func _breath() -> AudioStreamWAV:
+	# air let out through the mouth: soft noise through a low, then a little lower, filter, up in a
+	# fifth of a second and slowly gone
+	var n := int(RATE * 1.1)
+	var x := PackedFloat32Array()
+	x.resize(n)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 31
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var env := clampf(t / 0.18, 0.0, 1.0) * exp(-maxf(t - 0.18, 0.0) * 3.2)
+		var a := lerpf(0.16, 0.08, clampf(t / 1.1, 0.0, 1.0))
+		lp += (rng.randf_range(-1.0, 1.0) - lp) * a
+		lp2 += (lp - lp2) * 0.3
+		x[i] = (lp - lp2 * 0.6) * env * 1.6
+	return _wav(x)
+
+
+static func _gasp() -> AudioStreamWAV:
+	# a sharp breath in: noise rising in level and brightness for 0.35 s, then caught (cut short)
+	var n := int(RATE * 0.42)
+	var x := PackedFloat32Array()
+	x.resize(n)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 37
+	var lp := 0.0
+	var hp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var env := pow(clampf(t / 0.35, 0.0, 1.0), 1.6) * (1.0 - clampf((t - 0.36) / 0.04, 0.0, 1.0))
+		var a := lerpf(0.12, 0.45, clampf(t / 0.35, 0.0, 1.0))
+		lp += (rng.randf_range(-1.0, 1.0) - lp) * a
+		hp += (lp - hp) * 0.05
+		x[i] = (lp - hp) * env * 1.4
+	return _wav(x)
+
+
+static func _train() -> AudioStreamWAV:
+	# low rumble (noise through a very low filter, and the brick's hum) and the wheels' double clack
+	# over the joints, every 0.75 s; whole seconds, so the loop's seam falls between clacks
+	var n := RATE * 3
+	var x := PackedFloat32Array()
+	x.resize(n)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 41
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1.0, 1.0) - lp) * 0.02
+		lp2 += (lp - lp2) * 0.05
+		var hum := sin(TAU * 38.0 * t) * 0.12 + sin(TAU * 57.0 * t) * 0.05
+		var clack := 0.0
+		for at in [0.1, 0.24]:
+			var d := fposmod(t - at, 0.75)
+			if d < 0.05:
+				clack += sin(TAU * 180.0 * d) * exp(-d * 90.0) * 0.5
+		x[i] = lp2 * 2.6 + hum + clack
+	return _wav(x, true)

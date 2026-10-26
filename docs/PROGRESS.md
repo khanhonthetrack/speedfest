@@ -4598,3 +4598,34 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   the paved ground, the city and the light stay, and the track's line still places the shot (the
   anchor drops onto the ground). `c01_open` is bare. `test_story_scenes` checks a bare F04 stage
   (32 checks).
+- **The Mirror, version 3** (owner: "It should be our character driving and looking at mirror ...
+  typical jumpscare formula"): designed by two independent read-only designers (a horror editor, a
+  game cinematics director) and a judge, in turn; built from the judge's shot list (the beats in
+  `docs/NIGHT1_SCRIPT.md`). Kit on screen at the wheel (UAL `Driving`), seen from the dash and over
+  the shoulder; the glances by `"looks"` and `"bend"`; the build (headlights far, closer, the white
+  coupe, high beams flooding the cabin, a whiteout and a thump: a false scare), the false relief (an
+  empty road, a breath out, a drip with nothing to explain it), the dread (she is in the mirror before
+  Kit looks), her head coming up in the glass, Kit tearing away, the empty glass, dead air, and the hit:
+  her face at Kit's ear, the sting on silence, black, a gasp. 35.7 s to the black.
+- **A real rear-view mirror**: StoryCabin's glass (and its housing behind it, turned with it, a stem
+  to the roof) faces halfway between the driver's eyes and the rear window; `StoryCabin.reflection()`
+  is the driver's eyes mirrored in the glass's plane, its field of view just the glass, its near plane
+  at the glass; a shot's `"mirror": {"glass": true, "follow": car}` puts that camera's picture on the
+  glass (no flat picture on the screen), so any camera sees in it what the driver would; the mirror is
+  on its own render layer, which its camera leaves out. The mirror camera now renders only in shots
+  with a mirror (it ran every frame after the first one: about 8 s a frame at Ultra).
+- **Engine additions** (all in the scene format's doc): lights with `"car"` ride in it; `"looks"`:
+  [[from, to, gaze]] (glances); `"gaze": "mirror"` finds the cabin's glass in a shot without a mirror,
+  `"ahead"` straight on; a seated drowned person's drips fall in the car (local particles); sounds
+  `breath`, `gasp` and `train` (a loop).
+- **The knock rewritten** (owner: "Can you not ask me for permission, just writr it?"): the fixes from
+  the script's last section, made: an establishing shot of Arch 9 (StoryProps `"viaduct"`: brick
+  arches cut with CSG, a brick shader, Dee's arch at its origin with its roller door half up, a bare
+  bulb and "ARCH 9" over it; a lit train crossing the deck at the shot's time, `StoryProps.pose`), the
+  knock in front of the arch (the knock shots `"bare"`), "You were drooling on the wheel.", "There was
+  a white car right behind me." for "The bridge.", a close-up of the satnav's nine pins for Dee's
+  "Huh. Nine pins." (now a voice off), "Wipe it. Please." / "Not yet. Let's see where they go first.".
+  The script doc and `docs/NIGHT1_SCRIPT.md` updated (89 lines, each checked against the scenes).
+- Tests: `test_story_scenes` (38 checks: the reflection's geometry, the picture on the glass, the
+  mirror camera off without a mirror, a riding light, the looks and the drips, the viaduct and its
+  train); `test_story_face` (17).

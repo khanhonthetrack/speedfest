@@ -4,7 +4,10 @@ extends RefCounted
 ## of the same City): shipping containers (stacked, ribbed, a little rust), a gantry crane with its hook
 ## and warning light, floodlight poles that light what is under them, and toll booths. Made here in
 ## code like the rest of the game; placed by a shot's "props": [{"kind", "pos": [x, y, z] (the shot's
-## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on)}].
+## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on)}]. And the
+## railway viaduct ("viaduct": brick arches along its x, their faces towards +z; "arches" each side of
+## the one at its origin, which is Dee's, Arch 9: a roller door half up, a bare bulb inside, its
+## number painted over it; "train": [from s, speed m/s] a lit train crossing the deck, StoryProps.pose).
 
 const CONTAINER := Vector3(2.44, 2.6, 12.2)      ## an ISO 40-foot box (m)
 const RIBS := """shader_type spatial;
@@ -41,6 +44,8 @@ static func build(parent: Node3D, list: Array, anchor: Transform3D) -> void:
 				node = _pole(p)
 			"booth":
 				node = _booth(p)
+			"viaduct":
+				node = _viaduct(p)
 			_:
 				continue
 		parent.add_child(node)
@@ -139,3 +144,127 @@ static func _booth(p: Dictionary) -> Node3D:
 	glass.emission_energy_multiplier = 1.5
 	_box(root, Vector3(0.81, 1.6, 0.0), Vector3(0.02, 1.0, 1.6), glass)
 	return root
+
+
+const BRICK := """shader_type spatial;
+// soot-dark railway brick in world space: stretcher bond, mortar lines, a few bricks darker
+varying vec3 wp;
+varying vec3 wn;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+void vertex() { wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; wn = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz); }
+void fragment() {
+	vec2 uv = abs(wn.x) > 0.5 ? wp.zy : (abs(wn.z) > 0.5 ? wp.xy : wp.xz);
+	uv /= vec2(0.44, 0.15);
+	float row = floor(uv.y);
+	uv.x += mod(row, 2.0) * 0.5;
+	vec2 f = fract(uv);
+	float mortar = step(f.x, 0.05) + step(f.y, 0.1);
+	float shade = 0.75 + 0.5 * hash(floor(uv));
+	vec3 brick = vec3(0.32, 0.13, 0.08) * shade;
+	ALBEDO = mix(brick, vec3(0.16, 0.15, 0.14), clamp(mortar, 0.0, 1.0));
+	ROUGHNESS = 0.92;
+}
+"""
+const SPAN := 9.0                      ## an arch's opening and pier (m)
+const DECK := 7.2                      ## the deck's underside over the street (m)
+static var _brick: Shader
+
+
+static func _viaduct(p: Dictionary) -> Node3D:
+	if _brick == null:
+		_brick = Shader.new()
+		_brick.code = BRICK
+	var root := Node3D.new()
+	var bm := ShaderMaterial.new()
+	bm.shader = _brick
+	var n := int(p.get("arches", 3))
+	var depth := 9.0
+	var open_w := SPAN - 1.8
+	var spring := 4.2                  # where each arch's curve starts
+	var wall := CSGCombiner3D.new()
+	wall.material_override = bm
+	root.add_child(wall)
+	var body := CSGBox3D.new()
+	body.size = Vector3(SPAN * (2 * n + 1), DECK + 1.6, depth)
+	body.position = Vector3(0.0, (DECK + 1.6) * 0.5, -depth * 0.5)
+	wall.add_child(body)
+	for k in range(-n, n + 1):
+		# each opening: a box up to the springing and a half round over it, cut right through
+		var x := k * SPAN
+		var hole := CSGBox3D.new()
+		hole.operation = CSGShape3D.OPERATION_SUBTRACTION
+		hole.size = Vector3(open_w, spring, depth + 1.0)
+		hole.position = Vector3(x, spring * 0.5 - 0.01, -depth * 0.5)
+		wall.add_child(hole)
+		var vault := CSGCylinder3D.new()
+		vault.operation = CSGShape3D.OPERATION_SUBTRACTION
+		vault.radius = open_w * 0.5
+		vault.height = depth + 1.0
+		vault.sides = 24
+		vault.rotation = Vector3(PI * 0.5, 0.0, 0.0)
+		vault.position = Vector3(x, spring, -depth * 0.5)
+		wall.add_child(vault)
+		# closed a metre in: a back wall, and a shutter (down, or Dee's half up)
+		var mine := k == 0
+		var back := _box(root, Vector3(x, (spring + open_w * 0.5) * 0.5, -1.2 - 0.15), Vector3(open_w, spring + open_w * 0.5, 0.3),
+			_mat(Color(0.05, 0.045, 0.04)) if not mine else _mat(Color(0.12, 0.1, 0.08)))
+		back.position.z = -1.35 if not mine else -depth + 0.6
+		var shutter_h := spring if not mine else spring * 0.45
+		_box(root, Vector3(x, spring - shutter_h * 0.5, -1.15), Vector3(open_w - 0.1, shutter_h, 0.06),
+			_mat(Color(0.28, 0.29, 0.3) if mine else Color(0.18, 0.19, 0.2), 0.5, 0.6))
+		_box(root, Vector3(x, spring + open_w * 0.5 * 0.5, -1.15), Vector3(open_w - 0.1, open_w * 0.5, 0.06),
+			_mat(Color(0.03, 0.03, 0.03)))          # the vault's lunette, dark glass
+	# Dee's arch: the bulb inside, the pit's glow, the number
+	var bulb := OmniLight3D.new()
+	bulb.light_color = Color(1.0, 0.78, 0.45)
+	bulb.light_energy = 3.5
+	bulb.omni_range = 11.0
+	bulb.shadow_enabled = true
+	bulb.position = Vector3(0.0, 3.4, -3.5)
+	root.add_child(bulb)
+	var glow := StandardMaterial3D.new()
+	glow.emission_enabled = true
+	glow.emission = Color(1.0, 0.8, 0.5)
+	glow.emission_energy_multiplier = 8.0
+	_box(root, Vector3(0.0, 3.55, -3.5), Vector3(0.12, 0.16, 0.12), glow)
+	var sign := Label3D.new()
+	sign.text = "ARCH 9"
+	sign.font_size = 160
+	sign.pixel_size = 0.004
+	sign.modulate = Color(0.92, 0.9, 0.85)
+	sign.position = Vector3(0.0, spring + open_w * 0.5 + 0.45, 0.02)
+	root.add_child(sign)
+	# the deck: a parapet each side and the rails between
+	var deck_y := DECK + 1.6
+	_box(root, Vector3(0.0, deck_y + 0.5, -0.25), Vector3(SPAN * (2 * n + 1), 1.0, 0.5), bm)
+	_box(root, Vector3(0.0, deck_y + 0.5, -depth + 0.25), Vector3(SPAN * (2 * n + 1), 1.0, 0.5), bm)
+	if p.has("train"):
+		root.add_child(_train(p["train"]))
+	return root
+
+
+## A lit train on the deck, crossing along x: [from (s into the shot), speed (m/s)].
+static func _train(spec: Array) -> Node3D:
+	var t := Node3D.new()
+	t.name = "Train"
+	t.set_meta("train", [float(spec[0]), float(spec[1])])
+	var body := _mat(Color(0.12, 0.13, 0.15), 0.5, 0.5)
+	var lit := StandardMaterial3D.new()
+	lit.emission_enabled = true
+	lit.emission = Color(0.95, 0.92, 0.8)
+	lit.emission_energy_multiplier = 3.0
+	for car in 4:
+		var x := -car * 20.5
+		_box(t, Vector3(x, DECK + 1.6 + 1.9, -4.5), Vector3(20.0, 3.0, 3.0), body)
+		_box(t, Vector3(x, DECK + 1.6 + 2.2, -2.99), Vector3(18.0, 0.8, 0.02), lit)       # the windows' strip
+	t.visible = false
+	return t
+
+
+## Moves what moves in a shot's props at its time (s into the shot): a train crosses its deck.
+static func pose(parent: Node3D, local: float) -> void:
+	for t: Node3D in parent.find_children("Train", "Node3D", true, false):
+		var m: Array = t.get_meta("train", [0.0, 0.0])
+		var run := (local - float(m[0])) * float(m[1])
+		t.visible = run >= 0.0 and run < 260.0
+		t.position.x = -120.0 + run

@@ -182,7 +182,13 @@ man's take by the sidecar's `"sex"` (`StoryCast.take`), the arms brought in, the
 UAL `Idle` is a fighter's stance (owner, 25 Oct: "they are not planning to fight"). A person can
 also take `"bend"` (bones turned on top of the clip over time: `[{"t": 1.0, "Head": [28, 0, 0]},
 ...]`, degrees about the body's axes, eased between keys: a head coming up), `"blink": false`,
-`"shapes": {"jawOpen": 0.12}` (held), and `"gaze": "mirror"` (eyes on the shot's rear-view mirror).
+`"shapes": {"jawOpen": 0.12}` (held), `"gaze": "mirror"` (eyes on the shot's rear-view mirror, or
+the cabin's own glass) and `"looks": [[1.0, 2.2, "mirror"]]` (a glance, then back).
+A cabin's rear-view mirror is a real one: a shot's `"mirror": {"glass": true, "follow": "kit"}` shows
+on the glass what the driver sees in it (`StoryCabin.reflection`: the driver's eyes mirrored in the
+glass), from any camera, so a shot can frame Kit's face and the mirror together
+(`story/lab/mirror_glass.json`). A shot's light with `"car": "kit"` rides in that car. Props now
+include Arch 9's railway viaduct (`"viaduct"`, with `"train": [from s, m/s]`).
 Seated in a car (`"car"` with `"seat"` or a `"pos"`), everyone sits by their own body:
 `StoryCast.seated` measures, in the clip, the seat (the lowest of the hips and thighs behind the
 knees, `"loose"` garments left out, and the back of it) and the crown (hair and hat and all); the

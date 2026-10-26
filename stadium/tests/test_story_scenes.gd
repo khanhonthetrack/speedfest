@@ -13,6 +13,9 @@ extends Node
 ## - a line's conditions pick its variant: a cold, warm or hot save hears different lines;
 ## - with its track built, a shot puts the camera and its cars where the scene says; "bare", the
 ##   track is left out (no blocks, road decals or neon along it) and the shot stands on the ground;
+## - a rear-view mirror on the cabin's glass reflects the driver's eyes truly, its camera runs only in
+##   shots with a mirror, lights ride in a car, eyes glance at the mirror on cue, water falls with it;
+## - Arch 9's viaduct stands with its lit arch and number, and its train crosses at the shot's time;
 ## - a story map in the race (race.gd --story), a time-attack session (short here: 4 s): the bot's
 ##   run on G06's second finish, still under way when time is up, counts; the session settles on it,
 ##   it beats the time to beat on that finish, the panel names the decision, no new run starts, and
@@ -94,6 +97,8 @@ func _ready() -> void:
 	_layers()
 	await _variants()
 	await _staged()
+	await _mirror_glass()
+	_viaduct()
 	await _story_race()
 	TestHooks.finish()
 
@@ -309,6 +314,106 @@ func _staged() -> void:
 		TmMapBuilder.GROUND_Y])
 	bs.queue_free()
 	await get_tree().process_frame
+
+
+## A rear-view mirror on the cabin's glass: the reflection camera is the driver's eyes mirrored in
+## the glass's plane, looking out towards the back; a shot with a glass mirror puts that camera's
+## picture on the glass (no flat picture on the screen) and the next shot without a mirror stops
+## the camera; a light with "car" rides in it; "looks" turns the eyes to the mirror only then, and
+## "mirror" finds the cabin's glass in a shot without a mirror too; the soaked passenger's water
+## falls with the car.
+func _mirror_glass() -> void:
+	var cab := StoryCabin.make("nemesis")
+	var r := cab.reflection()
+	var e := cab.driver_head
+	var m := cab.mirror_point
+	var n := cab.mirror_normal
+	var pos: Vector3 = r["pos"]
+	var out := (m - e) - 2.0 * (m - e).dot(n) * n                 # the eyes' ray off the glass
+	TestHooks.check(absf(pos.distance_to(m) - e.distance_to(m)) < 0.001 and absf(((pos + e) * 0.5 - m).dot(n)) < 0.001
+		and (m - pos).normalized().dot(out.normalized()) > 0.9999 and out.z < 0.0 and float(r["fov"]) > 5.0 and float(r["fov"]) < 20.0,
+		"story_mirror_reflection", "eyes %s, camera %s, ray out %s, fov %.1f" % [e, pos, out.normalized(), float(r["fov"])])
+	cab.free()
+	var car := {"id": "c", "model": "nemesis", "cabin": true, "speed": 20.0}
+	var drv := {"id": "drv", "car": "c", "seat": "driver", "clip": "Driving", "who": "kit", "looks": [[1.0, 2.0, "mirror"]]}
+	var d := {"id": "glass_test", "shots": [
+		{"id": "g", "dur": 3.0, "cars": [car.duplicate()], "people": [drv.duplicate(true),
+			{"id": "pas", "car": "c", "seat": "rear", "clip": "Sitting_Idle", "who": "passenger", "look": "drowned"}],
+			"lights": [{"car": "c", "kind": "omni", "pos": [0.05, 1.0, 0.75], "energy": 0.5, "range": 1.6, "shadow": false}],
+			"camera": {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]},
+			"mirror": {"glass": true, "follow": "c"}},
+		{"id": "h", "dur": 3.0, "cars": [car.duplicate()], "people": [{"id": "drv", "car": "c", "seat": "driver", "clip": "Driving", "who": "kit", "gaze": "mirror"}],
+			"camera": {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]}}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(0.5)
+	var cabin := sc._cars["c"]["cabin"] as StoryCabin
+	var gm := cabin.mirror_glass.material_override as StandardMaterial3D
+	var want := cabin.global_transform * (cabin.reflection()["pos"] as Vector3)
+	var on_glass := gm != null and gm.albedo_texture == sc._mirror_vp.get_texture()
+	var cam_ok := sc._mirror_cam.global_position.distance_to(want) < 0.001 and sc._mirror_vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS
+	var hidden := (sc._mirror_cam.cull_mask & (1 << (StoryCabin.MIRROR_LAYER - 1))) == 0 and cabin.mirror_glass.layers == 1 << (StoryCabin.MIRROR_LAYER - 1)
+	var overlay := sc.subtitles == null or sc.subtitles._mirror_frame == null or not sc.subtitles._mirror_frame.visible
+	TestHooks.check(on_glass and cam_ok and hidden and overlay, "story_mirror_on_the_glass",
+		"on the glass %s, camera at the reflected eyes %s (%s vs %s), mirror out of its own picture %s, no flat mirror %s" % [
+		on_glass, cam_ok, sc._mirror_cam.global_position, want, hidden, overlay])
+	# the riding light: in the cabin, where it was put, however far the car has driven
+	var light: OmniLight3D = null
+	for l in cabin.find_children("*", "OmniLight3D", true, false):
+		if (l as Node3D).position.is_equal_approx(Vector3(0.05, 1.0, 0.75)):
+			light = l
+	var p1 := cabin.global_position
+	sc.seek(2.5)
+	var rides := light != null and cabin.global_position.distance_to(p1) > 30.0 \
+		and light.global_position.distance_to(cabin.global_transform * Vector3(0.05, 1.0, 0.75)) < 0.001
+	TestHooks.check(rides, "story_light_rides_in_the_car", "a light in the cabin %s; the car drove %.1f m" % [light != null, cabin.global_position.distance_to(p1)])
+	# looks: the eyes on the glass from 1 s to 2 s only; the water falls with the car
+	var drv_p := _find(sc, "drv")
+	var pas := _find(sc, "pas")
+	sc.seek(1.5)
+	var during: Variant = sc._gaze_of(drv_p, sc.shots[0])
+	var glass_then := cabin.mirror_glass.global_position
+	sc.seek(2.5)
+	var after: Variant = sc._gaze_of(drv_p, sc.shots[0])
+	var drips := pas.find_children("*", "GPUParticles3D", true, false)
+	TestHooks.check(during is Vector3 and (during as Vector3).distance_to(glass_then) < 0.001 and after == null
+		and not drips.is_empty() and (drips[0] as GPUParticles3D).local_coords, "story_looks_and_drips",
+		"eyes during the look %s, after %s; drips riding %s" % [during, after, (drips[0] as GPUParticles3D).local_coords if not drips.is_empty() else false])
+	# the next shot has no mirror: its camera stops; "mirror" still finds the cabin's glass
+	sc.seek(4.0)
+	var cabin2 := sc._cars["c"]["cabin"] as StoryCabin
+	var g2: Variant = sc._gaze_of(_find(sc, "drv"), sc.shots[1])
+	TestHooks.check(sc._mirror_vp.render_target_update_mode == SubViewport.UPDATE_DISABLED and g2 is Vector3
+		and (g2 as Vector3).distance_to(cabin2.mirror_glass.global_position) < 0.001, "story_mirror_off_without_one",
+		"mirror camera %d (disabled %d); eyes on %s" % [sc._mirror_vp.render_target_update_mode, SubViewport.UPDATE_DISABLED, g2])
+	sc.queue_free()
+	await get_tree().process_frame
+
+
+## Arch 9's viaduct: built with Dee's arch at its origin (its bulb, its number), and a train that
+## crosses the deck at the shot's time, out of sight before it sets off.
+func _viaduct() -> void:
+	var root := Node3D.new()
+	add_child(root)
+	StoryProps.build(root, [{"kind": "viaduct", "pos": [0.0, 0.0, 0.0], "arches": 2, "train": [1.0, 24.0]}], Transform3D())
+	var train: Node3D = root.find_child("Train", true, false)
+	var label: Label3D = root.find_children("*", "Label3D", true, false)[0] if not root.find_children("*", "Label3D", true, false).is_empty() else null
+	StoryProps.pose(root, 0.5)
+	var before := train != null and not train.visible
+	StoryProps.pose(root, 3.0)
+	var crossing := train != null and train.visible and absf(train.position.x - (-120.0 + 48.0)) < 0.001
+	TestHooks.check(before and crossing and label != null and label.text == "ARCH 9" and not root.find_children("*", "OmniLight3D", true, false).is_empty(),
+		"story_viaduct_and_train", "train hidden before it sets off %s, crossing at 3 s %s (x %s), sign %s" % [before, crossing,
+		train.position.x if train else 0.0, label.text if label else "none"])
+	root.free()
+
+
+func _find(sc: Node, id: String) -> StoryPerson:
+	for n in sc.find_children("*", "", true, false):
+		if n is StoryPerson and String((n as StoryPerson).spec.get("id", "")) == id and not n.is_queued_for_deletion():
+			return n
+	return null
 
 
 func _story_race() -> void:

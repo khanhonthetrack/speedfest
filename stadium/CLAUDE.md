@@ -71,7 +71,7 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-25. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-26. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **Story mode (PLAN M20, 23-24 Oct, session 21):** premise A "Previous Owner" (`docs/STORY.md`, the
   bible; the brief `docs/STORY_MODE_PROMPT.md`); night 1 is playable from the Story page (H01-H03, the
   prologue and five scenes, the mirror nightmare) and waits for the owner's sign-off (stills page in
@@ -84,9 +84,10 @@ Updated 2026-10-25. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   (`StoryCast.seated`, `StoryCabin.lower`; `tests/test_cast_seats`). Night 1's others built: the
   passenger (hair over the face), the coat man, Voss, the auction crowd (a lighter tier). People
   stand in Human Basic Motions' idles (`"Stand"`, `"Stand_B"`, `"Stand_Talk"`; owner, 25 Oct). The
-  Mirror re-cut scarier (25 Oct: the empty seat dripping, then her, bowed, her head coming up, one
-  eye through the parted hair on the mirror). Clips: `tools/clip.sh`; night 1 as clips is with the
-  owner (HANDOFF). Next: the owner's verdict on the clips; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
+  Mirror rebuilt as a jump scare with Kit on screen and a real reflecting rear-view mirror (26 Oct);
+  the knock rewritten at Arch 9 (a viaduct prop); the yard without its track (`"bare"`); night 1's
+  script: `docs/NIGHT1_SCRIPT.md`. Clips: `tools/clip.sh`. Next: the aerial intro, then clips of all
+  of it for the owner; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone
