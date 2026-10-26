@@ -4649,3 +4649,25 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   door (now low on its flex, under it) and "dawn" was night on screen (the script says before dawn,
   still dark); a light riding a car without a cabin sat 0.44 m high (now in the road frame); the scene
   format's doc lacked the new sounds and the viaduct; HANDOFF and CLAUDE.md still listed the intro as next.
+
+### 26 Oct (session 21, cont.): night 1, take three, for the owner (M20-9)
+- **The page**: https://claude.ai/artifact/QN6UyLeBnL4ry3iFp9PyRb, "Night 1 Take Three": clips with
+  sound at Ultra of the aerial intro and the yard without its track (0:23, `c01_open` from 0) and the
+  Mirror v3 (0:37, `c01_close` from 0 to the end of the black), each with its beats timed from the
+  scene files (as `StoryScene.resolve()` times them), the script doc linked, questions (the opening,
+  the Mirror, night 1). Rendered at commit 5992418 by `tools/clip.sh` (24 fps, the first second held
+  and cut), the Mirror in two halves joined at 18.9 s, a shot boundary inside the whiteout's flash
+  (the cut doesn't show; the sound faded over 20 ms each side). Each file is kept under the 15 MB a
+  page file may be (CRF 22, or two passes at the bitrate that fits). Builder: `page3/build.py` in the
+  session scratchpad.
+- **Reviewed before sending** (contact sheets, the mirror cropped shot by shot, loudness): the intro's
+  title, glide and overhead (the crane's red beacon passes under the camera), the yard bare; in the
+  Mirror the far headlights, the white coupe in the glass with the heartbeat, the high beams, the
+  whiteout and thump, the empty road, the drips, her in the mirror before Kit looks, her head coming
+  up, the empty glass, real silence for the dead air, the sting the loudest moment (-6 dB) on her face
+  at Kit's ear, the gasp in the black.
+- **The knock held back**: after the Arch 9 establishing shot its whole conversation (38 s, nine lines)
+  was one static shot from the driver's seat through the side window: Kit never on screen, the window
+  frame barely in it and no rain on the glass, so it read as a camera on the ground looking up at Dee.
+  The page says so; the knock is being re-cut (Kit waking at the knock and answering, Dee at the
+  window, cutting between them) and its clip will be added to the same page.

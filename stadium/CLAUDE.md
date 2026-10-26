@@ -86,8 +86,7 @@ Updated 2026-10-26. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.
   stand in Human Basic Motions' idles (`"Stand"`, `"Stand_B"`, `"Stand_Talk"`; owner, 25 Oct). The
   Mirror rebuilt as a jump scare with Kit on screen and a real reflecting rear-view mirror (26 Oct);
   the knock rewritten at Arch 9 (a viaduct prop); the yard without its track (`"bare"`); night 1's
-  script: `docs/NIGHT1_SCRIPT.md`. Clips: `tools/clip.sh`. Night 1 opens on an aerial of the city (`c01_open`). Next: clips of all
-  of it for the owner; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
+  script: `docs/NIGHT1_SCRIPT.md`. Clips: `tools/clip.sh`. Night 1 opens on an aerial of the city (`c01_open`). Clips of the intro and the Mirror with the owner (HANDOFF, take three); next: the knock re-cut with Kit in frame and its clip on that page; faces' polish, the rest of the cast (Cass, Moth, Pim, Edgar). README "The cast".
 - **Humanoid animation (23 Oct, session 19):** the first character material in the repo, nothing
   using it yet. All four packs the owner bought are in `assets/anim/` as they shipped (owner:
   "Yes, commit all four packs"): `ual_standard/` (Quaternius, **CC0**, 43 clips on a 65-bone

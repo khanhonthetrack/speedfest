@@ -66,7 +66,13 @@
   screen looking in the mirror (done: v3, a real reflecting mirror), the script to read (done:
   https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH, `docs/NIGHT1_SCRIPT.md`), and **"just write it"**:
   make the calls, don't ask (the knock rewritten at Arch 9 that way).
-- **Next**: clips of the intro, the yard, the Mirror and the knock on a new page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **With the owner** (26 Oct): https://claude.ai/artifact/QN6UyLeBnL4ry3iFp9PyRb, "Night 1 Take Three":
+  clips of the aerial intro and the bare yard (0:23) and the Mirror v3 (0:37), beats timed from the
+  scenes, the script linked; questions: the opening?, the Mirror as a jump scare?, night 1 signed off?.
+  The knock's clip was held back (its conversation was one 38 s shot through the side window, Kit
+  never seen): re-cut it with Kit in frame, then add its clip and question to the same page
+  (`page3/build.py` in the session scratchpad without `--no-knock`; the template has the knock section).
+- **Next**: the knock re-cut and its clip on the take-three page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).
