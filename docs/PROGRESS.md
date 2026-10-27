@@ -4756,3 +4756,21 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   second half lost its black and the gasp, the knock's first half its last 7 s). `clip.sh` now ends
   such a run CLIP_SHORT (exit 2, the movie kept as far as it got); the missing pieces re-rendered from
   shot boundaries with a 20000 s limit.
+
+### 27 Oct (session 21, cont.): take four with the owner; every cut's first frame fixed (M20-9)
+- **The page**: https://claude.ai/artifact/4JWYn1DRSR6Bn2hsjHK9y1, "Night 1 Take Four": the opening
+  (0:43: the aerials among the towers, the descent over the container terminal, the yard, Lot 47's five
+  shots), the Mirror (0:39: Kit's three looks back, the fear building), the knock re-cut (0:57); beats
+  from the scene files; questions: the opening, the Mirror, the knock, night 1. Rendered at 11f2b23
+  in pieces cut at shot boundaries (two pieces were cut short by `clip.sh`'s timeout on 4 cores and
+  re-rendered, see above). Builder: `page4/build.py` in the session scratchpad.
+- **A cut's first frame** (found reviewing the clips): the project interpolates physics
+  (`physics/common/physics_interpolation`, 100 ticks), and StoryScene moved the camera, cars and people to
+  a new shot without resetting it, so the first frame after most cuts drew the camera between the two
+  shots (out on the road behind the moving coupe in the Mirror; the last shot's framing with the new
+  shot's lens in the knock). In the game too, not just the clips. `StoryScene.seek` now calls
+  `reset_physics_interpolation()` on entering a shot (as the race does when it teleports a car);
+  `test_story_scenes` `story_cut_resets_interpolation` (a probe node counts the resets: one at a cut,
+  none within a shot; fails without the fix). The take-four clips, rendered before the fix, had the bad
+  frame replaced by the next one at each cut where it showed (25 frames; found as a jump into a frame
+  and another out of it; the hit's deliberate white flash left alone): `page4/fix_cuts.py`.

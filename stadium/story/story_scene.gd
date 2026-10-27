@@ -306,6 +306,12 @@ func seek(time: float) -> void:
 		return
 	if i != _shot:
 		_enter(i)
+		_pose(t - float(shots[i]["start"]))
+		# a cut: the camera, cars and people drawn where the new shot puts them, not on their way there
+		# (the project interpolates physics: without this, a cut's first frame showed the camera between
+		# the two shots, out on the road behind a moving car)
+		reset_physics_interpolation()
+		return
 	_pose(t - float(shots[i]["start"]))
 
 

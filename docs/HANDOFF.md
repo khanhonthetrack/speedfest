@@ -79,7 +79,13 @@
   terminal round the yard (scene-level `"props"`, `"containers"` blocks, `"mast"` lights), five shots
   of Lot 47 over Gus's lines (gloss `"finish"`), the aerials lower among the towers in a shot `"env"`
   haze, Kit uneasy to terrified with three looks back over the shoulder (gaze `"rear"`).
-- **Next**: clips of the take-four opening, Mirror and the knock re-cut on a new page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **With the owner** (27 Oct): https://claude.ai/artifact/4JWYn1DRSR6Bn2hsjHK9y1, "Night 1 Take Four":
+  the opening (aerials among the towers in haze, the container terminal, Lot 47 shown off), the Mirror
+  (Kit looking back over the shoulder, scared), the knock re-cut (both of them on screen); questions:
+  the opening?, the Mirror?, the knock?, night 1 signed off?. Clips by `tools/clip.sh` (give it a long
+  `--timeout` on 4 cores: CLIP_SHORT says when it ran out); the page by `page4/build.py` in the session
+  scratchpad. Cuts no longer draw a frame between shots (`reset_physics_interpolation`, PROGRESS).
+- **Next**: the owner's answers on take four; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).

@@ -20,6 +20,8 @@ extends Node
 ## - a rear-view mirror on the cabin's glass reflects the driver's eyes truly, its camera runs only in
 ##   shots with a mirror, lights ride in a car, eyes glance at the mirror on cue, water falls with it;
 ## - Arch 9's viaduct stands with its lit arch and number, and its train crosses at the shot's time;
+## - a cut resets physics interpolation through the scene, so its first frame draws the camera where
+##   the new shot puts it (it showed it between the two shots), and a seek within a shot doesn't;
 ## - a container terminal's block has a stack for every row and bay but those skipped, each as high
 ##   as its seed says, all of it one MultiMesh; a high mast lights straight down; the scene's own
 ##   props stand in every shot without any ("props": [] for none); a story car's "finish" is its
@@ -112,6 +114,7 @@ func _ready() -> void:
 	_viaduct()
 	_terminal()
 	_scene_props()
+	await _cut_snaps()
 	await _story_race()
 	TestHooks.finish()
 
@@ -527,6 +530,34 @@ func _viaduct() -> void:
 		"story_viaduct_and_train", "train hidden before it sets off %s, over the deck at 7 s %s (x %s), sign %s" % [before, crossing,
 		train.position.x if train else 0.0, label.text if label else "none"])
 	root.free()
+
+
+## A cut resets physics interpolation through the scene (the project interpolates physics: without it a
+## cut's first frame drew the camera between the two shots), and a seek within a shot doesn't: a probe
+## node in the scene counts the resets it is told of (headless, nothing is drawn to compare).
+func _cut_snaps() -> void:
+	var d := {"id": "cut_test", "shots": [
+		{"id": "a", "dur": 1.0, "camera": {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]}},
+		{"id": "b", "dur": 1.0, "camera": {"keys": [{"u": 0, "pos": [40.0, 10.0, -30.0], "look": [0.0, 1.0, 0.0]}]}}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	var gd := GDScript.new()
+	gd.source_code = "extends Node\nvar resets := 0\nfunc _notification(what: int) -> void:\n\tif what == NOTIFICATION_RESET_PHYSICS_INTERPOLATION:\n\t\tresets += 1\n"
+	gd.reload()
+	var probe := Node.new()
+	probe.set_script(gd)
+	sc.add_child(probe)
+	sc.seek(0.5)
+	var at_a := int(probe.get("resets"))
+	sc.seek(0.7)                          # within the shot
+	var within := int(probe.get("resets")) - at_a
+	sc.seek(1.5)                          # the cut
+	var at_cut := int(probe.get("resets")) - at_a - within
+	TestHooks.check(within == 0 and at_cut >= 1, "story_cut_resets_interpolation",
+		"resets within a shot %d (0), at the cut %d (1)" % [within, at_cut])
+	sc.queue_free()
+	await get_tree().process_frame
 
 
 ## A terminal's block and a mast (StoryProps): the block's stacks (one MultiMesh), the same again from
