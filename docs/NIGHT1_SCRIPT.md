@@ -4,7 +4,8 @@ A reading copy of night 1 for the owner (asked 25 Oct: "I dont understand the kn
 full script with dialogues for me to read."), shared as a doc: https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH.
 The dialogue is word for word from `stadium/story/scenes/` (`prologue`, `c01_open`, `c01_after1`,
 `c01_after2`, `c01_decision`, `c01_close`), which stay the source of truth; the action lines describe
-what is on screen as of 27 Oct (take four: the opening and the Mirror).
+what is on screen as of 27 Oct, take five (the opening, the Mirror and the knock re-cut on the docks set and lit for
+the cinematic bar: `docs/CINEMATICS.md`).
 
 ## How to read this
 
@@ -40,33 +41,49 @@ A grey, grainy security camera picture: HALLORAN PLAZA, CAM 3, LANE 3, the clock
 
 ## Scene 1: The Auction
 
-**EXT. THE CITY. NIGHT. RAIN. (aerial)**
+**EXT. THE CITY, ACROSS THE HARBOUR. NIGHT. RAIN.**
 
-Among the towers, a hundred and fifty metres up: lit towers all round, the tallest ones' crowns against the sky, a searchlight sweeping the rain, the far city lost in a violet haze. **Title:** NIGHT 1. *The Yard.* We drop towards the docks: a container terminal under floodlight masts, cranes with red lights on top, rows of containers stacked up to four high. Then straight down over the auction yard in the middle of it: five cars in a row under floodlights, a small crowd.
+Low over the docks, past the legs of a ship-to-shore crane: across black water, the city in a lit sodium haze, a searchlight in the rain. **Title**, low on the left: NIGHT 1. *The Yard.*
 
-**EXT. GUS PELL'S SALVAGE DOCKS, THE AUCTION YARD. NIGHT. RAIN.**
+**EXT. GUS PELL'S SALVAGE DOCKS, THE CONTAINER CANYON. NIGHT. RAIN.**
 
-High above the yard: walls of stacked shipping containers round it, a crane, floodlights, five cars in a row with lot numbers. Gus Pell, big, in a hi-vis vest, stands by the cars. A small crowd faces him: a courier, a student, a dock hand, a racer, a dealer. Kit, hood up, backpack on, stands at the back of the crowd. Behind everyone, apart, a man in a long dark coat and a hat.
+Behind Kit, at eye level: Kit walks down a canyon of stacked containers towards the light, the puddles on the wet quay catching the sodium lamps, a crane's gantry legs framing the city beyond.
 
-> **GUS**: Lot forty-six, no reserve, gone to the gentleman at the back for twelve hundred. Lot forty-seven.
->
+**EXT. THE AUCTION YARD. NIGHT. RAIN.**
+
+Over Kit's shoulder in the small crowd: Gus Pell, big, in a hi-vis vest, on a low stage under a lit truss; five cars in a row before him with lot numbers; container stacks and the PELL SALVAGE portacabin behind; a fire in an oil drum.
+
+> **GUS**: Lot forty-six, no reserve, gone to the gentleman at the back...
+
+The gentleman at the back: the man in the long coat and a hat, alone at the crowd's edge.
+
+> **GUS** *(off)*: ...for twelve hundred.
+
+Gus, on the stage.
+
+> **GUS**: Lot forty-seven.
+
+Kit in the crowd, hood up, backpack on, watching.
+
 Lot 47, close, in the rain: the black coupe low from the front, its lamps, the flared arch.
 
 > **GUS** *(off)*: Black coupe. Widebody.
 
-Along its flank, the violet underglow on the wet ground.
+Its front wheel, the violet underglow on the wet ground.
 
 > **GUS** *(off)*: No papers, no service history, runs.
 
-Its tail lamps glowing.
+Round its tail, the tail lamps glowing.
 
 > **GUS** *(off)*: Somebody loved this one, once.
 
-The paint up close, sliding along the rear quarter: black and grey camouflage, painted by hand.
+Kit's eyes, on the car.
+
+The paint up close along the rear quarter: black and grey camouflage, painted by hand.
 
 > **GUS** *(off)*: Engine's sweet. Somebody painted her by hand, look at that.
 
-Head-on, in the rain.
+Head-on and low, a light sweeping over the paint, Gus a silhouette on the stage behind.
 
 > **GUS** *(off)*: Who'll start me?
 
@@ -277,41 +294,40 @@ Gus by the coupe. One of four versions plays, depending on the finish of Kit's b
 
 ## Scene 5: The Mirror
 
-Rewritten after your notes (Kit on screen, driving and checking the mirror; the mirror shows the cars, then the girl; Kit looks back over the shoulder and looks scared). It has no dialogue. About 40 seconds. Kit's face goes from uneasy to scared to terrified as it builds.
+Rewritten for take five (your notes on take four: too long and too close on the woman in the back; the bar: Call of Duty and Need for Speed cutscenes). No dialogue; about 30 seconds; the shots get shorter towards the whiteout; she is on screen for about a second in all.
 
 **INT. THE COUPE, PARKED OUTSIDE ARCH 9. BEFORE DAWN. RAIN.**
 
-Seen from the dash: Kit asleep at the wheel, head against the window (outside it, the brick of the railway viaduct), the satnav's violet glow on Kit's face. Behind Kit, between the front seats, the back seat: empty.
+From the dash, easing in: Kit asleep at the wheel, head against the window, neon light from outside on Kit's face.
 
-**INT. THE COUPE, DRIVING. THE DREAM.**
+**EXT. AND INT. A CITY STREET AT NIGHT. THE DREAM.**
 
-The same frame, but now the car is moving: Kit drives an empty city road in the rain.
-
-- Through the rear window, far back, two pinpricks of headlights. Kit's eyes go up to the rear-view mirror.
-- Over Kit's shoulder, the mirror: the headlights, far back.
-- Kit checks again, sooner, then turns to look back over the shoulder at them: bigger now, violet light under them. Kit is uneasy.
-- The mirror: a white coupe, violet light under it, the car from the prologue. A heartbeat starts. Kit is scared now.
-- High beams flood the car from behind. Kit squints and tries to look away, but is drawn back to the mirror.
-- The mirror fills with white. A thump: a tap on the bumper. Whiteout.
-- The mirror: an empty road. The rain comes back. Kit breathes out.
-- Quiet. Somewhere in the car, water drips. Kit turns to look back over the shoulder: the back seat is empty. Kit turns back.
-- Over Kit's shoulder, the mirror: a woman in the back seat, soaked, head bowed, her hair over her face. Kit hasn't seen her. The rain has stopped. A low drone. Kit's eyes lift to the mirror.
-- The mirror, close: her head comes up. Through the wet hair, one eye, on the mirror. On Kit.
-- Kit, terrified, whips round to look back over the shoulder: the back seat, wet, and empty.
-- Kit forces a look: the mirror shows only the rear window. The drone stops.
-- Dead silence.
-- Her face at Kit's ear. The sting. Hard cut to black.
+- Low on a wet street between lit towers, the coupe tracks towards us through the rain; far back, a pair of headlights.
+- From the passenger seat: Kit in profile, the street sliding past the window. Kit's eyes go up to the mirror.
+- The mirror: the headlights, closer.
+- Low on the road behind, on a long lens: the white coupe, coming.
+- From the passenger side: Kit checks the mirror, then looks back over the shoulder, uneasy.
+- The rear window: the white coupe right behind, its white bonnet red in Kit's tail lights, rain beading the glass.
+- Its high beams flood the car. Kit squints and turns away, then is drawn back to the mirror.
+- The mirror burns white. A thump on the bumper. Whiteout.
+- The same mirror: an empty, dark road, Kit's tail lights on the wet tarmac.
+- Kit sinks back and breathes out. Water drips somewhere in the car.
+- The same mirror again: the rain has stopped. In the back seat, a woman, soaked, her hair over her face, in a cold light. A low drone.
+- Kit's eyes in the mirror, finding her.
+- From the back seat, where she was: Kit twists round, into the lens. Nobody there.
+- The passenger seat, empty. Silence.
+- Kit's eyes, turned back: her face right there, through the wet hair, one eye. The sting. Hard cut to black.
 - In the black, Kit gasps awake.
 
 ## Scene 5, continued: The knock
 
 **EXT. ARCH 9, UNDER THE RAILWAY VIADUCT. JUST AFTER SIX, STILL DARK. RAIN.**
 
-A row of brick railway arches. One of them, ARCH 9 painted over it, has its roller door half up and a bare bulb burning inside: Dee's workshop. A train rumbles across the viaduct overhead. The black coupe is parked outside. Dee stands at the driver's window and knocks.
+A row of brick railway arches in the first grey light. One of them, ARCH 9 painted over it, has its roller door half up and a bare bulb burning inside: Dee's workshop. A train rumbles across the viaduct overhead. The black coupe is parked outside, the street wet. The camera comes down from high as Dee walks out to the car.
 
 **INT. THE COUPE. CONTINUOUS.**
 
-Seen from the dash: Kit, just woken, slumped against the side window. A last knock: Kit lifts the head and turns to it. Dee is bent at the window, looking in, the lit arch behind her. Her first call and Kit's answer play on this shot; after that, Kit's lines are seen from the dash, Kit turned to Dee at the window, and Dee's over Kit's shoulder, her face in the window.
+Seen from the dash: Kit, asleep against the side window. Knuckles on the glass: Kit wakes and turns to it. Dee is crouched at the window outside, eye to eye with Kit, the lit arch behind her. Then the two of them from the passenger seat; then Dee over Kit's shoulder and Kit from the dash, closer as it goes on, and closer still when Kit says what was in the mirror.
 
 > **DEE**: Kit. Kit! Open up.
 >
@@ -338,7 +354,9 @@ Close on the satnav in the dash: the city map, nine purple pins.
 Back in the car: Kit, turned to Dee at the window.
 
 > **KIT**: Wipe it. Please.
->
+
+Outside, the camera rising away from the car under the arch, Dee standing up at the door.
+
 > **DEE**: Not yet. Let's see where they go first.
 
 End of night 1.
