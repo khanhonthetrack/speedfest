@@ -1641,3 +1641,14 @@ too close on the woman in the back seat. The auction's set doesn't make sense: a
 space with containers in it. Dee stands unnaturally at the car window. And the reviews should have
 caught all this: they checked the clips against the script and the code, not against a cinematic
 quality bar.)
+
+(Done so far, take five, 27 Oct: `docs/CINEMATICS.md` (the audit, the plan, the quality gate); the
+film finish and grade, the camera engine, the docks set and the lint; the opening, the Mirror and the
+knock re-cut and lit on it, Dee crouched at the window; two critic rounds; the clips rendering.)
+
+### User (verbatim)
+
+> Cant you let Dee lean and put hands on the window? It is more realistic i think
+
+(Read as: in the knock, Dee should not crouch at the driver's window (take five) but lean in to it
+from standing, her hands on the car at the window, as people do when they talk to a driver.)
