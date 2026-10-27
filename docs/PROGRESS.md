@@ -4822,3 +4822,40 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   7.5 s, seven cuts back and forth in the knock, three zooms.
 - Tests (`test_story_scenes`): `story_grade`, `story_camera_engine`, `story_shot_set`,
   `story_props_kept`; every scene's grade names known presets and keys.
+
+### 27 Oct (session 21, cont.): take five's scenes, blocked and lit on the docks set; the first critic round (M20-9)
+- **The opening** (`c01_open`, generator `stadium/tools/story/take5_intro.py`): the whole scene on the
+  docks set (`"bare": "set"`: the quay with water to the city across it, the terminal's blocks, three
+  ship-to-shore cranes, warehouses, the PELL SALVAGE portacabin, the auctioneer's stage with its lit
+  truss, a barrel fire, sodium masts with black between), `"grade": "night"`; re-cut to 39.5 s up to
+  Lot 47's hero shot: the city across the water under the title, a pass down a container canyon, the
+  yard at eye level behind the crowd, Gus on the stage and Kit in the crowd in medium close-up, Lot 47
+  in four different moves (a low slide at the nose, the wheel with focus pulled, a 25-degree orbit of
+  the tail, the paint) and the hero push-in with a spot sweeping over it, softboxes and a reflection
+  probe for the paint. Gus's first line split in two over the yard and his close-up ("Lot forty-seven."
+  is now `c01_open_001b`). The later shots keep their cutting on the new set and light.
+- **The Mirror** (`c01_close`, `take5_mirror.py`): 16 shots in 28.1 s before the black (take four: 15
+  in 37.7 s from two cameras): outside tracking, Kit's profile from the passenger seat, the mirror,
+  the coupe low on a long lens, the rear window, glare, whiteout (the exposure flares, the 2D flash
+  only its last frames), the empty mirror, breath out, her in the mirror for half a second, Kit's
+  eyes, the look back shot from the back seat she sat in, dead air, the hit from the front with her
+  face behind Kit's. The ghost on screen 1.0 s in all (take four 7.5 s); no zoom inside a shot; an
+  instruments' glow under Kit's face in every driving shot.
+- **The knock** (`take5_knock.py`): Dee crouched at the window (`Crouch_Idle`, lifted 32 cm by the new
+  `"lift"`: the crouch put her eyes under this coupe's sill; her feet are below the door in every shot
+  she crouches in) and standing for the last line; coverage from inside (from outside the dark glass
+  hid Kit, and behind Kit the headrest blocked Dee): a two-shot from the passenger seat, Dee over Kit's
+  shoulder from the front and Kit three-quarter from the dash, tightening from fov 32 to 26-27 with a
+  push on "I saw her in the mirror"; the arch's crane down and the closing wide on the driver's side;
+  first light from the street ahead, a warm rim from the arch's bulb, `"grade": "dawn"`; wet asphalt
+  under the arch (`"quay"` with `"walls": false`). The lint passes all three (at most 2 cuts back and
+  forth; take four 7).
+- **Engine bits found blocking it**: StoryPerson `"lift"` (a grounded person is dropped onto the ground,
+  so a pos height did nothing); `"quay"` `"walls": false`; a softbox looking straight down no longer
+  warns. `test_story_scenes` `story_person_lift`.
+- **The first critic round** (a fresh read-only agent, the stills of the Mirror and the opening):
+  4.1 out of 10 on both. Its main notes, the next round's work: the dream drives along the race track
+  (barriers, "SPEEDFEST", neon strips in 14 of 16 stills); faces lit flat from the dash; two camera
+  setups make 9 of 16 Mirror shots; the coupe never reads as a car; dry windows in the rain; the ghost
+  reads as Kit's twin; in the opening Kit is missing from the yard wide, the two singles cross the line,
+  the coat man is never shown, the rain never shows (nothing backlights it), no lamps seen in the yard.

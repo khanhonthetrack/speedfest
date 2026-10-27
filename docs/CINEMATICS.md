@@ -140,9 +140,9 @@ Procedure:
 | Audit and plan | done 27 Oct |
 | 1 film finish and grade | done 27 Oct (`StorySubtitles` FILM, `"grade"`) |
 | 2 camera engine | done 27 Oct (`"handheld"`, `"path": "spline"`, `"dof_near"`, `"exposure"`, softboxes, probes, sweeps) |
-| 3 docks set | engine done 27 Oct (`"bare": "set"`, StoryProps' docks kinds); the scenes next |
+| 3 docks set | done 27 Oct (the opening on it) |
 | Lint (`stadium/tools/story_lint.py`) | done 27 Oct |
-| 4 the Mirror | open |
-| 5 the knock | open |
-| 6 the intro | open |
-| Take five: stills, critic, render, page | open |
+| 4 the Mirror | blocked and lit 27 Oct; critic round 1: 4.1/10 (notes in PROGRESS) |
+| 5 the knock | re-blocked 27 Oct (Dee crouched, coverage from inside, dawn) |
+| 6 the intro | re-cut 27 Oct; critic round 1: 4.1/10 |
+| Take five: stills, critic, render, page | critic round 2 next, then the render |

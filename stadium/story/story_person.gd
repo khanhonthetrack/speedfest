@@ -11,7 +11,9 @@ extends Node3D
 ## spec (a scene's "people" entry): {"id", "clip": a UAL clip ("Idle", "Walk", "Idle_Talking",
 ## "Sitting_Idle", "Driving", ...: the names as Godot imports them, without "_Loop"), "loop": bool
 ## (default: the clip's own), "start": s into the clip at t = 0, "rate": playback speed,
-## "pos": [x, y, z] (the shot's anchor frame: x left, y up, z ahead), "face": degrees (0 faces +z,
+## "pos": [x, y, z] (the shot's anchor frame: x left, y up, z ahead; someone standing is dropped onto the
+## ground under it), "lift": m over that ground (a film set's apple box, where the feet are out of shot),
+## "face": degrees (0 faces +z,
 ## 90 faces +x: the anchor's left), "path": [[x, z], ...] walked at "speed" m/s from "walk_at" s
 ## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36; a cast member's scaled by its legs
 ## over the Mannequin's: StoryCast.stride), "who": a cast member ("dee", ...; none: the Mannequin), "look": "coat"
@@ -270,6 +272,7 @@ func pose(t: float) -> void:
 		face = atan2(dir.x, dir.z)
 	var world := _ground.call(p) as Vector3 if _ground.is_valid() else _base * p
 	var up := _base.basis.y.normalized()
+	world += up * float(spec.get("lift", 0.0))
 	var fwd := (_base.basis * Vector3(sin(face), 0.0, cos(face))).normalized()
 	fwd = (fwd - up * fwd.dot(up)).normalized()
 	global_transform = Transform3D(Basis(up.cross(fwd), up, fwd), world)

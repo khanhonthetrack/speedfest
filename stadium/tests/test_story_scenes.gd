@@ -33,6 +33,7 @@ extends Node
 ##   over a security camera's;
 ## - "bare": "set" hides the field's towers and stands the shot on a level deck; the scene's props stay
 ##   standing over a cut (not rebuilt), a shot's lights go with it, softboxes never reach the camera;
+## - a person's "lift" stands them that much over the ground;
 ## - the camera engine: a "spline" path passes through its keys, "handheld" wanders a little and
 ##   gives the same frame however it is reached, "dof_near" blurs before the focus and pulls it;
 ## - a story map in the race (race.gd --story), a time-attack session (short here: 4 s): the bot's
@@ -129,6 +130,7 @@ func _ready() -> void:
 	await _grade()
 	await _camera_engine()
 	await _props_kept()
+	await _lifted()
 	await _story_race()
 	TestHooks.finish()
 
@@ -771,6 +773,20 @@ func _props_kept() -> void:
 	TestHooks.check(first != null and sc._props.get_child(0) == first and sc._props.get_child_count() == 1 and live == 3 and hidden,
 		"story_props_kept", "the scene's props the same node after the cut %s (%d under them); the second shot's lights %d (3: omni, softbox, probe); softboxes hidden from the camera %s" % [
 		first != null and sc._props.get_child(0) == first, sc._props.get_child_count(), live, hidden])
+	sc.queue_free()
+	await get_tree().process_frame
+
+
+## A person's "lift": stood that much over the ground they'd be dropped onto (a crouch at a car window).
+func _lifted() -> void:
+	var d := {"id": "lift_test", "shots": [{"id": "a", "dur": 1.0, "camera": {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]},
+		"people": [{"id": "low", "clip": "Idle", "pos": [1.0, 0.0, 0.0]}, {"id": "up", "clip": "Idle", "pos": [-1.0, 0.0, 0.0], "lift": 0.42}]}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(0.5)
+	var rise := _find(sc, "up").global_position.y - _find(sc, "low").global_position.y
+	TestHooks.check(is_equal_approx(snappedf(rise, 0.001), 0.42), "story_person_lift", "lifted %.3f m (0.42)" % rise)
 	sc.queue_free()
 	await get_tree().process_frame
 

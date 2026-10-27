@@ -531,7 +531,8 @@ static func _beam(parent: Node3D, a: Vector3, b: Vector3, w: float, mat: Materia
 ## its frame), walled on every side down into the water ("depth" m below the top, default
 ## StoryScene.SET_DECK less a hand), the water all round it ("water" m beyond its edges); "edges": the
 ## sides where boats would tie up ("x0", "x1", "z0", "z1": bollards every "bollards" m, a yellow
-## line along them); "paint": [[x0, z0, x1, z1, width, "#colour"], ...] the yard's lines.
+## line along them); "paint": [[x0, z0, x1, z1, width, "#colour"], ...] the yard's lines; "walls": false
+## for the wet ground alone (a street's, laid a hand over the map's: "pos": [0, 0.01, 0]), no walls or water.
 static func _quay(p: Dictionary) -> Node3D:
 	if _deck_shader == null:
 		_deck_shader = Shader.new()
@@ -584,6 +585,8 @@ static func _quay(p: Dictionary) -> Node3D:
 	dm.set_shader_parameter("wetness", float(p.get("wetness", 1.0)))
 	deck.material_override = dm
 	root.add_child(deck)
+	if not bool(p.get("walls", true)):
+		return root                       # the ground alone: a wet street under a set ("walls": false)
 	# the quay walls: concrete, a dark wet band at the waterline, a pale capping on top
 	var concrete := _mat(Color(0.2, 0.2, 0.2), 0.85, 0.0)
 	var cap := _mat(Color(0.42, 0.41, 0.39), 0.75, 0.0)
