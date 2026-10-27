@@ -41,7 +41,7 @@ extends Node3D
 ##     only reflections see)}], "probe": {"pos", "size", "distance"} (a reflection probe for the shot:
 ##     the softboxes and the set in a car's paint), "rain": 0..1,
 ##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
-##   "subtitle"},
+##   "subtitle", "align": "left" (low in the left third, over the picture)},
 ##   the horror layer (docs/STORY.md, THE PASSENGER): "mirror": {camera keys like "camera", "follow",
 ##     "rect": [x, y, w, h] (fractions of the screen)} (a rear-view mirror: a second camera, its
 ##     picture flipped and framed), or {"glass": true, "follow": a car with a cabin} (the cabin's own

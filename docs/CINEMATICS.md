@@ -90,6 +90,13 @@ renders, and a critic who did not build the scene.
    softbox strips the camera cannot see; a crowd of 10-12 in groups with heads turning to the bidder.
 
 ## Second pass
+The critic's rounds on take five put these first (they cap every shot near 4-5 of 10): Gus's hi-vis
+vest (a balloon: refit it to the hoodie, or a dark rain shell with two reflective bands), Lot 47's
+livery (pixel camouflage, which the dialogue calls hand-painted: organic brush shapes, a pinstripe),
+the underglow (a slab poking out of the bumper: inset it and pool the light on the ground), the number
+plate, the container walls (corrugation, doors, rust, stencilled codes), the towers seen from the air
+(no stars over rain; more lit windows, aviation lights), the ghost's hair (rough, clumped, not a
+glossy helmet). Then:
 Fear blend shapes in `tools/cast/blender/gen_char.py` (`eyeWide*`, `browOuterUp*`, `mouthStretch*`,
 `mouthPress*`) and `build.sh`; motion blur on driving shots (96 fps + `tmix`); 1080p renders; the
 Halloran bridge for the aerial and the dream, a moored ship; the car's interior (headrests, visors,
@@ -145,4 +152,4 @@ Procedure:
 | 4 the Mirror | blocked and lit 27 Oct; critic round 1: 4.1/10 (notes in PROGRESS) |
 | 5 the knock | re-blocked 27 Oct (Dee crouched, coverage from inside, dawn) |
 | 6 the intro | re-cut 27 Oct; critic round 1: 4.1/10 |
-| Take five: stills, critic, render, page | critic round 2 next, then the render |
+| Take five: stills, critic, render, page | two critic rounds (4.1 both: the structure passes, the assets hold it down); the render next |

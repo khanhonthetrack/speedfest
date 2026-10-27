@@ -4859,3 +4859,28 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   setups make 9 of 16 Mirror shots; the coupe never reads as a car; dry windows in the rain; the ghost
   reads as Kit's twin; in the opening Kit is missing from the yard wide, the two singles cross the line,
   the coat man is never shown, the rain never shows (nothing backlights it), no lamps seen in the yard.
+
+### 27 Oct (session 21, cont.): take five, critic round two and its fixes (M20-9)
+- **Round one's notes, built** (`take5_mirror2.py` for the Mirror; the opening's and the knock's
+  generators edited): the dream is off the race track (`"bare": true`, a wet street of `"quay"` asphalt
+  with lane lines over the field's paving, lamp posts down both kerbs, the towers either side), Kit
+  short-lit from the window with a hair rim and a low fill instead of the dash's flat glow, the white
+  coupe given its own light (and Kit's tail lights on its bonnet in the rear window), rain on the glass
+  only in the rear-window shot (over a face the drops read as a glitch), a true match cut between the
+  white mirror and the empty one, the ghost under a cold light only she has, the hit as Kit's eyes
+  (her face through the parted wet hair, in the lens). The opening: Kit walks in down the canyon,
+  the yard wide over Kit's shoulder with the truss's lamps lit, the coat man's single on "the
+  gentleman at the back" (Gus's line split: `c01_open_001c`), Gus and Kit on the same side of the
+  line, a beat of Kit's eyes on the car, the paint shot under a raking light, the hero's glare gone.
+- **Two of the critic's numbers were wrong**: at fov 14-24 its mirror shots aimed beside the glass
+  (the ghost shot framed the windscreen's pillar); aimed at the mirror's centre instead. Its stills
+  are checked, not taken on trust.
+- **Round two** (the opening and the knock): 4.1 again. The structure now passes (screen direction,
+  coverage, cutting); what holds the scores down is mostly assets: Gus's balloon vest, Lot 47's pixel
+  camouflage the dialogue calls hand-painted, low-poly towers with stars over the rain, flat container
+  walls, mannequin faces, the ghost's glossy helmet of hair; and in the knock Kit never looked at Dee
+  (the head turned 26 degrees to a woman 90 degrees away) and no dawn showed. Fixed: Kit turned to
+  Dee, a blue-grey dawn sky in the knock's air, the coat man's single on the audience's side of the
+  line, the yard tighter on Gus, Kit's eyes from a new low angle in the underglow, the city shot over
+  the cranes in a lit sodium haze. The asset notes are the second pass's (`docs/CINEMATICS.md`).
+- Engine: a pole's `"shadow"`, a title card's `"align": "left"`, the stage's lamps lit.

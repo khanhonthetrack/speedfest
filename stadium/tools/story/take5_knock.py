@@ -1,4 +1,4 @@
-"""(Kept in the repo: regenerates take five's scene from take four's, `git show 131d50f:stadium/story/scenes/<file>`.)
+"""(Kept in the repo: regenerates take five's scene from take four's, `git show 131d50f:stadium/story/scenes/<file>`; the Mirror: take5_mirror.py, then take5_mirror2.py, then take5_knock.py.)
 Take five's knock (docs/CINEMATICS.md, first pass item 5): Dee crouched at the window, eyes at Kit's
 height, her head outside the glass; Kit breathing; coverage that opens on a two-shot and tightens
 (singles over the shoulder, a push on "I saw her in the mirror"), the pins insert pushed in, a wide to
@@ -26,7 +26,7 @@ DAWN = [
 ]
 TIRED = {"browInnerUp": 0.35, "jawOpen": 0.03, "browDownLeft": 0.08, "browDownRight": 0.08,
          "mouthFrownLeft": 0.12, "mouthFrownRight": 0.12}
-TO_DEE = {"Neck": [0, 10, 0], "Head": [-3, 16, 0]}
+TO_DEE = {"Neck": [6, 22, 0], "Head": [8, 30, 0]}      # (26 degrees left Kit looking at the window frame)
 
 
 def kit(bend=None, **kw):
@@ -40,16 +40,20 @@ def kit(bend=None, **kw):
 def dee(**kw):
     # crouched at the driver's window: the crouch tips her head 45 degrees down, brought back up to
     # look in level with Kit
-    # (lifted 32 cm, a film set's apple box: the crouch alone put her eyes under the sill of this low
+    # (lifted 22 cm, a film set's apple box: the crouch alone put her eyes under the sill of this low
     # coupe; her feet are below the door in every shot she crouches in, and she stands for the wide)
-    p = {"id": "dee", "who": "dee", "clip": "Crouch_Idle", "pos": [1.62, 0.0, 0.1], "lift": 0.32, "face": -90, "gaze": "kit_driver",
+    p = {"id": "dee", "who": "dee", "clip": "Crouch_Idle", "pos": [1.62, 0.0, 0.1], "lift": 0.22, "face": -90, "gaze": "kit_driver",
          "bend": [{"t": 0.0, "Neck": [-18, 0, 0], "Head": [-22, 0, 0]}]}
     p.update(kw)
     return p
 
 
+DAWN_AIR = {"fog": 0.002, "fog_colour": "#5d6f96", "fog_sky": 0.85, "exposure": 1.35}   # "gone six": a blue-grey sky
+
+
 def shot(sid, camera, people, lines=None, **kw):
     s = {"id": sid, "track": "H01", "at": 0.62, "bare": True, "rain": 0.5, "ambience": "rain", "grade": "dawn",
+         "env": copy.deepcopy(DAWN_AIR),
          "lead": 0.3, "tail": 0.45, "cars": [copy.deepcopy(KIT_CAR)], "people": people, "lights": copy.deepcopy(DAWN),
          "props": copy.deepcopy(VIADUCT), "camera": camera}
     if lines is not None:
@@ -75,6 +79,7 @@ shots = []
 # the arch at first light: the camera cranes down from 6 m as Dee walks out to the car
 arch = copy.deepcopy(old["arch"])
 arch["grade"] = "dawn"
+arch["env"] = copy.deepcopy(DAWN_AIR)
 arch["camera"] = {"path": "spline", "ease": "inout", "keys": [
     {"u": 0.0, "pos": [-15.0, 6.0, -10.0], "look": [3.0, 2.6, 1.0], "fov": 50},
     {"u": 0.6, "pos": [-14.2, 2.6, -9.4], "look": [3.2, 1.6, 1.0], "fov": 50},
@@ -119,6 +124,7 @@ shots.append(shot("knock_dee4", copy.deepcopy(DEE_2), [kit(), dee()], lines_of("
 # the pins: the satnav on a long lens, pushed in over 3 s
 pins = copy.deepcopy(old["pins"])
 pins["grade"] = "dawn"
+pins["env"] = copy.deepcopy(DAWN_AIR)
 pins["dur"] = 3.0
 pins["camera"] = follow([{"u": 0, "pos": [0.16, 1.0, 0.34], "look": [0.0, 0.88, 0.7], "fov": 22},
                          {"u": 1, "pos": [0.1, 0.96, 0.44], "look": [0.0, 0.88, 0.7], "fov": 22}])

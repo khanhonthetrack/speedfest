@@ -2,7 +2,8 @@ class_name StorySubtitles
 extends CanvasLayer
 ## A cutscene's 2D layer (PLAN M20-3), in the menus' look (SfUi: charcoal, red and violet,
 ## Montserrat): cinema bars (2.39:1), the subtitle (the speaker's name in the accent colour over
-## the line), a fade to and from black, title cards ("NIGHT 3", the place), a phone's message
+## the line), a fade to and from black, title cards ("NIGHT 3", the place; centred, or "align":
+## "left": low in the left third over an establishing shot), a phone's message
 ## thread (texts arriving, the shot grammar's faceless way to speak), and the skip hint: hold a key
 ## and the bar fills; under them the film finish (docs/CINEMATICS.md: grain, vignette, halation, a lens's
 ## distortion and fringing, the grade; and rain on the windscreen). Driven by StoryScene each frame
@@ -362,6 +363,15 @@ func show_state(line: Dictionary, fade: float, card: Dictionary, phone: Dictiona
 		_card_title.text = String(card.get("title", "")).to_upper()
 		_card_sub.text = String(card.get("subtitle", "")).to_upper()
 		_card.modulate.a = float(card.get("alpha", 1.0))
+		# "align": "left": low in the left third, over the picture (a title over an establishing shot)
+		var left := String(card.get("align", "")) == "left"
+		var vs := get_viewport().get_visible_rect().size
+		_card.alignment = BoxContainer.ALIGNMENT_END if left else BoxContainer.ALIGNMENT_CENTER
+		_card.position = Vector2(vs.x * 0.08, 0.0) if left else Vector2.ZERO
+		_card.size = Vector2(vs.x * 0.4, vs.y * 0.72) if left else vs
+		for l: Label in [_card_title, _card_sub]:
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if left else HORIZONTAL_ALIGNMENT_CENTER
+		(_card.get_child(1) as Control).size_flags_horizontal = Control.SIZE_SHRINK_BEGIN if left else Control.SIZE_SHRINK_CENTER
 	_phone.visible = not phone.is_empty()
 	if _phone.visible:
 		_phone_who.text = String(phone.get("from", ""))

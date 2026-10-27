@@ -4,7 +4,7 @@ extends RefCounted
 ## of the same City): shipping containers (stacked, ribbed, a little rust), a gantry crane with its hook
 ## and warning light, floodlight poles that light what is under them, and toll booths. Made here in
 ## code like the rest of the game; placed by a shot's "props": [{"kind", "pos": [x, y, z] (the shot's
-## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on)}]; a container
+## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on), "shadow" (poles: on; off for a street's row)}]; a container
 ## terminal's block in one ("containers": "rows" side by side along its x, "bays" end to end along its
 ## z, centred on "pos"; "stack": [lowest, highest] or a number, each stack's height and each box's
 ## colour picked by "seed"; "gaps": [between rows, between bays] m; "skip": [[row, bay], ...] left
@@ -206,7 +206,7 @@ static func _pole(p: Dictionary) -> Node3D:
 		s.light_energy = float(p.get("energy", 9.0))
 		s.spot_range = h * 2.5
 		s.spot_angle = 42.0
-		s.shadow_enabled = true
+		s.shadow_enabled = bool(p.get("shadow", true))         # a street's row of them: "shadow": false
 		s.position = Vector3(0.0, h - 0.2, 0.6)
 		s.rotation = Vector3(-PI * 0.5 + 0.2, 0.0, 0.0)          # down, a little outwards
 		root.add_child(s)
@@ -428,9 +428,11 @@ void fragment() {
 	vec2 cell = vec2(9.0, 14.0);
 	float patch = step(0.8, hash(floor(p / cell) + 3.7));
 	vec3 col = vec3(0.078, 0.077, 0.08) * (0.8 + 0.45 * big) * (0.88 + 0.24 * grain) * mix(1.0, 0.68, patch);
+	// tar seams between the slabs: faint, broken, not a tile grid
 	vec2 sf = abs(fract(p / cell) - 0.5) * cell;
-	float seam = max(smoothstep(cell.x * 0.5 - 0.06, cell.x * 0.5 - 0.02, sf.x), smoothstep(cell.y * 0.5 - 0.06, cell.y * 0.5 - 0.02, sf.y));
-	col = mix(col, vec3(0.025), seam * 0.85);
+	float seam = max(smoothstep(cell.x * 0.5 - 0.05, cell.x * 0.5 - 0.02, sf.x), smoothstep(cell.y * 0.5 - 0.05, cell.y * 0.5 - 0.02, sf.y));
+	seam *= smoothstep(0.35, 0.7, noise(p * 0.6 + 9.0));
+	col = mix(col, vec3(0.03), seam * 0.4);
 	for (int i = 0; i < line_count; i++) {
 		float d = seg(p, lines[i].xy, lines[i].zw);
 		float w = line_style[i].w * 0.5;
@@ -820,6 +822,7 @@ static func _stage(p: Dictionary) -> Node3D:
 	_box(root, Vector3(0.0, h * 0.5, 0.0), Vector3(w, h, d), _mat(Color(0.07, 0.07, 0.075), 0.8, 0.0))
 	_box(root, Vector3(0.0, h * 0.25, d * 0.5 + 0.4), Vector3(1.4, h * 0.5, 0.8), _mat(Color(0.09, 0.09, 0.09), 0.8, 0.0))
 	var steel := _mat(Color(0.62, 0.62, 0.64), 0.35, 0.85)
+	var colour := Color(String(p.get("colour", "#fff1dc")))
 	var th := float(p.get("truss", 4.2))
 	for x: float in [-w * 0.5 - 0.2, w * 0.5 + 0.2]:
 		for c in 4:
@@ -830,9 +833,9 @@ static func _stage(p: Dictionary) -> Node3D:
 			y += 0.4
 	for c in 4:
 		_box(root, Vector3(0.0, th + (0.15 if c % 2 == 0 else -0.15), -d * 0.5 + (0.15 if c < 2 else -0.15)), Vector3(w + 0.7, 0.05, 0.05), steel)
-	var colour := Color(String(p.get("colour", "#fff1dc")))
 	for x: float in [-w * 0.3, w * 0.3]:
 		_box(root, Vector3(x, th - 0.35, -d * 0.5 + 0.2), Vector3(0.35, 0.4, 0.45), _mat(Color(0.05, 0.05, 0.05), 0.5, 0.5))
+		_box(root, Vector3(x, th - 0.35, -d * 0.5 + 0.43), Vector3(0.26, 0.26, 0.02), _emissive(colour, 5.0))   # the lens
 		var s := SpotLight3D.new()
 		s.light_color = colour
 		s.light_energy = float(p.get("energy", 8.0))

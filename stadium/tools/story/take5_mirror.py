@@ -1,4 +1,4 @@
-"""(Kept in the repo: regenerates take five's scene from take four's, `git show 131d50f:stadium/story/scenes/<file>`.)
+"""(Kept in the repo: regenerates take five's scene from take four's, `git show 131d50f:stadium/story/scenes/<file>`; the Mirror: take5_mirror.py, then take5_mirror2.py, then take5_knock.py.)
 Take five's Mirror (docs/CINEMATICS.md, first pass item 4): replaces c01_close's dream (the shots
 before "black") with a re-cut: new angles (outside tracking, the profile through the passenger
 window, the coupe low on a long lens, the rear window, Kit's eyes, the empty seat, the ear), shots
