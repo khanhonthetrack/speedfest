@@ -85,7 +85,16 @@
   the opening?, the Mirror?, the knock?, night 1 signed off?. Clips by `tools/clip.sh` (give it a long
   `--timeout` on 4 cores: CLIP_SHORT says when it ran out); the page by `page4/build.py` in the session
   scratchpad. Cuts no longer draw a frame between shots (`reset_physics_interpolation`, PROGRESS).
-- **Next**: the owner's answers on take four; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **The owner's answers** (27 Oct, take four): the knock "clear"; the rest "amateur": the bar is Call of
+  Duty / Need for Speed cutscenes, "full cinematic style hollywood cutscenes" (the Mirror too long zoomed
+  on the ghost, the auction a city then empty space with containers, Dee standing weirdly, "Why is the
+  review not picking this up?"). An audit (four read-only critics and a planner) wrote
+  **`docs/CINEMATICS.md`**: the verdict, the first and second pass, and the quality gate. Read it before
+  touching a scene.
+- **Next**: `docs/CINEMATICS.md`'s first pass in order (film finish and grade, camera engine, docks
+  set, the Mirror, the knock, the intro), each gated and committed, its Status table kept current;
+  take five through the quality gate (lint, stills, a fresh critic, render, a second review) before
+  the owner sees it. Then faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).

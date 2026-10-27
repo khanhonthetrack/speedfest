@@ -4774,3 +4774,21 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   none within a shot; fails without the fix). The take-four clips, rendered before the fix, had the bad
   frame replaced by the next one at each cut where it showed (25 frames; found as a jump into a frame
   and another out of it; the hit's deliberate white flash left alone): `page4/fix_cuts.py`.
+
+### 27 Oct (session 21, cont.): take four's answers; the cinematic audit and plan (M20-9)
+- **The owner's answers** (take four, verbatim in TRANSCRIPT): the knock "clear"; the opening and the
+  Mirror to change; night 1 not yet: "I want cinematics too look good like in Call of Duty games or Need
+  for Speed cutscenes. This is amateur." The Mirror spends too long zoomed on the ghost, the auction is
+  "a city and then empty space with containers", Dee stands weirdly at the knock, and "Why is the review
+  not picking this up?"
+- **The audit**: four read-only critics (camera and editing, look, performance, sets) went through take
+  four's clips frame by frame against that bar, then a planner ranked the fixes. Verdict: an engine
+  blockout with subtitles (two locked-off cameras cut on every line, zooms inside shots, nothing lit
+  on purpose, containers on a cleared city square, poses that touch nothing, no film finish). The
+  reviews missed it because they checked clips against the script and the data, never the picture.
+- **`docs/CINEMATICS.md`** (new): the verdict, what the stack can't reach and the substitutes, the
+  first pass (film finish and grade, camera engine, a dark wet docks set, the Mirror re-cut, the knock
+  re-blocked and re-lit, the intro re-cut to about 32 s), the second pass, the calls made, and the
+  **quality gate** every take must pass from now on: a ten-item per-shot checklist, a lint of the
+  scene files, stills before renders, a fresh critic scoring each shot (under 7 goes back), a second
+  review on a contact sheet, then the owner with the scorecard.
