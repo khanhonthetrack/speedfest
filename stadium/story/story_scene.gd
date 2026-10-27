@@ -24,7 +24,8 @@ extends Node3D
 ##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
 ##     clear: for shots inside it), "dome" (its courtesy light's energy: a passenger lit in the
-##     mirror), "from", "to" (s: on screen only then)}],
+##     mirror), "finish" (its paint's, over the livery's: TmCarVisual.FINISHES, "gloss" for a car
+##     shown off), "from", "to" (s: on screen only then)}],
 ##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze"), plus "car": a car's
 ##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; or "pos" in its
 ##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
@@ -42,8 +43,11 @@ extends Node3D
 ##     (rain, heartbeat, drip, drone, train: a loop stops at the first cut to a shot that doesn't name
 ##     it; the train dies away over 1.5 s),
 ##   "cctv": {"label", "clock": "03:12:04"} (a security camera's grey, grainy picture),
-##   "props": [StoryProps: containers, a crane, floodlight poles, toll booths, a railway viaduct
-##     ("viaduct", its "train")],
+##   "props": [StoryProps: containers (a stack, or a terminal's block: "containers"), a crane,
+##     floodlight poles, high masts, toll booths, a railway viaduct ("viaduct", its "train")] (the scene's own
+##     "props" for every shot without any: a yard that stays put round its shots; "props": [] for
+##     none), "env": {"fog", "fog_colour", "fog_sky", "height_fog": [m, density], "exposure"} (the
+##     night air over the map's own for that shot: haze on a city seen from the air),
 ##   "lines": [{"id", "speaker", "text", "kind": "say" (a subtitle) | "text" (a message arriving on
 ##     the phone: "mine" for the player's own) | "phone" (the thread's name: {"from"}), "hold" (s;
 ##     default from the text's length), "gap" (s before it), "at" (s into the shot, else after the
@@ -368,8 +372,9 @@ func _enter(i: int) -> void:
 				(_cars[car_id]["cabin"] as StoryCabin).lower(seat, need)
 	for l: Dictionary in s.get("lights", []):
 		_add_light(l)
-	StoryProps.build(_props, s.get("props", []), _anchor)
+	StoryProps.build(_props, s.get("props", data.get("props", [])), _anchor)
 	_set_rain(float(s.get("rain", data.get("rain", 0.0))))
+	_set_env(s.get("env", data.get("env", {})))
 	_set_mirror(s)
 	_set_ambience(ambience(s))
 
@@ -388,6 +393,27 @@ func _build_stage(track: String) -> void:
 	var b := TmMapBuilder.build(_challenge)
 	_stage.add_child(b.root)
 	TmStage.add_environment(_stage, b)
+
+
+## "env": the stage's night air for a shot, over the map's own (TmStadiumEnv): "fog" (its density),
+## "fog_colour", "fog_sky" (how far it veils the sky: a horizon lost in the city's glow), "height_fog":
+## [height m, density] (low roofs sunk in haze), "exposure" (the camera's). A shot without a key has
+## the map's own back.
+func _set_env(e: Dictionary) -> void:
+	var we: WorldEnvironment = _stage.find_child("Environment", true, false) as WorldEnvironment if _stage != null else null
+	if we != null and we.environment != null:
+		var env := we.environment
+		if not env.has_meta("story_base"):
+			env.set_meta("story_base", {"fog": env.fog_density, "fog_colour": env.fog_light_color,
+				"fog_sky": env.fog_sky_affect, "height": env.fog_height, "height_density": env.fog_height_density})
+		var base: Dictionary = env.get_meta("story_base")
+		var hf: Array = e.get("height_fog", [base["height"], base["height_density"]])
+		env.fog_density = float(e.get("fog", base["fog"]))
+		env.fog_light_color = Color(String(e["fog_colour"])) if e.has("fog_colour") else base["fog_colour"]
+		env.fog_sky_affect = float(e.get("fog_sky", base["fog_sky"]))
+		env.fog_height = float(hf[0])
+		env.fog_height_density = float(hf[1])
+	_attrs.exposure_multiplier = float(e.get("exposure", 1.0))
 
 
 ## "bare": the place without its track (a yard on a race map): the road, barriers, checkpoints and
@@ -460,6 +486,10 @@ func _add_car(c: Dictionary) -> void:
 	for k in mini(picks.size(), TmRoadCars.TUNING.size()):
 		car.tuning[TmRoadCars.TUNING[k]] = int(picks[k])
 	add_child(car)
+	var paint := car._mats.get("road_paint", null) as ShaderMaterial    # each car's own (TmCarVisual._road_mat)
+	if paint != null and TmCarVisual.FINISHES.has(String(c.get("finish", ""))):
+		paint.set_shader_parameter("finish", TmCarVisual.FINISHES[String(c["finish"])])
+		paint.set_shader_parameter("flakes", 1.0 if String(c["finish"]) in ["metallic", "pearl"] else 0.0)
 	if bool(c.get("lights", false)):
 		for side in [-1.0, 1.0]:
 			var sl := SpotLight3D.new()
@@ -672,6 +702,10 @@ func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 		return _mirror_cam.global_position
 	if g == "ahead":
 		return null
+	if g == "rear" and _cars.has(p.in_car) and _cars[p.in_car].has("cabin"):
+		# the back seat, where a passenger's face would be (a look back over the shoulder)
+		var cab := _cars[p.in_car]["cabin"] as StoryCabin
+		return cab.global_transform * (cab.rear_seat + Vector3(0.0, StoryCabin.CROWN.x - 0.2, 0.0))
 	if g != "":
 		for q in _people:
 			if String(q.spec.get("id", "")) == g and q != p:

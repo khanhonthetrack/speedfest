@@ -73,7 +73,13 @@
   never seen) and the knock re-cut: shot and reverse shot (Kit from the dash turned to the window, Dee
   bent in at it; Dee over Kit's shoulder; Kit, just woken, lifts the head at the last knock). Its clip goes on the same page
   (`page3/build.py` in the session scratchpad without `--no-knock`; the template has the knock section).
-- **Next**: the knock's clip on the take-three page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
+- **The owner's answers** (26 Oct, take three): the opening ("where are containers?", show the car
+  while Gus talks about it, the aerials' far city is flat blocks) and the Mirror (Kit should look over
+  the shoulder and look scared) to change; night 1 not yet. Done (take four, PROGRESS): a container
+  terminal round the yard (scene-level `"props"`, `"containers"` blocks, `"mast"` lights), five shots
+  of Lot 47 over Gus's lines (gloss `"finish"`), the aerials lower among the towers in a shot `"env"`
+  haze, Kit uneasy to terrified with three looks back over the shoulder (gaze `"rear"`).
+- **Next**: clips of the take-four opening, Mirror and the knock re-cut on a new page; faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).

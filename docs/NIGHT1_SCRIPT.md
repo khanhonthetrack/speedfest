@@ -42,19 +42,33 @@ A grey, grainy security camera picture: HALLORAN PLAZA, CAM 3, LANE 3, the clock
 
 **EXT. THE CITY. NIGHT. RAIN. (aerial)**
 
-High over the city: towers lit floor by floor, neon along their edges, an airship drifting, searchlights sweeping the clouds. **Title:** NIGHT 1. *The Yard.* We glide down towards the docks, a lit gap among the towers, and come down over the auction yard: five cars in a row under floodlights, a small crowd.
+Among the towers, a hundred and fifty metres up: lit towers all round, the tallest ones' crowns against the sky, a searchlight sweeping the rain, the far city lost in a violet haze. **Title:** NIGHT 1. *The Yard.* We drop towards the docks: a container terminal under floodlight masts, cranes with red lights on top, rows of containers stacked up to four high. Then straight down over the auction yard in the middle of it: five cars in a row under floodlights, a small crowd.
 
 **EXT. GUS PELL'S SALVAGE DOCKS, THE AUCTION YARD. NIGHT. RAIN.**
 
-High above the yard: stacks of shipping containers, floodlights, five cars in a row with lot numbers. Gus Pell, big, in a hi-vis vest, stands by the cars. A small crowd faces him: a courier, a student, a dock hand, a racer, a dealer. Kit, hood up, backpack on, stands at the back of the crowd. Behind everyone, apart, a man in a long dark coat and a hat.
+High above the yard: walls of stacked shipping containers round it, a crane, floodlights, five cars in a row with lot numbers. Gus Pell, big, in a hi-vis vest, stands by the cars. A small crowd faces him: a courier, a student, a dock hand, a racer, a dealer. Kit, hood up, backpack on, stands at the back of the crowd. Behind everyone, apart, a man in a long dark coat and a hat.
 
 > **GUS**: Lot forty-six, no reserve, gone to the gentleman at the back for twelve hundred. Lot forty-seven.
 >
-> **GUS**: Black coupe. Widebody. No papers, no service history, runs. Somebody loved this one, once.
+Lot 47, close, in the rain: the black coupe low from the front, its lamps, the flared arch.
 
-Low, past the cars' noses, gliding along Lot 47: the black coupe, violet light under it.
+> **GUS** *(off)*: Black coupe. Widebody.
 
-> **GUS** *(off)*: Engine's sweet. Somebody painted her by hand, look at that. Who'll start me?
+Along its flank, the violet underglow on the wet ground.
+
+> **GUS** *(off)*: No papers, no service history, runs.
+
+Its tail lamps glowing.
+
+> **GUS** *(off)*: Somebody loved this one, once.
+
+The paint up close, sliding along the rear quarter: black and grey camouflage, painted by hand.
+
+> **GUS** *(off)*: Engine's sweet. Somebody painted her by hand, look at that.
+
+Head-on, its headlights on.
+
+> **GUS** *(off)*: Who'll start me?
 
 In the crowd, behind Kit. Kit has a phone to one ear.
 
@@ -263,7 +277,7 @@ Gus by the coupe. One of four versions plays, depending on the finish of Kit's b
 
 ## Scene 5: The Mirror
 
-Rewritten after your note (Kit on screen, driving and checking the mirror; the mirror shows the cars, then the girl). It has no dialogue. About 36 seconds.
+Rewritten after your notes (Kit on screen, driving and checking the mirror; the mirror shows the cars, then the girl; Kit looks back over the shoulder and looks scared). It has no dialogue. About 40 seconds. Kit's face goes from uneasy to scared to terrified as it builds.
 
 **INT. THE COUPE, PARKED OUTSIDE ARCH 9. BEFORE DAWN. RAIN.**
 
@@ -275,15 +289,15 @@ The same frame, but now the car is moving: Kit drives an empty city road in the 
 
 - Through the rear window, far back, two pinpricks of headlights. Kit's eyes go up to the rear-view mirror.
 - Over Kit's shoulder, the mirror: the headlights, far back.
-- Kit checks again, sooner, then again. The lights are bigger now, violet light under them.
-- The mirror: a white coupe, violet light under it, the car from the prologue. A heartbeat starts.
+- Kit checks again, sooner, then turns to look back over the shoulder at them: bigger now, violet light under them. Kit is uneasy.
+- The mirror: a white coupe, violet light under it, the car from the prologue. A heartbeat starts. Kit is scared now.
 - High beams flood the car from behind. Kit squints and tries to look away, but is drawn back to the mirror.
 - The mirror fills with white. A thump: a tap on the bumper. Whiteout.
 - The mirror: an empty road. The rain comes back. Kit breathes out.
-- Quiet. Somewhere in the car, water drips.
+- Quiet. Somewhere in the car, water drips. Kit turns to look back over the shoulder: the back seat is empty. Kit turns back.
 - Over Kit's shoulder, the mirror: a woman in the back seat, soaked, head bowed, her hair over her face. Kit hasn't seen her. The rain has stopped. A low drone. Kit's eyes lift to the mirror.
 - The mirror, close: her head comes up. Through the wet hair, one eye, on the mirror. On Kit.
-- Kit tears away. Behind Kit, between the seats, the back seat: wet, and empty.
+- Kit, terrified, whips round to look back over the shoulder: the back seat, wet, and empty.
 - Kit forces a look: the mirror shows only the rear window. The drone stops.
 - Dead silence.
 - Her face at Kit's ear. The sting. Hard cut to black.

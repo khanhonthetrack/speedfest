@@ -17,30 +17,30 @@
 					{
 						"u": 0,
 						"pos": [
-							-215.0,
-							330.0,
-							-280.0
+							70.0,
+							150.0,
+							-150.0
 						],
 						"look": [
-							150.0,
-							0.0,
-							250.0
+							140.0,
+							260.0,
+							1600.0
 						],
-						"fov": 58
+						"fov": 42
 					},
 					{
 						"u": 1,
 						"pos": [
-							-175.0,
-							305.0,
-							-228.0
+							55.0,
+							135.0,
+							-95.0
 						],
 						"look": [
-							150.0,
-							0.0,
-							270.0
+							140.0,
+							250.0,
+							1600.0
 						],
-						"fov": 55
+						"fov": 40
 					}
 				]
 			},
@@ -68,7 +68,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -177,86 +178,6 @@
 					"face": 180,
 					"who": "coat",
 					"speaker": "Coat"
-				}
-			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
 				}
 			],
 			"lights": [
@@ -299,6 +220,11 @@
 			"card": {
 				"title": "Night 1",
 				"subtitle": "The Yard"
+			},
+			"env": {
+				"fog": 0.0006,
+				"fog_colour": "#1c1020",
+				"fog_sky": 0.4
 			}
 		},
 		{
@@ -315,29 +241,29 @@
 						"u": 0,
 						"pos": [
 							0.0,
-							205.0,
-							-320.0
+							170.0,
+							-240.0
 						],
 						"look": [
 							0.0,
 							0.0,
-							60.0
+							-40.0
 						],
-						"fov": 50
+						"fov": 46
 					},
 					{
 						"u": 1,
 						"pos": [
 							0.0,
-							105.0,
-							-165.0
+							95.0,
+							-125.0
 						],
 						"look": [
 							0.0,
 							0.0,
-							25.0
+							5.0
 						],
-						"fov": 46
+						"fov": 44
 					}
 				]
 			},
@@ -365,7 +291,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -476,86 +403,6 @@
 					"speaker": "Coat"
 				}
 			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				}
-			],
 			"lights": [
 				{
 					"kind": "spot",
@@ -591,7 +438,12 @@
 					"range": 30.0,
 					"angle": 38.0
 				}
-			]
+			],
+			"env": {
+				"fog": 0.0006,
+				"fog_colour": "#1c1020",
+				"fog_sky": 0.4
+			}
 		},
 		{
 			"id": "overhead",
@@ -657,7 +509,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -768,86 +621,6 @@
 					"speaker": "Coat"
 				}
 			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				}
-			],
 			"lights": [
 				{
 					"kind": "spot",
@@ -883,7 +656,12 @@
 					"range": 30.0,
 					"angle": 38.0
 				}
-			]
+			],
+			"env": {
+				"fog": 0.0006,
+				"fog_colour": "#1c1020",
+				"fog_sky": 0.4
+			}
 		},
 		{
 			"track": "H01",
@@ -914,7 +692,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -1100,95 +879,11 @@
 					"id": "c01_open_001",
 					"speaker": "Gus",
 					"text": "Lot forty-six, no reserve, gone to the gentleman at the back for twelve hundred. Lot forty-seven."
-				},
-				{
-					"id": "c01_open_002",
-					"speaker": "Gus",
-					"text": "Black coupe. Widebody. No papers, no service history, runs. Somebody loved this one, once."
-				}
-			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
 				}
 			]
 		},
 		{
+			"id": "lot47_nose",
 			"track": "H01",
 			"at": 0.03,
 			"rain": 0.75,
@@ -1217,7 +912,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -1272,7 +968,6 @@
 					"angle": 38.0
 				}
 			],
-			"id": "lot47",
 			"people": [
 				{
 					"id": "gus",
@@ -1287,133 +982,685 @@
 				}
 			],
 			"camera": {
+				"follow": "kit",
+				"ease": "out",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							2.0,
+							0.38,
+							5.0
+						],
+						"look": [
+							0.3,
+							0.55,
+							1.4
+						],
+						"fov": 30,
+						"dof": [
+							5.5,
+							5,
+							0.08
+						]
+					},
+					{
+						"u": 1,
+						"pos": [
+							1.55,
+							0.42,
+							4.3
+						],
+						"look": [
+							0.2,
+							0.58,
+							1.2
+						],
+						"fov": 28,
+						"dof": [
+							5.5,
+							5,
+							0.08
+						]
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.4,
+			"lines": [
+				{
+					"id": "c01_open_002",
+					"speaker": "Gus",
+					"text": "Black coupe. Widebody."
+				}
+			]
+		},
+		{
+			"id": "lot47_flank",
+			"track": "H01",
+			"at": 0.03,
+			"rain": 0.75,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot45",
+					"model": "stallion",
+					"livery": 0,
+					"left": -3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0,
+					"finish": "gloss"
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				}
+			],
+			"lights": [
+				{
+					"kind": "spot",
+					"pos": [
+						-5.0,
+						9.0,
+						-2.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						6.0,
+						9.0,
+						-1.0
+					],
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						2.2,
+						1.0,
+						-4.5
+					],
+					"look": [
+						0.9,
+						0.6,
+						1.5
+					],
+					"colour": "#a8c0ff",
+					"energy": 5.0,
+					"range": 9.0,
+					"angle": 28.0,
+					"shadow": false
+				}
+			],
+			"people": [],
+			"camera": {
+				"follow": "kit",
 				"ease": "linear",
 				"keys": [
 					{
 						"u": 0,
 						"pos": [
-							2.2,
-							0.6,
-							4.6
+							1.7,
+							0.55,
+							3.0
 						],
 						"look": [
-							-1.0,
-							0.6,
-							2.0
+							0.85,
+							0.5,
+							-1.5
 						],
-						"fov": 32,
+						"fov": 34,
 						"dof": [
-							6,
-							10,
+							4,
+							4,
 							0.1
 						]
 					},
 					{
 						"u": 1,
 						"pos": [
-							-2.0,
+							1.75,
 							0.6,
-							4.6
+							1.6
 						],
 						"look": [
-							-4.0,
-							0.6,
-							2.0
+							0.85,
+							0.5,
+							-2.2
 						],
 						"fov": 32,
 						"dof": [
-							6,
-							10,
+							4,
+							4,
 							0.1
 						]
 					}
 				]
 			},
+			"lead": 0.3,
+			"tail": 0.4,
+			"lines": [
+				{
+					"id": "c01_open_002b",
+					"speaker": "Gus",
+					"text": "No papers, no service history, runs."
+				}
+			]
+		},
+		{
+			"id": "lot47_tail",
+			"track": "H01",
+			"at": 0.03,
+			"rain": 0.75,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0,
+					"finish": "gloss"
+				},
+				{
+					"id": "lot48",
+					"model": "ayame",
+					"livery": 3,
+					"left": 3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				}
+			],
+			"lights": [
+				{
+					"kind": "spot",
+					"pos": [
+						-5.0,
+						9.0,
+						-2.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						6.0,
+						9.0,
+						-1.0
+					],
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-3.5,
+						3.5,
+						3.5
+					],
+					"look": [
+						-0.5,
+						0.8,
+						-1.2
+					],
+					"colour": "#ffad5c",
+					"energy": 4.0,
+					"range": 10.0,
+					"angle": 32.0,
+					"shadow": false
+				}
+			],
+			"people": [],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							-1.9,
+							0.5,
+							-4.2
+						],
+						"look": [
+							-0.3,
+							0.7,
+							-0.5
+						],
+						"fov": 30,
+						"dof": [
+							5,
+							5,
+							0.1
+						]
+					},
+					{
+						"u": 1,
+						"pos": [
+							-1.6,
+							0.45,
+							-3.6
+						],
+						"look": [
+							-0.3,
+							0.7,
+							-0.4
+						],
+						"fov": 28,
+						"dof": [
+							5,
+							5,
+							0.1
+						]
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.4,
+			"lines": [
+				{
+					"id": "c01_open_002c",
+					"speaker": "Gus",
+					"text": "Somebody loved this one, once."
+				}
+			]
+		},
+		{
+			"id": "lot47_paint",
+			"track": "H01",
+			"at": 0.03,
+			"rain": 0.75,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot45",
+					"model": "stallion",
+					"livery": 0,
+					"left": -3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0,
+					"finish": "gloss"
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				}
+			],
+			"lights": [
+				{
+					"kind": "spot",
+					"pos": [
+						-5.0,
+						9.0,
+						-2.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						6.0,
+						9.0,
+						-1.0
+					],
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						1.6,
+						1.5,
+						2.8
+					],
+					"look": [
+						0.9,
+						0.7,
+						-1.2
+					],
+					"colour": "#e6eeff",
+					"energy": 1.2,
+					"range": 6.0,
+					"angle": 26.0,
+					"shadow": false
+				}
+			],
+			"people": [],
+			"camera": {
+				"follow": "kit",
+				"ease": "linear",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							2.3,
+							0.9,
+							1.4
+						],
+						"look": [
+							0.9,
+							0.62,
+							-0.7
+						],
+						"fov": 26,
+						"dof": [
+							3.0,
+							2.0,
+							0.12
+						]
+					},
+					{
+						"u": 1,
+						"pos": [
+							2.3,
+							0.86,
+							0.3
+						],
+						"look": [
+							0.9,
+							0.6,
+							-1.5
+						],
+						"fov": 25,
+						"dof": [
+							3.0,
+							2.0,
+							0.12
+						]
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.4,
 			"lines": [
 				{
 					"id": "c01_open_003",
 					"speaker": "Gus",
-					"text": "Engine's sweet. Somebody painted her by hand, look at that. Who'll start me?"
+					"text": "Engine's sweet. Somebody painted her by hand, look at that."
+				}
+			]
+		},
+		{
+			"id": "lot47_hero",
+			"track": "H01",
+			"at": 0.03,
+			"rain": 0.75,
+			"ambience": "rain",
+			"cars": [
+				{
+					"id": "lot46",
+					"model": "kaiten",
+					"livery": 2,
+					"left": -7.0,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot45",
+					"model": "stallion",
+					"livery": 0,
+					"left": -3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.5.6.0",
+					"left": 0.0,
+					"ahead": 2.0,
+					"yaw": 0,
+					"finish": "gloss",
+					"lights": true
+				},
+				{
+					"id": "lot48",
+					"model": "ayame",
+					"livery": 3,
+					"left": 3.5,
+					"ahead": 2.0,
+					"yaw": 0
+				},
+				{
+					"id": "lot49",
+					"model": "umbra",
+					"livery": 1,
+					"left": 7.0,
+					"ahead": 2.0,
+					"yaw": 0
 				}
 			],
-			"props": [
+			"lights": [
 				{
-					"kind": "container",
+					"kind": "spot",
 					"pos": [
-						-14,
-						0,
-						6
+						-5.0,
+						9.0,
+						-2.0
 					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
+					"look": [
+						0.0,
+						0.0,
+						3.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 14.0,
+					"range": 30.0,
+					"angle": 38.0
 				},
 				{
-					"kind": "container",
+					"kind": "spot",
 					"pos": [
-						-14,
-						0,
-						-8
+						6.0,
+						9.0,
+						-1.0
 					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
+					"look": [
+						1.0,
+						0.0,
+						4.0
+					],
+					"colour": "#dfe8ff",
+					"energy": 10.0,
+					"range": 30.0,
+					"angle": 38.0
 				},
 				{
-					"kind": "container",
+					"car": "kit",
+					"kind": "spot",
 					"pos": [
-						14,
-						0,
-						8
+						0.0,
+						3.2,
+						-6.5
 					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
+					"look": [
+						0.0,
+						0.9,
+						0.0
+					],
+					"colour": "#9db6ff",
+					"energy": 6.0,
+					"range": 12.0,
+					"angle": 30.0,
+					"shadow": false
+				}
+			],
+			"people": [
 				{
-					"kind": "container",
+					"id": "gus",
+					"clip": "Stand_Talk",
 					"pos": [
-						14,
+						0.0,
 						0,
-						-6
+						-2.6
 					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
+					"face": 0,
+					"who": "gus"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "out",
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.0,
+							0.45,
+							7.2
+						],
+						"look": [
+							0.0,
+							0.62,
+							0.5
+						],
+						"fov": 30,
+						"dof": [
+							9,
+							6,
+							0.06
+						]
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.0,
+							0.5,
+							6.4
+						],
+						"look": [
+							0.0,
+							0.64,
+							0.5
+						],
+						"fov": 28,
+						"dof": [
+							9,
+							6,
+							0.06
+						]
+					}
+				]
+			},
+			"lead": 0.3,
+			"tail": 0.9,
+			"lines": [
 				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
+					"id": "c01_open_003b",
+					"speaker": "Gus",
+					"text": "Who'll start me?"
 				}
 			]
 		},
@@ -1446,7 +1693,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -1662,86 +1910,6 @@
 					"speaker": "Coat",
 					"text": "Two thousand."
 				}
-			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				}
 			]
 		},
 		{
@@ -1773,7 +1941,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -1975,86 +2144,6 @@
 					"speaker": "Gus",
 					"text": "Going..."
 				}
-			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				}
 			]
 		},
 		{
@@ -2086,7 +2175,8 @@
 					"tuning": "0.5.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
-					"yaw": 0
+					"yaw": 0,
+					"finish": "gloss"
 				},
 				{
 					"id": "lot48",
@@ -2277,86 +2367,6 @@
 					"speaker": "Gus",
 					"text": "Sold. Nine hundred, to the backpack. God help you."
 				}
-			],
-			"props": [
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 0
-				},
-				{
-					"kind": "container",
-					"pos": [
-						-14,
-						0,
-						-8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 1
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						8
-					],
-					"yaw": 90,
-					"stack": 2,
-					"colour": 3
-				},
-				{
-					"kind": "container",
-					"pos": [
-						14,
-						0,
-						-6
-					],
-					"yaw": 90,
-					"stack": 3,
-					"colour": 2
-				},
-				{
-					"kind": "crane",
-					"pos": [
-						0,
-						0,
-						-22
-					],
-					"yaw": 0,
-					"height": 28,
-					"span": 30,
-					"hook": 12
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						-9,
-						0,
-						-4
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				},
-				{
-					"kind": "pole",
-					"pos": [
-						9,
-						0,
-						-3
-					],
-					"yaw": 180,
-					"height": 11,
-					"energy": 8
-				}
 			]
 		},
 		{
@@ -2371,7 +2381,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"lights": [
@@ -2504,6 +2515,350 @@
 					"text": "Maybe don't."
 				}
 			]
+		}
+	],
+	"props": [
+		{
+			"kind": "containers",
+			"pos": [
+				0,
+				0,
+				-30
+			],
+			"yaw": 90,
+			"rows": 4,
+			"bays": 4,
+			"stack": [
+				2,
+				4
+			],
+			"seed": 11,
+			"gaps": [
+				0.3,
+				1.6
+			]
+		},
+		{
+			"kind": "crane",
+			"pos": [
+				0,
+				0,
+				-34
+			],
+			"yaw": 0,
+			"height": 24,
+			"span": 27.6,
+			"hook": 8
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				18.2,
+				0,
+				-10
+			],
+			"yaw": 0,
+			"rows": 4,
+			"bays": 2,
+			"stack": [
+				2,
+				4
+			],
+			"seed": 12
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				-18.2,
+				0,
+				-10
+			],
+			"yaw": 0,
+			"rows": 4,
+			"bays": 2,
+			"stack": [
+				2,
+				4
+			],
+			"seed": 13
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				9.2,
+				0,
+				33.4
+			],
+			"yaw": 0,
+			"rows": 4,
+			"bays": 2,
+			"stack": [
+				2,
+				3
+			],
+			"seed": 14
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				-12.4,
+				0,
+				42.8
+			],
+			"yaw": 0,
+			"rows": 2,
+			"bays": 2,
+			"stack": [
+				2,
+				3
+			],
+			"seed": 15
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				0,
+				0,
+				-53.5
+			],
+			"yaw": 90,
+			"rows": 6,
+			"bays": 6,
+			"stack": [
+				1,
+				4
+			],
+			"seed": 21
+		},
+		{
+			"kind": "crane",
+			"pos": [
+				0,
+				0,
+				-56.5
+			],
+			"yaw": 0,
+			"height": 24,
+			"span": 27.6,
+			"hook": 10
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				0,
+				0,
+				-88.5
+			],
+			"yaw": 90,
+			"rows": 6,
+			"bays": 6,
+			"stack": [
+				1,
+				4
+			],
+			"seed": 22
+		},
+		{
+			"kind": "crane",
+			"pos": [
+				-25.6,
+				0,
+				-91.5
+			],
+			"yaw": 0,
+			"height": 24,
+			"span": 27.6,
+			"hook": 6
+		},
+		{
+			"kind": "containers",
+			"pos": [
+				0,
+				0,
+				-123.5
+			],
+			"yaw": 90,
+			"rows": 6,
+			"bays": 6,
+			"stack": [
+				1,
+				4
+			],
+			"seed": 23
+		},
+		{
+			"kind": "crane",
+			"pos": [
+				12.8,
+				0,
+				-126.5
+			],
+			"yaw": 0,
+			"height": 24,
+			"span": 27.6,
+			"hook": 12
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				44,
+				0,
+				-40
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				-44,
+				0,
+				-40
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				44,
+				0,
+				-71
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				-44,
+				0,
+				-71
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				0,
+				0,
+				-71
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				44,
+				0,
+				-106
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				-44,
+				0,
+				-106
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				0,
+				0,
+				-106
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				44,
+				0,
+				-139
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				-44,
+				0,
+				-139
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				28,
+				0,
+				-18
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				-28,
+				0,
+				-18
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				20,
+				0,
+				26
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "mast",
+			"pos": [
+				-20,
+				0,
+				48
+			],
+			"height": 28,
+			"energy": 6.0
+		},
+		{
+			"kind": "pole",
+			"pos": [
+				-9,
+				0,
+				-4
+			],
+			"yaw": 180,
+			"height": 11,
+			"energy": 8
+		},
+		{
+			"kind": "pole",
+			"pos": [
+				9,
+				0,
+				-3
+			],
+			"yaw": 180,
+			"height": 11,
+			"energy": 8
 		}
 	]
 }

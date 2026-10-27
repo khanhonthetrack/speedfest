@@ -4,31 +4,40 @@ extends RefCounted
 ## of the same City): shipping containers (stacked, ribbed, a little rust), a gantry crane with its hook
 ## and warning light, floodlight poles that light what is under them, and toll booths. Made here in
 ## code like the rest of the game; placed by a shot's "props": [{"kind", "pos": [x, y, z] (the shot's
-## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on)}]. And the
+## anchor frame), "yaw" (deg), "colour", "stack" (containers high), "light" (poles: on)}]; a container
+## terminal's block in one ("containers": "rows" side by side along its x, "bays" end to end along its
+## z, centred on "pos"; "stack": [lowest, highest] or a number, each stack's height and each box's
+## colour picked by "seed"; "gaps": [between rows, between bays] m; "skip": [[row, bay], ...] left
+## empty). Every container is one instance of a MultiMesh (thousands draw as one); "mast": a terminal's
+## high-mast light ("height", "colour", "energy", "shadow"). And the
 ## railway viaduct ("viaduct": brick arches along its x, their faces towards +z; "arches" each side of
 ## the one at its origin, which is Dee's, Arch 9: a roller door half up, a bare bulb inside, its
 ## number painted over it; "train": [from s, speed m/s] a lit train crossing the deck, StoryProps.pose).
 
 const CONTAINER := Vector3(2.44, 2.6, 12.2)      ## an ISO 40-foot box (m)
 const RIBS := """shader_type spatial;
-// a container's corrugated steel: vertical ribs along its length, paint worn to rust at the edges
-uniform vec3 paint : source_color = vec3(0.55, 0.12, 0.08);
+// a container's corrugated steel: vertical ribs along its length, paint worn to rust at the edges;
+// one MultiMesh instance per box: INSTANCE_CUSTOM.rgb its paint, .a its own rust's seed
 varying vec3 lp;
+varying vec4 paint;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(41.3, 289.1))) * 13758.5453); }
-void vertex() { lp = VERTEX; }
+void vertex() { lp = VERTEX; paint = INSTANCE_CUSTOM; }
 void fragment() {
 	float along = abs(NORMAL.x) > 0.5 ? lp.z : lp.x;
 	float rib = sin(along * 9.0);
 	NORMAL = normalize(NORMAL + (VIEW_MATRIX * vec4(abs(NORMAL.x) > 0.5 ? vec3(0.0, 0.0, rib * 0.35) : vec3(rib * 0.35, 0.0, 0.0), 0.0)).xyz);
 	float edge = max(smoothstep(1.1, 1.3, abs(lp.y)), 0.0);
-	float rust = smoothstep(0.55, 0.95, hash(floor(lp.xz * 3.0) + floor(lp.y * 4.0)) * 0.6 + edge);
-	ALBEDO = mix(paint, vec3(0.22, 0.1, 0.05), rust * 0.7) * (0.85 + 0.15 * rib);
+	float rust = smoothstep(0.55, 0.95, hash(floor(lp.xz * 3.0) + floor(lp.y * 4.0) + paint.a * 17.0) * 0.6 + edge);
+	ALBEDO = mix(paint.rgb, vec3(0.22, 0.1, 0.05), rust * 0.7) * (0.85 + 0.15 * rib);
 	ROUGHNESS = 0.55 + 0.3 * rust;
 	METALLIC = 0.4;
 }
 """
+const COLOURS := [Color("8c2a1c"), Color("1f4f7a"), Color("2f5a33"), Color("9a6a1a"), Color("3a3f45"),
+	Color("b8b2a4"), Color("6b2a4a")]        ## rust red, blue, green, ochre, grey, white, maroon
 
 static var _ribs: Shader
+static var _ribs_mat: ShaderMaterial    ## every container's (their paint per instance)
 
 
 ## Builds a shot's props under `parent`, placed in the anchor frame `anchor`.
@@ -38,10 +47,14 @@ static func build(parent: Node3D, list: Array, anchor: Transform3D) -> void:
 		match String(p.get("kind", "")):
 			"container":
 				node = _containers(p)
+			"containers":
+				node = _terminal(p)
 			"crane":
 				node = _crane(p)
 			"pole":
 				node = _pole(p)
+			"mast":
+				node = _mast(p)
 			"booth":
 				node = _booth(p)
 			"viaduct":
@@ -74,18 +87,63 @@ static func _box(parent: Node3D, at: Vector3, size: Vector3, mat: Material) -> M
 
 
 static func _containers(p: Dictionary) -> Node3D:
+	var boxes: Array = []
+	var base := int(p.get("colour", 0))
+	for k in int(p.get("stack", 1)):
+		boxes.append([Vector3(0.0, CONTAINER.y * (k + 0.5), 0.0), COLOURS[(base + k * 2) % 5], float(base * 7 + k)])
+	return _boxes(boxes)
+
+
+## A block of a container terminal (the doc above): its rows along x and bays along z, centred.
+static func _terminal(p: Dictionary) -> Node3D:
+	var rows := int(p.get("rows", 4))
+	var bays := int(p.get("bays", 2))
+	var gaps: Array = p.get("gaps", [0.3, 0.6])
+	var stack: Variant = p.get("stack", [2, 3])
+	var lo := int(stack[0]) if stack is Array else int(stack)
+	var hi := int(stack[1]) if stack is Array else int(stack)
+	var skip: Array = p.get("skip", [])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(p.get("seed", 1))
+	var pitch := Vector2(CONTAINER.x + float(gaps[0]), CONTAINER.z + float(gaps[1]))
+	var boxes: Array = []
+	for r in rows:
+		for b in bays:
+			var h := rng.randi_range(lo, hi)     # drawn for every stack, skipped or not: the rest stay put
+			if [r, b] in skip:
+				continue
+			var at := Vector2((r - (rows - 1) * 0.5) * pitch.x, (b - (bays - 1) * 0.5) * pitch.y)
+			for k in h:
+				boxes.append([Vector3(at.x, CONTAINER.y * (k + 0.5), at.y), COLOURS[rng.randi_range(0, COLOURS.size() - 1)],
+					rng.randf() * 100.0])
+	return _boxes(boxes)
+
+
+## Containers as one MultiMesh: [[centre, colour, rust seed], ...] in the node's frame.
+static func _boxes(boxes: Array) -> Node3D:
 	if _ribs == null:
 		_ribs = Shader.new()
 		_ribs.code = RIBS
+	if _ribs_mat == null:
+		_ribs_mat = ShaderMaterial.new()
+		_ribs_mat.shader = _ribs
+	var mesh := BoxMesh.new()
+	mesh.size = CONTAINER
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true
+	mm.mesh = mesh
+	mm.instance_count = boxes.size()
+	for i in boxes.size():
+		var c: Color = boxes[i][1]
+		mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, boxes[i][0]))
+		mm.set_instance_custom_data(i, Color(c.r, c.g, c.b, fposmod(float(boxes[i][2]) * 0.618034, 1.0)))
+	var mmi := MultiMeshInstance3D.new()
+	mmi.name = "Containers"
+	mmi.multimesh = mm
+	mmi.material_override = _ribs_mat
 	var root := Node3D.new()
-	var colours := [Color("8c2a1c"), Color("1f4f7a"), Color("2f5a33"), Color("9a6a1a"), Color("3a3f45")]
-	var base := int(p.get("colour", 0))
-	for k in int(p.get("stack", 1)):
-		var m := ShaderMaterial.new()
-		m.shader = _ribs
-		var c: Color = colours[(base + k * 2) % colours.size()]
-		m.set_shader_parameter("paint", Vector3(c.r, c.g, c.b))
-		_box(root, Vector3(0.0, CONTAINER.y * (k + 0.5), 0.0), CONTAINER, m)
+	root.add_child(mmi)
 	return root
 
 
@@ -130,6 +188,35 @@ static func _pole(p: Dictionary) -> Node3D:
 		s.position = Vector3(0.0, h - 0.2, 0.6)
 		s.rotation = Vector3(-PI * 0.5 + 0.2, 0.0, 0.0)          # down, a little outwards
 		root.add_child(s)
+	return root
+
+
+## A container terminal's high-mast light: a ring of lamps on a tall pole, one wide spot straight
+## down ("height", "colour", "energy", "shadow": off by default, so a terminal's dozen stay cheap):
+## what makes a yard of boxes read from the air at night.
+static func _mast(p: Dictionary) -> Node3D:
+	var root := Node3D.new()
+	var h := float(p.get("height", 28.0))
+	var colour := Color(String(p.get("colour", "#ffe2b8")))
+	_box(root, Vector3(0.0, h * 0.5, 0.0), Vector3(0.6, h, 0.6), _mat(Color(0.35, 0.35, 0.37), 0.5, 0.6))
+	var lamp := StandardMaterial3D.new()
+	lamp.albedo_color = Color(0.1, 0.1, 0.1)
+	lamp.emission_enabled = true
+	lamp.emission = colour
+	lamp.emission_energy_multiplier = 8.0
+	for i in 4:
+		var a := TAU * i / 4.0
+		_box(root, Vector3(cos(a) * 0.9, h, sin(a) * 0.9), Vector3(0.7, 0.3, 0.7), lamp)
+	var s := SpotLight3D.new()
+	s.light_color = colour
+	s.light_energy = float(p.get("energy", 6.0))
+	s.spot_range = h * 2.6
+	s.spot_angle = 62.0
+	s.spot_attenuation = 0.8
+	s.shadow_enabled = bool(p.get("shadow", false))
+	s.position = Vector3(0.0, h - 0.4, 0.0)
+	s.rotation = Vector3(-PI * 0.5, 0.0, 0.0)                 # straight down
+	root.add_child(s)
 	return root
 
 

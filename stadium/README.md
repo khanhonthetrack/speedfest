@@ -150,7 +150,12 @@ The menu's Story page starts one (New story: the difficulty), continues it and k
 night 1 (H01-H03, the prologue and five scenes) is playable, the other nights come in batches.
 Horror shots: a car with `"cabin": true` gets seats, a dash and its body lined from inside under its
 own roof; `"mirror"` puts a rear-view mirror's picture over the shot, its camera at the car's
-`"pos": "mirror"`. A shot without the city, to check a cabin (`story/lab/cabin_check.json`):
+`"pos": "mirror"`. Sets: a scene's own `"props"` stand in every shot without any (a container
+terminal: `"containers"` blocks of stacks drawn as one MultiMesh, `"mast"` floodlights, cranes); a
+shot's `"env"` thickens the night air (fog, its colour, height fog, exposure: an aerial's far city
+lost in haze); a car's `"finish"` overrides its livery's paint (`"gloss"` for a car shown off); a
+person's `"gaze": "rear"` looks over the shoulder at the back seat. A shot without the city, to
+check a cabin (`story/lab/cabin_check.json`):
 
     stadium/tools/run.sh res://story/story_lab.tscn -- --file=$PWD/stadium/story/lab/cabin_check.json \
         --ts=0.6,2.6,4.6 --every=20 --frames=60 --shots=/abs/a.png@19,/abs/b.png@39,/abs/c.png@59

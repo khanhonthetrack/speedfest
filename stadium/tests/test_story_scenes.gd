@@ -20,6 +20,11 @@ extends Node
 ## - a rear-view mirror on the cabin's glass reflects the driver's eyes truly, its camera runs only in
 ##   shots with a mirror, lights ride in a car, eyes glance at the mirror on cue, water falls with it;
 ## - Arch 9's viaduct stands with its lit arch and number, and its train crosses at the shot's time;
+## - a container terminal's block has a stack for every row and bay but those skipped, each as high
+##   as its seed says, all of it one MultiMesh; a high mast lights straight down; the scene's own
+##   props stand in every shot without any ("props": [] for none); a story car's "finish" is its
+##   paint's; "rear" turns the driver's eyes to the back seat; a shot's "env" sets the night air and
+##   the next shot without one gets the map's own back;
 ## - a story map in the race (race.gd --story), a time-attack session (short here: 4 s): the bot's
 ##   run on G06's second finish, still under way when time is up, counts; the session settles on it,
 ##   it beats the time to beat on that finish, the panel names the decision, no new run starts, and
@@ -105,6 +110,8 @@ func _ready() -> void:
 	await _staged()
 	await _mirror_glass()
 	_viaduct()
+	_terminal()
+	_scene_props()
 	await _story_race()
 	TestHooks.finish()
 
@@ -405,6 +412,16 @@ func _staged() -> void:
 				if (b as CollisionObject3D).collision_layer != 0:
 					back += 1
 	TestHooks.check(back > 0 and bs._stage == stage, "story_shot_bare_switches_back", "solid track bodies again %d, same stage %s" % [back, bs._stage == stage])
+	# "env": a shot's night air over the map's own, and the map's own back on a shot without it
+	var env := (bs._stage.find_child("Environment", true, false) as WorldEnvironment).environment
+	var base := [env.fog_density, env.fog_light_color, env.fog_sky_affect, env.fog_height, env.fog_height_density]
+	bs._set_env({"fog": 0.0009, "fog_colour": "#1c1020", "fog_sky": 0.4, "height_fog": [40.0, 0.01], "exposure": 1.3})
+	var set_ok := is_equal_approx(env.fog_density, 0.0009) and env.fog_light_color.is_equal_approx(Color("#1c1020")) \
+		and is_equal_approx(env.fog_sky_affect, 0.4) and is_equal_approx(env.fog_height, 40.0) and is_equal_approx(bs._attrs.exposure_multiplier, 1.3)
+	bs._set_env({})
+	var back_ok := [env.fog_density, env.fog_light_color, env.fog_sky_affect, env.fog_height, env.fog_height_density] == base \
+		and is_equal_approx(bs._attrs.exposure_multiplier, 1.0)
+	TestHooks.check(set_ok and back_ok, "story_shot_env", "set %s (fog %.4f), the map's own back %s (fog %.5f)" % [set_ok, env.fog_density, back_ok, base[0]])
 	bs.queue_free()
 	await get_tree().process_frame
 
@@ -502,6 +519,60 @@ func _viaduct() -> void:
 		"story_viaduct_and_train", "train hidden before it sets off %s, over the deck at 7 s %s (x %s), sign %s" % [before, crossing,
 		train.position.x if train else 0.0, label.text if label else "none"])
 	root.free()
+
+
+## A terminal's block and a mast (StoryProps): the block's stacks (one MultiMesh), the same again from
+## the same seed; the mast's spot pointing down.
+func _terminal() -> void:
+	var spec := {"kind": "containers", "rows": 3, "bays": 2, "stack": [2, 2], "seed": 5, "skip": [[0, 0]]}
+	var root := Node3D.new()
+	add_child(root)
+	StoryProps.build(root, [spec, {"kind": "mast", "pos": [10.0, 0.0, 0.0], "height": 28}], Transform3D())
+	var mmis := root.find_children("*", "MultiMeshInstance3D", true, false)
+	var mm: MultiMesh = (mmis[0] as MultiMeshInstance3D).multimesh if mmis.size() == 1 else null
+	var again := Node3D.new()
+	add_child(again)
+	StoryProps.build(again, [spec], Transform3D())
+	var mm2: MultiMesh = (again.find_children("*", "MultiMeshInstance3D", true, false)[0] as MultiMeshInstance3D).multimesh
+	var same := mm != null and mm2.instance_count == mm.instance_count
+	for i in (mm.instance_count if mm != null else 0):
+		same = same and mm.get_instance_transform(i) == mm2.get_instance_transform(i) and mm.get_instance_custom_data(i) == mm2.get_instance_custom_data(i)
+	var spots := root.find_children("*", "SpotLight3D", true, false)
+	var down := spots.size() == 1 and (spots[0] as Node3D).global_basis.z.dot(Vector3.UP) > 0.99   # a spot shines along its -z
+	TestHooks.check(mm != null and mm.instance_count == 10 and same and down, "story_terminal_and_mast",
+		"%d boxes (10: five stacks of two, one skipped), same from the same seed %s, the mast's light down %s" % [
+		mm.instance_count if mm != null else -1, same, down])
+	root.free()
+	again.free()
+
+
+## The scene's own props in a shot without any, none where a shot says "props": []; a car's "finish";
+## the "rear" gaze behind the driver.
+func _scene_props() -> void:
+	var d := {"id": "props_test", "props": [{"kind": "container", "pos": [6.0, 0.0, 0.0], "stack": 2}], "shots": [
+		{"id": "a", "dur": 1.0, "cars": [{"id": "c", "model": "nemesis", "cabin": true, "finish": "gloss"}],
+			"people": [{"id": "drv", "car": "c", "seat": "driver", "clip": "Driving", "who": "kit", "gaze": "rear"}],
+			"camera": {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]}},
+		{"id": "b", "dur": 1.0, "props": [], "camera": {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]}}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(0.5)
+	var boxes_a := sc._props.find_children("*", "MultiMeshInstance3D", true, false).size()
+	var paint: Variant = (sc._cars["c"]["node"] as TmCarVisual)._mats.get("road_paint", null)
+	var finish_ok: bool = not (paint is ShaderMaterial) or (paint as ShaderMaterial).get_shader_parameter("finish") == TmCarVisual.FINISHES["gloss"]
+	var cabin := sc._cars["c"]["cabin"] as StoryCabin
+	var g: Variant = sc._gaze_of(_find(sc, "drv"), sc.shots[0])
+	var local: Vector3 = cabin.global_transform.affine_inverse() * (g as Vector3) if g is Vector3 else Vector3.INF
+	var rear_ok := g is Vector3 and local.z < cabin.driver_head.z - 0.3 and absf(local.x) < 0.2
+	sc.seek(1.5)
+	var boxes_b := 0
+	for n in sc._props.find_children("*", "MultiMeshInstance3D", true, false):
+		boxes_b += int(not n.is_queued_for_deletion() and not n.get_parent().is_queued_for_deletion())
+	TestHooks.check(boxes_a == 1 and boxes_b == 0 and finish_ok and rear_ok, "story_scene_props_finish_rear",
+		"the scene's props in a shot without any %d (1), in one with [] %d (0); the paint's finish gloss %s (%s); the rear gaze at %s (behind the eyes at z %.2f)" % [
+		boxes_a, boxes_b, finish_ok, "HD" if paint is ShaderMaterial else "plain paint", local, cabin.driver_head.z])
+	sc.queue_free()
 
 
 func _find(sc: Node, id: String) -> StoryPerson:

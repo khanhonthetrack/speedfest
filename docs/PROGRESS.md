@@ -4705,3 +4705,38 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   the two-shot; the head came up under the fade-in (now after it). Not taken: showing Kit asleep with
   the eyes shut at the knock (the refuted finding's point: Kit has already gasped awake in the black,
   so a second wake would contradict it).
+
+### 26-27 Oct (session 21, cont.): night 1, take four: the container terminal, the car shown off, the aerials in haze, a scared Kit (M20-9)
+- **The owner's take-three answers** (TRANSCRIPT): the opening and the Mirror to change, night 1 not
+  yet. Researched first (a sequential read-only workflow: the far city's code, the yard, the cast's
+  face shapes and bends, the car's liveries and frame).
+- **Aerials** (owner: the far city "just flat square blocks"): the outer ring within 2.5 km is low
+  masonry boxes on a regular grid (no towers can stand there), seen from 300 m with the frame's top
+  cutting the landmarks. Now the city shot flies at 135-150 m among the field towers looking at the
+  landmarks (their crowns against the sky, the horizon a third down), and the aerials carry a shot
+  `"env"` (StoryScene `_set_env`: fog density 0.0006, a violet city-glow colour, fog over the sky
+  0.4; the map's own air back on a shot without it) so the far ring sinks into haze. The descent
+  passes over the terminal to the yard.
+- **The container terminal** (owner: "where are containers?"): `StoryProps` `"containers"` (a block
+  of rows and bays, heights and colours from a seed, stacks skipped) and every container now one
+  instance of a MultiMesh (paint and rust seed per instance: about 400 boxes draw as one), `"mast"`
+  (a 28 m high-mast light, one wide spot straight down, no shadow by default); a scene's own
+  `"props"` stand in every shot without any (`"props": []` for none), so the yard, the aerials and the
+  view out of the car at the ignition share one terminal: a wall behind Gus under a crane, both
+  flanks, a canyon the coat walks out through, three outer blocks with cranes, fourteen masts (without
+  them the terminal was black from the air).
+- **The car shown off** (owner: "nice shots of the car instead of a shot of people just standing"):
+  Gus's car lines split at their sentences over five shots of Lot 47 (`lot47_nose`, `_flank`, `_tail`,
+  `_paint`, `_hero`: low front three-quarter, a dolly down the flank in the underglow, the tail lamps,
+  the paint close along the rear quarter, head-on with the headlights on), each with its own light
+  riding the car; new line ids `c01_open_002b`, `_002c`, `_003b`. The story car's Black Ops livery is
+  matte (no reflections), so a car's `"finish"` (StoryScene) puts it in gloss in the cutscenes only.
+- **The Mirror** (owner: "look over their shoulder", "look scared"): Kit's face goes uneasy, scared,
+  terrified (brows, frown, jaw: the cast has no wide-eye shapes) and Kit looks back over the right
+  shoulder three times (Chest/UpperChest twist, Neck and Head about 86 degrees; eyes on the back seat:
+  gaze `"rear"`, new): at the lights closing in (`closer` 3.2 s), at the empty seat after the drip
+  (`breath_out` 3.6 s), a terrified whip on the tear-away (1.6 s). The Mirror runs 39.5 s; Kit stays
+  uneasy through the knock.
+- Tests (`test_story_scenes`, 44): `story_terminal_and_mast`, `story_scene_props_finish_rear`,
+  `story_shot_env`. Script doc (rev 37) and `docs/NIGHT1_SCRIPT.md` updated. Generators in the
+  session scratchpad (`knock/recut_open.py`, `knock/recut_mirror.py`).
