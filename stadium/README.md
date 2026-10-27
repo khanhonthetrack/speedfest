@@ -160,6 +160,25 @@ check a cabin (`story/lab/cabin_check.json`):
     stadium/tools/run.sh res://story/story_lab.tscn -- --file=$PWD/stadium/story/lab/cabin_check.json \
         --ts=0.6,2.6,4.6 --every=20 --frames=60 --shots=/abs/a.png@19,/abs/b.png@39,/abs/c.png@59
 
+Cinematics (owner, 27 Oct: "full cinematic style hollywood cutscenes"; the bar, the plan and the
+quality gate: `docs/CINEMATICS.md`). Every cutscene has a film finish (StorySubtitles' post shader:
+grain seeded by the frame, vignette, halation, a lens's slight distortion and fringing, the grade;
+rain on the windscreen in the same pass): a scene's or a shot's `"grade"` picks a look
+(`StorySubtitles.GRADES`: `"film"` by default, `"night"` teal shadows and warm lights, `"dawn"`,
+`"dream"`, `"none"`) or tunes one (`{"preset": "night", "lift": 0.03}`); `story_lab --grade=none`
+shows the bare picture for a before and after. The camera: `"handheld": deg` (a shoulder camera's
+slow, seeded wander), `"path": "spline"` (one smooth move through every key, eased once), a key's
+`"dof_near"` (blur before the focus: soft foregrounds, pulls of focus) and `"exposure"` (a flare
+whiting out). A person's `"breathe": [deg, period]` keeps a still body alive. Sets: `"bare": "set"`
+hides the field's towers too and stands the shot on a level deck 2 m up (`StoryScene.SET_DECK`),
+where props build the place: `"quay"` (wet asphalt with painted lines and puddles, walls into the
+water, bollards, the water round it), `"sts_crane"`, `"warehouse"`, `"portacabin"` (a `"sign"`),
+`"stage"` (a lit truss), `"barrel"` (a fire), `"fence"`; `story/lab/docks_check.json` shows them.
+Before stills, lint a scene's camera work against the gate (shot lengths, zooms inside a shot,
+setups, cuts back and forth, the ghost's screen time):
+
+    python3 stadium/tools/story_lint.py c01_close [path/to/scene.json ...]     # LINT_OK or LINT_FAIL n
+
 ### The cast (PLAN M20-9)
 Modelled people for the cutscenes: MakeHuman's body through MPFB 2 in Blender, dressed from the
 MakeHuman community's packs (CC0 and CC BY only), one spec each in `tools/cast/specs/<id>.json`

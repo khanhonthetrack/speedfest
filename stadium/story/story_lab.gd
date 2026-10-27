@@ -6,7 +6,8 @@ extends Node
 ## before it plays, for a clip's light to settle: tools/clip.sh --skip cuts them). --flags=a,b,c sets those flags on the save
 ## the conditions read (--tier=hot: enough facts for it; --ways=c01=3 the finish taken on a night, for
 ## a "way:" condition); --no_stage leaves the tracks out (logic
-## only). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
+## only); --grade=<StorySubtitles.GRADES name> one film finish over the whole scene (none: the bare
+## picture, for a before and after). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
 ## --ts=8.5,14,25 --every=60 holds each time for that many frames; give TestHooks
 ## --shots=/abs/a.png@59,/abs/b.png@119,... to match, and --frames=180 to quit after the last.
 
@@ -25,6 +26,10 @@ func _ready() -> void:
 		TestHooks.fail("story_scene_loads", id)
 		TestHooks.finish()
 		return
+	if TestHooks.has_arg("grade"):           # one look over the whole scene (--grade=none: the bare picture)
+		d["grade"] = String(TestHooks.arg("grade", "film"))
+		for sh: Dictionary in d.get("shots", []):
+			sh.erase("grade")
 	var st := StoryState.new()
 	for f in String(TestHooks.arg("flags", "")).split(",", false):
 		st.flags[f] = true

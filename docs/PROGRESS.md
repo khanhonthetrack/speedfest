@@ -4792,3 +4792,33 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   **quality gate** every take must pass from now on: a ten-item per-shot checklist, a lint of the
   scene files, stills before renders, a fresh critic scoring each shot (under 7 goes back), a second
   review on a contact sheet, then the owner with the scorecard.
+
+### 27 Oct (session 21, cont.): the cinematic first pass, the engine (docs/CINEMATICS.md items 1-3) (M20-9)
+- **Film finish** (StorySubtitles' post shader, one read of the screen: rain on the windscreen folded
+  in with it): grain seeded by the frame (24 a second, so a render is the same every time), vignette
+  over the picture between the bars, halation round bright light, a streak on headlights, a slight
+  barrel distortion with fringing towards the corners, the grade (saturation, contrast, split toning,
+  highlights rolling off, blacks lifted). A scene's or shot's `"grade"`: `StorySubtitles.GRADES`
+  (`"film"` by default, `"night"`, `"dawn"`, `"dream"`, `"none"`) or keys over one; `story_lab
+  --grade=none` for a before and after. Measured on the yard at Ultra: blacks from 0 to 0.025, the
+  corners 0.37 of the centre's brightness (0.46 before). The presets' split toning was tuned on a
+  numpy copy of the grade (the first teal turned the night green).
+- **Camera engine**: `"handheld"` (seeded smooth noise on the aim, the same at a frame however it is
+  reached), `"path": "spline"` (Catmull-Rom through the keys, one ease over the shot), a key's
+  `"dof_near"` (near blur, pulls of focus; a key without dof keeps the one before, as before) and
+  `"exposure"` (a flare). Lights: `"look_to"` sweeps a spot over the shot; `"kind": "softbox"` is a
+  bright panel on a layer only reflection probes see (`StoryScene.SOFTBOX_LAYER`), with a shot's
+  `"probe"`: long highlights on a car's paint. A person's `"breathe"`.
+- **Sets**: `"bare": "set"` hides the field's towers too and stands the shot on a level deck 2 m over
+  the map's ground (no ground looked for, so it's deterministic), where StoryProps builds the place:
+  `"quay"` (wet asphalt in slabs, painted lines, puddles; walls into the water; bollards; the water
+  round it, 1.85 m down, over the city's own ground so the towers across it rise from it),
+  `"sts_crane"`, `"warehouse"`, `"portacabin"` (a sign), `"stage"` (a lit truss), `"barrel"` (a fire
+  flickering with the scene's time), `"fence"`. The scene's props now stay standing over a cut to a
+  shot that keeps them on the same spot (no rebuild); a shot's own lights moved to their own node
+  (they would have piled up under the props kept). `story/lab/docks_check.json`.
+- **`tools/story_lint.py`**: the quality gate's lint (shot lengths, zooms inside a shot, setups, cuts
+  back and forth, the ghost's time). On take four it finds what the critics found: the ghost on screen
+  7.5 s, seven cuts back and forth in the knock, three zooms.
+- Tests (`test_story_scenes`): `story_grade`, `story_camera_engine`, `story_shot_set`,
+  `story_props_kept`; every scene's grade names known presets and keys.

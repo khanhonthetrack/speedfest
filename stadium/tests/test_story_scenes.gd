@@ -27,6 +27,14 @@ extends Node
 ##   props stand in every shot without any ("props": [] for none); a story car's "finish" is its
 ##   paint's; "rear" turns the driver's eyes to the back seat; a shot's "env" sets the night air and
 ##   the next shot without one gets the map's own back;
+## - the film finish (StorySubtitles' "grade"): every scene's presets and keys are known ones; the
+##   shot's grade goes over the scene's, a preset's name replaces what came before it; "film" when
+##   none is named; its picture shows only when it does something (or rain is on the glass) and never
+##   over a security camera's;
+## - "bare": "set" hides the field's towers and stands the shot on a level deck; the scene's props stay
+##   standing over a cut (not rebuilt), a shot's lights go with it, softboxes never reach the camera;
+## - the camera engine: a "spline" path passes through its keys, "handheld" wanders a little and
+##   gives the same frame however it is reached, "dof_near" blurs before the focus and pulls it;
 ## - a story map in the race (race.gd --story), a time-attack session (short here: 4 s): the bot's
 ##   run on G06's second finish, still under way when time is up, counts; the session settles on it,
 ##   it beats the time to beat on that finish, the panel names the decision, no new run starts, and
@@ -77,6 +85,9 @@ func _ready() -> void:
 				# a cast member who isn't built would be the Mannequin, with only a warning
 				if p.has("who") and not StoryCast.has(String(p["who"])):
 					bad.append("shot %s: no cast member %s" % [s.get("id", "?"), p["who"]])
+			for gk: Variant in [d.get("grade"), s.get("grade")]:
+				for why in _grade_bad(gk):
+					bad.append("shot %s: grade %s" % [s.get("id", "?"), why])
 			# a sound that isn't one of ours would be silence, without a word
 			for snd: Dictionary in s.get("sounds", []):
 				if StorySounds.get_stream(String(snd.get("cue", ""))) == null:
@@ -115,6 +126,9 @@ func _ready() -> void:
 	_terminal()
 	_scene_props()
 	await _cut_snaps()
+	await _grade()
+	await _camera_engine()
+	await _props_kept()
 	await _story_race()
 	TestHooks.finish()
 
@@ -423,6 +437,19 @@ func _staged() -> void:
 				if (b as CollisionObject3D).collision_layer != 0:
 					back += 1
 	TestHooks.check(back > 0 and bs._stage == stage, "story_shot_bare_switches_back", "solid track bodies again %d, same stage %s" % [back, bs._stage == stage])
+	# "bare": "set": the field's towers hidden and not solid too, the shot on a level deck SET_DECK up
+	bs._set_bare("set")
+	var towers := bs._stage.find_child("FieldCity", true, false) as Node3D
+	var tower_solid := 0
+	if towers != null:
+		for b in towers.find_children("*", "CollisionObject3D", true, false):
+			tower_solid += int((b as CollisionObject3D).collision_layer != 0)
+	var deck := bs._road_xf(0.5, 3.0, 10.0).origin.y
+	bs._set_bare(false)
+	var towers_back := towers != null and towers.visible
+	TestHooks.check(towers != null and tower_solid == 0 and towers_back and is_equal_approx(deck, TmMapBuilder.GROUND_Y + StoryScene.SET_DECK),
+		"story_shot_set", "the field's towers %s, solid %d (0), back after %s; a place on the line at %.2f (deck %.2f)" % [
+		"found" if towers != null else "missing", tower_solid, towers_back, deck, TmMapBuilder.GROUND_Y + StoryScene.SET_DECK])
 	# "env": a shot's night air over the map's own, and the map's own back on a shot without it
 	var env := (bs._stage.find_child("Environment", true, false) as WorldEnvironment).environment
 	var base := [env.fog_density, env.fog_light_color, env.fog_sky_affect, env.fog_height, env.fog_height_density]
@@ -627,6 +654,125 @@ func _scene_props() -> void:
 		"the scene's props in a shot without any %d (1), in one with [] %d (0); the paint's finish gloss %s (%s); the rear gaze at %s (behind the eyes at z %.2f)" % [
 		boxes_a, boxes_b, finish_ok, "HD" if paint is ShaderMaterial else "plain paint", local, cabin.driver_head.z])
 	sc.queue_free()
+
+
+## What is wrong with a scene's or shot's "grade" (a preset's name, or a dictionary of known keys).
+func _grade_bad(g: Variant) -> Array[String]:
+	var out: Array[String] = []
+	if g == null:
+		return out
+	var dd: Dictionary = {"preset": g} if g is String else (g as Dictionary if g is Dictionary else {"preset": str(g)})
+	for k: String in dd:
+		if k == "preset":
+			if not StorySubtitles.GRADES.has(String(dd[k])):
+				out.append("no preset %s" % dd[k])
+		elif not (StorySubtitles.GRADES["none"] as Dictionary).has(k):
+			out.append("no key %s" % k)
+		elif k in ["shadows", "highlights"] and not Color.html_is_valid(String(dd[k])):
+			out.append("%s %s is not a colour" % [k, dd[k]])
+	return out
+
+
+## The film finish: a shot's grade over its scene's, presets, and when the finish's picture shows.
+func _grade() -> void:
+	var film := StorySubtitles.grade_of(null, null)
+	var night := StorySubtitles.grade_of("night", null)
+	var over := StorySubtitles.grade_of("night", {"grain": 0.0})
+	var none := StorySubtitles.grade_of("night", "none")
+	var dawn := StorySubtitles.grade_of({"preset": "dawn", "lift": 0.03}, null)
+	var keys_ok := true
+	for g: Dictionary in [film, night, over, none, dawn]:
+		keys_ok = keys_ok and g.size() == (StorySubtitles.GRADES["none"] as Dictionary).size()
+	var maths := is_equal_approx(float(film["grain"]), 0.025) and is_equal_approx(float(night["streak"]), 0.25) \
+		and float(over["grain"]) == 0.0 and is_equal_approx(float(over["streak"]), 0.25) \
+		and float(none["vignette"]) == 0.0 and float(none["lift"]) == 0.0 and is_equal_approx(float(dawn["lift"]), 0.03) \
+		and is_equal_approx(float(dawn["saturation"]), 0.85)
+	var sub := StorySubtitles.new()
+	add_child(sub)
+	await get_tree().process_frame
+	sub.set_grade(none)
+	var off := not sub._film.visible
+	sub.set_glass(0.5, 1.0)
+	var rain := sub._film.visible
+	sub.set_glass(0.0, 1.0)
+	sub.set_grade(film)
+	var on := sub._film.visible
+	sub.set_cctv({"label": "CAM 2"}, 0.0, 1.0)
+	var cctv := not sub._film.visible
+	sub.set_cctv({}, 0.0, 1.0)
+	var back := sub._film.visible
+	sub.queue_free()
+	TestHooks.check(keys_ok and maths and off and rain and on and cctv and back, "story_grade",
+		"every key in every grade %s; presets and keys over them %s; the picture off with none %s, on for rain %s, on with film %s, off under a security camera %s and back after it %s" % [
+		keys_ok, maths, off, rain, on, cctv, back])
+
+
+## The camera engine: a spline through its keys, a hand-held camera's wander (small, the same frame
+## whichever way it is reached), the near blur pulled between two keys.
+func _camera_engine() -> void:
+	var keys := [{"u": 0.0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]},
+		{"u": 0.5, "pos": [3.0, 1.5, 4.0], "look": [0.0, 1.0, 0.0]},
+		{"u": 1.0, "pos": [6.0, 1.5, 0.0], "look": [0.0, 1.0, 0.0]}]
+	var d := {"id": "cam_test", "shots": [
+		{"id": "spline", "dur": 2.0, "camera": {"path": "spline", "ease": "linear", "keys": keys}},
+		{"id": "held", "dur": 2.0, "camera": {"handheld": 0.5, "keys": [keys[0]]}},
+		{"id": "still", "dur": 2.0, "camera": {"keys": [keys[0]]}},
+		{"id": "pull", "dur": 2.0, "camera": {"ease": "linear", "keys": [
+			{"u": 0.0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0], "dof_near": [1.0, 0.5, 0.2]},
+			{"u": 1.0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0], "dof_near": [3.0, 1.0]}]}}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(1.0)
+	var mid := sc.camera.global_position.distance_to(sc._anchor * Vector3(3.0, 1.5, 4.0))
+	sc.seek(0.5)
+	var off_line := absf((sc._anchor.affine_inverse() * sc.camera.global_position).z - lerpf(6.0, 4.0, 0.5)) > 0.01 \
+		or absf((sc._anchor.affine_inverse() * sc.camera.global_position).x - 1.5) > 0.01
+	sc.seek(4.5)
+	var still := sc.camera.global_basis
+	sc.seek(2.5)
+	var held_a := sc.camera.global_basis
+	sc.seek(3.4)
+	sc.seek(2.5)
+	var held_b := sc.camera.global_basis
+	var wander := rad_to_deg(acos(clampf((-held_a.z).dot(-still.z), -1.0, 1.0)))
+	var same := held_a.is_equal_approx(held_b)
+	sc.seek(7.0)
+	var near_ok := sc._attrs.dof_blur_near_enabled and is_equal_approx(sc._attrs.dof_blur_near_distance, 2.0) \
+		and is_equal_approx(sc._attrs.dof_blur_near_transition, 0.75) and is_equal_approx(sc._attrs.dof_blur_amount, 0.2)
+	sc.seek(4.5)
+	var none_ok := not sc._attrs.dof_blur_near_enabled
+	TestHooks.check(mid < 0.01 and off_line and wander > 0.01 and wander < 1.0 and same and near_ok and none_ok, "story_camera_engine",
+		"the spline through its middle key %.3f m off (0), curved between keys %s; hand-held %.2f deg off the still aim (0-1 for 0.5), the same frame again %s; the near blur pulled %s (%.2f m, 2), off without it %s" % [
+		mid, off_line, wander, same, near_ok, sc._attrs.dof_blur_near_distance, none_ok])
+	sc.queue_free()
+	await get_tree().process_frame
+
+
+## The scene's props stand over a cut to a shot that keeps them on the same spot (not rebuilt), while
+## each shot's own lights go with it (they don't pile up under the props kept).
+func _props_kept() -> void:
+	var cam := {"keys": [{"u": 0, "pos": [0.0, 1.5, 6.0], "look": [0.0, 1.0, 0.0]}]}
+	var lights := [{"kind": "omni", "pos": [0.0, 3.0, 0.0]}, {"kind": "softbox", "pos": [0.0, 4.0, 0.0], "look": [0.0, 0.0, 0.0]}]
+	var d := {"id": "kept_test", "props": [{"kind": "container", "pos": [6.0, 0.0, 0.0]}], "shots": [
+		{"id": "a", "dur": 1.0, "camera": cam, "lights": lights}, {"id": "b", "dur": 1.0, "camera": cam, "lights": lights,
+			"probe": {"pos": [0.0, 2.0, 0.0]}}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(0.5)
+	var first := sc._props.get_child(0) if sc._props.get_child_count() > 0 else null
+	sc.seek(1.5)
+	await get_tree().process_frame
+	var live := 0
+	for n in sc._lights.get_children():
+		live += int(not n.is_queued_for_deletion())
+	var hidden := sc.camera.cull_mask & StoryScene.SOFTBOX_LAYER == 0
+	TestHooks.check(first != null and sc._props.get_child(0) == first and sc._props.get_child_count() == 1 and live == 3 and hidden,
+		"story_props_kept", "the scene's props the same node after the cut %s (%d under them); the second shot's lights %d (3: omni, softbox, probe); softboxes hidden from the camera %s" % [
+		first != null and sc._props.get_child(0) == first, sc._props.get_child_count(), live, hidden])
+	sc.queue_free()
+	await get_tree().process_frame
 
 
 func _find(sc: Node, id: String) -> StoryPerson:

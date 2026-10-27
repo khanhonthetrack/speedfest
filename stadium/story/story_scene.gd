@@ -7,17 +7,22 @@ extends Node3D
 ## cards, a phone's texts). So a scene seeks to any frame (story/story_lab.tscn screenshots it), is
 ## skippable at any frame, never touches a race's simulation, and plays the same headless.
 ##
-## Scene: {"id", "chapter", "title", "track" (default for its shots), "at" (default anchor),
+## Scene: {"id", "chapter", "title", "track" (default for its shots), "at" (default anchor), "grade",
 ##   "set": [flags the scene sets when it ends or is skipped], "shots": [shot, ...]}
 ## Shot: {"id", "if" (StoryState.holds: the shot plays only then), "track", "at" (fraction of the
 ##   track's racing line where the shot's anchor stands), "bare": true (also the scene's: the track
-##   left out, its road, barriers, checkpoints and the neon along them; the place stays),
+##   left out, its road, barriers, checkpoints and the neon along them; the place stays) or "set"
+##   (the field's towers too, the shot on a level deck SET_DECK up: a set of props stands there),
 ##   "left", "ahead" (m off that point), "dur" (s; default: as long as its lines need, "lead"
 ##   before the first and "tail" after the last), "min" (s, default 2.5),
 ##   "camera": {"keys": [{"u" (0..1 of the shot) | "t" (s), "pos": [x, y, z] | a place in the
 ##     followed car ("driver_head", "mirror": StoryCabin.points), "look": [x, y, z],
-##     "fov" (40), "roll" (deg), "dof": [far m, transition m, amount]}], "ease": "inout" | "linear" |
-##     "in" | "out", "follow": a car's id (its frame instead of the anchor's), "shake": m},
+##     "fov" (40), "roll" (deg), "dof": [far m, transition m, amount] (blur beyond), "dof_near": [near m,
+##     transition m(, amount)] (blur before: a soft foreground; a key with it and one without pull
+##     focus), "exposure" (the camera's, eased between keys: a flare whiting out)}], "ease": "inout" | "linear" | "in" | "out" (at every key), "path": "spline" (one smooth
+##     move through every key, eased once over the shot: the keys' "u" are along it), "follow": a car's
+##     id (its frame instead of the anchor's), "handheld": deg (a shoulder camera's slow wander of its
+##     aim, the same at a given frame however it is reached), "shake": m (a jolt)},
 ##   "cars": [{"id", "model" (TmCarVisual.model: a road car's id, "hyper", "" the open-wheeler),
 ##     "livery", "colour" (TmUi.CAR_COLOURS index), "tuning": "spoiler.rims.glow.hood", "ghost",
 ##     "left", "ahead" (m from the anchor along the line), "lift", "yaw" (deg), "lights" (headlights),
@@ -31,7 +36,10 @@ extends Node3D
 ##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
 ##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot",
 ##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on), "car": a car's id
-##     (riding in it: pos and look in its road frame)}], "rain": 0..1,
+##     (riding in it: pos and look in its road frame), "look_to" (a spot swept from "look" to it over the
+##     shot: light moving over a car's paint); "kind": "softbox" ("size": [w, h], "energy": a bright panel
+##     only reflections see)}], "probe": {"pos", "size", "distance"} (a reflection probe for the shot:
+##     the softboxes and the set in a car's paint), "rain": 0..1,
 ##   "fade_in", "fade_out" (s), "black": true (no picture: a title card on black), "card": {"title",
 ##   "subtitle"},
 ##   the horror layer (docs/STORY.md, THE PASSENGER): "mirror": {camera keys like "camera", "follow",
@@ -43,6 +51,10 @@ extends Node3D
 ##     (rain, heartbeat, drip, drone, train: a loop stops at the first cut to a shot that doesn't name
 ##     it; the train dies away over 1.5 s),
 ##   "cctv": {"label", "clock": "03:12:04"} (a security camera's grey, grainy picture),
+##   "grade": the film finish's look over the scene's own "grade" (StorySubtitles.GRADES: "film", every
+##     scene's unless it says otherwise, "night", "dawn", "dream", "none"; or {"preset", "lift",
+##     "shadows", "shadows_amount", "highlights", "highlights_amount", "saturation", "contrast",
+##     "knee", "grain", "vignette", "halation", "streak", "fringe", "barrel"}),
 ##   "props": [StoryProps: containers (a stack, or a terminal's block: "containers"), a crane,
 ##     floodlight poles, high masts, toll booths, a railway viaduct ("viaduct", its "train")] (the scene's own
 ##     "props" for every shot without any: a yard that stays put round its shots; "props": [] for
@@ -60,6 +72,8 @@ signal finished(skipped: bool)
 const DIR := "res://story/scenes"
 const READ_CPS := 15.0                 ## subtitle reading speed (characters per second)
 const FADE_OUT := ["train"]            ## loops that die away over a cut instead of stopping dead
+const SET_DECK := 2.0                  ## m a set's deck stands over the map's ground (water below its edges)
+const SOFTBOX_LAYER := 1 << 19         ## a light's "softbox": drawn for reflections (a shot's "probe"), never to the camera
 
 var data := {}
 var state: StoryState                  ## the save the conditions read (a fresh one if null)
@@ -88,6 +102,10 @@ var _mirror_cam: Camera3D
 var _players := {}                     ## sound cue -> AudioStreamPlayer
 var _fired := {}                       ## "shot:index" -> true: the shot's sounds already played
 var _last_local := -1.0
+var _set_on := false                   ## a shot on a set ("bare": "set"): on its deck, no ground looked for
+var _props_key: Variant = null         ## what the props standing were built for (the scene's, at an anchor)
+var _lights: Node3D                    ## the shot's own lights (not riding in a car)
+var _sweeps: Array = []                ## [light, look from, look to, up]: spots swept across the shot ("look_to")
 
 
 static func path_of(id: String) -> String:
@@ -118,12 +136,16 @@ func setup(d: Dictionary, st: StoryState = null, stage := true) -> void:
 	camera = Camera3D.new()
 	camera.far = TmSkyline.FAR
 	camera.current = true
+	camera.cull_mask = 0xFFFFF & ~SOFTBOX_LAYER    # softboxes are seen only in reflections
 	_attrs = CameraAttributesPractical.new()
 	camera.attributes = _attrs
 	add_child(camera)
 	_props = Node3D.new()
 	_props.name = "Props"
 	add_child(_props)
+	_lights = Node3D.new()
+	_lights.name = "Lights"
+	add_child(_lights)
 	subtitles = StorySubtitles.new()
 	add_child(subtitles)
 	if with_stage:
@@ -321,7 +343,7 @@ func _enter(i: int) -> void:
 	_shot = i
 	var s: Dictionary = shots[i]
 	var track := String(s.get("track", data.get("track", "")))
-	var bare := bool(s.get("bare", data.get("bare", false)))
+	var bare: Variant = s.get("bare", data.get("bare", false))
 	if with_stage and not track.is_empty() and track != _stage_track:
 		_build_stage(track)
 	_set_bare(bare)
@@ -333,8 +355,9 @@ func _enter(i: int) -> void:
 	for p in _people:
 		p.queue_free()
 	_people.clear()
-	for n in _props.get_children():
+	for n in _lights.get_children():
 		n.queue_free()
+	_sweeps.clear()
 	_anchor = _road_xf(float(s.get("at", data.get("at", 0.5))), float(s.get("left", 0.0)), float(s.get("ahead", 0.0)))
 	for c: Dictionary in s.get("cars", []):
 		_add_car(c)
@@ -378,9 +401,20 @@ func _enter(i: int) -> void:
 				(_cars[car_id]["cabin"] as StoryCabin).lower(seat, need)
 	for l: Dictionary in s.get("lights", []):
 		_add_light(l)
-	StoryProps.build(_props, s.get("props", data.get("props", [])), _anchor)
+	if s.has("probe"):
+		_add_probe(s["probe"])
+	# the scene's own props (a yard, a docks set) stay standing over a cut to a shot that keeps them on
+	# the same spot: no rebuild, no stall
+	var key: Variant = null if s.has("props") else [_anchor, _stage_track, _set_on]
+	if key == null or key != _props_key:
+		for n in _props.get_children():
+			n.queue_free()
+		StoryProps.build(_props, s.get("props", data.get("props", [])), _anchor)
+	_props_key = key
 	_set_rain(float(s.get("rain", data.get("rain", 0.0))))
 	_set_env(s.get("env", data.get("env", {})))
+	if subtitles != null:
+		subtitles.set_grade(StorySubtitles.grade_of(data.get("grade"), s.get("grade")))
 	_set_mirror(s)
 	_set_ambience(ambience(s))
 
@@ -425,19 +459,32 @@ func _set_env(e: Dictionary) -> void:
 ## "bare": the place without its track (a yard on a race map): the road, barriers, checkpoints and
 ## the neon along them hidden and their collision off, the ground, the city and the light left; the
 ## track's line still places the shot (its anchor drops onto the ground). A switch, not a rebuild,
-## so a cut between a bare shot and one on the track never stalls.
-func _set_bare(bare: bool) -> void:
+## so a cut between a bare shot and one on the track never stalls. "bare": "set" also hides the
+## towers on the field (a City map's) and stands the shot on a deck SET_DECK over the map's ground,
+## level (no ground under it is looked for): a set built of props (StoryProps "quay": the deck, its
+## edges, the water below them) stands there instead.
+func _set_bare(bare: Variant) -> void:
+	_set_on = bare is String and String(bare) == "set"
 	if _stage == null:
 		return
+	var off := _set_on or (bare is bool and bool(bare))
 	for n in _stage.find_children("*", "", true, false):
+		if String(n.name) == "FieldCity":
+			(n as Node3D).visible = not _set_on
+			for body in n.find_children("*", "CollisionObject3D", true, false):
+				var fc := body as CollisionObject3D
+				if not fc.has_meta("layer"):
+					fc.set_meta("layer", fc.collision_layer)
+				fc.collision_layer = 0 if _set_on else int(fc.get_meta("layer"))
+			continue
 		if not String(n.name) in ["Blocks", "RoadDecals", "NeonLights"]:
 			continue
-		(n as Node3D).visible = not bare
+		(n as Node3D).visible = not off
 		for body in n.find_children("*", "CollisionObject3D", true, false):
 			var co := body as CollisionObject3D
 			if not co.has_meta("layer"):
 				co.set_meta("layer", co.collision_layer)
-			co.collision_layer = 0 if bare else int(co.get_meta("layer"))
+			co.collision_layer = 0 if off else int(co.get_meta("layer"))
 
 
 ## A place on the track's racing line: fraction `at` of it, `left` m to its left, `ahead` m on.
@@ -463,7 +510,9 @@ func _road_xf(at: float, left: float, ahead: float) -> Transform3D:
 	var side := Vector3.UP.cross(d).normalized()          # the line's left (x left, z ahead)
 	p += side * left
 	var up := Vector3.UP
-	if is_inside_tree():
+	if _set_on:
+		p.y = TmMapBuilder.GROUND_Y + SET_DECK         # a set's deck: level, whatever is under it
+	elif is_inside_tree():
 		var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 4.0, p - Vector3.UP * 6.0, TmCar.WORLD_MASK)
 		var hit := get_world_3d().direct_space_state.intersect_ray(q)
 		if not hit.is_empty():
@@ -475,7 +524,7 @@ func _road_xf(at: float, left: float, ahead: float) -> Transform3D:
 
 ## A world point dropped onto whatever is under it (the road, a pavement), or left where it is.
 func _ground(p: Vector3) -> Vector3:
-	if not is_inside_tree():
+	if not is_inside_tree() or _set_on:
 		return p
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 2.5, p - Vector3.UP * 8.0, TmCar.WORLD_MASK)
 	var hit := get_world_3d().direct_space_state.intersect_ray(q)
@@ -521,6 +570,9 @@ func _add_car(c: Dictionary) -> void:
 
 func _add_light(l: Dictionary) -> void:
 	var colour := Color(String(l.get("colour", "#ffffff")))
+	if String(l.get("kind", "omni")) == "softbox":
+		_add_softbox(l, colour)
+		return
 	var light: Light3D
 	if String(l.get("kind", "omni")) == "spot":
 		var s := SpotLight3D.new()
@@ -547,10 +599,54 @@ func _add_light(l: Dictionary) -> void:
 		if l.has("look"):
 			light.look_at(host.global_transform * (_vec(l["look"]) - off), host.global_basis.y)
 		return
-	_props.add_child(light)
+	_lights.add_child(light)
 	light.global_position = _anchor * p
 	if l.has("look"):
 		light.look_at(_anchor * _vec(l["look"]), _anchor.basis.y)
+		if l.has("look_to"):
+			_sweeps.append([light, _anchor * _vec(l["look"]), _anchor * _vec(l["look_to"]), _anchor.basis.y])
+
+
+## A photographer's softbox for a car's paint: a bright panel ("size": [w, h] m, facing "look") on a
+## layer only a reflection probe sees (the shot's "probe"), so long highlights run down the bodywork
+## and nothing shows in the picture; it lights nothing itself.
+func _add_softbox(l: Dictionary, colour: Color) -> void:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	var sz: Array = l.get("size", [4.0, 1.0])
+	q.size = Vector2(float(sz[0]), float(sz[1]))
+	mi.mesh = q
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_color = colour * float(l.get("energy", 3.0))
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = m
+	mi.layers = SOFTBOX_LAYER
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	_lights.add_child(mi)
+	mi.global_position = _anchor * _vec(l.get("pos", [0, 3, 0]))
+	if l.has("look"):
+		var to := _anchor * _vec(l["look"])
+		var up := _anchor.basis.y if absf((to - mi.global_position).normalized().dot(_anchor.basis.y)) < 0.98 else _anchor.basis.z
+		mi.look_at(to, up)
+		mi.rotate_object_local(Vector3.UP, PI)          # a quad faces +z; look_at points -z at the car
+
+
+## A shot's "probe": {"pos", "size"} (the anchor frame): a reflection probe captured once, so a car's
+## paint shows the yard and the softboxes round it (the night's own reflections are SSR's and the sky's).
+func _add_probe(pr: Dictionary) -> void:
+	var probe := ReflectionProbe.new()
+	var sz: Array = pr.get("size", [24.0, 10.0, 24.0])
+	probe.size = Vector3(float(sz[0]), float(sz[1]), float(sz[2]))
+	probe.box_projection = true
+	probe.update_mode = ReflectionProbe.UPDATE_ONCE
+	probe.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
+	probe.max_distance = float(pr.get("distance", 200.0))
+	probe.intensity = float(pr.get("intensity", 1.0))
+	probe.cull_mask = 0xFFFFF
+	_lights.add_child(probe)
+	probe.global_transform = Transform3D(_anchor.basis, _anchor * _vec(pr.get("pos", [0, 2, 0])))
 
 
 ## Rain round the camera: streaks falling through a box that follows it.
@@ -637,7 +733,9 @@ func _pose(local: float) -> void:
 			p.rebase(_cars[p.in_car]["xf"])
 		p.pose(local)
 		p.visible = _on_screen(p.spec, local)
-	StoryProps.pose(_props, local)
+	StoryProps.pose(_props, local, t)
+	for sw: Array in _sweeps:
+		(sw[0] as Light3D).look_at((sw[1] as Vector3).lerp(sw[2], _ease(clampf(local / maxf(dur, 0.001), 0.0, 1.0), "inout")), sw[3])
 	_aim(s.get("camera", {}), camera, _attrs, local, dur)
 	if _mirror_cam != null and s.has("mirror"):
 		if _glass() != null:
@@ -725,35 +823,49 @@ func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 	return null
 
 
-## Puts a camera where a shot's camera (or mirror) keys say at this moment.
+## Puts a camera where a shot's camera (or mirror) keys say at this moment: between two keys, eased
+## at each ("ease"), or along one smooth path through all of them eased once over the shot ("path":
+## "spline"); a hand-held camera's drift on top ("handheld"); the depth of field's far and near blur.
 func _aim(cam: Dictionary, which: Camera3D, attrs: CameraAttributesPractical, local: float, dur: float) -> void:
 	var keys: Array = cam.get("keys", [])
 	if keys.is_empty() and cam.has("pos"):
 		keys = [cam]
 	if keys.is_empty():
 		keys = [{"u": 0.0, "pos": [4.0, 1.5, 7.0], "look": [0.0, 0.7, 0.0]}]
-	var u := local / maxf(dur, 0.001)
+	var u := clampf(local / maxf(dur, 0.001), 0.0, 1.0)
+	var spline := String(cam.get("path", "")) == "spline"
+	if spline:
+		u = _ease(u, String(cam.get("ease", "inout")))   # one ease over the whole move; the keys are along it
 	var times: Array[float] = []
 	for k: Dictionary in keys:
 		times.append(float(k["t"]) / maxf(dur, 0.001) if k.has("t") else float(k.get("u", 0.0)))
-	var a: Dictionary = keys[0]
-	var b: Dictionary = keys[0]
+	var i0 := 0
 	var f := 0.0
 	for i in keys.size():
 		if u >= times[i]:
-			a = keys[i]
-			b = keys[mini(i + 1, keys.size() - 1)]
+			i0 = i
 			var span := times[mini(i + 1, keys.size() - 1)] - times[i]
 			f = clampf((u - times[i]) / span, 0.0, 1.0) if span > 0.0 else 0.0
-	f = _ease(f, String(cam.get("ease", "inout")))
+	var i1 := mini(i0 + 1, keys.size() - 1)
+	var a: Dictionary = keys[i0]
+	var b: Dictionary = keys[i1]
+	if not spline:
+		f = _ease(f, String(cam.get("ease", "inout")))
 	var frame := _anchor
-	if cam.has("follow") and _cars.has(String(cam["follow"])):
-		frame = _cars[String(cam["follow"])].get("xf", _anchor)
 	var model := ""
 	if cam.has("follow") and _cars.has(String(cam["follow"])):
+		frame = _cars[String(cam["follow"])].get("xf", _anchor)
 		model = String((_cars[String(cam["follow"])]["spec"] as Dictionary).get("model", "hyper"))
-	var pos := _at(a.get("pos", [4, 1.5, 7]), model).lerp(_at(b.get("pos", a.get("pos", [4, 1.5, 7])), model), f)
-	var look := _vec(a.get("look", [0, 0.7, 0])).lerp(_vec(b.get("look", a.get("look", [0, 0.7, 0]))), f)
+	var pos: Vector3
+	var look: Vector3
+	if spline and keys.size() > 2:
+		var kp := func(i: int) -> Vector3: return _at((keys[clampi(i, 0, keys.size() - 1)] as Dictionary).get("pos", [4, 1.5, 7]), model)
+		var kl := func(i: int) -> Vector3: return _vec((keys[clampi(i, 0, keys.size() - 1)] as Dictionary).get("look", [0, 0.7, 0]))
+		pos = _catmull(kp.call(i0 - 1), kp.call(i0), kp.call(i1), kp.call(i1 + 1), f)
+		look = _catmull(kl.call(i0 - 1), kl.call(i0), kl.call(i1), kl.call(i1 + 1), f)
+	else:
+		pos = _at(a.get("pos", [4, 1.5, 7]), model).lerp(_at(b.get("pos", a.get("pos", [4, 1.5, 7])), model), f)
+		look = _vec(a.get("look", [0, 0.7, 0])).lerp(_vec(b.get("look", a.get("look", [0, 0.7, 0]))), f)
 	var shake := float(cam.get("shake", 0.0))
 	if shake > 0.0:
 		pos += Vector3(sin(t * 13.1) + sin(t * 7.3), sin(t * 11.7) * 0.6, sin(t * 5.9)) * shake * 0.5
@@ -764,18 +876,66 @@ func _aim(cam: Dictionary, which: Camera3D, attrs: CameraAttributesPractical, lo
 	var roll := lerpf(float(a.get("roll", 0.0)), float(b.get("roll", a.get("roll", 0.0))), f)
 	if roll != 0.0:
 		which.rotate_object_local(Vector3.FORWARD, deg_to_rad(roll))
+	var held := float(cam.get("handheld", 0.0))
+	if held > 0.0:
+		# a camera on a shoulder: a slow wander of its aim (0.5-1.5 Hz), a function of the scene's time
+		# and the shot, so a frame is the same however it is reached
+		var seed := float(hash(String(shots[_shot].get("id", ""))) % 997) if _shot >= 0 and _shot < shots.size() else 0.0
+		var d := handheld(t, seed) * held
+		which.rotate_object_local(Vector3.UP, deg_to_rad(d.x))
+		which.rotate_object_local(Vector3.RIGHT, deg_to_rad(d.y))
+		which.rotate_object_local(Vector3.FORWARD, deg_to_rad(d.z))
 	which.fov = lerpf(float(a.get("fov", 40.0)), float(b.get("fov", a.get("fov", 40.0))), f)
 	if attrs == null:
 		return
-	var da: Array = a.get("dof", [])
-	var db: Array = b.get("dof", da)
-	attrs.dof_blur_far_enabled = da.size() == 3
-	if da.size() == 3:
-		if db.size() != 3:
-			db = da
-		attrs.dof_blur_far_distance = lerpf(float(da[0]), float(db[0]), f)
-		attrs.dof_blur_far_transition = lerpf(float(da[1]), float(db[1]), f)
-		attrs.dof_blur_amount = lerpf(float(da[2]), float(db[2]), f)
+	if a.has("exposure") or b.has("exposure"):        # a flare of light: the exposure keyed (else the shot's "env")
+		attrs.exposure_multiplier = lerpf(float(a.get("exposure", b.get("exposure", 1.0))), float(b.get("exposure", a.get("exposure", 1.0))), f)
+	# depth of field: "dof" [far m, transition m, amount] blurs beyond, "dof_near" [near m, transition m
+	# (, amount)] before; a key without one keeps the key's before it, and from a key without any to one
+	# with it the blur comes in (far from 2 km, near from 0): a pull of focus
+	var fa: Array = a.get("dof", [])
+	var fb: Array = b.get("dof", fa)
+	var na: Array = a.get("dof_near", [])
+	var nb: Array = b.get("dof_near", na)
+	attrs.dof_blur_far_enabled = fa.size() >= 2 or fb.size() >= 2
+	attrs.dof_blur_near_enabled = na.size() >= 2 or nb.size() >= 2
+	if attrs.dof_blur_far_enabled:
+		attrs.dof_blur_far_distance = lerpf(float(fa[0]) if fa.size() >= 2 else 2000.0, float(fb[0]) if fb.size() >= 2 else 2000.0, f)
+		attrs.dof_blur_far_transition = lerpf(float(fa[1]) if fa.size() >= 2 else 1.0, float(fb[1]) if fb.size() >= 2 else 1.0, f)
+	if attrs.dof_blur_near_enabled:
+		attrs.dof_blur_near_distance = lerpf(float(na[0]) if na.size() >= 2 else 0.0, float(nb[0]) if nb.size() >= 2 else 0.0, f)
+		attrs.dof_blur_near_transition = lerpf(float(na[1]) if na.size() >= 2 else 0.01, float(nb[1]) if nb.size() >= 2 else 0.01, f)
+	var amt := func(far: Array, near: Array) -> float:
+		return float(far[2]) if far.size() == 3 else (float(near[2]) if near.size() == 3 else -1.0)
+	var aa: float = amt.call(fa, na)
+	var ab: float = amt.call(fb, nb)
+	if aa >= 0.0 or ab >= 0.0:
+		attrs.dof_blur_amount = lerpf(aa if aa >= 0.0 else ab, ab if ab >= 0.0 else aa, f)
+
+
+## A hand-held camera's wander at scene time `time` (degrees of yaw, pitch, roll for 1 degree of
+## "handheld"): smooth noise in two octaves, about 0.5-1.5 Hz, the roll half as much; `seed` sets the shot apart.
+static func handheld(time: float, seed: float) -> Vector3:
+	var out := Vector3.ZERO
+	for axis in 3:
+		var o := seed * 13.7 + float(axis) * 101.3
+		out[axis] = _noise1(time * 0.7 + o) * 0.7 + _noise1(time * 1.6 + o + 47.0) * 0.3
+	out.z *= 0.5
+	return out
+
+
+## Smooth 1D value noise in -1..1 (eased between a random value at each integer).
+static func _noise1(x: float) -> float:
+	var i := floorf(x)
+	var fr := x - i
+	var h0 := fposmod(sin(i * 127.1 + 311.7) * 43758.5453, 1.0) * 2.0 - 1.0
+	var h1 := fposmod(sin((i + 1.0) * 127.1 + 311.7) * 43758.5453, 1.0) * 2.0 - 1.0
+	return lerpf(h0, h1, fr * fr * (3.0 - 2.0 * fr))
+
+
+## A Catmull-Rom curve through p1 (f = 0) and p2 (f = 1), shaped by the points either side.
+static func _catmull(p0: Vector3, p1: Vector3, p2: Vector3, p3: Vector3, f: float) -> Vector3:
+	return p1.cubic_interpolate(p2, p0, p3, f)
 
 
 ## A car or a person with "from" / "to" is on screen only between them (shot seconds).
@@ -800,7 +960,7 @@ func _set_mirror(s: Dictionary) -> void:
 		add_child(_mirror_vp)
 		_mirror_cam = Camera3D.new()
 		_mirror_cam.far = TmSkyline.FAR
-		_mirror_cam.cull_mask &= ~(1 << (StoryCabin.MIRROR_LAYER - 1))      # a mirror doesn't see itself
+		_mirror_cam.cull_mask &= ~(1 << (StoryCabin.MIRROR_LAYER - 1)) & ~SOFTBOX_LAYER   # a mirror doesn't see itself
 		var ma := CameraAttributesPractical.new()
 		ma.exposure_multiplier = 2.4            # a mirror shot reads the dark car behind and the back seat
 		_mirror_cam.attributes = ma
@@ -853,11 +1013,13 @@ func _aim_glass(cabin: StoryCabin) -> void:
 ## "flicker": every light of the shot (its props and the cars' cabins) stutters.
 func _flicker(s: Dictionary, local: float) -> void:
 	var fl: Dictionary = s.get("flicker", {})
-	var lights: Array = _props.find_children("*", "Light3D", true, false)
+	var lights: Array = _props.find_children("*", "Light3D", true, false) + _lights.find_children("*", "Light3D", true, false)
 	for c: Dictionary in _cars.values():
 		if c.has("cabin"):
 			lights.append_array((c["cabin"] as Node).find_children("*", "Light3D", true, false))
 	for l: Light3D in lights:
+		if l.has_meta("fire"):
+			continue                  # a fire keeps its own flicker (StoryProps.pose)
 		if not l.has_meta("energy"):
 			l.set_meta("energy", l.light_energy)
 		var base := float(l.get_meta("energy"))

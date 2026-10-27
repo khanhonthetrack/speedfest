@@ -23,7 +23,8 @@ extends Node3D
 ## the person sits in: a look over the shoulder) |
 ## "ahead" | a person's id (default: whoever on screen is speaking, else straight ahead), "looks":
 ## [[from, to, gaze], ...] (s into the shot: the eyes there for that while, a glance), "bend": bones turned
-## on top of the clip over time (_bend: a head coming up), "blink": false (a cast member's eyes never
+## on top of the clip over time (_bend: a head coming up), "breathe": [deg, period s] (the chest
+## rising and falling), "blink": false (a cast member's eyes never
 ## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
@@ -252,6 +253,7 @@ func pose(t: float) -> void:
 	ct = fposmod(ct, _anim.length) if loop else clampf(ct, 0.0, _anim.length)
 	_player.seek(ct, true)
 	_bend(t)
+	_breathe(t)
 	# where along the walk, and facing which way
 	var walked := maxf(0.0, t - float(spec.get("walk_at", 0.0))) * _speed
 	var p := _path[0]
@@ -271,6 +273,24 @@ func pose(t: float) -> void:
 	var fwd := (_base.basis * Vector3(sin(face), 0.0, cos(face))).normalized()
 	fwd = (fwd - up * fwd.dot(up)).normalized()
 	global_transform = Transform3D(Basis(up.cross(fwd), up, fwd), world)
+
+
+## "breathe": [degrees, period s]: the chest rises and falls on top of the clip and the bends (a body
+## held still, asleep or listening, still alive), about the body's own x as a bend's.
+func _breathe(t: float) -> void:
+	var br: Array = spec.get("breathe", [])
+	if br.size() < 2:
+		return
+	var sk := StoryCast.skeleton(self)
+	var i := sk.find_bone("Chest") if sk != null else -1
+	if i < 0:
+		return
+	var turn := Basis(Vector3.RIGHT, deg_to_rad(float(br[0])) * sin(TAU * t / maxf(float(br[1]), 0.1)))
+	var parent := sk.get_bone_parent(i)
+	var up := sk.get_bone_global_pose(parent) if parent >= 0 else Transform3D()
+	var g := sk.get_bone_global_pose(i)
+	var local := up.affine_inverse() * Transform3D(turn * g.basis, g.origin)
+	sk.set_bone_pose_rotation(i, local.basis.orthonormalized().get_rotation_quaternion())
 
 
 ## "bend": bones turned on top of the clip at this moment: keys [{"t": s, "<Bone>": [x, y, z]}, ...]

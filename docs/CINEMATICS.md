@@ -138,9 +138,10 @@ Procedure:
 | Item | State |
 |---|---|
 | Audit and plan | done 27 Oct |
-| 1 film finish and grade | next |
-| 2 camera engine | open |
-| 3 docks set | open |
+| 1 film finish and grade | done 27 Oct (`StorySubtitles` FILM, `"grade"`) |
+| 2 camera engine | done 27 Oct (`"handheld"`, `"path": "spline"`, `"dof_near"`, `"exposure"`, softboxes, probes, sweeps) |
+| 3 docks set | engine done 27 Oct (`"bare": "set"`, StoryProps' docks kinds); the scenes next |
+| Lint (`stadium/tools/story_lint.py`) | done 27 Oct |
 | 4 the Mirror | open |
 | 5 the knock | open |
 | 6 the intro | open |

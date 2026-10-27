@@ -4,10 +4,13 @@ extends CanvasLayer
 ## Montserrat): cinema bars (2.39:1), the subtitle (the speaker's name in the accent colour over
 ## the line), a fade to and from black, title cards ("NIGHT 3", the place), a phone's message
 ## thread (texts arriving, the shot grammar's faceless way to speak), and the skip hint: hold a key
-## and the bar fills. Driven by StoryScene each frame (show(t)); holds no time of its own.
+## and the bar fills; under them the film finish (docs/CINEMATICS.md: grain, vignette, halation, a lens's
+## distortion and fringing, the grade; and rain on the windscreen). Driven by StoryScene each frame
+## (show(t)); holds no time of its own.
 
 const ASPECT := 2.39               ## the bars' picture: CinemaScope
 const SKIP_HOLD := 0.8             ## seconds a key is held to skip
+const FILM_FPS := 24.0             ## the grain changes this often (film's rate), whatever the game's
 
 var _bars: Array[ColorRect] = []
 var _black: ColorRect
@@ -22,7 +25,6 @@ var _phone_who: Label
 var _phone_list: VBoxContainer
 var _skip: HBoxContainer
 var _skip_bar: ProgressBar
-var _glass: ColorRect              ## rain on the windscreen (a shot's "glass")
 var _mirror_frame: PanelContainer  ## the rear-view mirror: its housing and its flipped picture
 var _mirror: TextureRect
 var _mirror_rect := Rect2()
@@ -46,12 +48,30 @@ void fragment() {
 	COLOR = vec4(vec3(g * 0.92, g, g * 0.95), 1.0);
 }
 """
-const GLASS := """shader_type canvas_item;
-// rain on a windscreen at night: drops that bend the picture and slide down, the glass between
-// them a little soft
+const FILM := """shader_type canvas_item;
+// the film finish over a cutscene's picture (docs/CINEMATICS.md), one read of the screen: rain on the
+// windscreen (drops that bend the picture and slide down, the glass between them a little soft), a
+// slight barrel distortion with colour fringing towards the corners, halation round bright light, a
+// streak on headlights, the grade (saturation, contrast, split toning, highlights that roll off,
+// lifted blacks), a vignette over the picture between the bars, and grain seeded by the frame (a
+// render comes out the same every time)
 uniform sampler2D screen : hint_screen_texture, filter_linear_mipmap;
-uniform float amount = 0.0;
+uniform float glass = 0.0;
 uniform float time = 0.0;
+uniform int frame = 0;
+uniform float bars = 0.0;          // a bar's height, a fraction of the screen's
+uniform float lift = 0.0;
+uniform vec4 shadows = vec4(0.5, 0.5, 0.5, 0.0);     // a tint for the darks, its amount in alpha
+uniform vec4 highlights = vec4(0.5, 0.5, 0.5, 0.0);
+uniform float saturation = 1.0;
+uniform float contrast = 1.0;
+uniform float knee = 1.0;          // highlights over it roll off
+uniform float grain = 0.0;
+uniform float vignette = 0.0;
+uniform float halation = 0.0;
+uniform float streak = 0.0;
+uniform float fringe = 0.0;        // px at the picture's corners
+uniform float barrel = 0.0;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 vec2 drops(vec2 uv, float scale, float speed) {
 	vec2 g = uv * scale;
@@ -64,15 +84,86 @@ vec2 drops(vec2 uv, float scale, float speed) {
 	float m = smoothstep(r, r * 0.55, length(d * vec2(1.0, 0.75))) * step(0.35, h);
 	return d * m;
 }
+float noise(uvec3 p) {
+	uint h = p.x * 1664525u + p.y * 1013904223u + p.z * 2654435761u;
+	h ^= h >> 16u;
+	h *= 2246822519u;
+	h ^= h >> 13u;
+	h *= 3266489917u;
+	h ^= h >> 16u;
+	return float(h) / 4294967295.0;
+}
+float luma(vec3 c) { return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
+vec3 bright(vec3 c, float from) { return max(c - from, vec3(0.0)) / (1.0 - from); }
 void fragment() {
-	vec2 uv = SCREEN_UV;
-	vec2 a = uv * vec2(1.7, 1.0);
-	vec2 o = drops(a, 8.0, 0.22) * 0.7 + drops(a + 0.37, 15.0, 0.35) * 0.4 + drops(a + 0.71, 26.0, 0.0) * 0.3;
-	float l = length(o);
-	vec3 c = textureLod(screen, uv + o * 0.12 * amount, mix(1.6, 0.0, smoothstep(0.0, 0.05, l)) * amount).rgb;
-	COLOR = vec4(c + vec3(0.02, 0.025, 0.03) * amount * smoothstep(0.02, 0.06, l), 1.0);
+	vec2 px = SCREEN_PIXEL_SIZE;
+	vec2 q = SCREEN_UV - 0.5;
+	vec2 p = q / px;                                   // pixels from the centre
+	vec2 corner = vec2(0.5 / px.x, (0.5 - bars) / px.y);
+	float r2 = dot(p, p) / dot(corner, corner);        // 1 at the picture's corners
+	vec2 uv = 0.5 + q * (1.0 + barrel * r2) / (1.0 + barrel);
+	vec2 off = p / length(corner) * r2 * fringe * px;
+	float lod = 0.0;
+	float drop = 0.0;
+	if (glass > 0.001) {
+		vec2 a = SCREEN_UV * vec2(1.7, 1.0);
+		vec2 o = drops(a, 8.0, 0.22) * 0.7 + drops(a + 0.37, 15.0, 0.35) * 0.4 + drops(a + 0.71, 26.0, 0.0) * 0.3;
+		float l = length(o);
+		uv += o * 0.12 * glass;
+		lod = mix(1.6, 0.0, smoothstep(0.0, 0.05, l)) * glass;
+		drop = smoothstep(0.02, 0.06, l) * glass;
+	}
+	vec3 c = vec3(textureLod(screen, uv + off, lod).r, textureLod(screen, uv, lod).g, textureLod(screen, uv - off, lod).b);
+	if (halation > 0.0) {
+		vec3 h = bright(textureLod(screen, uv, 3.0).rgb, 0.55) * 0.6 + bright(textureLod(screen, uv, 5.0).rgb, 0.5) * 0.4;
+		c += h * vec3(1.0, 0.42, 0.22) * halation;
+	}
+	if (streak > 0.0) {
+		float st = 0.0;
+		for (int i = 1; i <= 8; i++) {
+			vec2 o = vec2(float(i) * 0.011, 0.0);
+			float w = pow(1.0 - float(i) / 9.0, 2.0);
+			st += luma(bright(textureLod(screen, uv + o, 1.5).rgb, 0.8) + bright(textureLod(screen, uv - o, 1.5).rgb, 0.8)) * w;
+		}
+		c += st * vec3(0.55, 0.72, 1.0) * streak * 0.25;
+	}
+	float l = luma(c);
+	c = max((mix(vec3(l), c, saturation) - 0.45) * contrast + 0.45, vec3(0.0));
+	l = clamp(luma(c), 0.0, 1.0);
+	c += (shadows.rgb - luma(shadows.rgb)) * shadows.a * (1.0 - l) * (1.0 - l);
+	c += (highlights.rgb - luma(highlights.rgb)) * highlights.a * l * l;
+	c = max(c + vec3(0.02, 0.025, 0.03) * drop, vec3(0.0));
+	if (knee < 1.0) {
+		c = min(c, vec3(knee)) + (1.0 - knee) * (1.0 - exp(-max(c - knee, vec3(0.0)) / (1.0 - knee)));
+	}
+	c *= 1.0 - vignette * smoothstep(0.45, 1.45, length(q / vec2(0.5, 0.5 - bars)));
+	c = lift + c * (1.0 - lift);
+	l = luma(c);
+	c += (noise(uvec3(uvec2(FRAGCOORD.xy), uint(frame))) - 0.5) * grain * (0.6 + 1.6 * l * (1.0 - l));
+	COLOR = vec4(c, 1.0);
 }
 """
+## The film finish's looks (a scene's or a shot's "grade": a name, or {"preset": a name, and any key
+## below over it}). "film" is every scene's unless it says otherwise; "none" is the bare picture.
+const GRADES := {
+	"none": {"lift": 0.0, "shadows": "#808080", "shadows_amount": 0.0, "highlights": "#808080",
+		"highlights_amount": 0.0, "saturation": 1.0, "contrast": 1.0, "knee": 1.0, "grain": 0.0,
+		"vignette": 0.0, "halation": 0.0, "streak": 0.0, "fringe": 0.0, "barrel": 0.0},
+	"film": {"lift": 0.02, "knee": 0.85, "grain": 0.025, "vignette": 0.25, "halation": 0.1,
+		"fringe": 0.8, "barrel": 0.03},
+	"night": {"lift": 0.02, "knee": 0.85, "grain": 0.025, "vignette": 0.3, "halation": 0.14,
+		"streak": 0.25, "fringe": 0.8, "barrel": 0.03, "saturation": 0.95, "contrast": 1.06,
+		"shadows": "#24608a", "shadows_amount": 0.2, "highlights": "#ffa25a", "highlights_amount": 0.25},
+	"dawn": {"lift": 0.025, "knee": 0.85, "grain": 0.025, "vignette": 0.25, "halation": 0.08,
+		"fringe": 0.8, "barrel": 0.03, "saturation": 0.85, "contrast": 1.04,
+		"shadows": "#3a5a9a", "shadows_amount": 0.22, "highlights": "#ffc9a0", "highlights_amount": 0.15},
+	"dream": {"lift": 0.04, "knee": 0.8, "grain": 0.035, "vignette": 0.35, "halation": 0.3,
+		"fringe": 1.2, "barrel": 0.04, "saturation": 0.7, "contrast": 0.95,
+		"shadows": "#4a3a7a", "shadows_amount": 0.25, "highlights": "#e8d8ff", "highlights_amount": 0.15},
+}
+var _film: ColorRect               ## the film finish and rain on the windscreen (a shot's "grade", "glass")
+var _film_on := false              ## a grade other than "none"
+var _glass_amount := 0.0
 var bars := 1.0                    ## 0..1: how far in the bars are
 
 
@@ -82,16 +173,6 @@ func _ready() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
-	_glass = ColorRect.new()
-	_glass.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_glass.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var gm := ShaderMaterial.new()
-	gm.shader = Shader.new()
-	gm.shader.code = GLASS
-	_glass.material = gm
-	_glass.visible = false
-	root.add_child(_glass)
-	root.move_child(_glass, 0)
 	_mirror_frame = PanelContainer.new()
 	var mb := StyleBoxFlat.new()
 	mb.bg_color = Color(0.01, 0.01, 0.012)
@@ -108,7 +189,19 @@ func _ready() -> void:
 	_mirror_frame.add_child(_mirror)
 	_mirror_frame.visible = false
 	root.add_child(_mirror_frame)
-	root.move_child(_mirror_frame, 1)
+	root.move_child(_mirror_frame, 0)
+	# the film finish after the mirror (graded with the picture), before the security camera's (its
+	# own picture) and everything drawn on top: bars, subtitles, cards, the fade and the flash
+	_film = ColorRect.new()
+	_film.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_film.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fm := ShaderMaterial.new()
+	fm.shader = Shader.new()
+	fm.shader.code = FILM
+	_film.material = fm
+	_film.visible = false
+	root.add_child(_film)
+	root.move_child(_film, 1)
 	_cctv = ColorRect.new()
 	_cctv.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_cctv.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -244,6 +337,8 @@ func _layout() -> void:
 	if _mirror_frame != null:
 		_mirror_frame.position = _mirror_rect.position * vs
 		_mirror_frame.size = _mirror_rect.size * vs
+	if _film != null:
+		(_film.material as ShaderMaterial).set_shader_parameter("bars", h / maxf(vs.y, 1.0))
 	if _cctv_label != null:
 		var top := maxf(0.0, (vs.y - vs.x / ASPECT) * 0.5) * bars + 18.0
 		_cctv_label.position = Vector2(40.0, top)
@@ -310,12 +405,55 @@ func _bubble() -> PanelContainer:
 	return p
 
 
-## Rain on the windscreen (0: none), its drops moving with the scene's time.
+## Rain on the windscreen (0: none), its drops and the film's grain moving with the scene's time.
 func set_glass(amount: float, time: float) -> void:
-	_glass.visible = amount > 0.001
-	if _glass.visible:
-		(_glass.material as ShaderMaterial).set_shader_parameter("amount", amount)
-		(_glass.material as ShaderMaterial).set_shader_parameter("time", time)
+	_glass_amount = amount if amount > 0.001 else 0.0
+	var m := _film.material as ShaderMaterial
+	m.set_shader_parameter("glass", _glass_amount)
+	m.set_shader_parameter("time", time)
+	m.set_shader_parameter("frame", int(floor(time * FILM_FPS)))
+	_show_film()
+
+
+## The film finish's look (`grade_of`'s result: every key of GRADES' "none"); "none"'s turns it off.
+func set_grade(g: Dictionary) -> void:
+	var full: Dictionary = GRADES["none"].duplicate()
+	full.merge(g, true)
+	_film_on = false
+	for k: String in full:
+		if full[k] != GRADES["none"][k]:
+			_film_on = true
+	var m := _film.material as ShaderMaterial
+	for k: String in ["lift", "saturation", "contrast", "knee", "grain", "vignette", "halation", "streak", "fringe", "barrel"]:
+		m.set_shader_parameter(k, float(full[k]))
+	for k: String in ["shadows", "highlights"]:
+		var c := Color(String(full[k]))
+		m.set_shader_parameter(k, Vector4(c.r, c.g, c.b, float(full[k + "_amount"])))
+	_show_film()
+
+
+func _show_film() -> void:
+	_film.visible = (_film_on or _glass_amount > 0.0) and not _cctv.visible
+
+
+## A shot's look: the scene's "grade" with the shot's over it, each a preset's name or {"preset",
+## keys over it}; "film" where neither names a preset. An unknown name warns and stays "film".
+static func grade_of(scene_grade: Variant, shot_grade: Variant) -> Dictionary:
+	var out: Dictionary = GRADES["none"].duplicate()
+	out.merge(GRADES["film"], true)
+	for g: Variant in [scene_grade, shot_grade]:
+		var d: Dictionary = {"preset": g} if g is String else (g as Dictionary if g is Dictionary else {})
+		if d.has("preset"):
+			var preset := String(d["preset"])
+			if not GRADES.has(preset):
+				push_warning("story: no grade \"%s\" (%s)" % [preset, ", ".join(GRADES.keys())])
+				preset = "film"
+			out = GRADES["none"].duplicate()
+			out.merge(GRADES[preset], true)
+		for k: String in d:
+			if k != "preset":
+				out[k] = d[k]
+	return out
 
 
 ## The rear-view mirror's picture in its housing at `rect` (fractions of the screen); null hides it.
@@ -337,6 +475,7 @@ func set_cctv(c: Dictionary, local: float, time: float) -> void:
 	_cctv.visible = on
 	_cctv_label.visible = on
 	_cctv_clock.visible = on
+	_show_film()
 	if not on:
 		return
 	(_cctv.material as ShaderMaterial).set_shader_parameter("time", time)
