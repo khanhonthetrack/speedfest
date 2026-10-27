@@ -1613,3 +1613,31 @@ knock re-cut as shot and reverse shot.)
 the car itself in good shots rather than people standing; the aerial shots look poor because the far
 city is plain square blocks, not a city. The Mirror: Kit should look back over the shoulder at times
 and look scared.)
+
+(Done: take four, https://claude.ai/artifact/4JWYn1DRSR6Bn2hsjHK9y1: the container terminal, Lot 47 shown off,
+the aerials in haze, Kit looking back and scared in the Mirror, the knock re-cut; a cut's first frame
+no longer drawn between shots.)
+
+### User (verbatim)
+
+> Night 1, take four:
+> 1. The opening: change it (see notes).
+> 2. The Mirror: different (see notes).
+> 3. The knock: clear.
+> 4. Night 1: not yet (see notes).
+> Notes: I want cinematics too look good like in Call of Duty games or Need for Speed cutscenes. This is amateur.
+>
+> The mirror: there is too much time spent and zoom on the lady at the back.
+>
+> The auction setting is weird, there is a city and then empty space with containers? Looks weird.
+>
+> For the knock, mechanic is standing weirdly.
+>
+> Why is the review not picking this up? I want full cinematic style hollywood cutscenes.
+
+(Read as: the knock is clear now; everything else falls short of the bar, which is AAA game
+cinematics (Call of Duty, Need for Speed): the cutscenes look amateur. The Mirror lingers too long and
+too close on the woman in the back seat. The auction's set doesn't make sense: a city, then a bare
+space with containers in it. Dee stands unnaturally at the car window. And the reviews should have
+caught all this: they checked the clips against the script and the code, not against a cinematic
+quality bar.)
