@@ -19,13 +19,16 @@ const RIBS := """shader_type spatial;
 // a container's corrugated steel: vertical ribs along its length, paint worn to rust at the edges;
 // one MultiMesh instance per box: INSTANCE_CUSTOM.rgb its paint, .a its own rust's seed
 varying vec3 lp;
+varying vec3 ln;
 varying vec4 paint;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(41.3, 289.1))) * 13758.5453); }
-void vertex() { lp = VERTEX; paint = INSTANCE_CUSTOM; }
+void vertex() { lp = VERTEX; ln = NORMAL; paint = INSTANCE_CUSTOM; }
 void fragment() {
-	float along = abs(NORMAL.x) > 0.5 ? lp.z : lp.x;
+	// the box's own face (its local normal: the view's would turn a wall facing the camera flat)
+	bool side = abs(ln.x) > 0.5;
+	float along = side ? lp.z : lp.x;
 	float rib = sin(along * 9.0);
-	NORMAL = normalize(NORMAL + (VIEW_MATRIX * vec4(abs(NORMAL.x) > 0.5 ? vec3(0.0, 0.0, rib * 0.35) : vec3(rib * 0.35, 0.0, 0.0), 0.0)).xyz);
+	NORMAL = normalize(NORMAL + (VIEW_MATRIX * MODEL_MATRIX * vec4(side ? vec3(0.0, 0.0, rib * 0.35) : vec3(rib * 0.35, 0.0, 0.0), 0.0)).xyz);
 	float edge = max(smoothstep(1.1, 1.3, abs(lp.y)), 0.0);
 	float rust = smoothstep(0.55, 0.95, hash(floor(lp.xz * 3.0) + floor(lp.y * 4.0) + paint.a * 17.0) * 0.6 + edge);
 	ALBEDO = mix(paint.rgb, vec3(0.22, 0.1, 0.05), rust * 0.7) * (0.85 + 0.15 * rib);
@@ -103,15 +106,16 @@ static func _terminal(p: Dictionary) -> Node3D:
 	var lo := int(stack[0]) if stack is Array else int(stack)
 	var hi := int(stack[1]) if stack is Array else int(stack)
 	var skip: Array = p.get("skip", [])
-	var rng := RandomNumberGenerator.new()
-	rng.seed = int(p.get("seed", 1))
+	var seed := int(p.get("seed", 1))
 	var pitch := Vector2(CONTAINER.x + float(gaps[0]), CONTAINER.z + float(gaps[1]))
 	var boxes: Array = []
 	for r in rows:
 		for b in bays:
-			var h := rng.randi_range(lo, hi)     # drawn for every stack, skipped or not: the rest stay put
-			if [r, b] in skip:
+			if skip.any(func(e: Array) -> bool: return int(e[0]) == r and int(e[1]) == b):    # (JSON's numbers are floats)
 				continue
+			var rng := RandomNumberGenerator.new()
+			rng.seed = hash([seed, r, b])        # each stack its own: a gap punched in a block leaves the rest as they were
+			var h := rng.randi_range(lo, hi)
 			var at := Vector2((r - (rows - 1) * 0.5) * pitch.x, (b - (bays - 1) * 0.5) * pitch.y)
 			for k in h:
 				boxes.append([Vector3(at.x, CONTAINER.y * (k + 0.5), at.y), COLOURS[rng.randi_range(0, COLOURS.size() - 1)],

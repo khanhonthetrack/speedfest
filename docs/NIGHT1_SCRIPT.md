@@ -4,7 +4,7 @@ A reading copy of night 1 for the owner (asked 25 Oct: "I dont understand the kn
 full script with dialogues for me to read."), shared as a doc: https://claude.ai/artifact/FkiepyxXDUQWMLLQ1MiYyH.
 The dialogue is word for word from `stadium/story/scenes/` (`prologue`, `c01_open`, `c01_after1`,
 `c01_after2`, `c01_decision`, `c01_close`), which stay the source of truth; the action lines describe
-what is on screen as of 26 Oct (the Mirror and the knock rewritten).
+what is on screen as of 27 Oct (take four: the opening and the Mirror).
 
 ## How to read this
 
@@ -66,7 +66,7 @@ The paint up close, sliding along the rear quarter: black and grey camouflage, p
 
 > **GUS** *(off)*: Engine's sweet. Somebody painted her by hand, look at that.
 
-Head-on, its headlights on.
+Head-on, in the rain.
 
 > **GUS** *(off)*: Who'll start me?
 

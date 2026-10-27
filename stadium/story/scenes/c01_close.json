@@ -20,7 +20,8 @@
 					"model": "nemesis",
 					"livery": 1,
 					"tuning": "0.5.6.0",
-					"cabin": true
+					"cabin": true,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -196,7 +197,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				},
 				{
 					"id": "white",
@@ -306,7 +308,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				},
 				{
 					"id": "white",
@@ -445,7 +448,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				},
 				{
 					"id": "white",
@@ -703,7 +707,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				},
 				{
 					"id": "white",
@@ -860,7 +865,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				},
 				{
 					"id": "white",
@@ -1018,7 +1024,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				},
 				{
 					"id": "white",
@@ -1229,7 +1236,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -1374,7 +1382,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"dome": 0.1
+					"dome": 0.1,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -1586,7 +1595,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"dome": 0.35
+					"dome": 0.35,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -1769,7 +1779,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"dome": 0.35
+					"dome": 0.35,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -1957,7 +1968,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"dome": 0.5
+					"dome": 0.5,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -2138,7 +2150,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"dome": 0.5
+					"dome": 0.5,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -2238,7 +2251,8 @@
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
-					"ahead": 0.0
+					"ahead": 0.0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -2357,7 +2371,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"dome": 0.7
+					"dome": 0.7,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -2605,7 +2620,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -2709,7 +2725,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -2938,7 +2955,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -3122,7 +3140,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -3306,7 +3325,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -3490,7 +3510,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -3674,7 +3695,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -3858,7 +3880,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -4042,7 +4065,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -4227,7 +4251,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [],
@@ -4304,7 +4329,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [
@@ -4488,7 +4514,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 0
+					"pins": 0,
+					"finish": "gloss"
 				}
 			],
 			"people": [

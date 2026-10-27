@@ -71,7 +71,7 @@ Commit like this, so a failing gate never lands:
     OUT=$(TMNF_DIR=... stadium/tools/test_all.sh 2>&1); echo "$OUT" | grep -q "STADIUM_TESTS PASS" && git commit ...
 
 ## Where things stand (keep this section current: it is the next agent's to-do list)
-Updated 2026-10-26. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
+Updated 2026-10-27. Details: `docs/PROGRESS.md` (latest entries), `docs/HANDOFF.md`.
 - **Story mode (PLAN M20, 23-24 Oct, session 21):** premise A "Previous Owner" (`docs/STORY.md`, the
   bible; the brief `docs/STORY_MODE_PROMPT.md`); night 1 is playable from the Story page (H01-H03, the
   prologue and five scenes, the mirror nightmare) and waits for the owner's sign-off (stills page in

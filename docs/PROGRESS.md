@@ -4719,7 +4719,7 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   passes over the terminal to the yard.
 - **The container terminal** (owner: "where are containers?"): `StoryProps` `"containers"` (a block
   of rows and bays, heights and colours from a seed, stacks skipped) and every container now one
-  instance of a MultiMesh (paint and rust seed per instance: about 400 boxes draw as one), `"mast"`
+  instance of a MultiMesh (paint and rust seed per instance: about 400 boxes in eight MultiMeshes, one a block), `"mast"`
   (a 28 m high-mast light, one wide spot straight down, no shadow by default); a scene's own
   `"props"` stand in every shot without any (`"props": []` for none), so the yard, the aerials and the
   view out of the car at the ignition share one terminal: a wall behind Gus under a crane, both
@@ -4728,8 +4728,8 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
 - **The car shown off** (owner: "nice shots of the car instead of a shot of people just standing"):
   Gus's car lines split at their sentences over five shots of Lot 47 (`lot47_nose`, `_flank`, `_tail`,
   `_paint`, `_hero`: low front three-quarter, a dolly down the flank in the underglow, the tail lamps,
-  the paint close along the rear quarter, head-on with the headlights on), each with its own light
-  riding the car; new line ids `c01_open_002b`, `_002c`, `_003b`. The story car's Black Ops livery is
+  the paint close along the rear quarter, head-on), four of them with their own light riding the
+  car; new line ids `c01_open_002b`, `_002c`, `_003b`. The story car's Black Ops livery is
   matte (no reflections), so a car's `"finish"` (StoryScene) puts it in gloss in the cutscenes only.
 - **The Mirror** (owner: "look over their shoulder", "look scared"): Kit's face goes uneasy, scared,
   terrified (brows, frown, jaw: the cast has no wide-eye shapes) and Kit looks back over the right
@@ -4740,3 +4740,9 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
 - Tests (`test_story_scenes`, 44): `story_terminal_and_mast`, `story_scene_props_finish_rear`,
   `story_shot_env`. Script doc (rev 37) and `docs/NIGHT1_SCRIPT.md` updated. Generators in the
   session scratchpad (`knock/recut_open.py`, `knock/recut_mirror.py`).
+- **Reviewed** (a sequential read-only review of take four): fixed, a terminal block's `"skip"` from a
+  scene file never matched (JSON's numbers are floats; the test now reads its spec through JSON and
+  fails with the old check), the outer cranes stood with most legs inside container stacks (the outer
+  blocks' bays now leave aisles where the legs stand), Lot 47's headlights came on in the hero shot and
+  were off in the next (the hero is lit by its own spot now), Kit's coupe was gloss only at the auction
+  (every night-1 scene now), two lines here, two dates.

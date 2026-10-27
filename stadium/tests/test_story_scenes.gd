@@ -66,7 +66,7 @@ func _ready() -> void:
 					if k.get("pos") is String and (not String(k["pos"]) in ["driver_head", "mirror"] or not cam.has("follow")):
 						bad.append("shot %s: %s at %s, not a place in a followed car" % [s.get("id", "?"), which, k["pos"]])
 			for c: Dictionary in s.get("cars", []):
-				var box := _in_container(c, s.get("props", []))
+				var box := _in_container(c, s.get("props", d.get("props", [])))   # the scene's own props stand in shots without any
 				if not box.is_empty():
 					bad.append("shot %s: car %s inside the container at %s" % [s.get("id", "?"), c.get("id", "?"), box])
 			for p: Dictionary in s.get("people", []):
@@ -206,17 +206,25 @@ func _lining_cut() -> void:
 		"story_cabin_lining_cut_exact", "area %.4f m^2 (0.374 off the glass), %d turned over, %d corners under the glass" % [area, turned, under])
 
 
-## The container (its "pos") a car starts inside, if any: both in the shot's anchor frame (x left,
-## z ahead; a car's "left" / "ahead" on a straight line), a car taken as 2 m round (Tibor's rally car
-## once stood inside a stack of them).
+## The container (its "pos") a car starts inside, if any: a stack or a terminal's block (its whole
+## footprint), both in the shot's anchor frame (x left, z ahead; a car's "left" / "ahead" on a straight
+## line), a car taken as 2 m round (Tibor's rally car once stood inside a stack of them).
 static func _in_container(car: Dictionary, props: Array) -> Array:
 	var at := Vector2(float(car.get("left", 0.0)), float(car.get("ahead", 0.0)))
 	for p: Dictionary in props:
-		if String(p.get("kind", "")) != "container":
-			continue
+		var half := Vector2(StoryProps.CONTAINER.x, StoryProps.CONTAINER.z) * 0.5          # a stack
+		match String(p.get("kind", "")):
+			"container":
+				pass
+			"containers":                  # a terminal's block: its whole footprint (skipped stacks or not)
+				var gaps: Array = p.get("gaps", [0.3, 0.6])
+				half = Vector2(int(p.get("rows", 4)) * (StoryProps.CONTAINER.x + float(gaps[0])) - float(gaps[0]),
+					int(p.get("bays", 2)) * (StoryProps.CONTAINER.z + float(gaps[1])) - float(gaps[1])) * 0.5
+			_:
+				continue
 		var pos: Array = p.get("pos", [0, 0, 0])
 		var local := (at - Vector2(float(pos[0]), float(pos[2]))).rotated(deg_to_rad(float(p.get("yaw", 0.0))))
-		if absf(local.x) < StoryProps.CONTAINER.x * 0.5 + 1.0 and absf(local.y) < StoryProps.CONTAINER.z * 0.5 + 2.0:
+		if absf(local.x) < half.x + 1.0 and absf(local.y) < half.y + 2.0:
 			return pos
 	return []
 
@@ -524,7 +532,8 @@ func _viaduct() -> void:
 ## A terminal's block and a mast (StoryProps): the block's stacks (one MultiMesh), the same again from
 ## the same seed; the mast's spot pointing down.
 func _terminal() -> void:
-	var spec := {"kind": "containers", "rows": 3, "bays": 2, "stack": [2, 2], "seed": 5, "skip": [[0, 0]]}
+	# through JSON, as a scene file reads it (its numbers floats: a skip list of ints never matched them)
+	var spec: Dictionary = JSON.parse_string('{"kind": "containers", "rows": 3, "bays": 2, "stack": [2, 2], "seed": 5, "skip": [[0, 0]]}')
 	var root := Node3D.new()
 	add_child(root)
 	StoryProps.build(root, [spec, {"kind": "mast", "pos": [10.0, 0.0, 0.0], "height": 28}], Transform3D())
@@ -537,11 +546,25 @@ func _terminal() -> void:
 	var same := mm != null and mm2.instance_count == mm.instance_count
 	for i in (mm.instance_count if mm != null else 0):
 		same = same and mm.get_instance_transform(i) == mm2.get_instance_transform(i) and mm.get_instance_custom_data(i) == mm2.get_instance_custom_data(i)
+	# a gap punched in the block leaves every other stack as it was (each stack its own seed)
+	var whole := Node3D.new()
+	add_child(whole)
+	var full := spec.duplicate(true)
+	full.erase("skip")
+	StoryProps.build(whole, [full], Transform3D())
+	var mm3: MultiMesh = (whole.find_children("*", "MultiMeshInstance3D", true, false)[0] as MultiMeshInstance3D).multimesh
+	var kept := {}
+	for i in mm3.instance_count:
+		kept[str(mm3.get_instance_transform(i).origin) + str(mm3.get_instance_custom_data(i))] = true
+	var stays := mm != null and mm3.instance_count == mm.instance_count + 2
+	for i in (mm.instance_count if mm != null else 0):
+		stays = stays and kept.has(str(mm.get_instance_transform(i).origin) + str(mm.get_instance_custom_data(i)))
+	whole.free()
 	var spots := root.find_children("*", "SpotLight3D", true, false)
 	var down := spots.size() == 1 and (spots[0] as Node3D).global_basis.z.dot(Vector3.UP) > 0.99   # a spot shines along its -z
-	TestHooks.check(mm != null and mm.instance_count == 10 and same and down, "story_terminal_and_mast",
-		"%d boxes (10: five stacks of two, one skipped), same from the same seed %s, the mast's light down %s" % [
-		mm.instance_count if mm != null else -1, same, down])
+	TestHooks.check(mm != null and mm.instance_count == 10 and same and stays and down, "story_terminal_and_mast",
+		"%d boxes (10: five stacks of two, one skipped), same from the same seed %s, the rest as without the gap %s, the mast's light down %s" % [
+		mm.instance_count if mm != null else -1, same, stays, down])
 	root.free()
 	again.free()
 
