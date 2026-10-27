@@ -4750,3 +4750,9 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   most legs inside container stacks (the outer blocks' bays now leave aisles where the legs stand);
   Lot 47's headlights came on in the hero shot and were off in the next (the hero is lit by its own spot
   now); Kit's coupe was gloss only at the auction (every night-1 scene now); two lines here, two dates.
+- **Clips cut short** (27 Oct): after a worker restart the container has 4 cores and a frame at Ultra
+  takes 13-15 s (with the rear-view mirror) instead of 6-8 s, so two take-four clips ran into
+  `tools/clip.sh`'s `--timeout` (7000 s) and came out short while it still printed CLIP_OK (the Mirror's
+  second half lost its black and the gasp, the knock's first half its last 7 s). `clip.sh` now ends
+  such a run CLIP_SHORT (exit 2, the movie kept as far as it got); the missing pieces re-rendered from
+  shot boundaries with a 20000 s limit.
