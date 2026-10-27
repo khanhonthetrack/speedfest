@@ -4740,9 +4740,13 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
 - Tests (`test_story_scenes`, 44): `story_terminal_and_mast`, `story_scene_props_finish_rear`,
   `story_shot_env`. Script doc (rev 37) and `docs/NIGHT1_SCRIPT.md` updated. Generators in the
   session scratchpad (`knock/recut_open.py`, `knock/recut_mirror.py`).
-- **Reviewed** (a sequential read-only review of take four): fixed, a terminal block's `"skip"` from a
-  scene file never matched (JSON's numbers are floats; the test now reads its spec through JSON and
-  fails with the old check), the outer cranes stood with most legs inside container stacks (the outer
-  blocks' bays now leave aisles where the legs stand), Lot 47's headlights came on in the hero shot and
-  were off in the next (the hero is lit by its own spot now), Kit's coupe was gloss only at the auction
-  (every night-1 scene now), two lines here, two dates.
+- **Reviewed** (a sequential read-only review of take four, each finding checked by a skeptic: eight
+  confirmed, three refuted). Fixed: the containers' ribs were chosen from the view-space normal, so a
+  wall facing the camera came out flat (now the box's own normal, the tilt through MODEL_MATRIX); a
+  terminal block's `"skip"` from a scene file never matched (JSON's numbers are floats; the test now
+  reads its spec through JSON and fails with the old check) and a gap would have reshuffled the whole
+  block (each stack now its own seed, tested); the car-in-a-container guard read only a shot's own
+  props and single stacks (now the scene's too, and blocks' footprints); the outer cranes stood with
+  most legs inside container stacks (the outer blocks' bays now leave aisles where the legs stand);
+  Lot 47's headlights came on in the hero shot and were off in the next (the hero is lit by its own spot
+  now); Kit's coupe was gloss only at the auction (every night-1 scene now); two lines here, two dates.
