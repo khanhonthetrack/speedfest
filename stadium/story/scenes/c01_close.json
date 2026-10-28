@@ -21,7 +21,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -252,7 +253,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -909,7 +911,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -1605,7 +1608,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -2271,7 +2275,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -2891,7 +2896,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -3721,7 +3727,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -4370,7 +4377,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -5053,7 +5061,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				},
 				{
 					"id": "white",
@@ -5751,7 +5760,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -6397,7 +6407,8 @@
 					"speed": 20.0,
 					"ahead": 0.0,
 					"dome": 0.25,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -7123,7 +7134,8 @@
 					"speed": 20.0,
 					"ahead": 0.0,
 					"dome": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -7753,7 +7765,8 @@
 					"speed": 20.0,
 					"ahead": 0.0,
 					"finish": "gloss",
-					"dome": 0.12
+					"dome": 0.12,
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -8373,7 +8386,8 @@
 					"speed": 20.0,
 					"ahead": 0.0,
 					"finish": "gloss",
-					"dome": 0.2
+					"dome": 0.2,
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -9024,7 +9038,8 @@
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -9664,7 +9679,8 @@
 					"speed": 20.0,
 					"ahead": 0.0,
 					"dome": 0.35,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -10377,7 +10393,8 @@
 					"tuning": "0.5.6.0",
 					"cabin": true,
 					"pins": 0,
-					"finish": "gloss"
+					"finish": "gloss",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -10562,7 +10579,8 @@
 							3.6,
 							5.0
 						]
-					}
+					},
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -10641,7 +10659,7 @@
 					"who": "dee",
 					"clip": "Stand",
 					"pos": [
-						1.55,
+						1.48,
 						0.0,
 						0.1
 					],
@@ -10736,24 +10754,30 @@
 							},
 							"RightHand": {
 								"at": [
-									0.78,
-									1.08,
-									0.0
+									0.8169,
+									1.1388,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
 						{
-							"t": 0.4,
+							"t": 0.42,
 							"LeftHand": {
 								"at": [
 									0.85,
@@ -10773,19 +10797,25 @@
 							},
 							"RightHand": {
 								"at": [
-									0.78,
-									1.08,
-									0.0
+									0.7942,
+									1.1283,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
@@ -10810,24 +10840,30 @@
 							},
 							"RightHand": {
 								"at": [
-									0.695,
-									1.08,
-									0.0
+									0.7534,
+									1.1093,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
 						{
-							"t": 0.72,
+							"t": 0.68,
 							"LeftHand": {
 								"at": [
 									0.85,
@@ -10847,19 +10883,25 @@
 							},
 							"RightHand": {
 								"at": [
-									0.78,
-									1.08,
-									0.0
+									0.7897,
+									1.1262,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
@@ -10884,24 +10926,30 @@
 							},
 							"RightHand": {
 								"at": [
-									0.695,
-									1.08,
-									0.0
+									0.7534,
+									1.1093,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
 						{
-							"t": 1.08,
+							"t": 1.03,
 							"LeftHand": {
 								"at": [
 									0.85,
@@ -10921,24 +10969,30 @@
 							},
 							"RightHand": {
 								"at": [
-									0.78,
-									1.08,
-									0.0
+									0.7987,
+									1.1304,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
 						{
-							"t": 1.8,
+							"t": 1.7,
 							"LeftHand": {
 								"at": [
 									0.85,
@@ -10958,61 +11012,30 @@
 							},
 							"RightHand": {
 								"at": [
-									0.7,
-									1.08,
-									0.0
+									0.8078,
+									1.1346,
+									-0.02
 								],
 								"palm": [
+									0.422,
+									-0.907,
+									0.0
+								],
+								"fingers": [
 									-0.907,
 									-0.422,
 									0.0
 								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
+								"fist": 1.0,
+								"elbow": [
+									0.45,
+									-0.25,
+									-1.0
 								]
 							}
 						},
 						{
-							"t": 2.3,
-							"LeftHand": {
-								"at": [
-									0.85,
-									0.8725,
-									0.4
-								],
-								"palm": [
-									-0.35,
-									-0.94,
-									0.0
-								],
-								"fingers": [
-									-0.94,
-									0.25,
-									0.25
-								]
-							},
-							"RightHand": {
-								"at": [
-									0.7,
-									1.08,
-									0.0
-								],
-								"palm": [
-									-0.907,
-									-0.422,
-									0.0
-								],
-								"fingers": [
-									-0.422,
-									0.907,
-									0.0
-								]
-							}
-						},
-						{
-							"t": 2.9,
+							"t": 2.5,
 							"LeftHand": {
 								"at": [
 									0.85,
@@ -11293,7 +11316,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -11611,7 +11635,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -11929,7 +11954,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -12242,7 +12268,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -12560,7 +12587,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -12873,7 +12901,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -13184,7 +13213,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [],
@@ -13280,7 +13310,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -13593,7 +13624,8 @@
 					"finish": "gloss",
 					"windows_down": [
 						"driver"
-					]
+					],
+					"paint": "lot47"
 				}
 			],
 			"people": [

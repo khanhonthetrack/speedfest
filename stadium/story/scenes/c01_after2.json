@@ -15,7 +15,8 @@
 					"model": "nemesis",
 					"finish": "gloss",
 					"livery": 1,
-					"tuning": "0.5.6.0"
+					"tuning": "0.5.6.0",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -28,7 +29,10 @@
 						0.2
 					],
 					"face": -90,
-					"who": "gus"
+					"who": "gus",
+					"hide": [
+						"hivis"
+					]
 				},
 				{
 					"id": "kit",
@@ -190,7 +194,8 @@
 					"model": "nemesis",
 					"finish": "gloss",
 					"livery": 1,
-					"tuning": "0.5.6.0"
+					"tuning": "0.5.6.0",
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -203,7 +208,10 @@
 						0.2
 					],
 					"face": -90,
-					"who": "gus"
+					"who": "gus",
+					"hide": [
+						"hivis"
+					]
 				}
 			],
 			"lights": [

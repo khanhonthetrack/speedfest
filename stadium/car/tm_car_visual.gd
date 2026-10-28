@@ -97,6 +97,7 @@ var ghost_tint := Color(0.55, 0.75, 1.0)   ## a ghost's colour (other online pla
 var pack: TmCarPack               ## a community car to draw instead of ours (null: ours)
 var model := ""                   ## ours: "" the open-wheeler, "hyper" the hypercar, or a road car (TmRoadCars)
 var livery := 0                   ## the road car's (or the hypercar's) livery (TmRoadCars.liveries)
+var livery_spec := {}             ## a livery of its own (TmRoadCars.LIVERIES' keys) instead: a story's car
 var tuning := {}                  ## its tuning {part: index} (TmRoadCars.TUNING; missing parts: 0, the car as it comes)
 var _from_pack := true            ## drawn from the pack's model (false: ours)
 var _wheels: Array[Node3D] = []   ## per wheel: the pivot (suspension travel, steering)
@@ -612,6 +613,11 @@ func _road_dress(mi: MeshInstance3D) -> void:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
+## The car's livery: its own (livery_spec) or its model's `livery`.
+func _livery_now() -> Dictionary:
+	return livery_spec if not livery_spec.is_empty() else TmRoadCars.livery(model, livery)
+
+
 ## A livery's paint (tm_car_surface.gdshader mode 4) on car `id`'s body (its manifest's lines).
 func _livery_paint(id: String, lv: Dictionary) -> ShaderMaterial:
 	var man := TmRoadCars.manifest(id)
@@ -708,7 +714,7 @@ func _kit_rim_mat(k: int) -> Material:
 	if not _mats.has(key):
 		var r: Dictionary = TmRoadCars.RIMS[k]
 		var m := StandardMaterial3D.new()
-		m.albedo_color = r.get("colour", TmRoadCars.livery(model, livery).get("rim", Color(0.78, 0.79, 0.81)))
+		m.albedo_color = r.get("colour", _livery_now().get("rim", Color(0.78, 0.79, 0.81)))
 		m.metallic = float(r.get("metallic", 0.9))
 		m.roughness = float(r.get("roughness", 0.28))
 		_mats[key] = _ghostly(m)
@@ -731,7 +737,7 @@ const FINISHES := {"gloss": Vector4(0.05, 0.22, 1.0, 0.0), "metallic": Vector4(0
 func _road_mat(key: String) -> Material:
 	if _mats.has(key):
 		return _mats[key]
-	var lv := TmRoadCars.livery(model, livery)
+	var lv := _livery_now()
 	var man := TmRoadCars.manifest(model)
 	var base: Color = lv.get("base", paint_colour)
 	if not ghost and TmMaterials.hd() and key in ["road_paint", "road_tyre", "road_grille", "carbon"]:

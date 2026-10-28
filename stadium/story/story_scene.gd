@@ -24,7 +24,8 @@ extends Node3D
 ##     id (its frame instead of the anchor's), "handheld": deg (a shoulder camera's slow wander of its
 ##     aim, the same at a given frame however it is reached), "shake": m (a jolt)},
 ##   "cars": [{"id", "model" (TmCarVisual.model: a road car's id, "hyper", "" the open-wheeler),
-##     "livery", "colour" (TmUi.CAR_COLOURS index), "tuning": "spoiler.rims.glow.hood", "ghost",
+##     "livery", "paint" (a livery of its own: a PAINTS name or inline, over "livery"), "colour"
+##     (TmUi.CAR_COLOURS index), "tuning": "spoiler.rims.glow.hood", "ghost",
 ##     "left", "ahead" (m from the anchor along the line), "lift", "yaw" (deg), "lights" (headlights),
 ##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
@@ -74,7 +75,13 @@ signal finished(skipped: bool)
 const DIR := "res://story/scenes"
 const READ_CPS := 15.0                 ## subtitle reading speed (characters per second)
 const FADE_OUT := ["train"]            ## loops that die away over a cut instead of stopping dead
-const SET_DECK := 2.0                  ## m a set's deck stands over the map's ground (water below its edges)
+const SET_DECK := 2.0
+## Liveries a story's cars wear (a car's "paint"): Lot 47 is "black" with grey camouflage "painted by
+## hand" (Gus, c01_open), so gloss black under soft brushed blobs and a hand-drawn pinstripe.
+const PAINTS := {
+	"lot47": {"pattern": "brushed", "base": "#060607", "a": "#5a5d62", "b": "#34363b", "c": "#a8abb0",
+		"p": [0.55, 0.035, 0.0016], "finish": "gloss", "rim": "#1a1a1c", "caliper": "#8a1410"},
+}                  ## m a set's deck stands over the map's ground (water below its edges)
 const SOFTBOX_LAYER := 1 << 19         ## a light's "softbox": drawn for reflections (a shot's "probe"), never to the camera
 
 var data := {}
@@ -533,12 +540,30 @@ func _ground(p: Vector3) -> Vector3:
 	return hit["position"] if not hit.is_empty() else p
 
 
+## A car's livery from a scene's "paint" (PAINTS' or inline: colours as "#rrggbb", "p" as [x, y, z, w]).
+static func _paint(d: Dictionary) -> Dictionary:
+	var out := {}
+	for k: String in d:
+		var v: Variant = d[k]
+		if k == "p" and v is Array:
+			var a: Array = v
+			out[k] = Vector4(float(a[0]), float(a[1]) if a.size() > 1 else 0.0, float(a[2]) if a.size() > 2 else 0.0, float(a[3]) if a.size() > 3 else 0.0)
+		elif v is String and (v as String).begins_with("#"):
+			out[k] = Color(v as String)
+		else:
+			out[k] = v
+	return out
+
+
 func _add_car(c: Dictionary) -> void:
 	var car := TmCarVisual.new()
 	car.paint_colour = TmUi.CAR_COLOURS[clampi(int(c.get("colour", 0)), 0, TmUi.CAR_COLOURS.size() - 1)]
 	car.model = String(c.get("model", "hyper"))
 	car.ghost = bool(c.get("ghost", false))
 	car.livery = int(c.get("livery", 0))
+	var own: Variant = PAINTS.get(c.get("paint", ""), c.get("paint", {}))
+	if own is Dictionary and not (own as Dictionary).is_empty():
+		car.livery_spec = _paint(own)
 	var picks := String(c.get("tuning", "")).split(".", false)
 	for k in mini(picks.size(), TmRoadCars.TUNING.size()):
 		car.tuning[TmRoadCars.TUNING[k]] = int(picks[k])

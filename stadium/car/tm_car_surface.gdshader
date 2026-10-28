@@ -373,6 +373,33 @@ vec4 road_livery(vec3 p, vec3 n, out float carbon, out float black) {
 		float a2 = fill(sh) * side;
 		o = vec4(liv_b, a2 * 0.8);
 		o = mix(o, vec4(liv_a, 1.0), a1);
+	} else if (livery == 14) {
+		// brushed: camouflage painted by hand: soft blobs of two greys (a and b) over the paint, their
+		// edges dry-brushed along the strokes, the brush's own streaks in the colour; a hand-drawn
+		// pinstripe in c along the shoulder, wavering and thinning at its ends (p.x the blobs' size,
+		// m; p.y the stripe's height under the window line, m; p.z its half width, m)
+		float sc = max(liv_p.x, 0.05);
+		vec2 q = vec2(f.d, mix(p.x, p.y, side) + 3.0 * step(0.0, p.x) * side);
+		// the nose and tail faces (along the car's length they don't move): across and up them instead
+		q = mix(q, vec2(p.x + 6.0 * sign(n.z), p.y), smoothstep(0.55, 0.8, abs(n.z)));
+		vec2 warp = vec2(vnoise(q / sc * 0.6 + 3.1), vnoise(q / sc * 0.6 + 8.7)) - 0.5;
+		vec2 g = q / sc + warp * 1.7;
+		float n1 = 0.65 * vnoise(g) + 0.35 * vnoise(g * 2.3 + 5.0);
+		float n2 = 0.65 * vnoise(g * 1.2 + 11.0) + 0.35 * vnoise(g * 2.7 + 17.0);
+		vec2 sd = normalize(vec2(1.0, 0.3));                    // the strokes run back and a little up
+		float along = dot(q, sd);
+		float across = dot(q, vec2(-sd.y, sd.x));
+		float streak = vnoise(vec2(along * 5.0, across * 85.0));
+		// fewer on the top (the bonnet, roof and boot read as stripes when a blob spans them)
+		float a1 = smoothstep(0.0, 0.025, n1 - 0.56 - 0.07 * topw + (streak - 0.5) * 0.1);
+		float a2 = smoothstep(0.0, 0.025, n2 - 0.6 - 0.07 * topw + (streak - 0.5) * 0.1) * (1.0 - a1);
+		vec3 col = mix(liv_b, liv_a, a1 / max(a1 + a2, 1e-3));
+		col *= 0.88 + 0.24 * vnoise(vec2(along * 3.0, across * 45.0));
+		o = vec4(col, max(a1, a2));
+		float ys = f.belt - liv_p.y + 0.004 * sin(f.d * 6.5) + 0.0015 * sin(f.d * 21.0 + 1.3);
+		float hw2 = liv_p.z * (0.75 + 0.5 * vnoise(vec2(f.d * 3.0, 2.0))) * smoothstep(0.04, 0.16, f.s) * (1.0 - smoothstep(0.84, 0.95, f.s));
+		float ps = fill(abs(p.y - ys) - hw2) * side * step(0.0005, hw2);
+		o = mix(o, vec4(liv_c, 1.0), ps);
 	}
 	// the hood and roof
 	if (liv_hood > 0 && is_hood(f, p, n)) {

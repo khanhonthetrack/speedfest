@@ -42,7 +42,7 @@ const CARS := [
 
 ## The livery patterns (tm_car_surface.gdshader `livery`), by name.
 const PATTERNS := ["plain", "stripes", "flames", "tribal", "tiger", "shards", "halftone", "sweep", "checker", "camo",
-	"twotone", "bolt", "fade", "claws"]
+	"twotone", "bolt", "fade", "claws", "brushed"]
 
 ## Five liveries per car: name, pattern, base paint, vinyl colours a (main), b (outline/second),
 ## c (accent), p (the pattern's parameters), finish ("gloss", "metallic", "pearl", "matte",

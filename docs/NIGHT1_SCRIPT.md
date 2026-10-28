@@ -51,7 +51,7 @@ Behind Kit, at eye level: Kit walks down a canyon of stacked containers towards 
 
 **EXT. THE AUCTION YARD. NIGHT. RAIN.**
 
-Over Kit's shoulder in the small crowd: Gus Pell, big, in a hi-vis vest, on a low stage under a lit truss; five cars in a row before him with lot numbers; container stacks and the PELL SALVAGE portacabin behind; a fire in an oil drum.
+Over Kit's shoulder in the small crowd: Gus Pell, big, in a work jacket, on a low stage under a lit truss; five cars in a row before him with lot numbers; container stacks and the PELL SALVAGE portacabin behind; a fire in an oil drum.
 
 > **GUS**: Lot forty-six, no reserve, gone to the gentleman at the back...
 

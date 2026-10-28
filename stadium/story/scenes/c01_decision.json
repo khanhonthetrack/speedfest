@@ -16,7 +16,8 @@
 					"finish": "gloss",
 					"livery": 1,
 					"tuning": "0.5.6.0",
-					"lights": true
+					"lights": true,
+					"paint": "lot47"
 				}
 			],
 			"people": [
@@ -29,7 +30,10 @@
 						1.2
 					],
 					"face": 90,
-					"who": "gus"
+					"who": "gus",
+					"hide": [
+						"hivis"
+					]
 				}
 			],
 			"camera": {
@@ -200,7 +204,8 @@
 					"finish": "gloss",
 					"livery": 1,
 					"tuning": "0.5.6.0",
-					"lights": true
+					"lights": true,
+					"paint": "lot47"
 				},
 				{
 					"id": "voss",
@@ -357,7 +362,8 @@
 					"livery": 1,
 					"tuning": "0.5.6.0",
 					"cabin": true,
-					"pins": 1
+					"pins": 1,
+					"paint": "lot47"
 				}
 			],
 			"sounds": [

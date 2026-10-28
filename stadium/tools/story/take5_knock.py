@@ -85,9 +85,19 @@ def up_hands(t, right=None):
             "RightHand": right or on_ledge(-0.2, [-0.94, 0.25, -0.25], 0.85)}
 
 
-def tap(t, x):
-    """The right hand at the glass by Kit's head, x out from it (0.695: on the glass)."""
-    return up_hands(t, {"at": [x, 1.08, 0.0], "palm": GLASS_IN, "fingers": GLASS_UP})
+GLASS_OUT = [0.907, 0.422, 0.0]
+FIST_DOWN = [0.422, -0.907, 0.0]               # a knocking fist's palm: down and towards her
+
+
+def rap(t, off):
+    """Her right fist at the glass by Kit's head, its knuckles `off` m out from it (0: on it): the
+    fingers curled and pointing into the glass, so the backs of the first finger joints strike it (the
+    knuckles 6.5 cm ahead of the palm's middle; the mark is the palm's skin, PALM_HALF under it)."""
+    g = [0.686, 1.10, -0.02]                    # the glass at y 1.10
+    d = 0.065 + off
+    at = [round(g[i] + GLASS_OUT[i] * d + FIST_DOWN[i] * 0.02, 4) for i in range(3)]
+    # the elbow out to her right and a little back, so the forearm comes at the glass, not up beside it
+    return up_hands(t, {"at": at, "palm": FIST_DOWN, "fingers": GLASS_IN, "fist": 1.0, "elbow": [0.45, -0.25, -1.0]})
 
 
 def dee(reach=None, bend=None, **kw):
@@ -102,8 +112,10 @@ def dee(reach=None, bend=None, **kw):
 # resting on the glass, then on the door's top by the other; Kit winds the window down as Dee's "Open
 # up" ends and Kit answers (3.6-5.0 s: her line runs 1.9-4.0, Kit's 4.3-6.8), and her hands go in over
 # the ledge once the glass is down
-KNOCKING = [tap(0.0, 0.78), tap(0.4, 0.78), tap(0.55, 0.695), tap(0.72, 0.78), tap(0.9, 0.695), tap(1.08, 0.78),
-            tap(1.8, 0.7), tap(2.3, 0.7), up_hands(2.9), up_hands(5.2), hands(5.8)]
+# two quick raps of her knuckles (the thumps at 0.55 and 0.9 s): 4-5 cm back, 0.12-0.15 s in, a little
+# faster out; the fist held a moment by the glass, then down on the door by the other hand
+KNOCKING = [rap(0.0, 0.07), rap(0.42, 0.045), rap(0.55, 0.0), rap(0.68, 0.04), rap(0.9, 0.0), rap(1.03, 0.05),
+            rap(1.7, 0.06), up_hands(2.5), up_hands(5.2), hands(5.8)]
 WINDING = {"driver": [3.6, 5.0]}
 
 
@@ -155,7 +167,7 @@ k = shot("knock", follow([{"u": 0, "pos": [-0.12, 0.98, 0.78], "look": [0.8, 1.1
                           {"u": 1, "pos": [-0.08, 0.99, 0.7], "look": [0.8, 1.12, -0.05], "fov": 40}]),
          [kit([{"t": 0.0, "Neck": [6, 0, -4], "Head": [10, 0, -12]}, {"t": 0.55, "Neck": [6, 0, -4], "Head": [10, 0, -12]},
                {"t": 1.1, "Neck": [0, 10, 0], "Head": [-3, 16, 0]}], looks=[[0.0, 0.95, "ahead"]], rate=0.0,
-              breathe=[1.4, 4.6]), dee(reach=copy.deepcopy(KNOCKING))],
+              breathe=[1.4, 4.6]), dee(reach=copy.deepcopy(KNOCKING), pos=[1.48, 0.0, 0.1])],
          lines_of("knock"), lead=1.9, fade_in=0.4, sounds=[{"at": 0.55, "cue": "thump"}, {"at": 0.9, "cue": "thump"}])
 k["cars"][0]["windows_down"] = copy.deepcopy(WINDING)
 shots.append(k)
@@ -207,5 +219,10 @@ shots.append(shot("knock_end", {"path": "spline", "ease": "inout", "keys": [
 
 out = copy.deepcopy(src)
 out["shots"] = head + shots
+# Lot 47 in its own paint, black with grey camouflage painted by hand (StoryScene.PAINTS)
+for sh in out["shots"]:
+    for car in sh.get("cars", []):
+        if car.get("id") == "kit" and car.get("model") == "nemesis":
+            car["paint"] = "lot47"
 json.dump(out, open(sys.argv[2], "w"), indent="\t")
 print("knock: %d shots" % len(shots))

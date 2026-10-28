@@ -29,7 +29,8 @@ extends Node3D
 ## on top of the clip over time (_bend: a head coming up), "reach": hands put on something over time
 ## (_reach: two-bone IK, the palm turned to face it; "reach_car": a car's id, the targets in its road
 ## frame: hands on a car's roof), "breathe": [deg, period s] (the chest rising and falling), "blink": false (a cast member's eyes never
-## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw)}
+## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw), "hide":
+## [role, ...] (a cast member's garments left off by role: ["hivis"], Gus without his vest)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
@@ -193,6 +194,10 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		face = StoryFace.new(body, String(s.get("id", who)).hash())
 		face.blinks = bool(s.get("blink", true))
 		face.held = s.get("shapes", {})
+	# "hide": a cast member's garments left off by role (their mesh's name: "<role>__<asset>")
+	for role: String in s.get("hide", []):
+		for mi: MeshInstance3D in body.find_children(role + "__*", "MeshInstance3D", true, false):
+			mi.visible = false
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	StoryCast.library()
 	var clip := StoryCast.take(who, String(s.get("clip", "Idle")))
@@ -369,8 +374,9 @@ func _bend(t: float) -> void:
 ## frame (as "pos"), or with "reach_car": a car's id, in that car's road frame: the palm's middle put at "at" (the arm bent to it: two-bone IK on the upper arm and the
 ## forearm), the palm facing "palm" with the fingers along "fingers" (directions; either left out: the clip's
 ## hand turned as little as it takes), the elbow bending towards "elbow" (a direction; default: out to the
-## side, down and back); eased between keys as "bend"; a hand a key leaves out hangs as the clip has it
-## there (eased in and out). Hands on a car's roof at its window, knuckles on its glass.
+## side, down and back), "fist": 0-1 (the fingers curled, the thumb across: a knock); eased between
+## keys as "bend"; a hand a key leaves out hangs as the clip has it there (eased in and out). Hands on
+## a car's window ledge, knuckles rapping its glass.
 func _reach(t: float) -> void:
 	var keys: Array = spec.get("reach", [])
 	if keys.is_empty():
@@ -401,6 +407,7 @@ func _reach(t: float) -> void:
 				var vb: Variant = kb.get(n)
 				if va != null or vb != null:
 					k[n] = va if vb == null else vb if va == null else (va as Vector3).lerp(vb as Vector3, f)
+			k["fist"] = lerpf(float(ka.get("fist", 0.0)), float(kb.get("fist", 0.0)), f)
 		var w := lerpf(0.0 if ka.is_empty() else 1.0, 0.0 if kb.is_empty() else 1.0, f)
 		_arm_to(sk, side, k, w)
 
@@ -416,6 +423,8 @@ static func _hand_key(v: Variant) -> Dictionary:
 		var q: Array = (v as Dictionary).get(n, [])
 		if q.size() >= 3:
 			out[n] = Vector3(float(q[0]), float(q[1]), float(q[2]))
+	if (v as Dictionary).has("fist"):
+		out["fist"] = float((v as Dictionary)["fist"])
 	return out
 
 
@@ -461,7 +470,13 @@ func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 	var hf := _hand_frame(sk, side)
 	if ua < 0 or la < 0 or hd < 0 or hf.is_empty() or w <= 0.0:
 		return
-	var clip := [sk.get_bone_pose_rotation(ua), sk.get_bone_pose_rotation(la), sk.get_bone_pose_rotation(hd)]
+	var bones: Array[int] = [ua, la, hd]
+	var fist := float(k.get("fist", 0.0))
+	if fist > 0.0:
+		bones.append_array(_finger_bones(sk, side))
+	var clip: Array[Quaternion] = []
+	for b in bones:
+		clip.append(sk.get_bone_pose_rotation(b))
 	# the targets' frame (the anchor, or "reach_car"'s road frame) -> skeleton space
 	var frame: Transform3D = reach_frame if reach_frame is Transform3D else _base
 	var to_sk := sk.global_transform.affine_inverse() * frame
@@ -514,11 +529,50 @@ func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 			twist = -twist
 		_set_global_basis(sk, la, Basis(Quaternion.IDENTITY.slerp(twist, FOREARM_ROLL)) * sk.get_bone_global_pose(la).basis)
 	_set_global_basis(sk, hd, hand_basis)
+	if fist > 0.0:
+		_curl(sk, side, fist)
 	if w < 1.0:
-		var bones := [ua, la, hd]
-		var solved := [sk.get_bone_pose_rotation(ua), sk.get_bone_pose_rotation(la), sk.get_bone_pose_rotation(hd)]
-		for b in 3:
-			sk.set_bone_pose_rotation(bones[b], (clip[b] as Quaternion).slerp(solved[b] as Quaternion, w))
+		for b in bones.size():
+			sk.set_bone_pose_rotation(bones[b], clip[b].slerp(sk.get_bone_pose_rotation(bones[b]), w))
+
+
+const FINGERS := ["Index", "Middle", "Ring", "Little"]
+## A fist's bend at each joint of a finger (degrees: knuckle, middle, tip) and of the thumb.
+const FIST := [80.0, 95.0, 60.0]
+const FIST_THUMB := [15.0, 35.0, 30.0]
+
+
+## A hand's finger bones, knuckles first (the thumb's last).
+static func _finger_bones(sk: Skeleton3D, side: String) -> Array[int]:
+	var out: Array[int] = []
+	for f: String in FINGERS + ["Thumb"]:
+		for j: String in (["Metacarpal", "Proximal", "Distal"] if f == "Thumb" else ["Proximal", "Intermediate", "Distal"]):
+			var i := sk.find_bone(side + f + j)
+			if i >= 0:
+				out.append(i)
+	return out
+
+
+## Curls a hand's fingers into a fist, `amount` of the way (1: closed), on top of the clip's: each
+## finger about the hinge square to it and the palm's facing (towards the palm), the thumb across it.
+static func _curl(sk: Skeleton3D, side: String, amount: float) -> void:
+	var hf := _hand_frame(sk, side)
+	if hf.is_empty():
+		return
+	var fingers: Vector3 = hf["fingers"]
+	var normal: Vector3 = hf["normal"]
+	var hinge := fingers.cross(normal).normalized()        # a turn about it takes the fingers to the palm's side
+	for f: String in FINGERS + ["Thumb"]:
+		var joints: Array = ["Metacarpal", "Proximal", "Distal"] if f == "Thumb" else ["Proximal", "Intermediate", "Distal"]
+		var degs: Array = FIST_THUMB if f == "Thumb" else FIST
+		var axis := fingers if f == "Thumb" else hinge          # the thumb rolls in across the palm
+		var sign := (1.0 if side == "Left" else -1.0) if f == "Thumb" else 1.0
+		for j in joints.size():
+			var i := sk.find_bone(side + f + String(joints[j]))
+			if i < 0:
+				continue
+			var turn := Basis(axis, deg_to_rad(float(degs[j]) * amount) * sign)
+			_set_global_basis(sk, i, turn * sk.get_bone_global_pose(i).basis)
 
 
 ## Where a hand's palm is now (world): its middle, between the wrist and the knuckles ("Left" / "Right").

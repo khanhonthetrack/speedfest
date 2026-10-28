@@ -222,5 +222,15 @@ out["bare"] = "set"
 out["grade"] = "night"
 out["props"] = props
 out["shots"] = shots
+# Gus without his hi-vis vest (it reads as a balloon until it is rebuilt: docs/CINEMATICS.md)
+for sh in out["shots"]:
+    for pp in sh.get("people", []):
+        if pp.get("who") == "gus":
+            pp["hide"] = ["hivis"]
+# Lot 47 in its own paint, black with grey camouflage painted by hand (StoryScene.PAINTS)
+for sh in out["shots"]:
+    for car in sh.get("cars", []):
+        if car.get("id") == "kit" and car.get("model") == "nemesis":
+            car["paint"] = "lot47"
 json.dump(out, open(sys.argv[2], "w"), indent="\t")
 print("opening: %d shots" % len(shots))
