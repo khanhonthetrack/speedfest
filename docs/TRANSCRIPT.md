@@ -1652,3 +1652,23 @@ knock re-cut and lit on it, Dee crouched at the window; two critic rounds; the c
 
 (Read as: in the knock, Dee should not crouch at the driver's window (take five) but lean in to it
 from standing, her hands on the car at the window, as people do when they talk to a driver.)
+
+(Done: take five, https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW: the three scenes as clips, Dee leaning
+in on the window's ledge, the window wound down; the second review 4.5/10 each scene.)
+
+### User (verbatim)
+
+> Night 1, take five:
+> 1. The opening: right way.
+> 2. The Mirror: scarier still.
+> 3. The knock: not yet (see notes).
+> 4. The look: that's the look.
+> 5. Night 1: not yet (see notes).
+> Notes: Dee is standing and waving weirdly! Not natural.
+>
+> Work on cutscenes until reviews get to at least 7/10.
+
+(Read as: the opening is going the right way and the film look is right; the Mirror should be
+scarier still; in the knock Dee's body still reads unnatural, standing and waving (her hand at the
+glass moves like a wave); night 1 isn't signed off. And a standing order: keep working on the
+cutscenes until the fresh critic's reviews reach at least 7 out of 10.)
