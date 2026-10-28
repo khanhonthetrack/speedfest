@@ -345,47 +345,70 @@ static func wind(car: TmCarVisual, t: float) -> void:
 
 ## The body's mesh with its front side windows' glass taken out: {"body": the rest, "windows": {side:
 ## [that glass as a mesh, the slide that takes its top just under the door's top, the door's top's y]}}.
+## The body's paint behind that glass goes too (the greenhouse is lofted whole and the glass laid 4 mm
+## over it: with the glass wound down the opening would still show paint from outside).
 static func _split_windows(mesh: ArrayMesh, glass_k: Array[int], sides: Array, b_pillar: float) -> Dictionary:
-	var body := ArrayMesh.new()
+	# (plain Arrays: a packed array taken out of a dictionary is a copy, and an append to it is lost)
 	var tris := {}                                     # side -> its glass's corners, three a triangle
 	var normals := {}                                  # side -> its glass's corners' normals
+	var masks := {}                                    # side -> its glass (GlassMask)
+	var glass_keep := {}                               # glass surface -> the indices it keeps
 	for side: String in sides:
-		tris[side] = PackedVector3Array()
-		normals[side] = PackedVector3Array()
+		tris[side] = []
+		normals[side] = []
+		masks[side] = GlassMask.new()
+	for k in glass_k:
+		var arrays := mesh.surface_get_arrays(k)
+		if arrays[Mesh.ARRAY_INDEX] == null:
+			continue
+		var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var vn: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+		var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		var keep := PackedInt32Array()
+		for i in range(0, idx.size(), 3):
+			var a := v[idx[i]]
+			var b := v[idx[i + 1]]
+			var c := v[idx[i + 2]]
+			var n := (c - a).cross(b - a).normalized()   # out of the car (Godot's front faces turn clockwise)
+			var side := ""
+			if (a.z + b.z + c.z) / 3.0 > b_pillar:
+				side = "driver" if n.x > 0.6 else "passenger" if n.x < -0.6 else ""
+			if side in tris:
+				for q in [idx[i], idx[i + 1], idx[i + 2]]:
+					(tris[side] as Array).append(v[q])
+					(normals[side] as Array).append(vn[q] if vn.size() > q else n)
+				(masks[side] as GlassMask).add(a, b, c)
+			else:
+				keep.append_array([idx[i], idx[i + 1], idx[i + 2]])
+		glass_keep[k] = keep
+	var body := ArrayMesh.new()
 	for k in mesh.get_surface_count():
 		var arrays := mesh.surface_get_arrays(k)
-		if k in glass_k and arrays[Mesh.ARRAY_INDEX] != null:
-			var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-			var vn: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+		if glass_keep.has(k):
+			arrays[Mesh.ARRAY_INDEX] = glass_keep[k]
+		elif arrays[Mesh.ARRAY_INDEX] != null:
+			# the paint just behind a wound window goes: a triangle wholly behind it, none of one clear of
+			# it, and one across its outline halved three times, the pieces behind it dropped (every
+			# attribute carried to the new corners: the livery runs on to the edge)
+			var cut := Cutter.new(arrays, masks.values())
 			var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-			var keep := PackedInt32Array()
 			for i in range(0, idx.size(), 3):
-				var a := v[idx[i]]
-				var b := v[idx[i + 1]]
-				var c := v[idx[i + 2]]
-				var n := (b - a).cross(c - a).normalized()
-				var side := ""
-				if (a.z + b.z + c.z) / 3.0 > b_pillar:
-					side = "driver" if n.x > 0.6 else "passenger" if n.x < -0.6 else ""
-				if side in tris:
-					for q in [idx[i], idx[i + 1], idx[i + 2]]:
-						(tris[side] as PackedVector3Array).append(v[q])
-						(normals[side] as PackedVector3Array).append(vn[q] if vn.size() > q else n)
-				else:
-					keep.append_array([idx[i], idx[i + 1], idx[i + 2]])
-			arrays[Mesh.ARRAY_INDEX] = keep
+				cut.keep_off(idx[i], idx[i + 1], idx[i + 2], 3)
+			cut.store(arrays)
+		if (arrays[Mesh.ARRAY_INDEX] is PackedInt32Array) and (arrays[Mesh.ARRAY_INDEX] as PackedInt32Array).is_empty():
+			arrays[Mesh.ARRAY_INDEX] = PackedInt32Array([0, 0, 0])   # (a surface keeps its place: overrides go by index)
 		body.add_surface_from_arrays(mesh.surface_get_primitive_type(k), arrays)
 		body.surface_set_material(k, mesh.surface_get_material(k))
 	var windows := {}
 	for side: String in tris:
-		var t: PackedVector3Array = tris[side]
+		var t := PackedVector3Array(tris[side] as Array)
 		if t.is_empty():
 			continue
 		var lo := INF
 		var hi := -INF
 		var facing := Vector3.ZERO
 		for i in range(0, t.size(), 3):
-			facing += (t[i + 1] - t[i]).cross(t[i + 2] - t[i])
+			facing += (t[i + 2] - t[i]).cross(t[i + 1] - t[i])
 		for p in t:
 			lo = minf(lo, p.y)
 			hi = maxf(hi, p.y)
@@ -396,7 +419,7 @@ static func _split_windows(mesh: ArrayMesh, glass_k: Array[int], sides: Array, b
 		var arrays := []
 		arrays.resize(Mesh.ARRAY_MAX)
 		arrays[Mesh.ARRAY_VERTEX] = t
-		arrays[Mesh.ARRAY_NORMAL] = normals[side]
+		arrays[Mesh.ARRAY_NORMAL] = PackedVector3Array(normals[side] as Array)
 		var wm := ArrayMesh.new()
 		wm.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		windows[side] = [wm, slide, lo]
@@ -549,6 +572,95 @@ static func _triangles(mesh: Mesh, k: int) -> Array:
 ## A body's glass, to ask quickly whether a point lies just behind it (within BEHIND of a glass
 ## triangle's face, over it, not beside it): the triangles' planes and barycentric terms in a grid,
 ## a box round all of it, each point's answer kept (the corners are shared).
+## A surface's arrays being cut along a glass's outline (_split_windows): a triangle across it halved
+## down to `depth`, each new corner made halfway between two others with every attribute carried.
+class Cutter:
+	var v: PackedVector3Array
+	var nrm: PackedVector3Array
+	var tan: PackedFloat32Array
+	var col: PackedColorArray
+	var uv: PackedVector2Array
+	var uv2: PackedVector2Array
+	var out := PackedInt32Array()
+	var masks: Array
+	var _mid := {}                                     # Vector2i(a, b) -> the corner halfway between them
+	var _behind := {}                                  # corner -> behind the glass
+
+	func _init(arrays: Array, glass: Array) -> void:
+		masks = glass
+		v = arrays[Mesh.ARRAY_VERTEX]
+		if arrays[Mesh.ARRAY_NORMAL] != null:
+			nrm = arrays[Mesh.ARRAY_NORMAL]
+		if arrays[Mesh.ARRAY_TANGENT] != null:
+			tan = arrays[Mesh.ARRAY_TANGENT]
+		if arrays[Mesh.ARRAY_COLOR] != null:
+			col = arrays[Mesh.ARRAY_COLOR]
+		if arrays[Mesh.ARRAY_TEX_UV] != null:
+			uv = arrays[Mesh.ARRAY_TEX_UV]
+		if arrays[Mesh.ARRAY_TEX_UV2] != null:
+			uv2 = arrays[Mesh.ARRAY_TEX_UV2]
+
+	func behind(i: int) -> bool:
+		if not _behind.has(i):
+			var hit := false
+			for m: GlassMask in masks:
+				if m.behind(v[i]):
+					hit = true
+					break
+			_behind[i] = hit
+		return _behind[i]
+
+	func half(a: int, b: int) -> int:
+		var key := Vector2i(mini(a, b), maxi(a, b))
+		if _mid.has(key):
+			return _mid[key]
+		var i := v.size()
+		v.append((v[a] + v[b]) * 0.5)
+		if not nrm.is_empty():
+			nrm.append((nrm[a] + nrm[b]).normalized())
+		if not tan.is_empty():
+			var t := (Vector3(tan[a * 4], tan[a * 4 + 1], tan[a * 4 + 2]) + Vector3(tan[b * 4], tan[b * 4 + 1], tan[b * 4 + 2])).normalized()
+			tan.append_array([t.x, t.y, t.z, tan[a * 4 + 3]])
+		if not col.is_empty():
+			col.append(col[a].lerp(col[b], 0.5))
+		if not uv.is_empty():
+			uv.append((uv[a] + uv[b]) * 0.5)
+		if not uv2.is_empty():
+			uv2.append((uv2[a] + uv2[b]) * 0.5)
+		_mid[key] = i
+		return i
+
+	## Keeps what of the triangle (a, b, c) isn't behind the glass, in its own turn.
+	func keep_off(a: int, b: int, c: int, depth: int) -> void:
+		var n := int(behind(a)) + int(behind(b)) + int(behind(c))
+		if n == 0 or (depth == 0 and n < 2):
+			out.append_array([a, b, c])
+			return
+		if n == 3 or depth == 0:
+			return
+		var ab := half(a, b)
+		var bc := half(b, c)
+		var ca := half(c, a)
+		keep_off(a, ab, ca, depth - 1)
+		keep_off(ab, b, bc, depth - 1)
+		keep_off(ca, bc, c, depth - 1)
+		keep_off(ab, bc, ca, depth - 1)
+
+	func store(arrays: Array) -> void:
+		arrays[Mesh.ARRAY_VERTEX] = v
+		if not nrm.is_empty():
+			arrays[Mesh.ARRAY_NORMAL] = nrm
+		if not tan.is_empty():
+			arrays[Mesh.ARRAY_TANGENT] = tan
+		if not col.is_empty():
+			arrays[Mesh.ARRAY_COLOR] = col
+		if not uv.is_empty():
+			arrays[Mesh.ARRAY_TEX_UV] = uv
+		if not uv2.is_empty():
+			arrays[Mesh.ARRAY_TEX_UV2] = uv2
+		arrays[Mesh.ARRAY_INDEX] = out
+
+
 class GlassMask:
 	const CELL := 0.03
 	const BEHIND := 0.01
@@ -588,6 +700,24 @@ class GlassMask:
 						(grid[key] as Array).append(i)      # (a packed array would be copied out and the append lost)
 					else:
 						grid[key] = [i]
+
+	## Inside the car just behind the glass (within BEHIND of it, on the side its triangles' (b - a) x
+	## (c - a) points to: in, for Godot's clockwise front faces), over one of its triangles.
+	func behind(p: Vector3) -> bool:
+		if not box.has_point(p):
+			return false
+		for j: int in grid.get(Vector3i(floori(p.x / CELL), floori(p.y / CELL), floori(p.z / CELL)), []):
+			var d := n[j].dot(p - a[j])
+			if d < -0.001 or d > BEHIND:
+				continue
+			var v2 := p - n[j] * d - a[j]
+			var d20 := v2.dot(e0[j])
+			var d21 := v2.dot(e1[j])
+			var b1 := (terms[j * 4 + 2] * d20 - terms[j * 4 + 1] * d21) * terms[j * 4 + 3]
+			var b2 := (terms[j * 4] * d21 - terms[j * 4 + 1] * d20) * terms[j * 4 + 3]
+			if b1 >= -0.002 and b2 >= -0.002 and b1 + b2 <= 1.002:
+				return true
+		return false
 
 	func under(p: Vector3) -> bool:
 		if not box.has_point(p):

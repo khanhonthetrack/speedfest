@@ -4907,3 +4907,21 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   together they go over this container's memory and the out-of-memory killer takes the render (three
   pieces lost: `open_2`-`open_4` came out 0.3-7.7 s long, each still saying `CLIP_OK`). Never run stills
   beside a render. Also `pgrep -f <pattern>` matches the shell running it: watch by file, not by name.
+
+### 28 Oct (session 21, cont.): the lean's review, its findings fixed (M20-9)
+- A fresh read-only reviewer on commit 55c30f3 found, and checking confirmed: **the wrong window
+  wound** (the side test took Godot's inward face normal: "driver" picked the passenger's glass) and,
+  worse, **no window piece at all** (the glass triangles were appended to a packed array taken out of a
+  dictionary: a copy, so they were lost; the glass simply vanished from the body); **the paint 4 mm
+  behind the side glass** (the greenhouse is lofted whole, the glass laid over it) would have shown in
+  the opening from outside, so it now goes with the glass (`GlassMask.behind`); **Dee's knees bent
+  backwards** (a + bend tips a hanging bone's end back: the thighs need -46 - 22, the shins +44); **her
+  palms hovered 2-3 cm** over the door and stopped short of the glass (the marks counted the hand's
+  thickness twice: marks are on the skin now, measured by raycasts through the coupe's mesh: the
+  door's top at y 0.883-0.895, the glass at x 0.695 at y 1.08); **a wrist bent 96 degrees** sideways
+  (fingers now point into the car); **an arm jumped** when its hand let go (the arm is now solved whole
+  and each bone eased from the clip's turn by the key's weight); **the palm's whole turn landed at the
+  wrist** (the forearm now takes 60% of it); and **the window wound under Dee's line**, not Kit's (now
+  3.6-5.0 s: as her "Open up" ends and Kit answers).
+- Tests: `story_windows_down` (the driver's glass split out, +x, slid down after its span, none for
+  the passenger); `story_person_reach` checks the palms' skin against their marks within 1.5 cm.

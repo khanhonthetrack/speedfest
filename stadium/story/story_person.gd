@@ -35,6 +35,8 @@ extends Node3D
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
 ## The clips' own travel speed (docs/ANIMATIONS.md, measured from the _rm file's root track).
 const SPEED := {"Walk": 0.98, "Walk_Formal": 0.98, "Jog_Fwd": 5.36, "Sprint": 8.25, "Crouch_Fwd": 0.75}
+const PALM_HALF := 0.02            ## m from a hand's bones to its palm's skin ("reach" marks are on the skin)
+const FOREARM_ROLL := 0.6          ## the share of a reaching hand's roll the forearm takes (the wrist the rest)
 
 static var _scene: PackedScene
 static var _coat: StandardMaterial3D
@@ -450,7 +452,8 @@ static func _set_global_basis(sk: Skeleton3D, i: int, basis: Basis) -> void:
 	sk.set_bone_pose_rotation(i, local.orthonormalized().get_rotation_quaternion())
 
 
-## One arm to a "reach" key, w of the way (0: the clip's arm).
+## One arm to a "reach" key, w of the way (0: the clip's arm): solved whole, then each bone eased from
+## the clip's turn to the solved one by w (so a hand let go comes back to the clip's arm without a jump).
 func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 	var ua := sk.find_bone(side + "UpperArm")
 	var la := sk.find_bone(side + "LowerArm")
@@ -458,11 +461,12 @@ func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 	var hf := _hand_frame(sk, side)
 	if ua < 0 or la < 0 or hd < 0 or hf.is_empty() or w <= 0.0:
 		return
+	var clip := [sk.get_bone_pose_rotation(ua), sk.get_bone_pose_rotation(la), sk.get_bone_pose_rotation(hd)]
 	# the targets' frame (the anchor, or "reach_car"'s road frame) -> skeleton space
 	var frame: Transform3D = reach_frame if reach_frame is Transform3D else _base
 	var to_sk := sk.global_transform.affine_inverse() * frame
 	var dir := func(v: Vector3) -> Vector3: return (to_sk.basis * v).normalized()
-	# the hand turned to its palm and fingers, w of the way
+	# the hand turned to its palm and fingers
 	var normal: Vector3 = hf["normal"]
 	var fingers: Vector3 = hf["fingers"]
 	var want_n: Vector3 = dir.call(k["palm"]) if k.has("palm") else normal
@@ -470,12 +474,10 @@ func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 	if want_f.length() < 0.01:
 		want_f = fingers
 	var turn := (_frame(want_f, -want_n) * _frame(fingers, -normal).inverse()).orthonormalized()
-	turn = Basis(Quaternion.IDENTITY.slerp(turn.get_rotation_quaternion(), w))
 	var hand_basis := turn * sk.get_bone_global_pose(hd).basis
-	# the wrist where the palm's middle lands on the target, the hand's half thickness off it
+	# the wrist where the palm's skin lands on the mark: its middle, the hand's half thickness off it
 	var wrist0: Vector3 = hf["wrist"]
-	var target := to_sk * (k["at"] as Vector3) - turn * ((hf["palm"] as Vector3) - wrist0) - turn * normal * 0.02
-	target = wrist0.lerp(target, w)
+	var target := to_sk * (k["at"] as Vector3) - turn * ((hf["palm"] as Vector3) - wrist0) - turn * normal * PALM_HALF
 	# two bones: the elbow on the circle where both reach, towards the pole
 	var s := sk.get_bone_global_pose(ua).origin
 	var e := sk.get_bone_global_pose(la).origin
@@ -498,10 +500,25 @@ func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 	_set_global_basis(sk, ua, Basis(Quaternion((e - s).normalized(), (elbow - s).normalized())) * up_basis)
 	var e2 := sk.get_bone_global_pose(la).origin
 	var w2 := sk.get_bone_global_pose(hd).origin
-	var lo_basis := sk.get_bone_global_pose(la).basis
 	if (w2 - e2).length() > 0.001 and (target - e2).length() > 0.001:
-		_set_global_basis(sk, la, Basis(Quaternion((w2 - e2).normalized(), (target - e2).normalized())) * lo_basis)
+		_set_global_basis(sk, la, Basis(Quaternion((w2 - e2).normalized(), (target - e2).normalized())) * sk.get_bone_global_pose(la).basis)
+	# the forearm takes most of the hand's roll about it (it turns the palm; a wrist only bends), so
+	# the skin at the wrist doesn't wring
+	var axis := (sk.get_bone_global_pose(hd).origin - e2).normalized()
+	var r := (hand_basis * sk.get_bone_global_pose(hd).basis.inverse()).orthonormalized().get_rotation_quaternion()
+	var along := Vector3(r.x, r.y, r.z).project(axis)
+	var twist := Quaternion(along.x, along.y, along.z, r.w)
+	if twist.length() > 0.000001:
+		twist = twist.normalized()
+		if twist.w < 0.0:
+			twist = -twist
+		_set_global_basis(sk, la, Basis(Quaternion.IDENTITY.slerp(twist, FOREARM_ROLL)) * sk.get_bone_global_pose(la).basis)
 	_set_global_basis(sk, hd, hand_basis)
+	if w < 1.0:
+		var bones := [ua, la, hd]
+		var solved := [sk.get_bone_pose_rotation(ua), sk.get_bone_pose_rotation(la), sk.get_bone_pose_rotation(hd)]
+		for b in 3:
+			sk.set_bone_pose_rotation(bones[b], (clip[b] as Quaternion).slerp(solved[b] as Quaternion, w))
 
 
 ## Where a hand's palm is now (world): its middle, between the wrist and the knuckles ("Left" / "Right").

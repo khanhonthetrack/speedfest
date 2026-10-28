@@ -132,6 +132,7 @@ func _ready() -> void:
 	await _props_kept()
 	await _lifted()
 	await _reached()
+	await _windows()
 	await _story_race()
 	TestHooks.finish()
 
@@ -795,8 +796,8 @@ func _lifted() -> void:
 ## A person's "reach": hands put where the keys say, in a car's road frame ("reach_car"), palms facing
 ## as asked; a hand the next key leaves out eased back to the clip (the knock's Dee, leaning on the door).
 func _reached() -> void:
-	var roof_l := Vector3(0.82, 0.915, 0.4)        # the coupe's door top under its window, either side of her
-	var roof_r := Vector3(0.82, 0.915, -0.2)
+	var roof_l := Vector3(0.82, 0.883, 0.4)        # the coupe's door top under its window, either side of her
+	var roof_r := Vector3(0.82, 0.895, -0.2)
 	var d := {"id": "reach_test", "shots": [{"id": "a", "dur": 3.0, "bare": true,
 		"camera": {"keys": [{"u": 0, "pos": [4.0, 1.5, 3.0], "look": [0.0, 1.0, 0.0]}]},
 		"cars": [{"id": "kit", "model": "nemesis"}],
@@ -812,16 +813,44 @@ func _reached() -> void:
 	sc.seek(0.5)
 	var xf: Transform3D = sc._cars["kit"]["xf"]
 	var dee := _find(sc, "dee")
-	var off_l := dee.palm_point("Left").distance_to(xf * roof_l)
-	var off_r := dee.palm_point("Right").distance_to(xf * roof_r)
 	var sk := StoryCast.skeleton(dee)
+	var skin := func(side: String) -> Vector3:     # the palm's skin: its middle, the hand's half thickness out
+		var f := StoryPerson._hand_frame(sk, side)
+		return sk.global_transform * ((f["palm"] as Vector3) + (f["normal"] as Vector3) * StoryPerson.PALM_HALF)
+	var off_l: float = (skin.call("Left") as Vector3).distance_to(xf * roof_l)
+	var off_r: float = (skin.call("Right") as Vector3).distance_to(xf * roof_r)
 	var hf := StoryPerson._hand_frame(sk, "Left")
 	var down := (sk.global_transform.basis * (hf["normal"] as Vector3)).normalized().dot(-(xf.basis.y.normalized()))
 	sc.seek(2.5)                                   # the right hand let go: back where the clip has it, hanging
 	var hang := dee.palm_point("Right").distance_to(xf * roof_r)
-	TestHooks.check(off_l < 0.03 and off_r < 0.03 and down > 0.9 and hang > 0.3, "story_person_reach",
-		"palms %.3f / %.3f m off their marks on the door (under 0.03); the left palm down %.2f (over 0.9); the right hand let go %.2f m from its mark (over 0.3)" % [
+	TestHooks.check(off_l < 0.015 and off_r < 0.015 and down > 0.9 and hang > 0.3, "story_person_reach",
+		"palms' skin %.3f / %.3f m off their marks on the door (under 0.015); the left palm down %.2f (over 0.9); the right hand let go %.2f m from its mark (over 0.3)" % [
 		off_l, off_r, down, hang])
+	sc.queue_free()
+	await get_tree().process_frame
+
+
+## A cabin car's "windows_down": the driver's door glass (+x, the road frame's left) split out of the
+## body, up before its span and wound down into the door after it; the passenger's left alone.
+func _windows() -> void:
+	var d := {"id": "windows_test", "shots": [{"id": "a", "dur": 2.0, "bare": true,
+		"camera": {"keys": [{"u": 0, "pos": [4.0, 1.5, 3.0], "look": [0.0, 1.0, 0.0]}]},
+		"cars": [{"id": "kit", "model": "nemesis", "cabin": true, "windows_down": {"driver": [0.5, 1.5]}}]}]}
+	var sc := StoryScene.new()
+	add_child(sc)
+	sc.setup(d, StoryState.new(), false)
+	sc.seek(0.2)
+	var car := sc._cars["kit"]["node"] as Node
+	var mine := car.find_children("Window_driver", "MeshInstance3D", true, false)
+	var other := car.find_children("Window_passenger", "MeshInstance3D", true, false)
+	var piece := mine[0] as MeshInstance3D if not mine.is_empty() else null
+	var box := piece.mesh.get_aabb() if piece != null else AABB()
+	var up := piece.position.y if piece != null else 1.0
+	sc.seek(1.9)
+	var down := piece.position.y if piece != null else 0.0
+	TestHooks.check(piece != null and other.is_empty() and box.position.x > 0.5 and absf(up) < 0.001 and down < -0.3,
+		"story_windows_down", "the driver's glass split out %s (x %.2f-%.2f: over 0.5), none for the passenger %s; %.3f m down before its span, %.3f after (under -0.3)" % [
+		piece != null, box.position.x, box.end.x, other.is_empty(), up, down])
 	sc.queue_free()
 	await get_tree().process_frame
 

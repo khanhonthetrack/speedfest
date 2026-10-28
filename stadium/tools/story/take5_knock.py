@@ -41,37 +41,53 @@ def kit(bend=None, **kw):
 
 # Dee leans in at the driver's window from standing: hinged at the hips, the knees a little bent under
 # her (her feet kept flat), a little more up the back, her head brought up to look in at Kit. She
-# knocks with the window up, her other hand on the door; Kit winds it down (between the first shot and
-# the next) and she leans on the door with both hands on the window's ledge. The coupe measured (the
-# car's frame, x out to its left): the door's top under the glass at y 0.89-0.92 (x 0.77-0.86), the
-# side glass from y 0.90 (x 0.77) to 1.25 (x 0.63); Dee is 1.60 m, her pelvis at 0.83.
-KNEE = 22                                      # degrees the thighs come forward (the shins back twice that)
-LEAN = {"Hips": [46, 0, 0], "LeftUpperLeg": [KNEE - 46, 0, 0], "RightUpperLeg": [KNEE - 46, 0, 0],
-        "LeftLowerLeg": [-2 * KNEE, 0, 0], "RightLowerLeg": [-2 * KNEE, 0, 0], "LeftFoot": [KNEE, 0, 0],
-        "RightFoot": [KNEE, 0, 0], "Spine": [8, 0, 0], "Chest": [5, 0, 0], "UpperChest": [3, 0, 0],
+# knocks with the window up, her other hand on the door; Kit winds it down (WINDING) and she leans on
+# the door with both hands on the window's ledge. The coupe measured (raycast through nemesis.glb; the
+# car's frame, x out to its left): the door's top at x 0.82 at y 0.883 (z 0.4) to 0.895 (z -0.2),
+# falling outwards 0.35 in 1 (at x 0.85 y 0.867); the side glass from y 0.90 (x 0.77) to 1.25 (x 0.63),
+# at y 1.08 x 0.695, facing out (0.907, 0.422); Dee is 1.60 m, her pelvis at 0.83. The marks are where
+# a palm's skin lands (StoryPerson.PALM_HALF puts its bones off it).
+KNEE = 22                                      # degrees the knees come forward (the shins back twice that)
+# (_bend turns a bone about the body's x in its own place: + tips an upright bone forwards and a hanging
+# one's end backwards, so the thighs come forward with less than the hips' -46 and the shins go back)
+LEAN = {"Hips": [46, 0, 0], "LeftUpperLeg": [-46 - KNEE, 0, 0], "RightUpperLeg": [-46 - KNEE, 0, 0],
+        "LeftLowerLeg": [2 * KNEE, 0, 0], "RightLowerLeg": [2 * KNEE, 0, 0], "LeftFoot": [-KNEE, 0, 0],
+        "RightFoot": [-KNEE, 0, 0], "Spine": [8, 0, 0], "Chest": [5, 0, 0], "UpperChest": [3, 0, 0],
         "Neck": [-16, 0, 0], "Head": [-18, 0, 0]}
 SINK = -0.058                                  # the bent knees bring the hips down (her feet stay on the ground)
-SILL_Y, SILL_X = 0.915, 0.82
-GLASS_IN = [-0.93, -0.37, 0.0]                 # the way into the glass (its face leans in 22 degrees)
+DOOR_IN = [-0.35, -0.94, 0.0]                  # the way into the door's top (it falls outwards)
+GLASS_IN = [-0.907, -0.422, 0.0]               # the way into the side glass
+GLASS_UP = [-0.422, 0.907, 0.0]                # up along it
 
 
-def on_sill(z, fingers):
-    """A palm on the door's top where the window winds into it."""
-    return {"at": [SILL_X, SILL_Y, z], "palm": [0.0, -1.0, 0.0], "fingers": fingers}
+def door_top(x, z):
+    """The door's top under the window at x (0.80-0.86) and z: its height, as measured."""
+    y_at = {0.42: 0.883, 0.4: 0.883, -0.2: 0.895}[z]          # at x 0.82
+    return [x, round(y_at - 0.35 * (x - 0.82), 4), z]
+
+
+def on_ledge(z, fingers, x=0.82):
+    """A palm on the door's top, where the window winds into it."""
+    return {"at": door_top(x, z), "palm": DOOR_IN, "fingers": fingers}
 
 
 def hands(t, **over):
     """Both hands on the window's ledge, either side of her (her left: the car's front), fingers into the car."""
-    k = {"t": t, "LeftHand": on_sill(0.4, [-1.0, -0.15, 0.25]), "RightHand": on_sill(-0.2, [-1.0, -0.15, -0.25])}
+    k = {"t": t, "LeftHand": on_ledge(0.4, [-0.94, 0.2, 0.25]), "RightHand": on_ledge(-0.2, [-0.94, 0.2, -0.25])}
     k.update(over)
     return k
 
 
+def up_hands(t, right=None):
+    """The window up: the left hand on the door's top outside the glass, its fingertips at the glass's
+    foot; the right too, or as given."""
+    return {"t": t, "LeftHand": on_ledge(0.4, [-0.94, 0.25, 0.25], 0.85),
+            "RightHand": right or on_ledge(-0.2, [-0.94, 0.25, -0.25], 0.85)}
+
+
 def tap(t, x):
-    """Window up: the left hand on the door along its top, the right at the glass by Kit's head, x out
-    from it (0.722: on the glass)."""
-    return {"t": t, "LeftHand": on_sill(0.42, [-0.15, 0.0, 1.0]),
-            "RightHand": {"at": [x, 1.08, 0.0], "palm": GLASS_IN, "fingers": [-0.37, 0.93, 0.0]}}
+    """The right hand at the glass by Kit's head, x out from it (0.695: on the glass)."""
+    return up_hands(t, {"at": [x, 1.08, 0.0], "palm": GLASS_IN, "fingers": GLASS_UP})
 
 
 def dee(reach=None, bend=None, **kw):
@@ -83,12 +99,12 @@ def dee(reach=None, bend=None, **kw):
 
 
 # the knock: two taps of her hand on the glass by Kit's head (the thumps at 0.55 and 0.9 s), the hand
-# resting on the glass, then down on the door by the other as Kit winds the window down (3.1-4.6 s,
-# on "What... what time is it?"), her fingers along the door's top while the glass goes into it
-KNOCKING = [tap(0.0, 0.8), tap(0.4, 0.8), tap(0.55, 0.722), tap(0.72, 0.8), tap(0.9, 0.722), tap(1.08, 0.8), tap(1.8, 0.74),
-            tap(2.3, 0.74), hands(2.9, LeftHand=on_sill(0.42, [-0.15, 0.0, 1.0]), RightHand=on_sill(-0.2, [-0.15, 0.0, -1.0])),
-            hands(4.8, LeftHand=on_sill(0.42, [-0.15, 0.0, 1.0]), RightHand=on_sill(-0.2, [-0.15, 0.0, -1.0])), hands(5.6)]
-WINDING = {"driver": [3.1, 4.6]}
+# resting on the glass, then on the door's top by the other; Kit winds the window down as Dee's "Open
+# up" ends and Kit answers (3.6-5.0 s: her line runs 1.9-4.0, Kit's 4.3-6.8), and her hands go in over
+# the ledge once the glass is down
+KNOCKING = [tap(0.0, 0.78), tap(0.4, 0.78), tap(0.55, 0.695), tap(0.72, 0.78), tap(0.9, 0.695), tap(1.08, 0.78),
+            tap(1.8, 0.7), tap(2.3, 0.7), up_hands(2.9), up_hands(5.2), hands(5.8)]
+WINDING = {"driver": [3.6, 5.0]}
 
 
 DAWN_AIR = {"fog": 0.002, "fog_colour": "#5d6f96", "fog_sky": 0.85, "exposure": 1.35}   # "gone six": a blue-grey sky
