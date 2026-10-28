@@ -97,7 +97,13 @@
   the cutting, coverage and light pass; the assets hold it down: `docs/CINEMATICS.md`, second pass).
   Clips render overnight in pieces cut at shot boundaries (the session scratchpad's `clips5/queue.sh`,
   a watchdog kills a Godot stuck after its movie is written), then a second review on the clips, then a
-  page for the owner with the scorecard.
+  page for the owner with the scorecard. **A clip render takes about 7 GB: never run story_lab stills or
+  a test beside one** (the out-of-memory killer took three pieces, each still saying `CLIP_OK`; check
+  every piece's length).
+- **The owner on the knock** (27 Oct): "Cant you let Dee lean and put hands on the window?". Done: she
+  taps on the glass, Kit winds the window down (`"windows_down": {"driver": [3.1, 4.6]}`), she leans on
+  the door with both hands on the window's ledge (`StoryPerson` `"reach"`, two-bone IK; `"reach_car"`),
+  and straightens up at the end (`"lift"` keyed). In `take5_knock.py`.
 - **Next**: the take five page and the owner's answers; then the second pass's assets (Gus's vest,
   Lot 47's livery, the underglow, containers, the ghost's hair) and the phone call, bids, the coat
   man's exit and the ignition (long single shots still: the lint warns); then faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera

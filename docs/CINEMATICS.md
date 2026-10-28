@@ -150,6 +150,6 @@ Procedure:
 | 3 docks set | done 27 Oct (the opening on it) |
 | Lint (`stadium/tools/story_lint.py`) | done 27 Oct |
 | 4 the Mirror | blocked and lit 27 Oct; critic round 1: 4.1/10 (notes in PROGRESS) |
-| 5 the knock | re-blocked 27 Oct (Dee crouched, coverage from inside, dawn) |
+| 5 the knock | re-blocked 27 Oct (coverage from inside, dawn); Dee leaning in on the window's ledge, the window wound down (owner's note, 27 Oct) |
 | 6 the intro | re-cut 27 Oct; critic round 1: 4.1/10 |
 | Take five: stills, critic, render, page | two critic rounds (4.1 both: the structure passes, the assets hold it down); the render next |
