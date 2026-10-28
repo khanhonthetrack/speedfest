@@ -1,6 +1,7 @@
 """(Kept in the repo: regenerates take five's scene from take four's, `git show 131d50f:stadium/story/scenes/<file>`; the Mirror: take5_mirror.py, then take5_mirror2.py, then take5_knock.py.)
-Take five's knock (docs/CINEMATICS.md, first pass item 5): Dee crouched at the window, eyes at Kit's
-height, her head outside the glass; Kit breathing; coverage that opens on a two-shot and tightens
+Take five's knock (docs/CINEMATICS.md, first pass item 5): Dee leaning in at the window, her hands on
+its frame (owner, 27 Oct: "Cant you let Dee lean and put hands on the window? It is more realistic i
+think"; take five crouched her), eyes at Kit's height, her head outside the glass; Kit breathing; coverage that opens on a two-shot and tightens
 (singles over the shoulder, a push on "I saw her in the mirror"), the pins insert pushed in, a wide to
 end on; dawn ("Gone six"): a cool key from the arch's mouth, a warm rim from the arch's bulb.
     python3 knock.py <c01_close.json> <out.json>"""
@@ -13,9 +14,10 @@ head = src["shots"][:ids.index("arch")]
 
 VIADUCT = [{"kind": "viaduct", "pos": [5.6, 0.0, 0.5], "yaw": -90.0, "arches": 7},
            {"kind": "quay", "pos": [0.0, 0.012, 0.0], "rect": [-40.0, -40.0, 5.6, 40.0], "walls": False, "wetness": 0.8}]
-KIT_CAR = {"id": "kit", "model": "nemesis", "livery": 1, "tuning": "0.5.6.0", "cabin": True, "finish": "gloss"}
+KIT_CAR = {"id": "kit", "model": "nemesis", "livery": 1, "tuning": "0.5.6.0", "cabin": True, "finish": "gloss",
+           "windows_down": ["driver"]}         # Kit winds it down in the first shot (WINDING)
 KIT_HEAD = [0.37, 1.07, 0.15]
-DEE_FACE = [1.42, 1.1, 0.12]               # where her eyes are, crouched at the window
+DEE_FACE = [0.98, 1.15, 0.1]               # where her eyes are, leaning in at the window (the car's frame)
 DAWN = [
     # first light from the street ahead on the driver's side: Kit's face and Dee's, not the roof inside
     {"kind": "spot", "pos": [5.5, 2.4, 3.5], "look": [0.5, 1.05, 0.1], "colour": "#9db4e6", "energy": 3.5, "range": 14.0,
@@ -37,15 +39,56 @@ def kit(bend=None, **kw):
     return p
 
 
-def dee(**kw):
-    # crouched at the driver's window: the crouch tips her head 45 degrees down, brought back up to
-    # look in level with Kit
-    # (lifted 22 cm, a film set's apple box: the crouch alone put her eyes under the sill of this low
-    # coupe; her feet are below the door in every shot she crouches in, and she stands for the wide)
-    p = {"id": "dee", "who": "dee", "clip": "Crouch_Idle", "pos": [1.62, 0.0, 0.1], "lift": 0.22, "face": -90, "gaze": "kit_driver",
-         "bend": [{"t": 0.0, "Neck": [-18, 0, 0], "Head": [-22, 0, 0]}]}
+# Dee leans in at the driver's window from standing: hinged at the hips, the knees a little bent under
+# her (her feet kept flat), a little more up the back, her head brought up to look in at Kit. She
+# knocks with the window up, her other hand on the door; Kit winds it down (between the first shot and
+# the next) and she leans on the door with both hands on the window's ledge. The coupe measured (the
+# car's frame, x out to its left): the door's top under the glass at y 0.89-0.92 (x 0.77-0.86), the
+# side glass from y 0.90 (x 0.77) to 1.25 (x 0.63); Dee is 1.60 m, her pelvis at 0.83.
+KNEE = 22                                      # degrees the thighs come forward (the shins back twice that)
+LEAN = {"Hips": [46, 0, 0], "LeftUpperLeg": [KNEE - 46, 0, 0], "RightUpperLeg": [KNEE - 46, 0, 0],
+        "LeftLowerLeg": [-2 * KNEE, 0, 0], "RightLowerLeg": [-2 * KNEE, 0, 0], "LeftFoot": [KNEE, 0, 0],
+        "RightFoot": [KNEE, 0, 0], "Spine": [8, 0, 0], "Chest": [5, 0, 0], "UpperChest": [3, 0, 0],
+        "Neck": [-16, 0, 0], "Head": [-18, 0, 0]}
+SINK = -0.058                                  # the bent knees bring the hips down (her feet stay on the ground)
+SILL_Y, SILL_X = 0.915, 0.82
+GLASS_IN = [-0.93, -0.37, 0.0]                 # the way into the glass (its face leans in 22 degrees)
+
+
+def on_sill(z, fingers):
+    """A palm on the door's top where the window winds into it."""
+    return {"at": [SILL_X, SILL_Y, z], "palm": [0.0, -1.0, 0.0], "fingers": fingers}
+
+
+def hands(t, **over):
+    """Both hands on the window's ledge, either side of her (her left: the car's front), fingers into the car."""
+    k = {"t": t, "LeftHand": on_sill(0.4, [-1.0, -0.15, 0.25]), "RightHand": on_sill(-0.2, [-1.0, -0.15, -0.25])}
+    k.update(over)
+    return k
+
+
+def tap(t, x):
+    """Window up: the left hand on the door along its top, the right at the glass by Kit's head, x out
+    from it (0.722: on the glass)."""
+    return {"t": t, "LeftHand": on_sill(0.42, [-0.15, 0.0, 1.0]),
+            "RightHand": {"at": [x, 1.08, 0.0], "palm": GLASS_IN, "fingers": [-0.37, 0.93, 0.0]}}
+
+
+def dee(reach=None, bend=None, **kw):
+    p = {"id": "dee", "who": "dee", "clip": "Stand", "pos": [1.55, 0.0, 0.1], "lift": SINK, "face": -90,
+         "gaze": "kit_driver", "reach_car": "kit", "bend": bend or [dict({"t": 0.0}, **copy.deepcopy(LEAN))],
+         "reach": reach or [hands(0.0)]}
     p.update(kw)
     return p
+
+
+# the knock: two taps of her hand on the glass by Kit's head (the thumps at 0.55 and 0.9 s), the hand
+# resting on the glass, then down on the door by the other as Kit winds the window down (3.1-4.6 s,
+# on "What... what time is it?"), her fingers along the door's top while the glass goes into it
+KNOCKING = [tap(0.0, 0.8), tap(0.4, 0.8), tap(0.55, 0.722), tap(0.72, 0.8), tap(0.9, 0.722), tap(1.08, 0.8), tap(1.8, 0.74),
+            tap(2.3, 0.74), hands(2.9, LeftHand=on_sill(0.42, [-0.15, 0.0, 1.0]), RightHand=on_sill(-0.2, [-0.15, 0.0, -1.0])),
+            hands(4.8, LeftHand=on_sill(0.42, [-0.15, 0.0, 1.0]), RightHand=on_sill(-0.2, [-0.15, 0.0, -1.0])), hands(5.6)]
+WINDING = {"driver": [3.1, 4.6]}
 
 
 DAWN_AIR = {"fog": 0.002, "fog_colour": "#5d6f96", "fog_sky": 0.85, "exposure": 1.35}   # "gone six": a blue-grey sky
@@ -96,8 +139,9 @@ k = shot("knock", follow([{"u": 0, "pos": [-0.12, 0.98, 0.78], "look": [0.8, 1.1
                           {"u": 1, "pos": [-0.08, 0.99, 0.7], "look": [0.8, 1.12, -0.05], "fov": 40}]),
          [kit([{"t": 0.0, "Neck": [6, 0, -4], "Head": [10, 0, -12]}, {"t": 0.55, "Neck": [6, 0, -4], "Head": [10, 0, -12]},
                {"t": 1.1, "Neck": [0, 10, 0], "Head": [-3, 16, 0]}], looks=[[0.0, 0.95, "ahead"]], rate=0.0,
-              breathe=[1.4, 4.6]), dee()],
+              breathe=[1.4, 4.6]), dee(reach=copy.deepcopy(KNOCKING))],
          lines_of("knock"), lead=1.9, fade_in=0.4, sounds=[{"at": 0.55, "cue": "thump"}, {"at": 0.9, "cue": "thump"}])
+k["cars"][0]["windows_down"] = copy.deepcopy(WINDING)
 shots.append(k)
 # the two-shot from the passenger seat: Kit in profile, Dee at the glass beyond
 shots.append(shot("knock_two", follow([{"u": 0, "pos": [-0.45, 0.98, 0.45], "look": [1.2, 1.06, 0.05], "fov": 38},
@@ -128,6 +172,9 @@ pins["env"] = copy.deepcopy(DAWN_AIR)
 pins["dur"] = 3.0
 pins["camera"] = follow([{"u": 0, "pos": [0.16, 1.0, 0.34], "look": [0.0, 0.88, 0.7], "fov": 22},
                          {"u": 1, "pos": [0.1, 0.96, 0.44], "look": [0.0, 0.88, 0.7], "fov": 22}])
+for c in pins["cars"]:
+    if c.get("id") == "kit":
+        c["windows_down"] = ["driver"]
 pins["lights"] = [{"car": "kit", "kind": "omni", "pos": [0.1, 1.0, 0.4], "colour": "#b9a8ff", "energy": 0.6, "range": 1.0,
                    "shadow": False}]
 shots.append(pins)
@@ -136,7 +183,10 @@ shots.append(shot("knock_kit4", copy.deepcopy(KIT_2), [kit(), dee()], lines_of("
 shots.append(shot("knock_end", {"path": "spline", "ease": "inout", "keys": [
     {"u": 0.0, "pos": [3.2, 1.3, -4.5], "look": [0.9, 1.0, 0.4], "fov": 40},
     {"u": 1.0, "pos": [4.4, 4.0, -8.0], "look": [1.0, 1.1, 0.6], "fov": 40}]},
-    [kit(), {"id": "dee", "who": "dee", "clip": "Stand", "pos": [1.8, 0.0, 0.15], "face": -90, "gaze": "kit_driver"}],
+    # she straightens up as she says it, her knees and hips with her (the lift eased back to the ground),
+    # still looking down at Kit
+    [kit(), dee(bend=[dict({"t": 0.9}, **copy.deepcopy(LEAN)), {"t": 2.3, "Neck": [10, 0, 0], "Head": [14, 0, 0]}],
+                reach=[hands(0.9), {"t": 1.9}], lift=[[0.9, SINK], [2.3, 0.0]])],
     lines_of("knock_end"), lead=0.8, tail=1.2))
 
 out = copy.deepcopy(src)

@@ -279,6 +279,151 @@ static func fit_car(car: TmCarVisual) -> void:
 		mi.add_child(lining)
 
 
+## Winds a fitted car's front side windows down: sides {"driver" (+x, the road frame's left) |
+## "passenger": [from s, to s] (wound down over that time in the shot) | true (down already)}. The
+## door's glass (from about 0.46 m behind the driver's eyes, a coupe's B-pillar, forwards) comes out of
+## the body into its own piece, "Window_<side>", which wind() slides down along its own slope into the
+## door; none of it shows under the door's top. The car's own copy of the body; the lining as it is.
+static func open_windows(car: TmCarVisual, sides: Dictionary) -> void:
+	if sides.is_empty() or _clear_glass == null:
+		return
+	var eyes: Vector3 = _layout(TmRoadCars.manifest(car.model))["driver_head"]
+	var b_pillar := eyes.z - 0.46
+	var winding := {}                                  # side -> [piece, slide (m, the body's frame), from s, to s]
+	for mi: MeshInstance3D in car.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null or not mi.mesh is ArrayMesh:
+			continue
+		var glass_k: Array[int] = []
+		for k in mi.mesh.get_surface_count():
+			if mi.get_surface_override_material(k) == _clear_glass:
+				glass_k.append(k)
+		if glass_k.is_empty():
+			continue
+		var names := sides.keys()
+		names.sort()
+		var key := [mi.mesh, names]
+		if not _opened.has(key):
+			_opened[key] = _split_windows(mi.mesh as ArrayMesh, glass_k, names, b_pillar)
+		var split: Dictionary = _opened[key]
+		var overrides := []
+		for k in mi.mesh.get_surface_count():
+			overrides.append(mi.get_surface_override_material(k))
+		mi.mesh = split["body"]
+		for k in overrides.size():
+			mi.set_surface_override_material(k, overrides[k])
+		for side: String in split["windows"]:
+			var w: Array = split["windows"][side]              # [mesh, slide, the door's top]
+			var piece := MeshInstance3D.new()
+			piece.name = "Window_" + side
+			piece.mesh = w[0]
+			var mat := ShaderMaterial.new()
+			mat.shader = _window_shader()
+			mat.set_shader_parameter("floor_y", float(w[2]))
+			piece.material_override = mat
+			piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			mi.add_child(piece)
+			var when: Variant = sides[side]
+			var span: Array = when if when is Array and (when as Array).size() >= 2 else [-1.0, -1.0]
+			winding[side] = [piece, w[1], float(span[0]), float(span[1])]
+	car.set_meta("windows", winding)
+	wind(car, 0.0)
+
+
+## The car's wound windows at time t of the shot (open_windows): each as far down as its span says.
+static func wind(car: TmCarVisual, t: float) -> void:
+	var winding: Dictionary = car.get_meta("windows", {})
+	for side: String in winding:
+		var w: Array = winding[side]
+		var from := float(w[2])
+		var to := float(w[3])
+		var f := 1.0 if to <= from else clampf((t - from) / (to - from), 0.0, 1.0)
+		f = f * f * (3.0 - 2.0 * f)
+		var piece := w[0] as MeshInstance3D
+		piece.position = (w[1] as Vector3) * f
+		(piece.material_override as ShaderMaterial).set_shader_parameter("drop", -piece.position.y)
+
+
+## The body's mesh with its front side windows' glass taken out: {"body": the rest, "windows": {side:
+## [that glass as a mesh, the slide that takes its top just under the door's top, the door's top's y]}}.
+static func _split_windows(mesh: ArrayMesh, glass_k: Array[int], sides: Array, b_pillar: float) -> Dictionary:
+	var body := ArrayMesh.new()
+	var tris := {}                                     # side -> its glass's corners, three a triangle
+	var normals := {}                                  # side -> its glass's corners' normals
+	for side: String in sides:
+		tris[side] = PackedVector3Array()
+		normals[side] = PackedVector3Array()
+	for k in mesh.get_surface_count():
+		var arrays := mesh.surface_get_arrays(k)
+		if k in glass_k and arrays[Mesh.ARRAY_INDEX] != null:
+			var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var vn: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+			var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+			var keep := PackedInt32Array()
+			for i in range(0, idx.size(), 3):
+				var a := v[idx[i]]
+				var b := v[idx[i + 1]]
+				var c := v[idx[i + 2]]
+				var n := (b - a).cross(c - a).normalized()
+				var side := ""
+				if (a.z + b.z + c.z) / 3.0 > b_pillar:
+					side = "driver" if n.x > 0.6 else "passenger" if n.x < -0.6 else ""
+				if side in tris:
+					for q in [idx[i], idx[i + 1], idx[i + 2]]:
+						(tris[side] as PackedVector3Array).append(v[q])
+						(normals[side] as PackedVector3Array).append(vn[q] if vn.size() > q else n)
+				else:
+					keep.append_array([idx[i], idx[i + 1], idx[i + 2]])
+			arrays[Mesh.ARRAY_INDEX] = keep
+		body.add_surface_from_arrays(mesh.surface_get_primitive_type(k), arrays)
+		body.surface_set_material(k, mesh.surface_get_material(k))
+	var windows := {}
+	for side: String in tris:
+		var t: PackedVector3Array = tris[side]
+		if t.is_empty():
+			continue
+		var lo := INF
+		var hi := -INF
+		var facing := Vector3.ZERO
+		for i in range(0, t.size(), 3):
+			facing += (t[i + 1] - t[i]).cross(t[i + 2] - t[i])
+		for p in t:
+			lo = minf(lo, p.y)
+			hi = maxf(hi, p.y)
+		facing = facing.normalized()
+		# down along the glass's own slope, until its top is 2 cm under its lowest edge (the door's top)
+		var down := (Vector3.DOWN - facing * Vector3.DOWN.dot(facing)).normalized()
+		var slide := down * ((hi - lo + 0.02) / maxf(-down.y, 0.3))
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = t
+		arrays[Mesh.ARRAY_NORMAL] = normals[side]
+		var wm := ArrayMesh.new()
+		wm.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		windows[side] = [wm, slide, lo]
+	return {"body": body, "windows": windows}
+
+
+## The wound glass: the clear glass's look, nothing drawn under the door's top as it slides down.
+static func _window_shader() -> Shader:
+	if _window == null:
+		_window = Shader.new()
+		_window.code = """shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back;
+uniform float drop = 0.0;      // how far down the glass has slid (m)
+uniform float floor_y = 0.0;   // the door's top, in the body's frame
+varying float body_y;
+void vertex() { body_y = VERTEX.y - drop; }
+void fragment() {
+	if (body_y < floor_y) { discard; }
+	ALBEDO = vec3(0.03, 0.035, 0.045);
+	ALPHA = 0.32;
+	ROUGHNESS = 0.03;
+	METALLIC = 0.3;
+}
+"""
+	return _window
+
+
 ## The lining of a body's mesh: its lined surfaces' triangles, but those under the glass.
 static func _line(mesh: Mesh, glass_k: Array[int], lined_k: Array[int]) -> ArrayMesh:
 	var glass := GlassMask.new()
@@ -470,6 +615,8 @@ class GlassMask:
 static var _clear_glass: StandardMaterial3D
 static var _lining: StandardMaterial3D
 static var _linings := {}             ## a body's mesh -> its lining (made once a model)
+static var _opened := {}              ## [a body's mesh, sides] -> it split (_split_windows)
+static var _window: Shader                ## the wound glass's
 
 
 func _box(at: Vector3, size: Vector3, mat: Material, tilt_deg := 0.0) -> MeshInstance3D:

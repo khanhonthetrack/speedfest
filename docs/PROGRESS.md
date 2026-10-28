@@ -4884,3 +4884,26 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   line, the yard tighter on Gus, Kit's eyes from a new low angle in the underglow, the city shot over
   the cranes in a lit sodium haze. The asset notes are the second pass's (`docs/CINEMATICS.md`).
 - Engine: a pole's `"shadow"`, a title card's `"align": "left"`, the stage's lamps lit.
+
+### 27 Oct (session 21, cont.): the knock, Dee leaning in at the window (owner's note, M20-9)
+- **The owner**: "Cant you let Dee lean and put hands on the window? It is more realistic i think"
+  (TRANSCRIPT). Done: Dee taps on the glass by Kit's head with one hand, the other on the door; Kit
+  winds the window down (3.1-4.6 s into the first shot, on "What... what time is it?"); she leans on
+  the door with both hands on the window's ledge, hinged at the hips with her knees a little bent, her
+  eyes level with Kit's (1.17 m against Kit's 1.07); she straightens up in the last shot. The glass
+  no longer stands between them for the talk.
+- **Measured first**: the coupe's side glass runs from y 0.90 to 1.25 (x 0.77 to 0.63), the roof's edge
+  at 1.28; Dee is 1.60 m with arms of 0.44 m, so hands on the roof's edge were out of her reach (the
+  first stills: one hand ended at her forehead) and the window's ledge (y 0.915) is where her hands
+  fall when she bends to Kit's height.
+- **Engine**: `StoryPerson` `"reach"` (two-bone IK on the upper arm and forearm to put a palm's middle
+  on a point, the palm and fingers turned to face it, eased between keys, a hand left out of a key
+  eased back to the clip) with `"reach_car"` (points in a car's road frame); a person's bones now go
+  on after the body is placed (a hand can reach for a place in the world). A cabin car's
+  `"windows_down"`: the door's glass split out of the body (`StoryCabin.open_windows`), slid down its own
+  slope into the door over a span (`wind`), nothing drawn under the door's top. `tests/test_story_scenes`
+  `story_person_reach` (palms within 3 cm, facing down, a hand let go).
+- **A lesson for renders**: a clip render takes about 7 GB and story_lab stills at Ultra about 6 GB;
+  together they go over this container's memory and the out-of-memory killer takes the render (three
+  pieces lost: `open_2`-`open_4` came out 0.3-7.7 s long, each still saying `CLIP_OK`). Never run stills
+  beside a render. Also `pgrep -f <pattern>` matches the shell running it: watch by file, not by name.

@@ -327,7 +327,7 @@ A row of brick railway arches in the first grey light. One of them, ARCH 9 paint
 
 **INT. THE COUPE. CONTINUOUS.**
 
-Seen from the dash: Kit, asleep against the side window. Knuckles on the glass: Kit wakes and turns to it. Dee is crouched at the window outside, eye to eye with Kit, the lit arch behind her. Then the two of them from the passenger seat; then Dee over Kit's shoulder and Kit from the dash, closer as it goes on, and closer still when Kit says what was in the mirror.
+Seen from the dash: Kit, asleep against the side window. A hand taps on the glass: Kit wakes and turns to it. Dee is leaning in at the window outside, bent down to Kit's height, one hand on the door, the lit arch behind her. Kit winds the window down, and Dee leans on the door with both hands on the window's ledge. Then the two of them from the passenger seat; then Dee over Kit's shoulder and Kit from the dash, closer as it goes on, and closer still when Kit says what was in the mirror.
 
 > **DEE**: Kit. Kit! Open up.
 >
@@ -355,7 +355,7 @@ Back in the car: Kit, turned to Dee at the window.
 
 > **KIT**: Wipe it. Please.
 
-Outside, the camera rising away from the car under the arch, Dee standing up at the door.
+Outside, the camera rising away from the car under the arch, Dee straightening up from the window.
 
 > **DEE**: Not yet. Let's see where they go first.
 

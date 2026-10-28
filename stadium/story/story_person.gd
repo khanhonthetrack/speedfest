@@ -12,7 +12,8 @@ extends Node3D
 ## "Sitting_Idle", "Driving", ...: the names as Godot imports them, without "_Loop"), "loop": bool
 ## (default: the clip's own), "start": s into the clip at t = 0, "rate": playback speed,
 ## "pos": [x, y, z] (the shot's anchor frame: x left, y up, z ahead; someone standing is dropped onto the
-## ground under it), "lift": m over that ground (a film set's apple box, where the feet are out of shot),
+## ground under it), "lift": m over that ground (a film set's apple box, where the feet are out of shot;
+## or [[t, m], ...], eased between: hips that come down with bent knees and go up again),
 ## "face": degrees (0 faces +z,
 ## 90 faces +x: the anchor's left), "path": [[x, z], ...] walked at "speed" m/s from "walk_at" s
 ## (default the clip's own speed: Walk 0.98 m/s, Jog_Fwd 5.36; a cast member's scaled by its legs
@@ -25,8 +26,9 @@ extends Node3D
 ## the person sits in: a look over the shoulder) |
 ## "ahead" | a person's id (default: whoever on screen is speaking, else straight ahead), "looks":
 ## [[from, to, gaze], ...] (s into the shot: the eyes there for that while, a glance), "bend": bones turned
-## on top of the clip over time (_bend: a head coming up), "breathe": [deg, period s] (the chest
-## rising and falling), "blink": false (a cast member's eyes never
+## on top of the clip over time (_bend: a head coming up), "reach": hands put on something over time
+## (_reach: two-bone IK, the palm turned to face it; "reach_car": a car's id, the targets in its road
+## frame: hands on a car's roof), "breathe": [deg, period s] (the chest rising and falling), "blink": false (a cast member's eyes never
 ## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
@@ -43,6 +45,7 @@ var in_car := ""                   ## seated in this car of the shot (StoryScene
 var who := ""                      ## the cast member (StoryCast), "" for the Mannequin
 var face: StoryFace                ## a cast member's face (StoryScene drives it), null for the Mannequin
 var crown := Vector3.ZERO          ## seated: the top of the head, hair and all, in this person's frame
+var reach_frame: Variant = null    ## "reach_car": that car's road frame now (StoryScene sets it), null: the anchor
 var _body: Node3D
 var _player: AnimationPlayer
 var _anim: Animation
@@ -254,8 +257,6 @@ func pose(t: float) -> void:
 	var loop := bool(spec.get("loop", _anim.loop_mode != Animation.LOOP_NONE))
 	ct = fposmod(ct, _anim.length) if loop else clampf(ct, 0.0, _anim.length)
 	_player.seek(ct, true)
-	_bend(t)
-	_breathe(t)
 	# where along the walk, and facing which way
 	var walked := maxf(0.0, t - float(spec.get("walk_at", 0.0))) * _speed
 	var p := _path[0]
@@ -272,10 +273,35 @@ func pose(t: float) -> void:
 		face = atan2(dir.x, dir.z)
 	var world := _ground.call(p) as Vector3 if _ground.is_valid() else _base * p
 	var up := _base.basis.y.normalized()
-	world += up * float(spec.get("lift", 0.0))
+	world += up * _lift_at(t)
 	var fwd := (_base.basis * Vector3(sin(face), 0.0, cos(face))).normalized()
 	fwd = (fwd - up * fwd.dot(up)).normalized()
 	global_transform = Transform3D(Basis(up.cross(fwd), up, fwd), world)
+	# the bones on top of the clip, once the body stands where it stands (a hand reaches for a place in the world)
+	_bend(t)
+	_breathe(t)
+	_reach(t)
+
+
+## "lift" at t: a number, or keys [[t, m], ...] eased between (held before the first, after the last).
+func _lift_at(t: float) -> float:
+	var lift: Variant = spec.get("lift", 0.0)
+	if not lift is Array:
+		return float(lift)
+	var keys: Array = lift
+	if keys.is_empty():
+		return 0.0
+	var v := float((keys[0] as Array)[1])
+	for i in keys.size():
+		var k: Array = keys[i]
+		if t >= float(k[0]):
+			v = float(k[1])
+			if i + 1 < keys.size():
+				var n: Array = keys[i + 1]
+				var span := float(n[0]) - float(k[0])
+				var f := clampf((t - float(k[0])) / span, 0.0, 1.0) if span > 0.0 else 1.0
+				v = lerpf(float(k[1]), float(n[1]), f * f * (3.0 - 2.0 * f))
+	return v
 
 
 ## "breathe": [degrees, period s]: the chest rises and falls on top of the clip and the bends (a body
@@ -334,3 +360,152 @@ func _bend(t: float) -> void:
 		var g := sk.get_bone_global_pose(i)
 		var local := up.affine_inverse() * Transform3D(turn * g.basis, g.origin)
 		sk.set_bone_pose_rotation(i, local.basis.orthonormalized().get_rotation_quaternion())
+
+
+## "reach": hands put on something at this moment: keys [{"t": s, "LeftHand": [x, y, z] | {"at": [x, y, z],
+## "palm": [x, y, z], "fingers": [x, y, z], "elbow": [x, y, z]}, "RightHand": ...}, ...] in the shot's anchor
+## frame (as "pos"), or with "reach_car": a car's id, in that car's road frame: the palm's middle put at "at" (the arm bent to it: two-bone IK on the upper arm and the
+## forearm), the palm facing "palm" with the fingers along "fingers" (directions; either left out: the clip's
+## hand turned as little as it takes), the elbow bending towards "elbow" (a direction; default: out to the
+## side, down and back); eased between keys as "bend"; a hand a key leaves out hangs as the clip has it
+## there (eased in and out). Hands on a car's roof at its window, knuckles on its glass.
+func _reach(t: float) -> void:
+	var keys: Array = spec.get("reach", [])
+	if keys.is_empty():
+		return
+	var sk := StoryCast.skeleton(self)
+	if sk == null:
+		return
+	var a: Dictionary = keys[0]
+	var b: Dictionary = keys[0]
+	var f := 0.0
+	for i in keys.size():
+		if t >= float((keys[i] as Dictionary).get("t", 0.0)):
+			a = keys[i]
+			b = keys[mini(i + 1, keys.size() - 1)]
+			var span := float(b.get("t", 0.0)) - float(a.get("t", 0.0))
+			f = clampf((t - float(a.get("t", 0.0))) / span, 0.0, 1.0) if span > 0.0 else 0.0
+	f = f * f * (3.0 - 2.0 * f)
+	for side: String in ["Left", "Right"]:
+		var ka := _hand_key(a.get(side + "Hand"))
+		var kb := _hand_key(b.get(side + "Hand"))
+		if ka.is_empty() and kb.is_empty():
+			continue
+		var k := ka if kb.is_empty() else kb if ka.is_empty() else {}
+		if k.is_empty():                     # both keys hold the hand: eased from one to the other
+			k = {}
+			for n: String in ["at", "palm", "fingers", "elbow"]:
+				var va: Variant = ka.get(n)
+				var vb: Variant = kb.get(n)
+				if va != null or vb != null:
+					k[n] = va if vb == null else vb if va == null else (va as Vector3).lerp(vb as Vector3, f)
+		var w := lerpf(0.0 if ka.is_empty() else 1.0, 0.0 if kb.is_empty() else 1.0, f)
+		_arm_to(sk, side, k, w)
+
+
+## A "reach" key's hand as {"at", "palm"?, "fingers"?, "elbow"?} (Vector3s), {} for none.
+static func _hand_key(v: Variant) -> Dictionary:
+	if v is Array and (v as Array).size() >= 3:
+		v = {"at": v}
+	if not v is Dictionary or not (v as Dictionary).has("at"):
+		return {}
+	var out := {}
+	for n: String in ["at", "palm", "fingers", "elbow"]:
+		var q: Array = (v as Dictionary).get(n, [])
+		if q.size() >= 3:
+			out[n] = Vector3(float(q[0]), float(q[1]), float(q[2]))
+	return out
+
+
+## The hand's frame from its bones (skeleton space): {"wrist", "palm" (the middle of the palm), "fingers",
+## "normal" (the way the palm faces)}, or {} for a skeleton without fingers.
+static func _hand_frame(sk: Skeleton3D, side: String) -> Dictionary:
+	var h := sk.find_bone(side + "Hand")
+	var mid := sk.find_bone(side + "MiddleProximal")
+	var idx := sk.find_bone(side + "IndexProximal")
+	var lit := sk.find_bone(side + "LittleProximal")
+	if h < 0 or mid < 0 or idx < 0 or lit < 0:
+		return {}
+	var wrist := sk.get_bone_global_pose(h).origin
+	var knuckle := sk.get_bone_global_pose(mid).origin
+	var fingers := (knuckle - wrist).normalized()
+	var thumbward := sk.get_bone_global_pose(idx).origin - sk.get_bone_global_pose(lit).origin
+	# palm down, fingers ahead: the thumb is to the right of a left hand, the left of a right one
+	var normal := fingers.cross(thumbward).normalized() * (1.0 if side == "Left" else -1.0)
+	return {"wrist": wrist, "palm": wrist.lerp(knuckle, 0.5), "fingers": fingers, "normal": normal}
+
+
+## A frame with `fwd` first and `up` made square to it (columns: side, up, fwd).
+static func _frame(fwd: Vector3, up: Vector3) -> Basis:
+	var z := fwd.normalized()
+	var y := (up - z * up.dot(z)).normalized()
+	return Basis(y.cross(z), y, z)
+
+
+## Sets a bone's rotation so its pose in the skeleton's space has this basis.
+static func _set_global_basis(sk: Skeleton3D, i: int, basis: Basis) -> void:
+	var parent := sk.get_bone_parent(i)
+	var up := sk.get_bone_global_pose(parent) if parent >= 0 else Transform3D()
+	var local := up.basis.inverse() * basis
+	sk.set_bone_pose_rotation(i, local.orthonormalized().get_rotation_quaternion())
+
+
+## One arm to a "reach" key, w of the way (0: the clip's arm).
+func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
+	var ua := sk.find_bone(side + "UpperArm")
+	var la := sk.find_bone(side + "LowerArm")
+	var hd := sk.find_bone(side + "Hand")
+	var hf := _hand_frame(sk, side)
+	if ua < 0 or la < 0 or hd < 0 or hf.is_empty() or w <= 0.0:
+		return
+	# the targets' frame (the anchor, or "reach_car"'s road frame) -> skeleton space
+	var frame: Transform3D = reach_frame if reach_frame is Transform3D else _base
+	var to_sk := sk.global_transform.affine_inverse() * frame
+	var dir := func(v: Vector3) -> Vector3: return (to_sk.basis * v).normalized()
+	# the hand turned to its palm and fingers, w of the way
+	var normal: Vector3 = hf["normal"]
+	var fingers: Vector3 = hf["fingers"]
+	var want_n: Vector3 = dir.call(k["palm"]) if k.has("palm") else normal
+	var want_f: Vector3 = dir.call(k["fingers"]) if k.has("fingers") else fingers - want_n * fingers.dot(want_n)
+	if want_f.length() < 0.01:
+		want_f = fingers
+	var turn := (_frame(want_f, -want_n) * _frame(fingers, -normal).inverse()).orthonormalized()
+	turn = Basis(Quaternion.IDENTITY.slerp(turn.get_rotation_quaternion(), w))
+	var hand_basis := turn * sk.get_bone_global_pose(hd).basis
+	# the wrist where the palm's middle lands on the target, the hand's half thickness off it
+	var wrist0: Vector3 = hf["wrist"]
+	var target := to_sk * (k["at"] as Vector3) - turn * ((hf["palm"] as Vector3) - wrist0) - turn * normal * 0.02
+	target = wrist0.lerp(target, w)
+	# two bones: the elbow on the circle where both reach, towards the pole
+	var s := sk.get_bone_global_pose(ua).origin
+	var e := sk.get_bone_global_pose(la).origin
+	var la_len := s.distance_to(e)
+	var lb_len := e.distance_to(wrist0)
+	var to_t := target - s
+	var d := clampf(to_t.length(), absf(la_len - lb_len) + 0.001, la_len + lb_len - 0.001)
+	var n := to_t.normalized()
+	var body := global_transform.basis.orthonormalized()
+	var out := body.x * (1.0 if side == "Left" else -1.0)
+	var pole_world: Vector3 = frame.basis * (k["elbow"] as Vector3) if k.has("elbow") else out * 0.8 - body.y * 0.5 - body.z * 0.3
+	var pole := (sk.global_transform.basis.inverse() * pole_world)
+	var m := pole - n * pole.dot(n)
+	if m.length() < 0.001:
+		m = (e - s) - n * (e - s).dot(n)
+	m = m.normalized()
+	var cos_a := clampf((la_len * la_len + d * d - lb_len * lb_len) / (2.0 * la_len * d), -1.0, 1.0)
+	var elbow := s + la_len * (n * cos_a + m * sqrt(1.0 - cos_a * cos_a))
+	var up_basis := sk.get_bone_global_pose(ua).basis
+	_set_global_basis(sk, ua, Basis(Quaternion((e - s).normalized(), (elbow - s).normalized())) * up_basis)
+	var e2 := sk.get_bone_global_pose(la).origin
+	var w2 := sk.get_bone_global_pose(hd).origin
+	var lo_basis := sk.get_bone_global_pose(la).basis
+	if (w2 - e2).length() > 0.001 and (target - e2).length() > 0.001:
+		_set_global_basis(sk, la, Basis(Quaternion((w2 - e2).normalized(), (target - e2).normalized())) * lo_basis)
+	_set_global_basis(sk, hd, hand_basis)
+
+
+## Where a hand's palm is now (world): its middle, between the wrist and the knuckles ("Left" / "Right").
+func palm_point(side: String) -> Vector3:
+	var sk := StoryCast.skeleton(self)
+	var hf := _hand_frame(sk, side) if sk != null else {}
+	return sk.global_transform * (hf["palm"] as Vector3) if not hf.is_empty() else Vector3.INF

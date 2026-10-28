@@ -28,10 +28,12 @@ extends Node3D
 ##     "left", "ahead" (m from the anchor along the line), "lift", "yaw" (deg), "lights" (headlights),
 ##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
-##     clear: for shots inside it), "dome" (its courtesy light's energy: a passenger lit in the
+##     clear: for shots inside it; "windows_down": ["driver" | "passenger"], those front windows
+##     down, or {"driver": [from s, to s]}, wound down then), "dome" (its courtesy light's energy: a passenger lit in the
 ##     mirror), "finish" (its paint's, over the livery's: TmCarVisual.FINISHES, "gloss" for a car
 ##     shown off), "from", "to" (s: on screen only then)}],
-##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze"), plus "car": a car's
+##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze", "reach" with
+##     "reach_car": hands on a car of the shot), plus "car": a car's
 ##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; or "pos" in its
 ##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
 ##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot",
@@ -561,6 +563,13 @@ func _add_car(c: Dictionary) -> void:
 	var entry := {"node": car, "spec": c}
 	if bool(c.get("cabin", false)):
 		StoryCabin.fit_car(car)
+		var down: Variant = c.get("windows_down", {})
+		if down is Array:                              # down already
+			var all := {}
+			for side: String in down:
+				all[side] = true
+			down = all
+		StoryCabin.open_windows(car, down)
 		var pins := int(c.get("pins", state.facts() if state != null else 0))
 		var cabin := StoryCabin.make(car.model, pins, float(c.get("dome", 0.0)))
 		add_child(cabin)
@@ -726,11 +735,14 @@ func _pose(local: float) -> void:
 		car.ghost_speed = v0 + a * tt
 		car.visible = _on_screen(spec, local)
 		c["xf"] = Transform3D(basis, xf.origin)
+		StoryCabin.wind(car, local)
 		if c.has("cabin"):
 			(c["cabin"] as Node3D).global_transform = c["xf"]
 	for p in _people:
 		if not p.in_car.is_empty() and _cars.has(p.in_car):
 			p.rebase(_cars[p.in_car]["xf"])
+		var rc := String(p.spec.get("reach_car", ""))
+		p.reach_frame = _cars[rc]["xf"] if _cars.has(rc) else null
 		p.pose(local)
 		p.visible = _on_screen(p.spec, local)
 	StoryProps.pose(_props, local, t)
