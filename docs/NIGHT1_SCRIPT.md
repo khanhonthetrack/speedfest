@@ -363,13 +363,13 @@ End of night 1.
 
 ## What changed in the knock
 
-The knock now shows where Kit is and what Dee is looking at, and the lines that didn't connect are fixed (owner, 25 Oct: "just write it").
+Since take four (owner, 27 Oct: "For the knock, mechanic is standing weirdly" and "Cant you let Dee lean and put hands on the window? It is more realistic i think"):
 
-| Before | Now |
+| Take four | Now |
 | --- | --- |
-| No sense of place: a street with neon signs | Opens on Arch 9 before dawn, still dark: the brick viaduct, the roller door half up, the bulb, a train overhead, Dee knocking at the parked coupe |
-| "I was driving. The bridge." (no bridge in the dream) | "I was driving. There was a white car right behind me." |
-| "You were drooling on my clean seats." | "You were drooling on the wheel." |
-| "Huh. Nine pins." with the satnav never shown | A close-up of the satnav's nine purple pins as Dee says it |
-| One 38-second shot through the side window: Kit never on screen | Shot and reverse shot: Kit from the dash, turned to the window; Dee over Kit's shoulder; Kit, just woken, lifts the head at the last knock |
-| "Can you wipe it?" / "Let's see where they go first." | "Wipe it. Please." / "Not yet. Let's see where they go first." |
+| Dee folded at the hips, her nose almost on Kit's | Dee leans in at the window, hinged at the hips with her knees a little bent, her eyes level with Kit's |
+| Dee knocks with no hand on the glass; the glass stays up between them | Her hand taps on the glass by Kit's head; Kit winds the window down; she leans on the door with both hands on the window's ledge |
+| Kit looks past her at the window frame | Kit turns to her and keeps looking at her, breathing |
+| Two cameras cut back and forth | A two-shot, then singles over the shoulder that get closer, a push-in on "I saw her in the mirror", the pins pushed in, a rising wide to end on |
+| Still dark | First light: a blue-grey sky, a cool light from the street, the warm bulb in the arch behind Dee |
+| Dee stands at the end | She straightens up from the window as she says "Not yet" |
