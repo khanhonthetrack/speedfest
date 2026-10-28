@@ -100,11 +100,17 @@
   page for the owner with the scorecard. **A clip render takes about 7 GB: never run story_lab stills or
   a test beside one** (the out-of-memory killer took three pieces, each still saying `CLIP_OK`; check
   every piece's length).
+- **With the owner** (28 Oct): https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW, "Night 1 Take Five": the
+  opening, the Mirror and the knock as clips, the take-four notes as before/after stills, the second
+  review's scorecard (4.5/10 each scene: better than take four, still amateur against the bar), what's
+  next and five questions (the opening, the Mirror, the knock, the look, night 1). The page's builder:
+  the session scratchpad's `page5/build.py` (joins `clips5/`, times the beats from the scene files).
 - **The owner on the knock** (27 Oct): "Cant you let Dee lean and put hands on the window?". Done: she
   taps on the glass, Kit winds the window down (`"windows_down": {"driver": [3.1, 4.6]}`), she leans on
   the door with both hands on the window's ledge (`StoryPerson` `"reach"`, two-bone IK; `"reach_car"`),
   and straightens up at the end (`"lift"` keyed). In `take5_knock.py`.
-- **Next**: the take five page and the owner's answers; then the second pass's assets (Gus's vest,
+- **Next**: the owner's answers on take five; meanwhile the second review's camera fixes (PROGRESS, 28 Oct),
+  then the second pass's assets (Gus's vest,
   Lot 47's livery, the underglow, containers, the ghost's hair) and the phone call, bids, the coat
   man's exit and the ignition (long single shots still: the lint warns); then faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.

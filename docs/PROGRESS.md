@@ -4925,3 +4925,23 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   3.6-5.0 s: as her "Open up" ends and Kit answers).
 - Tests: `story_windows_down` (the driver's glass split out, +x, slid down after its span, none for
   the passenger); `story_person_reach` checks the palms' skin against their marks within 1.5 cm.
+
+### 28 Oct (session 21, cont.): take five's clips, the second review, the page (M20-9)
+- **Clips** (the session scratchpad's `clips5/`, rendered from `e5e26ae` in a worktree, one piece at a
+  time by `queue4.sh`, which skips a piece already there at its full length: the container restarted
+  three times during the renders): the opening 0:39, the Mirror 0:29, the knock 0:57; every cut clean
+  (the Mirror's two flagged frames are its whiteout and sting flashes).
+- **The second review** (a fresh read-only critic on 1 fps contact sheets and per-shot first/middle/last
+  strips beside take four's): 4.5/10 for each scene (4.1 on the stills before). Better than take four in
+  all three: coverage and cutting (13 setups in the Mirror where take four had two), a lit wet set,
+  focus pulls, one grade; the car shots read as a commercial; the knock up from about 3 to 4.5 ("Dee
+  now leans in on the window ledge with both hands placed (the owner's note works)"). Worse than take
+  four: the city opener (darker and flatter, a second of near black under the title), the auction (emptier
+  than take four's crowd), the Mirror's glare (the white coupe has no headlights). Held down by: Gus's
+  vest, Lot 47's paint, the skyline, the car's interior (flat slabs), hair (glossy shells), faces held long.
+  Its camera fixes, first: the city opening at once with the crane's leg wiping off; a crowd in the
+  auction wide with Kit in front; the coupe's high beams keying the chase; the knock cut faster with a
+  frontal Kit single; first light keyed from the arch's lamp and the sky. Its asset list is the second
+  pass's (`docs/CINEMATICS.md`).
+- **With the owner**: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW ("Night 1 Take Five": the three
+  clips, the three notes on take four as before/after stills, the scorecard, what's next, five questions).

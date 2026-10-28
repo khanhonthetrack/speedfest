@@ -152,4 +152,5 @@ Procedure:
 | 4 the Mirror | blocked and lit 27 Oct; critic round 1: 4.1/10 (notes in PROGRESS) |
 | 5 the knock | re-blocked 27 Oct (coverage from inside, dawn); Dee leaning in on the window's ledge, the window wound down (owner's note, 27 Oct) |
 | 6 the intro | re-cut 27 Oct; critic round 1: 4.1/10 |
-| Take five: stills, critic, render, page | two critic rounds (4.1 both: the structure passes, the assets hold it down); the render next |
+| Take five: stills, critic, render, page | two critic rounds on stills (4.1 both); clips rendered and reviewed (4.5/10 each scene, better than take four in all three); with the owner 28 Oct: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW |
+| Next | the second review's camera fixes (the city opener, the auction's crowd, the coupe's headlights, the knock's cutting and first light), then the second pass (assets) |
