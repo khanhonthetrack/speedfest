@@ -144,12 +144,16 @@ static func soaked(src: StandardMaterial3D) -> StandardMaterial3D:
 	var m := src.duplicate() as StandardMaterial3D
 	var skin := src.resource_name.begins_with("skin__")
 	var hair := src.resource_name.begins_with("hair__")
-	m.albedo_color = (src.albedo_color.lerp(Color(0.6, 0.68, 0.72), 0.55) if skin else src.albedo_color * 0.55)
+	# the skin a drowned body's: grey-green and bloodless, wet but not glazed (a clear coat over it read as
+	# a pink plastic mannequin), no light under it
+	m.albedo_color = (src.albedo_color.lerp(Color(0.52, 0.58, 0.54), 0.72) if skin else src.albedo_color * 0.55)
 	m.albedo_color.a = src.albedo_color.a
-	m.roughness = 0.18 if skin else (0.35 if hair else 0.22)
+	m.roughness = 0.5 if skin else (0.35 if hair else 0.22)
+	if skin:
+		m.subsurf_scatter_enabled = false
 	m.clearcoat_enabled = true
-	m.clearcoat = 0.5 if hair else 1.0             # wet hair shines in strands, not one glare under a lamp
-	m.clearcoat_roughness = 0.3 if hair else 0.05
+	m.clearcoat = 0.25 if skin else (0.5 if hair else 1.0)     # wet hair shines in strands, not one glare under a lamp
+	m.clearcoat_roughness = 0.25 if skin else (0.3 if hair else 0.05)
 	m.rim_enabled = true
 	m.rim = 0.6
 	m.rim_tint = 0.1
@@ -253,10 +257,8 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 				mi.set_surface_override_material(k, soaked(mi.mesh.surface_get_material(k) as StandardMaterial3D))
 	if who != "" and (look == "drowned" or s.has("wet")):
 		StoryHair.set_wet(body, 1.0 if look == "drowned" else float(s["wet"]))
-	if look == "drowned":
-		var drips := _drips()
-		drips.local_coords = sits         # seated in a moving car the water falls in the car, not behind it
-		add_child(drips)
+	if look == "drowned" and not sits:   # (seated in a dark cabin, drips read as rain falling inside it)
+		add_child(_drips())
 	var sc := float(s.get("scale", 1.0))
 	body.scale = Vector3.ONE * sc
 	body.position.y = lift * sc

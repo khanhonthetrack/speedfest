@@ -496,7 +496,8 @@ func _recapture() -> void:
 ## quality has it: the towers' lights bloom in wet air), "city_lit" (the share of the city's rooms lit,
 ## over the night's 0.3), "city_led" (its storefront lines and neon avenues, 0..1), "city_glow" (how
 ## bright its lit rooms are, 1: an aerial's 2-3, lit windows as a lens sees them), "exposure" (the
-## camera's), "sky" (_set_sky), "reflect" (_set_reflect: the city in the harbour).
+## camera's), "sky" (_set_sky), "reflect" (_set_reflect: the city in the harbour), "ssr": false (no
+## screen-space reflections: a long lens's puddles without their stair-steps).
 ## A shot without a key has the map's own back.
 func _set_env(e: Dictionary) -> void:
 	var env := _environment()
@@ -504,7 +505,7 @@ func _set_env(e: Dictionary) -> void:
 		if not env.has_meta("story_base"):
 			env.set_meta("story_base", {"fog": env.fog_density, "fog_colour": env.fog_light_color,
 				"fog_sky": env.fog_sky_affect, "height": env.fog_height, "height_density": env.fog_height_density,
-				"vol_fog": env.volumetric_fog_density})
+				"vol_fog": env.volumetric_fog_density, "ssr": env.ssr_enabled})
 		var base: Dictionary = env.get_meta("story_base")
 		var hf: Array = e.get("height_fog", [base["height"], base["height_density"]])
 		env.fog_density = float(e.get("fog", base["fog"]))
@@ -514,6 +515,7 @@ func _set_env(e: Dictionary) -> void:
 		env.fog_height_density = float(hf[1])
 		if env.volumetric_fog_enabled:
 			env.volumetric_fog_density = float(e.get("vol_fog", base["vol_fog"]))
+		env.ssr_enabled = bool(base["ssr"]) and bool(e.get("ssr", true))
 	if e.has("city_lit"):             # over _set_bare's: the share of the city's rooms lit (dawn: few)
 		RenderingServer.global_shader_parameter_set(&"tm_city_lit", float(e["city_lit"]))
 	if e.has("city_led"):
@@ -950,6 +952,7 @@ func _set_rain(amount: float) -> void:
 		pm.initial_velocity_max = 18.0
 		pm.gravity = Vector3(0.0, -4.0, 0.0)
 		pm.particle_flag_align_y = true
+		pm.collision_mode = ParticleProcessMaterial.COLLISION_HIDE_ON_CONTACT     # (a cabin's RainShield)
 		_rain.process_material = pm
 		var q := QuadMesh.new()
 		q.size = Vector2(0.007, 0.42)

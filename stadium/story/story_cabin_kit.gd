@@ -83,7 +83,7 @@ static func _coords(half: float, r: float, seg: int) -> Array:
 
 
 ## The kit's materials by name: "leather", "alcantara", "satin", "soft", "piano", "alu", "carpet",
-## "headliner", "rubber".
+## "headliner", "rubber", "housing".
 static func mat(name: String) -> StandardMaterial3D:
 	if _mats.has(name):
 		return _mats[name]
@@ -93,7 +93,8 @@ static func mat(name: String) -> StandardMaterial3D:
 	match name:
 		"leather":
 			m.albedo_color = Color(0.040, 0.038, 0.037)
-			m.roughness = 0.48
+			m.roughness = 0.62
+			m.metallic_specular = 0.3
 			_grain(m, "cellular", 0.09, 6.0, 0.5, 66.0)
 		"alcantara":
 			m.albedo_color = Color(0.055, 0.053, 0.052)
@@ -131,6 +132,10 @@ static func mat(name: String) -> StandardMaterial3D:
 		"rubber":
 			m.albedo_color = Color(0.02, 0.02, 0.02)
 			m.roughness = 0.45
+		"housing":                                 # a mirror's back: near-black, matt, a faint edge sheen
+			m.albedo_color = Color(0.014, 0.014, 0.015)
+			m.roughness = 0.55
+			m.metallic_specular = 0.35
 	_mats[name] = m
 	return m
 

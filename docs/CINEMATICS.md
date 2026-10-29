@@ -184,6 +184,49 @@ same idempotent way):
   (a car's `"glow"`), the run quicker (2.5-3 s inserts), Lot 47's hand-painted grey camouflage brought out (its thresholds sat at the top
   of the noise: almost nothing showed) with a red pinstripe, its plate lettered (a car's `"plate"`).
 
+The Mirror's fourth pass (29 Oct: its critic on round two's stills, 5-6 a shot; then round three's
+stills with the interior kit and the hair's cap) in `tools/story/pass4_close.py` (after
+`pass3_close.py`), and its root fixes first:
+- **Hair greyed under a light near the lens**, with dark "ink" strand lines: under a coaxial light
+  every strand faces its Kajiya-Kay highlight, and the sheen was capped at 3 % of the light, two to
+  three times the diffuse of hair this dark. Capped at about 1 % now, the primary lobe lower, the
+  painted strands' detail softer and the back faces lighter.
+- **The drowned passenger looked like Kit and like plastic**: soaked skin is grey-green and wet-matt
+  now (no glazed clear coat, no light under it), and no drips off someone seated in a car (in a dark
+  cabin they read as rain falling inside it).
+- **Rain fell through the roof**: a cabin carries a `RainShield` (a particle collision box); the
+  scene's rain vanishes where it meets one.
+- **The wet deck read as a black-and-white zebra** under the coupe's beams: its ripples are broad and
+  shallow now, and its puddles fade in at their edges (they were mirrors cut out of matt tarmac).
+- **Rain on the glass drew rings**: the film's drops are clear by their mask (they were by their
+  offset's length, which is nothing at a drop's middle); fewer pin drops, a fainter lift.
+- **A white slab and a blue balloon** in the cabin's close shots: the bench's leather mirrored the
+  sky at a glancing look (now a softer sheen) and the rear-view mirror's housing was lit satin
+  plastic a few centimetres from the lens (now near-black matt; the cameras keep clear of it).
+- An env's `"ssr": false` (a long lens's puddles without their stair-steps).
+
+Every interior camera was checked first with a ray-cast map of Lot 47's cabin (seats, bench, dash,
+satnav, console, the mirror and its stem, visors, doors, the wheel, Kit's head, the ghost's): of the
+critic's proposals, a front close-up from the passenger dash was 98 % mirror and an eye-height
+three-quarter 30 % mirror. Then the shots:
+- every face keyed by a light the scene has: a sodium streetlight through Kit's window while she
+  sleeps (her head fallen against the headrest), the coupe's beams a hard back rim growing over
+  profile and closer, the mirror's slash across her eyes in glare and in eyes, the dome from above in
+  the false calm, the instruments from below in the look back; the lens's fill down to a catchlight;
+- the dream's road reframed so the pursuer has clean air, Kit's lamps down so its beams read first,
+  her head shown against the windscreen; the low reverse with our flank soft at the edge and our
+  tail light red on the road, the coupe nearer;
+- the mirror's inserts framed by the header and the visors, the street round them a stop down
+  (vignette, far blur), the coupe's lamps the brightest thing; the whiteout grown from two lamps
+  that eat the glass, the cabin flooded on the hit;
+- the glimpse a black head against the glare (the lamps bloom instead of clipping); the empty road
+  dark with one streetlight's pool where the coupe was; the dark road from the ghost's own place,
+  Kit's head a soft shape on the left;
+- the false calm 2.6 s, she rises out of the dark in her own cold light (a rim that lit her hair
+  white gone); in the mirror her face in the gap beside Kit's head, lit by her own light, Kit's eyes
+  on hers; the hit with Kit's eyes already sliding to her and the ghost a dark shape with a cold edge;
+- the scene 22.9 s (was 25.9), the ghost on screen 1.4 s.
+
 ## Calls made (the owner's standing rule: "just write it")
 - **Voices.** Not now: the picture has to pass first. Lines are cut short and long ones play over
   the listener. A voice later means a text-to-speech model with a clear commercial licence or
@@ -235,5 +278,5 @@ Procedure:
 | 6 the intro | re-cut 27 Oct; critic round 1: 4.1/10 |
 | Take five: stills, critic, render, page | two critic rounds on stills (4.1 both); clips rendered and reviewed (4.5/10 each scene, better than take four in all three); with the owner 28 Oct: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW |
 | Third pass | built 28-29 Oct (`pass3_*.py`); stills round two: the opening 5.5 and 5.0 |
-| Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`) |
-| Next | stills of the Mirror and the knock with the new interior and hair, their critic, their fourth pass; the opening's critic again; clips once every scene reaches 7 |
+| Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`); the Mirror's (`pass4_close.py`: faces keyed by the scene's own lights, cabin cameras ray-checked, the hair's sheen, the drowned skin, the rain shield, the deck, the drops); the knock's stills with its critic |
+| Next | the Mirror's and the opening's new stills and their critic; the knock's fourth pass from its critic; iterate to 7; clips once every scene reaches 7 |

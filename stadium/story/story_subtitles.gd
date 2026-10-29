@@ -74,7 +74,7 @@ uniform float streak = 0.0;
 uniform float fringe = 0.0;        // px at the picture's corners
 uniform float barrel = 0.0;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-vec2 drops(vec2 uv, float scale, float speed) {
+vec3 drops(vec2 uv, float scale, float speed) {
 	vec2 g = uv * scale;
 	vec2 id = floor(g);
 	vec2 f = fract(g) - 0.5;
@@ -83,7 +83,7 @@ vec2 drops(vec2 uv, float scale, float speed) {
 	vec2 d = f - vec2((h - 0.5) * 0.6, -y);
 	float r = 0.1 + 0.12 * h;
 	float m = smoothstep(r, r * 0.55, length(d * vec2(1.0, 0.75))) * step(0.35, h);
-	return d * m;
+	return vec3(d * m, m);         // the bend, and where the drop is
 }
 float noise(uvec3 p) {
 	uint h = p.x * 1664525u + p.y * 1013904223u + p.z * 2654435761u;
@@ -108,11 +108,14 @@ void fragment() {
 	float drop = 0.0;
 	if (glass > 0.001) {
 		vec2 a = SCREEN_UV * vec2(1.7, 1.0);
-		vec2 o = drops(a, 8.0, 0.22) * 0.7 + drops(a + 0.37, 15.0, 0.35) * 0.4 + drops(a + 0.71, 26.0, 0.0) * 0.3;
-		float l = length(o);
+		vec3 d1 = drops(a, 8.0, 0.22);
+		vec3 d2 = drops(a + 0.37, 15.0, 0.35);
+		vec3 d3 = drops(a + 0.71, 26.0, 0.0);
+		vec2 o = d1.xy * 0.7 + d2.xy * 0.4 + d3.xy * 0.15;
+		float m = max(max(d1.z, d2.z), d3.z * 0.5);
 		uv += o * 0.12 * glass;
-		lod = mix(1.6, 0.0, smoothstep(0.0, 0.05, l)) * glass;
-		drop = smoothstep(0.02, 0.06, l) * glass;
+		lod = mix(0.9, 0.0, m) * glass;      // the glass between the drops a little soft, the drops clear
+		drop = m * glass;
 	}
 	vec3 c = vec3(textureLod(screen, uv + off, lod).r, textureLod(screen, uv, lod).g, textureLod(screen, uv - off, lod).b);
 	if (halation > 0.0) {
@@ -133,7 +136,7 @@ void fragment() {
 	l = clamp(luma(c), 0.0, 1.0);
 	c += (shadows.rgb - luma(shadows.rgb)) * shadows.a * (1.0 - l) * (1.0 - l);
 	c += (highlights.rgb - luma(highlights.rgb)) * highlights.a * l * l;
-	c = max(c + vec3(0.02, 0.025, 0.03) * drop, vec3(0.0));
+	c = max(c + vec3(0.008, 0.01, 0.012) * drop, vec3(0.0));
 	if (knee < 1.0) {
 		c = min(c, vec3(knee)) + (1.0 - knee) * (1.0 - exp(-max(c - knee, vec3(0.0)) / (1.0 - knee)));
 	}

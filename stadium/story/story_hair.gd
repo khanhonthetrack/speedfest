@@ -134,9 +134,9 @@ render_mode blend_mix, depth_prepass_alpha, cull_disabled;
 uniform sampler2D strand_tex : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec3 hair_colour : source_color = vec3(0.18, 0.15, 0.13);
 uniform float tex_mean_lum = 0.03;
-uniform float detail = 0.75;        // how much of the painted strands' light and dark shows
+uniform float detail = 0.55;        // how much of the painted strands' light and dark shows
 uniform float paint = 0.3;          // how much of its broad shading (a parting, roots)
-uniform float spec1 = 0.05;         // the primary shine: white, sharp, shifted to the tip
+uniform float spec1 = 0.03;         // the primary shine: white, sharp, shifted to the tip
 uniform float exp1 = 160.0;
 uniform float shift1 = -0.08;
 uniform float spec2 = 0.025;        // the secondary: tinted by the hair, broad, shifted to the root
@@ -145,7 +145,7 @@ uniform float shift2 = 0.12;
 uniform float shift_noise = 0.12;
 uniform float wrap = 0.4;
 uniform float transmit = 0.25;      // light through the strands from behind: the rim
-uniform float backface = 0.35;
+uniform float backface = 0.55;
 uniform float rim_cut = 0.6;        // the edges broken into strands
 instance uniform float wet = 0.0;
 varying vec3 v_strand;
@@ -194,6 +194,7 @@ void light() {
 	// through the strands from behind: at the silhouette only (thin there), not the whole shell
 	float edge = pow(1.0 - abs(dot(NORMAL, VIEW)), 3.0);
 	spec += lc * transmit * mix(1.0, 0.4, wet) * pow(clamp(dot(-LIGHT, VIEW), 0.0, 1.0), 4.0) * edge * (1.0 - 0.5 * v_cov) * sqrt(ALBEDO);
-	SPECULAR_LIGHT += min(spec, lc * 0.09 / PI);    // (hair gives back about 3 % of a light, not a mirror sheen)
+	SPECULAR_LIGHT += min(spec, lc * 0.035 / PI);   // (dark hair gives back about 1 % of a light: more, and a
+	                                                // light by the lens greys the whole head)
 }
 """

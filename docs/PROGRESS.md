@@ -5084,3 +5084,41 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   same quality) they come from the cache and the scene renders. The stills script warms them up that
   way before every scene. Headless tests compile nothing and are unaffected; a real GPU's driver is
   not llvmpipe.
+
+### 29 Oct (session 21, cont.): the Mirror's fourth pass (M20-9)
+- **Round three's stills** (`p3/m5`, `p3/k5`, the interior kit and the hair's cap in): the
+  Mirror's cabin reads as a car now, its hair dark in most shots. Still wrong: Kit's hair went grey
+  with dark "ink" strand lines whenever a light sat near the lens; a white slab (the bench's leather
+  mirroring the sky at a glancing look) and a blue "balloon" (the rear-view mirror's satin housing a
+  few centimetres from the lens) in closer; the wet deck a black-and-white zebra under the coupe's
+  beams; white streaks inside the cabin (the ghost's drips, and rain through the roof); the ghost
+  pale and glossy, read as a second Kit.
+- **Root fixes** (`docs/CINEMATICS.md`, "The Mirror's fourth pass"):
+  - StoryHair: the strands' sheen capped at about 1 % of a light (it was 3 %: under a light by the
+    lens every strand faces its Kajiya-Kay highlight, two to three times the diffuse of hair this
+    dark), the primary lobe lower, the painted strands' detail softer, back faces lighter.
+  - StoryPerson: soaked skin grey-green and wet-matt (no glazed clear coat, no subsurface light);
+    no drips off someone seated in a car.
+  - StoryCabin: a `RainShield` (`GPUParticlesCollisionBox3D`); StoryScene's rain hides on contact.
+  - The deck: broad, shallow ripples, puddles that fade in at their edges.
+  - The film's rain drops: clear by their mask (their offset's length drew a ring round each middle).
+  - StoryCabinKit: leather a softer sheen; a `"housing"` material, near-black and matt, for the
+    mirror's back and stem.
+  - StoryScene: an env's `"ssr": false`.
+- **The shots** (`stadium/tools/story/pass4_close.py`, after `pass3_close.py`; the two run as a
+  stable chain): every interior camera was first checked with a ray-cast map of Lot 47's cabin
+  (scratchpad `p3/cabin_frame.py`). Two of the critic's proposals turned out blocked: a front close-up
+  from the passenger dash saw 98 % mirror, and an eye-height three-quarter saw 30 %.
+  - Faces keyed by the scene's own lights: a sodium streetlight through Kit's window, the coupe's
+    beams as a back rim, the mirror's slash, the dome, the instruments.
+  - The pursuer given clean air; the mirror's inserts framed by the header and the visors, the
+    street a stop down; the whiteout grown from the coupe's lamps.
+  - The glimpse a silhouette; the empty road dark with one streetlight's pool; the dark road from
+    the ghost's own place.
+  - The false calm 2.6 s; the ghost's face in the mirror in her own light; Kit's eyes already on
+    her in the hit.
+  - The scene runs 22.9 s (was 25.9) and the ghost is on screen 1.4 s (lint OK).
+- The committed `c01_close.json` had missed one regeneration: the dawn rear light of `back_seat`
+  and `mirror_dawn` (moved in `pass3_close.py` in 73a2539). The chain brings it in now.
+- **The knock's stills** (`p3/k5`) are with the critic (brief `p3/brief_k5.md`). Next: the Mirror's
+  `m6` and the opening's `o9` stills, then their critic.

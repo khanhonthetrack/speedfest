@@ -520,7 +520,8 @@ func _mirror_glass() -> void:
 	var rides := light != null and cabin.global_position.distance_to(p1) > 30.0 \
 		and light.global_position.distance_to(cabin.global_transform * Vector3(0.05, 1.0, 0.75)) < 0.001
 	TestHooks.check(rides, "story_light_rides_in_the_car", "a light in the cabin %s; the car drove %.1f m" % [light != null, cabin.global_position.distance_to(p1)])
-	# looks: the eyes on the glass from 1 s to 2 s only; the water falls with the car
+	# looks: the eyes on the glass from 1 s to 2 s only; no drips off someone seated in a car (in a dark
+	# cabin they read as rain falling inside it), and the roof's shield keeps the scene's rain out
 	var drv_p := _find(sc, "drv")
 	var pas := _find(sc, "pas")
 	sc.seek(1.5)
@@ -529,9 +530,11 @@ func _mirror_glass() -> void:
 	sc.seek(2.5)
 	var after: Variant = sc._gaze_of(drv_p, sc.shots[0])
 	var drips := pas.find_children("*", "GPUParticles3D", true, false)
+	var shield := cabin.get_node_or_null("RainShield") as GPUParticlesCollisionBox3D
 	TestHooks.check(during is Vector3 and (during as Vector3).distance_to(glass_then) < 0.001 and after == null
-		and not drips.is_empty() and (drips[0] as GPUParticles3D).local_coords, "story_looks_and_drips",
-		"eyes during the look %s, after %s; drips riding %s" % [during, after, (drips[0] as GPUParticles3D).local_coords if not drips.is_empty() else false])
+		and drips.is_empty() and shield != null, "story_looks_and_drips",
+		"eyes during the look %s, after %s; drips off the seated figure %d; the cabin's rain shield %s" % [
+		during, after, drips.size(), shield != null])
 	# the next shot has no mirror: its camera stops; "mirror" still finds the cabin's glass
 	sc.seek(4.0)
 	var cabin2 := sc._cars["c"]["cabin"] as StoryCabin

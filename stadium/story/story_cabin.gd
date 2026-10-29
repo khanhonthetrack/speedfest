@@ -127,6 +127,12 @@ func _build(m: Dictionary, red_pins: int) -> void:
 		_seats["driver" if side > 0.0 else "passenger"] = [StoryCabinKit.seat(self, Vector3(0.37 * side, hip, front_z))]
 	_seats["rear"] = [StoryCabinKit.bench(self, Vector3(0.0, rear_hip, rear_z), half * 2.0 - 0.2)]
 	StoryCabinKit.part(self, Vector3(half * 2.0, 0.04, wheelbase * 0.9), 0.01, "carpet", Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5))
+	# the roof keeps the rain out: StoryScene's drops vanish where they fall into the cabin
+	var shield := GPUParticlesCollisionBox3D.new()
+	shield.name = "RainShield"
+	shield.size = Vector3(half * 2.0 + 0.3, 1.25, wheelbase * 1.15)
+	shield.position = Vector3(0.0, FLOOR_Y + 0.6, (front_z + rear_z) * 0.5)
+	add_child(shield)
 	# the dash: its face 0.63 m ahead of the cushions, its top a quarter of a metre under the driver's
 	# eyes or under the windscreen where that comes lower; out to the door cards
 	var dash_z := front_z + 0.63
@@ -223,12 +229,12 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	# its housing behind it, turned with it, and the stem up to the headlining
 	var housing := MeshInstance3D.new()
 	housing.mesh = StoryCabinKit.rbox(Vector3(GLASS.x + 0.02, GLASS.y + 0.016, 0.03), 0.012, 0.004)
-	housing.material_override = StoryCabinKit.mat("satin")
+	housing.material_override = StoryCabinKit.mat("housing")
 	housing.position = Vector3(0.0, 0.0, -0.016)
 	housing.layers = 1 << (MIRROR_LAYER - 1)
 	mirror_glass.add_child(housing)
 	var roof := line(m, "top", mirror_point.z) - 0.03
-	StoryCabinKit.part(self, Vector3(0.025, maxf(0.02, roof - mirror_point.y - 0.02), 0.025), 0.01, "satin",
+	StoryCabinKit.part(self, Vector3(0.025, maxf(0.02, roof - mirror_point.y - 0.02), 0.025), 0.01, "housing",
 		Vector3(0.0, (mirror_point.y + roof) * 0.5 + 0.02, mirror_point.z + 0.02))
 	# the sun visors folded up against the headlining either side of it, just behind the screen's top
 	for side: float in [1.0, -1.0]:

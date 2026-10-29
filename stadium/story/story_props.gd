@@ -483,15 +483,15 @@ void fragment() {
 	}
 	// standing water in the low places (smooth mirrors), damp tarmac round them, drier crowns between
 	float wet = fbm(p * 0.07 + vec2(5.2, 1.3));
-	float puddle = smoothstep(0.54, 0.56, wet) * wetness;
-	float damp = smoothstep(0.46, 0.54, wet) * wetness;
+	float puddle = smoothstep(0.5, 0.6, wet) * wetness;
+	float damp = smoothstep(0.42, 0.54, wet) * wetness;
 	ALBEDO = col * mix(1.0, 0.6, damp);
-	ROUGHNESS = mix(mix(0.78, 0.45, damp) + grain * 0.08, 0.02, puddle);
+	ROUGHNESS = mix(mix(0.78, 0.5, damp) + grain * 0.08, 0.07, puddle);
 	SPECULAR = 0.5;
-	float e = 0.06;
-	float hx = noise((p + vec2(e, 0.0)) * 9.0) - noise((p - vec2(e, 0.0)) * 9.0);
-	float hz = noise((p + vec2(0.0, e)) * 9.0) - noise((p - vec2(0.0, e)) * 9.0);
-	NORMAL_MAP = normalize(vec3(-hx * 0.18, -hz * 0.18, 1.0)) * 0.5 + 0.5;
+	float e = 0.12;
+	float hx = noise((p + vec2(e, 0.0)) * 3.0) - noise((p - vec2(e, 0.0)) * 3.0);
+	float hz = noise((p + vec2(0.0, e)) * 3.0) - noise((p - vec2(0.0, e)) * 3.0);
+	NORMAL_MAP = normalize(vec3(-hx * 0.07, -hz * 0.07, 1.0)) * 0.5 + 0.5;
 	NORMAL_MAP_DEPTH = 1.0 - puddle;
 }
 """
