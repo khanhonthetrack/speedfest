@@ -5156,3 +5156,18 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   The ids stay: pass3 finds its shots by them, so `kit_wake` is now the over-the-shoulder and
   `knock_two` Dee's profile. The chain pass3 → pass4 is stable; lint OK (27 set-ups, the ghost 1.4 s).
 - Next: stills of all three scenes (`m6`, `k6`, `o9`) and their critic.
+- **A read-only review of the knock's pass** (two reviewers, engine and data). It found:
+  - the dew "matte" did nothing: a car's `"finish"` gives way to its paint's, so it is now a paint of
+    its own, `"lot47_dew"`;
+  - the glass popped up a third at the over-the-shoulder (a stale wind from pass3) and jumped at the
+    knock's cut: every knock shot now sets its window, and the two-shot carries the knock's wind on;
+  - "She was soaking." ran past its shot;
+  - Dee's shallower lean was in the two-shot only: now in every shot from it on, her thighs turned back
+    so her feet stay put;
+  - she was 1.6 m short of the car at the arch's cut: she now starts at her door, brisker;
+  - the wet patch's trail was buried in the pillowed cushion;
+  - the rain shield stopped drops half a metre over the bonnet and the boot: now the glasshouse's size;
+  - the number's lamp left the "9" dark: wider and further out;
+  - smaller fixes: a sun's default energy and a guard for one straight overhead; the drowned look
+    keeps a tint and the teeth; the probe says when the car isn't in the shot; look_back's camera on
+    the probed head.

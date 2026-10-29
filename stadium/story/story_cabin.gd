@@ -128,10 +128,13 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	_seats["rear"] = [StoryCabinKit.bench(self, Vector3(0.0, rear_hip, rear_z), half * 2.0 - 0.2)]
 	StoryCabinKit.part(self, Vector3(half * 2.0, 0.04, wheelbase * 0.9), 0.01, "carpet", Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5))
 	# the roof keeps the rain out: StoryScene's drops vanish where they fall into the cabin
+	# (under the roof, from the windscreen's foot to the rear glass: the bonnet and the boot get rain)
 	var shield := GPUParticlesCollisionBox3D.new()
 	shield.name = "RainShield"
-	shield.size = Vector3(half * 2.0 + 0.3, 1.25, wheelbase * 1.15)
-	shield.position = Vector3(0.0, FLOOR_Y + 0.6, (front_z + rear_z) * 0.5)
+	var shield_top := line(m, "top", (front_z + rear_z) * 0.5) - 0.03
+	var shield_z := Vector2(rear_z - 0.5, front_z + 0.95)
+	shield.size = Vector3(half * 2.0 + 0.3, shield_top - FLOOR_Y, shield_z.y - shield_z.x)
+	shield.position = Vector3(0.0, (FLOOR_Y + shield_top) * 0.5, (shield_z.x + shield_z.y) * 0.5)
 	add_child(shield)
 	# the dash: its face 0.63 m ahead of the cushions, its top a quarter of a metre under the driver's
 	# eyes or under the windscreen where that comes lower; out to the door cards
@@ -281,7 +284,7 @@ func wet_seat() -> void:
 	rq.size = Vector2(0.04, 0.1)
 	run.mesh = rq
 	run.material_override = m
-	run.position = Vector3(0.05, cushion.y * 0.5 - 0.045, cushion.z * 0.5 + 0.006)
+	run.position = Vector3(0.05, cushion.y * 0.5 - 0.045, cushion.z * 0.5 + 0.02)    # (the face is pillowed 15 mm)
 	bench.add_child(run)
 
 

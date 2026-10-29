@@ -90,6 +90,9 @@ const SET_DECK := 2.0                  ## m a set's deck stands over the map's g
 const PAINTS := {
 	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#6e1a14",
 		"p": [0.5, 0.05, 0.0025, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
+	# the same at first light with dew on it: matt (its deep gloss mirrored the dawn sky, a silver car)
+	"lot47_dew": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#6e1a14",
+		"p": [0.5, 0.05, 0.0025, 4.0], "finish": "matte", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
 	# the Mirror's coupe: Vesper's own pearl white, plain (not a police car, not Kit's twin)
 	"white": {"pattern": "plain", "base": "#e9eaec", "c": "#cfd8e4", "finish": "pearl"},
 }
@@ -872,7 +875,7 @@ func _add_light(l: Dictionary) -> void:
 		o.omni_range = float(l.get("range", 10.0))
 		light = o
 	light.light_color = colour
-	light.light_energy = keyed_max(l.get("energy", 3.0))
+	light.light_energy = keyed_max(l.get("energy", 1.0 if light is DirectionalLight3D else 3.0))
 	if l.get("energy") is Array:
 		light.set_meta("keys", l["energy"])          # (_flicker eases it over the shot)
 	light.shadow_enabled = bool(l.get("shadow", true))
@@ -892,7 +895,9 @@ func _add_light(l: Dictionary) -> void:
 	_lights.add_child(light)
 	light.global_position = _anchor * p
 	if l.has("look"):
-		light.look_at(_anchor * _vec(l["look"]), _anchor.basis.y)
+		var to := _anchor * _vec(l["look"])
+		var up := _anchor.basis.y if absf((to - light.global_position).normalized().dot(_anchor.basis.y)) < 0.98 else _anchor.basis.z
+		light.look_at(to, up)
 		if l.has("look_to"):
 			_sweeps.append([light, _anchor * _vec(l["look"]), _anchor * _vec(l["look_to"]), _anchor.basis.y])
 

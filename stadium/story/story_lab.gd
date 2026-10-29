@@ -78,6 +78,8 @@ func _probe(car: String, times: PackedStringArray) -> void:
 		scene.seek(float(ts))
 		await get_tree().physics_frame
 		scene.seek(float(ts))
+		if not scene._cars.has(car):
+			print("PROBE t=%s no car %s: the world's frame" % [ts, car])
 		var xf: Transform3D = scene._cars[car].get("xf", Transform3D()) if scene._cars.has(car) else Transform3D()
 		var inv := xf.affine_inverse()
 		for p: StoryPerson in scene._people:

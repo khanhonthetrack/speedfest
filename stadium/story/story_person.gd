@@ -263,7 +263,8 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 			for k in mi.mesh.get_surface_count():
 				if mi.get_surface_override_material(k) is ShaderMaterial:
 					continue                  # the hair keeps its strands (StoryHair), soaked below
-				mi.set_surface_override_material(k, soaked(mi.mesh.surface_get_material(k) as StandardMaterial3D))
+				var was := mi.get_surface_override_material(k) as StandardMaterial3D
+				mi.set_surface_override_material(k, soaked(was if was != null else mi.mesh.surface_get_material(k) as StandardMaterial3D))
 	if who != "" and (look == "drowned" or s.has("wet")):
 		StoryHair.set_wet(body, 1.0 if look == "drowned" else float(s["wet"]))
 	if look == "drowned" and not sits:   # (seated in a dark cabin, drips read as rain falling inside it)

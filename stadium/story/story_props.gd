@@ -393,13 +393,13 @@ static func _viaduct(p: Dictionary) -> Node3D:
 	lamp.light_color = Color(1.0, 0.81, 0.54)
 	lamp.light_energy = 3.0
 	lamp.spot_range = 4.0
-	lamp.spot_angle = 40.0
+	lamp.spot_angle = 62.0
 	lamp.shadow_enabled = false
-	lamp.position = sign.position + Vector3(0.0, 0.75, 0.55)
+	lamp.position = sign.position + Vector3(0.0, 0.75, 1.0)
 	lamp.basis = Basis.looking_at(sign.position + Vector3(0.0, -0.1, 0.0) - lamp.position, Vector3.UP)
 	root.add_child(lamp)
-	_box(root, sign.position + Vector3(0.0, 0.75, 0.28), Vector3(0.05, 0.05, 0.55), _mat(Color(0.04, 0.04, 0.04)))
-	_box(root, sign.position + Vector3(0.0, 0.72, 0.55), Vector3(0.22, 0.1, 0.16), _mat(Color(0.05, 0.05, 0.05)))
+	_box(root, sign.position + Vector3(0.0, 0.75, 0.5), Vector3(0.05, 0.05, 1.0), _mat(Color(0.04, 0.04, 0.04)))
+	_box(root, sign.position + Vector3(0.0, 0.72, 1.0), Vector3(0.22, 0.1, 0.16), _mat(Color(0.05, 0.05, 0.05)))
 	# the deck: a parapet each side and the rails between
 	var deck_y := DECK + 1.6
 	var pm := bm.duplicate() as ShaderMaterial
