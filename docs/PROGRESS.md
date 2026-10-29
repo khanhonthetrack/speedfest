@@ -5171,3 +5171,29 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   - smaller fixes: a sun's default energy and a guard for one straight overhead; the drowned look
     keeps a tint and the teeth; the probe says when the car isn't in the shot; look_back's camera on
     the probed head.
+- **Round four's stills** (`p3/m6`, `p3/k6`, `p3/o9`, Ultra; the account hit its five-hour limit
+  once, so the Mirror's critic did not run).
+  - What they show:
+    - the Mirror's wet road reads as a road and its hair is dark; the glimpse is a silhouette and the
+      reveal shows the ghost's face in the mirror;
+    - the knock's Dee is in the glass for her first line; the two-shot reads; the number is painted
+      and lit; the car reads dark;
+    - the opening is better throughout.
+  - Fixed after them, in the Mirror:
+    - the narrow spots, aimed right now, were far too strong (white blobs on Kit's face in glare,
+      eyes and the hit);
+    - the coupe's back rim came from straight behind and lit the seat backs grey; it now comes over
+      the headrest and is narrow;
+    - the dark road's camera sits further back, Kit's head in it.
+  - Fixed in the knock:
+    - Dee's profile was the back of her head: the camera is now between her and the car's nose;
+    - the over-the-shoulder hid Kit behind Dee's head;
+    - the arch's lamp lit the visor cream through the window: it now falls on her back and into the
+      door;
+    - no underglow at dawn;
+    - the mirror a stop down;
+    - the rear glass's light placed so the wet patch glints into the back-seat camera, the patch
+      glossier;
+    - Dee's mouth narrower still;
+    - the end's last frame takes in the number;
+    - the grade's blue shadows halved (faces went violet), the sun a little stronger.

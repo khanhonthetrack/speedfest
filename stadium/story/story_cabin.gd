@@ -256,7 +256,8 @@ func wet_seat() -> void:
 	var cushion: Vector3 = bench.get_meta("cushion", Vector3(1.2, 0.12, 0.44))
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color(0.006, 0.006, 0.007)
-	m.roughness = 0.1
+	m.roughness = 0.04
+	m.metallic_specular = 0.8              # (water on black leather: what shows is its glint, not its colour)
 	m.clearcoat_enabled = true
 	m.clearcoat_roughness = 0.04
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -273,7 +274,7 @@ func wet_seat() -> void:
 	var patch := MeshInstance3D.new()
 	patch.name = "WetPatch"
 	var q := QuadMesh.new()
-	q.size = Vector2(0.36, 0.3)
+	q.size = Vector2(0.42, 0.34)
 	patch.mesh = q
 	patch.material_override = m
 	patch.rotation = Vector3(-PI * 0.5, 0.3, 0.0)

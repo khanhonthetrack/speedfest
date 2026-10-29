@@ -1080,9 +1080,9 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.1,
-						1.25,
-						-2.2
+						-0.25,
+						1.5,
+						-1.9
 					],
 					"look": [
 						0.376,
@@ -1091,7 +1091,7 @@
 					],
 					"colour": "#e8eeff",
 					"energy": 3.0,
-					"angle": 12.0,
+					"angle": 8.0,
 					"range": 4.0,
 					"shadow": false,
 					"id": "beams"
@@ -3257,9 +3257,9 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.2,
-						1.2,
-						-2.0
+						-0.25,
+						1.5,
+						-1.9
 					],
 					"look": [
 						0.376,
@@ -3277,7 +3277,7 @@
 							7.0
 						]
 					],
-					"angle": 14.0,
+					"angle": 8.0,
 					"range": 4.0,
 					"shadow": false,
 					"id": "beams"
@@ -4710,7 +4710,7 @@
 						],
 						[
 							1.2,
-							14.0
+							3.5
 						]
 					],
 					"angle": 6.0,
@@ -6849,40 +6849,40 @@
 				"keys": [
 					{
 						"look": [
-							0.35,
+							0.7,
 							1.0,
 							4.0
 						],
 						"fov": 34,
 						"dof_near": [
-							0.55,
+							0.6,
 							0.3,
 							0.12
 						],
 						"u": 0,
 						"pos": [
-							0.02,
-							1.14,
-							-0.55
+							0.0,
+							1.15,
+							-0.8
 						]
 					},
 					{
 						"look": [
-							0.35,
+							0.7,
 							1.0,
 							4.0
 						],
 						"fov": 34,
 						"dof_near": [
-							0.55,
+							0.6,
 							0.3,
 							0.12
 						],
 						"u": 1,
 						"pos": [
-							0.03,
-							1.14,
-							-0.51
+							0.01,
+							1.15,
+							-0.76
 						]
 					}
 				]
@@ -8976,7 +8976,7 @@
 						-0.096
 					],
 					"colour": "#cfe0ff",
-					"energy": 3.0,
+					"energy": 1.2,
 					"angle": 10.0,
 					"range": 1.0,
 					"shadow": false,
@@ -10379,7 +10379,7 @@
 						0.05
 					],
 					"colour": "#9fd8c8",
-					"energy": 1.0,
+					"energy": 0.45,
 					"range": 0.4,
 					"shadow": false
 				},
@@ -10979,7 +10979,8 @@
 					"tuning": "0.7.6.0",
 					"cabin": true,
 					"pins": 0,
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -11001,7 +11002,7 @@
 					"walk_at": -0.6,
 					"gaze": "",
 					"wet": 0.4,
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					},
@@ -11072,7 +11073,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -11118,7 +11119,7 @@
 					"colour": "#ffb36b",
 					"energy": 3.0,
 					"angle": 60.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -11182,7 +11183,7 @@
 			},
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -11213,7 +11214,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -11245,6 +11246,7 @@
 						]
 					},
 					"paint": "lot47_dew",
+					"glow": 0.0,
 					"rain_glass": 1.0
 				}
 			],
@@ -11881,7 +11883,7 @@
 							}
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -11901,7 +11903,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -11940,14 +11942,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -12092,7 +12094,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -12124,6 +12126,7 @@
 						]
 					},
 					"paint": "lot47_dew",
+					"glow": 0.0,
 					"rain_glass": 1.0
 				}
 			],
@@ -12960,7 +12963,7 @@
 							}
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -12980,7 +12983,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -13019,14 +13022,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -13179,7 +13182,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -13210,7 +13213,8 @@
 							0.6000000000000001
 						]
 					},
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -13686,7 +13690,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -13706,7 +13710,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -13745,14 +13749,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -13886,7 +13890,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -13914,7 +13918,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -14684,7 +14689,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					},
@@ -14714,7 +14719,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -14753,14 +14758,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -14828,9 +14833,9 @@
 					{
 						"u": 0,
 						"pos": [
-							1.35,
-							1.32,
-							1.55
+							0.98,
+							1.3,
+							1.35
 						],
 						"look": "dee",
 						"fov": 28,
@@ -14848,9 +14853,9 @@
 					{
 						"u": 1,
 						"pos": [
-							1.34,
-							1.32,
-							1.5
+							0.98,
+							1.3,
+							1.3
 						],
 						"look": "dee",
 						"fov": 28,
@@ -14883,7 +14888,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -14911,7 +14916,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -15395,7 +15401,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -15428,7 +15434,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -15467,14 +15473,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -15599,7 +15605,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -15627,7 +15633,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -16104,7 +16111,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -16124,7 +16131,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -16163,14 +16170,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -16253,7 +16260,7 @@
 						"pos": [
 							1.8,
 							1.42,
-							0.35
+							0.75
 						],
 						"look": [
 							0.38,
@@ -16272,7 +16279,7 @@
 						"pos": [
 							1.76,
 							1.41,
-							0.33
+							0.72
 						],
 						"look": [
 							0.38,
@@ -16304,7 +16311,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -16332,7 +16339,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -16890,7 +16898,7 @@
 							"ahead"
 						]
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					},
@@ -16917,7 +16925,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -16956,14 +16964,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -17099,7 +17107,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -17127,7 +17135,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -17649,7 +17658,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -17691,7 +17700,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -17730,14 +17739,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -17862,7 +17871,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -17891,6 +17900,7 @@
 						"driver"
 					],
 					"paint": "lot47_dew",
+					"glow": 0.0,
 					"wet_seat": true
 				}
 			],
@@ -18369,7 +18379,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -18389,7 +18399,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -18428,14 +18438,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -18465,14 +18475,14 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.0,
-						1.15,
-						-1.45
+						-0.12,
+						1.2,
+						-1.05
 					],
 					"look": [
-						0.1,
-						0.55,
-						-0.55
+						0.02,
+						0.32,
+						-0.5
 					],
 					"colour": "#a9b8d0",
 					"energy": 2.5,
@@ -18590,7 +18600,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -18618,7 +18628,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -19249,7 +19260,7 @@
 							"ahead"
 						]
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -19269,7 +19280,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -19308,14 +19319,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -19451,7 +19462,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -19479,7 +19490,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -19976,7 +19988,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -20009,7 +20021,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -20048,14 +20060,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -20180,7 +20192,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -20209,6 +20221,7 @@
 						"driver"
 					],
 					"paint": "lot47_dew",
+					"glow": 0.0,
 					"wet_seat": true
 				}
 			],
@@ -20686,7 +20699,7 @@
 							"t": 9.0
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -20706,7 +20719,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -20745,14 +20758,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -20782,14 +20795,14 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.0,
-						1.15,
-						-1.45
+						-0.12,
+						1.2,
+						-1.05
 					],
 					"look": [
-						0.1,
-						0.55,
-						-0.55
+						0.02,
+						0.32,
+						-0.5
 					],
 					"colour": "#a9b8d0",
 					"energy": 2.5,
@@ -20897,7 +20910,7 @@
 			"mirror": {
 				"glass": true,
 				"follow": "kit",
-				"exposure": 2.0
+				"exposure": 1.1
 			},
 			"lead": 0.0,
 			"tail": 0.25,
@@ -20913,7 +20926,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -20941,7 +20954,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -21499,7 +21513,7 @@
 							"ahead"
 						]
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -21519,7 +21533,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -21558,14 +21572,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -21710,7 +21724,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [],
@@ -21788,7 +21803,7 @@
 			],
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -21863,7 +21878,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -21891,7 +21906,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -21946,7 +21962,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -21985,14 +22001,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -22126,7 +22142,7 @@
 			"ambience": "rain",
 			"grade": {
 				"preset": "dawn",
-				"shadows_amount": 0.14,
+				"shadows_amount": 0.08,
 				"saturation": 0.8
 			},
 			"env": {
@@ -22154,7 +22170,8 @@
 					"windows_down": [
 						"driver"
 					],
-					"paint": "lot47_dew"
+					"paint": "lot47_dew",
+					"glow": 0.0
 				}
 			],
 			"people": [
@@ -22482,7 +22499,7 @@
 							]
 						}
 					],
-					"mouth": 0.5,
+					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
 					}
@@ -22502,7 +22519,7 @@
 						0.0
 					],
 					"colour": "#a9bcdc",
-					"energy": 0.55,
+					"energy": 0.75,
 					"range": 40.0
 				},
 				{
@@ -22541,14 +22558,14 @@
 						-0.6
 					],
 					"look": [
-						1.3,
-						1.25,
+						1.2,
+						1.05,
 						0.05
 					],
 					"colour": "#ffb36b",
 					"energy": 2.5,
 					"angle": 40.0,
-					"range": 7.0
+					"range": 3.5
 				},
 				{
 					"kind": "omni",
@@ -22647,9 +22664,9 @@
 							6.4
 						],
 						"look": [
-							1.6,
-							1.6,
-							0.3
+							2.4,
+							4.0,
+							0.4
 						],
 						"fov": 36
 					}
