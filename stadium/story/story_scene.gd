@@ -87,8 +87,8 @@ const SET_DECK := 2.0                  ## m a set's deck stands over the map's g
 ## hand" (Gus, c01_open), so deep black under soft airbrushed shapes and a hand-drawn pinstripe (red,
 ## as the calipers: paint, not a reflection).
 const PAINTS := {
-	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#5c5f64", "b": "#2c2e32", "c": "#a3221a",
-		"p": [0.7, 0.05, 0.0025, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
+	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#a3221a",
+		"p": [0.5, 0.05, 0.0025, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
 	# the Mirror's coupe: Vesper's own pearl white, plain (not a police car, not Kit's twin)
 	"white": {"pattern": "plain", "base": "#e9eaec", "c": "#cfd8e4", "finish": "pearl"},
 }

@@ -89,6 +89,13 @@ CROWD_RIM = light("spot", [0.0, 6.0, 4.5], [0.0, 1.6, 9.5], "#7f9cff", 4.0, 50.0
 yard["lights"] = blue_floods(8.0, 8.0) + [light("spot", [1.8, 3.0, 13.8], [0.4, 1.7, 11.2], "#ffa040", 1.5, 15.0, 6.0),
                                           dict(GUS_KEY), dict(GUS_BACK), dict(CROWD_RIM)]
 
+# Gus presents the lot on "Lot forty-six" (an open hand, palm up, out towards the cars: an
+# auctioneer at work, not an A-pose)
+PRESENT = {"at": [-0.34, 1.86, -2.12], "palm": [0.0, 1.0, 0.0], "fingers": [-0.25, 0.0, 0.97],
+           "elbow": [-0.6, -1.0, 0.0], "fist": 0.1}
+person(yard, "gus")["reach"] = [{"t": 0.35}, {"t": 1.05, "RightHand": PRESENT},
+                                {"t": 2.6, "RightHand": dict(PRESENT, at=[-0.36, 1.84, -2.1])}, {"t": 3.3}]
+
 # 5. Gus points the gentleman out, seen from 55 degrees off his point (the arm across the frame, not
 # down the lens), keyed short-side, rimmed, the wall melted
 gp = shots["gus_points"]
