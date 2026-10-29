@@ -273,29 +273,37 @@ shots["black"]["dur"] = 1.1
 # with the number lit. The ids stay (pass3_close.py finds its shots by them): kit_wake is now the
 # over-the-shoulder, knock_two Dee's profile outside.
 KNOCK_ORDER = ["arch", "knock_ins", "knock", "two_shot", "knock_two", "kit_two", "kit_wake", "knock_dee2", "knock_kit2",
-               "back_seat", "knock_dee3", "knock_kit3", "mirror_dawn", "knock_dee4", "pins", "knock_kit4", "knock_end"]
+               "back_seat", "knock_dee3", "knock_kit3", "mirror_dawn", "knock_dee4", "kit_react", "pins", "knock_kit4",
+               "knock_end"]
+if "kit_react" not in shots:                 # (a new shot: Kit hearing Dee's "They've been places.")
+    shots["kit_react"] = dict(copy.deepcopy(shots["kit_two"]), id="kit_react")
+    scene["shots"].append(shots["kit_react"])
 _first = [x["id"] for x in scene["shots"]].index("arch")
 scene["shots"] = scene["shots"][:_first] + [shots[x] for x in KNOCK_ORDER] + [
     x for x in scene["shots"][_first:] if x["id"] not in KNOCK_ORDER]
 
-DAWN = {"zenith": "#2a3756", "horizon": "#a8a2a6", "cloud_cover": 0.3, "cloud_lo": "#4c5062", "cloud_hi": "#a8a0a6"}
+DAWN = {"zenith": "#2e3e60", "horizon": "#8c97ad", "cloud_cover": 0.3, "cloud_lo": "#4c5468", "cloud_hi": "#9ca4b6"}   # (the blue hour)
 KNOCK_ENV = {"fog": 0.002, "fog_colour": "#6f7f9c", "fog_sky": 0.85, "exposure": 1.35, "sky": DAWN, "city_lit": 0.08,
              "city_led": 0.0}
 KNOCK_GRADE = {"preset": "dawn", "shadows_amount": 0.08, "saturation": 0.8}     # (faces went violet in the blue shadows)
 SUN = {"kind": "sun", "pos": [-30.0, 9.0, 12.0], "look": [0.0, 0.0, 0.0], "colour": "#a9bcdc", "energy": 0.75, "range": 40.0}
-SKY = {"kind": "omni", "pos": [-6.0, 6.0, -4.0], "colour": "#8da2cc", "energy": 1.6, "range": 26.0}
+SKY = {"kind": "omni", "pos": [-6.0, 6.0, -4.0], "colour": "#8da2cc", "energy": 3.0, "range": 26.0}
 STREET = {"kind": "spot", "pos": [5.5, 2.4, 3.5], "look": [0.5, 1.05, 0.1], "colour": "#8ea2c4", "energy": 0.6, "range": 14.0,
           "angle": 34.0}
 ARCH_RIM = {"kind": "spot", "pos": [2.6, 2.7, -0.6], "look": [1.2, 1.05, 0.05], "colour": "#ffb36b", "energy": 2.5, "angle": 40.0,
             "range": 3.5}      # (onto her back and shoulders, falling into the door: aimed at her head it lit the visor cream)
 NEXT_DOOR = {"kind": "omni", "pos": [5.2, 2.6, 9.5], "colour": "#ff9a50", "energy": 0.8, "range": 6.0}
-WINDOW = omni([0.85, 1.30, 0.25], "#b8c8e4", 0.35, 1.3)          # the morning through Dee's window, on Kit
+WINDOW = omni([0.85, 1.30, 0.25], "#b8c8e4", 0.2, 1.3)           # the morning through Dee's window, on Kit
+KIT_KEYS = [spot([0.2, 1.45, 0.75], [0.376, 1.117, -0.096], "#a9bcdc", 0.8, 30.0, 1.6, id="kit_key"),
+            spot([-0.2, 1.25, -1.0], [0.376, 1.12, -0.12], "#ffd2a0", 0.4, 25.0, 1.6, id="kit_rim"),
+            omni([0.4, 1.42, 0.1], "#6f7c98", 0.1, 0.8, id="headlining")]
+DEE_KEY = spot([0.3, 1.55, 0.6], [1.09, 1.29, 0.09], "#b8c8e4", 0.5, 30.0, 2.0, id="dee_key")
 OUTSIDE = [SUN, SKY, STREET, ARCH_RIM, NEXT_DOOR]
 KNOCK_PROPS = [{"kind": "viaduct", "pos": [5.6, 0.0, 0.5], "yaw": -90.0, "arches": 7, "bulb": 2.2},
                {"kind": "quay", "pos": [0.0, 0.012, 0.0], "rect": [-40.0, -40.0, 5.6, 40.0], "walls": False, "wetness": 0.8},
                {"kind": "warehouse", "pos": [-2.0, 0.0, -24.0], "size": [30.0, 8.0, 12.0], "doors": 3, "lit": [1]}]
 DEE_LOOK = {"mouth": 0.35, "tint": {"cloth__male_worksuit01": "#3a4352"}}
-TEASE = {"mouthSmileLeft": 0.22, "mouthSmileRight": 0.14}
+TEASE = {"mouthSmileLeft": 0.1, "mouthSmileRight": 0.06}       # (more read as a sneer)
 KIT_SLEEPY = {"eyeSquintLeft": 0.45, "eyeSquintRight": 0.45, "browDownLeft": 0.1, "browDownRight": 0.1}
 KIT_DEFENSIVE = {"browDownLeft": 0.3, "browDownRight": 0.3, "browInnerUp": 0.15, "mouthFrownLeft": 0.2, "mouthFrownRight": 0.2}
 KIT_AFRAID = {"browInnerUp": 0.9, "jawOpen": 0.08, "mouthFrownLeft": 0.25, "mouthFrownRight": 0.25}
@@ -314,9 +322,11 @@ def say(text, lid, speaker, hold=None, **more):
     return l
 
 
-def kshot(sid, lights, camera, lines, dur=None, lead=0.2, tail=0.25, window=("driver",)):
+def kshot(sid, lights, camera, lines, dur=None, lead=0.2, tail=0.25, window=("driver",), outside=False):
     sh = shots[sid]
     sh["env"] = copy.deepcopy(KNOCK_ENV)
+    if outside:
+        sh["env"]["exposure"] = 1.55       # (the blue hour opens up outside: the wides read deep night)
     sh["grade"] = dict(KNOCK_GRADE)
     sh["props"] = copy.deepcopy(KNOCK_PROPS)
     sh["lights"] = copy.deepcopy(lights)
@@ -387,7 +397,7 @@ def cam(pos0, pos1, look, fov, handheld=0.08, **key):
 sh = kshot("arch", OUTSIDE, {"path": "spline", "ease": "inout", "keys": [
     {"u": 0.0, "pos": [-9.0, 6.5, -7.5], "look": [4.5, 7.0, 0.5], "fov": 42},
     {"u": 0.45, "pos": [-7.0, 3.6, -6.6], "look": [3.8, 3.2, 0.5], "fov": 40},
-    {"u": 1.0, "pos": [-4.6, 1.2, -5.4], "look": [2.6, 1.0, 0.4], "fov": 38}]}, [], dur=3.8, window=None)
+    {"u": 1.0, "pos": [-4.6, 1.2, -5.4], "look": [2.6, 1.0, 0.4], "fov": 38}]}, [], dur=3.8, window=None, outside=True)
 sh["fade_in"] = 0.6
 sh["props"][0]["train"] = [-3.2, 24.0]
 sh["lights"][3] = dict(ARCH_RIM, pos=[3.4, 2.9, -0.8], look=[2.6, 0.0, -0.1], energy=3.0, angle=60.0)
@@ -397,7 +407,7 @@ person(sh, "dee").update({"pos": [5.9, 0.0, 0.9], "path": [[1.6, 0.15]], "walk_a
 # the knock from outside: her knuckles on the beaded glass in the right foreground, Kit asleep behind it
 sh = kshot("knock_ins", OUTSIDE + [omni([0.3, 1.2, 0.4], "#8fa3c2", 0.3, 1.0)],
            cam([1.95, 1.2, 0.95], [1.93, 1.2, 0.9], [0.75, 1.1, 0.0], 34, 0.06, dof=[2.5, 1.0, 0.1]), [], dur=1.2,
-           window={"driver": [9.0, 10.0]})       # (the glass its own wound piece, still up)
+           window={"driver": [9.0, 10.0]}, outside=True)       # (the glass its own wound piece, still up)
 car(sh, "kit")["rain_glass"] = 1.0
 for r in person(sh, "dee")["reach"]:
     if "RightHand" in r and r["RightHand"].get("fist", 0) >= 0.85:
@@ -412,67 +422,71 @@ car(sh, "kit")["rain_glass"] = 1.0
 for r in person(sh, "dee")["reach"]:
     if "RightHand" in r and r["RightHand"].get("fist", 0) >= 0.85:
         r["RightHand"]["fist"] = 1.0
+    if "LeftHand" in r and r["LeftHand"]["at"][1] > 1.2:          # (her left hand on the door's top, not the roof)
+        r["LeftHand"] = {"at": [0.85, 0.874, 0.32], "palm": [-0.35, -0.94, 0], "fingers": [-0.94, 0.25, 0.25], "fist": 0.25,
+                         "elbow": [0.5, -0.6, 0.6]}
 
 # the two-shot, third: where everyone is (Dee at the window, Kit looking up at her), Kit's first line
 sh = kshot("two_shot", OUTSIDE + [WINDOW], cam([2.55, 1.62, 1.05], [2.4, 1.58, 0.9], [0.45, 1.1, -0.1], 30, 0.1,
                                                 dof_near=[1.0, 0.5, 0.12]),
            [say("What... what time is it?", "c01_close_002", "Kit", 2.2)],
-           window={"driver": [GLASS_DOWN[0] - KNOCK_DUR, GLASS_DOWN[1] - KNOCK_DUR]})   # (the glass going on down over the cut)
+           window={"driver": [GLASS_DOWN[0] - KNOCK_DUR, GLASS_DOWN[1] - KNOCK_DUR]}, outside=True)   # (the glass going on down over the cut)
 kit(sh, "dee", KIT_SLEEPY, bend=TO_DEE)
 
 # Dee's profile from ahead of her, outside: the arch's lamp an edge on her hair, the street behind
 sh = kshot("knock_two", OUTSIDE, cam([0.98, 1.3, 1.35], [0.98, 1.3, 1.3], "dee", 28, look_by=[0.0, -0.03, 0.0],
                                      dof=[1.8, 1.0, 0.12]),
-           [say("Gone six. You slept in it.", "c01_close_003", "Dee", 2.2)])
+           [say("Gone six. You slept in it.", "c01_close_003", "Dee", 2.2)], outside=True)
 person(sh, "dee")["shapes"] = [{"t": 0.0}, {"t": 0.9, **TEASE}]
 
 # Kit three-quarter from the dash (her eyes off the lens): defensive, a look away down the road
-sh = kshot("kit_two", [WINDOW] + OUTSIDE, cam([0.52, 1.1, 0.6], [0.51, 1.1, 0.57], "kit_driver", 34, 0.06,
+sh = kshot("kit_two", [WINDOW] + OUTSIDE + KIT_KEYS, cam([0.52, 1.1, 0.6], [0.51, 1.1, 0.57], "kit_driver", 34, 0.06,
                                               look_by=[0.0, 0.0, 0.0], eye_light=0.03, dof=[1.2, 0.6, 0.1]),
            [say("I wasn't sleeping. I was driving.", "c01_close_004", "Kit", 2.4)])
 kit(sh, "dee", KIT_DEFENSIVE, looks=[[0.55, 1.7, "road"]], bend=[{"t": 0.0, "Neck": [2, 10, 0], "Head": [4, 16, 0]}])
 
-# over Dee's shoulder from outside: Kit through the open window, Dee's hair soft at the edge
-sh = kshot("kit_wake", OUTSIDE + [WINDOW], cam([1.8, 1.42, 0.75], [1.76, 1.41, 0.72], [0.38, 1.12, -0.1], 30,
-                                                dof_near=[0.7, 0.3, 0.14]),
+# Kit's profile from the passenger's side, Dee listening beyond the window (the cut stays inside)
+sh = kshot("kit_wake", OUTSIDE + [WINDOW] + KIT_KEYS, cam([-0.15, 1.12, 0.15], [-0.13, 1.12, 0.13], "kit_driver", 30, 0.06,
+                                                          look_by=[0.0, 0.02, 0.0], eye_light=0.02, dof=[1.6, 0.8, 0.1]),
            [say("There was a white car right behind me.", "c01_close_004b", "Kit", 2.6)])
 kit(sh, "dee", dict(KIT_DEFENSIVE, browInnerUp=0.45), bend=TO_DEE)
 
 # Dee from inside, low (the roof's rail over her head), the arch soft behind her
 def cam_dee_in(fov, x=-0.1, z=0.46):
-    return cam([x, 1.0, z], [x + 0.02, 1.0, z - 0.03], "dee", fov, look_by=[0.0, -0.03, 0.0], dof=[1.8, 0.8, 0.15])
+    return cam([x, 1.0, z], [x + 0.02, 1.0, z - 0.03], "dee", fov, look_by=[0.0, -0.08, 0.0], dof=[1.8, 0.8, 0.15])
 
 
-sh = kshot("knock_dee2", OUTSIDE + [WINDOW], cam_dee_in(32), [say("You were drooling on the wheel.", "c01_close_005", "Dee", 2.2)])
+sh = kshot("knock_dee2", OUTSIDE + [WINDOW, DEE_KEY], cam_dee_in(32), [say("You were drooling on the wheel.", "c01_close_005", "Dee", 2.2)])
 person(sh, "dee")["shapes"] = [{"t": 0.0, **TEASE}]
 
 # the scare line: Kit close, the camera easing in, her eyes going to the back seat; the window's light
 # falls away off her face
-sh = kshot("knock_kit2", [omni([0.85, 1.30, 0.25], "#b8c8e4", [[0, 0.35], [0.9, 0.12]], 1.3)] + OUTSIDE,
-           cam([0.52, 1.1, 0.62], [0.49, 1.1, 0.54], "kit_driver", 26, 0.06, look_by=[0.0, 0.0, 0.0], eye_light=0.02,
+sh = kshot("knock_kit2", [omni([0.85, 1.30, 0.25], "#b8c8e4", [[0, 0.2], [0.9, 0.08]], 1.3)] + OUTSIDE + KIT_KEYS,
+           cam([0.12, 1.06, 0.52], [0.13, 1.07, 0.46], "kit_driver", 28, 0.06, look_by=[0.0, 0.0, 0.0], eye_light=0.02,
                dof=[1.0, 0.5, 0.1]),
            [say("There was someone in the back.", "c01_close_006", "Kit", 2.3)])
 kit(sh, "dee", KIT_AFRAID, looks=[[0.4, 1.8, "rear"]], bend=[{"t": 0.0, "Neck": [2, 10, 0], "Head": [4, 16, 0]},
-                                                             {"t": 0.45, "Neck": [2, -14, 0], "Head": [2, -24, 0]},
-                                                             {"t": 1.7, "Neck": [2, -14, 0], "Head": [2, -24, 0]},
+                                                             {"t": 0.45, "Neck": [0, -8, 0], "Head": [0, -14, 0]},
+                                                             {"t": 1.7, "Neck": [0, -8, 0], "Head": [0, -14, 0]},
                                                              {"t": 2.1, "Neck": [2, 10, 0], "Head": [4, 16, 0]}])
+person(sh, "kit_driver")["blink"] = False       # (her eyes open through the look: the turn read as shut eyes)
 
 # the back seat while Dee explains it: the first light through the rear glass raking the cushion, and
 # on it the wet patch she names
-REAR_LIGHT = [omni([0.0, 1.38, -0.95], "#b4c4e0", 1.2, 1.3),
-              spot([-0.12, 1.2, -1.05], [0.02, 0.32, -0.5], "#a9b8d0", 2.5, 35.0, 2.0, id="rear_glass")]   # (its glint off the patch into the lens)
-sh = kshot("back_seat", OUTSIDE + REAR_LIGHT, cam([-0.12, 1.22, 0.0], [-0.11, 1.2, -0.06], [0.2, 0.5, -0.95], 40, 0.0,
-                                                  dof=[1.6, 0.6, 0.1]),
+REAR_LIGHT = [omni([0.0, 1.38, -0.95], "#b4c4e0", 0.9, 1.3),
+              spot([-0.07, 1.13, -0.89], [0.02, 0.32, -0.5], "#a9b8d0", 2.5, 30.0, 2.0, id="rear_glass")]   # (its glint off the patch into the lens)
+sh = kshot("back_seat", OUTSIDE + REAR_LIGHT, cam([-0.08, 1.2, -0.08], [-0.07, 1.18, -0.13], [0.0, 0.35, -0.55], 36, 0.0,
+                                                  dof=[1.4, 0.6, 0.1]),
            [say("There's a parcel shelf back there, and a wet patch.", "c01_close_007", "Dee", 3.0, voice=True)])
 car(sh, "kit")["wet_seat"] = True
 
 # Dee wider from inside: her hands on the door's top in the frame, explaining it away
-sh = kshot("knock_dee3", OUTSIDE + [WINDOW], cam([-0.3, 0.99, 0.28], [-0.28, 0.99, 0.25], "dee", 36, look_by=[0.0, -0.05, 0.0],
-                                                  dof=[1.8, 0.8, 0.15]),
+sh = kshot("knock_dee3", OUTSIDE + [WINDOW, DEE_KEY], cam([0.15, 1.2, -0.3], [0.17, 1.2, -0.28], "dee", 30, look_by=[0.0, -0.05, 0.0],
+                                                           dof_near=[0.5, 0.2, 0.12]),
            [say("You need a new door seal, that's all.", "c01_close_007b", "Dee", 2.5)])
 
 # Kit from the passenger's seat, the mirror at the top of the frame: her eyes go up to it
-sh = kshot("knock_kit3", [WINDOW] + OUTSIDE, cam([-0.25, 1.12, 0.45], [-0.24, 1.12, 0.42], "kit_driver", 32, 0.06,
+sh = kshot("knock_kit3", [WINDOW] + OUTSIDE + KIT_KEYS, cam([-0.25, 1.12, 0.45], [-0.24, 1.12, 0.42], "kit_driver", 32, 0.06,
                                                  look_by=[0.0, 0.02, 0.0], eye_light=0.02, dof=[1.1, 0.5, 0.1]),
            [say("I saw her in the mirror.", "c01_close_008", "Kit", 2.0)])
 kit(sh, "dee", KIT_HAUNTED, looks=[[0.6, 2.4, "mirror"]], bend=[{"t": 0.0, "Neck": [2, 10, 0], "Head": [4, 16, 0]},
@@ -482,27 +496,33 @@ kit(sh, "dee", KIT_HAUNTED, looks=[[0.6, 2.4, "mirror"]], bend=[{"t": 0.0, "Neck
 sh = kshot("mirror_dawn", OUTSIDE + REAR_LIGHT, cam([0.3, 1.17, -0.25], [0.295, 1.168, -0.21], [0.0, 1.115, 0.512], 13, 0.0,
                                                     dof=[0.9, 0.5, 0.15]),
            [say("She was soaking.", "c01_close_008b", "Kit", 1.8, voice=True)])
-sh["mirror"] = {"glass": True, "follow": "kit", "exposure": 1.1}
+sh["mirror"] = {"glass": True, "follow": "kit", "exposure": 0.9}
 sh["dur"], sh["lead"] = 1.8, 0.0                # (an insert: a close-up's 1.5 s and the line's)
 car(sh, "kit")["wet_seat"] = True
 kit(sh, "mirror", KIT_HAUNTED, bend=[{"t": 0.0, "Neck": [0, -6, 0], "Head": [-5, -12, 0]}])
 
 # "Old cars...": Dee closer, her eyes dropping to the dash at the end (the pins next)
-sh = kshot("knock_dee4", OUTSIDE + [WINDOW], cam_dee_in(28, -0.08, 0.44),
-           [say("Old cars give you bad dreams. They've been places.", "c01_close_009", "Dee", 3.0)])
-d = person(sh, "dee")
-d["looks"] = [[2.5, 4.0, "ahead"]]
+sh = kshot("knock_dee4", OUTSIDE + [WINDOW, DEE_KEY], cam([-0.08, 1.0, 0.44], [-0.04, 1.0, 0.38], "dee", 22, look_by=[0.0, -0.06, 0.0],
+                                                           dof=[1.8, 0.8, 0.15]),
+           [say("Old cars give you bad dreams.", "c01_close_009", "Dee", 1.9)])
+# Kit hears the rest: her eyes going down to the dash (the pins next)
+sh = kshot("kit_react", [WINDOW] + OUTSIDE + KIT_KEYS, cam([0.5, 1.1, 0.58], [0.49, 1.1, 0.55], "kit_driver", 24, 0.04,
+                                                         look_by=[0.0, 0.0, 0.0], eye_light=0.02, dof=[1.1, 0.5, 0.1]),
+           [say("They've been places.", "c01_close_009b", "Dee", 1.5, voice=True)], dur=1.8)
+sh["lead"] = 0.1
+kit(sh, "dee", KIT_HAUNTED, looks=[[0.9, 1.8, "ahead"]], bend=[{"t": 0.0, "Neck": [2, 10, 0], "Head": [4, 16, 0]},
+                                                               {"t": 1.0, "Neck": [8, 4, 0], "Head": [10, 6, 0]}])
 
 # the pins: one lens, a slow move off the screen (no zoom), the number clear of the bars
 sh = kshot("pins", [omni([0.0, 0.7, 0.62], "#8f7cff", 0.3, 0.25), omni([0.1, 1.0, 0.4], "#b9a8ff", 0.4, 1.0)],
-           cam([0.04, 0.8, 0.53], [0.14, 0.95, 0.33], [0.0, 0.70, 0.65], 22, 0.0),
+           cam([0.14, 0.97, 0.3], [0.07, 0.86, 0.47], [0.0, 0.70, 0.65], 26, 0.0),
            [say("Huh. Nine pins.", "c01_close_010", "Dee", voice=True, at=0.6)], dur=2.6)
 car(sh, "kit")["pins"] = 0
 
 # the plea from Dee's eyes: Kit looks up into them (the lens)
 sh = kshot("knock_kit4", OUTSIDE + [WINDOW], cam([1.45, 1.36, 0.15], [1.43, 1.35, 0.15], [0.38, 1.12, -0.1], 30, 0.05,
                                                   dof=[1.6, 0.6, 0.1]),
-           [say("Wipe it. Please.", "c01_close_011", "Kit", 1.8)])
+           [say("Wipe it. Please.", "c01_close_011", "Kit", 1.8)], outside=True)
 sh["people"] = [p for p in sh["people"] if p["id"] != "dee"]     # (her own eyes: the camera)
 kit(sh, "camera", KIT_PLEA, bend=TO_DEE)
 
@@ -510,7 +530,18 @@ kit(sh, "camera", KIT_PLEA, bend=TO_DEE)
 sh = kshot("knock_end", OUTSIDE + [WINDOW], {"path": "spline", "ease": "inout", "keys": [
     {"u": 0.0, "pos": [-3.0, 1.3, 3.6], "look": [1.4, 1.2, 0.2], "fov": 40},
     {"u": 1.0, "pos": [-5.6, 2.3, 6.4], "look": [2.4, 4.0, 0.4], "fov": 36}]},
-    [say("Not yet. Let's see where they go first.", "c01_close_012", "Dee", set=["seen_nine_pins"])], lead=0.6, tail=1.0)
+    [say("Not yet. Let's see where they go first.", "c01_close_012", "Dee", set=["seen_nine_pins"])], lead=0.6, tail=1.0,
+    outside=True)
 sh["dur"] = 5.0
+# she stays at the window, leaning on it, and looks off up the street on "let's see where they go"
+# (she stood up and faced the lens: the owner's "standing weirdly")
+d = person(sh, "dee")
+lean = [b for b in d["bend"] if "Hips" in b and b["Hips"][0] >= 30]
+base = copy.deepcopy(lean[0]) if lean else {"Hips": [30, 0, 0]}
+base.pop("t", None)
+d["bend"] = [dict(copy.deepcopy(base), t=0.0), dict(copy.deepcopy(base), t=2.2),
+             dict(copy.deepcopy(base), t=2.9, Neck=[-4, 14, 0], Head=[-10, 32, 0])]
+d["lift"] = -0.008
+d["reach"] = [r for r in d["reach"] if r.get("t", 0) <= 0.9] or d["reach"][:1]
 
 json.dump(scene, open(path, "w"), indent="\t")

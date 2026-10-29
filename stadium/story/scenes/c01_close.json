@@ -11084,7 +11084,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -11190,13 +11190,13 @@
 				"fog": 0.002,
 				"fog_colour": "#6f7f9c",
 				"fog_sky": 0.85,
-				"exposure": 1.35,
+				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -11221,13 +11221,13 @@
 				"fog": 0.002,
 				"fog_colour": "#6f7f9c",
 				"fog_sky": 0.85,
-				"exposure": 1.35,
+				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -11914,7 +11914,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -12103,11 +12103,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -12891,25 +12891,25 @@
 							},
 							"LeftHand": {
 								"at": [
-									0.62,
-									1.252,
-									0.3
+									0.85,
+									0.874,
+									0.32
 								],
 								"palm": [
-									-0.25,
-									-0.97,
+									-0.35,
+									-0.94,
 									0
 								],
 								"fingers": [
-									-0.69,
-									0.18,
-									0.7
+									-0.94,
+									0.25,
+									0.25
 								],
-								"fist": 0.2,
+								"fist": 0.25,
 								"elbow": [
-									0.35,
-									-0.55,
-									0.75
+									0.5,
+									-0.6,
+									0.6
 								]
 							}
 						},
@@ -12940,25 +12940,25 @@
 							},
 							"LeftHand": {
 								"at": [
-									0.62,
-									1.252,
-									0.3
+									0.85,
+									0.874,
+									0.32
 								],
 								"palm": [
-									-0.25,
-									-0.97,
+									-0.35,
+									-0.94,
 									0
 								],
 								"fingers": [
-									-0.69,
-									0.18,
-									0.7
+									-0.94,
+									0.25,
+									0.25
 								],
-								"fist": 0.2,
+								"fist": 0.25,
 								"elbow": [
-									0.35,
-									-0.55,
-									0.75
+									0.5,
+									-0.6,
+									0.6
 								]
 							}
 						}
@@ -12994,7 +12994,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -13051,7 +13051,7 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
 				}
@@ -13189,13 +13189,13 @@
 				"fog": 0.002,
 				"fog_colour": "#6f7f9c",
 				"fog_sky": 0.85,
-				"exposure": 1.35,
+				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -13721,7 +13721,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -13778,7 +13778,7 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
 				}
@@ -13897,13 +13897,13 @@
 				"fog": 0.002,
 				"fog_colour": "#6f7f9c",
 				"fog_sky": 0.85,
-				"exposure": 1.35,
+				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -14699,8 +14699,8 @@
 						},
 						{
 							"t": 0.9,
-							"mouthSmileLeft": 0.22,
-							"mouthSmileRight": 0.14
+							"mouthSmileLeft": 0.1,
+							"mouthSmileRight": 0.06
 						}
 					]
 				}
@@ -14730,7 +14730,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -14897,11 +14897,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -15417,7 +15417,7 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
 				},
@@ -15445,7 +15445,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -15492,6 +15492,60 @@
 					"colour": "#ff9a50",
 					"energy": 0.8,
 					"range": 6.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.2,
+						1.45,
+						0.75
+					],
+					"look": [
+						0.376,
+						1.117,
+						-0.096
+					],
+					"colour": "#a9bcdc",
+					"energy": 0.8,
+					"angle": 30.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_key"
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-0.2,
+						1.25,
+						-1.0
+					],
+					"look": [
+						0.376,
+						1.12,
+						-0.12
+					],
+					"colour": "#ffd2a0",
+					"energy": 0.4,
+					"angle": 25.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_rim"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.4,
+						1.42,
+						0.1
+					],
+					"colour": "#6f7c98",
+					"energy": 0.1,
+					"range": 0.8,
+					"shadow": false,
+					"id": "headlining"
 				}
 			],
 			"props": [
@@ -15614,11 +15668,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -16142,7 +16196,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -16199,9 +16253,63 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.2,
+						1.45,
+						0.75
+					],
+					"look": [
+						0.376,
+						1.117,
+						-0.096
+					],
+					"colour": "#a9bcdc",
+					"energy": 0.8,
+					"angle": 30.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_key"
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-0.2,
+						1.25,
+						-1.0
+					],
+					"look": [
+						0.376,
+						1.12,
+						-0.12
+					],
+					"colour": "#ffd2a0",
+					"energy": 0.4,
+					"angle": 25.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_rim"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.4,
+						1.42,
+						0.1
+					],
+					"colour": "#6f7c98",
+					"energy": 0.1,
+					"range": 0.8,
+					"shadow": false,
+					"id": "headlining"
 				}
 			],
 			"props": [
@@ -16253,40 +16361,44 @@
 			"camera": {
 				"follow": "kit",
 				"ease": "inout",
-				"handheld": 0.08,
+				"handheld": 0.06,
 				"keys": [
 					{
 						"u": 0,
 						"pos": [
-							1.8,
-							1.42,
-							0.75
-						],
-						"look": [
-							0.38,
+							-0.15,
 							1.12,
-							-0.1
+							0.15
 						],
+						"look": "kit_driver",
 						"fov": 30,
-						"dof_near": [
-							0.7,
-							0.3,
-							0.14
+						"look_by": [
+							0.0,
+							0.02,
+							0.0
+						],
+						"eye_light": 0.02,
+						"dof": [
+							1.6,
+							0.8,
+							0.1
 						]
 					},
 					{
 						"u": 1,
 						"pos": [
-							1.76,
-							1.41,
-							0.72
-						],
-						"look": [
-							0.38,
+							-0.13,
 							1.12,
-							-0.1
+							0.13
 						],
-						"fov": 30
+						"look": "kit_driver",
+						"fov": 30,
+						"look_by": [
+							0.0,
+							0.02,
+							0.0
+						],
+						"eye_light": 0.02
 					}
 				]
 			},
@@ -16320,11 +16432,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -16905,8 +17017,8 @@
 					"shapes": [
 						{
 							"t": 0.0,
-							"mouthSmileLeft": 0.22,
-							"mouthSmileRight": 0.14
+							"mouthSmileLeft": 0.1,
+							"mouthSmileRight": 0.06
 						}
 					]
 				}
@@ -16936,7 +17048,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -16993,9 +17105,29 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.3,
+						1.55,
+						0.6
+					],
+					"look": [
+						1.09,
+						1.29,
+						0.09
+					],
+					"colour": "#b8c8e4",
+					"energy": 0.5,
+					"angle": 30.0,
+					"range": 2.0,
+					"shadow": false,
+					"id": "dee_key"
 				}
 			],
 			"props": [
@@ -17060,7 +17192,7 @@
 						"fov": 32,
 						"look_by": [
 							0.0,
-							-0.03,
+							-0.08,
 							0.0
 						],
 						"dof": [
@@ -17080,7 +17212,7 @@
 						"fov": 32,
 						"look_by": [
 							0.0,
-							-0.03,
+							-0.08,
 							0.0
 						]
 					}
@@ -17116,11 +17248,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -17176,26 +17308,26 @@
 						{
 							"t": 0.45,
 							"Neck": [
-								2,
-								-14,
+								0,
+								-8,
 								0
 							],
 							"Head": [
-								2,
-								-24,
+								0,
+								-14,
 								0
 							]
 						},
 						{
 							"t": 1.7,
 							"Neck": [
-								2,
-								-14,
+								0,
+								-8,
 								0
 							],
 							"Head": [
-								2,
-								-24,
+								0,
+								-14,
 								0
 							]
 						},
@@ -17219,7 +17351,8 @@
 							1.8,
 							"rear"
 						]
-					]
+					],
+					"blink": false
 				},
 				{
 					"id": "dee",
@@ -17677,11 +17810,11 @@
 					"energy": [
 						[
 							0,
-							0.35
+							0.2
 						],
 						[
 							0.9,
-							0.12
+							0.08
 						]
 					],
 					"range": 1.3,
@@ -17711,7 +17844,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -17758,6 +17891,60 @@
 					"colour": "#ff9a50",
 					"energy": 0.8,
 					"range": 6.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.2,
+						1.45,
+						0.75
+					],
+					"look": [
+						0.376,
+						1.117,
+						-0.096
+					],
+					"colour": "#a9bcdc",
+					"energy": 0.8,
+					"angle": 30.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_key"
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-0.2,
+						1.25,
+						-1.0
+					],
+					"look": [
+						0.376,
+						1.12,
+						-0.12
+					],
+					"colour": "#ffd2a0",
+					"energy": 0.4,
+					"angle": 25.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_rim"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.4,
+						1.42,
+						0.1
+					],
+					"colour": "#6f7c98",
+					"energy": 0.1,
+					"range": 0.8,
+					"shadow": false,
+					"id": "headlining"
 				}
 			],
 			"props": [
@@ -17814,12 +18001,12 @@
 					{
 						"u": 0,
 						"pos": [
-							0.52,
-							1.1,
-							0.62
+							0.12,
+							1.06,
+							0.52
 						],
 						"look": "kit_driver",
-						"fov": 26,
+						"fov": 28,
 						"look_by": [
 							0.0,
 							0.0,
@@ -17835,12 +18022,12 @@
 					{
 						"u": 1,
 						"pos": [
-							0.49,
-							1.1,
-							0.54
+							0.13,
+							1.07,
+							0.46
 						],
 						"look": "kit_driver",
-						"fov": 26,
+						"fov": 28,
 						"look_by": [
 							0.0,
 							0.0,
@@ -17880,11 +18067,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -18410,7 +18597,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -18467,7 +18654,7 @@
 						-0.95
 					],
 					"colour": "#b4c4e0",
-					"energy": 1.2,
+					"energy": 0.9,
 					"range": 1.3,
 					"shadow": false
 				},
@@ -18475,9 +18662,9 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						-0.12,
-						1.2,
-						-1.05
+						-0.07,
+						1.13,
+						-0.89
 					],
 					"look": [
 						0.02,
@@ -18486,7 +18673,7 @@
 					],
 					"colour": "#a9b8d0",
 					"energy": 2.5,
-					"angle": 35.0,
+					"angle": 30.0,
 					"range": 2.0,
 					"shadow": false,
 					"id": "rear_glass"
@@ -18546,18 +18733,18 @@
 					{
 						"u": 0,
 						"pos": [
-							-0.12,
-							1.22,
-							0.0
+							-0.08,
+							1.2,
+							-0.08
 						],
 						"look": [
-							0.2,
-							0.5,
-							-0.95
+							0.0,
+							0.35,
+							-0.55
 						],
-						"fov": 40,
+						"fov": 36,
 						"dof": [
-							1.6,
+							1.4,
 							0.6,
 							0.1
 						]
@@ -18565,16 +18752,16 @@
 					{
 						"u": 1,
 						"pos": [
-							-0.11,
-							1.2,
-							-0.06
+							-0.07,
+							1.18,
+							-0.13
 						],
 						"look": [
-							0.2,
-							0.5,
-							-0.95
+							0.0,
+							0.35,
+							-0.55
 						],
-						"fov": 40
+						"fov": 36
 					}
 				]
 			},
@@ -18609,11 +18796,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -19291,7 +19478,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -19348,9 +19535,29 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.3,
+						1.55,
+						0.6
+					],
+					"look": [
+						1.09,
+						1.29,
+						0.09
+					],
+					"colour": "#b8c8e4",
+					"energy": 0.5,
+					"angle": 30.0,
+					"range": 2.0,
+					"shadow": false,
+					"id": "dee_key"
 				}
 			],
 			"props": [
@@ -19407,32 +19614,32 @@
 					{
 						"u": 0,
 						"pos": [
-							-0.3,
-							0.99,
-							0.28
+							0.15,
+							1.2,
+							-0.3
 						],
 						"look": "dee",
-						"fov": 36,
+						"fov": 30,
 						"look_by": [
 							0.0,
 							-0.05,
 							0.0
 						],
-						"dof": [
-							1.8,
-							0.8,
-							0.15
+						"dof_near": [
+							0.5,
+							0.2,
+							0.12
 						]
 					},
 					{
 						"u": 1,
 						"pos": [
-							-0.28,
-							0.99,
-							0.25
+							0.17,
+							1.2,
+							-0.28
 						],
 						"look": "dee",
-						"fov": 36,
+						"fov": 30,
 						"look_by": [
 							0.0,
 							-0.05,
@@ -19471,11 +19678,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -20004,7 +20211,7 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
 				},
@@ -20032,7 +20239,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -20079,6 +20286,60 @@
 					"colour": "#ff9a50",
 					"energy": 0.8,
 					"range": 6.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.2,
+						1.45,
+						0.75
+					],
+					"look": [
+						0.376,
+						1.117,
+						-0.096
+					],
+					"colour": "#a9bcdc",
+					"energy": 0.8,
+					"angle": 30.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_key"
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-0.2,
+						1.25,
+						-1.0
+					],
+					"look": [
+						0.376,
+						1.12,
+						-0.12
+					],
+					"colour": "#ffd2a0",
+					"energy": 0.4,
+					"angle": 25.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_rim"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.4,
+						1.42,
+						0.1
+					],
+					"colour": "#6f7c98",
+					"energy": 0.1,
+					"range": 0.8,
+					"shadow": false,
+					"id": "headlining"
 				}
 			],
 			"props": [
@@ -20201,11 +20462,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -20730,7 +20991,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -20787,7 +21048,7 @@
 						-0.95
 					],
 					"colour": "#b4c4e0",
-					"energy": 1.2,
+					"energy": 0.9,
 					"range": 1.3,
 					"shadow": false
 				},
@@ -20795,9 +21056,9 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						-0.12,
-						1.2,
-						-1.05
+						-0.07,
+						1.13,
+						-0.89
 					],
 					"look": [
 						0.02,
@@ -20806,7 +21067,7 @@
 					],
 					"colour": "#a9b8d0",
 					"energy": 2.5,
-					"angle": 35.0,
+					"angle": 30.0,
 					"range": 2.0,
 					"shadow": false,
 					"id": "rear_glass"
@@ -20910,7 +21171,7 @@
 			"mirror": {
 				"glass": true,
 				"follow": "kit",
-				"exposure": 1.1
+				"exposure": 0.9
 			},
 			"lead": 0.0,
 			"tail": 0.25,
@@ -20935,11 +21196,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -21508,7 +21769,7 @@
 					],
 					"looks": [
 						[
-							2.5,
+							2.9,
 							4.0,
 							"ahead"
 						]
@@ -21544,7 +21805,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -21601,9 +21862,29 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.3,
+						1.55,
+						0.6
+					],
+					"look": [
+						1.09,
+						1.29,
+						0.09
+					],
+					"colour": "#b8c8e4",
+					"energy": 0.5,
+					"angle": 30.0,
+					"range": 2.0,
+					"shadow": false,
+					"id": "dee_key"
 				}
 			],
 			"props": [
@@ -21665,10 +21946,10 @@
 							0.44
 						],
 						"look": "dee",
-						"fov": 28,
+						"fov": 22,
 						"look_by": [
 							0.0,
-							-0.03,
+							-0.06,
 							0.0
 						],
 						"dof": [
@@ -21680,15 +21961,15 @@
 					{
 						"u": 1,
 						"pos": [
-							-0.06,
+							-0.04,
 							1.0,
-							0.41000000000000003
+							0.38
 						],
 						"look": "dee",
-						"fov": 28,
+						"fov": 22,
 						"look_by": [
 							0.0,
-							-0.03,
+							-0.06,
 							0.0
 						]
 					}
@@ -21698,13 +21979,797 @@
 				{
 					"id": "c01_close_009",
 					"speaker": "Dee",
-					"text": "Old cars give you bad dreams. They've been places.",
-					"hold": 3.0
+					"text": "Old cars give you bad dreams.",
+					"hold": 1.9
 				}
 			],
 			"lead": 0.2,
 			"tail": 0.25,
 			"min": 1.6
+		},
+		{
+			"id": "kit_react",
+			"track": "H01",
+			"at": 0.62,
+			"bare": true,
+			"rain": 0.5,
+			"ambience": "rain",
+			"grade": {
+				"preset": "dawn",
+				"shadows_amount": 0.08,
+				"saturation": 0.8
+			},
+			"env": {
+				"fog": 0.002,
+				"fog_colour": "#6f7f9c",
+				"fog_sky": 0.85,
+				"exposure": 1.35,
+				"sky": {
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
+					"cloud_cover": 0.3,
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
+				},
+				"city_lit": 0.08,
+				"city_led": 0.0
+			},
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "0.7.6.0",
+					"cabin": true,
+					"windows_down": [
+						"driver"
+					],
+					"paint": "lot47_dew",
+					"glow": 0.0
+				}
+			],
+			"people": [
+				{
+					"id": "kit_driver",
+					"car": "kit",
+					"seat": "driver",
+					"clip": "Driving",
+					"who": "kit",
+					"rate": 0.12,
+					"start": 0.0,
+					"gaze": "dee",
+					"breathe": [
+						1.0,
+						4.2
+					],
+					"shapes": {
+						"browInnerUp": 0.6,
+						"eyeBlinkLeft": 0.25,
+						"eyeBlinkRight": 0.25,
+						"mouthFrownLeft": 0.2,
+						"mouthFrownRight": 0.2
+					},
+					"bend": [
+						{
+							"t": 0.0,
+							"Neck": [
+								2,
+								10,
+								0
+							],
+							"Head": [
+								4,
+								16,
+								0
+							]
+						},
+						{
+							"t": 1.0,
+							"Neck": [
+								8,
+								4,
+								0
+							],
+							"Head": [
+								10,
+								6,
+								0
+							]
+						}
+					],
+					"looks": [
+						[
+							0.9,
+							1.8,
+							"ahead"
+						]
+					]
+				},
+				{
+					"id": "dee",
+					"who": "dee",
+					"clip": "Stand",
+					"face": -90,
+					"gaze": "kit_driver",
+					"reach_car": "kit",
+					"wet": 0.4,
+					"breathe": [
+						1.2,
+						3.6
+					],
+					"pos": [
+						1.58,
+						0,
+						0.1
+					],
+					"lift": -0.008,
+					"bend": [
+						{
+							"Hips": [
+								30,
+								0,
+								0
+							],
+							"LeftUpperLeg": [
+								-38,
+								0,
+								0
+							],
+							"RightUpperLeg": [
+								-24,
+								0,
+								0
+							],
+							"LeftLowerLeg": [
+								16,
+								0,
+								0
+							],
+							"RightLowerLeg": [
+								4,
+								0,
+								0
+							],
+							"LeftFoot": [
+								-8,
+								0,
+								0
+							],
+							"RightFoot": [
+								-10,
+								0,
+								0
+							],
+							"Spine": [
+								8,
+								0,
+								0
+							],
+							"Chest": [
+								9,
+								0,
+								0
+							],
+							"UpperChest": [
+								8,
+								0,
+								-1.5
+							],
+							"Neck": [
+								-8,
+								3,
+								0
+							],
+							"Head": [
+								-16,
+								5,
+								6
+							],
+							"LeftShoulder": [
+								0,
+								-5,
+								2
+							],
+							"RightShoulder": [
+								0,
+								5,
+								-7
+							],
+							"t": 0
+						},
+						{
+							"Hips": [
+								30,
+								0,
+								0
+							],
+							"LeftUpperLeg": [
+								-38,
+								0,
+								0
+							],
+							"RightUpperLeg": [
+								-24,
+								0,
+								0
+							],
+							"LeftLowerLeg": [
+								16,
+								0,
+								0
+							],
+							"RightLowerLeg": [
+								4,
+								0,
+								0
+							],
+							"LeftFoot": [
+								-8,
+								0,
+								0
+							],
+							"RightFoot": [
+								-10,
+								0,
+								0
+							],
+							"Spine": [
+								8,
+								0,
+								0
+							],
+							"Chest": [
+								9,
+								0,
+								0
+							],
+							"UpperChest": [
+								8,
+								0,
+								1.5
+							],
+							"Neck": [
+								-7,
+								-2,
+								0
+							],
+							"Head": [
+								-16,
+								-3,
+								2
+							],
+							"LeftShoulder": [
+								0,
+								-5,
+								7
+							],
+							"RightShoulder": [
+								0,
+								5,
+								-2
+							],
+							"t": 1.5
+						},
+						{
+							"Hips": [
+								30,
+								0,
+								0
+							],
+							"LeftUpperLeg": [
+								-38,
+								0,
+								0
+							],
+							"RightUpperLeg": [
+								-24,
+								0,
+								0
+							],
+							"LeftLowerLeg": [
+								16,
+								0,
+								0
+							],
+							"RightLowerLeg": [
+								4,
+								0,
+								0
+							],
+							"LeftFoot": [
+								-8,
+								0,
+								0
+							],
+							"RightFoot": [
+								-10,
+								0,
+								0
+							],
+							"Spine": [
+								8,
+								0,
+								0
+							],
+							"Chest": [
+								9,
+								0,
+								0
+							],
+							"UpperChest": [
+								8,
+								0,
+								-1.5
+							],
+							"Neck": [
+								-8,
+								3,
+								0
+							],
+							"Head": [
+								-16,
+								5,
+								6
+							],
+							"LeftShoulder": [
+								0,
+								-5,
+								2
+							],
+							"RightShoulder": [
+								0,
+								5,
+								-7
+							],
+							"t": 3.0
+						}
+					],
+					"reach": [
+						{
+							"LeftHand": {
+								"at": [
+									0.82,
+									0.885,
+									0.3
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									0.22
+								],
+								"fist": 0.35,
+								"elbow": [
+									0.85,
+									-0.35,
+									0.4
+								]
+							},
+							"RightHand": {
+								"at": [
+									0.82,
+									0.892,
+									-0.06
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									-0.3
+								],
+								"fist": 0.45,
+								"elbow": [
+									0.85,
+									-0.35,
+									-0.4
+								]
+							},
+							"t": 0
+						},
+						{
+							"LeftHand": {
+								"at": [
+									0.82,
+									0.885,
+									0.3
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									0.22
+								],
+								"fist": 0.35,
+								"elbow": [
+									0.85,
+									-0.35,
+									0.4
+								]
+							},
+							"RightHand": {
+								"at": [
+									0.82,
+									0.892,
+									-0.06
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									-0.3
+								],
+								"fist": 0.45,
+								"elbow": [
+									0.85,
+									-0.35,
+									-0.4
+								]
+							},
+							"t": 1.1
+						},
+						{
+							"LeftHand": {
+								"at": [
+									0.82,
+									0.885,
+									0.3
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									0.22
+								],
+								"fist": 0.35,
+								"elbow": [
+									0.85,
+									-0.35,
+									0.4
+								]
+							},
+							"RightHand": {
+								"at": [
+									0.82,
+									0.892,
+									-0.03
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									-0.3
+								],
+								"fist": 0.55,
+								"elbow": [
+									0.85,
+									-0.35,
+									-0.4
+								]
+							},
+							"t": 1.4
+						},
+						{
+							"LeftHand": {
+								"at": [
+									0.82,
+									0.885,
+									0.3
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									0.22
+								],
+								"fist": 0.35,
+								"elbow": [
+									0.85,
+									-0.35,
+									0.4
+								]
+							},
+							"RightHand": {
+								"at": [
+									0.82,
+									0.892,
+									-0.03
+								],
+								"palm": [
+									-0.35,
+									-0.94,
+									0
+								],
+								"fingers": [
+									-0.94,
+									0.2,
+									-0.3
+								],
+								"fist": 0.55,
+								"elbow": [
+									0.85,
+									-0.35,
+									-0.4
+								]
+							},
+							"t": 9.0
+						}
+					],
+					"mouth": 0.35,
+					"tint": {
+						"cloth__male_worksuit01": "#3a4352"
+					}
+				}
+			],
+			"lights": [
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.85,
+						1.3,
+						0.25
+					],
+					"colour": "#b8c8e4",
+					"energy": 0.2,
+					"range": 1.3,
+					"shadow": false
+				},
+				{
+					"kind": "sun",
+					"pos": [
+						-30.0,
+						9.0,
+						12.0
+					],
+					"look": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"colour": "#a9bcdc",
+					"energy": 0.75,
+					"range": 40.0
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						-6.0,
+						6.0,
+						-4.0
+					],
+					"colour": "#8da2cc",
+					"energy": 3.0,
+					"range": 26.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						5.5,
+						2.4,
+						3.5
+					],
+					"look": [
+						0.5,
+						1.05,
+						0.1
+					],
+					"colour": "#8ea2c4",
+					"energy": 0.6,
+					"range": 14.0,
+					"angle": 34.0
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						2.6,
+						2.7,
+						-0.6
+					],
+					"look": [
+						1.2,
+						1.05,
+						0.05
+					],
+					"colour": "#ffb36b",
+					"energy": 2.5,
+					"angle": 40.0,
+					"range": 3.5
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						5.2,
+						2.6,
+						9.5
+					],
+					"colour": "#ff9a50",
+					"energy": 0.8,
+					"range": 6.0
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.2,
+						1.45,
+						0.75
+					],
+					"look": [
+						0.376,
+						1.117,
+						-0.096
+					],
+					"colour": "#a9bcdc",
+					"energy": 0.8,
+					"angle": 30.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_key"
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-0.2,
+						1.25,
+						-1.0
+					],
+					"look": [
+						0.376,
+						1.12,
+						-0.12
+					],
+					"colour": "#ffd2a0",
+					"energy": 0.4,
+					"angle": 25.0,
+					"range": 1.6,
+					"shadow": false,
+					"id": "kit_rim"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.4,
+						1.42,
+						0.1
+					],
+					"colour": "#6f7c98",
+					"energy": 0.1,
+					"range": 0.8,
+					"shadow": false,
+					"id": "headlining"
+				}
+			],
+			"props": [
+				{
+					"kind": "viaduct",
+					"pos": [
+						5.6,
+						0.0,
+						0.5
+					],
+					"yaw": -90.0,
+					"arches": 7,
+					"bulb": 2.2
+				},
+				{
+					"kind": "quay",
+					"pos": [
+						0.0,
+						0.012,
+						0.0
+					],
+					"rect": [
+						-40.0,
+						-40.0,
+						5.6,
+						40.0
+					],
+					"walls": false,
+					"wetness": 0.8
+				},
+				{
+					"kind": "warehouse",
+					"pos": [
+						-2.0,
+						0.0,
+						-24.0
+					],
+					"size": [
+						30.0,
+						8.0,
+						12.0
+					],
+					"doors": 3,
+					"lit": [
+						1
+					]
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"handheld": 0.04,
+				"keys": [
+					{
+						"u": 0,
+						"pos": [
+							0.5,
+							1.1,
+							0.58
+						],
+						"look": "kit_driver",
+						"fov": 24,
+						"look_by": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"eye_light": 0.02,
+						"dof": [
+							1.1,
+							0.5,
+							0.1
+						]
+					},
+					{
+						"u": 1,
+						"pos": [
+							0.49,
+							1.1,
+							0.55
+						],
+						"look": "kit_driver",
+						"fov": 24,
+						"look_by": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"eye_light": 0.02
+					}
+				]
+			},
+			"lines": [
+				{
+					"id": "c01_close_009b",
+					"speaker": "Dee",
+					"text": "They've been places.",
+					"hold": 1.5,
+					"voice": true
+				}
+			],
+			"dur": 1.8,
+			"lead": 0.1
 		},
 		{
 			"id": "pins",
@@ -21765,30 +22830,30 @@
 					{
 						"u": 0,
 						"pos": [
-							0.04,
-							0.8,
-							0.53
+							0.14,
+							0.97,
+							0.3
 						],
 						"look": [
 							0.0,
 							0.7,
 							0.65
 						],
-						"fov": 22
+						"fov": 26
 					},
 					{
 						"u": 1,
 						"pos": [
-							0.14,
-							0.95,
-							0.33
+							0.07,
+							0.86,
+							0.47
 						],
 						"look": [
 							0.0,
 							0.7,
 							0.65
 						],
-						"fov": 22
+						"fov": 26
 					}
 				]
 			},
@@ -21812,11 +22877,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -21885,13 +22950,13 @@
 				"fog": 0.002,
 				"fog_colour": "#6f7f9c",
 				"fog_sky": 0.85,
-				"exposure": 1.35,
+				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -21973,7 +23038,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -22030,7 +23095,7 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
 				}
@@ -22149,13 +23214,13 @@
 				"fog": 0.002,
 				"fog_colour": "#6f7f9c",
 				"fog_sky": 0.85,
-				"exposure": 1.35,
+				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2a3756",
-					"horizon": "#a8a2a6",
+					"zenith": "#2e3e60",
+					"horizon": "#8c97ad",
 					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5062",
-					"cloud_hi": "#a8a0a6"
+					"cloud_lo": "#4c5468",
+					"cloud_hi": "#9ca4b6"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -22229,16 +23294,7 @@
 						0,
 						0.1
 					],
-					"lift": [
-						[
-							0.9,
-							-0.008
-						],
-						[
-							1.45,
-							0.0
-						]
-					],
+					"lift": -0.008,
 					"reach": [
 						{
 							"LeftHand": {
@@ -22288,58 +23344,6 @@
 								]
 							},
 							"t": 0.9
-						},
-						{
-							"t": 1.12,
-							"LeftHand": {
-								"at": [
-									0.82,
-									0.873,
-									0.3
-								],
-								"palm": [
-									-0.35,
-									-0.94,
-									0
-								],
-								"fingers": [
-									-0.94,
-									0.2,
-									0.22
-								],
-								"fist": 0.35,
-								"elbow": [
-									0.85,
-									-0.35,
-									0.4
-								]
-							},
-							"RightHand": {
-								"at": [
-									0.82,
-									0.88,
-									-0.06
-								],
-								"palm": [
-									-0.35,
-									-0.94,
-									0
-								],
-								"fingers": [
-									-0.94,
-									0.2,
-									-0.3
-								],
-								"fist": 0.45,
-								"elbow": [
-									0.85,
-									-0.35,
-									-0.4
-								]
-							}
-						},
-						{
-							"t": 1.35
 						}
 					],
 					"bend": [
@@ -22414,12 +23418,41 @@
 								5,
 								-4
 							],
-							"t": 0.9
+							"t": 0.0
 						},
 						{
-							"t": 1.45,
 							"Hips": [
-								18,
+								30,
+								0,
+								0
+							],
+							"LeftUpperLeg": [
+								-38,
+								0,
+								0
+							],
+							"RightUpperLeg": [
+								-24,
+								0,
+								0
+							],
+							"LeftLowerLeg": [
+								16,
+								0,
+								0
+							],
+							"RightLowerLeg": [
+								4,
+								0,
+								0
+							],
+							"LeftFoot": [
+								-8,
+								0,
+								0
+							],
+							"RightFoot": [
+								-10,
 								0,
 								0
 							],
@@ -22439,64 +23472,99 @@
 								0
 							],
 							"Neck": [
-								2,
+								-8,
 								0,
 								0
 							],
 							"Head": [
-								6,
+								-16,
 								0,
 								0
-							]
+							],
+							"LeftShoulder": [
+								0,
+								-5,
+								4
+							],
+							"RightShoulder": [
+								0,
+								5,
+								-4
+							],
+							"t": 2.2
 						},
 						{
-							"t": 1.8,
 							"Hips": [
+								30,
+								0,
+								0
+							],
+							"LeftUpperLeg": [
+								-38,
+								0,
+								0
+							],
+							"RightUpperLeg": [
+								-24,
+								0,
+								0
+							],
+							"LeftLowerLeg": [
+								16,
+								0,
+								0
+							],
+							"RightLowerLeg": [
 								4,
 								0,
 								0
 							],
-							"Neck": [
-								10,
+							"LeftFoot": [
+								-8,
 								0,
 								0
 							],
-							"Head": [
-								12,
+							"RightFoot": [
+								-10,
 								0,
 								0
-							]
-						},
-						{
-							"t": 2.7,
-							"Hips": [
-								4,
+							],
+							"Spine": [
+								8,
+								0,
+								0
+							],
+							"Chest": [
+								9,
+								0,
+								0
+							],
+							"UpperChest": [
+								8,
 								0,
 								0
 							],
 							"Neck": [
-								10,
-								0,
-								0
-							],
-							"Head": [
-								12,
-								0,
-								0
-							]
-						},
-						{
-							"t": 3.2,
-							"Neck": [
-								4,
+								-4,
 								14,
 								0
 							],
 							"Head": [
-								2,
-								18,
+								-10,
+								32,
 								0
-							]
+							],
+							"LeftShoulder": [
+								0,
+								-5,
+								4
+							],
+							"RightShoulder": [
+								0,
+								5,
+								-4
+							],
+							"t": 2.9
 						}
 					],
 					"mouth": 0.35,
@@ -22530,7 +23598,7 @@
 						-4.0
 					],
 					"colour": "#8da2cc",
-					"energy": 1.6,
+					"energy": 3.0,
 					"range": 26.0
 				},
 				{
@@ -22587,7 +23655,7 @@
 						0.25
 					],
 					"colour": "#b8c8e4",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.3,
 					"shadow": false
 				}

@@ -530,7 +530,8 @@ void fragment() {
 		vec2 f = fract(uv) - 0.5;
 		vec2 o = (vec2(hash(c + 3.1), hash(c + 7.7)) - 0.5) * 0.3;
 		vec2 d = (f - o) / mix(0.25, 0.45, hash(c + 1.9));
-		float bead = step(hash(c), wet * 0.6) * (1.0 - smoothstep(0.85, 1.0, length(d)));
+		float bead = step(hash(c), wet * 0.45) * (1.0 - smoothstep(0.85, 1.0, length(d)));
+		bead *= 1.0 - smoothstep(0.35, 0.9, length(fwidth(uv)));   // (beads under a pixel read as a dot grid)
 		float run = 0.0;
 		if (hash(vec2(c.x, 5.3)) < wet / 12.0) {        // one column in twelve has a drop running
 			float speed = mix(0.03, 0.06, hash(vec2(c.x, 9.1)));

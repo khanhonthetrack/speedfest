@@ -5197,3 +5197,39 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
     - Dee's mouth narrower still;
     - the end's last frame takes in the number;
     - the grade's blue shadows halved (faces went violet), the sun a little stronger.
+- **Round four's critic** on the opening (o9) and the knock (k6):
+  - the opening **5.5 and 5.5** (take five 4.5): the city, the canyon, Gus and the car run are better;
+    after the car is shown no face reacts for 17 s, the coat man is never paid off, the rhythm is
+    metronomic, the paint's insert shows no paint, and the cast have halos;
+  - the knock **4.5 and 4.5**: better light and set, but the cut ping-pongs through the glass on one
+    line a shot; the exteriors read as deep night; the three chills (the wet patch, the mirror, the
+    pins) don't land; Dee still stood up facing the lens at the end; the rain on the glass reads as
+    a dot grid.
+- **Round two of the fourth passes** (in `pass4_open.py` and `pass4_close.py`).
+  - The opening:
+    - Kit's reaction close-up after the car run (her point of view out), the stage's floods
+      stuttering for a breath on it;
+    - a glance back at the coat man before the button (`coat_glance`, new);
+    - a rhythm (a shot's `"min"` under its line: every shot sat on StoryScene's 2.5 s default);
+    - the coat man a long lens with a hard rim;
+    - the paint's insert on the door, raked;
+    - Gus's back rims down (his halo), short-side keys;
+    - the floods down in the car run (they greyed the tyres);
+    - the yard and the hero off Gus's legs.
+  - The knock:
+    - the cut stays inside after the two outside shots: Kit's profile with Dee beyond the window
+      instead of the outside over-the-shoulder; Kit frontal for the scare line (eyes open);
+    - Dee over Kit's shoulder, then close, easing in;
+    - "Old cars give you bad dreams." on Dee and "They've been places." over Kit's face (`kit_react`,
+      new; the line in two subtitles);
+    - the faces keyed (Kit cool from the windscreen with a warm rim; Dee a soft cool key from the open
+      sky), Dee's setups tilted down off the visor;
+    - the blue hour outside: a brighter cool sky, the exteriors a third of a stop more open;
+    - the back seat seen from above with the patch's glint placed for that lens, the mirror down
+      again, the pins from the whole screen in;
+    - both of Dee's hands on the door's top through the knock; at the end she stays leaning and looks
+      off up the street.
+  - Engine:
+    - the glass's beads fade where they're smaller than a pixel (the dot grid);
+    - the rear headrests' posts dark, the cabin's metal darker;
+    - the hair's light from behind halved (halos round heads).

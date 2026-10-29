@@ -116,9 +116,9 @@ static func mat(name: String) -> StandardMaterial3D:
 			m.roughness = 0.07
 			m.clearcoat_enabled = true
 		"alu":                                     # dark brushed metal: bright aluminium glinted like a lamp
-			m.albedo_color = Color(0.36, 0.36, 0.38)
+			m.albedo_color = Color(0.26, 0.26, 0.28)
 			m.metallic = 1.0
-			m.roughness = 0.42
+			m.roughness = 0.5
 		"carpet":
 			m.albedo_color = Color(0.028, 0.028, 0.03)
 			m.roughness = 1.0
@@ -214,7 +214,7 @@ static func bench(parent: Node3D, at: Vector3, width: float) -> Node3D:
 	for s: float in [-1.0, 1.0]:
 		part(root, Vector3(0.22, 0.14, 0.08), 0.04, "leather", Vector3(w * 1.04 * s, 0.70, -0.40), Vector3(-18.0, 0, 0))
 		for k: float in [-1.0, 1.0]:
-			part(root, Vector3(0.012, 0.10, 0.012), 0.005, "alu", Vector3(w * 1.04 * s + 0.06 * k, 0.60, -0.37), Vector3(-18.0, 0, 0))
+			part(root, Vector3(0.012, 0.10, 0.012), 0.005, "rubber", Vector3(w * 1.04 * s + 0.06 * k, 0.60, -0.37), Vector3(-18.0, 0, 0))
 	return root
 
 

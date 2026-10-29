@@ -224,4 +224,128 @@ for sid in YARD:
         if c["id"] == "kit":
             c["plate"] = "KX47 VRN"
 
+
+# === ROUND TWO (the critic on round four's stills, 5.5 and 5.5) =====================================
+# The beat: Kit sees the car she will end up with, and a stranger watches her. Her reaction after the
+# car run (her point of view out: it was the one face missing for the last 17 s), a hairline flicker of
+# the stage's floods on it; the coat man glanced back at before the button. The rhythm off the
+# metronome (a slow open, quicker through Gus and the coat, a quick car run, a long button); the halos
+# off the cast (back rims down); short-side keys on faces; the floods down in the car run (the tyres
+# went grey under them); the paint's insert on the door, raked; the tangents off Gus's legs.
+def rim_down(lights, energy):
+    for l in lights:
+        if l.get("colour") == "#7f9cff" and l.get("shadow") is False and l["pos"][2] < 0 and l["pos"][1] < 7.0:
+            l["energy"] = energy
+
+
+# the city: lower over the quay (its edge a diagonal), the searchlights' sources behind the towers,
+# the far towers laid back in haze
+city["camera"] = {"ease": "inout", "handheld": 0.06, "keys": [
+    {"u": 0, "pos": [51.0, 1.0, -128.5], "look": [535.0, 22.0, 70.0], "fov": 33, "roll": 2.0},
+    {"u": 1, "pos": [48.0, 1.05, -125.0], "look": [535.0, 20.0, 70.0], "fov": 33, "roll": 0.0}]}
+city["env"]["fog"] = 0.0018
+city["dur"] = 3.5
+# the canyon: no push into a figure standing still; held behind her, cut sooner
+canyon["camera"] = {"ease": "inout", "handheld": 0.12, "keys": [
+    {"u": 0, "pos": [-8.6, 1.35, -65.3], "look": [20.0, 1.6, -67.5], "fov": 32},
+    {"u": 1, "pos": [-8.45, 1.35, -65.32], "look": [20.0, 1.6, -67.5], "fov": 32}]}
+for l in canyon["lights"]:
+    if l.get("id") == "lane_back":
+        l["energy"] = 4.0
+canyon["dur"] = 2.3
+# the yard: craning down from over the crowd (Gus's legs off the coupe's roof), his back rim down
+yard["camera"] = {"ease": "inout", "handheld": 0.12, "keys": [
+    {"u": 0, "pos": [1.3, 3.4, 13.4], "look": [0.3, 2.0, -2.6], "fov": 30, "dof": [15.0, 8.0, 0.04]},
+    {"u": 1, "pos": [1.0, 1.9, 12.7], "look": [0.3, 2.25, -2.6], "fov": 30}]}
+for l in yard["lights"]:
+    if l.get("id") == "gus_back":
+        l["energy"], l["pos"] = 2.5, [1.2, 5.0, -6.5]
+    elif l.get("id") == "crowd_rim":
+        l["energy"] = 2.0
+    elif l.get("colour") == "#ffa040":
+        l["energy"] = 0.4                  # (the head nearest the lens a dark wipe, not a brown blob)
+# Gus's point: keyed short-side, the halo off him (the back spot rims his head and shoulder only)
+gp["lights"] = blue_floods(6.0, 1.0) + [light("spot", [-1.2, 3.6, 1.4], [0.0, 2.2, -2.6], "#ffcf99", 6.0, 25.0, 8.0),
+                                        light("spot", [2.4, 4.0, -4.5], [0.0, 2.2, -2.6], "#7f9cff", 1.8, 20.0, 8.0, False)]
+for k_ in gp["camera"]["keys"]:
+    k_["eye_light"] = 0.08
+gp["lines"][0]["hold"] = 2.1
+gp["lead"], gp["tail"] = 0.1, 0.1
+# the coat man: a long lens, a hard warm rim off a lamp behind him, a cool front fill; a beat shorter
+coat["camera"] = {"ease": "inout", "handheld": 0.08, "keys": [
+    {"u": 0, "pos": [1.4, 1.95, 5.8], "look": [-2.5, 1.7, 14.5], "fov": 12, "dof_near": [6.3, 2.0, 0.1], "dof": [10.3, 1.8, 0.1], "eye_light": 0.05},
+    {"u": 1, "pos": [1.34, 1.94, 5.95], "look": [-2.5, 1.7, 14.5], "fov": 12, "eye_light": 0.05}]}
+coat["lights"] = blue_floods(3.0, 2.0) + [light("spot", [-4.0, 3.8, 16.5], [-2.5, 1.7, 14.5], "#ffb070", 5.0, 22.0, 8.0, lid="coat_rim"),
+                                          light("spot", [0.5, 3.0, 9.0], [-2.5, 1.7, 14.5], "#9fb4ff", 1.2, 25.0, 9.0, False),
+                                          light("omni", [-4.6, 3.6, 17.5], None, "#ffb070", 2.0, 0.0, 4.0, False)]
+coat["lights"][-1].pop("look"); coat["lights"][-1].pop("angle")
+coat["lead"], coat["tail"] = 0.1, 0.2
+coat["lines"][0]["hold"] = 1.5
+# "Lot forty-seven": the back rim down (the outline round him)
+for l in gus["lights"]:
+    if l.get("colour") == "#7f9cff" and l.get("shadow") is False:
+        l["energy"] = 2.0
+# Kit hearing it: the floods down, the warm key a little up (3:1 on her face)
+mcu["lights"] = blue_floods(6.0, 4.0) + [light("spot", [-1.4, 3.0, 13.6], [0.4, 1.7, 11.2], "#8aa6ff", 1.2, 20.0, 7.0),
+                                         dict(KIT_KEY, energy=4.0)]
+# the car run: the floods down (they greyed the tyres), the underglow under the paint
+for sid, glow in [("lot47_nose", 0.4), ("lot47_wheel", 0.35), ("lot47_orbit", 0.3), ("lot47_paint", 0.3), ("lot47_hero", 0.5)]:
+    sh = shots[sid]
+    for l in sh["lights"]:
+        if l.get("colour") == "#7f9cff" and l.get("angle") in (50.0, 45.0):
+            l["energy"] = 7.0 if l["pos"][2] < 0 else 4.0
+    kit_car(sh)["glow"] = glow
+nose["lines"][0]["hold"] = 1.7
+nose["lead"], nose["tail"] = 0.15, 0.15
+wheel["lines"][0]["hold"] = 1.7
+orbit["lines"][0]["hold"] = 2.0
+orbit["lead"], orbit["tail"] = 0.15, 0.25
+# Kit sees it: her face, close and still, cold from the coupe's underglow below, the stage's floods
+# stuttering for a breath (something wrong with the car, already); Gus's patter over her
+eyes["camera"] = {"ease": "inout", "handheld": 0.06, "keys": [
+    {"u": 0, "pos": [-0.3, 1.61, 10.28], "look": [0.4, 1.59, 11.2], "fov": 24, "dof": [1.5, 0.8, 0.12], "eye_light": 0.05},
+    {"u": 1, "pos": [-0.28, 1.61, 10.33], "look": [0.4, 1.59, 11.2], "fov": 24, "eye_light": 0.05}]}
+eyes["lights"] = blue_floods(6.0, 4.0) + [light("spot", [0.2, 0.9, 8.5], [0.4, 1.6, 11.2], "#bfd4ff", 1.5, 25.0, 6.0, False, "car_glow_key"),
+                                          dict(KIT_KEY, energy=1.5)]
+eyes["lines"] = [{"id": "c01_open_003a", "speaker": "Gus", "text": "Engine's sweet.", "hold": 1.1, "voice": True}]
+eyes["lead"], eyes["tail"] = 0.15, 0.15
+eyes["flicker"] = {"rate": 14.0, "depth": 0.7, "from": 0.75, "to": 0.95}
+k = person(eyes, "kit")
+k["gaze"] = "gus"
+k["shapes"] = {"browInnerUp": 0.25, "eyeSquintLeft": 0.15, "eyeSquintRight": 0.15}
+# "painted her by hand": on the door, the brushed shapes and the pinstripe raked by a light along the flank
+paint["camera"] = {"follow": "kit", "ease": "inout", "handheld": 0.08, "keys": [
+    {"u": 0, "pos": [2.1, 0.9, 1.4], "look": [0.95, 0.85, 0.4], "fov": 30, "dof": [1.8, 1.0, 0.12]},
+    {"u": 1, "pos": [2.0, 0.9, 0.6], "look": [0.95, 0.85, -0.4], "fov": 30}]}
+paint["lights"] = [l for l in paint["lights"] if l.get("id") != "rake"] + [
+    light("spot", [1.9, 1.15, -3.2], [1.0, 0.85, 0.3], "#ffe2b8", 4.0, 18.0, 6.0, False, "rake")]
+paint["lines"][0]["hold"] = 2.2
+paint["lead"], paint["tail"] = 0.1, 0.2
+# the coat man again, just before the button: his eyes on Kit (planted for later nights)
+if "coat_glance" not in shots:
+    cg = copy.deepcopy(coat)
+    cg["id"] = "coat_glance"
+    scene["shots"].insert([x["id"] for x in scene["shots"]].index("lot47_hero"), cg)
+    shots["coat_glance"] = cg
+cg = shots["coat_glance"]
+cg.update({"camera": copy.deepcopy(coat["camera"]), "lights": copy.deepcopy(coat["lights"]), "lines": [], "dur": 0.8})
+for k_ in ("lead", "tail", "min"):
+    cg.pop(k_, None)
+cg["people"] = copy.deepcopy(coat["people"])
+person(cg, "coat")["gaze"] = "kit"
+# the hero: off the axis a little (Gus off the roof), a long button
+hero["camera"] = {"follow": "kit", "ease": "out", "keys": [
+    {"u": 0, "pos": [1.2, 0.35, 7.4], "look": [0.2, 0.75, 0.5], "fov": 30, "dof": [9.0, 6.0, 0.06]},
+    {"u": 1, "pos": [1.2, 0.45, 6.2], "look": [0.2, 0.8, 0.5], "fov": 30}]}
+for l in hero["lights"]:
+    if l.get("id") == "gus_key":
+        l["energy"] = 5.0
+rim_down(hero["lights"], 2.5)
+hero["tail"] = 1.6
+
+# the rhythm: a shot's floor under its line's own time (StoryScene's default is 2.5 s: every shot sat on it)
+for sid, floor in [("gus_points", 2.2), ("coat", 1.8), ("lot47_nose", 1.8), ("lot47_wheel", 1.8), ("lot47_orbit", 2.2),
+                   ("kit_eyes", 1.4), ("lot47_paint", 2.2)]:
+    shots[sid]["min"] = floor
+
 json.dump(scene, open(path, "w"), indent="\t")
