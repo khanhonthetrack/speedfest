@@ -129,13 +129,19 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	StoryCabinKit.part(self, Vector3(half * 2.0, 0.04, wheelbase * 0.9), 0.01, "carpet", Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5))
 	# the roof keeps the rain out: StoryScene's drops vanish where they fall into the cabin
 	# (under the roof, from the windscreen's foot to the rear glass: the bonnet and the boot get rain)
-	var shield := GPUParticlesCollisionBox3D.new()
-	shield.name = "RainShield"
-	var shield_top := line(m, "top", (front_z + rear_z) * 0.5) - 0.03
-	var shield_z := Vector2(rear_z - 0.5, front_z + 0.95)
-	shield.size = Vector3(half * 2.0 + 0.3, shield_top - FLOOR_Y, shield_z.y - shield_z.x)
-	shield.position = Vector3(0.0, (FLOOR_Y + shield_top) * 0.5, (shield_z.x + shield_z.y) * 0.5)
-	add_child(shield)
+	# in steps 0.25 m long, each under the lower end of the body's line over it (the windscreen and the
+	# rear glass slope down to the bonnet and the boot)
+	var z0 := rear_z - 0.5
+	var steps := ceili((front_z + 0.95 - z0) / 0.25)
+	for i in steps:
+		var za := z0 + i * 0.25
+		var zb := za + 0.25
+		var shield := GPUParticlesCollisionBox3D.new()
+		shield.name = "RainShield" if i == 0 else "RainShield%d" % i
+		var shield_top := minf(line(m, "top", za), line(m, "top", zb)) - 0.03
+		shield.size = Vector3(half * 2.0 + 0.3, maxf(shield_top - FLOOR_Y, 0.05), 0.25)
+		shield.position = Vector3(0.0, (FLOOR_Y + shield_top) * 0.5, (za + zb) * 0.5)
+		add_child(shield)
 	# the dash: its face 0.63 m ahead of the cushions, its top a quarter of a metre under the driver's
 	# eyes or under the windscreen where that comes lower; out to the door cards
 	var dash_z := front_z + 0.63
@@ -516,6 +522,19 @@ varying vec3 ln;
 varying float body_y;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 void vertex() { lp = VERTEX; ln = NORMAL; body_y = VERTEX.y - drop; }
+// a scatter of beads on cells `cell` m wide, `cover` of them taken; d: the bead's slope (0 outside it)
+float beads(vec2 g, vec2 fw, float cell, float cover, float seed, out vec2 d) {
+	vec2 uv = g / cell;
+	vec2 c = floor(uv);
+	vec2 f = fract(uv) - 0.5;
+	vec2 o = (vec2(hash(c + 3.1 + seed), hash(c + 7.7 + seed)) - 0.5) * 0.4;
+	float r = mix(0.12, 0.28, pow(hash(c + 1.9 + seed), 2.0));
+	vec2 q = (f - o) / r;
+	float b = step(hash(c + seed), cover) * (1.0 - smoothstep(0.85, 1.0, length(q)));
+	b *= 1.0 - smoothstep(0.35, 0.9, length(fw) / cell);   // (beads under a pixel read as a dot grid)
+	d = q * b;
+	return b;
+}
 void fragment() {
 	if (body_y < floor_y) { discard; }
 	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 4.0);
@@ -525,13 +544,18 @@ void fragment() {
 	if (wet > 0.0) {
 		// across the glass: a side window by length and height, the screens by width and slope
 		vec2 g = abs(ln.x) > 0.5 ? lp.zy : vec2(lp.x, lp.y + 0.4 * lp.z);
+		// two scatters of beads, one finer and turned against the other, each jittered in its cell and
+		// mostly small with a few big (one 6 mm lattice read as a dot grid over a face behind it)
+		vec2 da;
+		vec2 db;
+		vec2 fw = fwidth(g);            // (the derivatives in fragment(): a function of its own may not take them)
+		float ba = beads(g, fw, 0.007, wet * 0.35, 0.0, da);
+		float bb = beads(mat2(vec2(0.8, -0.6), vec2(0.6, 0.8)) * g + 0.37, fw, 0.0031, wet * 0.3, 13.0, db);
+		float bead = max(ba, bb);
+		vec2 d = ba >= bb ? da : db;
 		vec2 uv = g / 0.006;
 		vec2 c = floor(uv);
 		vec2 f = fract(uv) - 0.5;
-		vec2 o = (vec2(hash(c + 3.1), hash(c + 7.7)) - 0.5) * 0.3;
-		vec2 d = (f - o) / mix(0.25, 0.45, hash(c + 1.9));
-		float bead = step(hash(c), wet * 0.45) * (1.0 - smoothstep(0.85, 1.0, length(d)));
-		bead *= 1.0 - smoothstep(0.35, 0.9, length(fwidth(uv)));   // (beads under a pixel read as a dot grid)
 		float run = 0.0;
 		if (hash(vec2(c.x, 5.3)) < wet / 12.0) {        // one column in twelve has a drop running
 			float speed = mix(0.03, 0.06, hash(vec2(c.x, 9.1)));

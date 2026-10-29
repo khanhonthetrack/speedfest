@@ -43,7 +43,8 @@ extends Node3D
 ##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
 ##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot" |
 ##     "sun" (a directional light from "pos" towards "look": first light over a set; "range" its shadows' reach),
-##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on), "car": a car's id
+##     "pos", "look", "colour", "energy", "range", "angle", "band" (a spot cut to a level band that high,
+##     a fraction of its cone: a slash of light across the eyes), "shadow" (default on), "car": a car's id
 ##     (riding in it: pos and look in its road frame), "look_to" (a spot swept from "look" to it over the
 ##     shot: light moving over a car's paint); "kind": "softbox" ("size": [w, h], "energy": a bright panel
 ##     only reflections see)}], "probe": {"pos", "size", "distance", "box"} (a reflection probe for the
@@ -54,7 +55,8 @@ extends Node3D
 ##     "rect": [x, y, w, h] (fractions of the screen)} (a rear-view mirror: a second camera, its
 ##     picture flipped and framed), or {"glass": true, "follow": a car with a cabin} (the cabin's own
 ##     mirror glass shows what its driver sees in it, from any camera: StoryCabin.reflection), either
-##     with "exposure" (its camera's: 1.6 on the glass, 2.4 framed), "glass": 0..1 (rain on the windscreen; keyed as "rain"), "flash": [[at, s], ...]
+##     with "exposure" (its camera's: 1.6 on the glass, 2.4 framed; keyed [[t, v], ...] as a light's energy)
+##     and on the glass "boost" (keyed too: over 1 the reflection burns white into the glow), "glass": 0..1 (rain on the windscreen; keyed as "rain"), "flash": [[at, s], ...]
 ##     (white frames), "flicker": {"rate", "depth", "from", "to"} (the lights stutter, between those
 ##     s of the shot: a dome's few frames out as someone appears), "sounds": [{"at", "cue", "db",
 ##     "pitch"}] (StorySounds: sting, chime, thump, breath, gasp, ring, creak, sub), "ambience": a
@@ -501,7 +503,10 @@ func _recapture() -> void:
 ## over the night's 0.3), "city_led" (its storefront lines and neon avenues, 0..1), "city_glow" (how
 ## bright its lit rooms are, 1: an aerial's 2-3, lit windows as a lens sees them), "exposure" (the
 ## camera's), "sky" (_set_sky), "reflect" (_set_reflect: the city in the harbour), "ssr": false (no
-## screen-space reflections: a long lens's puddles without their stair-steps).
+## screen-space reflections: a long lens's puddles without their stair-steps), "glow" and "bloom" (the
+## glow's intensity and bloom: lamps that flare past whatever frames them, a whiteout eating the picture),
+## "gi" (the global illumination's energy, where the quality has it) and "ambient" (the ambient light's):
+## a face in a car at night lit by its lamps alone, not flattened by the street's bounce through the glass.
 ## A shot without a key has the map's own back.
 func _set_env(e: Dictionary) -> void:
 	var env := _environment()
@@ -509,7 +514,8 @@ func _set_env(e: Dictionary) -> void:
 		if not env.has_meta("story_base"):
 			env.set_meta("story_base", {"fog": env.fog_density, "fog_colour": env.fog_light_color,
 				"fog_sky": env.fog_sky_affect, "height": env.fog_height, "height_density": env.fog_height_density,
-				"vol_fog": env.volumetric_fog_density, "ssr": env.ssr_enabled})
+				"vol_fog": env.volumetric_fog_density, "ssr": env.ssr_enabled, "glow": env.glow_intensity,
+				"bloom": env.glow_bloom, "gi": env.sdfgi_energy, "ambient": env.ambient_light_energy})
 		var base: Dictionary = env.get_meta("story_base")
 		var hf: Array = e.get("height_fog", [base["height"], base["height_density"]])
 		env.fog_density = float(e.get("fog", base["fog"]))
@@ -520,6 +526,10 @@ func _set_env(e: Dictionary) -> void:
 		if env.volumetric_fog_enabled:
 			env.volumetric_fog_density = float(e.get("vol_fog", base["vol_fog"]))
 		env.ssr_enabled = bool(base["ssr"]) and bool(e.get("ssr", true))
+		env.glow_intensity = float(e.get("glow", base["glow"]))
+		env.glow_bloom = float(e.get("bloom", base["bloom"]))
+		env.sdfgi_energy = float(e.get("gi", base["gi"]))
+		env.ambient_light_energy = float(e.get("ambient", base["ambient"]))
 	if e.has("city_lit"):             # over _set_bare's: the share of the city's rooms lit (dawn: few)
 		RenderingServer.global_shader_parameter_set(&"tm_city_lit", float(e["city_lit"]))
 	if e.has("city_led"):
@@ -865,6 +875,8 @@ func _add_light(l: Dictionary) -> void:
 		var s := SpotLight3D.new()
 		s.spot_range = float(l.get("range", 20.0))
 		s.spot_angle = float(l.get("angle", 30.0))
+		if l.has("band"):
+			s.light_projector = _band(float(l["band"]))
 		light = s
 	elif String(l.get("kind", "omni")) == "sun":
 		var d := DirectionalLight3D.new()
@@ -900,6 +912,22 @@ func _add_light(l: Dictionary) -> void:
 		light.look_at(to, up)
 		if l.has("look_to"):
 			_sweeps.append([light, _anchor * _vec(l["look"]), _anchor * _vec(l["look_to"]), _anchor.basis.y])
+
+
+## A spot's light cut to a level band ("band": its height, a fraction of the cone, soft-edged): the
+## slash of a car's beams off a rear-view mirror across the eyes, not a disc on the face.
+static func _band(h: float) -> Texture2D:
+	var e := clampf(h, 0.02, 0.8) * 0.5
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.5 - e - 0.05, 0.5 - e, 0.5 + e, 0.5 + e + 0.05, 1.0])
+	g.colors = PackedColorArray([Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK])
+	var t := GradientTexture2D.new()
+	t.gradient = g
+	t.fill_from = Vector2(0.5, 0.0)
+	t.fill_to = Vector2(0.5, 1.0)
+	t.width = 4
+	t.height = 128
+	return t
 
 
 ## A photographer's softbox for a car's paint: a bright panel ("size": [w, h] m, facing "look") on a
@@ -1040,8 +1068,13 @@ func _pose(local: float) -> void:
 	_aim(s.get("camera", {}), camera, _attrs, local, dur)
 	_aim_reflection()
 	if _mirror_cam != null and s.has("mirror"):
+		var mk: Dictionary = s["mirror"]
+		if mk.get("exposure") is Array:           # the mirror burning up as lamps fill it
+			(_mirror_cam.attributes as CameraAttributesPractical).exposure_multiplier = keyed(mk["exposure"], local)
 		if _glass() != null:
 			_aim_glass(_glass())
+			if _glass().mirror_glass.material_override is ShaderMaterial:
+				(_glass().mirror_glass.material_override as ShaderMaterial).set_shader_parameter("boost", keyed(mk.get("boost", 1.0), local))
 		else:
 			_aim(s["mirror"], _mirror_cam, null, local, dur)
 	# the faces after the people and the cameras: a look at the camera is at this frame's camera
@@ -1312,18 +1345,19 @@ func _set_mirror(s: Dictionary) -> void:
 	_mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	var vs := get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1600, 900)
 	_mirror_vp.size = Vector2i(maxi(64, int(vs.x * rect.size.x)), maxi(32, int(vs.y * rect.size.y)))
-	(_mirror_cam.attributes as CameraAttributesPractical).exposure_multiplier = float((s["mirror"] as Dictionary).get("exposure", 1.6 if glass else 2.4))
+	(_mirror_cam.attributes as CameraAttributesPractical).exposure_multiplier = keyed((s["mirror"] as Dictionary).get("exposure", 1.6 if glass else 2.4), 0.0)
 	_mirror_cam.near = 0.05
 	if glass and _glass() != null:
 		# the picture on the cabin's own glass (what the driver sees in it), not on the screen
 		var w := 1024
 		_mirror_vp.size = Vector2i(w, int(w * StoryCabin.GLASS.y / StoryCabin.GLASS.x))
-		var gm := StandardMaterial3D.new()
-		gm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		gm.albedo_texture = _mirror_vp.get_texture()
-		gm.albedo_color = Color(0.85, 0.85, 0.85)               # a mirror gives back a little less
-		gm.uv1_scale = Vector3(-1.0, 1.0, 1.0)                  # the camera's picture, mirrored
-		gm.uv1_offset = Vector3(1.0, 0.0, 0.0)
+		if _glass_shader == null:
+			_glass_shader = Shader.new()
+			_glass_shader.code = MIRROR_GLASS
+		var gm := ShaderMaterial.new()
+		gm.shader = _glass_shader
+		gm.set_shader_parameter("picture", _mirror_vp.get_texture())
+		gm.set_shader_parameter("boost", keyed((s["mirror"] as Dictionary).get("boost", 1.0), 0.0))
 		_glass().mirror_glass.material_override = gm
 		if subtitles != null:
 			subtitles.show_mirror(null, Rect2())
@@ -1388,6 +1422,23 @@ func _aim_reflection() -> void:
 	_refl_cam.near = camera.near
 	_refl_cam.far = camera.far
 	_refl_cam.keep_aspect = camera.keep_aspect
+
+
+## The cabin's mirror glass showing the mirror camera's picture, flipped: a mirror gives back a little
+## less (0.85), its edge a touch darker; "boost" (a shot's mirror key, keyed like a light's energy)
+## past 1 burns it white into the glow (high beams filling it).
+const MIRROR_GLASS := """shader_type spatial;
+render_mode unshaded, cull_back;
+uniform sampler2D picture : source_color, filter_linear;
+uniform float boost = 1.0;
+void fragment() {
+	vec2 uv = vec2(1.0 - UV.x, UV.y);
+	vec2 e = min(UV, 1.0 - UV);
+	float edge = mix(0.78, 1.0, smoothstep(0.0, 0.08, min(e.x * 3.4, e.y)));
+	ALBEDO = texture(picture, uv).rgb * 0.85 * edge * boost;
+}
+"""
+static var _glass_shader: Shader
 
 
 ## The shot's mirror on a cabin's glass ("mirror": {"glass": true, "follow": a car}): that car's

@@ -146,18 +146,19 @@ static func soaked(src: StandardMaterial3D) -> StandardMaterial3D:
 	var m := src.duplicate() as StandardMaterial3D
 	var skin := src.resource_name.begins_with("skin__")
 	var hair := src.resource_name.begins_with("hair__")
-	# the skin a drowned body's: grey-green and bloodless, wet but not glazed (a clear coat over it read as
-	# a pink plastic mannequin), no light under it
-	m.albedo_color = (src.albedo_color.lerp(Color(0.52, 0.58, 0.54), 0.72) if skin else src.albedo_color * 0.55)
+	# the skin a drowned body's: grey-blue and bloodless, matt (any gloss on it read as a plastic
+	# mannequin's, a rubber glove's), no light under it
+	m.albedo_color = (src.albedo_color.lerp(Color(0.48, 0.53, 0.58), 0.74) if skin else src.albedo_color * 0.55)
 	m.albedo_color.a = src.albedo_color.a
-	m.roughness = 0.5 if skin else (0.35 if hair else 0.22)
+	m.roughness = 0.7 if skin else (0.35 if hair else 0.22)
 	if skin:
 		m.subsurf_scatter_enabled = false
-	m.clearcoat_enabled = true
-	m.clearcoat = 0.25 if skin else (0.5 if hair else 1.0)     # wet hair shines in strands, not one glare under a lamp
-	m.clearcoat_roughness = 0.25 if skin else (0.3 if hair else 0.05)
+		m.metallic_specular = 0.3
+	m.clearcoat_enabled = not skin       # (a clear coat on the skin read as a glove: matt, a drowned body's)
+	m.clearcoat = 0.5 if hair else 1.0     # wet hair shines in strands, not one glare under a lamp
+	m.clearcoat_roughness = 0.3 if hair else 0.05
 	m.rim_enabled = true
-	m.rim = 0.6
+	m.rim = 0.3 if skin else 0.6
 	m.rim_tint = 0.1
 	return m
 

@@ -5233,3 +5233,42 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
     - the glass's beads fade where they're smaller than a pixel (the dot grid);
     - the rear headrests' posts dark, the cabin's metal darker;
     - the hair's light from behind halved (halos round heads).
+
+## 2026-10-29 (session 21, cont.): stills round four, the Mirror's fifth pass
+- **Round two of the fourth passes** committed and pushed (592c507, gated).
+- **The Mirror's stills** (`m7`, 17 stills), two fresh critics (a cutscene editor and a director):
+  **5.5 and 5.5** (take five's clips: 4.5). Better: real mirror inserts, the dream road, the reveal
+  staged in depth, a tighter cut. Still wrong: every face flat (about 1.5:1) and a different colour
+  each cut; the glare a round theatre spot; the whiteout a beige card (peak 0.83); the coupe nearer
+  and further by turns; the dream car's wing reading as a gate; asleep not in a car; the hit lit on
+  Kit, the ghost behind her head; a latex hand; the mouths grey. One critic read Kit's eyes as
+  turned the wrong way: enlarged crops show them on the mirror, as the probe says (no change).
+- **The Mirror's fifth pass** (`pass4_close.py`, after its fourth; docs/CINEMATICS.md): one motivated
+  light per face and nothing at the lens, teal only the ghost's; the city's bounce down in the cabin;
+  the slash a band across the eyes (a spot's `"band"`, a projector texture); the whiteout burning past
+  white into the glow; the coupe's distance a ladder (40 to 5 m); no wing on the dream car; asleep
+  from outside her window; `empty_seat` (new) before the hit; the hit lit and focused on the ghost
+  beside Kit's head, Kit flinching to her. Cameras checked on the cabin's ray-cast map (two of the
+  critics' positions were inside the mirror or had it out of frame).
+- **Engine:** StoryScene: a spot's `"band"`; an env's `"glow"`, `"bloom"`, `"gi"`, `"ambient"`; the glass
+  mirror an HDR shader (its `"boost"` and `"exposure"` keyed). StoryCabin: the rain shield in steps
+  under the body's line (a seam through the car from outside). StoryCabinKit: the visors soft black.
+  StoryPerson: the drowned skin matt grey-blue. StoryCast: teeth near white, a tongue material.
+  story_lab `--probe` prints the head's facing, the eye shapes and the gaze target.
+- **The knock: Dee's eyes all whites** in round four's stills (the critic before had seen "irises
+  cranked sideways, white showing"). Leaning on the door, her head was bowed 38 degrees, against the
+  15 degrees down to Kit's eyes, so her eyes rolled up under her lids. The probe now prints the eye
+  shapes: look-up 0.75-1.0. Her neck and head are lifted (`level_gaze` in `pass4_close.py`; lifting
+  the chest raised her face over the window's top instead), so look-up is now 0.03-0.2. The look-up
+  shapes stop at 60 % for everyone (`StoryFace.EYE_UP_MAX`: the lids don't follow the eyes).
+- **Rain on the car's glass**: two scatters of beads (7 mm and 3 mm cells, the finer turned against
+  the other), each jittered in its cell and mostly small with a few big. From just outside the window
+  (the knock's insert), one 6 mm lattice read as a dot grid over Kit's face.
+- **A read-only review of the diff** (two sequential reviewers) found four defects, all fixed:
+  - the glass mirror test still read the old StandardMaterial3D (it would have failed the gate);
+  - `kit_react` kept an abandoned draft of Dee's straighter chest: copied once from `kit_two`, nothing
+    rewrote her there, so she is now re-copied every run (the scene file rebuilt from HEAD and checked
+    stable);
+  - `knock_end` rebuilt Dee's look up the street after the head lift, so her head bowed again for the
+    last 2 s: now capped too, her eyes going with her head;
+  - asleep's head-lift was cut halfway by the shorter shot: retimed.

@@ -145,8 +145,14 @@
   **Trap:** after changing StoryHair's shaders, run `stadium/tools/run.sh res://story/cast_lab.tscn --
   --set_quality=2 --frames=20 --shot=<png>` once before a story_lab render, or the render hangs
   (compiling the hair's shaders inside a whole scene deadlocks llvmpipe; from the cache they load).
-- **Next**: stills of all three scenes after their fourth passes (`p3/m6`, `p3/k6`, `p3/o9`), their
-  critic (`p3/critic_wf.js` with a brief like `p3/brief_k5.md`); iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
+- **Stills round four (29 Oct, evening):** the Mirror (`m7`) scored 5.5 and 5.5; its fifth pass is in
+  `pass4_close.py` (docs/CINEMATICS.md "The Mirror's fifth pass"). The knock's `k7` and the opening's
+  `o10` were rendered after round two (592c507) for their critics; the Mirror's `m8` follows the gate.
+  The scratch tools (renders, manifests, critics) live outside the repo: `stills_run.sh` (warm the
+  cast's shaders in `cast_lab` first, then one `story_lab --ts= --shots=` run), a manifest per scene
+  (each shot's times from the scene file, its stills, its data), and two sequential read-only critics
+  with a brief per scene; rebuild them from PROGRESS's descriptions if the scratch is gone.
+- **Next**: the critics of `k7`, `o10` and `m8`; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
   faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera from the

@@ -253,6 +253,41 @@ Mirror's section) and its engine pieces:
   aluminium and piano black mirrored the dawn: white pills and a cream frame).
 - The end a slow pull back that keeps the car, Dee and her lit arch; 17 shots, 27 setups.
 
+The Mirror's fifth pass (29 Oct: round four's stills, `m7`, two critics: 5.5 and 5.5; at the end of
+`pass4_close.py`'s Mirror section, so the fourth pass stays readable above it). Both critics agreed
+on the faults; their fixes, checked first (the probe, the cabin's ray-cast map) where their numbers
+put a lens inside the mirror or the mirror out of frame:
+- **One light per face, from a source in the scene, nothing at the lens.** Faces had gone lilac,
+  peach, a white disc and teal across one cabin and one night, all at about 1.5:1. Now: the street's
+  sodium raking her face through the window (asleep, a passing lamp crossing her mid-shot in
+  profile); the coupe's beams a hard white rim from behind that grows shot to shot (profile, closer);
+  the mirror's slash across the eyes only (glare, eyes); her side window's cold light in the false
+  calm; and teal only ever the ghost's (her light, the cold from the seat in the look back). The
+  city's bounced light through the glass is down in the cabin (an env's `"gi"`, `"ambient"`: it lit
+  every face flat), a faint bounce off the headlining holds the blacks off zero.
+- **The slash is a band, not a theatre spot:** a spot's `"band"` cuts its light to a level band that
+  high (a projector texture), across the eyes from the mirror's glass.
+- **The whiteout burns:** the mirror's glass can go past white into the glow (its `"boost"`, keyed;
+  its `"exposure"` keyed too), the coupe's nose fills it first, light spills out of it over the
+  housing and visors, and the shot's glow and bloom are up (an env's `"glow"`, `"bloom"`); it peaked
+  at 0.83, a beige card.
+- **The coupe comes nearer every cut** (40, 36, 32, 27, 22, 16, 11, 5 m; it came and went: 30, 94,
+  25, 35, 48), gaining 1.5 m/s within a shot.
+- **The dream car has no wing:** from inside, its bar and struts read as a checkpoint gate across the
+  road in four shots (the knock's Lot 47 keeps it). The street's neon lines at waist height off (a
+  track's barrier lights again).
+- asleep through her rain-beaded window from outside: in a parked car at once. The low reverse with
+  her rear quarter a dark edge in frame; the glare over the mirror's back with her screwing her eyes
+  shut; the dark road from the ghost's eye height, creeping towards Kit's headrest; the false calm
+  0.3 s shorter; an empty back seat from Kit's eyes after the look back (`empty_seat`, new); the hit
+  with the ghost beside Kit's head (she sat behind it: two heads in one mass), lit from below as the
+  brightest face and in focus, Kit flinching round to her.
+- Engine and assets: the rain shield in steps under the body's line (one box reached out over the
+  bonnet: a seam through the car from outside); the visors the lining's soft black (they lit as pale
+  planks); the drowned skin matt grey-blue (a clear coat made a rubber glove of her hand); teeth near
+  white and a darker tongue (a grey-blue blob in an open mouth).
+- The scene 21.8 s plus the black (35 shots in the file); the ghost on screen 1.5 s.
+
 ## Calls made (the owner's standing rule: "just write it")
 - **Voices.** Not now: the picture has to pass first. Lines are cut short and long ones play over
   the listener. A voice later means a text-to-speech model with a clear commercial licence or
@@ -305,4 +340,5 @@ Procedure:
 | Take five: stills, critic, render, page | two critic rounds on stills (4.1 both); clips rendered and reviewed (4.5/10 each scene, better than take four in all three); with the owner 28 Oct: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW |
 | Third pass | built 28-29 Oct (`pass3_*.py`); stills round two: the opening 5.5 and 5.0 |
 | Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`); the Mirror's (`pass4_close.py`: faces keyed by the scene's own lights, cabin cameras ray-checked, the hair's sheen, the drowned skin, the rain shield, the deck, the drops); the knock's (4.5/4.5 from its critic): Dee's face in the glass, the two-shot third, first light, the wet patch, `--probe` |
-| Next | stills of all three scenes after their fourth passes (`m6`, `k6`, `o9`), their critic; iterate to 7; clips once every scene reaches 7 |
+| Stills round four | the Mirror (`m7`) 5.5 and 5.5; its fifth pass (above) |
+| Next | the knock's `k7` and the opening's `o10` critics, the Mirror's `m8`; iterate to 7; clips once every scene reaches 7 |

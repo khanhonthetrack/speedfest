@@ -1677,3 +1677,9 @@ cutscenes until the fresh critic's reviews reach at least 7 out of 10.)
 > Continue
 
 (Read as: carry on with the third pass toward 7/10.)
+
+**Owner (29 Oct, late, after the account's usage limit reset):**
+> Continue
+
+(Read as: carry on: gate and commit the Mirror's fifth pass, the critics of round four's stills,
+iterate toward 7/10.)

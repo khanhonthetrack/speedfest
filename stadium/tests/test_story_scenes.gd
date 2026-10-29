@@ -501,9 +501,10 @@ func _mirror_glass() -> void:
 	sc.setup(d, StoryState.new(), false)
 	sc.seek(0.5)
 	var cabin := sc._cars["c"]["cabin"] as StoryCabin
-	var gm := cabin.mirror_glass.material_override as StandardMaterial3D
+	var gm := cabin.mirror_glass.material_override as ShaderMaterial
 	var want := cabin.global_transform * (cabin.reflection()["pos"] as Vector3)
-	var on_glass := gm != null and gm.albedo_texture == sc._mirror_vp.get_texture()
+	var on_glass: bool = gm != null and gm.get_shader_parameter("picture") == sc._mirror_vp.get_texture() \
+		and is_equal_approx(float(gm.get_shader_parameter("boost")), 1.0)
 	var cam_ok := sc._mirror_cam.global_position.distance_to(want) < 0.001 and sc._mirror_vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS
 	var hidden := (sc._mirror_cam.cull_mask & (1 << (StoryCabin.MIRROR_LAYER - 1))) == 0 and cabin.mirror_glass.layers == 1 << (StoryCabin.MIRROR_LAYER - 1)
 	var overlay := sc.subtitles == null or sc.subtitles._mirror_frame == null or not sc.subtitles._mirror_frame.visible

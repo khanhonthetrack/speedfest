@@ -115,7 +115,7 @@ func _ready() -> void:
 	ap.seek(1.0, true)
 	head = _head(dee)
 	var tipped := float(face.eyes_towards(head + Vector3(0.0, 0.0, 3.0)).get("eyeLookUpLeft", 0.0))
-	TestHooks.check(left_ok and right_ok and down_ok and turned_ok and no_flip and tipped > 0.6, "face_eyes_turn_the_right_way",
+	TestHooks.check(left_ok and right_ok and down_ok and turned_ok and no_flip and tipped > 0.55, "face_eyes_turn_the_right_way",
 		"left %s right %s down %s, turned body %s (aside %.2f), behind %s, crouched head looks up %.2f" % [
 		left_ok, right_ok, down_ok, turned_ok, aside, no_flip, tipped])
 	dee.free()

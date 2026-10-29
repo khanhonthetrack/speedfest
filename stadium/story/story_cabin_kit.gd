@@ -306,5 +306,5 @@ static func door(parent: Node3D, s: float, x: float, zb: float, zf: float, belt:
 
 ## A sun visor on side s under the roof at `top` (the headlining's height there), its front at z.
 static func visor(parent: Node3D, s: float, top: float, z: float) -> void:
-	part(parent, Vector3(0.36, 0.022, 0.16), 0.01, "headliner", Vector3(s * 0.36, top - 0.034, z - 0.08), Vector3(-6.0, 0, 0))
+	part(parent, Vector3(0.36, 0.022, 0.16), 0.01, "soft", Vector3(s * 0.36, top - 0.034, z - 0.08), Vector3(-6.0, 0, 0))
 	part(parent, Vector3(0.012, 0.01, 0.03), 0.004, "satin", Vector3(s * 0.17, top - 0.03, z - 0.01))

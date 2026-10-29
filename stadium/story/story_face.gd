@@ -15,6 +15,9 @@ const BLINK := 0.22                     ## s: closing 0.06, shut 0.04, opening 0
 const PACE := 13.0                      ## mouth shapes per second at most (natural speech)
 const EYE_SIDE := 30.0                  ## degrees the eyes turn to the side at full shape
 const EYE_UPDOWN := 25.0
+## how far the look-up shapes go at most: the face's upper lids don't follow the eyes, so a whole
+## look up rolls the iris under the lid (blank whites, a dead stare)
+const EYE_UP_MAX := 0.6
 ## a letter's mouth shape, its weight and how open the jaw is
 const SHAPE := {
 	"a": ["viseme_aa", 0.85, 0.45], "e": ["viseme_E", 0.8, 0.3], "i": ["viseme_I", 0.8, 0.18],
@@ -209,6 +212,8 @@ func eyes_towards(target: Vector3) -> Dictionary:
 	var reach := clampf((120.0 - absf(side)) / 30.0, 0.0, 1.0)
 	var h := clampf(absf(side) / EYE_SIDE, 0.0, 1.0) * reach
 	var v := clampf(absf(up) / EYE_UPDOWN, 0.0, 1.0) * reach
+	if up > 0.0:
+		v *= EYE_UP_MAX
 	var out := {}
 	if side > 0.0:              # to its left: the left eye looks out, the right eye in
 		out["eyeLookOutLeft"] = h

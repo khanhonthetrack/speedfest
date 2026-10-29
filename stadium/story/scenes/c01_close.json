@@ -10,9 +10,9 @@
 			"id": "asleep",
 			"track": "H01",
 			"at": 0.62,
-			"dur": 2.4,
+			"dur": 2.1,
 			"rain": 0.6,
-			"glass": 0.15,
+			"glass": 0.5,
 			"ambience": [
 				{
 					"cue": "rain",
@@ -24,7 +24,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"cabin": true,
 					"finish": "gloss",
 					"paint": "lot47"
@@ -60,7 +60,7 @@
 							]
 						},
 						{
-							"t": 1.9,
+							"t": 1.6,
 							"Neck": [
 								8,
 								0,
@@ -73,7 +73,7 @@
 							]
 						},
 						{
-							"t": 2.4,
+							"t": 2.1,
 							"Neck": [
 								3,
 								0,
@@ -115,47 +115,21 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						1.4,
-						1.35,
-						0.25
+						1.6,
+						2.2,
+						1.2
 					],
 					"look": [
-						0.376,
+						0.372,
 						1.1,
-						-0.12
+						-0.15
 					],
 					"colour": "#ffb36b",
-					"energy": 2.2,
+					"energy": 3.5,
 					"angle": 25.0,
-					"range": 3.0,
+					"range": 4.0,
 					"shadow": true,
 					"id": "window_key"
-				},
-				{
-					"car": "kit",
-					"kind": "omni",
-					"pos": [
-						0.45,
-						1.38,
-						-0.35
-					],
-					"colour": "#7fb0ff",
-					"energy": 0.4,
-					"range": 0.9,
-					"shadow": false
-				},
-				{
-					"car": "kit",
-					"kind": "omni",
-					"pos": [
-						-0.3,
-						0.9,
-						-0.4
-					],
-					"colour": "#2a3560",
-					"energy": 0.25,
-					"range": 1.6,
-					"shadow": false
 				},
 				{
 					"car": "kit",
@@ -166,9 +140,23 @@
 						0.45
 					],
 					"colour": "#3fa0ff",
-					"energy": 0.25,
+					"energy": 0.3,
 					"range": 0.8,
 					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
 				}
 			],
 			"camera": {
@@ -177,37 +165,35 @@
 				"keys": [
 					{
 						"look": [
-							0.35,
+							0.37,
 							1.05,
-							-0.05
+							-0.06
 						],
-						"fov": 32,
-						"eye_light": 0.04,
+						"fov": 30,
 						"u": 0,
 						"pos": [
-							-0.05,
-							1.0,
-							0.75
+							1.15,
+							1.08,
+							0.05
 						]
 					},
 					{
 						"look": [
-							0.35,
+							0.37,
 							1.05,
-							-0.05
+							-0.06
 						],
-						"fov": 32,
-						"eye_light": 0.04,
+						"fov": 30,
 						"u": 1,
 						"pos": [
-							-0.03,
-							1.0,
-							0.69
+							1.09,
+							1.08,
+							0.04
 						]
 					}
 				]
 			},
-			"fade_in": 0.6,
+			"fade_in": 0.5,
 			"bare": true,
 			"props": [
 				{
@@ -243,13 +229,17 @@
 					"cue": "drip",
 					"db": -22
 				}
-			]
+			],
+			"env": {
+				"city_led": 0.0,
+				"gi": 0.35
+			}
 		},
 		{
 			"id": "dream_road",
 			"track": "H01",
 			"at": 0.15,
-			"dur": 2.4,
+			"dur": 2.0,
 			"rain": 0.8,
 			"glass": 0.0,
 			"ambience": [
@@ -267,14 +257,14 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
 					"ahead": 0.0,
 					"finish": "gloss",
 					"paint": "lot47",
-					"glow": 0.5
+					"glow": 0.0
 				},
 				{
 					"id": "white",
@@ -282,8 +272,8 @@
 					"livery": 2,
 					"tuning": "0.0.0.0",
 					"lights": "high",
-					"speed": 25.5,
-					"ahead": -30.0,
+					"speed": 21.5,
+					"ahead": -40.0,
 					"paint": "white"
 				}
 			],
@@ -375,6 +365,26 @@
 					"shadow": false
 				},
 				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-1.8,
+						2.2,
+						-4.0
+					],
+					"look": [
+						0.0,
+						1.3,
+						0.0
+					],
+					"colour": "#9fc0ff",
+					"energy": 2.5,
+					"angle": 30.0,
+					"range": 7.0,
+					"shadow": false,
+					"id": "roof_rim"
+				},
+				{
 					"car": "white",
 					"kind": "omni",
 					"pos": [
@@ -383,7 +393,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 4.0,
+					"energy": 2.5,
 					"range": 3.0,
 					"shadow": false
 				},
@@ -396,7 +406,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 4.0,
+					"energy": 2.5,
 					"range": 3.0,
 					"shadow": false
 				},
@@ -417,7 +427,7 @@
 			"camera": {
 				"follow": "kit",
 				"ease": "inout",
-				"handheld": 0.08,
+				"handheld": 0.12,
 				"keys": [
 					{
 						"look": [
@@ -426,11 +436,12 @@
 							-6.0
 						],
 						"fov": 28,
+						"exposure": 0.85,
 						"u": 0,
 						"pos": [
-							2.4,
-							0.34,
-							5.6
+							2.6,
+							0.32,
+							6.4
 						]
 					},
 					{
@@ -440,11 +451,12 @@
 							-6.0
 						],
 						"fov": 28,
+						"exposure": 0.85,
 						"u": 1,
 						"pos": [
-							2.1,
-							0.34,
-							4.8
+							2.0,
+							0.32,
+							4.4
 						]
 					}
 				]
@@ -910,7 +922,7 @@
 				}
 			],
 			"env": {
-				"city_led": 0.25
+				"city_led": 0.0
 			}
 		},
 		{
@@ -919,7 +931,7 @@
 			"at": 0.15,
 			"dur": 1.4,
 			"rain": 0.8,
-			"glass": 0.0,
+			"glass": 0.2,
 			"ambience": [
 				{
 					"cue": "engine",
@@ -939,7 +951,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -953,8 +965,8 @@
 					"livery": 2,
 					"tuning": "0.0.0.0",
 					"lights": "high",
-					"speed": 25.4,
-					"ahead": -94.0,
+					"speed": 21.5,
+					"ahead": -36.0,
 					"paint": "white"
 				}
 			],
@@ -1046,7 +1058,7 @@
 						0.55
 					],
 					"colour": "#6fa8ff",
-					"energy": 0.35,
+					"energy": 0.25,
 					"range": 1.0,
 					"shadow": false
 				},
@@ -1059,9 +1071,9 @@
 						0.2
 					],
 					"colour": "#ff5aa8",
-					"energy": 0.5,
+					"energy": 0.15,
 					"range": 1.4,
-					"shadow": true
+					"shadow": false
 				},
 				{
 					"car": "kit",
@@ -1078,6 +1090,20 @@
 				},
 				{
 					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
+				},
+				{
+					"car": "kit",
 					"kind": "spot",
 					"pos": [
 						-0.25,
@@ -1085,13 +1111,22 @@
 						-1.9
 					],
 					"look": [
-						0.376,
+						0.372,
 						1.1,
-						-0.12
+						-0.15
 					],
 					"colour": "#e8eeff",
-					"energy": 3.0,
-					"angle": 8.0,
+					"energy": [
+						[
+							0,
+							0.0
+						],
+						[
+							1.4,
+							2.5
+						]
+					],
+					"angle": 10.0,
 					"range": 4.0,
 					"shadow": false,
 					"id": "beams"
@@ -1139,46 +1174,56 @@
 			"camera": {
 				"follow": "kit",
 				"ease": "inout",
-				"handheld": 0.2,
+				"handheld": 0.15,
 				"keys": [
 					{
 						"look": [
-							0.37,
-							1.11,
+							0.33,
+							1.1,
 							-0.08
 						],
-						"fov": 35,
-						"eye_light": 0.04,
+						"fov": 28,
 						"dof": [
 							0.9,
 							0.6,
 							0.1
 						],
+						"dof_near": [
+							0.45,
+							0.2,
+							0.15
+						],
+						"exposure": 0.85,
 						"u": 0,
 						"pos": [
-							-0.3,
+							-0.36,
 							1.02,
-							0.35
+							0.62
 						]
 					},
 					{
 						"look": [
-							0.37,
-							1.11,
+							0.33,
+							1.1,
 							-0.08
 						],
-						"fov": 35,
-						"eye_light": 0.04,
+						"fov": 28,
 						"dof": [
 							0.9,
 							0.6,
 							0.1
 						],
+						"dof_near": [
+							0.45,
+							0.2,
+							0.15
+						],
+						"exposure": 0.85,
 						"u": 1,
 						"pos": [
-							-0.28,
+							-0.34,
 							1.02,
-							0.32
+							0.6
 						]
 					}
 				]
@@ -1646,10 +1691,10 @@
 			"passing": {
 				"car": "kit",
 				"colour": "#ff9d3c",
-				"energy": 1.2,
+				"energy": 2.0,
 				"range": 4.0,
 				"every": 1.3,
-				"phase": 0.4,
+				"phase": -0.15,
 				"from": [
 					1.9,
 					2.6,
@@ -1663,7 +1708,8 @@
 				"shadow": true
 			},
 			"env": {
-				"city_led": 0.25
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
@@ -1679,7 +1725,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -1693,8 +1739,8 @@
 					"livery": 2,
 					"tuning": "0.0.0.0",
 					"lights": true,
-					"speed": 25.3,
-					"ahead": -25.0,
+					"speed": 21.5,
+					"ahead": -32.0,
 					"paint": "white"
 				}
 			],
@@ -1828,7 +1874,7 @@
 							1.131,
 							0.512
 						],
-						"fov": 22,
+						"fov": 17,
 						"dof": [
 							0.9,
 							0.5,
@@ -1837,7 +1883,7 @@
 						"u": 0,
 						"pos": [
 							0.28,
-							1.2,
+							1.18,
 							-0.05
 						]
 					},
@@ -1847,7 +1893,7 @@
 							1.131,
 							0.512
 						],
-						"fov": 22,
+						"fov": 17,
 						"dof": [
 							0.9,
 							0.5,
@@ -1856,7 +1902,7 @@
 						"u": 1,
 						"pos": [
 							0.275,
-							1.195,
+							1.178,
 							-0.02
 						]
 					}
@@ -1865,7 +1911,7 @@
 			"mirror": {
 				"glass": true,
 				"follow": "kit",
-				"exposure": 2.6
+				"exposure": 3.0
 			},
 			"bare": true,
 			"props": [
@@ -2347,8 +2393,9 @@
 				"shadow": true
 			},
 			"env": {
-				"city_led": 0.25,
-				"ssr": false
+				"city_led": 0.0,
+				"ssr": false,
+				"gi": 0.35
 			},
 			"grade": {
 				"preset": "night",
@@ -2368,7 +2415,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -2382,8 +2429,8 @@
 					"livery": 2,
 					"tuning": "0.0.0.0",
 					"lights": "high",
-					"speed": 26.0,
-					"ahead": -35.0,
+					"speed": 21.5,
+					"ahead": -27.0,
 					"paint": "white"
 				}
 			],
@@ -2419,8 +2466,8 @@
 						-2.2
 					],
 					"colour": "#ff2a2a",
-					"energy": 2.0,
-					"range": 3.0,
+					"energy": 3.0,
+					"range": 5.0,
 					"shadow": false
 				},
 				{
@@ -2432,7 +2479,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 8.0,
+					"energy": 4.0,
 					"range": 3.0,
 					"shadow": false
 				},
@@ -2445,7 +2492,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 8.0,
+					"energy": 4.0,
 					"range": 3.0,
 					"shadow": false
 				},
@@ -2470,40 +2517,42 @@
 				"keys": [
 					{
 						"look": [
-							-0.2,
+							-0.5,
 							0.95,
 							-60.0
 						],
-						"fov": 24,
+						"fov": 28,
 						"dof_near": [
+							1.6,
 							0.8,
-							0.4,
 							0.15
 						],
+						"exposure": 0.85,
 						"u": 0,
 						"pos": [
-							-1.15,
-							0.55,
-							-1.6
+							-1.3,
+							0.5,
+							-0.6
 						]
 					},
 					{
 						"look": [
-							-0.2,
+							-0.5,
 							0.95,
 							-60.0
 						],
-						"fov": 24,
+						"fov": 28,
 						"dof_near": [
+							1.6,
 							0.8,
-							0.4,
 							0.15
 						],
+						"exposure": 0.85,
 						"u": 1,
 						"pos": [
-							-1.13,
-							0.56,
-							-1.52
+							-1.28,
+							0.5,
+							-0.7
 						]
 					}
 				]
@@ -2967,15 +3016,18 @@
 					"energy": 5.0,
 					"shadow": false
 				}
-			]
+			],
+			"env": {
+				"city_led": 0.0
+			}
 		},
 		{
 			"id": "closer",
 			"track": "H01",
 			"at": 0.15,
-			"dur": 1.5,
+			"dur": 1.3,
 			"rain": 0.8,
-			"glass": 0.0,
+			"glass": 0.2,
 			"ambience": [
 				{
 					"cue": "engine",
@@ -2999,7 +3051,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -3013,8 +3065,8 @@
 					"livery": 2,
 					"tuning": "0.0.0.0",
 					"lights": "high",
-					"speed": 26.7,
-					"ahead": -48.0,
+					"speed": 21.5,
+					"ahead": -22.0,
 					"paint": "white"
 				}
 			],
@@ -3036,12 +3088,12 @@
 					"looks": [
 						[
 							0.15,
-							0.6,
+							0.55,
 							"mirror"
 						],
 						[
-							0.8,
-							1.5,
+							0.7,
+							1.3,
 							"rear"
 						]
 					],
@@ -3223,22 +3275,9 @@
 						0.55
 					],
 					"colour": "#6fa8ff",
-					"energy": 0.35,
+					"energy": 0.2,
 					"range": 1.0,
 					"shadow": false
-				},
-				{
-					"car": "kit",
-					"kind": "omni",
-					"pos": [
-						0.85,
-						1.2,
-						0.2
-					],
-					"colour": "#ff6fb0",
-					"energy": 0.5,
-					"range": 1.5,
-					"shadow": true
 				},
 				{
 					"car": "kit",
@@ -3255,29 +3294,43 @@
 				},
 				{
 					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
+				},
+				{
+					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						-0.25,
-						1.5,
-						-1.9
+						-0.15,
+						1.45,
+						-1.7
 					],
 					"look": [
-						0.376,
+						0.372,
 						1.1,
-						-0.12
+						-0.15
 					],
 					"colour": "#f2f4ff",
 					"energy": [
 						[
 							0,
-							4.0
+							5.0
 						],
 						[
-							1.5,
-							7.0
+							1.3,
+							10.0
 						]
 					],
-					"angle": 8.0,
+					"angle": 10.0,
 					"range": 4.0,
 					"shadow": false,
 					"id": "beams"
@@ -3330,14 +3383,14 @@
 						"look": [
 							0.37,
 							1.1,
-							-0.1
+							-0.12
 						],
-						"fov": 26,
-						"eye_light": 0.05,
+						"fov": 30,
+						"exposure": 0.85,
 						"u": 0,
 						"pos": [
-							-0.2,
-							1.1,
+							-0.22,
+							1.08,
 							0.5
 						]
 					},
@@ -3345,14 +3398,14 @@
 						"look": [
 							0.37,
 							1.1,
-							-0.1
+							-0.12
 						],
-						"fov": 26,
-						"eye_light": 0.05,
+						"fov": 30,
+						"exposure": 0.85,
 						"u": 1,
 						"pos": [
-							-0.18,
-							1.1,
+							-0.21,
+							1.08,
 							0.47
 						]
 					}
@@ -3838,7 +3891,8 @@
 				"shadow": false
 			},
 			"env": {
-				"city_led": 0.25
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
@@ -3863,7 +3917,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -3877,7 +3931,7 @@
 					"livery": 2,
 					"tuning": "0.0.0.0",
 					"lights": "high",
-					"speed": 26.0,
+					"speed": 21.5,
 					"ahead": -16.0,
 					"paint": "white"
 				}
@@ -3941,7 +3995,28 @@
 						0.55
 					],
 					"colour": "#6fa8ff",
-					"energy": 0.35,
+					"energy": [
+						[
+							0,
+							0.35
+						],
+						[
+							1.08,
+							0.35
+						],
+						[
+							1.1,
+							0.0
+						],
+						[
+							1.26,
+							0.0
+						],
+						[
+							1.28,
+							0.35
+						]
+					],
 					"range": 1.0,
 					"shadow": false
 				},
@@ -3967,7 +4042,28 @@
 						-0.4
 					],
 					"colour": "#2a3560",
-					"energy": 0.25,
+					"energy": [
+						[
+							0,
+							0.25
+						],
+						[
+							1.08,
+							0.25
+						],
+						[
+							1.1,
+							0.0
+						],
+						[
+							1.26,
+							0.0
+						],
+						[
+							1.28,
+							0.25
+						]
+					],
 					"range": 1.6,
 					"shadow": false
 				},
@@ -3980,7 +4076,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 5.0,
+					"energy": 7.0,
 					"range": 6.0,
 					"shadow": false
 				},
@@ -3993,7 +4089,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 5.0,
+					"energy": 7.0,
 					"range": 6.0,
 					"shadow": false
 				},
@@ -4019,12 +4115,12 @@
 						"u": 0,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.42
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -4039,12 +4135,12 @@
 						"t": 1.1,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.39
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -4054,12 +4150,12 @@
 						"t": 1.18,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.385
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -4069,12 +4165,12 @@
 						"u": 1,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.38
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -4544,7 +4640,8 @@
 				}
 			],
 			"env": {
-				"city_led": 0.25
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
@@ -4553,7 +4650,7 @@
 			"at": 0.15,
 			"dur": 1.2,
 			"rain": 0.8,
-			"glass": 0.0,
+			"glass": 0.2,
 			"ambience": [
 				{
 					"cue": "engine",
@@ -4574,7 +4671,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -4589,7 +4686,7 @@
 					"tuning": "0.0.0.0",
 					"lights": "high",
 					"speed": 22.0,
-					"ahead": -13.0,
+					"ahead": -11.0,
 					"paint": "white"
 				}
 			],
@@ -4600,23 +4697,24 @@
 					"seat": "driver",
 					"clip": "Driving",
 					"who": "kit",
-					"shapes": {
-						"eyeSquintLeft": 0.6,
-						"eyeSquintRight": 0.6,
-						"browDownLeft": 0.6,
-						"browDownRight": 0.6,
-						"jawOpen": 0.0,
-						"mouthFrownLeft": 0.3,
-						"mouthFrownRight": 0.3
-					},
+					"shapes": [
+						{
+							"t": 0
+						},
+						{
+							"t": 0.8
+						},
+						{
+							"t": 0.95,
+							"eyeSquintLeft": 0.8,
+							"eyeSquintRight": 0.8,
+							"browDownLeft": 0.4,
+							"browDownRight": 0.4
+						}
+					],
 					"looks": [
 						[
-							0.0,
-							0.8,
-							"ahead"
-						],
-						[
-							0.8,
+							0.5,
 							1.2,
 							"mirror"
 						]
@@ -4691,16 +4789,30 @@
 				},
 				{
 					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
+				},
+				{
+					"car": "kit",
 					"kind": "spot",
 					"pos": [
 						0.0,
-						1.13,
-						0.5
+						1.131,
+						0.512
 					],
 					"look": [
-						0.376,
-						1.117,
-						-0.096
+						0.372,
+						1.115,
+						-0.12
 					],
 					"colour": "#eef2ff",
 					"energy": [
@@ -4709,13 +4821,18 @@
 							0.0
 						],
 						[
+							0.4,
+							0.5
+						],
+						[
 							1.2,
-							3.5
+							4.0
 						]
 					],
-					"angle": 6.0,
+					"angle": 8.0,
 					"range": 1.2,
 					"shadow": false,
+					"band": 0.25,
 					"id": "slash"
 				},
 				{
@@ -4727,7 +4844,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 8.0,
+					"energy": 10.0,
 					"range": 3.0,
 					"shadow": false
 				},
@@ -4740,7 +4857,7 @@
 						2.2
 					],
 					"colour": "#f2f4ff",
-					"energy": 8.0,
+					"energy": 10.0,
 					"range": 3.0,
 					"shadow": false
 				},
@@ -4761,39 +4878,47 @@
 			"camera": {
 				"follow": "kit",
 				"ease": "inout",
-				"handheld": 0.3,
+				"handheld": 0.2,
 				"keys": [
 					{
+						"look": [
+							0.3,
+							1.11,
+							-0.08
+						],
+						"fov": 22,
+						"dof_near": [
+							0.4,
+							0.2,
+							0.2
+						],
+						"exposure": 1.0,
 						"u": 0,
 						"pos": [
-							0.05,
-							1.18,
-							0.42
-						],
-						"look": [
-							0.37,
-							1.11,
-							-0.08
-						],
-						"fov": 28,
-						"eye_light": 0.0,
-						"exposure": 1.0
+							-0.25,
+							1.16,
+							0.575
+						]
 					},
 					{
-						"u": 1,
-						"pos": [
-							0.06,
-							1.18,
-							0.4
-						],
 						"look": [
-							0.37,
+							0.3,
 							1.11,
 							-0.08
 						],
-						"fov": 28,
-						"eye_light": 0.0,
-						"exposure": 1.4
+						"fov": 22,
+						"dof_near": [
+							0.4,
+							0.2,
+							0.2
+						],
+						"exposure": 1.0,
+						"u": 1,
+						"pos": [
+							-0.245,
+							1.16,
+							0.565
+						]
 					}
 				]
 			},
@@ -5258,7 +5383,8 @@
 				}
 			],
 			"env": {
-				"city_led": 0.25
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
@@ -5267,14 +5393,14 @@
 			"at": 0.15,
 			"dur": 0.8,
 			"rain": 0.8,
-			"glass": 0.0,
+			"glass": 0.2,
 			"ambience": [],
 			"cars": [
 				{
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -5289,7 +5415,7 @@
 					"tuning": "0.0.0.0",
 					"lights": "high",
 					"speed": 21.0,
-					"ahead": -4.0,
+					"ahead": -5.0,
 					"paint": "white",
 					"left": 0.4
 				}
@@ -5387,6 +5513,33 @@
 					"shadow": false
 				},
 				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.0,
+						1.13,
+						0.45
+					],
+					"colour": "#e8eeff",
+					"energy": [
+						[
+							0,
+							0.0
+						],
+						[
+							0.4,
+							0.0
+						],
+						[
+							0.72,
+							6.0
+						]
+					],
+					"range": 1.2,
+					"shadow": false,
+					"id": "spill"
+				},
+				{
 					"car": "white",
 					"kind": "omni",
 					"pos": [
@@ -5469,7 +5622,7 @@
 							1.131,
 							0.512
 						],
-						"fov": 13,
+						"fov": 16,
 						"exposure": 1.0
 					},
 					{
@@ -5484,7 +5637,7 @@
 							1.131,
 							0.512
 						],
-						"fov": 13,
+						"fov": 16,
 						"exposure": 1.0
 					},
 					{
@@ -5499,7 +5652,7 @@
 							1.131,
 							0.512
 						],
-						"fov": 13,
+						"fov": 16,
 						"exposure": 1.6
 					}
 				]
@@ -5507,7 +5660,34 @@
 			"mirror": {
 				"glass": true,
 				"follow": "kit",
-				"exposure": 2.6
+				"exposure": [
+					[
+						0,
+						1.6
+					],
+					[
+						0.45,
+						1.6
+					],
+					[
+						0.75,
+						8.0
+					]
+				],
+				"boost": [
+					[
+						0,
+						1.0
+					],
+					[
+						0.45,
+						1.0
+					],
+					[
+						0.75,
+						4.0
+					]
+				]
 			},
 			"sounds": [
 				{
@@ -5986,7 +6166,13 @@
 					"energy": 5.0,
 					"shadow": false
 				}
-			]
+			],
+			"env": {
+				"city_led": 0.0,
+				"gi": 0.35,
+				"glow": 1.0,
+				"bloom": 0.3
+			}
 		},
 		{
 			"id": "empty_road",
@@ -6010,7 +6196,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -6120,8 +6306,21 @@
 						-3.6
 					],
 					"colour": "#ff2a2a",
-					"energy": 0.25,
-					"range": 9.0,
+					"energy": 1.2,
+					"range": 6.0,
+					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.0,
+						1.4,
+						-1.6
+					],
+					"colour": "#ffb36b",
+					"energy": 0.15,
+					"range": 1.5,
 					"shadow": false
 				},
 				{
@@ -6146,12 +6345,12 @@
 						"u": 0,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.42
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -6166,12 +6365,12 @@
 						"t": 1.1,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.39
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -6181,12 +6380,12 @@
 						"t": 1.18,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.385
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -6196,12 +6395,12 @@
 						"u": 1,
 						"pos": [
 							0.02,
-							1.16,
+							1.2,
 							0.38
 						],
 						"look": [
 							-0.03,
-							1.02,
+							1.04,
 							-16.0
 						],
 						"fov": 20,
@@ -6684,7 +6883,9 @@
 				}
 			],
 			"env": {
-				"city_led": 0.25
+				"city_led": 0.0,
+				"gi": 0.35,
+				"fog": 0.008
 			}
 		},
 		{
@@ -6728,7 +6929,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -6841,11 +7042,45 @@
 					"energy": 0.3,
 					"range": 9.0,
 					"shadow": false
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						0.9,
+						1.35,
+						0.3
+					],
+					"look": [
+						0.372,
+						1.1,
+						-0.15
+					],
+					"colour": "#9fb8ff",
+					"energy": 1.2,
+					"angle": 25.0,
+					"range": 2.0,
+					"shadow": false,
+					"id": "kit_rim"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.0,
+						1.2,
+						0.4
+					],
+					"colour": "#6fa8ff",
+					"energy": 0.1,
+					"range": 0.5,
+					"shadow": false
 				}
 			],
 			"camera": {
 				"follow": "kit",
-				"handheld": 0.05,
+				"ease": "inout",
+				"handheld": 0.08,
 				"keys": [
 					{
 						"look": [
@@ -6861,8 +7096,8 @@
 						],
 						"u": 0,
 						"pos": [
-							0.0,
-							1.15,
+							-0.05,
+							1.05,
 							-0.8
 						]
 					},
@@ -6880,9 +7115,9 @@
 						],
 						"u": 1,
 						"pos": [
-							0.01,
-							1.15,
-							-0.76
+							-0.05,
+							1.05,
+							-0.62
 						]
 					}
 				]
@@ -7367,15 +7602,19 @@
 				],
 				"shadow": true,
 				"until": 0.75
+			},
+			"env": {
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
 			"id": "breath_out",
 			"track": "H01",
 			"at": 0.15,
-			"dur": 2.6,
-			"rain": 0.8,
-			"glass": 0.0,
+			"dur": 2.3,
+			"rain": 0.0,
+			"glass": 0.1,
 			"ambience": [
 				{
 					"cue": "drone",
@@ -7391,7 +7630,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -7420,12 +7659,12 @@
 							"browInnerUp": 0.1
 						},
 						{
-							"t": 2.25,
+							"t": 1.95,
 							"eyeBlinkLeft": 1,
 							"eyeBlinkRight": 1
 						},
 						{
-							"t": 2.32,
+							"t": 2.02,
 							"eyeBlinkLeft": 0,
 							"eyeBlinkRight": 0,
 							"browInnerUp": 0.6
@@ -7467,7 +7706,7 @@
 							]
 						},
 						{
-							"t": 2.25,
+							"t": 1.95,
 							"Spine": [
 								8,
 								0,
@@ -7485,7 +7724,7 @@
 							]
 						},
 						{
-							"t": 2.45,
+							"t": 2.15,
 							"Spine": [
 								2,
 								0,
@@ -7505,16 +7744,16 @@
 					],
 					"looks": [
 						[
+							2.0,
 							2.3,
-							2.6,
 							"mirror"
 						]
 					],
 					"gaze": "ahead",
 					"blink": false,
 					"breathe": [
-						1.7,
-						2.5
+						1.4,
+						2.2
 					]
 				},
 				{
@@ -7532,18 +7771,18 @@
 					],
 					"lift": [
 						[
-							2.3,
+							2.0,
 							-0.45
 						],
 						[
-							2.55,
+							2.25,
 							0.0
 						]
 					],
 					"reach_car": "kit",
 					"bend": [
 						{
-							"t": 2.3,
+							"t": 2.0,
 							"Neck": [
 								15,
 								0,
@@ -7556,7 +7795,7 @@
 							]
 						},
 						{
-							"t": 2.6,
+							"t": 2.3,
 							"Neck": [
 								-2,
 								0,
@@ -7571,10 +7810,10 @@
 					],
 					"reach": [
 						{
-							"t": 2.4
+							"t": 2.1
 						},
 						{
-							"t": 2.55,
+							"t": 2.25,
 							"LeftHand": {
 								"at": [
 									0.24,
@@ -7595,7 +7834,7 @@
 							}
 						}
 					],
-					"from": 2.3
+					"from": 2.0
 				}
 			],
 			"lights": [
@@ -7614,23 +7853,37 @@
 				},
 				{
 					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
+				},
+				{
+					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.32,
-						1.33,
-						-0.05
+						0.9,
+						1.3,
+						0.1
 					],
 					"look": [
-						0.376,
-						1.0,
-						-0.1
+						0.372,
+						1.1,
+						-0.15
 					],
 					"colour": "#8fa6c8",
 					"energy": 1.0,
-					"angle": 40.0,
-					"range": 1.0,
+					"angle": 30.0,
+					"range": 1.6,
 					"shadow": false,
-					"id": "dome_key"
+					"id": "side_key"
 				},
 				{
 					"car": "kit",
@@ -7641,7 +7894,20 @@
 						-0.9
 					],
 					"colour": "#9fd8c8",
-					"energy": 0.2,
+					"energy": [
+						[
+							0,
+							0.0
+						],
+						[
+							1.95,
+							0.0
+						],
+						[
+							2.05,
+							0.4
+						]
+					],
 					"range": 0.7,
 					"shadow": false,
 					"id": "ghost_light"
@@ -7663,11 +7929,11 @@
 							0.4,
 							0.1
 						],
-						"eye_light": 0.04,
+						"exposure": 0.8,
 						"u": 0,
 						"pos": [
-							0.06,
-							0.97,
+							0.11,
+							0.98,
 							0.8
 						]
 					},
@@ -7683,10 +7949,10 @@
 							0.4,
 							0.1
 						],
-						"eye_light": 0.04,
+						"exposure": 0.8,
 						"u": 1,
 						"pos": [
-							0.07,
+							0.12,
 							0.98,
 							0.7
 						]
@@ -7705,7 +7971,7 @@
 					"db": -14
 				},
 				{
-					"at": 2.3,
+					"at": 2.0,
 					"cue": "creak",
 					"db": -10
 				}
@@ -8172,7 +8438,8 @@
 			],
 			"env": {
 				"city_lit": 0.05,
-				"city_led": 0.0
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
@@ -8181,7 +8448,7 @@
 			"at": 0.15,
 			"dur": 1.2,
 			"rain": 0.0,
-			"glass": 0.0,
+			"glass": 0.1,
 			"ambience": [
 				{
 					"cue": "drone",
@@ -8197,7 +8464,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -8330,9 +8597,9 @@
 					"car": "kit",
 					"kind": "omni",
 					"pos": [
-						-0.02,
-						1.22,
-						-0.18
+						0.0,
+						0.95,
+						-0.12
 					],
 					"colour": "#9fd8c8",
 					"energy": [
@@ -8346,7 +8613,7 @@
 						],
 						[
 							0.55,
-							0.5
+							0.35
 						]
 					],
 					"range": 0.45,
@@ -8361,10 +8628,10 @@
 					{
 						"look": [
 							0.0,
-							1.131,
+							1.125,
 							0.512
 						],
-						"fov": 13,
+						"fov": 15,
 						"dof": [
 							0.9,
 							0.5,
@@ -8380,10 +8647,10 @@
 					{
 						"look": [
 							0.0,
-							1.131,
+							1.125,
 							0.512
 						],
-						"fov": 13,
+						"fov": 15,
 						"dof": [
 							0.9,
 							0.5,
@@ -8872,11 +9139,13 @@
 			},
 			"env": {
 				"city_lit": 0.05,
-				"city_led": 0.0
+				"city_led": 0.0,
+				"gi": 0.35
 			},
 			"grade": {
 				"preset": "night",
-				"vignette": 0.6
+				"vignette": 0.6,
+				"lift": 0.03
 			}
 		},
 		{
@@ -8885,7 +9154,7 @@
 			"at": 0.15,
 			"dur": 0.6,
 			"rain": 0.0,
-			"glass": 0.0,
+			"glass": 0.1,
 			"ambience": [
 				"drip",
 				"drone"
@@ -8895,7 +9164,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -8915,7 +9184,7 @@
 					"shapes": [
 						{
 							"t": 0,
-							"browInnerUp": 0.6
+							"browInnerUp": 0.7
 						},
 						{
 							"t": 0.12,
@@ -8926,7 +9195,12 @@
 					"looks": [
 						[
 							0.0,
-							0.8,
+							0.1,
+							"ahead"
+						],
+						[
+							0.1,
+							0.6,
 							"mirror"
 						]
 					],
@@ -8966,21 +9240,42 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.05,
-						1.18,
-						0.48
+						0.0,
+						1.131,
+						0.512
 					],
 					"look": [
-						0.376,
-						1.117,
-						-0.096
+						0.372,
+						1.115,
+						-0.12
 					],
 					"colour": "#cfe0ff",
-					"energy": 1.2,
-					"angle": 10.0,
-					"range": 1.0,
+					"energy": 2.5,
+					"angle": 6.0,
+					"range": 1.2,
 					"shadow": false,
+					"band": 0.25,
 					"id": "slash"
+				},
+				{
+					"car": "kit",
+					"kind": "spot",
+					"pos": [
+						-0.2,
+						1.3,
+						-0.7
+					],
+					"look": [
+						0.372,
+						1.1,
+						-0.15
+					],
+					"colour": "#9fd8c8",
+					"energy": 0.2,
+					"angle": 20.0,
+					"range": 1.5,
+					"shadow": false,
+					"id": "ghost_edge"
 				}
 			],
 			"camera": {
@@ -8991,11 +9286,11 @@
 						"look": "kit_driver",
 						"look_by": [
 							0.0,
-							0.01,
+							-0.03,
 							0.0
 						],
-						"fov": 12,
-						"eye_light": 0.0,
+						"fov": 10,
+						"exposure": 0.7,
 						"u": 0,
 						"pos": [
 							0.3,
@@ -9007,11 +9302,11 @@
 						"look": "kit_driver",
 						"look_by": [
 							0.0,
-							0.01,
+							-0.03,
 							0.0
 						],
-						"fov": 12,
-						"eye_light": 0.0,
+						"fov": 10,
+						"exposure": 0.7,
 						"u": 1,
 						"pos": [
 							0.3,
@@ -9483,23 +9778,24 @@
 			],
 			"env": {
 				"city_lit": 0.05,
-				"city_led": 0.0
+				"city_led": 0.0,
+				"gi": 0.35
 			}
 		},
 		{
 			"id": "look_back",
 			"track": "H01",
 			"at": 0.15,
-			"dur": 1.3,
+			"dur": 0.8,
 			"rain": 0.0,
-			"glass": 0.0,
+			"glass": 0.1,
 			"ambience": "",
 			"cars": [
 				{
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -9524,19 +9820,14 @@
 					},
 					"looks": [
 						[
-							0.15,
-							0.5,
+							0.1,
+							0.35,
 							"rear"
 						],
 						[
-							0.5,
-							0.9,
+							0.35,
+							0.8,
 							"camera"
-						],
-						[
-							0.9,
-							1.3,
-							"ahead"
 						]
 					],
 					"bend": [
@@ -9579,7 +9870,7 @@
 								-30,
 								5
 							],
-							"t": 0.4
+							"t": 0.3
 						},
 						{
 							"Spine": [
@@ -9607,10 +9898,7 @@
 								-30,
 								5
 							],
-							"t": 0.9
-						},
-						{
-							"t": 1.2
+							"t": 0.8
 						}
 					],
 					"blink": false
@@ -9621,14 +9909,29 @@
 					"car": "kit",
 					"kind": "omni",
 					"pos": [
-						0.32,
-						0.93,
-						0.55
+						-0.02,
+						0.95,
+						-0.35
 					],
-					"colour": "#6fa8ff",
-					"energy": 0.2,
+					"colour": "#9fd8c8",
+					"energy": 0.6,
 					"range": 1.0,
-					"shadow": false
+					"shadow": false,
+					"id": "seat_cold"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
 				},
 				{
 					"car": "kit",
@@ -9639,9 +9942,9 @@
 						0.45
 					],
 					"look": [
-						0.376,
+						0.372,
 						1.1,
-						-0.12
+						-0.15
 					],
 					"colour": "#6fa8ff",
 					"energy": 1.0,
@@ -9663,8 +9966,7 @@
 							-0.1
 						],
 						"fov": 30,
-						"eye_light": 0.03,
-						"exposure": 0.85,
+						"exposure": 0.7,
 						"u": 0,
 						"pos": [
 							-0.05,
@@ -9679,13 +9981,12 @@
 							-0.1
 						],
 						"fov": 30,
-						"eye_light": 0.03,
-						"exposure": 0.85,
+						"exposure": 0.7,
 						"u": 1,
 						"pos": [
-							-0.04,
+							-0.045,
 							1.08,
-							-0.41
+							-0.43
 						]
 					}
 				]
@@ -10152,16 +10453,575 @@
 			],
 			"env": {
 				"city_lit": 0.05,
-				"city_led": 0.0
+				"city_led": 0.0,
+				"gi": 0.35
 			},
 			"sounds": [
 				{
-					"at": 0.95,
+					"at": 0.5,
 					"cue": "breath",
 					"db": -10
+				}
+			]
+		},
+		{
+			"id": "empty_seat",
+			"track": "H01",
+			"at": 0.15,
+			"dur": 0.6,
+			"rain": 0.0,
+			"glass": 0.1,
+			"ambience": "",
+			"cars": [
+				{
+					"id": "kit",
+					"model": "nemesis",
+					"livery": 1,
+					"tuning": "1.7.6.0",
+					"lights": true,
+					"cabin": true,
+					"speed": 20.0,
+					"ahead": 0.0,
+					"finish": "gloss",
+					"dome": 0.2,
+					"paint": "lot47"
+				}
+			],
+			"people": [],
+			"lights": [
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.0,
+						1.0,
+						0.2
+					],
+					"colour": "#6fa8ff",
+					"energy": 0.3,
+					"range": 1.5,
+					"shadow": false
 				},
 				{
-					"at": 1.15,
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.15,
+						1.3,
+						-0.1
+					],
+					"colour": "#2a3560",
+					"energy": 0.12,
+					"range": 1.0,
+					"shadow": false,
+					"id": "lining"
+				}
+			],
+			"camera": {
+				"follow": "kit",
+				"ease": "inout",
+				"handheld": 0.3,
+				"keys": [
+					{
+						"fov": 30,
+						"exposure": 0.8,
+						"u": 0,
+						"pos": [
+							0.3,
+							1.12,
+							-0.05
+						],
+						"look": [
+							-0.1,
+							0.85,
+							-0.6
+						]
+					},
+					{
+						"fov": 30,
+						"exposure": 0.8,
+						"u": 1,
+						"pos": [
+							0.28,
+							1.12,
+							-0.07
+						],
+						"look": [
+							-0.05,
+							0.85,
+							-0.62
+						]
+					}
+				]
+			},
+			"bare": true,
+			"props": [
+				{
+					"kind": "quay",
+					"pos": [
+						0.0,
+						0.012,
+						0.0
+					],
+					"rect": [
+						-60.0,
+						-160.0,
+						60.0,
+						260.0
+					],
+					"walls": false,
+					"paint": [
+						[
+							-5.5,
+							-160.0,
+							-5.5,
+							260.0,
+							0.15,
+							"#c8c8c0"
+						],
+						[
+							5.5,
+							-160.0,
+							5.5,
+							260.0,
+							0.15,
+							"#c8c8c0"
+						],
+						[
+							0.0,
+							-160.0,
+							0.0,
+							260.0,
+							0.12,
+							"#d9a31e"
+						]
+					]
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						-150.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						-150.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						-124.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						-124.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						-98.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						-98.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						-72.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						-72.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						-46.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						-46.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						-20.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						-20.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						6.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						6.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						32.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						32.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						58.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						58.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						84.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						84.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						110.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						110.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						136.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						136.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						162.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						162.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						188.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						188.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						214.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						214.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						7.5,
+						0.0,
+						240.0
+					],
+					"yaw": 90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				},
+				{
+					"kind": "pole",
+					"pos": [
+						-7.5,
+						0.0,
+						240.0
+					],
+					"yaw": -90.0,
+					"height": 8.0,
+					"colour": "#ffb36b",
+					"energy": 5.0,
+					"shadow": false
+				}
+			],
+			"env": {
+				"city_lit": 0.05,
+				"city_led": 0.0,
+				"gi": 0.35
+			},
+			"sounds": [
+				{
+					"at": 0.25,
 					"cue": "breath",
 					"db": -13,
 					"pitch": 1.35
@@ -10174,14 +11034,14 @@
 			"at": 0.15,
 			"dur": 0.4,
 			"rain": 0.0,
-			"glass": 0.0,
+			"glass": 0.1,
 			"ambience": "",
 			"cars": [
 				{
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"lights": true,
 					"cabin": true,
 					"speed": 20.0,
@@ -10227,17 +11087,17 @@
 							"t": 0.08,
 							"Chest": [
 								-4,
-								0,
+								-4,
 								0
 							],
 							"Neck": [
 								0,
-								8,
+								-15,
 								0
 							],
 							"Head": [
 								-3,
-								10,
+								-22,
 								0
 							]
 						}
@@ -10252,9 +11112,9 @@
 					"who": "passenger",
 					"blink": false,
 					"pos": [
-						0.37,
+						0.14,
 						0.0,
-						-0.45
+						-0.42
 					],
 					"lift": 0.27,
 					"gaze": "camera",
@@ -10366,22 +11226,29 @@
 						0.55
 					],
 					"colour": "#6fa8ff",
-					"energy": 0.8,
+					"energy": 0.35,
 					"range": 1.0,
 					"shadow": false
 				},
 				{
 					"car": "kit",
-					"kind": "omni",
+					"kind": "spot",
 					"pos": [
-						0.4,
-						0.9,
-						0.05
+						0.1,
+						0.85,
+						-0.05
+					],
+					"look": [
+						0.04,
+						1.18,
+						-0.26
 					],
 					"colour": "#9fd8c8",
-					"energy": 0.45,
-					"range": 0.4,
-					"shadow": false
+					"energy": 2.0,
+					"angle": 30.0,
+					"range": 1.2,
+					"shadow": false,
+					"id": "ghost_under"
 				},
 				{
 					"car": "kit",
@@ -10392,9 +11259,9 @@
 						-0.9
 					],
 					"look": [
-						0.27,
-						1.17,
-						-0.29
+						0.04,
+						1.18,
+						-0.26
 					],
 					"colour": "#9fd8c8",
 					"energy": 1.5,
@@ -10424,11 +11291,16 @@
 						],
 						"fov": 30,
 						"dof": [
-							0.95,
+							1.35,
 							0.3,
 							0.1
 						],
-						"exposure": 1.0
+						"exposure": 1.0,
+						"dof_near": [
+							0.9,
+							0.15,
+							0.08
+						]
 					},
 					{
 						"t": 0.03,
@@ -10458,7 +11330,7 @@
 							0.05
 						],
 						"fov": 30,
-						"exposure": 1.05
+						"exposure": 0.85
 					}
 				]
 			},
@@ -10936,7 +11808,8 @@
 			],
 			"env": {
 				"city_lit": 0.05,
-				"city_led": 0.0
+				"city_led": 0.0,
+				"gi": 0.35
 			},
 			"flash": [
 				[
@@ -12295,12 +13168,12 @@
 								0
 							],
 							"Neck": [
-								-6,
+								-12,
 								0,
 								0
 							],
 							"Head": [
-								-4,
+								-30,
 								4,
 								6
 							],
@@ -12358,12 +13231,12 @@
 								0
 							],
 							"Neck": [
-								-6,
+								-12,
 								0,
 								0
 							],
 							"Head": [
-								-4,
+								-30,
 								4,
 								6
 							],
@@ -12421,12 +13294,12 @@
 								-2
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-24,
+								-30,
 								5,
 								7
 							],
@@ -12494,12 +13367,12 @@
 								-2
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-22,
+								-30,
 								7,
 								9
 							],
@@ -13324,12 +14197,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -13397,12 +14270,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -13470,12 +14343,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -14031,12 +14904,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -14104,12 +14977,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -14177,12 +15050,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								10,
 								6
 							],
@@ -14250,12 +15123,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								1,
 								6
 							],
@@ -14323,12 +15196,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								8,
 								6
 							],
@@ -14396,12 +15269,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -14469,12 +15342,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -15035,12 +15908,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -15108,12 +15981,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -15181,12 +16054,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -15799,12 +16672,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -15872,12 +16745,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -15945,12 +16818,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -16564,12 +17437,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								0,
 								0
 							],
@@ -16637,12 +17510,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								0,
 								0
 							],
@@ -16710,12 +17583,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								0,
 								8
 							],
@@ -16783,12 +17656,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -17425,12 +18298,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -17498,12 +18371,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -17571,12 +18444,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -18200,12 +19073,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -18273,12 +19146,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -18346,12 +19219,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -18928,12 +19801,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -19001,12 +19874,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								-8,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-18,
 								0
 							],
@@ -19074,12 +19947,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								-8,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-18,
 								0
 							],
@@ -19147,12 +20020,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -19220,12 +20093,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -19829,12 +20702,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -19902,12 +20775,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -19975,12 +20848,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -20594,12 +21467,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -20667,12 +21540,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -20740,12 +21613,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -21328,12 +22201,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -21401,12 +22274,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -21474,12 +22347,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -21547,12 +22420,12 @@
 								1.5
 							],
 							"Neck": [
-								-2,
+								-12,
 								0,
 								0
 							],
 							"Head": [
-								-6,
+								-30,
 								0,
 								0
 							],
@@ -22156,12 +23029,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -22229,12 +23102,12 @@
 								1.5
 							],
 							"Neck": [
-								-7,
+								-12,
 								-2,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								-3,
 								2
 							],
@@ -22302,12 +23175,12 @@
 								-1.5
 							],
 							"Neck": [
-								-8,
+								-12,
 								3,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								5,
 								6
 							],
@@ -23399,12 +24272,12 @@
 								0
 							],
 							"Neck": [
-								-8,
+								-12,
 								0,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								0,
 								0
 							],
@@ -23472,12 +24345,12 @@
 								0
 							],
 							"Neck": [
-								-8,
+								-12,
 								0,
 								0
 							],
 							"Head": [
-								-16,
+								-30,
 								0,
 								0
 							],
@@ -23545,12 +24418,12 @@
 								0
 							],
 							"Neck": [
-								-4,
+								-12,
 								14,
 								0
 							],
 							"Head": [
-								-10,
+								-30,
 								32,
 								0
 							],
@@ -23570,7 +24443,14 @@
 					"mouth": 0.35,
 					"tint": {
 						"cloth__male_worksuit01": "#3a4352"
-					}
+					},
+					"looks": [
+						[
+							2.9,
+							5.0,
+							"ahead"
+						]
+					]
 				}
 			],
 			"lights": [

@@ -92,6 +92,18 @@ func _probe(car: String, times: PackedStringArray) -> void:
 					var i := sk.find_bone(b)
 					if i >= 0:
 						line += " %s %s" % [b, _v(inv * (sk.global_transform * sk.get_bone_global_pose(i)).origin)]
+				var hi := sk.find_bone("Head")
+				if hi >= 0:     # where the face points (the head's up and forward, in the car's frame)
+					var hb := inv.basis * (sk.global_basis * sk.get_bone_global_pose(hi).basis)
+					line += " head_y %s head_z %s" % [_v(hb.y.normalized()), _v(hb.z.normalized())]
+			if p.face != null:
+				line += " eyes_out_l %.2f in_l %.2f out_r %.2f in_r %.2f up %.2f down %.2f" % [p.face.shape("eyeLookOutLeft"),
+					p.face.shape("eyeLookInLeft"), p.face.shape("eyeLookOutRight"), p.face.shape("eyeLookInRight"),
+					p.face.shape("eyeLookUpLeft"), p.face.shape("eyeLookDownLeft")]
+			if scene._shot >= 0:
+				var g: Variant = scene._gaze_of(p, scene.shots[scene._shot])
+				if g is Vector3:
+					line += " gaze %s" % _v(inv * (g as Vector3))
 			print(line)
 
 
