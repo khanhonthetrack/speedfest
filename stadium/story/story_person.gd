@@ -29,13 +29,16 @@ extends Node3D
 ## on top of the clip over time (_bend: a head coming up), "reach": hands put on something over time
 ## (_reach: two-bone IK, the palm turned to face it; "reach_car": a car's id, the targets in its road
 ## frame: hands on a car's roof), "breathe": [deg, period s] (the chest rising and falling), "blink": false (a cast member's eyes never
-## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw), "hide":
-## [role, ...] (a cast member's garments left off by role: ["hivis"], Gus without his vest)}
+## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw; or keyed
+## [{"t": s, shape: value, ...}, ...]), "hide":
+## [role, ...] (a cast member's garments left off by role: ["hivis"], Gus without his vest), "wet": 0..1
+## (a cast member's hair damp from the rain: StoryHair; "drowned" soaks it)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
 const GLB := "res://assets/anim/ual_standard/Unreal-Godot/UAL1_Standard.glb"
 ## The clips' own travel speed (docs/ANIMATIONS.md, measured from the _rm file's root track).
 const SPEED := {"Walk": 0.98, "Walk_Formal": 0.98, "Jog_Fwd": 5.36, "Sprint": 8.25, "Crouch_Fwd": 0.75}
+const CAST_LAYER := 1 << 11         ## the cast's own render layer too: a camera's eye light lights it alone
 const PALM_HALF := 0.02            ## m from a hand's bones to its palm's skin ("reach" marks are on the skin)
 const FOREARM_ROLL := 0.6          ## the share of a reaching hand's roll the forearm takes (the wrist the rest)
 
@@ -125,6 +128,17 @@ func eyes_point() -> Vector3:
 	return (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Head"))).origin + global_basis.y.normalized() * 0.07
 
 
+## The middle of this person's face (world), between the eyes and in front of the head's middle: where
+## a close-up aims (a shot's camera "look": the person's id).
+func face_point() -> Vector3:
+	var sk := StoryCast.skeleton(self)
+	var i := sk.find_bone("Head") if sk != null else -1
+	if i < 0:
+		return eyes_point()
+	var turn := (sk.get_bone_global_pose(i).basis * sk.get_bone_global_rest(i).basis.inverse()).orthonormalized()
+	return eyes_point() + global_basis.orthonormalized() * (turn * Vector3(0.0, 0.0, 0.085))
+
+
 ## A cast member's own material soaked: darker, shining, the skin gone pale and cold.
 static func soaked(src: StandardMaterial3D) -> StandardMaterial3D:
 	var m := src.duplicate() as StandardMaterial3D
@@ -193,7 +207,9 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	if who != "":
 		face = StoryFace.new(body, String(s.get("id", who)).hash())
 		face.blinks = bool(s.get("blink", true))
-		face.held = s.get("shapes", {})
+		face.held = s.get("shapes", {}) if s.get("shapes", {}) is Dictionary else {}
+		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
+			mi.layers |= CAST_LAYER
 	# "hide": a cast member's garments left off by role (their mesh's name: "<role>__<asset>")
 	for role: String in s.get("hide", []):
 		for mi: MeshInstance3D in body.find_children(role + "__*", "MeshInstance3D", true, false):
@@ -226,7 +242,11 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	elif look == "drowned":
 		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
 			for k in mi.mesh.get_surface_count():
+				if mi.get_surface_override_material(k) is ShaderMaterial:
+					continue                  # the hair keeps its strands (StoryHair), soaked below
 				mi.set_surface_override_material(k, soaked(mi.mesh.surface_get_material(k) as StandardMaterial3D))
+	if who != "" and (look == "drowned" or s.has("wet")):
+		StoryHair.set_wet(body, 1.0 if look == "drowned" else float(s["wet"]))
 	if look == "drowned":
 		var drips := _drips()
 		drips.local_coords = sits         # seated in a moving car the water falls in the car, not behind it
@@ -259,6 +279,8 @@ func sink(by: float) -> void:
 
 ## The person at scene time t (seconds since the shot began).
 func pose(t: float) -> void:
+	if face != null and spec.get("shapes") is Array:
+		face.held = _shapes_at(t)
 	var rate := float(spec.get("rate", 1.0))
 	var ct := float(spec.get("start", 0.0)) + t * rate
 	var loop := bool(spec.get("loop", _anim.loop_mode != Animation.LOOP_NONE))
@@ -291,6 +313,30 @@ func pose(t: float) -> void:
 
 
 ## "lift" at t: a number, or keys [[t, m], ...] eased between (held before the first, after the last).
+## "shapes" keyed over the shot, [{"t": s, "<shape>": value, ...}, ...]: each shape eased between the
+## keys (smoothstep), held before the first and after the last; a shape a key leaves out is 0 there
+## (the eyes closing in relief, going wide).
+func _shapes_at(t: float) -> Dictionary:
+	var keys: Array = spec.get("shapes", [])
+	if keys.is_empty():
+		return {}
+	var a: Dictionary = keys[0]
+	var b: Dictionary = keys[0]
+	var f := 0.0
+	for i in keys.size():
+		if t >= float((keys[i] as Dictionary).get("t", 0.0)):
+			a = keys[i]
+			b = keys[mini(i + 1, keys.size() - 1)]
+			var span := float(b.get("t", 0.0)) - float(a.get("t", 0.0))
+			f = clampf((t - float(a.get("t", 0.0))) / span, 0.0, 1.0) if span > 0.0 else 0.0
+	f = f * f * (3.0 - 2.0 * f)
+	var out := {}
+	for k: String in a.keys() + b.keys():
+		if k != "t":
+			out[k] = lerpf(float(a.get(k, 0.0)), float(b.get(k, 0.0)), f)
+	return out
+
+
 func _lift_at(t: float) -> float:
 	var lift: Variant = spec.get("lift", 0.0)
 	if not lift is Array:
@@ -374,7 +420,7 @@ func _bend(t: float) -> void:
 ## frame (as "pos"), or with "reach_car": a car's id, in that car's road frame: the palm's middle put at "at" (the arm bent to it: two-bone IK on the upper arm and the
 ## forearm), the palm facing "palm" with the fingers along "fingers" (directions; either left out: the clip's
 ## hand turned as little as it takes), the elbow bending towards "elbow" (a direction; default: out to the
-## side, down and back), "fist": 0-1 (the fingers curled, the thumb across: a knock); eased between
+## side, down and back), "fist": 0-1 (the fingers curled, the thumb across: a knock), "point": true (the index left straight: a point); eased between
 ## keys as "bend"; a hand a key leaves out hangs as the clip has it there (eased in and out). Hands on
 ## a car's window ledge, knuckles rapping its glass.
 func _reach(t: float) -> void:
@@ -408,6 +454,7 @@ func _reach(t: float) -> void:
 				if va != null or vb != null:
 					k[n] = va if vb == null else vb if va == null else (va as Vector3).lerp(vb as Vector3, f)
 			k["fist"] = lerpf(float(ka.get("fist", 0.0)), float(kb.get("fist", 0.0)), f)
+			k["point"] = bool(ka.get("point", false)) or bool(kb.get("point", false))
 		var w := lerpf(0.0 if ka.is_empty() else 1.0, 0.0 if kb.is_empty() else 1.0, f)
 		_arm_to(sk, side, k, w)
 
@@ -425,6 +472,8 @@ static func _hand_key(v: Variant) -> Dictionary:
 			out[n] = Vector3(float(q[0]), float(q[1]), float(q[2]))
 	if (v as Dictionary).has("fist"):
 		out["fist"] = float((v as Dictionary)["fist"])
+	if bool((v as Dictionary).get("point", false)):
+		out["point"] = true
 	return out
 
 
@@ -530,7 +579,7 @@ func _arm_to(sk: Skeleton3D, side: String, k: Dictionary, w: float) -> void:
 		_set_global_basis(sk, la, Basis(Quaternion.IDENTITY.slerp(twist, FOREARM_ROLL)) * sk.get_bone_global_pose(la).basis)
 	_set_global_basis(sk, hd, hand_basis)
 	if fist > 0.0:
-		_curl(sk, side, fist)
+		_curl(sk, side, fist, bool(k.get("point", false)))
 	if w < 1.0:
 		for b in bones.size():
 			sk.set_bone_pose_rotation(bones[b], clip[b].slerp(sk.get_bone_pose_rotation(bones[b]), w))
@@ -555,7 +604,7 @@ static func _finger_bones(sk: Skeleton3D, side: String) -> Array[int]:
 
 ## Curls a hand's fingers into a fist, `amount` of the way (1: closed), on top of the clip's: each
 ## finger about the hinge square to it and the palm's facing (towards the palm), the thumb across it.
-static func _curl(sk: Skeleton3D, side: String, amount: float) -> void:
+static func _curl(sk: Skeleton3D, side: String, amount: float, point := false) -> void:
 	var hf := _hand_frame(sk, side)
 	if hf.is_empty():
 		return
@@ -563,6 +612,12 @@ static func _curl(sk: Skeleton3D, side: String, amount: float) -> void:
 	var normal: Vector3 = hf["normal"]
 	var hinge := fingers.cross(normal).normalized()        # a turn about it takes the fingers to the palm's side
 	for f: String in FINGERS + ["Thumb"]:
+		if point and f == "Index":
+			for j in ["Proximal", "Intermediate", "Distal"]:      # a pointing hand: the index straight
+				var ix := sk.find_bone(side + "Index" + j)
+				if ix >= 0:
+					sk.set_bone_pose_rotation(ix, sk.get_bone_rest(ix).basis.get_rotation_quaternion())
+			continue
 		var joints: Array = ["Metacarpal", "Proximal", "Distal"] if f == "Thumb" else ["Proximal", "Intermediate", "Distal"]
 		var degs: Array = FIST_THUMB if f == "Thumb" else FIST
 		var axis := fingers if f == "Thumb" else hinge          # the thumb rolls in across the palm

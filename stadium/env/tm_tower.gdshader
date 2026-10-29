@@ -43,6 +43,8 @@ uniform float span_metal = 0.45;        // the spandrels: enamelled glass (0.45)
 uniform float span_rough = 0.28;
 uniform vec3 crown_light : source_color = vec3(1.0, 0.95, 0.85);   // the crown's floodlights at night
 global uniform float tm_night;
+global uniform float tm_city_led;      // the storefronts' LED lines (1; a story's set turns them off)
+global uniform float tm_city_lit;      // the share of rooms lit at night (0.30; a story's set lights more)
 
 float hash(vec2 p, float k) {
 	return fract(sin(dot(p + vec2(k * 17.31, seed * 3.17), vec2(127.1, 311.7))) * 43758.5453);
@@ -161,7 +163,7 @@ void fragment() {
 	float day = daylight * (1.0 - tm_night);
 	// lit in patches: each band of floors and bays its own share (offices, empty floors)
 	vec2 band = vec2(floor(c.x / 6.0), floor(c.y / 3.0));
-	float litf = clamp(mix(lit_fraction, 0.30, tm_night) * (0.2 + 1.6 * hash(band, 15.0)), 0.0, 0.95);
+	float litf = clamp(mix(lit_fraction, tm_city_lit, tm_night) * (0.2 + 1.6 * hash(band, 15.0)), 0.0, 0.95);
 	float lit = lobby > 0.5 ? 1.0 : step(hash(rc, 2.0), litf);
 	// the rooms' lamps: warm in most, cool white in offices with fluorescent panels
 	vec3 lamp = mix(vec3(1.05, 0.90, 0.68), vec3(0.88, 0.95, 1.05), step(0.55, hash(rc, 14.0)));
@@ -299,8 +301,8 @@ void fragment() {
 		NORMAL = N;
 		float fres_b = 0.04 + 0.96 * pow(1.0 - ndv, 5.0);
 		EMISSION = inner * glass_b * (1.0 - fres_b) * mix(0.6, 1.0, tm_night);
-		EMISSION += led * led_line * mix(0.8, 9.0, tm_night) + led * exp(-abs(sy - led_y) * 5.0) * 0.18 * tm_night * glass_b;
-		ALBEDO = mix(ALBEDO, led * 0.5 + 0.4, led_line);
+		EMISSION += (led * led_line * mix(0.8, 9.0, tm_night) + led * exp(-abs(sy - led_y) * 5.0) * 0.18 * tm_night * glass_b) * tm_city_led;
+		ALBEDO = mix(ALBEDO, led * 0.5 + 0.4, led_line * tm_city_led);
 	}
 	// the street's shade at a building's foot (the city casts no shadows: too far for them)
 	AO = mix(0.45, 1.0, smoothstep(0.0, 14.0, world_map > 0.5 ? wpos.y - NODE_POSITION_WORLD.y : UV.y));

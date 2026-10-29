@@ -1672,3 +1672,8 @@ in on the window's ledge, the window wound down; the second review 4.5/10 each s
 scarier still; in the knock Dee's body still reads unnatural, standing and waving (her hand at the
 glass moves like a wave); night 1 isn't signed off. And a standing order: keep working on the
 cutscenes until the fresh critic's reviews reach at least 7 out of 10.)
+
+**Owner (29 Oct, after a worker restart):**
+> Continue
+
+(Read as: carry on with the third pass toward 7/10.)

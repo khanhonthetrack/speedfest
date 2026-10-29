@@ -59,6 +59,7 @@ static func make(model: String, red_pins := 0, dome := 0.0) -> StoryCabin:
 	c._build(m, red_pins)
 	if dome > 0.0:
 		var l := OmniLight3D.new()
+		l.name = "Dome"
 		l.light_color = Color(0.78, 0.86, 1.0)
 		l.light_energy = dome
 		l.omni_range = 2.2
@@ -175,9 +176,11 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	var q := QuadMesh.new()
 	q.size = Vector2(0.24, 0.15)
 	satnav.mesh = q
+	var view := StorySatnav.view(red_pins)
+	add_child(view)
 	var sm := StandardMaterial3D.new()
 	sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	sm.albedo_texture = StorySatnav.texture(red_pins)
+	sm.albedo_texture = view.get_texture()
 	sm.emission_enabled = true
 	sm.emission_texture = sm.albedo_texture
 	sm.emission_energy_multiplier = 1.4
@@ -185,9 +188,20 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	satnav.position = Vector3(0.0, hip + 0.62, dash_z - 0.22)
 	satnav.rotation = Vector3(deg_to_rad(-15.0), PI, 0.0)     # facing the seats (a quad faces +z)
 	add_child(satnav)
+	# its bezel: dark satin plastic a little proud of the screen all round, behind it
+	var bezel_mat := StandardMaterial3D.new()
+	bezel_mat.albedo_color = Color(0.03, 0.03, 0.033)
+	bezel_mat.roughness = 0.55
+	var bezel := MeshInstance3D.new()
+	var bb := BoxMesh.new()
+	bb.size = Vector3(q.size.x + 0.022, q.size.y + 0.02, 0.022)
+	bezel.mesh = bb
+	bezel.material_override = bezel_mat
+	bezel.transform = satnav.transform * Transform3D(Basis(), Vector3(0.0, 0.0, -0.0115))
+	add_child(bezel)
 	var screen_light := OmniLight3D.new()
 	screen_light.light_color = Color(0.55, 0.4, 1.0)
-	screen_light.light_energy = 0.18
+	screen_light.light_energy = 0.35
 	screen_light.omni_range = 0.9
 	screen_light.shadow_enabled = false
 	screen_light.position = satnav.position + Vector3(0.0, 0.0, -0.15)
@@ -251,7 +265,6 @@ static func fit_car(car: TmCarVisual) -> void:
 		_lining = StandardMaterial3D.new()
 		_lining.albedo_color = Color(0.03, 0.03, 0.034)
 		_lining.roughness = 0.85
-		_lining.cull_mode = BaseMaterial3D.CULL_FRONT
 	var glass: Material = car._mats.get("road_glass", null)
 	if glass == null:
 		return
@@ -465,6 +478,16 @@ static func _line(mesh: Mesh, glass_k: Array[int], lined_k: Array[int]) -> Array
 			_clip(t[i], t[i + 1], t[i + 2], -tnorm[i], -tnorm[i + 1], -tnorm[i + 2], 3, glass, keep, normals)  # normals into the cabin
 		if keep.is_empty():
 			continue
+		# turned to face into the cabin, drawn with the usual culling: drawn from the body's own faces
+		# with their fronts culled instead, Godot's side check turned the normals back out and lights
+		# outside the car (the arch lamp over the roof, its own tail lights) lit the headliner and pillars
+		for i in range(0, keep.size(), 3):
+			var v := keep[i + 1]
+			keep[i + 1] = keep[i + 2]
+			keep[i + 2] = v
+			var nv := normals[i + 1]
+			normals[i + 1] = normals[i + 2]
+			normals[i + 2] = nv
 		var arrays := []
 		arrays.resize(Mesh.ARRAY_MAX)
 		arrays[Mesh.ARRAY_VERTEX] = keep

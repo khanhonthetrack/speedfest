@@ -57,7 +57,7 @@ def dist(a, b):
 
 def direction(k):
     p, l = vec(k.get("pos", [4, 1.5, 7])), vec(k.get("look", [0, 0.7, 0]))
-    if isinstance(p, str):
+    if isinstance(p, str) or isinstance(l, str):      # a place in the car, a person's face: not known here
         return None
     d = [l[i] - p[i] for i in range(3)]
     n = math.sqrt(sum(x * x for x in d)) or 1.0

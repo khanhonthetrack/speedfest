@@ -131,6 +131,12 @@ static func instance(id: String) -> Node3D:
 	if not _scenes.has(id):
 		_scenes[id] = load(path(id))
 	var root := (_scenes[id] as PackedScene).instantiate() as Node3D
+	StoryHair.dress(root, id)
+	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		for k in (mi.mesh.get_surface_count() if mi.mesh != null else 0):
+			var src := mi.mesh.surface_get_material(k) as StandardMaterial3D
+			if src != null and src.resource_name.begins_with("skin__"):
+				mi.set_surface_override_material(k, _skin(src))
 	var ap := AnimationPlayer.new()
 	ap.name = "Anim"
 	ap.deterministic = true            # a bone the clip has no track for goes back to rest, whatever played before
@@ -138,6 +144,27 @@ static func instance(id: String) -> Node3D:
 	ap.root_node = NodePath("..")
 	ap.add_animation_library("", library())
 	return root
+
+
+## A cast member's skin for cutscenes: more light scattered under it, the ears and nostrils glowing red
+## where a light is behind them (transmittance), a skin's own weak specular (F0 about 0.028).
+static func _skin(src: StandardMaterial3D) -> StandardMaterial3D:
+	if not _skins.has(src):
+		var m := src.duplicate() as StandardMaterial3D
+		m.subsurf_scatter_enabled = true
+		m.subsurf_scatter_strength = 0.7
+		m.subsurf_scatter_skin_mode = true
+		m.subsurf_scatter_transmittance_enabled = true
+		m.subsurf_scatter_transmittance_color = Color(0.95, 0.35, 0.25)
+		m.subsurf_scatter_transmittance_depth = 0.06
+		m.subsurf_scatter_transmittance_boost = 0.25
+		m.metallic_specular = 0.38
+		m.roughness = 0.48
+		_skins[src] = m
+	return _skins[src]
+
+
+static var _skins := {}
 
 
 static func player(root: Node) -> AnimationPlayer:

@@ -219,7 +219,7 @@ func _ready() -> void:
 		l.visible = false
 		root.add_child(l)
 	_black = ColorRect.new()
-	_black.color = Color.BLACK
+	_black.color = Color(0.016, 0.016, 0.018)       # the film's own black floor (about 4/255), not a dead 0
 	_black.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_black.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_black.modulate.a = 0.0

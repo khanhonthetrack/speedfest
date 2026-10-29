@@ -88,3 +88,11 @@ tm_wet={
 "type": "float",
 "value": 0.0
 }
+tm_city_led={
+"type": "float",
+"value": 1.0
+}
+tm_city_lit={
+"type": "float",
+"value": 0.3
+}

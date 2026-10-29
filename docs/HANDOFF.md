@@ -109,8 +109,20 @@
   taps on the glass, Kit winds the window down (`"windows_down": {"driver": [3.1, 4.6]}`), she leans on
   the door with both hands on the window's ledge (`StoryPerson` `"reach"`, two-bone IK; `"reach_car"`),
   and straightens up at the end (`"lift"` keyed). In `take5_knock.py`.
-- **Next**: the owner's answers on take five; meanwhile the second review's camera fixes (PROGRESS, 28 Oct),
-  then the second pass's assets (Gus's vest,
+- **The owner on take five** (28 Oct): the opening "right way", the look "that's the look", the Mirror
+  "scarier still", the knock "Dee is standing and waving weirdly! Not natural." (now a fist knock),
+  and **"Work on cutscenes until reviews get to at least 7/10."**
+- **The third pass** (28-29 Oct, PROGRESS; `docs/CINEMATICS.md` "Third pass"): built by
+  `stadium/tools/story/pass3_open.py` and `pass3_close.py` (run on the committed scenes; idempotent),
+  with the engine pieces they need (StoryHair, the lining fix, high beams and lamp glare, the planar
+  harbour reflection, person-aimed close-ups and the eye light, the satnav view, livery 14 in 3D, the
+  dawn sky). The loop until 7/10: Ultra stills of every shot (the session scratchpad's
+  `p3/stills.sh <scene> <prefix> <t1,t2,...> 30`, one Godot at a time), then a fresh read-only critic,
+  then clips, then the clip review, then the owner. The planner's full scopes (vest rebuild, cabin
+  kit, hair phase B, city far shore and aviation lights, paint plate) are in the session task output
+  and summarised in PROGRESS; do them when a critic still names them.
+- **Next**: the third pass's stills and critic; the scopes the critic still names (the car's interior
+  kit, Gus's vest rebuild, hair phase B: fear shapes and Dee's bun); then the second pass's assets (Gus's vest,
   Lot 47's livery, the underglow, containers, the ghost's hair) and the phone call, bids, the coat
   man's exit and the ignition (long single shots still: the lint warns); then faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
   from the seat) are still the layout's.

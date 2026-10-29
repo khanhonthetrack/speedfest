@@ -103,6 +103,46 @@ Halloran bridge for the aerial and the dream, a moored ship; the car's interior 
 belts, the satnav's bezel); Arch 9 dressed as a workshop (pit, bench, pegboard, engine stand); hair
 (SpringBoneSimulator3D, an anisotropic shader); container detail (door rods, corner castings, grime).
 
+## Third pass (the owner, 28 Oct: "Work on cutscenes until reviews get to at least 7/10")
+Planned by a read-only scope round (one agent per asset and scene, sequential), built in
+`tools/story/pass3_open.py` and `pass3_close.py` (they edit the committed scenes in place and run
+twice to the same result):
+- **The city across the harbour** (the opening's first image): clear air (`"env"` fog 0.0003,
+  `"vol_fog"`), no shot lights, low over the water past the quay cranes, a quick fade up; the far
+  city's storefront LED lines and neon avenues off round a set (globals `tm_city_led`,
+  `tm_city_lit`: 0 and 0.42 on `"bare": "set"`, back to 1 and 0.3 on leaving); no stars over rain
+  (StoryScene `_set_sky`: an overcast lit from under); the city in the harbour (`"reflect"`: a
+  planar reflection, a mirrored camera rendering the city's layer into the water's shader).
+- **The auction:** four more in the crowd between the camera and the cars; the yard wide over Kit's
+  shoulder craning down behind the heads; Gus points the gentleman out (`"reach"` with `"point"`);
+  the coat man reversed from the stage over the crowd, nodding, keyed by a sodium lamp; Gus keyed
+  from the far side at 3:1; Kit's close-up in her close-up's light, no blink on the cut; the orbit on
+  the cameras' side of the line; "Engine's sweet" over a bonnet insert; the hero framed so the
+  stage's lamp hides behind the roof; Lot 47 on deep-dish rims; a sodium lamp in the canyon and a rim
+  on Kit.
+- **The Mirror:** the coupe on high beams (`"lights": "high"`: a hard key 50 m on, and a glare at
+  every lit lamp that blazes as it faces the lens) as the chase's key; the mirror's inserts at fov 13
+  a stop brighter (`"mirror"` `"exposure"`); the empty road a match cut of the rear-window shot; the
+  ghost revealed in a few frames of the dome's flicker (`"flicker"` `"from"`/`"to"`) under a cold top
+  light; the eyes shot aimed at her face (camera `"look"`: a person's id); the empty seat's dead air
+  cut; no lavender fill from the dash; trims. Then the scene agent's scare ("scarier still"): a
+  glimpse of her in the rear window, a dark road where every rhythm stops, the false calm in which she
+  rises behind Kit and lays a hand on the headrest, the mirror reveal by the dome's light, the turn
+  back to safety in dead silence, the hit at Kit's ear; sound mixed per shot (levels, pitch, loops
+  that stop), new cues (engine, wipers, ring, creak, sub), keyed lights and face shapes, passing
+  street lamps.
+- **The knock:** first light (a dawn sky gradient, `"sky"` `"zenith"`/`"horizon"`; the city's rooms
+  mostly dark, `"city_lit"`; the arch's lamp a hard warm key behind Dee; the sky a cool fill; no
+  lavender fills); re-cut to 15 shots with none of the dialogue over about 3 s: a frontal Kit single
+  from the dash, Dee singles framed higher, an exterior over-the-shoulder two-shot, the empty back
+  seat, the mirror at dawn, the pins from one pin out to nine, the ending craned up to the ARCH 9
+  lettering from the side that keeps Dee screen right; the knock, the glass down and the lean in that
+  order; soot-dark wet brick on the viaduct.
+- **Everywhere:** the cabin's lining shaded as facing in (it was lit by lights outside the car); the
+  cast's hair in a strand shader (StoryHair: the shells' colours were a few thousandths of white, so
+  only their gloss showed); an eye light on close-ups (`"eye_light"`, the cast's own layer); no blink
+  round a cut.
+
 ## Calls made (the owner's standing rule: "just write it")
 - **Voices.** Not now: the picture has to pass first. Lines are cut short and long ones play over
   the listener. A voice later means a text-to-speech model with a clear commercial licence or

@@ -256,22 +256,39 @@ static func _booth(p: Dictionary) -> Node3D:
 
 
 const BRICK := """shader_type spatial;
-// soot-dark railway brick in world space: stretcher bond, mortar lines, a few bricks darker
+// soot-dark railway brick in world space after a night's rain: stretcher bond, dark mortar, bricks of a
+// few burnt shades, soot run down from the deck in streaks, the foot of the wall wet and glossy
+uniform float lift = 0.0;              // this mesh's origin over the street (m): the wet foot found from it
 varying vec3 wp;
 varying vec3 wn;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+float noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
 void vertex() { wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; wn = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz); }
 void fragment() {
 	vec2 uv = abs(wn.x) > 0.5 ? wp.zy : (abs(wn.z) > 0.5 ? wp.xy : wp.xz);
+	vec2 along = uv;
 	uv /= vec2(0.44, 0.15);
 	float row = floor(uv.y);
 	uv.x += mod(row, 2.0) * 0.5;
 	vec2 f = fract(uv);
-	float mortar = step(f.x, 0.05) + step(f.y, 0.1);
-	float shade = 0.75 + 0.5 * hash(floor(uv));
-	vec3 brick = vec3(0.32, 0.13, 0.08) * shade;
-	ALBEDO = mix(brick, vec3(0.16, 0.15, 0.14), clamp(mortar, 0.0, 1.0));
-	ROUGHNESS = 0.92;
+	vec2 id = floor(uv);
+	float mortar = clamp(step(f.x, 0.05) + step(f.y, 0.1), 0.0, 1.0);
+	vec3 brick = vec3(0.17, 0.09, 0.065) * (0.7 + 0.6 * hash(id));
+	brick = mix(brick, vec3(0.1, 0.088, 0.08), step(0.83, hash(id + 17.3)));      // a burnt one here and there
+	vec3 col = mix(brick, vec3(0.075, 0.07, 0.066), mortar);
+	float h = wp.y - (NODE_POSITION_WORLD.y - lift);
+	float soot = noise(vec2(along.x * 0.9, h * 0.05)) * 0.6 + noise(vec2(along.x * 3.1, h * 0.14)) * 0.4;
+	soot = smoothstep(0.35, 0.8, soot) * smoothstep(0.8, 5.0, h);
+	col *= 1.0 - 0.55 * soot;
+	float wet = 1.0 - smoothstep(0.3, 1.4 + 0.7 * noise(along * 0.7), h);
+	col *= 1.0 - 0.4 * wet;
+	ALBEDO = col;
+	ROUGHNESS = mix(mix(0.9, 0.97, mortar), 0.4, wet);
 }
 """
 const SPAN := 9.0                      ## an arch's opening and pier (m)
@@ -346,8 +363,10 @@ static func _viaduct(p: Dictionary) -> Node3D:
 	root.add_child(sign)
 	# the deck: a parapet each side and the rails between
 	var deck_y := DECK + 1.6
-	_box(root, Vector3(0.0, deck_y + 0.5, -0.25), Vector3(SPAN * (2 * n + 1), 1.0, 0.5), bm)
-	_box(root, Vector3(0.0, deck_y + 0.5, -depth + 0.25), Vector3(SPAN * (2 * n + 1), 1.0, 0.5), bm)
+	var pm := bm.duplicate() as ShaderMaterial
+	pm.set_shader_parameter("lift", deck_y + 0.5)          # (each parapet's origin is its middle)
+	_box(root, Vector3(0.0, deck_y + 0.5, -0.25), Vector3(SPAN * (2 * n + 1), 1.0, 0.5), pm)
+	_box(root, Vector3(0.0, deck_y + 0.5, -depth + 0.25), Vector3(SPAN * (2 * n + 1), 1.0, 0.5), pm)
 	if p.has("train"):
 		root.add_child(_train(p["train"]))
 	return root
@@ -454,8 +473,12 @@ void fragment() {
 }
 """
 const WATER_SHADER := """shader_type spatial;
-// harbour water at night: near black, glassy, slow ripples, so the lights across it smear down it
+// harbour water at night: near black, glassy, slow ripples, so the lights across it smear down it;
+// with a shot's "reflect" (StoryScene._set_reflect) the city across it in it, a planar reflection
 uniform float time = 0.0;
+uniform sampler2D refl_tex : filter_linear, repeat_disable;
+uniform float refl_on = 0.0;
+uniform float refl_gain = 1.0;
 varying vec3 wp;
 void vertex() { wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
 float hash(vec2 p) { vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
@@ -476,8 +499,17 @@ void fragment() {
 	float dz = h(p + vec2(0.0, e)) - h(p - vec2(0.0, e));
 	ALBEDO = vec3(0.008, 0.011, 0.014);
 	ROUGHNESS = 0.05;
-	SPECULAR = 0.6;
+	SPECULAR = mix(0.6, 0.1, refl_on);
 	NORMAL_MAP = normalize(vec3(-dx * 1.2, -dz * 1.2, 1.0)) * 0.5 + 0.5;
+	if (refl_on > 0.0) {
+		// the mirrored camera's picture, read upside down, rippled, smeared up and down in streaks
+		vec2 ruv = vec2(SCREEN_UV.x, 1.0 - SCREEN_UV.y) + vec2(dx, dz) * 1.5 / max(-VERTEX.z, 4.0);
+		vec3 refl = texture(refl_tex, ruv).rgb * 0.3;
+		refl += (texture(refl_tex, ruv + vec2(0.0, 0.005)).rgb + texture(refl_tex, ruv - vec2(0.0, 0.005)).rgb) * 0.2;
+		refl += (texture(refl_tex, ruv + vec2(0.0, 0.012)).rgb + texture(refl_tex, ruv - vec2(0.0, 0.012)).rgb) * 0.15;
+		float fres = 0.02 + 0.98 * pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 5.0);
+		EMISSION = refl * fres * refl_gain * refl_on;
+	}
 }
 """
 const CORRUGATED := """shader_type spatial;

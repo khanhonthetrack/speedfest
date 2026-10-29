@@ -731,7 +731,8 @@ func _underglow() -> void:
 
 ## The finishes a livery can have: metallic, roughness, clearcoat, pearl.
 const FINISHES := {"gloss": Vector4(0.05, 0.22, 1.0, 0.0), "metallic": Vector4(0.45, 0.3, 1.0, 0.0),
-	"pearl": Vector4(0.25, 0.26, 1.0, 0.55), "matte": Vector4(0.1, 0.62, 0.0, 0.0), "chrome": Vector4(1.0, 0.06, 0.6, 0.0)}
+	"pearl": Vector4(0.25, 0.26, 1.0, 0.55), "matte": Vector4(0.1, 0.62, 0.0, 0.0), "chrome": Vector4(1.0, 0.06, 0.6, 0.0),
+	"deep": Vector4(0.0, 0.12, 1.0, 0.0)}     # a deep black: smooth under a full clear coat (a story's own paint)
 
 
 func _road_mat(key: String) -> Material:
@@ -785,16 +786,23 @@ func _road_mat(key: String) -> Material:
 			m.metallic = 0.2
 			m.roughness = 0.02
 			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			if String(lv.get("lamps", "")) == "bright":      # cover glass that catches the light round it
+				m.albedo_color.a = 0.2
+				m.metallic = 0.0
+				m.roughness = 0.0
+				m.clearcoat_enabled = true
 		"lens_red":
 			m.albedo_color = Color(0.6, 0.02, 0.02, 0.55)
 			m.roughness = 0.03
 			m.metallic = 0.2
 			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		"lamp":
-			# the lamps' insides: a darkened chrome, so the lenses and LEDs stand out
-			m.albedo_color = Color(0.42, 0.43, 0.46)
+			# the lamps' insides: a darkened chrome, so the lenses and LEDs stand out ("lamps": "bright",
+			# a livery's: bright reflector bowls that sparkle round the rings, a premium lamp at night)
+			var bright := String(lv.get("lamps", "")) == "bright"
+			m.albedo_color = Color(0.65, 0.66, 0.68) if bright else Color(0.42, 0.43, 0.46)
 			m.metallic = 1.0
-			m.roughness = 0.24
+			m.roughness = 0.14 if bright else 0.24
 		"proj":
 			# a projector's lens: thick dark glass with sharp highlights
 			m.albedo_color = Color(0.02, 0.022, 0.03)

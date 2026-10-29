@@ -11,6 +11,7 @@ uniform float radius = 5200.0;          // m, the city's rim
 uniform vec3 plain_colour : source_color = vec3(0.38, 0.43, 0.32);
 
 global uniform float tm_night;
+global uniform float tm_city_led;      // the neon avenues (1; a story's set turns them off)
 
 varying vec2 lp;
 
@@ -60,7 +61,7 @@ void fragment() {
 	float pool = exp(-kerb * kerb / 18.0) * exp(-al * al / 50.0);
 	float rim = 1.0 - smoothstep(radius - 300.0, radius + 200.0, length(lp));
 	vec2 sid = vec2(along_x > 0.5 ? c.y : c.x, along_x);
-	float avenue = step(0.75, hash(sid * 3.7 + 1.3));
+	float avenue = step(0.75, hash(sid * 3.7 + 1.3)) * tm_city_led;
 	vec3 lamp = mix(sodium, hash(sid * 5.1 + 2.9) < 0.5 ? vec3(0.15, 0.8, 1.0) : vec3(1.0, 0.2, 0.65), avenue);
 	EMISSION = lamp * mix(pool * 0.9, road * 0.45 + 0.015, far) * tm_night * rim;
 	ALBEDO = col;

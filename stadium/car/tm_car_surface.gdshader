@@ -97,6 +97,18 @@ float vnoise(vec2 p) {
 	return mix(mix(hash2(i), hash2(i + vec2(1.0, 0.0)), f.x), mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0)), f.x), f.y);
 }
 
+// value noise in 3D (a livery painted over the body's turns without a seam)
+float vnoise3(vec3 p) {
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	float x00 = mix(hash3(i), hash3(i + vec3(1.0, 0.0, 0.0)), f.x);
+	float x10 = mix(hash3(i + vec3(0.0, 1.0, 0.0)), hash3(i + vec3(1.0, 1.0, 0.0)), f.x);
+	float x01 = mix(hash3(i + vec3(0.0, 0.0, 1.0)), hash3(i + vec3(1.0, 0.0, 1.0)), f.x);
+	float x11 = mix(hash3(i + vec3(0.0, 1.0, 1.0)), hash3(i + vec3(1.0)), f.x);
+	return mix(mix(x00, x10, f.y), mix(x01, x11, f.y), f.z);
+}
+
 // a filled region from a signed distance (negative inside), antialiased
 float fill(float sd) {
 	float w = fwidth(sd) + 1e-4;
@@ -374,31 +386,36 @@ vec4 road_livery(vec3 p, vec3 n, out float carbon, out float black) {
 		o = vec4(liv_b, a2 * 0.8);
 		o = mix(o, vec4(liv_a, 1.0), a1);
 	} else if (livery == 14) {
-		// brushed: camouflage painted by hand: soft blobs of two greys (a and b) over the paint, their
-		// edges dry-brushed along the strokes, the brush's own streaks in the colour; a hand-drawn
-		// pinstripe in c along the shoulder, wavering and thinning at its ends (p.x the blobs' size,
-		// m; p.y the stripe's height under the window line, m; p.z its half width, m)
-		float sc = max(liv_p.x, 0.05);
-		vec2 q = vec2(f.d, mix(p.x, p.y, side) + 3.0 * step(0.0, p.x) * side);
-		// the nose and tail faces (along the car's length they don't move): across and up them instead
-		q = mix(q, vec2(p.x + 6.0 * sign(n.z), p.y), smoothstep(0.55, 0.8, abs(n.z)));
-		vec2 warp = vec2(vnoise(q / sc * 0.6 + 3.1), vnoise(q / sc * 0.6 + 8.7)) - 0.5;
-		vec2 g = q / sc + warp * 1.7;
-		float n1 = 0.65 * vnoise(g) + 0.35 * vnoise(g * 2.3 + 5.0);
-		float n2 = 0.65 * vnoise(g * 1.2 + 11.0) + 0.35 * vnoise(g * 2.7 + 17.0);
-		vec2 sd = normalize(vec2(1.0, 0.3));                    // the strokes run back and a little up
-		float along = dot(q, sd);
-		float across = dot(q, vec2(-sd.y, sd.x));
-		float streak = vnoise(vec2(along * 5.0, across * 85.0));
-		// fewer on the top (the bonnet, roof and boot read as stripes when a blob spans them)
-		float a1 = smoothstep(0.0, 0.025, n1 - 0.56 - 0.07 * topw + (streak - 0.5) * 0.1);
-		float a2 = smoothstep(0.0, 0.025, n2 - 0.6 - 0.07 * topw + (streak - 0.5) * 0.1) * (1.0 - a1);
-		vec3 col = mix(liv_b, liv_a, a1 / max(a1 + a2, 1e-3));
-		col *= 0.88 + 0.24 * vnoise(vec2(along * 3.0, across * 45.0));
-		o = vec4(col, max(a1, a2));
-		float ys = f.belt - liv_p.y + 0.004 * sin(f.d * 6.5) + 0.0015 * sin(f.d * 21.0 + 1.3);
-		float hw2 = liv_p.z * (0.75 + 0.5 * vnoise(vec2(f.d * 3.0, 2.0))) * smoothstep(0.04, 0.16, f.s) * (1.0 - smoothstep(0.84, 0.95, f.s));
-		float ps = fill(abs(p.y - ys) - hw2) * side * step(0.0005, hw2);
+		// brushed: camouflage painted by hand, in 3D (no seam where a flank turns into the top, no
+		// lattice): soft shapes of two greys (a over b) stretched along the car and raked back, mostly on
+		// the flanks and the rear quarters (the nose and the bonnet stay black: "a black coupe"),
+		// airbrushed edges with a mist of overspray, the brush's strokes in the colour (fading out with
+		// distance); a hand-drawn pinstripe in c along the shoulder, wavering, curling down at its tail.
+		// p.x the shapes' length (m), p.y the stripe's drop under the window line (m), p.z its half
+		// width (m), p.w a seed
+		float size = max(liv_p.x, 0.2);
+		float seed = liv_p.w;
+		vec3 g = vec3(p.x, p.y, p.z + 0.35 * p.y) / vec3(size * 0.5, size * 0.5, size);
+		g.yz += (vec2(vnoise3(g * 0.5 + seed), vnoise3(g * 0.5 + 7.7 + seed)) - 0.5) * 1.1;
+		float nb = 0.7 * vnoise3(g + seed * 1.7) + 0.3 * vnoise3(g * 2.3 + vec3(11.0, 5.0 + seed, 0.0));
+		vec3 ga = g * 1.4 + 31.0;
+		float na = 0.7 * vnoise3(ga + seed * 1.7) + 0.3 * vnoise3(ga * 2.3 + vec3(11.0, 5.0 + seed, 0.0));
+		float thr = mix(0.72, 0.62, smoothstep(0.2, 0.8, f.s)) + 0.05 * topw - 0.07 * exp(-pow((f.s - 0.8) / 0.08, 2.0)) * side;
+		float px = length(fwidth(p));
+		float sk = 1.0 - smoothstep(0.25, 0.6, px * 60.0);
+		float stroke = mix(0.5, vnoise3(vec3(p.x * 60.0, p.y * 60.0, (p.z + 0.27 * p.y) * 4.0) + seed), sk);
+		float we = max(0.008, fwidth(nb) * 1.5);
+		float b = smoothstep(-we, we, nb - thr + (stroke - 0.5) * 0.03);
+		float a = smoothstep(-we, we, na - thr - 0.03 + (stroke - 0.5) * 0.03);
+		float mist = smoothstep(-0.045, -0.008, nb - thr) * (1.0 - b) * 0.2
+			* mix(1.0, 2.0 * vnoise3(p * 250.0), 1.0 - smoothstep(0.25, 0.6, px * 250.0));
+		vec3 col = mix(liv_b, liv_a, a) * (0.86 + 0.28 * stroke);
+		o = vec4(col, max(max(a, b), mist));
+		float ys = f.belt - liv_p.y + 0.004 * sin(f.d * 6.5 + seed) + 0.0015 * sin(f.d * 21.0 + 1.3)
+			- 0.03 * pow(smoothstep(0.80, 0.93, f.s), 2.0);
+		float hw2 = liv_p.z * (0.8 + 0.4 * vnoise(vec2(f.d * 3.0, seed))) * smoothstep(0.06, 0.16, f.s) * (1.0 - smoothstep(0.86, 0.94, f.s));
+		float hwe = max(hw2, fwidth(p.y) * 0.75);          // thinner than a pixel: fainter, not crawling
+		float ps = fill(abs(p.y - ys) - hwe) * (hw2 / max(hwe, 1e-5)) * step(0.25, abs(n.x)) * (1.0 - smoothstep(0.7, 0.85, n.y));
 		o = mix(o, vec4(liv_c, 1.0), ps);
 	}
 	// the hood and roof
@@ -475,10 +492,11 @@ void fragment() {
 		float hex = max(abs(g.x), dot(abs(g), normalize(vec2(1.0, 1.732))));
 		float web = smoothstep(0.36, 0.42, hex);
 		float far = smoothstep(0.0, 0.3, fwidth(uv.x));
-		web = mix(web, 0.35, far);
-		ALBEDO = mix(vec3(0.003), vec3(0.05, 0.05, 0.055), web);
-		METALLIC = 0.3 * web;
-		ROUGHNESS = mix(0.9, 0.35, web);
+		web = mix(web, 0.3, far);
+		// (a satin web that catches the light: the holes read as holes, not one flat black mass)
+		ALBEDO = mix(vec3(0.0), vec3(0.11, 0.11, 0.115), web);
+		METALLIC = 0.75 * web;
+		ROUGHNESS = mix(0.9, 0.28, web);
 	} else if (mode == 6) {
 		// a number plate: white, a thin dark border, a row of characters (blocks) across it
 		vec3 a = abs(onrm);

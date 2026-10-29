@@ -36,6 +36,7 @@ const STOP := 2.2                       ## at , . ? ! ; :
 var root: Node3D
 var seed := 0
 var blinks := true                      ## false: the eyes never shut (the dead)
+var quiet: Array = []                   ## [from, to] scene times no blink touches (round the cuts)
 var held := {}                          ## face shapes held under whatever else moves (a slack jaw)
 var _shapes := {}                       ## shape -> [[MeshInstance3D, index], ...]
 
@@ -72,7 +73,7 @@ func shape(name: String) -> float:
 func pose(t: float, lines: Array, gaze: Variant) -> void:
 	for k: String in held:                   # held shapes nothing below moves (a raised brow, a frown)
 		set_shape(k, float(held[k]))
-	var b := blink_at(t, seed) if blinks else 0.0
+	var b := blink_at(t, seed, quiet) if blinks else 0.0
 	set_shape("eyeBlinkLeft", maxf(b, float(held.get("eyeBlinkLeft", 0.0))))
 	set_shape("eyeBlinkRight", maxf(b, float(held.get("eyeBlinkRight", 0.0))))
 	var m := mouth_at(t, lines)
@@ -87,8 +88,9 @@ func pose(t: float, lines: Array, gaze: Variant) -> void:
 		set_shape(k, maxf(float(eyes.get(k, 0.0)), float(held.get(k, 0.0))))
 
 
-## How shut the eyes are at time t (0 open .. 1 shut): blinks at times fixed by the seed.
-static func blink_at(t: float, person_seed: int) -> float:
+## How shut the eyes are at time t (0 open .. 1 shut): blinks at times fixed by the seed; one that
+## would touch a `quiet` window ([from, to] scene times: a cut) is left out, not moved.
+static func blink_at(t: float, person_seed: int, quiet: Array = []) -> float:
 	var start := 0.3 + 1.7 * _rand(person_seed, 0)
 	var k := 1
 	while start + BLINK < t:
@@ -97,6 +99,9 @@ static func blink_at(t: float, person_seed: int) -> float:
 	var d := t - start
 	if d < 0.0 or d > BLINK:
 		return 0.0
+	for w: Array in quiet:
+		if start < float(w[1]) and start + BLINK > float(w[0]):
+			return 0.0
 	if d < 0.06:
 		return smoothstep(0.0, 0.06, d)
 	if d < 0.10:

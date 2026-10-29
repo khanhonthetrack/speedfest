@@ -4945,3 +4945,77 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   pass's (`docs/CINEMATICS.md`).
 - **With the owner**: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW ("Night 1 Take Five": the three
   clips, the three notes on take four as before/after stills, the scorecard, what's next, five questions).
+
+### 28-29 Oct (session 21, cont.): the owner on take five; the third pass begins (M20-9)
+- **The owner on take five** (TRANSCRIPT): the opening "right way", the look "that's the look", the
+  Mirror "scarier still", the knock and night 1 "not yet" ("Dee is standing and waving weirdly! Not
+  natural."); and the standing order: **"Work on cutscenes until reviews get to at least 7/10."**
+- **Dee knocks with her knuckles** (6893de0): she leans in to the glass and raps it with a fist
+  (StoryPerson `"reach"` `"fist"`: the fingers curled about their hinge, the thumb across, an elbow
+  pole), not an open hand by her head (the wave). Lot 47 got its own paint (`PAINTS.lot47`, livery
+  pattern 14 "brushed") and Gus's balloon vest is left off (`"hide": ["hivis"]`) until it is rebuilt.
+- **The third pass's plan**: a read-only scope round, one agent at a time (the vest: about a day,
+  a proper rebuild in Blender; Lot 47's paint and front; the city across the harbour; the car's
+  interior: 3-4 days; hair and faces; then the three scenes' designs; the account's limit stopped the
+  last five agents once, resumed after). Key findings: the cabin's lining was **shaded as if it faced
+  out of the car** (drawn from the body's faces with their fronts culled, Godot's side check flipped
+  its normals back out: lights outside lit the headliner and pillars, the critic's "white, grey,
+  maroon, salmon slabs"); the cast's **hair albedo was 0.02-0.2 % of white** (the painted textures
+  times dark tints), so only a smooth shell's gloss rendered ("a plastic helmet"); the far city's
+  "neon dashes" were the storefront LED lines on the outer ring, bright enough to cut through the
+  shot's fog; stars showed over rain in every shot.
+- **Built** (`stadium/tools/story/pass3_open.py`, `pass3_close.py`: they edit the committed scenes in
+  place and give the same file run twice; `docs/CINEMATICS.md`, "Third pass"):
+  - StoryScene: globals `tm_city_led`/`tm_city_lit` (set shots: no LED lines or neon avenues, more rooms
+    lit; reset in `_exit_tree` and `TmStadiumEnv.add`); env `"vol_fog"`, `"city_lit"`, `"city_led"`,
+    `"sky"` (`_set_sky`: no stars and a low overcast lit from under in rain; `"zenith"`/`"horizon"`, a
+    dawn gradient), `"reflect"` (`_set_reflect`/`_aim_reflection`: a planar reflection, a mirrored
+    camera rendering the city's layer into the harbour's water shader); a shot's probes captured again
+    when the async city lands (`_recapture`); `"probe"` `"box"`; a car's `"lights": "high"` (high
+    beams) and a glare sprite at every lit lamp (`LAMP_GLOW`, blazing only as the lamp faces the lens);
+    camera keys `"look"`: a person's id (their face as posed: `StoryPerson.face_point`) with
+    `"look_by"`, and `"eye_light"` (a light at the lens on the cast's own render layer,
+    `StoryPerson.CAST_LAYER`); `"mirror"` `"exposure"`; `"flicker"` `"from"`/`"to"`; no blink within a
+    cut's moment (`StoryFace.quiet`); a paint's own finish over the shot's.
+  - StoryPerson `"reach"` `"point"` (the index straight); `"wet"` (StoryHair).
+  - `story/story_hair.gd` (StoryHair): the hair shells in a strand shader (the colour the hair's own,
+    the texture only detail, Kajiya-Kay with two shifted lobes, light through the strands from behind,
+    darker back faces, edges broken into strands, `wet`); the cast's skin dressed at runtime
+    (`StoryCast._skin`: SSS 0.7 with transmittance, skin specular).
+  - StoryCabin: the lining turned to face in and drawn with normal culling; the satnav a rendered 2D
+    view (`StorySatnav.view`: antialiased streets, the river, glowing drop pins, the car's arrow, the
+    time, "NO ROUTE") in a bezel, its glow on the cabin brighter.
+  - Cars: livery 14 rewritten in 3D noise (no seam at the shoulder, mostly black with shapes on the
+    flanks and rear quarters, airbrushed edges and overspray, strokes fading with distance, the
+    pinstripe curling down at its tail); finish `"deep"`; a livery's `"lamps": "bright"`; the grille's
+    web satin and lighter; Lot 47 on deep-dish rims ("0.7.6.0", every night-1 scene); the Mirror's
+    coupe in plain pearl white with no underglow (`PAINTS.white`).
+  - Props: the viaduct's brick soot-dark and wet at its foot (`BRICK`), the harbour's water reading a
+    reflection.
+  - The scenes: the opening's city, canyon, auction (a crowd in front, Kit's shoulder, a crane down;
+    Gus pointing; the coat reverse; shorter Gus and Kit; a bonnet insert; the orbit on one side of the
+    line; the hero's lamp hidden); the Mirror (high beams as the chase's key; the mirror inserts at fov
+    13 a stop brighter; the empty road a match cut; the ghost in a dome flicker under a cold light;
+    the eyes shot on her face; dead air cut; trims; no lavender fill); the knock (first light; 15 shots,
+    no dialogue shot over about 3 s, a frontal Kit single, Dee singles framed higher, an exterior
+    two-shot, the back seat, the mirror at dawn, the pins dolly reversed, the end craned to ARCH 9).
+- **The Mirror's scare** (the scene agent's design, built into `pass3_close.py`): suspense before the
+  surprise and each sighting closer: a six-frame glimpse of her in the back seat as the high beams
+  flare the rear window (`rear_window`); the road and the seat empty (the same camera); a new
+  `dark_road` from the back seat where the lamps end, the rain stops in the headlights and the wipers
+  stop; the false calm (`breath_out`, 3.2 s: Kit's eyes close, behind her a wet head rises into the
+  gap and a pale hand settles on her headrest, leather creaks, her eyes open); in the mirror she is
+  behind the headrest, revealed as the dome stutters on; Kit turns her whole body round to nobody and
+  back to the road in dead silence; the hit is a frontal two-shot, her face already at Kit's ear, a
+  one-frame snap of the head, no white flash; the black rings out, a drop of water, the gasp. The
+  coupe stays a Nemesis (the bible: it is Vesper's own car as it was), plain pearl white.
+  Engine pieces for it: ambience entries with `"db"`, `"pitch"`, `"to"` and one-shot `"pitch"` (each
+  sound its own player); new synthesized cues `engine`, `wipers`, `ring`, `creak`, `sub` and a sting
+  that hits on its first frame; keyed light energy `[[t, e], ...]` (and a car's `"dome"`); keyed face
+  `"shapes"`; `"passing"` street lamps riding a car (a shadowed light carried past the windows);
+  keyed `"rain"` and `"glass"`; the fade's black at the film's floor (about 4/255).
+- Stills so far (Ultra, the session scratchpad's `p3/`): the city reads with depth (no dashes, no
+  crane in frame) and the harbour reflects it in rippled streaks; the auction reads as an auction;
+  Gus points; the coat man at the back of a crowd. The first hair shader lit every head from behind
+  through the whole shell (blonde and white heads): the light through the strands now only at the
+  silhouette.
