@@ -24,14 +24,16 @@ extends Node3D
 ## "gaze": "camera" | "mirror" (the shot's rear-view mirror: eyes on the driver's in the glass; in a
 ## shot without one, the glass of the cabin the person sits in) | "rear" (the back seat of the car
 ## the person sits in: a look over the shoulder) |
-## "ahead" | a person's id (default: whoever on screen is speaking, else straight ahead), "looks":
+## "ahead" | "road" (seated: off down the road past the windscreen's middle, at no one) | a person's id
+## (default: whoever on screen is speaking, else straight ahead), "looks":
 ## [[from, to, gaze], ...] (s into the shot: the eyes there for that while, a glance), "bend": bones turned
 ## on top of the clip over time (_bend: a head coming up), "reach": hands put on something over time
 ## (_reach: two-bone IK, the palm turned to face it; "reach_car": a car's id, the targets in its road
 ## frame: hands on a car's roof), "breathe": [deg, period s] (the chest rising and falling), "blink": false (a cast member's eyes never
 ## shut), "shapes": {face shape: value} (held under the rest: {"jawOpen": 0.15}, a slack jaw; or keyed
 ## [{"t": s, shape: value, ...}, ...]), "hide":
-## [role, ...] (a cast member's garments left off by role: ["hivis"], Gus without his vest), "wet": 0..1
+## [role, ...] (a cast member's garments left off by role: ["hivis"], Gus without his vest), "tint":
+## {material: colour} (a garment's colour for a scene), "mouth": 1.0 (how wide it speaks), "wet": 0..1
 ## (a cast member's hair damp from the rain: StoryHair; "drowned" soaks it)}
 ## A cast member has a face (StoryFace): it blinks, says its own lines, looks.
 
@@ -212,8 +214,15 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 		face = StoryFace.new(body, String(s.get("id", who)).hash())
 		face.blinks = bool(s.get("blink", true))
 		face.held = s.get("shapes", {}) if s.get("shapes", {}) is Dictionary else {}
+		face.mouth = float(s.get("mouth", 1.0))
 		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
 			mi.layers |= CAST_LAYER
+			for k in (mi.mesh.get_surface_count() if mi.mesh != null else 0):
+				var src := mi.mesh.surface_get_material(k) as StandardMaterial3D
+				if src != null and (s.get("tint", {}) as Dictionary).has(src.resource_name):
+					var tm := src.duplicate() as StandardMaterial3D
+					tm.albedo_color = Color(String(s["tint"][src.resource_name]))
+					mi.set_surface_override_material(k, tm)
 	# "hide": a cast member's garments left off by role (their mesh's name: "<role>__<asset>")
 	for role: String in s.get("hide", []):
 		for mi: MeshInstance3D in body.find_children(role + "__*", "MeshInstance3D", true, false):

@@ -5122,3 +5122,37 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   and `mirror_dawn` (moved in `pass3_close.py` in 73a2539). The chain brings it in now.
 - **The knock's stills** (`p3/k5`) are with the critic (brief `p3/brief_k5.md`). Next: the Mirror's
   `m6` and the opening's `o9` stills, then their critic.
+
+### 29 Oct (session 21, cont.): the knock's critic and its fourth pass (M20-9)
+- **The knock's critic** (`p3/k5`, two lenses): **4.5 and 4.5**, level with take five. Dee's pose
+  answers the owner's note ("a person at a car window", forearms on the sill). But:
+  - the knock regressed: the visor and the roof's rail cut Dee at the chin for "Kit. Kit! Open up.",
+    and the insert's fist knocked on no visible glass;
+  - nothing read as dawn;
+  - ten dialogue shots came from two set-ups, with Kit staring down the lens;
+  - Dee's bared lower teeth made every line a snarl, and her overalls glowed electric blue;
+  - the back seat was black, and the end craned onto an unlit wall.
+- **A probe** (`story_lab --probe=t1,t2,...`): everyone's eyes, head and hands in a car's frame. It
+  found Kit's seated eyes 0.27 m behind the layout's `driver_head`, so the Mirror's narrow spots (the
+  slash across her eyes in glare and eyes, the dome's key) missed her face. The m6 stills render was
+  stopped and those lights re-aimed, along with the ghost's lights (one sat 8 cm from her face).
+- **The knock's fourth pass** (`tools/story/pass4_close.py`, its second half; `docs/CINEMATICS.md`).
+  New engine pieces:
+  - a light's `"kind": "sun"`;
+  - a gaze `"road"`;
+  - a person's `"mouth"` and `"tint"`;
+  - a car's `"wet_seat"` (StoryCabin.wet_seat);
+  - the viaduct's `"bulb"`, the arch's own floor, and its number painted and lit by a bracket lamp;
+  - ivory teeth (StoryCast), Dee's hair colour, darker cabin trim, a soft-touch satnav bezel and
+    Lot 47's pinstripe deeper.
+
+  The cut:
+  - outside insert, low knock, the two-shot third;
+  - Dee's profile outside, Kit three-quarter, an over-the-shoulder from behind Dee;
+  - Kit from the passenger's seat, Dee's point of view for the plea;
+  - the wet patch shown when Dee names it;
+  - the end on the people.
+
+  The ids stay: pass3 finds its shots by them, so `kit_wake` is now the over-the-shoulder and
+  `knock_two` Dee's profile. The chain pass3 → pass4 is stable; lint OK (27 set-ups, the ghost 1.4 s).
+- Next: stills of all three scenes (`m6`, `k6`, `o9`) and their critic.

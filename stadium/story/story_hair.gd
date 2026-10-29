@@ -13,7 +13,7 @@ class_name StoryHair
 
 ## The hair's colour per cast member (sRGB), where the sidecar's tint isn't it: the looks the owner
 ## picked (Kit's near-black brown; the passenger's black, soaked).
-const COLOUR := {"kit": "#2e2622", "passenger": "#231e1c"}
+const COLOUR := {"kit": "#2e2622", "passenger": "#231e1c", "dee": "#2c211b"}
 
 static var _shader: Shader
 static var _cap_shader: Shader

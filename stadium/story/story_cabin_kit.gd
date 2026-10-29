@@ -115,10 +115,10 @@ static func mat(name: String) -> StandardMaterial3D:
 			m.albedo_color = Color(0.012, 0.012, 0.013)
 			m.roughness = 0.07
 			m.clearcoat_enabled = true
-		"alu":
-			m.albedo_color = Color(0.63, 0.63, 0.65)
+		"alu":                                     # dark brushed metal: bright aluminium glinted like a lamp
+			m.albedo_color = Color(0.36, 0.36, 0.38)
 			m.metallic = 1.0
-			m.roughness = 0.32
+			m.roughness = 0.42
 		"carpet":
 			m.albedo_color = Color(0.028, 0.028, 0.03)
 			m.roughness = 1.0

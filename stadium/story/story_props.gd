@@ -12,7 +12,8 @@ extends RefCounted
 ## high-mast light ("height", "colour", "energy", "shadow"). And the
 ## railway viaduct ("viaduct": brick arches along its x, their faces towards +z; "arches" each side of
 ## the one at its origin, which is Dee's, Arch 9: a roller door half up, a bare bulb inside, its
-## number painted over it; "train": [from s, speed m/s] a lit train crossing the deck, StoryProps.pose).
+## number painted over it, lit by a bracket lamp; "bulb": the bulb's energy (3.5); "train": [from s,
+## speed m/s] a lit train crossing the deck, StoryProps.pose).
 ## The docks set (docs/CINEMATICS.md): "quay" (the deck a "bare": "set" shot stands on, its walls, its
 ## bollards, painted lines, the water round it), "sts_crane" (a ship-to-shore crane at the quay's
 ## edge), "warehouse", "portacabin" (with a "sign"), "stage" (the auctioneer's, a lit truss),
@@ -366,7 +367,7 @@ static func _viaduct(p: Dictionary) -> Node3D:
 	# Dee's arch: the bulb inside, the pit's glow, the number
 	var bulb := OmniLight3D.new()
 	bulb.light_color = Color(1.0, 0.78, 0.45)
-	bulb.light_energy = 3.5
+	bulb.light_energy = float(p.get("bulb", 3.5))
 	bulb.omni_range = 11.0
 	bulb.shadow_enabled = true
 	bulb.position = Vector3(0.0, 1.95, -3.5)      # hung low on its flex, so it shows under the door
@@ -377,13 +378,28 @@ static func _viaduct(p: Dictionary) -> Node3D:
 	glow.emission_energy_multiplier = 8.0
 	_box(root, Vector3(0.0, 2.1, -3.5), Vector3(0.12, 0.16, 0.12), glow)
 	_box(root, Vector3(0.0, (2.18 + spring + open_w * 0.5) * 0.5, -3.5), Vector3(0.012, spring + open_w * 0.5 - 2.18, 0.012), _mat(Color(0.05, 0.05, 0.05)))
+	# its floor: oil-stained concrete inside (the map's own ground under it read as a tile grid)
+	var floor_m := _mat(Color(0.11, 0.105, 0.1), 0.85, 0.0)
+	_box(root, Vector3(0.0, 0.01, -depth * 0.5), Vector3(open_w, 0.02, depth - 0.2), floor_m)
 	var sign := Label3D.new()
 	sign.text = "ARCH 9"
 	sign.font_size = 160
 	sign.pixel_size = 0.004
-	sign.modulate = Color(0.92, 0.9, 0.85)
+	sign.modulate = Color(0.78, 0.74, 0.66, 0.9)               # painted, weathered: lit by the lamp, not by itself
+	sign.shaded = true
 	sign.position = Vector3(0.0, spring + open_w * 0.5 + 0.45, 0.02)
 	root.add_child(sign)
+	var lamp := SpotLight3D.new()                              # a bracket lamp over the number
+	lamp.light_color = Color(1.0, 0.81, 0.54)
+	lamp.light_energy = 3.0
+	lamp.spot_range = 4.0
+	lamp.spot_angle = 40.0
+	lamp.shadow_enabled = false
+	lamp.position = sign.position + Vector3(0.0, 0.75, 0.55)
+	lamp.basis = Basis.looking_at(sign.position + Vector3(0.0, -0.1, 0.0) - lamp.position, Vector3.UP)
+	root.add_child(lamp)
+	_box(root, sign.position + Vector3(0.0, 0.75, 0.28), Vector3(0.05, 0.05, 0.55), _mat(Color(0.04, 0.04, 0.04)))
+	_box(root, sign.position + Vector3(0.0, 0.72, 0.55), Vector3(0.22, 0.1, 0.16), _mat(Color(0.05, 0.05, 0.05)))
 	# the deck: a parapet each side and the rails between
 	var deck_y := DECK + 1.6
 	var pm := bm.duplicate() as ShaderMaterial

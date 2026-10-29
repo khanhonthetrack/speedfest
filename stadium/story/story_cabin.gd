@@ -199,7 +199,7 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	# its bezel: dark satin plastic a little proud of the screen all round, behind it
 	var bezel := MeshInstance3D.new()
 	bezel.mesh = StoryCabinKit.rbox(Vector3(q.size.x + 0.022, q.size.y + 0.02, 0.022), 0.008)
-	bezel.material_override = StoryCabinKit.mat("piano")
+	bezel.material_override = StoryCabinKit.mat("soft")
 	bezel.transform = satnav.transform * Transform3D(Basis(), Vector3(0.0, 0.0, -0.0115))
 	add_child(bezel)
 	var screen_light := OmniLight3D.new()
@@ -241,6 +241,48 @@ func _build(m: Dictionary, red_pins: int) -> void:
 		StoryCabinKit.visor(self, side, line(m, "top", mirror_point.z - 0.03) - 0.02, mirror_point.z - 0.03)
 	driver_head = pts["driver_head"]
 	rear_seat = pts["rear"]
+
+
+## A wet patch on the rear bench's middle cushion (where she sat): near black and glossy, its edge
+## soft, a trail running off the cushion's front.
+func wet_seat() -> void:
+	var seats: Array = _seats.get("rear", [])
+	if seats.is_empty():
+		return
+	var bench := seats[0] as Node3D
+	var cushion: Vector3 = bench.get_meta("cushion", Vector3(1.2, 0.12, 0.44))
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.006, 0.006, 0.007)
+	m.roughness = 0.1
+	m.clearcoat_enabled = true
+	m.clearcoat_roughness = 0.04
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 0.95))
+	g.set_color(1, Color(1, 1, 1, 0.0))
+	g.add_point(0.7, Color(1, 1, 1, 0.8))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	m.albedo_texture = tex
+	var patch := MeshInstance3D.new()
+	patch.name = "WetPatch"
+	var q := QuadMesh.new()
+	q.size = Vector2(0.36, 0.3)
+	patch.mesh = q
+	patch.material_override = m
+	patch.rotation = Vector3(-PI * 0.5, 0.3, 0.0)
+	patch.position = Vector3(0.02, cushion.y * 0.5 + 0.018, 0.03)
+	bench.add_child(patch)
+	var run := MeshInstance3D.new()
+	var rq := QuadMesh.new()
+	rq.size = Vector2(0.04, 0.1)
+	run.mesh = rq
+	run.material_override = m
+	run.position = Vector3(0.05, cushion.y * 0.5 - 0.045, cushion.z * 0.5 + 0.006)
+	bench.add_child(run)
 
 
 ## Lowers a seat (its cushion, back and headrest; the driver's the wheel too) to `by` under where it

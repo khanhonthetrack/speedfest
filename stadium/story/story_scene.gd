@@ -35,13 +35,14 @@ extends Node3D
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
 ##     clear, beaded by the shot's rain or the car's "rain_glass": for shots inside it; "windows_down": ["driver" | "passenger"], those front windows
 ##     down, or {"driver": [from s, to s]}, wound down then), "dome" (its courtesy light's energy: a passenger lit in the
-##     mirror), "finish" (its paint's, over the livery's: TmCarVisual.FINISHES, "gloss" for a car
+##     mirror), "wet_seat": true (a wet patch on its back seat, where someone sat soaked), "finish" (its paint's, over the livery's: TmCarVisual.FINISHES, "gloss" for a car
 ##     shown off), "from", "to" (s: on screen only then)}],
 ##   "people": [StoryPerson spec (a cast member's "who", its "speaker", "gaze", "reach" with
 ##     "reach_car": hands on a car of the shot), plus "car": a car's
 ##     id and "seat": "driver" | "passenger" | "rear" (seated in it, moving with it; or "pos" in its
 ##     road frame; anyone's own seat rests where the Mannequin's would, a seat under a low roof
-##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot",
+##     lowered as far as its tallest sitter needs), "from", "to"], "lights": [{"kind": "omni" | "spot" |
+##     "sun" (a directional light from "pos" towards "look": first light over a set; "range" its shadows' reach),
 ##     "pos", "look", "colour", "energy", "range", "angle", "shadow" (default on), "car": a car's id
 ##     (riding in it: pos and look in its road frame), "look_to" (a spot swept from "look" to it over the
 ##     shot: light moving over a car's paint); "kind": "softbox" ("size": [w, h], "energy": a bright panel
@@ -87,7 +88,7 @@ const SET_DECK := 2.0                  ## m a set's deck stands over the map's g
 ## hand" (Gus, c01_open), so deep black under soft airbrushed shapes and a hand-drawn pinstripe (red,
 ## as the calipers: paint, not a reflection).
 const PAINTS := {
-	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#a3221a",
+	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#6e1a14",
 		"p": [0.5, 0.05, 0.0025, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
 	# the Mirror's coupe: Vesper's own pearl white, plain (not a police car, not Kit's twin)
 	"white": {"pattern": "plain", "base": "#e9eaec", "c": "#cfd8e4", "finish": "pearl"},
@@ -728,6 +729,8 @@ func _add_car(c: Dictionary) -> void:
 		var cabin := StoryCabin.make(car.model, pins, maxf(keyed_max(dome), 0.001) if dome is Array else float(dome))
 		if dome is Array and cabin.get_node_or_null("Dome") != null:
 			cabin.get_node("Dome").set_meta("keys", dome)      # the dome coming on at a moment of the shot
+		if bool(c.get("wet_seat", false)):
+			cabin.wet_seat()
 		add_child(cabin)
 		entry["cabin"] = cabin
 	_cars[String(c.get("id", "car%d" % _cars.size()))] = entry
@@ -860,6 +863,10 @@ func _add_light(l: Dictionary) -> void:
 		s.spot_range = float(l.get("range", 20.0))
 		s.spot_angle = float(l.get("angle", 30.0))
 		light = s
+	elif String(l.get("kind", "omni")) == "sun":
+		var d := DirectionalLight3D.new()
+		d.directional_shadow_max_distance = float(l.get("range", 40.0))
+		light = d
 	else:
 		var o := OmniLight3D.new()
 		o.omni_range = float(l.get("range", 10.0))
@@ -1103,6 +1110,10 @@ func _gaze_of(p: StoryPerson, s: Dictionary) -> Variant:
 		return _mirror_cam.global_position
 	if g == "ahead":
 		return null
+	if g == "road" and _cars.has(p.in_car):
+		# off down the road past the windscreen's middle: away, at no one (straight ahead, a lens in
+		# front of the face would take the eyes)
+		return (_cars[p.in_car].get("xf", _anchor) as Transform3D) * Vector3(-0.4, 1.1, 6.0)
 	if g == "rear" and _cars.has(p.in_car) and _cars[p.in_car].has("cabin"):
 		# the back seat, where a passenger's face would be (a look back over the shoulder)
 		var cab := _cars[p.in_car]["cabin"] as StoryCabin

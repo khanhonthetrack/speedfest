@@ -38,6 +38,7 @@ var seed := 0
 var blinks := true                      ## false: the eyes never shut (the dead)
 var quiet: Array = []                   ## [from, to] scene times no blink touches (round the cuts)
 var held := {}                          ## face shapes held under whatever else moves (a slack jaw)
+var mouth := 1.0                        ## how wide the mouth moves when it speaks (its visemes and jaw)
 var _shapes := {}                       ## shape -> [[MeshInstance3D, index], ...]
 
 
@@ -78,8 +79,8 @@ func pose(t: float, lines: Array, gaze: Variant) -> void:
 	set_shape("eyeBlinkRight", maxf(b, float(held.get("eyeBlinkRight", 0.0))))
 	var m := mouth_at(t, lines)
 	for v in SHAPE.values():
-		set_shape(v[0], maxf(float(m.get(v[0], 0.0)), float(held.get(v[0], 0.0))))
-	set_shape("jawOpen", maxf(float(m.get("jawOpen", 0.0)), float(held.get("jawOpen", 0.0))))
+		set_shape(v[0], maxf(float(m.get(v[0], 0.0)) * mouth, float(held.get(v[0], 0.0))))
+	set_shape("jawOpen", maxf(float(m.get("jawOpen", 0.0)) * mouth, float(held.get("jawOpen", 0.0))))
 	var eyes := {}
 	if gaze is Vector3:
 		eyes = eyes_towards(gaze)

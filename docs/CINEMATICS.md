@@ -227,6 +227,32 @@ three-quarter 30 % mirror. Then the shots:
   on hers; the hit with Kit's eyes already sliding to her and the ghost a dark shape with a cold edge;
 - the scene 22.9 s (was 25.9), the ghost on screen 1.4 s.
 
+The knock's fourth pass (its critic on round three's stills: 4.5 and 4.5; the same file, after the
+Mirror's section) and its engine pieces:
+- **Where everyone really is:** `story_lab --probe=t1,t2` prints each person's eyes, head and hands in
+  the followed car's frame. Kit's eyes as she sits are a quarter of a metre behind the layout's
+  `driver_head` (the Mirror's narrow slash spots had been aimed at the empty air in front of her face;
+  now at her eyes). Dee's eyes in the knock are inside the window's opening only from a camera low
+  on the passenger's side: from eye height the visor and the roof's rail cut her at the chin.
+- The knock seen from outside on beaded glass (a car's `"rain_glass"`), a closed fist; the
+  geography (the two-shot) third; shot and reverse broken up by Dee's profile outside, Kit
+  three-quarter from the dash, an over-the-shoulder from behind Dee, Kit from the passenger's seat
+  with her eyes going to the mirror, Dee's own eyes for the plea; Kit's eyes never down the lens (a
+  new gaze, `"road"`: off down the road at no one).
+- First light: a cold low sun over the street (a light's `"kind": "sun"`), the arch's lamp a warm rim
+  behind Dee, the arch's bulb down (the viaduct's `"bulb"`) so the background sits under the faces,
+  the grade's blue a third less; the arch has its own floor (the map's tiles read as a game grid),
+  its number painted and lit by a bracket lamp; a warehouse behind the car closes the street (the
+  mirror showed a park).
+- Dee's mouth narrower (a person's `"mouth"`: her visemes bared the lower teeth, every line a snarl),
+  her overalls a worn navy (a person's `"tint"`), her hair deep brown; teeth ivory for the whole cast;
+  Kit's mouth shut but on the scare lines, with sleepy, defensive, afraid, haunted and pleading faces.
+- The wet patch on the back seat (a car's `"wet_seat"`) shown as Dee names it, the rear glass's light
+  raking it, and in the mirror at dawn; Lot 47 matt with dew at first light (the gloss mirrored the
+  sky: a silver car), its pinstripe a deeper red; dark brushed trim and a soft-touch satnav bezel (bright
+  aluminium and piano black mirrored the dawn: white pills and a cream frame).
+- The end a slow pull back that keeps the car, Dee and her lit arch; 17 shots, 27 setups.
+
 ## Calls made (the owner's standing rule: "just write it")
 - **Voices.** Not now: the picture has to pass first. Lines are cut short and long ones play over
   the listener. A voice later means a text-to-speech model with a clear commercial licence or
@@ -278,5 +304,5 @@ Procedure:
 | 6 the intro | re-cut 27 Oct; critic round 1: 4.1/10 |
 | Take five: stills, critic, render, page | two critic rounds on stills (4.1 both); clips rendered and reviewed (4.5/10 each scene, better than take four in all three); with the owner 28 Oct: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW |
 | Third pass | built 28-29 Oct (`pass3_*.py`); stills round two: the opening 5.5 and 5.0 |
-| Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`); the Mirror's (`pass4_close.py`: faces keyed by the scene's own lights, cabin cameras ray-checked, the hair's sheen, the drowned skin, the rain shield, the deck, the drops); the knock's stills with its critic |
-| Next | the Mirror's and the opening's new stills and their critic; the knock's fourth pass from its critic; iterate to 7; clips once every scene reaches 7 |
+| Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`); the Mirror's (`pass4_close.py`: faces keyed by the scene's own lights, cabin cameras ray-checked, the hair's sheen, the drowned skin, the rain shield, the deck, the drops); the knock's (4.5/4.5 from its critic): Dee's face in the glass, the two-shot third, first light, the wet patch, `--probe` |
+| Next | stills of all three scenes after their fourth passes (`m6`, `k6`, `o9`), their critic; iterate to 7; clips once every scene reaches 7 |

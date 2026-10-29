@@ -137,6 +137,8 @@ static func instance(id: String) -> Node3D:
 			var src := mi.mesh.surface_get_material(k) as StandardMaterial3D
 			if src != null and src.resource_name.begins_with("skin__"):
 				mi.set_surface_override_material(k, _skin(src))
+			elif src != null and src.resource_name.begins_with("teeth__"):
+				mi.set_surface_override_material(k, _teeth(src))
 	var ap := AnimationPlayer.new()
 	ap.name = "Anim"
 	ap.deterministic = true            # a bone the clip has no track for goes back to rest, whatever played before
@@ -165,6 +167,17 @@ static func _skin(src: StandardMaterial3D) -> StandardMaterial3D:
 
 
 static var _skins := {}
+
+
+## Teeth as they look in a mouth's shade: ivory, not white, a soft wet sheen.
+static func _teeth(src: StandardMaterial3D) -> StandardMaterial3D:
+	if not _skins.has(src):
+		var m := src.duplicate() as StandardMaterial3D
+		m.albedo_color = src.albedo_color * Color(0.7, 0.66, 0.6)
+		m.roughness = 0.4
+		m.metallic_specular = 0.35
+		_skins[src] = m
+	return _skins[src]
 
 
 static func player(root: Node) -> AnimationPlayer:

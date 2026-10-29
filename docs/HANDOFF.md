@@ -135,13 +135,18 @@
   shallow ripples on the deck (the zebra), the glass's drops clear by their mask (rings), darker
   leather sheen and a matt mirror housing, an env's `"ssr": false`. Interior cameras are checked
   first with the scratchpad's `p3/cabin_frame.py "cam" "look" fov [ghost "pos"]` (a ray-cast map of
-  Lot 47's cabin: what blocks the lens). The knock's stills (`p3/k5`) are with its critic.
+  Lot 47's cabin: what blocks the lens; its Kit's head is the probed one). The knock's fourth pass
+  (its critic 4.5/4.5) is the second half of `pass4_close.py`: Dee's face in the glass from a low
+  camera, the knock outside on beaded glass, the two-shot third, first light (`"kind": "sun"`), Dee's
+  `"mouth"` and `"tint"`, the `"wet_seat"`, Kit's `"road"` gaze. **Probe before framing:**
+  `stadium/tools/run.sh res://story/story_lab.tscn --headless -- --scene=<id> --no_stage --probe=t1,t2`
+  prints everyone's eyes, head and hands in the car's frame (Kit's seated eyes are about
+  (0.376, 1.117, -0.096) in Lot 47, not the layout's (0.37, 1.088, 0.17)).
   **Trap:** after changing StoryHair's shaders, run `stadium/tools/run.sh res://story/cast_lab.tscn --
   --set_quality=2 --frames=20 --shot=<png>` once before a story_lab render, or the render hangs
   (compiling the hair's shaders inside a whole scene deadlocks llvmpipe; from the cache they load).
-- **Next**: the Mirror's stills after its fourth pass (`p3/m6`) and the opening's round three
-  (`p3/o9`), their critic; the knock's fourth pass from its critic (`p3/k5` stills); iterate every
-  scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
+- **Next**: stills of all three scenes after their fourth passes (`p3/m6`, `p3/k6`, `p3/o9`), their
+  critic (`p3/critic_wf.js` with a brief like `p3/brief_k5.md`); iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
   faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera from the

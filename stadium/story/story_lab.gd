@@ -10,6 +10,8 @@ extends Node
 ## picture, for a before and after). Prints the scene's timeline. Several stills in one run (the city and SDFGI built once):
 ## --ts=8.5,14,25 --every=60 holds each time for that many frames; give TestHooks
 ## --shots=/abs/a.png@59,/abs/b.png@119,... to match, and --frames=180 to quit after the last.
+## --probe=t1,t2,... (headless is enough) prints where everyone's eyes, head and hands are at those
+## times in a car's road frame (--car=<id>, default kit: a shot's camera keys' frame) and quits.
 
 var scene: StoryScene
 
@@ -47,6 +49,10 @@ func _ready() -> void:
 		print("SHOT %s %.2f-%.2f s, %d lines" % [s.get("id", "?"), s["start"], s["end"], (s["lines"] as Array).size()])
 	print("SCENE %s %.1f s, %d shots, %d lines" % [id, scene.length, scene.shots.size(), lines])
 	await get_tree().physics_frame
+	if TestHooks.has_arg("probe"):
+		await _probe(String(TestHooks.arg("car", "kit")), String(TestHooks.arg("probe", "")).split(",", false))
+		TestHooks.finish()
+		return
 	var at := float(TestHooks.arg("t", 0.0))
 	if TestHooks.has_arg("play"):
 		scene.finished.connect(func(skipped: bool) -> void:
@@ -65,6 +71,30 @@ func _ready() -> void:
 
 
 var _frame := 0
+
+
+func _probe(car: String, times: PackedStringArray) -> void:
+	for ts in times:
+		scene.seek(float(ts))
+		await get_tree().physics_frame
+		scene.seek(float(ts))
+		var xf: Transform3D = scene._cars[car].get("xf", Transform3D()) if scene._cars.has(car) else Transform3D()
+		var inv := xf.affine_inverse()
+		for p: StoryPerson in scene._people:
+			if not p.visible:
+				continue
+			var line := "PROBE t=%s %s eyes %s" % [ts, p.spec.get("id", "?"), _v(inv * p.eyes_point())]
+			var sk := StoryCast.skeleton(p)
+			if sk != null:
+				for b: String in ["Head", "RightHand", "LeftHand"]:
+					var i := sk.find_bone(b)
+					if i >= 0:
+						line += " %s %s" % [b, _v(inv * (sk.global_transform * sk.get_bone_global_pose(i)).origin)]
+			print(line)
+
+
+func _v(p: Vector3) -> String:
+	return "(%.3f, %.3f, %.3f)" % [p.x, p.y, p.z]
 
 
 func _process(_delta: float) -> void:
