@@ -16,7 +16,9 @@ ZOOM_FOV = 3.0          # a fov change over this ...
 ZOOM_MOVE = 0.1         # ... with the camera moving less than this (m) is a zoom
 MAX_ALTERNATING = 4     # cuts in a row between the same two setups
 GHOST_MAX = 1.5         # s the ghost may be on screen in a scene
-CLOSE_FOV = 24.0        # a lens this long on a person is a close-up ...
+CLOSE_FOV = 24.0        # a lens this long on a person ...
+CLOSE_FRAME = 0.75      # ... framing under this height where it looks (m: a head and shoulders; a long
+                        # lens on someone 5 m off is a medium shot) is a close-up ...
 CLOSE_MAX = 1.5         # ... held this long at most
 LONG_HOLD = 6.0         # s: a shot this long had better be carrying lines
 MIN_SD = 1.0            # s: shot lengths across a scene vary at least this much
@@ -62,6 +64,14 @@ def direction(k):
     d = [l[i] - p[i] for i in range(3)]
     n = math.sqrt(sum(x * x for x in d)) or 1.0
     return [x / n for x in d]
+
+
+def frame_height(k):
+    """How tall the picture is where the camera looks (m), None where the look isn't a place."""
+    p, l = vec(k.get("pos", [4, 1.5, 7])), vec(k.get("look", [0, 0.7, 0]))
+    if isinstance(p, str) or isinstance(l, str):
+        return None
+    return 2.0 * dist(p, l) * math.tan(math.radians(float(k.get("fov", 40))) * 0.5)
 
 
 def same_setup(a, b):
@@ -113,8 +123,11 @@ def lint(arg, ghosts, tl_path):
                 flags.append("FAIL zoom inside the shot (fov %.1f to %.1f, the camera moving %.2f m)" % (
                     float(a.get("fov", 40)), float(b.get("fov", a.get("fov", 40))), moved))
         people = s.get("people", [])
-        if min(fovs) <= CLOSE_FOV and people and dur > CLOSE_MAX:
-            flags.append("WARN a close-up (fov %.0f) held %.1f s (%.1f at most)" % (min(fovs), dur, CLOSE_MAX))
+        heights = [h for h in (frame_height(k) for k in keys) if h is not None]
+        close = min(fovs) <= CLOSE_FOV and (min(heights) < CLOSE_FRAME if heights else True)
+        if close and people and dur > CLOSE_MAX:
+            flags.append("WARN a close-up (%s) held %.1f s (%.1f at most)" % (
+                "%.2f m tall" % min(heights) if heights else "fov %.0f" % min(fovs), dur, CLOSE_MAX))
         if dur > LONG_HOLD and len(s.get("lines", [])) * 3.0 < dur:
             flags.append("WARN held %.1f s with %d lines" % (dur, len(s.get("lines", []))))
         if len(keys) <= 1 and not cam.get("shake") and not cam.get("handheld"):

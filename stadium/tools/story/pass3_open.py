@@ -9,12 +9,13 @@ scene = json.load(open(path))
 shots = {s["id"]: s for s in scene["shots"]}
 
 # 1. the city across the water: clear air (a dark blue haze, the layers read by depth), no shot
-# lights (the city lights itself), low over the water past the quay cranes (out of frame), the city
-# in the harbour (a planar reflection), a quick fade up
+# lights (the city lights itself: fewer rooms lit, each brighter, as a lens sees a skyline at night),
+# low over the water past the quay cranes (out of frame), the city in the harbour (a planar
+# reflection), a quick fade up
 city = shots["city"]
 city["dur"] = 3.0
 city["fade_in"] = 0.5
-city["env"] = {"fog": 0.0003, "vol_fog": 0.0008, "reflect": 0.5}
+city["env"] = {"fog": 0.0003, "vol_fog": 0.0008, "reflect": 0.5, "city_lit": 0.3, "city_glow": 2.6}
 city["lights"] = []
 city["camera"] = {"ease": "inout", "keys": [
     {"u": 0, "pos": [58.0, 9.0, -135.0], "look": [520.0, 50.0, 100.0], "fov": 35, "roll": 3.0},

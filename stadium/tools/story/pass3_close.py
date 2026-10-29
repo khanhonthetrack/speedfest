@@ -162,11 +162,12 @@ md["camera"] = {"follow": "kit", "ease": "inout", "keys": [
     {"u": 1, "pos": [0.295, 1.168, -0.21], "look": [0.0, 1.131, 0.512], "fov": 13}]}
 md["mirror"] = {"glass": True, "follow": "kit", "exposure": 2.0}
 person(md, "kit_driver")["gaze"] = "mirror"
-# the pins: from one pin out to all nine, the screen above the subtitles
+# the pins: from one pin out to all nine, the screen above the subtitles (the satnav in the centre
+# stack, StoryCabin: Lot 47's at [0, 0.681, 0.651])
 pn = shots["pins"]
 pn["camera"] = {"follow": "kit", "ease": "inout", "keys": [
-    {"u": 0, "pos": [0.1, 0.96, 0.44], "look": [0.0, 0.84, 0.7], "fov": 12},
-    {"u": 1, "pos": [0.16, 1.0, 0.34], "look": [0.0, 0.84, 0.7], "fov": 24}]}
+    {"u": 0, "pos": [0.08, 0.9, 0.42], "look": [0.0, 0.681, 0.651], "fov": 12},
+    {"u": 1, "pos": [0.14, 0.95, 0.33], "look": [0.0, 0.681, 0.651], "fov": 24}]}
 # the wide at the end: from the passenger's side ahead (Dee stays screen right), craning up off the car
 # to the ARCH 9 lettering on the viaduct's face in the first light
 shots["knock_end"]["camera"] = {"path": "spline", "ease": "inout", "keys": [
@@ -348,8 +349,8 @@ set_dee(ke, dee_spec(pos=[1.58, 0, 0.10], lift=[[0.9, -0.008], [1.45, 0.0]],
                            {"t": 3.2, "Neck": [4, 14, 0], "Head": [2, 18, 0]}]))
 # the back seat and the mirror at dawn: the first light through the rear window on the bench (it was
 # black), the mirror a stop brighter
-DAWN_REAR = {"id": "dawn_rear", "car": "kit", "kind": "omni", "pos": [0.0, 1.18, -1.15], "colour": "#9aaccc", "energy": 0.6,
-             "range": 1.6, "shadow": False}
+DAWN_REAR = {"id": "dawn_rear", "car": "kit", "kind": "omni", "pos": [-0.7, 1.05, -0.4], "colour": "#9aaccc", "energy": 0.9,
+             "range": 1.8, "shadow": False}      # (through the passenger's side glass, raking across the bench's faces)
 for sid in ["back_seat", "mirror_dawn"]:
     sh = shots[sid]
     sh["lights"] = [l for l in sh["lights"] if l.get("id") != "dawn_rear"] + [dict(DAWN_REAR)]

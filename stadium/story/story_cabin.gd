@@ -1,15 +1,15 @@
 class_name StoryCabin
 extends Node3D
 ## A car's inside for the cutscenes (PLAN M20-3): our road cars are bodies and glass, so a shot from
-## the driver's seat or in the rear-view mirror needs seats, a dash and a headlining. At night, seen
-## past a shoulder or in a mirror, simple shapes in dark leather are enough: two front seats, a rear
-## bench, the dash with its glow, the satnav's screen (StorySatnav) and the rear-view mirror (its
-## housing and glass: StoryScene shows on the glass what the driver would see in it).
+## the driver's seat or in the rear-view mirror needs seats, a dash and a headlining: a sports car's,
+## from StoryCabinKit's parts (two bucket seats, a rear bench, the dash with its binnacle and glowing
+## cluster, door cards, the console, a three-spoke wheel, visors), the satnav's screen (StorySatnav)
+## and the rear-view mirror (its housing and glass: StoryScene shows on the glass what the driver
+## would see in it).
 ## Built in the car's road frame (x left, y up, z ahead, the road under the wheels at y = 0) from
 ## its manifest (TmRoadCars.manifest: wheels, box, and the body's lines along it, "anchors"), so it
 ## fits any of the sixteen under its own roof; fit_car() lines the body itself from inside.
 
-const LEATHER := Color(0.045, 0.045, 0.05)
 const FLOOR_Y := 0.24
 ## A seated person's crown over their root, and how far behind it (m): the library's Sitting and
 ## Driving clips hold the pelvis 0.54 m over the feet and 0.33 m behind them, the head bone at
@@ -123,55 +123,57 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	var rear_z := rear_axle + wheelbase * 0.2
 	var hip := (pts["driver"] as Vector3).y + 0.42         # the front cushions' middle, under the seated
 	var rear_hip := (pts["rear"] as Vector3).y + 0.42
-	var leather := StandardMaterial3D.new()
-	leather.albedo_color = LEATHER
-	leather.roughness = 0.55
-	leather.metallic_specular = 0.4
-	var trim := StandardMaterial3D.new()
-	trim.albedo_color = Color(0.02, 0.02, 0.025)
-	trim.roughness = 0.8
 	for side: float in [1.0, -1.0]:
-		var x := 0.37 * side
-		_seats["driver" if side > 0.0 else "passenger"] = [
-			_box(Vector3(x, hip, front_z), Vector3(0.5, 0.12, 0.52), leather),                       # cushion
-			_box(Vector3(x, hip + 0.31, front_z - 0.3), Vector3(0.48, 0.56, 0.12), leather, -12.0),    # back
-			_box(Vector3(x, hip + 0.68, front_z - 0.35), Vector3(0.24, 0.16, 0.1), leather, -8.0)]     # headrest
-	_seats["rear"] = [_box(Vector3(0.0, rear_hip, rear_z), Vector3(half * 2.0 - 0.2, 0.12, 0.46), leather),
-		_box(Vector3(0.0, rear_hip + 0.3, rear_z - 0.28), Vector3(half * 2.0 - 0.2, 0.54, 0.12), leather, -18.0)]
-	_box(Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5), Vector3(half * 2.0, 0.04, wheelbase * 0.9), trim)
-	var dash_z := front_z + 0.85
-	_box(Vector3(0.0, hip + 0.42, dash_z), Vector3(half * 2.0, 0.22, 0.4), trim)
-	# the steering wheel, a hand's reach ahead of the driver's chest, a third of a metre under the eyes
+		_seats["driver" if side > 0.0 else "passenger"] = [StoryCabinKit.seat(self, Vector3(0.37 * side, hip, front_z))]
+	_seats["rear"] = [StoryCabinKit.bench(self, Vector3(0.0, rear_hip, rear_z), half * 2.0 - 0.2)]
+	StoryCabinKit.part(self, Vector3(half * 2.0, 0.04, wheelbase * 0.9), 0.01, "carpet", Vector3(0.0, FLOOR_Y, (front_z + rear_z) * 0.5))
+	# the dash: its face 0.63 m ahead of the cushions, its top a quarter of a metre under the driver's
+	# eyes or under the windscreen where that comes lower; out to the door cards
+	var dash_z := front_z + 0.63
+	var dash_y := minf((pts["driver_head"] as Vector3).y - 0.24, line(m, "top", dash_z + 0.5) - 0.012)
+	var door_x := line(m, "hw", front_z) - 0.08
+	var belt := line(m, "belt", front_z) - 0.012
+	StoryCabinKit.dash(self, door_x - 0.01, dash_z, 0.37, dash_y, belt)
+	# the doors' cards from the B-pillar behind the front seats to the dash, the rear quarters beside the bench
+	var b_z := front_z - 0.48
+	for side: float in [1.0, -1.0]:
+		StoryCabinKit.door(self, side, door_x, b_z, dash_z + 0.1, belt)
+		StoryCabinKit.door(self, side, line(m, "hw", rear_z) - 0.1, rear_z - 0.45, b_z - 0.01, line(m, "belt", rear_z) - 0.012, false)
+	# the console between the front seats, from behind them to the dash: an armrest, the shifter
+	var con_top := hip + 0.2
+	StoryCabinKit.part(self, Vector3(0.16, con_top - FLOOR_Y, dash_z - front_z + 0.3), 0.03, "satin",
+		Vector3(0.0, (FLOOR_Y + con_top) * 0.5, (dash_z + front_z - 0.3) * 0.5))
+	StoryCabinKit.part(self, Vector3(0.17, 0.045, 0.30), 0.02, "leather", Vector3(0.0, con_top + 0.01, front_z - 0.14), Vector3.ZERO, 0.006)
+	StoryCabinKit.part(self, Vector3(0.075, 0.03, 0.08), 0.015, "leather", Vector3(0.0, con_top + 0.01, front_z + 0.3), Vector3.ZERO, 0.01)
+	StoryCabinKit.part(self, Vector3(0.014, 0.09, 0.014), 0.006, "alu", Vector3(0.0, con_top + 0.06, front_z + 0.3), Vector3(-8.0, 0, 0))
+	StoryCabinKit.part(self, Vector3(0.042, 0.05, 0.05), 0.02, "alu", Vector3(0.0, con_top + 0.115, front_z + 0.307))
+	# the steering wheel, a hand's reach ahead of the driver's chest, a third of a metre under the eyes,
+	# its top leaning away (its axis up the column to the driver): a leather rim, three spokes, the
+	# pad, the column's shroud down into the dash
 	var wheel := MeshInstance3D.new()
 	var ring := TorusMesh.new()
-	ring.inner_radius = 0.165
-	ring.outer_radius = 0.19
-	ring.rings = 32
+	ring.inner_radius = 0.162
+	ring.outer_radius = 0.194
+	ring.rings = 48
+	ring.ring_segments = 16
 	wheel.mesh = ring
-	wheel.material_override = leather
+	wheel.material_override = StoryCabinKit.mat("leather")
 	wheel.position = Vector3(0.37, (pts["driver_head"] as Vector3).y - 0.33, front_z + 0.42)
-	wheel.rotation = Vector3(deg_to_rad(70.0), 0.0, 0.0)          # its axis up the column to the driver
+	wheel.rotation = Vector3(deg_to_rad(-70.0), 0.0, 0.0)         # its y (the axis) up and back to the driver, its z up the rim
 	add_child(wheel)
 	(_seats["driver"] as Array).append(wheel)                     # a lowered seat takes the wheel down too
-	var hub := MeshInstance3D.new()
-	var boss := CylinderMesh.new()
-	boss.top_radius = 0.05
-	boss.bottom_radius = 0.06
-	boss.height = 0.08
-	hub.mesh = boss
-	hub.material_override = trim
-	wheel.add_child(hub)
+	StoryCabinKit.part(wheel, Vector3(0.13, 0.05, 0.11), 0.03, "leather", Vector3(0.0, 0.02, 0.0), Vector3.ZERO, 0.008)
+	for sx: float in [-1.0, 1.0]:
+		StoryCabinKit.part(wheel, Vector3(0.12, 0.018, 0.04), 0.008, "satin", Vector3(0.11 * sx, 0.0, -0.01))
+	StoryCabinKit.part(wheel, Vector3(0.035, 0.018, 0.12), 0.008, "satin", Vector3(0.0, 0.0, -0.11))
+	StoryCabinKit.part(wheel, Vector3(0.065, 0.24, 0.075), 0.025, "satin", Vector3(0.0, -0.15, 0.0))
 	# behind the bench: a bulkhead up to the parcel shelf, the shelf under the rear window, so a look
 	# back shows the window and what follows, not the boot (the body itself is lined by fit_car)
 	var shelf_z := rear_z - 0.62
 	var shelf_y := minf(line(m, "belt", shelf_z) + 0.03, line(m, "top", shelf_z - 0.25) - 0.06)
-	_box(Vector3(0.0, (FLOOR_Y + shelf_y) * 0.5, rear_z - 0.4), Vector3(half * 2.0, shelf_y - FLOOR_Y, 0.04), trim)
-	_box(Vector3(0.0, shelf_y, shelf_z), Vector3(half * 2.0, 0.03, 0.44), trim)
-	# the dash's glow: a faint cyan line and the satnav's violet
-	var glow := StandardMaterial3D.new()
-	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	glow.albedo_color = Color(0.25, 0.75, 1.0)
-	_box(Vector3(0.37, hip + 0.54, dash_z - 0.2), Vector3(0.22, 0.012, 0.01), glow)
+	StoryCabinKit.part(self, Vector3(half * 2.0, shelf_y - FLOOR_Y, 0.04), 0.01, "carpet", Vector3(0.0, (FLOOR_Y + shelf_y) * 0.5, rear_z - 0.4))
+	StoryCabinKit.part(self, Vector3(half * 2.0, 0.03, 0.44), 0.01, "carpet", Vector3(0.0, shelf_y, shelf_z))
+	# the satnav: the centre stack's screen (its face leaning back to the driver), glowing violet
 	satnav = MeshInstance3D.new()
 	var q := QuadMesh.new()
 	q.size = Vector2(0.24, 0.15)
@@ -185,18 +187,13 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	sm.emission_texture = sm.albedo_texture
 	sm.emission_energy_multiplier = 1.4
 	satnav.material_override = sm
-	satnav.position = Vector3(0.0, hip + 0.62, dash_z - 0.22)
-	satnav.rotation = Vector3(deg_to_rad(-15.0), PI, 0.0)     # facing the seats (a quad faces +z)
+	satnav.rotation = Vector3(deg_to_rad(-15.0), PI, 0.0)     # facing the seats and up (a quad faces +z)
+	satnav.position = Vector3(0.0, dash_y - 0.175, dash_z - 0.02) + satnav.basis.z * 0.032     # on the stack's face
 	add_child(satnav)
 	# its bezel: dark satin plastic a little proud of the screen all round, behind it
-	var bezel_mat := StandardMaterial3D.new()
-	bezel_mat.albedo_color = Color(0.03, 0.03, 0.033)
-	bezel_mat.roughness = 0.55
 	var bezel := MeshInstance3D.new()
-	var bb := BoxMesh.new()
-	bb.size = Vector3(q.size.x + 0.022, q.size.y + 0.02, 0.022)
-	bezel.mesh = bb
-	bezel.material_override = bezel_mat
+	bezel.mesh = StoryCabinKit.rbox(Vector3(q.size.x + 0.022, q.size.y + 0.02, 0.022), 0.008)
+	bezel.material_override = StoryCabinKit.mat("piano")
 	bezel.transform = satnav.transform * Transform3D(Basis(), Vector3(0.0, 0.0, -0.0115))
 	add_child(bezel)
 	var screen_light := OmniLight3D.new()
@@ -225,15 +222,17 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	add_child(mirror_glass)
 	# its housing behind it, turned with it, and the stem up to the headlining
 	var housing := MeshInstance3D.new()
-	var hb := BoxMesh.new()
-	hb.size = Vector3(GLASS.x + 0.02, GLASS.y + 0.016, 0.03)
-	housing.mesh = hb
-	housing.material_override = trim
+	housing.mesh = StoryCabinKit.rbox(Vector3(GLASS.x + 0.02, GLASS.y + 0.016, 0.03), 0.012, 0.004)
+	housing.material_override = StoryCabinKit.mat("satin")
 	housing.position = Vector3(0.0, 0.0, -0.016)
 	housing.layers = 1 << (MIRROR_LAYER - 1)
 	mirror_glass.add_child(housing)
 	var roof := line(m, "top", mirror_point.z) - 0.03
-	_box(Vector3(0.0, (mirror_point.y + roof) * 0.5 + 0.02, mirror_point.z + 0.02), Vector3(0.025, maxf(0.02, roof - mirror_point.y - 0.02), 0.025), trim)
+	StoryCabinKit.part(self, Vector3(0.025, maxf(0.02, roof - mirror_point.y - 0.02), 0.025), 0.01, "satin",
+		Vector3(0.0, (mirror_point.y + roof) * 0.5 + 0.02, mirror_point.z + 0.02))
+	# the sun visors folded up against the headlining either side of it, just behind the screen's top
+	for side: float in [1.0, -1.0]:
+		StoryCabinKit.visor(self, side, line(m, "top", mirror_point.z - 0.03) - 0.02, mirror_point.z - 0.03)
 	driver_head = pts["driver_head"]
 	rear_seat = pts["rear"]
 
@@ -814,17 +813,6 @@ static var _linings := {}             ## a body's mesh -> its lining (made once 
 static var _opened := {}              ## [a body's mesh, sides] -> it split (_split_windows)
 static var _window: Shader                ## the wound glass's
 
-
-func _box(at: Vector3, size: Vector3, mat: Material, tilt_deg := 0.0) -> MeshInstance3D:
-	var mi := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = size
-	mi.mesh = bm
-	mi.material_override = mat
-	mi.position = at
-	mi.rotation = Vector3(deg_to_rad(tilt_deg), 0.0, 0.0)
-	add_child(mi)
-	return mi
 
 
 ## The camera that sees what the driver sees in the mirror (road frame): the driver's eyes reflected

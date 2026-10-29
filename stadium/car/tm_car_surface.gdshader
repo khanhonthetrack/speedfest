@@ -400,7 +400,7 @@ vec4 road_livery(vec3 p, vec3 n, out float carbon, out float black) {
 		float nb = 0.7 * vnoise3(g + seed * 1.7) + 0.3 * vnoise3(g * 2.3 + vec3(11.0, 5.0 + seed, 0.0));
 		vec3 ga = g * 1.4 + 31.0;
 		float na = 0.7 * vnoise3(ga + seed * 1.7) + 0.3 * vnoise3(ga * 2.3 + vec3(11.0, 5.0 + seed, 0.0));
-		float thr = mix(0.72, 0.62, smoothstep(0.2, 0.8, f.s)) + 0.05 * topw - 0.07 * exp(-pow((f.s - 0.8) / 0.08, 2.0)) * side;
+		float thr = mix(0.64, 0.53, smoothstep(0.2, 0.8, f.s)) + 0.06 * topw - 0.07 * exp(-pow((f.s - 0.8) / 0.08, 2.0)) * side;
 		float px = length(fwidth(p));
 		float sk = 1.0 - smoothstep(0.25, 0.6, px * 60.0);
 		float stroke = mix(0.5, vnoise3(vec3(p.x * 60.0, p.y * 60.0, (p.z + 0.27 * p.y) * 4.0) + seed), sk);

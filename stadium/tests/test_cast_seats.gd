@@ -173,7 +173,7 @@ func _ready() -> void:
 		var sk := StoryCast.skeleton(body)
 		var crown_at := Vector3(0.0, -INF, 0.0)
 		var low := INF
-		var half := (cushion_node.mesh as BoxMesh).size * 0.5
+		var half := (cushion_node.get_meta("cushion") as Vector3) * 0.5     # (the seat's root: its cushion's middle)
 		for mi: MeshInstance3D in body.find_children("*", "MeshInstance3D", true, false):
 			if mi.skin == null:
 				continue
@@ -214,7 +214,7 @@ func _ready() -> void:
 		lowered.get("share0:rear", "no"), lowered.get("share1:rear", "no"), lowered.get("loose:rear", "no"), "; ".join(bad_drop)])
 	# and nothing else moved but those parts, the wheel with the driver's seat: each lowered car's
 	# cabin against one built afresh, child by child
-	var parts := {"driver": 4, "passenger": 3, "rear": 2}       # cushion, back, headrest; the wheel
+	var parts := {"driver": 2, "passenger": 1, "rear": 1}       # the seat (its parts under it); the wheel
 	var cars_lowered := {}
 	for key: String in lowered:
 		(cars_lowered.get_or_add(key.get_slice(":", 0), {}) as Dictionary)[key.get_slice(":", 1)] = lowered[key]

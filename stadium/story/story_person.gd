@@ -214,6 +214,12 @@ func setup(s: Dictionary, base: Transform3D, ground: Callable) -> void:
 	for role: String in s.get("hide", []):
 		for mi: MeshInstance3D in body.find_children(role + "__*", "MeshInstance3D", true, false):
 			mi.visible = false
+	# a hat over the hair: the hair's shell stands out through the hat's crown (the build keeps both),
+	# so under a hat that's on no hair is drawn (the coat man's fedora read as a brim round a cap)
+	for hat: MeshInstance3D in body.find_children("cloth__fedora*", "MeshInstance3D", true, false):
+		if hat.visible:
+			for mi: MeshInstance3D in body.find_children("hair__*", "MeshInstance3D", true, false):
+				mi.visible = false
 	_player = body.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	StoryCast.library()
 	var clip := StoryCast.take(who, String(s.get("clip", "Idle")))

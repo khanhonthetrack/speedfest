@@ -67,6 +67,7 @@ static func add(parent: Node, mood := "") -> WorldEnvironment:
 	RenderingServer.global_shader_parameter_set(&"tm_neon", 0.0)
 	RenderingServer.global_shader_parameter_set(&"tm_city_led", 1.0)     # (a story's set may have changed them)
 	RenderingServer.global_shader_parameter_set(&"tm_city_lit", 0.3)
+	RenderingServer.global_shader_parameter_set(&"tm_city_glow", 1.0)
 	RenderingServer.global_shader_parameter_set(&"tm_wet", 0.0)
 	var sun := DirectionalLight3D.new()
 	sun.name = "Moon" if night else "Sun"

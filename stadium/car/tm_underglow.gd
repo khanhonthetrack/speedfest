@@ -163,6 +163,20 @@ func _ready() -> void:
 	_colour()
 
 
+## How bright it shows, k times as fitted (a cutscene's shot dims it: StoryScene's car "glow"): the
+## tubes, their halo, the light on the road. Once it is in the tree.
+func set_strength(k: float) -> void:
+	if _tube_mat == null:
+		return
+	var night := TmStadiumEnv.night
+	_tube_mat.set_shader_parameter("energy", (5.0 if night else 8.0) * k)
+	_halo_mat.set_shader_parameter("strength", (1.4 if night else 0.9) * k)
+	for d in _decals:
+		d.emission_energy = (1.7 if night else 1.1) * k
+	for l in _lights:
+		l.light_energy = (0.9 if night else 0.6) * k
+
+
 ## The decals' and lights' colours now (the tubes and halos colour themselves in their shaders).
 func _colour() -> void:
 	_decals[0].modulate = colour_at(float(_fit["t_front"]))

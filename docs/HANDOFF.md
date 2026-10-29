@@ -121,11 +121,23 @@
   then clips, then the clip review, then the owner. The planner's full scopes (vest rebuild, cabin
   kit, hair phase B, city far shore and aviation lights, paint plate) are in the session task output
   and summarised in PROGRESS; do them when a critic still names them.
-- **Next**: the third pass's stills and critic; the scopes the critic still names (the car's interior
-  kit, Gus's vest rebuild, hair phase B: fear shapes and Dee's bun); then the second pass's assets (Gus's vest,
-  Lot 47's livery, the underglow, containers, the ghost's hair) and the phone call, bids, the coat
-  man's exit and the ignition (long single shots still: the lint warns); then faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera
-  from the seat) are still the layout's.
+- **The fourth pass** (29 Oct, PROGRESS; `docs/CINEMATICS.md` "Fourth pass"): the opening's stills
+  critic (round two) gave 5.5 and 5.0. Fixed at the root: the hair's opaque cap (the scalp showed
+  through the strands: lavender and blonde heads), the cars' interior kit (`story/story_cabin_kit.gd`),
+  the containers; then every note on the opening in `stadium/tools/story/pass4_open.py` (run after
+  `pass3_open.py`). The stills critic workflow and its brief live in the session scratchpad
+  (`p3/critic_wf.js`, `p3/brief_r2.md`, `p3/manifest.py <scene> <stills prefix> <out.md> <title>
+  [first] [last]`): two lenses per scene, one agent at a time, read-only.
+  **Trap:** after changing StoryHair's shaders, run `stadium/tools/run.sh res://story/cast_lab.tscn --
+  --set_quality=2 --frames=20 --shot=<png>` once before a story_lab render, or the render hangs
+  (compiling the hair's shaders inside a whole scene deadlocks llvmpipe; from the cache they load).
+- **Next**: stills of the Mirror and the knock with the new interior and hair, their critic and their
+  fourth pass (`pass4_close.py`); the opening's critic again on its new stills; clips once every
+  scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
+  coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
+  call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
+  faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera from the
+  seat) are still the layout's.
   Known polish: two of Gus's jacket pocket tips poke through the vest; hair textures are the
   biggest files (PNG with alpha, 2.4-3.5 MB each).
 

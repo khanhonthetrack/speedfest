@@ -5038,3 +5038,49 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   Gus points; the coat man at the back of a crowd. The first hair shader lit every head from behind
   through the whole shell (blonde and white heads): the light through the strands now only at the
   silhouette.
+
+### 29 Oct (session 21, cont.): stills round two, the fourth pass begins (M20-9)
+- **Stills round two** (Ultra, the session scratchpad's `p3/o4`): the opening rendered and scored by
+  two fresh critics (an AAA editor's lens, a director's): **5.5 and 5.0** (take five 4.5). Up, but
+  the notes were concrete: the city's windows read as grey static and there was no foreground; Gus
+  the least lit person in the auction's wide; his point a fist (it aimed down the lens); the coat
+  man's reverse across the line; Kit lit magenta by a violet omni under her chin; the car shots lit
+  like a studio (softbox orbs); "painted by hand" over plain black paint; the car run at 3.5 s a shot;
+  a blank glowing plate.
+- **Three root faults fixed first** (the render of the Mirror and the knock stopped, so their critic
+  sees them fixed):
+  - Hair that read lavender, pink or blonde was the scalp showing through half see-through strands:
+    StoryHair draws an opaque cap under them (and casts the hair's shadow).
+  - The cabins were boxes: `story/story_cabin_kit.gd` (StoryCabinKit), a sports car's interior from
+    rounded, grained parts (bucket seats, bench, sculpted dash with a glowing cluster and the satnav in
+    the stack, door cards, console, a three-spoke wheel tilted the right way, visors, black
+    headlining). The satnav moved, so the pins and the recalc shots are re-aimed. The seat test reads
+    the cushion's size from the seat's root (`"cushion"` meta).
+  - The containers strobed: fine trapezoid ribs that flatten under a few pixels, dirty faded paint, rust.
+- **The opening's fourth pass** (`tools/story/pass4_open.py`, docs/CINEMATICS.md "Fourth pass"):
+  every note above, plus engine pieces:
+  - a shot's `"env"` `"city_glow"` (global `tm_city_glow`);
+  - a car's `"glow"` (`TmUnderglow.set_strength`) and `"plate"` (its own plate surfaces lettered);
+  - the stage's lamp heads aimed down their beams, a black truss;
+  - Lot 47's camouflage thresholds lowered (almost nothing showed) and its pinstripe red.
+- Check stills after it (`p3/o5`, `o6`):
+  - the city's windows read as lit rooms over a quay edge;
+  - Gus's point reads;
+  - the coat man is a single;
+  - Kit is keyed warm with dark hair;
+  - the camouflage, the red pinstripe and the plate read.
+  Fixed after them: the coat man's "headband" was his fedora's brim (the build gives him a fedora;
+  the hair's shell stood out through its crown, which round one's see-through strands had shown as
+  a patchy cap): under a hat no hair is drawn now, and he reads as a man in a long coat and a
+  fedora; `kit_eyes` became her eyes' view of the car (over her shoulder her backlit hair blurred to
+  a pale blob); the bonnet's insert cut (its reflections of the truss lamps stay discs: a reflection
+  focuses at the lamp, not the paint; an exhaust insert stayed murky) and "Engine's sweet" laid over
+  Kit's view; c4 in another idle (its head thrown back). story_lint's close-up: a long lens framing
+  a head and shoulders (gus_points and the coat man at 5-9 m are medium shots).
+- **A trap found (and how to step round it):** after any change to StoryHair's shaders, a story_lab
+  render of a whole scene hung for good (every thread parked on a futex, no error): compiling the
+  hair's shaders inside a full scene deadlocks llvmpipe (other new shaders, the containers' too,
+  compile fine there). Compiled first in the light cast lab (`res://story/cast_lab.tscn --frames=20`,
+  same quality) they come from the cache and the scene renders. The stills script warms them up that
+  way before every scene. Headless tests compile nothing and are unaffected; a real GPU's driver is
+  not llvmpipe.

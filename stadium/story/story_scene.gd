@@ -27,7 +27,8 @@ extends Node3D
 ##     aim, the same at a given frame however it is reached), "shake": m (a jolt)},
 ##   "cars": [{"id", "model" (TmCarVisual.model: a road car's id, "hyper", "" the open-wheeler),
 ##     "livery", "paint" (a livery of its own: a PAINTS name or inline, over "livery"), "colour"
-##     (TmUi.CAR_COLOURS index), "tuning": "spoiler.rims.glow.hood", "ghost",
+##     (TmUi.CAR_COLOURS index), "tuning": "spoiler.rims.glow.hood", "glow": 0..1 (its underglow
+##     dimmed for the shot), "ghost",
 ##     "left", "ahead" (m from the anchor along the line), "lift", "yaw" (deg), "lights" (headlights:
 ##     true, or "high": high beams, a hard key 50 m on, glaring into a lens they point at),
 ##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
@@ -83,10 +84,11 @@ const READ_CPS := 15.0                 ## subtitle reading speed (characters per
 const FADE_OUT := ["train"]            ## loops that die away over a cut instead of stopping dead
 const SET_DECK := 2.0                  ## m a set's deck stands over the map's ground (water below its edges)
 ## Liveries a story's cars wear (a car's "paint"): Lot 47 is "black" with grey camouflage "painted by
-## hand" (Gus, c01_open), so deep black under soft airbrushed shapes and a hand-drawn pinstripe.
+## hand" (Gus, c01_open), so deep black under soft airbrushed shapes and a hand-drawn pinstripe (red,
+## as the calipers: paint, not a reflection).
 const PAINTS := {
-	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#56595e", "b": "#2c2e32", "c": "#b4b6b9",
-		"p": [0.7, 0.05, 0.0015, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
+	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#5c5f64", "b": "#2c2e32", "c": "#a3221a",
+		"p": [0.7, 0.05, 0.0025, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
 	# the Mirror's coupe: Vesper's own pearl white, plain (not a police car, not Kit's twin)
 	"white": {"pattern": "plain", "base": "#e9eaec", "c": "#cfd8e4", "finish": "pearl"},
 }
@@ -492,7 +494,8 @@ func _recapture() -> void:
 ## "fog_colour", "fog_sky" (how far it veils the sky: a horizon lost in the city's glow), "height_fog":
 ## [height m, density] (low roofs sunk in haze), "vol_fog" (the volumetric fog's density, where the
 ## quality has it: the towers' lights bloom in wet air), "city_lit" (the share of the city's rooms lit,
-## over the night's 0.3), "city_led" (its storefront lines and neon avenues, 0..1), "exposure" (the
+## over the night's 0.3), "city_led" (its storefront lines and neon avenues, 0..1), "city_glow" (how
+## bright its lit rooms are, 1: an aerial's 2-3, lit windows as a lens sees them), "exposure" (the
 ## camera's), "sky" (_set_sky), "reflect" (_set_reflect: the city in the harbour).
 ## A shot without a key has the map's own back.
 func _set_env(e: Dictionary) -> void:
@@ -515,6 +518,7 @@ func _set_env(e: Dictionary) -> void:
 		RenderingServer.global_shader_parameter_set(&"tm_city_lit", float(e["city_lit"]))
 	if e.has("city_led"):
 		RenderingServer.global_shader_parameter_set(&"tm_city_led", float(e["city_led"]))
+	RenderingServer.global_shader_parameter_set(&"tm_city_glow", float(e.get("city_glow", 1.0)))
 	_attrs.exposure_multiplier = float(e.get("exposure", 1.0))
 
 
@@ -567,6 +571,7 @@ func _exit_tree() -> void:
 	# a set's city back to the map's (the globals outlive the scene)
 	RenderingServer.global_shader_parameter_set(&"tm_city_led", 1.0)
 	RenderingServer.global_shader_parameter_set(&"tm_city_lit", 0.3)
+	RenderingServer.global_shader_parameter_set(&"tm_city_glow", 1.0)
 
 
 ## "bare": the place without its track (a yard on a race map): the road, barriers, checkpoints and
@@ -679,6 +684,10 @@ func _add_car(c: Dictionary) -> void:
 	if paint != null and TmCarVisual.FINISHES.has(String(c.get("finish", ""))) and not c.has("paint"):    # (a paint's own finish wins)
 		paint.set_shader_parameter("finish", TmCarVisual.FINISHES[String(c["finish"])])
 		paint.set_shader_parameter("flakes", 1.0 if String(c["finish"]) in ["metallic", "pearl"] else 0.0)
+	if c.has("plate"):
+		_letter_plates(car, String(c["plate"]))
+	if c.has("glow") and car.find_child("Underglow", false, false) is TmUnderglow:
+		(car.find_child("Underglow", false, false) as TmUnderglow).set_strength(float(c["glow"]))
 	var lamps: Variant = c.get("lights", false)
 	if lamps is String or (lamps is bool and bool(lamps)):
 		var high := lamps is String and String(lamps) == "high"
@@ -756,6 +765,46 @@ func _passing_at(l: Light3D, local: float) -> float:
 ## A lit headlamp's glare as the lens sees it: a hot core, a soft halo and a thin horizontal streak,
 ## facing the camera, as bright as the lamp points at it (nothing from the side or behind); the
 ## bloom does the rest. High beams: bigger and far brighter (a car on Kit's bumper blinds her).
+## A car's number plates lettered (a story car's "plate"): its text in black across each plate the
+## body carries (its "road_plate" surfaces, the front's and the back's, found in its own meshes), the
+## plates an aged off-white rather than a blank glowing panel.
+func _letter_plates(car: TmCarVisual, text: String) -> void:
+	var pm := car._mats.get("road_plate", null) as StandardMaterial3D
+	if pm == null:
+		return
+	pm.albedo_color = Color(0.6, 0.6, 0.57)
+	var ends := {1: AABB(), -1: AABB()}
+	var seen := {1: false, -1: false}
+	for mi: MeshInstance3D in car.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null:
+			continue
+		var to_car := car.global_transform.affine_inverse() * mi.global_transform
+		for k in mi.mesh.get_surface_count():
+			if mi.get_active_material(k) != pm:
+				continue
+			for v: Vector3 in mi.mesh.surface_get_arrays(k)[Mesh.ARRAY_VERTEX]:
+				var p := to_car * v
+				var e := 1 if p.z > 0.0 else -1
+				ends[e] = AABB(p, Vector3.ZERO) if not seen[e] else (ends[e] as AABB).expand(p)
+				seen[e] = true
+	for e: int in [1, -1]:
+		var box: AABB = ends[e]
+		if not seen[e] or box.size.x < 0.1:
+			continue
+		var l := Label3D.new()
+		l.text = text
+		l.font_size = 48
+		l.pixel_size = box.size.y * 0.55 / 48.0
+		l.modulate = Color(0.04, 0.04, 0.045)
+		l.outline_size = 0
+		l.shaded = true
+		l.double_sided = false
+		l.alpha_cut = Label3D.ALPHA_CUT_OPAQUE_PREPASS
+		l.position = box.get_center() + Vector3(0.0, 0.0, (box.size.z * 0.5 + 0.004) * e)
+		l.rotation.y = 0.0 if e > 0 else PI          # (a Label3D reads from +z)
+		car.add_child(l)
+
+
 static func _lamp_glow(high: bool) -> ShaderMaterial:
 	var key := "high" if high else "low"
 	if not _glows.has(key):

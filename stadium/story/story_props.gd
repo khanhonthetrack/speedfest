@@ -20,24 +20,47 @@ extends RefCounted
 
 const CONTAINER := Vector3(2.44, 2.6, 12.2)      ## an ISO 40-foot box (m)
 const RIBS := """shader_type spatial;
-// a container's corrugated steel: vertical ribs along its length, paint worn to rust at the edges;
-// one MultiMesh instance per box: INSTANCE_CUSTOM.rgb its paint, .a its own rust's seed
+// a container's corrugated steel: trapezoid ribs 0.28 m apart along its length (smoothed out where
+// a rib is under a few pixels, so a far stack doesn't strobe), paint faded and dirty (grime washed
+// down from the top rail, darker towards the ground, blotches), worn to rust along the rails and
+// in streaks under them; one MultiMesh instance per box: INSTANCE_CUSTOM.rgb its paint, .a its seed
 varying vec3 lp;
 varying vec3 ln;
 varying vec4 paint;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(41.3, 289.1))) * 13758.5453); }
+float vnoise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
 void vertex() { lp = VERTEX; ln = NORMAL; paint = INSTANCE_CUSTOM; }
 void fragment() {
 	// the box's own face (its local normal: the view's would turn a wall facing the camera flat)
 	bool side = abs(ln.x) > 0.5;
 	float along = side ? lp.z : lp.x;
-	float rib = sin(along * 9.0);
-	NORMAL = normalize(NORMAL + (VIEW_MATRIX * MODEL_MATRIX * vec4(side ? vec3(0.0, 0.0, rib * 0.35) : vec3(rib * 0.35, 0.0, 0.0), 0.0)).xyz);
-	float edge = max(smoothstep(1.1, 1.3, abs(lp.y)), 0.0);
-	float rust = smoothstep(0.55, 0.95, hash(floor(lp.xz * 3.0) + floor(lp.y * 4.0) + paint.a * 17.0) * 0.6 + edge);
-	ALBEDO = mix(paint.rgb, vec3(0.22, 0.1, 0.05), rust * 0.7) * (0.85 + 0.15 * rib);
-	ROUGHNESS = 0.55 + 0.3 * rust;
-	METALLIC = 0.4;
+	float ph = along / 0.28;
+	float tri = abs(fract(ph) - 0.5) * 4.0 - 1.0;            // -1..1, a trapezoid's slopes between flats
+	float d = sign(fract(ph) - 0.5) * step(abs(tri), 0.45);   // the slanted faces: lean left or right
+	float px = fwidth(ph);
+	float fade = 1.0 - smoothstep(0.15, 0.5, px);             // a rib under ~3 px: flat
+	float lean = d * 0.45 * fade * step(abs(ln.y), 0.5);        // (the roof: flat)
+	NORMAL = normalize(NORMAL + (VIEW_MATRIX * MODEL_MATRIX * vec4(side ? vec3(0.0, 0.0, lean) : vec3(lean, 0.0, 0.0), 0.0)).xyz);
+	float seed = paint.a * 17.0;
+	vec2 face = vec2(along, lp.y);
+	// the paint: faded (towards a dirty grey), blotched, darker low down, washed with grime from the top
+	vec3 col = mix(paint.rgb, vec3(dot(paint.rgb, vec3(0.3, 0.55, 0.15))), 0.35) * 0.78;
+	col *= 0.82 + 0.3 * vnoise(face * 0.6 + seed);
+	float wash = smoothstep(0.2, 1.3, lp.y) * (0.5 + 0.5 * vnoise(vec2(along * 3.1, seed)));     // streaks down from the top rail
+	col *= 1.0 - 0.35 * wash * vnoise(vec2(along * 7.0, lp.y * 0.6 + seed));
+	col *= mix(0.62, 1.0, smoothstep(-1.3, -0.4, lp.y));
+	// rust: along the top and bottom rails, in streaks running down from them, here and there in patches
+	float edge = smoothstep(1.05, 1.28, abs(lp.y));
+	float streak = step(0.82, vnoise(vec2(along * 2.3, seed))) * (1.0 - smoothstep(0.2, 1.3, 1.3 - lp.y)) * 0.7;
+	float rust = clamp(edge * (0.5 + 0.6 * vnoise(face * 4.0 + seed)) + streak * vnoise(face * vec2(6.0, 1.5)) + step(0.9, vnoise(face * 1.3 + seed + 5.0)) * 0.6, 0.0, 1.0);
+	ALBEDO = mix(col, vec3(0.16, 0.075, 0.04) * (0.8 + 0.4 * vnoise(face * 9.0)), rust * 0.8);
+	ROUGHNESS = 0.6 + 0.3 * rust;
+	METALLIC = 0.3 * (1.0 - rust);
 }
 """
 const COLOURS := [Color("8c2a1c"), Color("1f4f7a"), Color("2f5a33"), Color("9a6a1a"), Color("3a3f45"),
@@ -853,7 +876,7 @@ static func _stage(p: Dictionary) -> Node3D:
 	var h := float(p.get("height", 0.6))
 	_box(root, Vector3(0.0, h * 0.5, 0.0), Vector3(w, h, d), _mat(Color(0.07, 0.07, 0.075), 0.8, 0.0))
 	_box(root, Vector3(0.0, h * 0.25, d * 0.5 + 0.4), Vector3(1.4, h * 0.5, 0.8), _mat(Color(0.09, 0.09, 0.09), 0.8, 0.0))
-	var steel := _mat(Color(0.62, 0.62, 0.64), 0.35, 0.85)
+	var steel := _mat(Color(0.16, 0.16, 0.17), 0.55, 0.6)        # a stage's black truss (bare aluminium glinted blue)
 	var colour := Color(String(p.get("colour", "#fff1dc")))
 	var th := float(p.get("truss", 4.2))
 	for x: float in [-w * 0.5 - 0.2, w * 0.5 + 0.2]:
@@ -866,8 +889,15 @@ static func _stage(p: Dictionary) -> Node3D:
 	for c in 4:
 		_box(root, Vector3(0.0, th + (0.15 if c % 2 == 0 else -0.15), -d * 0.5 + (0.15 if c < 2 else -0.15)), Vector3(w + 0.7, 0.05, 0.05), steel)
 	for x: float in [-w * 0.3, w * 0.3]:
-		_box(root, Vector3(x, th - 0.35, -d * 0.5 + 0.2), Vector3(0.35, 0.4, 0.45), _mat(Color(0.05, 0.05, 0.05), 0.5, 0.5))
-		_box(root, Vector3(x, th - 0.35, -d * 0.5 + 0.43), Vector3(0.26, 0.26, 0.02), _emissive(colour, 5.0))   # the lens
+		# each head hung under the truss and aimed down its own beam at the stage's front (its lens
+		# faces the stage, not the crowd: from the floor it reads as a lamp, not a blown square)
+		var at := Vector3(x, th - 0.35, -d * 0.5 + 0.2)
+		var head := Node3D.new()
+		head.transform = Transform3D(Basis.looking_at(Vector3(-x * 0.4, h + 1.4, d * 0.5 + 1.0) - at, Vector3.UP), at)
+		root.add_child(head)
+		_box(head, Vector3.ZERO, Vector3(0.35, 0.4, 0.45), _mat(Color(0.05, 0.05, 0.05), 0.5, 0.5))
+		_box(head, Vector3(0.0, 0.0, -0.23), Vector3(0.26, 0.26, 0.02), _emissive(colour, 5.0))   # the lens
+		_box(root, at + Vector3(0.0, 0.2, 0.0), Vector3(0.04, 0.12, 0.04), steel)                  # its hanger
 		var s := SpotLight3D.new()
 		s.light_color = colour
 		s.light_energy = float(p.get("energy", 8.0))
@@ -875,8 +905,7 @@ static func _stage(p: Dictionary) -> Node3D:
 		s.spot_angle = 26.0
 		s.spot_angle_attenuation = 0.8
 		s.shadow_enabled = true
-		var at := Vector3(x, th - 0.4, -d * 0.5 + 0.4)
-		s.transform = Transform3D(Basis.looking_at(Vector3(-x * 0.4, h + 1.4, d * 0.5 + 1.0) - at, Vector3.UP), at)
+		s.transform = head.transform * Transform3D(Basis(), Vector3(0.0, 0.0, -0.26))
 		root.add_child(s)
 	return root
 

@@ -45,6 +45,7 @@ uniform vec3 crown_light : source_color = vec3(1.0, 0.95, 0.85);   // the crown'
 global uniform float tm_night;
 global uniform float tm_city_led;      // the storefronts' LED lines (1; a story's set turns them off)
 global uniform float tm_city_lit;      // the share of rooms lit at night (0.30; a story's set lights more)
+global uniform float tm_city_glow;     // how bright the lit rooms are (1; a story's aerial: brighter, as a lens sees them)
 
 float hash(vec2 p, float k) {
 	return fract(sin(dot(p + vec2(k * 17.31, seed * 3.17), vec2(127.1, 311.7))) * 43758.5453);
@@ -253,7 +254,7 @@ void fragment() {
 	ALBEDO = (frame_alb * frame + span_alb * span + frame_colour * COLOR.rgb * rev_light * rev_m + glass_tint * glass_eff) / wsum;
 	METALLIC = (frame_metal * (frame + rev_m) + span_metal * span + reflectivity * glass_eff) / wsum;
 	ROUGHNESS = (frame_rough * (frame + rev_m) + span_rough * span + (0.035 + 0.02 * hash(c, 13.0)) * glass_eff) / wsum;
-	EMISSION = inside * glass_eff * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.0, tm_night) * transmit;
+	EMISSION = inside * glass_eff * mix(1.0 - fres, (1.0 - fres * 0.6) * 1.0, tm_night) * transmit * mix(1.0, tm_city_glow, tm_night);
 	// a crown's floodlights wash up its frames at night
 	float crown = step(0.4, COLOR.a) * (1.0 - step(0.75, COLOR.a));      // 0.4..0.75 (under 0.4: plain)
 	EMISSION += crown_light * crown * tm_night * (0.35 + 0.9 * frame + 0.4 * span) * 1.8;

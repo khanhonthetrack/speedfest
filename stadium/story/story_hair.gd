@@ -6,12 +6,17 @@ class_name StoryHair
 ## the painted texture only its strands' detail; the light runs across the strands (Kajiya-Kay, two
 ## shifted lobes), shines through them from behind (a rim), the back faces are darker, and the edges
 ## break up into strands. "wet" (an instance uniform, 0..1): darker, clumped, a sharper shine.
+## Two passes: the strands are half see-through (their texture's alpha), and through them the scalp's
+## lit skin showed, so near-black hair read as lavender or pink; under them an opaque cap (the same
+## shell a hair inwards, wherever the strands are dense) in the hair's own colour, which also
+## casts the hair's shadow.
 
 ## The hair's colour per cast member (sRGB), where the sidecar's tint isn't it: the looks the owner
 ## picked (Kit's near-black brown; the passenger's black, soaked).
 const COLOUR := {"kit": "#2e2622", "passenger": "#231e1c"}
 
 static var _shader: Shader
+static var _cap_shader: Shader
 static var _mats := {}               ## texture + colour -> material
 static var _means := {}              ## texture -> its mean luminance where it covers
 
@@ -54,6 +59,14 @@ static func material(src: StandardMaterial3D, c: Color) -> ShaderMaterial:
 	m.set_shader_parameter("strand_tex", src.albedo_texture)
 	m.set_shader_parameter("hair_colour", c)
 	m.set_shader_parameter("tex_mean_lum", _mean(src.albedo_texture))
+	if _cap_shader == null:
+		_cap_shader = Shader.new()
+		_cap_shader.code = CAP_SHADER
+	var cap := ShaderMaterial.new()
+	cap.shader = _cap_shader
+	cap.set_shader_parameter("strand_tex", src.albedo_texture)
+	cap.set_shader_parameter("hair_colour", c)
+	m.next_pass = cap
 	_mats[key] = m
 	return m
 
@@ -95,6 +108,27 @@ static func _mean(tex: Texture2D) -> float:
 	return out
 
 
+## The cap under the strands: opaque where they cover well (not at the hairline, where the strands
+## thin over the skin: a hard edge there read as a headband), the hair's colour a little darker (it
+## lies in their shade), little shine of its own (the strands carry it).
+const CAP_SHADER := """shader_type spatial;
+render_mode cull_disabled, depth_draw_opaque;
+uniform sampler2D strand_tex : source_color, filter_linear_mipmap, repeat_enable;
+uniform vec3 hair_colour : source_color = vec3(0.18, 0.15, 0.13);
+uniform float tone = 0.9;           // the cap's colour against the strands' (it lies in their shade)
+uniform float cover = 0.62;         // the strands' coverage where the cap starts (not at the hairline)
+instance uniform float wet = 0.0;
+void vertex() { VERTEX -= NORMAL * 0.002; }
+void fragment() {
+	ALBEDO = hair_colour * tone * mix(1.0, 0.65, wet);
+	ROUGHNESS = 0.8;
+	SPECULAR = 0.1;
+	AO = 0.5;
+	ALPHA = texture(strand_tex, UV).a;
+	ALPHA_SCISSOR_THRESHOLD = cover;
+}
+"""
+
 const SHADER := """shader_type spatial;
 render_mode blend_mix, depth_prepass_alpha, cull_disabled;
 uniform sampler2D strand_tex : source_color, filter_linear_mipmap, repeat_enable;
@@ -105,7 +139,7 @@ uniform float paint = 0.3;          // how much of its broad shading (a parting,
 uniform float spec1 = 0.05;         // the primary shine: white, sharp, shifted to the tip
 uniform float exp1 = 160.0;
 uniform float shift1 = -0.08;
-uniform float spec2 = 0.035;        // the secondary: tinted by the hair, broad, shifted to the root
+uniform float spec2 = 0.025;        // the secondary: tinted by the hair, broad, shifted to the root
 uniform float exp2 = 28.0;
 uniform float shift2 = 0.12;
 uniform float shift_noise = 0.12;
@@ -160,6 +194,6 @@ void light() {
 	// through the strands from behind: at the silhouette only (thin there), not the whole shell
 	float edge = pow(1.0 - abs(dot(NORMAL, VIEW)), 3.0);
 	spec += lc * transmit * mix(1.0, 0.4, wet) * pow(clamp(dot(-LIGHT, VIEW), 0.0, 1.0), 4.0) * edge * (1.0 - 0.5 * v_cov) * sqrt(ALBEDO);
-	SPECULAR_LIGHT += min(spec, lc * 0.12 / PI);    // (hair gives back about 4 % of a light, not a mirror sheen)
+	SPECULAR_LIGHT += min(spec, lc * 0.09 / PI);    // (hair gives back about 3 % of a light, not a mirror sheen)
 }
 """
