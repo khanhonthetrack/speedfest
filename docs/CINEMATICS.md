@@ -137,7 +137,10 @@ twice to the same result):
   from the dash, Dee singles framed higher, an exterior over-the-shoulder two-shot, the empty back
   seat, the mirror at dawn, the pins from one pin out to nine, the ending craned up to the ARCH 9
   lettering from the side that keeps Dee screen right; the knock, the glass down and the lean in that
-  order; soot-dark wet brick on the viaduct.
+  order; soot-dark wet brick on the viaduct. Then the scene agent's body work: a knuckle insert (a
+  standing knock, the elbow low), Dee bending down into the window with a hand on the roof, a living
+  lean (a rounded back, breathing, weight shifts, head beats on her lines), the push-off at the end;
+  per-key easing; beaded wet glass.
 - **Everywhere:** the cabin's lining shaded as facing in (it was lit by lights outside the car); the
   cast's hair in a strand shader (StoryHair: the shells' colours were a few thousandths of white, so
   only their gloss showed); an eye light on close-ups (`"eye_light"`, the cast's own layer); no blink

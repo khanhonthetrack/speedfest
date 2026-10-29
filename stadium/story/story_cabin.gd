@@ -257,11 +257,9 @@ func lower(seat: String, by: float) -> void:
 ## windscreen and the rear window, the glass laid over it).
 static func fit_car(car: TmCarVisual) -> void:
 	if _clear_glass == null:
-		_clear_glass = StandardMaterial3D.new()
-		_clear_glass.albedo_color = Color(0.03, 0.035, 0.045, 0.32)
-		_clear_glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_clear_glass.roughness = 0.03
-		_clear_glass.metallic = 0.3
+		_clear_glass = ShaderMaterial.new()          # (the window pieces' shader, never cut off below)
+		_clear_glass.shader = _window_shader()
+		_clear_glass.set_shader_parameter("floor_y", -100.0)
 		_lining = StandardMaterial3D.new()
 		_lining.albedo_color = Color(0.03, 0.03, 0.034)
 		_lining.roughness = 0.85
@@ -343,7 +341,17 @@ static func open_windows(car: TmCarVisual, sides: Dictionary) -> void:
 
 
 ## The car's wound windows at time t of the shot (open_windows): each as far down as its span says.
+## Rain on a fitted car's glass (0 dry .. 1): its wound windows' and the shared clear glass's.
+static func set_wet(car: TmCarVisual, w: float) -> void:
+	if _clear_glass != null:
+		_clear_glass.set_shader_parameter("wet", w)
+	for side: String in car.get_meta("windows", {}):
+		((car.get_meta("windows")[side][0] as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("wet", w)
+
+
 static func wind(car: TmCarVisual, t: float) -> void:
+	if _clear_glass != null:
+		_clear_glass.set_shader_parameter("t", t)
 	var winding: Dictionary = car.get_meta("windows", {})
 	for side: String in winding:
 		var w: Array = winding[side]
@@ -354,6 +362,7 @@ static func wind(car: TmCarVisual, t: float) -> void:
 		var piece := w[0] as MeshInstance3D
 		piece.position = (w[1] as Vector3) * f
 		(piece.material_override as ShaderMaterial).set_shader_parameter("drop", -piece.position.y)
+		(piece.material_override as ShaderMaterial).set_shader_parameter("t", t)
 
 
 ## The body's mesh with its front side windows' glass taken out: {"body": the rest, "windows": {side:
@@ -445,15 +454,49 @@ static func _window_shader() -> Shader:
 		_window = Shader.new()
 		_window.code = """shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back;
+// a car's glass seen from in and out: dark, more of a mirror at a glancing angle (Fresnel); with
+// "wet" rain on it: beads 6 mm apart (riding the glass as it winds down) and a few drops running
 uniform float drop = 0.0;      // how far down the glass has slid (m)
 uniform float floor_y = 0.0;   // the door's top, in the body's frame
+uniform float wet = 0.0;       // rain on it (0 dry .. 1 soaked)
+uniform float t = 0.0;         // the shot's time: the running drops go down with it
+varying vec3 lp;
+varying vec3 ln;
 varying float body_y;
-void vertex() { body_y = VERTEX.y - drop; }
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+void vertex() { lp = VERTEX; ln = NORMAL; body_y = VERTEX.y - drop; }
 void fragment() {
 	if (body_y < floor_y) { discard; }
-	ALBEDO = vec3(0.03, 0.035, 0.045);
-	ALPHA = 0.32;
-	ROUGHNESS = 0.03;
+	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 4.0);
+	float alpha = mix(0.22, 0.75, fres);
+	float rough = 0.03;
+	vec3 col = vec3(0.03, 0.035, 0.045);
+	if (wet > 0.0) {
+		// across the glass: a side window by length and height, the screens by width and slope
+		vec2 g = abs(ln.x) > 0.5 ? lp.zy : vec2(lp.x, lp.y + 0.4 * lp.z);
+		vec2 uv = g / 0.006;
+		vec2 c = floor(uv);
+		vec2 f = fract(uv) - 0.5;
+		vec2 o = (vec2(hash(c + 3.1), hash(c + 7.7)) - 0.5) * 0.3;
+		vec2 d = (f - o) / mix(0.25, 0.45, hash(c + 1.9));
+		float bead = step(hash(c), wet * 0.6) * (1.0 - smoothstep(0.85, 1.0, length(d)));
+		float run = 0.0;
+		if (hash(vec2(c.x, 5.3)) < wet / 12.0) {        // one column in twelve has a drop running
+			float speed = mix(0.03, 0.06, hash(vec2(c.x, 9.1)));
+			float len = mix(0.03, 0.08, hash(vec2(c.x, 2.2)));
+			float y = fract((g.y + t * speed + hash(vec2(c.x, 4.4))) / 0.25) * 0.25;
+			run = smoothstep(len, 0.0, y) * (1.0 - smoothstep(0.2, 0.45, abs(f.x)));
+		}
+		float water = max(bead, run);
+		vec3 side = abs(ln.x) > 0.5 ? vec3(0.0, d.y, d.x) : vec3(d.x, d.y, 0.0);
+		NORMAL = normalize(NORMAL + (VIEW_MATRIX * MODEL_MATRIX * vec4(side, 0.0)).xyz * bead * 0.6);
+		alpha = mix(alpha, 0.55 + 0.3 * fres, water);
+		rough = mix(rough, 0.02, water);
+		col += vec3(0.02, 0.025, 0.03) * water;
+	}
+	ALBEDO = col;
+	ALPHA = alpha;
+	ROUGHNESS = rough;
 	METALLIC = 0.3;
 }
 """
@@ -765,7 +808,7 @@ class GlassMask:
 		return hit
 
 
-static var _clear_glass: StandardMaterial3D
+static var _clear_glass: ShaderMaterial
 static var _lining: StandardMaterial3D
 static var _linings := {}             ## a body's mesh -> its lining (made once a model)
 static var _opened := {}              ## [a body's mesh, sides] -> it split (_split_windows)

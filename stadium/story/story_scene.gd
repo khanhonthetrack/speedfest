@@ -32,7 +32,7 @@ extends Node3D
 ##     true, or "high": high beams, a hard key 50 m on, glaring into a lens they point at),
 ##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
-##     clear: for shots inside it; "windows_down": ["driver" | "passenger"], those front windows
+##     clear, beaded by the shot's rain or the car's "rain_glass": for shots inside it; "windows_down": ["driver" | "passenger"], those front windows
 ##     down, or {"driver": [from s, to s]}, wound down then), "dome" (its courtesy light's energy: a passenger lit in the
 ##     mirror), "finish" (its paint's, over the livery's: TmCarVisual.FINISHES, "gloss" for a car
 ##     shown off), "from", "to" (s: on screen only then)}],
@@ -382,6 +382,10 @@ func _enter(i: int) -> void:
 	_anchor = _road_xf(float(s.get("at", data.get("at", 0.5))), float(s.get("left", 0.0)), float(s.get("ahead", 0.0)))
 	for c: Dictionary in s.get("cars", []):
 		_add_car(c)
+	for c: Dictionary in _cars.values():           # rain on a cabin car's glass: the shot's, or its own
+		if c.has("cabin"):
+			var cs: Dictionary = c["spec"]
+			StoryCabin.set_wet(c["node"], float(cs.get("rain_glass", keyed_max(s.get("rain", data.get("rain", 0.0))))))
 	var seated := {}                  # car -> seat -> [[person, model, its place], ...]
 	for p: Dictionary in s.get("people", []):
 		var person := StoryPerson.new()

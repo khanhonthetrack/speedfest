@@ -329,7 +329,7 @@ func _shapes_at(t: float) -> Dictionary:
 			b = keys[mini(i + 1, keys.size() - 1)]
 			var span := float(b.get("t", 0.0)) - float(a.get("t", 0.0))
 			f = clampf((t - float(a.get("t", 0.0))) / span, 0.0, 1.0) if span > 0.0 else 0.0
-	f = f * f * (3.0 - 2.0 * f)
+	f = StoryScene._ease(f, String(b.get("ease", "inout")))      # the key's "ease": how its segment arrives
 	var out := {}
 	for k: String in a.keys() + b.keys():
 		if k != "t":
@@ -377,8 +377,9 @@ func _breathe(t: float) -> void:
 
 ## "bend": bones turned on top of the clip at this moment: keys [{"t": s, "<Bone>": [x, y, z]}, ...]
 ## (degrees about the body's own axes: x nods it forward, y turns it to its left, z tilts it to its
-## right), eased between keys and held before the first and after the last; a bone a key leaves out
-## is straight there. A head coming up slowly, a spine leaning in.
+## right), eased between keys (a key's "ease": "inout" (default), "in" (arriving at speed: knuckles
+## hitting glass), "out", "linear") and held before the first and after the last; a bone a key leaves
+## out is straight there. A head coming up slowly, a spine leaning in.
 func _bend(t: float) -> void:
 	var keys: Array = spec.get("bend", [])
 	if keys.is_empty():
@@ -395,7 +396,7 @@ func _bend(t: float) -> void:
 			b = keys[mini(i + 1, keys.size() - 1)]
 			var span := float(b.get("t", 0.0)) - float(a.get("t", 0.0))
 			f = clampf((t - float(a.get("t", 0.0))) / span, 0.0, 1.0) if span > 0.0 else 0.0
-	f = f * f * (3.0 - 2.0 * f)
+	f = StoryScene._ease(f, String(b.get("ease", "inout")))      # the key's "ease": how its segment arrives
 	var bones: Array[int] = []
 	for k: String in a.keys() + b.keys():
 		var i := sk.find_bone(k)
@@ -439,7 +440,7 @@ func _reach(t: float) -> void:
 			b = keys[mini(i + 1, keys.size() - 1)]
 			var span := float(b.get("t", 0.0)) - float(a.get("t", 0.0))
 			f = clampf((t - float(a.get("t", 0.0))) / span, 0.0, 1.0) if span > 0.0 else 0.0
-	f = f * f * (3.0 - 2.0 * f)
+	f = StoryScene._ease(f, String(b.get("ease", "inout")))      # the key's "ease": how its segment arrives
 	for side: String in ["Left", "Right"]:
 		var ka := _hand_key(a.get(side + "Hand"))
 		var kb := _hand_key(b.get(side + "Hand"))

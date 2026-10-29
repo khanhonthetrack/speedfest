@@ -184,6 +184,181 @@ for sid in ORDER:
     if d:
         d["wet"] = 0.4
 
+# --- the knock's body (the scene design): a standing knock, the bend into the window, a living lean -
+import math
+
+C_GLASS = [0.70, 1.075, -0.02]            # the knuckles' mark on the glass, at Kit's head height
+GLASS_OUT = [0.907, 0.422, 0.0]           # the glass's outward normal (it leans in 25 degrees)
+BRACE_L = {"at": [0.85, 0.874, 0.32], "palm": [-0.35, -0.94, 0], "fingers": [-0.94, 0.25, 0.25], "fist": 0.25,
+           "elbow": [0.5, -0.6, 0.6]}
+SILL_R = {"at": [0.86, 0.879, -0.12], "palm": [-0.35, -0.94, 0], "fingers": [-0.25, 0, 0.97], "fist": 0.3,
+          "elbow": [0.6, -0.6, -0.5]}          # the forearm along the door's top
+ROOF_L = {"at": [0.62, 1.252, 0.30], "palm": [-0.25, -0.97, 0], "fingers": [-0.69, 0.18, 0.70], "fist": 0.2,
+          "elbow": [0.35, -0.55, 0.75]}        # a hand up on the roof's edge, peering in
+TALK_HANDS = {"LeftHand": {"at": [0.82, 0.885, 0.30], "palm": [-0.35, -0.94, 0], "fingers": [-0.94, 0.2, 0.22], "fist": 0.35,
+                           "elbow": [0.85, -0.35, 0.40]},
+              "RightHand": {"at": [0.82, 0.892, -0.06], "palm": [-0.35, -0.94, 0], "fingers": [-0.94, 0.2, -0.30], "fist": 0.45,
+                            "elbow": [0.85, -0.35, -0.40]}}
+KNOCK_A = {"Hips": [26, 0, 0], "LeftUpperLeg": [-36, 0, 0], "RightUpperLeg": [-36, 0, 0], "LeftLowerLeg": [20, 0, 0],
+           "RightLowerLeg": [20, 0, 0], "LeftFoot": [-10, 0, 0], "RightFoot": [-10, 0, 0], "Spine": [6, 0, 0], "Chest": [4, 0, 0],
+           "UpperChest": [2, 0, 0], "Neck": [-6, 0, 0], "Head": [-4, 4, 0]}
+KNOCK_B = dict(KNOCK_A, Hips=[28, 0, 0], LeftUpperLeg=[-38, 0, 0], RightUpperLeg=[-38, 0, 0], Head=[-4, 4, 6])
+PEER = {"Hips": [38, 0, 0], "LeftUpperLeg": [-46, 0, 0], "RightUpperLeg": [-32, 0, 0], "LeftLowerLeg": [16, 0, 0],
+        "RightLowerLeg": [4, 0, 0], "LeftFoot": [-8, 0, 0], "RightFoot": [-10, 0, 0], "Spine": [8, 0, 0], "Chest": [9, 0, 0],
+        "UpperChest": [8, 0, -2], "Neck": [-8, 3, 0], "Head": [-24, 5, 7], "LeftShoulder": [0, -6, 8], "RightShoulder": [0, 4, -3]}
+TALK = dict(PEER, UpperChest=[8, 0, 0], Neck=[-8, 0, 0], Head=[-24, 0, 0], LeftShoulder=[0, -5, 4], RightShoulder=[0, 5, -4])
+TALK_A = dict(TALK, UpperChest=[8, 0, -1.5], Neck=[-8, 3, 0], Head=[-24, 5, 6], RightShoulder=[0, 5, -7], LeftShoulder=[0, -5, 2])
+TALK_B = dict(TALK, UpperChest=[8, 0, 1.5], Neck=[-7, -2, 0], Head=[-23, -3, 2], LeftShoulder=[0, -5, 7], RightShoulder=[0, 5, -2])
+
+
+def key(t, pose, **over):
+    return dict(copy.deepcopy(pose), t=t, **copy.deepcopy(over))
+
+
+def rap(t, off, up, ease=None):
+    """The right fist at the glass (off: m out from it; up: degrees the fingers point above its normal)."""
+    a = math.radians(205 - up)
+    f = [math.cos(a), math.sin(a), 0.0]
+    n = [-math.sin(a), math.cos(a), 0.0]
+    at = [round(C_GLASS[i] + GLASS_OUT[i] * off - 0.053 * f[i] - 0.024 * n[i], 4) for i in range(3)]
+    k = {"t": t, "RightHand": {"at": at, "palm": [round(x, 4) for x in n], "fingers": [round(x, 4) for x in f], "fist": 0.85,
+                              "elbow": [0.35, -0.75, -0.55]}, "LeftHand": copy.deepcopy(BRACE_L)}
+    if ease:
+        k["ease"] = ease
+    return k
+
+
+def raps(spec):
+    """[(t, off, up), ...]: a contact (off 0) arrives at speed, the key after it leaves fast."""
+    out, after = [], False
+    for t, off, up in spec:
+        out.append(rap(t, off, up, "in" if off == 0 else ("out" if after else None)))
+        after = off == 0
+    return out
+
+
+KIT_ASLEEP = [{"t": 0, "Neck": [6, 0, -4], "Head": [10, 0, -12]}]
+DEE_BASE = {"id": "dee", "who": "dee", "clip": "Stand", "face": -90, "gaze": "kit_driver", "reach_car": "kit", "wet": 0.4,
+            "breathe": [1.2, 3.6]}
+
+
+def dee_spec(**kw):
+    d = copy.deepcopy(DEE_BASE)
+    d.update(copy.deepcopy(kw))
+    return d
+
+
+def set_dee(sh, spec):
+    sh["people"] = [p for p in sh["people"] if p["id"] != "dee"] + [spec]
+
+
+# the insert (new): three quick raps on the sound, the knuckles sharp at the glass, Kit asleep soft
+# beside them, Dee's face cut off by the roof
+if "knock_ins" not in shots:
+    ins = copy.deepcopy(shots["knock"])
+    ins["id"] = "knock_ins"
+    scene["shots"].insert([x["id"] for x in scene["shots"]].index("knock"), ins)
+    shots["knock_ins"] = ins
+ins = shots["knock_ins"]
+for k_ in ("lines", "fade_in", "lead", "tail"):
+    ins.pop(k_, None)
+ins["dur"] = 1.5
+ins["sounds"] = [{"at": 0.32, "cue": "thump", "pitch": 1.5, "db": -3}, {"at": 0.49, "cue": "thump", "pitch": 1.5, "db": -3},
+                 {"at": 0.66, "cue": "thump", "pitch": 1.5, "db": -3}]
+ins["camera"] = {"follow": "kit", "handheld": 0.06, "keys": [
+    {"u": 0, "pos": [0.22, 1.07, 0.62], "look": [0.75, 1.10, 0.02], "fov": 34, "dof_near": [0.62, 0.12, 0.14], "dof": [1.05, 0.3, 0.08],
+     "eye_light": 0.25},
+    {"u": 1, "pos": [0.22, 1.07, 0.59], "look": [0.75, 1.10, 0.02], "fov": 34, "eye_light": 0.25}]}
+ins["cars"][0]["windows_down"] = {"driver": [9.0, 10.0]}       # the glass its own wound piece, still up
+ki = person(ins, "kit_driver")
+ki.update({"rate": 0.0, "bend": KIT_ASLEEP, "gaze": "ahead", "breathe": [1.4, 4.6],
+           "shapes": [{"t": 0, "eyeBlinkLeft": 1, "eyeBlinkRight": 1, "jawOpen": 0.06}]})
+ki.pop("looks", None)
+set_dee(ins, dee_spec(pos=[1.42, 0, 0.10], lift=-0.012, bend=[key(0, KNOCK_A), key(1.2, KNOCK_B)],
+                      reach=raps([(0.0, 0.08, 22), (0.24, 0.045, 24), (0.32, 0, 12), (0.405, 0.04, 22), (0.49, 0, 12),
+                                  (0.575, 0.04, 22), (0.66, 0, 12), (0.78, 0.035, 18), (1.5, 0.045, 20)])))
+for l in ins["lights"]:
+    if l.get("colour") == "#ffb36b":
+        l["look"] = [1.0, 1.15, -0.02]                         # the arch's lamp rims the fist and forearm
+# the knock: harder raps, Kit startles, the fist drops, Dee bends down into the window with a hand up
+# on the roof, says her line, and the glass starts down
+kn = shots["knock"]
+kn.pop("fade_in", None)
+kn["dur"], kn["lead"], kn["tail"] = 2.9, 0.9, 0.3
+kn["lines"] = [line("knock", "Kit. Kit! Open up.", "c01_close_001", "Dee", 1.6)]
+kn["sounds"] = [{"at": 0.18, "cue": "thump", "pitch": 1.35, "db": 0}, {"at": 0.36, "cue": "thump", "pitch": 1.35, "db": 0},
+                {"at": 0.42, "cue": "breath", "db": -10}]
+kn["cars"][0]["windows_down"] = {"driver": [2.1, 3.4]}
+kn["camera"] = {"follow": "kit", "handheld": 0.1, "keys": [
+    {"u": 0, "pos": [-0.20, 1.08, 0.57], "look": [0.80, 1.16, 0.02], "fov": 36, "dof_near": [0.85, 0.2, 0.1], "eye_light": 0.2},
+    {"u": 1, "pos": [-0.19, 1.08, 0.54], "look": [0.80, 1.16, 0.02], "fov": 36, "eye_light": 0.2}]}
+kk = person(kn, "kit_driver")
+kk.update({"rate": 0.0, "gaze": "dee", "looks": [[0, 0.5, "ahead"]],
+           "bend": [{"t": 0, "Neck": [6, 0, -4], "Head": [10, 0, -12]}, {"t": 0.40, "Neck": [6, 0, -4], "Head": [10, 0, -12]},
+                    {"t": 0.72, "Neck": [0, 8, 0], "Head": [-2, 14, 0]}],
+           "shapes": [{"t": 0, "eyeBlinkLeft": 1, "eyeBlinkRight": 1}, {"t": 0.40, "eyeBlinkLeft": 1, "eyeBlinkRight": 1},
+                      {"t": 0.50, "browInnerUp": 0.45, "eyeSquintLeft": 0.3, "eyeSquintRight": 0.3}]})
+set_dee(kn, dee_spec(pos=[1.42, 0, 0.10], lift=[[0, -0.012], [0.55, -0.012], [1.25, -0.008]],
+                     bend=[key(0, KNOCK_B), key(0.55, KNOCK_B), key(1.25, PEER), key(2.2, PEER, Head=[-22, 7, 9])],
+                     reach=raps([(0, 0.045, 20), (0.09, 0.07, 28), (0.18, 0, 12), (0.27, 0.065, 27), (0.36, 0, 12), (0.47, 0.04, 20)])
+                     + [{"t": 0.62, "RightHand": SILL_R, "LeftHand": BRACE_L}, {"t": 1.15, "RightHand": SILL_R, "LeftHand": ROOF_L},
+                        {"t": 2.9, "RightHand": SILL_R, "LeftHand": ROOF_L}]))
+# the glass goes on down through Kit's line (the knock's span, carried over the cut)
+shots["kit_wake"]["cars"][0]["windows_down"] = {"driver": [-0.8, 0.5]}
+# Dee in every dialogue shot: one place, a rounded back over her hands, the head forward, breathing,
+# her weight shifting every 1.5 s; one re-grip in a longer shot
+LINE_BEATS = {
+    "knock_two": {"bend": [key(0, TALK_A), key(1.0, TALK_A), key(1.15, TALK_A, Head=[-24, 10, 6]), key(1.3, TALK_A, Head=[-24, 1, 6]),
+                           key(1.45, TALK_A, Head=[-24, 8, 6]), key(1.6, TALK_A), key(3.0, TALK_B)],
+                  "shapes": [{"t": 0.9, "mouthSmileLeft": 0}, {"t": 1.2, "mouthSmileLeft": 0.3, "mouthSmileRight": 0.1}]},
+    "knock_dee2": {"bend": [key(0, TALK_B, Head=[-16, 0, 0]), key(0.4, TALK_B, Head=[-16, 0, 0]), key(0.8, TALK_B, Head=[-24, 0, 8]),
+                            key(2.4, TALK_A)],
+                   "looks": [[0, 0.5, "ahead"]], "shapes": [{"t": 0.7, "mouthSmileLeft": 0}, {"t": 0.8, "mouthSmileLeft": 0.25, "mouthSmileRight": 0.25}]},
+    "knock_dee3": {"bend": [key(0, TALK_A), key(0.55, TALK_A, Neck=[-8, -8, 0], Head=[-24, -18, 0]),
+                            key(1.2, TALK_A, Neck=[-8, -8, 0], Head=[-24, -18, 0]), key(1.55, TALK_A), key(3.0, TALK_B)],
+                   "looks": [[0.45, 1.3, "ahead"]]},
+}
+for i, sid in enumerate(["kit_wake", "knock_two", "kit_two", "two_shot", "knock_dee2", "knock_kit2", "knock_dee3", "back_seat",
+                         "knock_kit3", "mirror_dawn", "knock_dee4", "pins", "knock_kit4"]):
+    sh = shots[sid]
+    if sid == "pins":
+        continue
+    first, second = (TALK_A, TALK_B) if i % 2 == 0 else (TALK_B, TALK_A)
+    d = dee_spec(pos=[1.58, 0, 0.10], lift=-0.008, bend=[key(0, first), key(1.5, second), key(3.0, first)],
+                 reach=[dict(copy.deepcopy(TALK_HANDS), t=0)])
+    regrip = copy.deepcopy(TALK_HANDS)
+    regrip["RightHand"]["at"][2], regrip["RightHand"]["fist"] = -0.03, 0.55
+    d["reach"] += [dict(copy.deepcopy(TALK_HANDS), t=1.1), dict(regrip, t=1.4), dict(copy.deepcopy(regrip), t=9.0)]
+    d.update(copy.deepcopy(LINE_BEATS.get(sid, {})))
+    if sid == "knock_dee4":                    # her eyes down to the dash at the end (the pins next)
+        d["bend"] = [key(0, first), key(1.5, second), key(2.8, second), key(3.4, second, Neck=[-2, 0, 0], Head=[-6, 0, 0])]
+        d["looks"] = [[2.9, 4.0, "ahead"]]
+    set_dee(sh, d)
+# the end: she pushes off the door (the hips lead, the back follows), stands looking down at Kit, then
+# up the street on "let's see where they go first"
+ke = shots["knock_end"]
+set_dee(ke, dee_spec(pos=[1.58, 0, 0.10], lift=[[0.9, -0.008], [1.45, 0.0]],
+                     reach=[dict(copy.deepcopy(TALK_HANDS), t=0.9),
+                            {"t": 1.12, "LeftHand": dict(TALK_HANDS["LeftHand"], at=[0.82, 0.873, 0.30]),
+                             "RightHand": dict(TALK_HANDS["RightHand"], at=[0.82, 0.880, -0.06])}, {"t": 1.35}],
+                     bend=[key(0.9, TALK), {"t": 1.45, "Hips": [18, 0, 0], "Spine": [8, 0, 0], "Chest": [9, 0, 0], "UpperChest": [8, 0, 0],
+                                            "Neck": [2, 0, 0], "Head": [6, 0, 0]},
+                           {"t": 1.8, "Hips": [4, 0, 0], "Neck": [10, 0, 0], "Head": [12, 0, 0]},
+                           {"t": 2.7, "Hips": [4, 0, 0], "Neck": [10, 0, 0], "Head": [12, 0, 0]},
+                           {"t": 3.2, "Neck": [4, 14, 0], "Head": [2, 18, 0]}]))
+# the back seat and the mirror at dawn: the first light through the rear window on the bench (it was
+# black), the mirror a stop brighter
+DAWN_REAR = {"id": "dawn_rear", "car": "kit", "kind": "omni", "pos": [0.0, 1.18, -1.15], "colour": "#9aaccc", "energy": 0.6,
+             "range": 1.6, "shadow": False}
+for sid in ["back_seat", "mirror_dawn"]:
+    sh = shots[sid]
+    sh["lights"] = [l for l in sh["lights"] if l.get("id") != "dawn_rear"] + [dict(DAWN_REAR)]
+shots["mirror_dawn"]["mirror"]["exposure"] = 3.2
+# the arch: she crosses from her arch and is just short of the car as the cut lands on the first rap
+for p_ in shots["arch"]["people"]:
+    if p_["id"] == "dee":
+        p_["path"], p_["walk_at"], p_["gaze"] = [[5.9, 0.9], [1.6, 0.15]], 0.0, ""
+
 # --- the Mirror -----------------------------------------------------------------------------------
 MIRROR = ids[:ids.index("black") + 1]
 # the coupe closes in on high beams: the chase's key from the low reverse to the whiteout (a hard
@@ -415,7 +590,7 @@ sh["lights"] = [l for l in sh["lights"] if l.get("id") != "back_top"]
 for l in sh["lights"]:
     if l.get("colour") == "#9fd8c8":
         l["energy"], l["pos"] = 0.35, [0.06, 0.85, -0.12]
-ghost(sh, pos=[0.0, -0.02, -0.30], gaze="mirror", reach_car="kit", shapes={"jawOpen": 0.12},
+ghost(sh, pos=[0.19, -0.02, -0.30], gaze="mirror", reach_car="kit", shapes={"jawOpen": 0.12},
       bend=[{"t": 0, "Spine": [22, -12, 0], "Chest": [8, 0, 0], "Neck": [-4, -6, 0], "Head": [14, -8, 12]}],
       reach=[{"t": 0.0, "LeftHand": HAND}], **{"from": 1.02})
 sh["env"] = dict(DREAD_ENV)
@@ -458,7 +633,7 @@ k["looks"] = [[0, 0.1, "ahead"], [0.1, 0.4, "passenger"]]
 k["shapes"] = [{"t": 0, "browInnerUp": 0.4, "jawOpen": 0.05}, {"t": 0.12, "browInnerUp": 0.95, "jawOpen": 0.35}]
 k["bend"] = [{"t": 0}, {"t": 0.08, "Chest": [-4, 0, 0], "Neck": [0, 8, 0], "Head": [-3, 10, 0]}]
 SNAP0 = {"Spine": [28, -12, 0], "Chest": [12, 0, 0], "UpperChest": [8, 0, 0], "Neck": [-8, -12, 0], "Head": [-14, -10, 16]}
-ghost(sh, pos=[0.08, 0.0, -0.16], gaze="camera",
+ghost(sh, pos=[0.37, 0.0, -0.45], lift=0.27, gaze="camera",      # (her face at Kit's ear: x 0.24, eye height, 15 cm behind)
       bend=[dict(SNAP0, t=0), dict(SNAP0, t=0.07),
             {"t": 0.085, "Spine": [32, -12, 0], "Chest": [14, 0, 0], "UpperChest": [8, 0, 0], "Neck": [-12, -16, 0], "Head": [-20, -18, 4]}],
       shapes=[{"t": 0, "jawOpen": 0.12}, {"t": 0.15, "jawOpen": 0.5}])

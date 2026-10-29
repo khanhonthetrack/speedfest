@@ -5014,6 +5014,25 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   that hits on its first frame; keyed light energy `[[t, e], ...]` (and a car's `"dome"`); keyed face
   `"shapes"`; `"passing"` street lamps riding a car (a shadowed light carried past the windows);
   keyed `"rain"` and `"glass"`; the fade's black at the film's floor (about 4/255).
+- **The knock's body** (the scene agent's design, `pass3_close.py`): the owner's "waving" was take
+  five's open palm patting beside her face, and the first fist still rose beside her temple (a biceps
+  flex). Now a standing knock: a new insert `knock_ins` (1.5 s, three raps 170 ms apart on the sound,
+  the knuckles sharp at the glass, Kit asleep soft beside them, Dee's face cut by the roof), the elbow
+  low and bent, the fist 21 cm under her eyes (checked); then `knock`: harder raps, Kit startles, Dee
+  bends down into the window with her left hand up on the roof's edge, says her line, the glass starts
+  down (and goes on down through Kit's line); in every dialogue shot one place, a rounded back over
+  her hands (fingers hooked over the door's lip, 36 cm apart), the head forward, breathing, the weight
+  shifting every 1.5 s and a re-grip; small head beats on her lines (a tease, a glance down at the
+  wheel, a glance back at the seat); at the end she pushes off the door hips first and looks up the
+  street. The Motifect knock clip was measured and dropped (a raised flat palm, the same wave). Engine:
+  a key's `"ease"` (`"in"`: knuckles arriving at speed) for `"bend"`, `"reach"` and keyed shapes;
+  the cabin's glass beaded by rain (6 mm beads riding the glass down, a few drops running, Fresnel:
+  `StoryCabin.set_wet`, a car's `"rain_glass"`).
+- **Positions by numbers**: a scratch probe (`story/lab/p3_where.*`, kept out of git) prints faces and
+  palms in the car's frame at any moment; the hit's ghost moved until her face sat at Kit's ear (x 0.24,
+  eye height, 15 cm behind), the mirror reveal's behind Kit's headrest.
+- **Hair, second fix**: the strand highlight was 30 % of the light (hair gives back about 4 %) and the
+  lens's eye light lit the whole sheen: every head read white. Now about 4-5 %, wet hair darker.
 - Stills so far (Ultra, the session scratchpad's `p3/`): the city reads with depth (no dashes, no
   crane in frame) and the harbour reflects it in rippled streaks; the auction reads as an auction;
   Gus points; the coat man at the back of a crowd. The first hair shader lit every head from behind

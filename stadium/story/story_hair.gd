@@ -102,15 +102,15 @@ uniform vec3 hair_colour : source_color = vec3(0.18, 0.15, 0.13);
 uniform float tex_mean_lum = 0.03;
 uniform float detail = 0.75;        // how much of the painted strands' light and dark shows
 uniform float paint = 0.3;          // how much of its broad shading (a parting, roots)
-uniform float spec1 = 0.30;         // the primary shine: white, sharp, shifted to the tip
+uniform float spec1 = 0.05;         // the primary shine: white, sharp, shifted to the tip
 uniform float exp1 = 160.0;
 uniform float shift1 = -0.08;
-uniform float spec2 = 0.18;         // the secondary: tinted by the hair, broad, shifted to the root
+uniform float spec2 = 0.035;        // the secondary: tinted by the hair, broad, shifted to the root
 uniform float exp2 = 28.0;
 uniform float shift2 = 0.12;
 uniform float shift_noise = 0.12;
 uniform float wrap = 0.4;
-uniform float transmit = 0.6;       // light through the strands from behind: the rim
+uniform float transmit = 0.25;      // light through the strands from behind: the rim
 uniform float backface = 0.35;
 uniform float rim_cut = 0.6;        // the edges broken into strands
 instance uniform float wet = 0.0;
@@ -133,9 +133,9 @@ void fragment() {
 	ALBEDO = col;
 	AO = FRONT_FACING ? 0.85 : 0.35;
 	ROUGHNESS = mix(0.72, 0.45, wet);
-	SPECULAR = 0.15;
+	SPECULAR = mix(0.15, 0.06, wet);     // (wet hair: darker, its sheen in the strands' own lobes, not the sky's)
 	float grazing = 1.0 - abs(dot(NORMAL, VIEW));
-	float cut = smoothstep(0.5, 0.9, grazing) * rim_cut * mix(1.0, 1.4, wet);
+	float cut = smoothstep(0.5, 0.9, grazing) * rim_cut * mix(1.0, 0.8, wet);      // (wet strands clump: fewer gaps)
 	ALPHA = t.a * smoothstep(cut - 0.1, cut + 0.1, 0.6 * d + 0.4 * clump);
 	v_strand = normalize(BINORMAL);
 	v_detail = d;
@@ -160,6 +160,6 @@ void light() {
 	// through the strands from behind: at the silhouette only (thin there), not the whole shell
 	float edge = pow(1.0 - abs(dot(NORMAL, VIEW)), 3.0);
 	spec += lc * transmit * mix(1.0, 0.4, wet) * pow(clamp(dot(-LIGHT, VIEW), 0.0, 1.0), 4.0) * edge * (1.0 - 0.5 * v_cov) * sqrt(ALBEDO);
-	SPECULAR_LIGHT += min(spec, lc * 0.8 / PI);
+	SPECULAR_LIGHT += min(spec, lc * 0.12 / PI);    // (hair gives back about 4 % of a light, not a mirror sheen)
 }
 """
