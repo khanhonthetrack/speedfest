@@ -175,7 +175,10 @@
   and the mirror at dawn, the Mirror's hit and empty seat. `o12` (the opening after its sixth pass) has not
   been rendered yet. Beyond data: the blockout buildings behind Kit's side of the knock, crowd idle poses,
   the coat man's overcoat, hair strands, a fist pose; J/L cuts (a line laid over the next shot) need
-  StoryScene support.
+  StoryScene support. Open: the pale strip with a saw-tooth edge along the roof over an open driver's
+  window (the critics' "saw-tooth B-pillar edge"): not the glass split (no glass triangle between 0.4
+  and 0.6 sideways in front of the B-pillar); suspect the paint cut along the wound glass's outline
+  (`Cutter`, three halvings) or the lining at the opening; needs a focused render.
 - **Next**: the critics of the sixth pass's stills; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
