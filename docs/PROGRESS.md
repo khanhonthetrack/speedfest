@@ -5435,3 +5435,27 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   - the fog kept through the two-shot while the pane is still going down.
   The first gate ran past its 90 minutes (a test hung; `test_online` alone passes in 75 s); the gate
   now logs as it runs, so a stall shows where it is.
+
+## 2026-10-30 (session 21, cont.): round six's knock critics, the seventh pass
+- **The knock's stills after the sixth pass** (`k9`): **5.0 and 4.5**. Better: Kit's lines on her face, the
+  insert's beaded glass, Dee's coverage, the pins with a bezel and a clock, the end without the white card.
+  Still wrong: Kit mid-word showing teeth like a grille and a red mouth; no first light at "gone six";
+  the arch's crane parked on a pier; the back seat and the mirror at dawn near black; the window's glass
+  gone from the inside reverse; a pale visor.
+- **Six rounds held 4.5-5.5 under fresh critics**, whose fixes now contradict each other round to round. They
+  agree on the pictures' assets more than the cameras: faces up close (mouths, teeth), the blockout
+  buildings behind Kit's side, the missing dawn, the glass's continuity. The seventh pass goes after those:
+  - Kit's speech moves her mouth less (`"mouth": 0.4`, as Dee's 0.35); the tongue near black, so an open
+    mouth is a cavity in shadow, not a red wound; the teeth a lighter ivory;
+  - a wound window drawn from both sides (from the seats the pane had not been there);
+  - first light in the knock's sky (a warm horizon);
+  - the arch's crane re-keyed (no stop on the pier), its floor hot spot a wall lamp on Dee's back;
+  - the back seat looking down past the front seats onto the cushion, raked from the rear glass;
+  - the mirror at dawn with its housing and the dawn behind the rear glass;
+  - the scare shot with Dee out of it (its offset had pointed at her side);
+  - the soft trim's sheen down (the visor read as a pale slab from below);
+  - the Mirror's hit from in front of the ghost on the left (from the right, her wet hair hung between
+    her face and the lens), the empty seat's pool five times brighter on the black leather, the
+    whiteout's lamps held longer before the white.
+  The Mirror's `m10` (after the sixth pass): asleep and the dream road now read; the hit and the empty
+  seat did not (fixed above).

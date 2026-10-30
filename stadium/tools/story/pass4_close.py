@@ -1520,4 +1520,68 @@ sh["camera"]["keys"] = [          # (the depth of field on every key: a key with
      "dof_near": [0.64, 0.05, 0.08]}]
 m6_lights(sh, lambda l: l.get("id") not in ("ghost_rim", "teal_on_kit"))
 
+
+# --- the seventh pass (k9's critics: 5.0 and 4.5): what the pictures still got wrong ----------------------------
+# Kit's mouth moving less as she speaks (at full width a still caught her mid-word: teeth like a grille, a
+# red mouth); first light in the sky over the arch (the scene says "gone six" and showed 2 a.m.); the
+# arch's crane never parked on the wall (its middle key stared at the pier), the floor's hot spot a wall
+# lamp on Dee's back; the knock lower, air over Dee's hair; the scare from the back seat with Dee out of
+# it; the back seat looking down past the front seats onto the cushion, the patch raked by the rear glass's
+# light so its beads glint; the mirror at dawn with its housing, the dawn behind the rear glass in it.
+DAWN7 = {"zenith": "#34466a", "horizon": "#c4a593", "cloud_cover": 0.35, "cloud_lo": "#5a5f74", "cloud_hi": "#d2b8a8"}
+for s_ in scene["shots"]:
+    k_ = person(s_, "kit_driver")
+    if k_ is not None:
+        k_.pop("mouth", None)
+        k_["mouth"] = 0.4                 # (popped first: a key already there keeps its place)
+for sid in KNOCK_ORDER:
+    shots[sid]["env"]["sky"] = dict(DAWN7)
+
+sh = shots["arch"]
+sh["camera"] = {"path": "spline", "ease": "inout", "keys": [
+    {"u": 0.0, "pos": [-9.0, 5.2, -7.5], "look": [2.0, 2.6, 0.3], "fov": 36},
+    {"u": 0.55, "pos": [-1.0, 2.6, 6.0], "look": [1.6, 1.4, 0.2], "fov": 36},
+    {"u": 1.0, "pos": [3.4, 1.6, 4.2], "look": [1.35, 1.2, 0.1], "fov": 36}]}
+for l in sh["lights"]:
+    if l.get("id") == "dee_face":
+        l.update({"pos": [3.6, 3.2, -1.2], "look": [1.4, 1.3, 0.1], "energy": 1.2, "angle": 50.0})
+    elif l.get("pos") == [3.4, 2.9, -0.8]:
+        l["energy"] = 1.0
+
+sh = shots["knock"]
+set_cam(sh, [-0.30, 0.92, 0.30], [-0.29, 0.92, 0.27], [0.95, 1.24, 0.10], 32, 0.08, dof_near=[0.45, 0.2, 0.1])
+
+sh = shots["knock_kit2"]
+set_cam(sh, [0.05, 1.10, -0.75], [0.06, 1.10, -0.72], "kit_driver", 30, 0.04, look_by=[-0.1, 0.0, 0.0], dof=[1.4, 0.6, 0.1])
+
+sh = shots["back_seat"]
+set_cam(sh, [0.10, 1.15, -0.10], [0.10, 1.14, -0.16], [0.02, 0.34, -0.5], 34, 0.0, dof=[1.6, 0.8, 0.1])
+k6_lights(sh, spot([0.0, 1.25, -1.35], [0.02, 0.33, -0.5], "#b4c4e0", 1.8, 40.0, 1.9, id="rear_screen"),
+          omni([0.0, 1.0, -0.4], "#6f7c98", 0.12, 1.2, id="bench_fill"))
+
+sh = shots["mirror_dawn"]
+set_cam(sh, [0.30, 1.16, -0.18], [0.30, 1.16, -0.10], [0.0, 1.085, 0.512], 19, 0.0, dof=[0.9, 0.5, 0.15])
+sh["mirror"]["exposure"] = 1.6
+sh["lights"] = [l for l in sh["lights"] if l.get("id") != "dawn_back"] + [
+    omni([0.0, 1.4, -2.2], "#9fb4d8", 2.0, 3.0, id="dawn_back")]
+
+# the Mirror's seventh pass: the hit from in front of her on the left (from the right, her wet hair
+# hung between her face and the lens: the camera saw its curtain and her shoulder), Kit beyond her;
+# the empty seat's pool bright enough to read on black leather; the whiteout's lamps held longer
+# before the white (at 0.48 s the mirror was already a white card)
+sh = shots["hit"]
+sh["camera"]["keys"] = [          # (the depth of field on every key: a key without it turns it off)
+    {"u": 0, "pos": [-0.25, 1.10, 0.45], "look": [-0.02, 1.12, -0.18], "fov": 30, "dof": [1.3, 0.3, 0.1], "exposure": 1.0},
+    {"t": 0.03, "pos": [-0.25, 1.10, 0.44], "look": [-0.02, 1.12, -0.18], "fov": 30, "dof": [1.3, 0.3, 0.1], "exposure": 1.45},
+    {"t": 0.12, "pos": [-0.22, 1.10, 0.36], "look": [-0.02, 1.12, -0.18], "fov": 30, "dof": [1.2, 0.3, 0.1], "exposure": 0.85}]
+for l in sh["lights"]:
+    if l.get("id") == "ghost_under":
+        l.update({"pos": [-0.15, 0.85, 0.05], "look": [-0.02, 1.16, -0.18]})
+sh = shots["empty_seat"]
+for l in sh["lights"]:
+    if l.get("id") == "cushion_pool":
+        l.update({"energy": 5.0, "angle": 28.0})
+sh = shots["whiteout"]
+sh["mirror"]["exposure"] = [[0, 0.5], [0.45, 1.0], [0.62, 3.0], [0.75, 8.0]]
+
 json.dump(scene, open(path, "w"), indent="\t")

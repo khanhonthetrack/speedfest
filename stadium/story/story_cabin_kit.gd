@@ -109,7 +109,8 @@ static func mat(name: String) -> StandardMaterial3D:
 			_grain(m, "simplex", 0.35, 3.0, 0.3, 100.0)
 		"soft":
 			m.albedo_color = Color(0.035, 0.035, 0.037)
-			m.roughness = 0.75
+			m.roughness = 0.88
+			m.metallic_specular = 0.15            # (seen from below at a grazing angle, its sheen read as a pale slab)
 			_grain(m, "simplex", 0.35, 3.0, 0.25, 70.0)
 		"piano":
 			m.albedo_color = Color(0.012, 0.012, 0.013)

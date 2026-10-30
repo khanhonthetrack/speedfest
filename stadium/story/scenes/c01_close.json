@@ -92,7 +92,8 @@
 								-6
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -315,7 +316,8 @@
 					"car": "kit",
 					"seat": "driver",
 					"clip": "Driving",
-					"who": "kit"
+					"who": "kit",
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -1065,7 +1067,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -1792,7 +1795,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -2469,7 +2473,8 @@
 					"car": "kit",
 					"seat": "driver",
 					"clip": "Driving",
-					"who": "kit"
+					"who": "kit",
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -3142,7 +3147,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -3868,7 +3874,8 @@
 						"browDownRight": 0.15,
 						"mouthFrownLeft": 0.25,
 						"mouthFrownRight": 0.25
-					}
+					},
+					"mouth": 0.4
 				},
 				{
 					"id": "passenger",
@@ -4752,7 +4759,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -5459,7 +5467,8 @@
 						"browDownRight": 0.15,
 						"mouthFrownLeft": 0.25,
 						"mouthFrownRight": 0.25
-					}
+					},
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -5666,15 +5675,15 @@
 				"exposure": [
 					[
 						0,
-						0.7
+						0.5
 					],
 					[
-						0.35,
-						1.4
+						0.45,
+						1.0
 					],
 					[
-						0.55,
-						3.5
+						0.62,
+						3.0
 					],
 					[
 						0.75,
@@ -6274,7 +6283,8 @@
 						"browDownRight": 0.15,
 						"mouthFrownLeft": 0.25,
 						"mouthFrownRight": 0.25
-					}
+					},
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -7040,7 +7050,8 @@
 						"browDownRight": 0.15,
 						"mouthFrownLeft": 0.25,
 						"mouthFrownRight": 0.25
-					}
+					},
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -7812,7 +7823,8 @@
 					"breathe": [
 						1.4,
 						2.2
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "passenger",
@@ -8576,7 +8588,8 @@
 							1.2,
 							"mirror"
 						]
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "passenger",
@@ -9282,7 +9295,8 @@
 							]
 						}
 					],
-					"blink": false
+					"blink": false,
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -9968,7 +9982,8 @@
 							"t": 0.8
 						}
 					],
-					"blink": false
+					"blink": false,
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -10636,8 +10651,8 @@
 						-0.75
 					],
 					"colour": "#8fa6c8",
-					"energy": 1.6,
-					"angle": 35.0,
+					"energy": 5.0,
+					"angle": 28.0,
 					"range": 1.6,
 					"shadow": false,
 					"id": "cushion_pool"
@@ -11231,7 +11246,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "passenger",
@@ -11364,14 +11380,14 @@
 					"car": "kit",
 					"kind": "spot",
 					"pos": [
-						0.1,
+						-0.15,
 						0.85,
-						-0.05
+						0.05
 					],
 					"look": [
-						0.04,
-						1.18,
-						-0.26
+						-0.02,
+						1.16,
+						-0.18
 					],
 					"colour": "#9fd8c8",
 					"energy": 2.0,
@@ -11390,77 +11406,62 @@
 					{
 						"u": 0,
 						"pos": [
-							0.22,
-							1.08,
-							0.56
+							-0.25,
+							1.1,
+							0.45
 						],
 						"look": [
-							0.04,
-							1.1,
-							-0.25
+							-0.02,
+							1.12,
+							-0.18
 						],
 						"fov": 30,
 						"dof": [
-							1.35,
+							1.3,
 							0.3,
 							0.1
 						],
-						"exposure": 1.0,
-						"dof_near": [
-							0.75,
-							0.05,
-							0.08
-						]
+						"exposure": 1.0
 					},
 					{
 						"t": 0.03,
 						"pos": [
-							0.22,
-							1.08,
-							0.55
+							-0.25,
+							1.1,
+							0.44
 						],
 						"look": [
-							0.04,
-							1.1,
-							-0.25
+							-0.02,
+							1.12,
+							-0.18
 						],
 						"fov": 30,
 						"dof": [
-							1.35,
+							1.3,
 							0.3,
 							0.1
 						],
-						"exposure": 1.45,
-						"dof_near": [
-							0.75,
-							0.05,
-							0.08
-						]
+						"exposure": 1.45
 					},
 					{
 						"t": 0.12,
 						"pos": [
-							0.21,
-							1.08,
-							0.44
+							-0.22,
+							1.1,
+							0.36
 						],
 						"look": [
-							0.04,
-							1.1,
-							-0.25
+							-0.02,
+							1.12,
+							-0.18
 						],
 						"fov": 30,
 						"dof": [
-							1.25,
+							1.2,
 							0.3,
 							0.1
 						],
-						"exposure": 0.85,
-						"dof_near": [
-							0.64,
-							0.05,
-							0.08
-						]
+						"exposure": 0.85
 					}
 				]
 			},
@@ -12026,7 +12027,8 @@
 								-12
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -12337,7 +12339,7 @@
 						-0.1
 					],
 					"colour": "#ffb36b",
-					"energy": 1.8,
+					"energy": 1.0,
 					"angle": 60.0,
 					"range": 3.5
 				},
@@ -12356,17 +12358,17 @@
 					"kind": "spot",
 					"pos": [
 						3.6,
-						2.2,
-						0.0
+						3.2,
+						-1.2
 					],
 					"look": [
-						1.42,
+						1.4,
 						1.3,
 						0.1
 					],
 					"colour": "#ffb36b",
-					"energy": 2.0,
-					"angle": 20.0,
+					"energy": 1.2,
+					"angle": 50.0,
 					"range": 5.0,
 					"shadow": false,
 					"id": "dee_face"
@@ -12403,37 +12405,23 @@
 							-7.5
 						],
 						"look": [
-							4.1,
-							5.6,
-							0.5
-						],
-						"fov": 36
-					},
-					{
-						"u": 0.3,
-						"pos": [
-							-8.7,
-							5.0,
-							-7.0
-						],
-						"look": [
-							4.1,
-							5.4,
-							0.5
-						],
-						"fov": 36
-					},
-					{
-						"u": 0.65,
-						"pos": [
-							-3.0,
-							3.4,
-							3.5
-						],
-						"look": [
-							2.2,
-							2.2,
+							2.0,
+							2.6,
 							0.3
+						],
+						"fov": 36
+					},
+					{
+						"u": 0.55,
+						"pos": [
+							-1.0,
+							2.6,
+							6.0
+						],
+						"look": [
+							1.6,
+							1.4,
+							0.2
 						],
 						"fov": 36
 					},
@@ -12464,11 +12452,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -12495,11 +12483,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -12559,7 +12547,8 @@
 								-12
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -13395,11 +13384,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -13502,7 +13491,8 @@
 							0.5,
 							"ahead"
 						]
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -14463,15 +14453,15 @@
 						"u": 0,
 						"pos": [
 							-0.3,
-							1.0,
+							0.92,
 							0.3
 						],
 						"look": [
 							0.95,
-							1.18,
-							0.06
+							1.24,
+							0.1
 						],
-						"fov": 36,
+						"fov": 32,
 						"dof_near": [
 							0.45,
 							0.2,
@@ -14482,15 +14472,15 @@
 						"u": 1,
 						"pos": [
 							-0.29,
-							1.0,
+							0.92,
 							0.27
 						],
 						"look": [
 							0.95,
-							1.18,
-							0.06
+							1.24,
+							0.1
 						],
-						"fov": 36
+						"fov": 32
 					}
 				]
 			},
@@ -14543,11 +14533,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -14604,7 +14594,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -15277,11 +15268,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.2,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -15336,7 +15327,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -16293,11 +16285,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -16358,7 +16350,8 @@
 							1.4,
 							"road"
 						]
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -17047,11 +17040,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -17105,7 +17098,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -17799,11 +17793,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -17858,7 +17852,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -18634,11 +18629,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -18768,7 +18763,8 @@
 							"camera"
 						]
 					],
-					"blink": false
+					"blink": false,
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -19400,7 +19396,7 @@
 						"look": "kit_driver",
 						"fov": 30,
 						"look_by": [
-							0.05,
+							-0.1,
 							0.0,
 							0.0
 						],
@@ -19420,7 +19416,7 @@
 						"look": "kit_driver",
 						"fov": 30,
 						"look_by": [
-							0.05,
+							-0.1,
 							0.0,
 							0.0
 						]
@@ -19457,11 +19453,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -19517,7 +19513,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -20044,14 +20041,14 @@
 						-1.35
 					],
 					"look": [
-						0.0,
-						0.58,
-						-0.7
+						0.02,
+						0.33,
+						-0.5
 					],
-					"colour": "#a9b8d0",
-					"energy": 1.5,
-					"angle": 45.0,
-					"range": 1.8,
+					"colour": "#b4c4e0",
+					"energy": 1.8,
+					"angle": 40.0,
+					"range": 1.9,
 					"shadow": false,
 					"id": "rear_screen"
 				},
@@ -20064,7 +20061,7 @@
 						-0.4
 					],
 					"colour": "#6f7c98",
-					"energy": 0.15,
+					"energy": 0.12,
 					"range": 1.2,
 					"shadow": false,
 					"id": "bench_fill"
@@ -20122,16 +20119,16 @@
 					{
 						"u": 0,
 						"pos": [
-							0.12,
-							1.22,
-							-0.05
+							0.1,
+							1.15,
+							-0.1
 						],
 						"look": [
-							-0.08,
-							0.55,
-							-0.85
+							0.02,
+							0.34,
+							-0.5
 						],
-						"fov": 36,
+						"fov": 34,
 						"dof": [
 							1.6,
 							0.8,
@@ -20141,16 +20138,16 @@
 					{
 						"u": 1,
 						"pos": [
-							0.12,
-							1.21,
-							-0.12
+							0.1,
+							1.14,
+							-0.16
 						],
 						"look": [
-							-0.08,
-							0.55,
-							-0.85
+							0.02,
+							0.34,
+							-0.5
 						],
-						"fov": 36
+						"fov": 34
 					}
 				]
 			},
@@ -20184,11 +20181,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -20243,7 +20240,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -21089,11 +21087,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -21167,7 +21165,8 @@
 							2.4,
 							"mirror"
 						]
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -21856,11 +21855,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -21915,7 +21914,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -22479,6 +22479,20 @@
 					"range": 1.0,
 					"shadow": false,
 					"id": "bench"
+				},
+				{
+					"car": "kit",
+					"kind": "omni",
+					"pos": [
+						0.0,
+						1.4,
+						-2.2
+					],
+					"colour": "#9fb4d8",
+					"energy": 2.0,
+					"range": 3.0,
+					"shadow": false,
+					"id": "dawn_back"
 				}
 			],
 			"props": [
@@ -22533,16 +22547,16 @@
 					{
 						"u": 0,
 						"pos": [
-							0.28,
-							1.13,
-							-0.2
+							0.3,
+							1.16,
+							-0.18
 						],
 						"look": [
 							0.0,
 							1.085,
 							0.512
 						],
-						"fov": 11,
+						"fov": 19,
 						"dof": [
 							0.9,
 							0.5,
@@ -22552,16 +22566,16 @@
 					{
 						"u": 1,
 						"pos": [
-							0.28,
-							1.13,
-							-0.08
+							0.3,
+							1.16,
+							-0.1
 						],
 						"look": [
 							0.0,
 							1.085,
 							0.512
 						],
-						"fov": 11
+						"fov": 19
 					}
 				]
 			},
@@ -22577,7 +22591,7 @@
 			"mirror": {
 				"glass": true,
 				"follow": "kit",
-				"exposure": 1.35
+				"exposure": 1.6
 			},
 			"lead": 0.0,
 			"tail": 0.25,
@@ -22602,11 +22616,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -22661,7 +22675,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -23430,11 +23445,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -23508,7 +23523,8 @@
 							1.8,
 							"ahead"
 						]
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",
@@ -24285,11 +24301,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.35,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -24358,11 +24374,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -24416,7 +24432,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				}
 			],
 			"lights": [
@@ -24647,11 +24664,11 @@
 				"fog_sky": 0.85,
 				"exposure": 1.55,
 				"sky": {
-					"zenith": "#2e3e60",
-					"horizon": "#8c97ad",
-					"cloud_cover": 0.3,
-					"cloud_lo": "#4c5468",
-					"cloud_hi": "#9ca4b6"
+					"zenith": "#34466a",
+					"horizon": "#c4a593",
+					"cloud_cover": 0.35,
+					"cloud_lo": "#5a5f74",
+					"cloud_hi": "#d2b8a8"
 				},
 				"city_lit": 0.08,
 				"city_led": 0.0
@@ -24706,7 +24723,8 @@
 								0
 							]
 						}
-					]
+					],
+					"mouth": 0.4
 				},
 				{
 					"id": "dee",

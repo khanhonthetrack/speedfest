@@ -169,6 +169,13 @@
   - a spot's `"band"` (shadow flags a few cm apart) blurs out when the light's shadow is small, so a
     narrow capped cone is the reliable eye light.
   Its stills (`k9`, `m10`, `o12`) and their critics are next.
+- **30 Oct, evening, seventh pass:** the knock's `k9` scored 5.0/4.5; six rounds have held 4.5-5.5 and the
+  critics' camera fixes now contradict each other, so the seventh pass (PROGRESS) went after what they agree
+  on: mouths (a dark cavity, less speech movement), the glass seen from inside, first light, the back seat
+  and the mirror at dawn, the Mirror's hit and empty seat. `o12` (the opening after its sixth pass) has not
+  been rendered yet. Beyond data: the blockout buildings behind Kit's side of the knock, crowd idle poses,
+  the coat man's overcoat, hair strands, a fist pose; J/L cuts (a line laid over the next shot) need
+  StoryScene support.
 - **Next**: the critics of the sixth pass's stills; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then

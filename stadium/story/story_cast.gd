@@ -173,22 +173,22 @@ static func _skin(src: StandardMaterial3D) -> StandardMaterial3D:
 static var _skins := {}
 
 
-## Teeth: ivory, not white (near white read as bright dentures in a dark mouth), a wet sheen.
+## Teeth: ivory, not white (near white read as bright dentures in a dark mouth; darker, as a grey grille), a wet sheen.
 static func _teeth(src: StandardMaterial3D) -> StandardMaterial3D:
 	if not _skins.has(src):
 		var m := src.duplicate() as StandardMaterial3D
-		m.albedo_color = src.albedo_color * Color(0.72, 0.69, 0.62)
+		m.albedo_color = src.albedo_color * Color(0.84, 0.8, 0.72)
 		m.roughness = 0.38
 		m.metallic_specular = 0.45
 		_skins[src] = m
 	return _skins[src]
 
 
-## A tongue: a darker, redder wet pink than the skin round it (lit blue it still reads as flesh).
+## A tongue: dark, the mouth round it a cavity in shadow (a pink one lit read as a red wound), wet.
 static func _tongue(src: StandardMaterial3D) -> StandardMaterial3D:
 	if not _skins.has(src):
 		var m := src.duplicate() as StandardMaterial3D
-		m.albedo_color = src.albedo_color * Color(0.72, 0.42, 0.42)
+		m.albedo_color = src.albedo_color * Color(0.24, 0.11, 0.11)    # (lighter, an open mouth read as a red wound)
 		m.roughness = 0.3
 		m.metallic_specular = 0.45
 		_skins[src] = m

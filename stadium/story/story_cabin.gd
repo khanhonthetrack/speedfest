@@ -419,7 +419,7 @@ static func open_windows(car: TmCarVisual, sides: Dictionary) -> void:
 			piece.name = "Window_" + side
 			piece.mesh = w[0]
 			var mat := ShaderMaterial.new()
-			mat.shader = _window_shader()
+			mat.shader = _window_shader(true)       # (seen from inside too: from the seats, the pane was not there)
 			mat.set_shader_parameter("floor_y", float(w[2]))
 			piece.material_override = mat
 			piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -547,8 +547,15 @@ static func _split_windows(mesh: ArrayMesh, glass_k: Array[int], sides: Array, b
 	return {"body": body, "windows": windows}
 
 
-## The wound glass: the clear glass's look, nothing drawn under the door's top as it slides down.
-static func _window_shader() -> Shader:
+## The wound glass: the clear glass's look, nothing drawn under the door's top as it slides down;
+## `two_sided` for a wound window (seen from the seats as well as from outside), the fixed glass
+## drawn from outside only.
+static func _window_shader(two_sided := false) -> Shader:
+	if two_sided:
+		if _window2 == null:
+			_window2 = Shader.new()
+			_window2.code = _window_shader().code.replace("cull_back;", "cull_disabled;")
+		return _window2
 	if _window == null:
 		_window = Shader.new()
 		_window.code = """shader_type spatial;
@@ -939,6 +946,7 @@ static var _lining: StandardMaterial3D
 static var _linings := {}             ## a body's mesh -> its lining (made once a model)
 static var _opened := {}              ## [a body's mesh, sides] -> it split (_split_windows)
 static var _window: Shader                ## the wound glass's
+static var _window2: Shader               ## the same, both sides drawn (a wound window)
 
 
 
