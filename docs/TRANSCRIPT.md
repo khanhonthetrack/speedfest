@@ -1683,3 +1683,8 @@ cutscenes until the fresh critic's reviews reach at least 7 out of 10.)
 
 (Read as: carry on: gate and commit the Mirror's fifth pass, the critics of round four's stills,
 iterate toward 7/10.)
+
+**Owner (30 Oct, morning, after the render chain ran out of time):**
+> Continue
+
+(Read as: carry on toward 7/10: the round-five critics, the opening's remaining stills, the next pass.)
