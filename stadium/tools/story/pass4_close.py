@@ -1153,4 +1153,371 @@ sh["dur"] = 4.6
 sh["tail"] = 0.6
 add_lights(sh, dict(spot([-2.0, 2.8, 4.0], [0.0, 1.2, 0.0], "#9fb4d8", 1.2, 30.0, 7.0, id="roof_rim")))
 
+
+# --- the knock's sixth pass (k8's two critics: 5.0 and 5.0) ---------------------------------------------------
+# every face keyed from a light the street has, none from the lens: Dee rimmed warm from the arch's lamp
+# behind her and keyed cool from the dawn on her open side; Kit short-lit through the open window from
+# behind her eyeline, a cold edge from the far window (the cabin's fills had lit the visors cream and
+# flattened the faces to 1.5:1). Kit's two lines that showed the back of her head on her face; Dee's
+# coverage five setups, not one over-the-shoulder four times; the whole scene on the front side of the
+# line from the arch's end (Kit left, Dee right); the glass up and fogged for the knock, so the fist is on
+# something; the wing off (a pale plank, a rail through every window; the Mirror's car has none); the
+# warehouse's lit door off (a blank cream card behind the end); no zoom in the arch or the end.
+K6_DEE_RIM = spot([2.4, 2.1, -0.6], D_EYES, "#ffb36b", 1.3, 22.0, 3.2, id="dee_rim")
+K6_DEE_KEY = spot([1.1, 1.7, 1.3], D_EYES, "#a9bcdc", 0.6, 25.0, 2.2, id="dee_key")
+K6_KIT_KEY = spot([1.25, 1.5, -0.35], K_EYES, "#ffd2a0", 0.95, 26.0, 1.9, id="win_key")
+K6_KIT_EDGE = spot([-0.8, 1.5, 0.2], [0.376, 1.12, -0.12], "#9fb4d8", 0.3, 25.0, 1.6, id="kit_edge")
+K6_ROOF = omni([0.1, 1.12, -0.35], "#6f7c98", 0.06, 1.1, id="roof_lift")     # (kept off the lining: near it, it glared)
+
+
+def k6_lights(sh, *ls):
+    """The street's lights kept, the car's all replaced."""
+    sh["lights"] = [l for l in sh["lights"] if l.get("car") != "kit"] + [copy.deepcopy(l) for l in ls]
+
+
+def k6_hold(sh, hold):
+    sh["lines"][0]["hold"] = hold
+
+
+for sid in KNOCK_ORDER:
+    sh = shots[sid]
+    car(sh, "kit")["tuning"] = "1.7.6.0"
+    for p_ in sh.get("props", []):
+        if p_.get("kind") == "warehouse":
+            p_["lit"] = []
+
+# the arch: a held look at the painted number, then down and across to the front of the car, Dee bent
+# into the driver's window beside it (her lean read whole; Kit asleep inside), one focal length
+sh = shots["arch"]
+sh["camera"] = {"path": "spline", "ease": "inout", "keys": [
+    {"u": 0.0, "pos": [-9.0, 5.2, -7.5], "look": [4.1, 5.6, 0.5], "fov": 36},
+    {"u": 0.3, "pos": [-8.7, 5.0, -7.0], "look": [4.1, 5.4, 0.5], "fov": 36},
+    {"u": 0.65, "pos": [-3.0, 3.4, 3.5], "look": [2.2, 2.2, 0.3], "fov": 36},
+    {"u": 1.0, "pos": [3.4, 1.6, 4.2], "look": [1.35, 1.2, 0.1], "fov": 36}]}
+for l in sh["lights"]:
+    if l.get("pos") == [3.4, 2.9, -0.8]:
+        l["energy"] = 1.8                      # (the ochre panel was the subject)
+    elif l.get("id") == "dee_face":
+        l["energy"] = 2.0
+if person(sh, "kit_driver") is None:
+    sh["people"].insert(0, copy.deepcopy(person(shots["knock_ins"], "kit_driver")))
+
+# the knock: from the front, low, her fist on the fogged glass, her other arm on the door, Kit asleep
+# soft behind the glass
+sh = shots["knock_ins"]
+set_cam(sh, [1.27, 1.05, 0.78], [1.25, 1.05, 0.75], [0.84, 1.13, 0.0], 26, 0.05, dof=[1.4, 0.5, 0.1])
+k6_lights(sh, dict(K6_KIT_KEY, energy=0.7), K6_ROOF)
+car(sh, "kit").pop("fog_glass", None)
+car(sh, "kit")["fog_glass"] = 0.4         # (popped first: a key already there keeps its place)
+
+# "Kit. Kit! Open up.": the glass still up, fogged, until Kit winds it down
+sh = shots["knock"]
+set_cam(sh, [-0.30, 1.0, 0.30], [-0.29, 1.0, 0.27], [0.95, 1.18, 0.06], 36, 0.08, dof_near=[0.45, 0.2, 0.1])
+k6_lights(sh, K6_DEE_RIM, K6_DEE_KEY, K6_KIT_EDGE, K6_ROOF)
+car(sh, "kit").pop("fog_glass", None)
+car(sh, "kit")["fog_glass"] = 0.4         # (popped first: a key already there keeps its place)
+
+# "What... what time is it?": swung to the front so the heads part, Kit short-lit, a cold edge on Dee's hair
+sh = shots["two_shot"]
+set_cam(sh, [2.35, 1.45, 0.95], [2.30, 1.44, 0.90], [0.45, 1.15, -0.05], 30, 0.08, dof_near=[1.0, 0.5, 0.08])
+k6_lights(sh, K6_KIT_KEY, spot([0.2, 2.4, 1.6], D_EYES, "#8ea2c4", 0.6, 25.0, 3.0, id="dee_edge"))
+car(sh, "kit").pop("fog_glass", None)
+car(sh, "kit")["fog_glass"] = 0.4         # (the pane still going down for 0.6 s: fogged, as in the knock)
+for l in sh["lights"]:
+    if l.get("kind") == "sun":
+        l["energy"] = 0.6                      # (the street a stop under Kit)
+
+# "Gone six.": her profile, her head down to Kit (level, she looked into the pillar), the light behind her bun
+sh = shots["knock_two"]
+set_cam(sh, [0.90, 1.25, 1.50], [0.90, 1.25, 1.46], "dee", 30, 0.06, look_by=[0.12, -0.03, 0.0], dof=[1.8, 1.0, 0.12])
+for b in person(sh, "dee")["bend"]:
+    if "Head" in b:
+        b["Head"] = [-20] + list(b["Head"])[1:]
+k6_hold(sh, 1.8)
+
+# "I wasn't sleeping.": her face from the open window's front corner, her eyes off to Dee, short-lit
+sh = shots["kit_two"]
+set_cam(sh, [0.86, 1.14, 0.45], [0.85, 1.14, 0.42], "kit_driver", 34, 0.06, look_by=[0.0, -0.04, 0.0], dof=[1.2, 0.6, 0.1])
+k6_lights(sh, K6_KIT_KEY, K6_KIT_EDGE, K6_ROOF)
+k6_hold(sh, 1.8)
+
+# "There was a white car right behind me.": on her face from outside, ahead of the door, Dee's head soft
+# in front of her (nearer the lens: the near blur)
+sh = shots["kit_wake"]
+set_cam(sh, [1.50, 1.25, 1.20], [1.47, 1.25, 1.16], "kit_driver", 30, 0.06, look_by=[0.0, -0.03, 0.0], dof=[2.0, 0.8, 0.1],
+        dof_near=[1.45, 0.2, 0.1])
+k6_lights(sh, K6_KIT_KEY, K6_KIT_EDGE, K6_ROOF)
+k6_hold(sh, 2.3)
+
+# "You were drooling on the wheel.": tighter and lower than the knock, Kit's cheek a sliver at the left
+sh = shots["knock_dee2"]
+set_cam(sh, [-0.15, 0.98, 0.45], [-0.14, 0.98, 0.42], "dee", 32, 0.06, look_by=[0.0, -0.06, 0.0], dof=[1.8, 0.8, 0.15])
+k6_lights(sh, K6_DEE_RIM, K6_DEE_KEY, K6_ROOF)
+k6_hold(sh, 2.0)
+
+# "There was someone in the back.": from where she sat, Kit turning into the lens; Dee out of it
+sh = shots["knock_kit2"]
+set_cam(sh, [0.05, 1.10, -0.75], [0.06, 1.10, -0.72], "kit_driver", 30, 0.04, look_by=[0.05, 0.0, 0.0], dof=[1.4, 0.6, 0.1])
+k6_lights(sh, spot([1.4, 1.9, 0.9], K_EYES, "#ffb36b", 0.8, 25.0, 3.0, id="lamp_through"), K6_KIT_EDGE, K6_ROOF)
+k6_hold(sh, 2.0)
+
+# the back seat: the parcel shelf and the rear glass over the bench, the patch in the middle, lit grazing
+sh = shots["back_seat"]
+set_cam(sh, [0.12, 1.22, -0.05], [0.12, 1.21, -0.12], [-0.08, 0.55, -0.85], 36, 0.0, dof=[1.6, 0.8, 0.1])
+k6_lights(sh, spot([0.0, 1.25, -1.35], [0.0, 0.58, -0.7], "#a9b8d0", 1.5, 45.0, 1.8, id="rear_screen"),
+          omni([0.0, 1.0, -0.4], "#6f7c98", 0.15, 1.2, id="bench_fill"))
+
+# "You need a new door seal": the frame in a frame, lower, her eyes under the roof's edge
+sh = shots["knock_dee3"]
+set_cam(sh, [-0.45, 0.98, -0.05], [-0.43, 0.98, -0.04], [1.2, 1.32, 0.1], 34, 0.05, dof_near=[0.6, 0.3, 0.12])
+k6_lights(sh, K6_DEE_RIM, K6_DEE_KEY, spot([-0.3, 1.6, -0.6], [0.376, 1.15, -0.12], "#8fa3c2", 0.35, 25.0, 1.4, id="kit_crown"))
+k6_hold(sh, 2.2)
+
+# "I saw her in the mirror.": Kit on the left third, Dee's side of the frame clear
+sh = shots["knock_kit3"]
+set_cam(sh, [-0.24, 1.08, 0.50], [-0.23, 1.08, 0.47], "kit_driver", 32, 0.06, look_by=[0.1, 0.0, 0.0], dof=[1.1, 0.5, 0.1])
+k6_lights(sh, K6_KIT_KEY, K6_KIT_EDGE, K6_ROOF)
+k6_hold(sh, 1.8)
+
+# "She was soaking.": the mirror filling the frame, the empty bench in it lit where the patch is
+sh = shots["mirror_dawn"]
+set_cam(sh, [0.28, 1.13, -0.20], [0.28, 1.13, -0.08], [0.0, 1.085, 0.512], 11, 0.0, dof=[0.9, 0.5, 0.15])
+sh["mirror"]["exposure"] = 1.35
+for l in sh["lights"]:
+    if l.get("id") == "rear_glass":
+        l["look"] = [0.0, 0.55, -0.6]
+
+# "Old cars give you bad dreams.": from the dash, a three-quarter on her leaning in; her look away inside it
+sh = shots["knock_dee4"]
+set_cam(sh, [0.32, 1.0, 0.45], [0.31, 1.0, 0.42], "dee", 30, 0.05, look_by=[0.0, -0.04, 0.0], dof=[1.8, 0.8, 0.15])
+k6_lights(sh, K6_DEE_RIM, K6_DEE_KEY, K6_ROOF)
+person(sh, "dee")["looks"] = [[1.2, 2.4, "ahead"]]
+
+# "They've been places.": Kit hearing it, from the dash (Dee off the frame's edge, heard)
+sh = shots["kit_react"]
+set_cam(sh, [0.55, 1.10, 0.45], [0.54, 1.10, 0.43], "kit_driver", 32, 0.04, look_by=[0.0, -0.03, 0.0], dof=[1.0, 0.5, 0.1])
+k6_lights(sh, K6_KIT_KEY, K6_KIT_EDGE, K6_ROOF)
+
+# the pins: a strip of bezel and dash round the map, the hot spot off it
+sh = shots["pins"]
+set_cam(sh, [0.20, 1.0, 0.25], [0.10, 0.88, 0.42], [0.0, 0.66, 0.65], 30, 0.0)
+for l in sh["lights"]:
+    if l.get("pos") == [0.1, 1.0, 0.4]:
+        l["energy"] = 0.08
+
+# "Wipe it. Please.": Dee's eyes, a little looser, the lamp raking from behind Kit's eyeline
+sh = shots["knock_kit4"]
+set_cam(sh, [1.40, 1.30, 0.12], [1.36, 1.29, 0.12], [0.38, 1.10, -0.1], 30, 0.05, dof=[1.6, 0.6, 0.1])
+k6_lights(sh, spot([2.0, 1.9, -0.5], K_EYES, "#ffb36b", 0.8, 25.0, 3.0, id="lamp_on_kit"),
+          spot([-0.8, 1.5, 0.2], [0.376, 1.12, -0.12], "#9fb4d8", 0.35, 25.0, 1.6, id="kit_edge"))
+k6_hold(sh, 1.6)
+
+# the end: held on the two of them, then up past them to the arch's mouth, one focal length
+sh = shots["knock_end"]
+sh["camera"] = {"follow": "kit", "path": "spline", "ease": "inout", "keys": [
+    {"u": 0.0, "pos": [3.2, 1.0, 2.8], "look": [1.5, 1.25, 0.1], "fov": 34},
+    {"u": 0.3, "pos": [3.22, 1.05, 2.86], "look": [1.48, 1.24, 0.1], "fov": 34},
+    {"u": 1.0, "pos": [3.4, 2.4, 4.8], "look": [1.2, 0.9, 0.0], "fov": 34}]}
+k6_lights(sh, dict(spot([-2.0, 2.8, 4.0], [0.0, 1.2, 0.0], "#9fb4d8", 1.2, 30.0, 7.0, id="roof_rim")))
+
+
+# --- the Mirror's sixth pass (m9's two critics: 5.0 and 5.0) ---------------------------------------------------
+# asleep from inside (from outside, the driver's window is the body's painted glass, not glass: the
+# camo on it was the smear two rounds running; the wound glass now stands in it); the empty seat and
+# the hit lit and framed on what they are about; the faces' mirror light narrower and capped (a 2 cm
+# band of flags blurred out in a small shadow and flooded the face: a small hard pool on the eyes
+# instead), keyed from behind and the side; the coupe closing shot by shot (-30, -26, -22, -16, -13,
+# -11, -8, -5 m), the run up to it quicker (dream road 1.6 s, profile 1.2, mirror far 1.2, coupe low
+# 1.1, glare 0.9); the mirror inserts showing the housing;
+# the whiteout's lamps seen growing before the white; the ghost lit on her face, not the seat or the hand.
+def m6_lights(sh, keep, *add):
+    """Of the car's lights, those `keep` passes (but none `add` brings again by id); then `add`."""
+    ids = {l.get("id") for l in add if l.get("id")}
+    sh["lights"] = [l for l in sh["lights"] if l.get("car") != "kit" or (keep(l) and l.get("id") not in ids)] + \
+        [copy.deepcopy(l) for l in add]
+
+
+def ahead(sh, m):
+    car(sh, "white")["ahead"] = m
+
+
+def keys2(sh, pos0, pos1, look, fov, **key):
+    """Two keys, the camera's other settings kept."""
+    cam_ = sh["camera"]
+    k0 = dict(cam_["keys"][0])
+    k0.update({"u": 0, "pos": pos0, "look": look, "fov": fov}, **key)
+    k0.pop("t", None)
+    k1 = {k_: v for k_, v in k0.items() if k_ not in ("dof", "dof_near")}
+    k1.update({"u": 1, "pos": pos1})
+    cam_["keys"] = [k0, k1]
+
+
+# asleep: from the passenger's seat, her face in three-quarter, the beaded window and the arch's brick
+# soft behind her; the sodium through the window on her face, the window key on her hair
+sh = shots["asleep"]
+c = car(sh, "kit")
+c.pop("windows_down", None)
+c["windows_down"] = {"driver": [9.0, 10.0]}       # (the wound glass, up all shot: glass, not the body's paint)
+sh["glass"] = 0.0
+sh["camera"] = {"follow": "kit", "ease": "inout", "keys": [
+    {"u": 0, "pos": [-0.30, 1.10, 0.20], "look": [0.37, 1.06, -0.06], "fov": 32, "dof": [0.95, 0.6, 0.1]},
+    {"u": 1, "pos": [-0.27, 1.10, 0.17], "look": [0.37, 1.06, -0.06], "fov": 32}]}
+m6_lights(sh, lambda l: l.get("id") == "lining",
+          spot([1.25, 2.5, -1.6], [0.37, 1.12, -0.1], "#ffb36b", 1.4, 25.0, 4.0, id="window_key"),
+          spot([0.85, 1.6, 0.3], [0.37, 1.1, -0.06], "#ffb36b", 1.0, 25.0, 2.0, id="sodium_face"),
+          omni([0.37, 0.85, 0.45], "#3fa0ff", 0.15, 0.8))
+
+# the dream's road: lower, the front wheel sliding past the lens; the coupe two lamps at 30 m; her flank edged
+sh = shots["dream_road"]
+sh["dur"] = 1.6
+keys2(sh, [2.2, 0.32, 5.6], [1.4, 0.32, 4.0], [-0.3, 0.8, -6.0], 28, exposure=0.85)
+ahead(sh, -30.0)
+m6_lights(sh, lambda l: True, spot([1.6, 1.4, -3.0], [0.9, 0.9, 1.0], "#c8d4ff", 3.0, 30.0, 6.0, id="flank_edge"))
+
+# the low road shots without screen-space reflections: skimming the wet deck from 30-45 cm, its rays
+# missed in a regular grid of dark ovals (a polka-dot road); the lamps' own highlights stay on the water
+for sid in ("dream_road", "coupe_low"):
+    shots[sid]["env"] = dict(shots[sid].get("env", {}), ssr=False)
+
+# profile: her on the left third looking up to the right at the mirror; the coupe's beams a rim that grows
+sh = shots["profile"]
+sh["dur"] = 1.2
+for kk in sh["camera"]["keys"]:
+    kk["look"] = [0.44, 1.06, 0.03]
+ahead(sh, -26.0)
+m6_lights(sh, lambda l: l.get("pos") not in ([1.0, 0.95, 0.2], [-0.3, 0.9, -0.4]) and l.get("id") != "beams",
+          spot([-0.25, 1.5, -1.9], [0.33, 1.15, -0.08], "#e8eeff", [[0, 4.0], [1.2, 9.0]], 20.0, 4.0, id="beams"),
+          omni([-0.3, 0.9, 0.2], "#2a3560", 0.25, 1.6, id="fill_fwd"))
+person(sh, "kit_driver")["looks"] = [[0.3, 1.0, "mirror"]]
+
+# the mirror far: the housing in frame (the reflection alone read as a camera in the back seat)
+sh = shots["mirror_far"]
+sh["dur"] = 1.2
+keys2(sh, [0.31, 1.18, -0.12], [0.305, 1.178, -0.09], [0.0, 1.131, 0.512], 17, dof=[0.9, 0.5, 0.15])
+ahead(sh, -22.0)
+m6_lights(sh, lambda l: l.get("pos") != [0.2, 1.42, -0.1], omni([0.0, 1.05, -0.7], "#2a3560", 0.3, 1.2, id="rear_fill"))
+
+# the low reverse: on the dream road's side, our tail light and quarter soft at the left, the coupe nearer
+sh = shots["coupe_low"]
+sh["dur"] = 1.1
+keys2(sh, [1.5, 0.45, -0.6], [1.48, 0.45, -0.7], [0.3, 0.8, -12.0], 30, dof_near=[1.5, 0.8, 0.15], exposure=0.75)
+ahead(sh, -16.0)
+
+# closer: the mirror's light a small pool on her eyes, capped; the beams' rim from behind
+sh = shots["closer"]
+for kk in sh["camera"]["keys"]:
+    kk["exposure"] = 0.75
+ahead(sh, -13.0)
+for l in sh["lights"]:
+    if l.get("id") == "slash_early":
+        l.update({"angle": 5.0, "energy": [[0, 0.0], [0.4, 0.0], [1.0, 1.2]]})
+
+# the glimpse's window: tilted down so the road takes the frame, the lamps lower so they keep a shape
+sh = shots["rear_window"]
+for kk in sh["camera"]["keys"]:
+    kk["pos"] = [kk["pos"][0], 1.16, kk["pos"][2]]
+    kk["look"] = [-0.03, 0.98, -16.0]
+    kk["fov"] = 22
+ahead(sh, -11.0)
+for l in sh["lights"]:
+    if l.get("car") == "white" and l.get("pos") in ([0.6, 0.7, 2.2], [-0.6, 0.7, 2.2]):
+        l["energy"] = 5.0
+
+# the glare: shorter, her eyes on the upper third, the light a pool on the eyes (it blew the face to an egg)
+sh = shots["glare"]
+sh["dur"] = 0.9
+for kk in sh["camera"]["keys"]:
+    kk["look"] = [0.42, 1.04, -0.08]
+    kk["exposure"] = 0.8
+ahead(sh, -8.0)
+for l in sh["lights"]:
+    if l.get("id") == "slash":
+        l.update({"angle": 5.0, "energy": [[0, 0.0], [0.3, 0.4], [0.9, 1.6]]})
+    elif l.get("car") == "white" and l.get("pos") == [0.0, 1.7, 1.2]:
+        l["energy"] = 1.2
+k = person(sh, "kit_driver")
+k["looks"] = [[0.35, 0.9, "mirror"]]
+k["shapes"] = [{"t": 0}, {"t": 0.55}, {"t": 0.7, "eyeSquintLeft": 0.8, "eyeSquintRight": 0.8, "browDownLeft": 0.4, "browDownRight": 0.4}]
+
+# the whiteout: the two lamps seen in the glass first, swelling, the white only after 0.55 s
+sh = shots["whiteout"]
+sh["mirror"]["exposure"] = [[0, 0.7], [0.35, 1.4], [0.55, 3.5], [0.75, 8.0]]
+sh["mirror"]["boost"] = [[0, 1.0], [0.45, 1.3], [0.75, 4.0]]
+for l in sh["lights"]:
+    if l.get("car") == "white" and l.get("pos") in ([0.6, 0.7, 2.2], [-0.6, 0.7, 2.2]):
+        l["energy"] = [[0, 3.0], [0.45, 8.0], [0.6, 30.0]]
+
+for sid in ("rear_window", "empty_road"):
+    for kk in shots[sid]["camera"]["keys"]:
+        kk["dof_near"] = [1.1, 0.5, 0.12]       # (on every key: a key without it turns it off)
+
+# the empty road: the same tilt as the glimpse's window (a match)
+sh = shots["empty_road"]
+for kk in sh["camera"]["keys"]:
+    kk["pos"] = [kk["pos"][0], 1.16, kk["pos"][2]]
+    kk["look"] = [-0.03, 0.98, -16.0]
+    kk["fov"] = 22
+
+# the dark road: the creep felt (24 cm), her hair rimmed from the side glass, the mirror showing the seat
+sh = shots["dark_road"]
+sh["dur"] = 1.2
+keys2(sh, [0.05, 1.08, -0.72], [0.05, 1.08, -0.48], [0.55, 1.0, 4.0], 34, dof_near=[0.6, 0.3, 0.12])
+for l in sh["lights"]:
+    if l.get("id") == "kit_rim":
+        l.update({"look": [0.37, 1.18, -0.05], "energy": 2.2})
+sh.pop("mirror", None)                       # (popped first: a key already there keeps its place)
+sh["mirror"] = {"glass": True, "follow": "kit", "exposure": 1.0}
+
+# the false calm: her key harder, the dash's under-light down; the ghost's light on her face, not the seat
+sh = shots["breath_out"]
+m6_lights(sh, lambda l: l.get("id") not in ("side_key", "ghost_light") and l.get("pos") != [0.32, 0.93, 0.55],
+          omni([0.32, 0.93, 0.55], "#6fa8ff", 0.03, 1.0),
+          spot([1.0, 1.35, -0.2], [0.372, 1.1, -0.15], "#8fa6c8", 2.6, 30.0, 1.6, id="side_key"),
+          spot([0.12, 0.92, -0.35], [0.0, 1.08, -0.66], GHOST_LIGHT, [[0, 0.0], [1.95, 0.0], [2.05, 0.6]], 25.0, 1.0, id="ghost_light"))
+
+# she is there: the housing in frame like the mirror far; her face lit from below, the hand left dim
+sh = shots["she_is_there"]
+keys2(sh, [0.32, 1.17, -0.15], [0.315, 1.168, -0.12], [0.0, 1.125, 0.512], 17, dof=[0.9, 0.5, 0.15])
+sh["mirror"]["exposure"] = 1.5
+for l in sh["lights"]:
+    if l.get("id") == "ghost_face":
+        l["pos"] = [0.0, 0.85, -0.45]
+
+# her eyes: on the upper third, the mirror's light a pool on them, the rest of the face fallen away
+sh = shots["eyes"]
+for kk in sh["camera"]["keys"]:
+    kk["look_by"] = [0.0, -0.018, 0.0]
+for l in sh["lights"]:
+    if l.get("id") == "slash":
+        l.update({"angle": 5.0, "energy": 1.4})
+    elif l.get("pos") == [0.32, 0.93, 0.55]:
+        l["energy"] = 0.02
+
+# the look back: a longer lens from further back, keyed from the ghost's side; the dark on the right lifted
+sh = shots["look_back"]
+keys2(sh, [-0.14, 1.04, -0.58], [-0.135, 1.04, -0.56], [0.37, 1.12, -0.1], 26, exposure=0.7)
+m6_lights(sh, lambda l: l.get("id") not in ("seat_side", "under"),
+          spot([-0.2, 1.4, -0.5], [0.372, 1.1, -0.15], GHOST_LIGHT, 1.6, 30.0, 1.2, id="seat_side"),
+          spot([0.6, 1.0, 0.1], [0.372, 1.1, -0.15], "#6fa8ff", 0.1, 35.0, 1.2, id="under"),
+          omni([0.6, 1.0, 0.6], "#2a3560", 0.15, 1.0, id="right_lift"))
+
+# the empty seat: between the front seats onto the cushion, a pool of light on it where she sat
+sh = shots["empty_seat"]
+sh["camera"] = {"follow": "kit", "ease": "inout", "handheld": 0.18, "keys": [
+    {"u": 0, "pos": [0.25, 1.16, 0.0], "look": [-0.15, 0.55, -0.75], "fov": 36, "exposure": 1.0},
+    {"u": 1, "pos": [0.24, 1.16, -0.02], "look": [-0.15, 0.55, -0.75], "fov": 36, "exposure": 1.0}]}
+m6_lights(sh, lambda l: l.get("id") not in ("slash_seat", "seat_teal"),
+          spot([-0.1, 1.32, -0.3], [-0.15, 0.5, -0.75], "#8fa6c8", 1.6, 35.0, 1.6, id="cushion_pool"))
+
+# the hit: on her face (her shoulder filled it), lit from under; Kit soft at the right
+sh = shots["hit"]
+sh["camera"]["keys"] = [          # (the depth of field on every key: a key without it turns it off)
+    {"u": 0, "pos": [0.22, 1.08, 0.56], "look": [0.04, 1.10, -0.25], "fov": 30, "dof": [1.35, 0.3, 0.1], "exposure": 1.0,
+     "dof_near": [0.75, 0.05, 0.08]},
+    {"t": 0.03, "pos": [0.22, 1.08, 0.55], "look": [0.04, 1.10, -0.25], "fov": 30, "dof": [1.35, 0.3, 0.1], "exposure": 1.45,
+     "dof_near": [0.75, 0.05, 0.08]},
+    {"t": 0.12, "pos": [0.21, 1.08, 0.44], "look": [0.04, 1.10, -0.25], "fov": 30, "dof": [1.25, 0.3, 0.1], "exposure": 0.85,
+     "dof_near": [0.64, 0.05, 0.08]}]
+m6_lights(sh, lambda l: l.get("id") not in ("ghost_rim", "teal_on_kit"))
+
 json.dump(scene, open(path, "w"), indent="\t")

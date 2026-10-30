@@ -1688,3 +1688,8 @@ iterate toward 7/10.)
 > Continue
 
 (Read as: carry on toward 7/10: the round-five critics, the opening's remaining stills, the next pass.)
+
+**Owner (30 Oct, afternoon, after the gate hung and the worker restarted):**
+> Try again
+
+(Read as: rerun the gate on the sixth pass and carry on.)

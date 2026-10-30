@@ -150,13 +150,17 @@ static func soaked(src: StandardMaterial3D) -> StandardMaterial3D:
 	# mannequin's, a rubber glove's), no light under it
 	m.albedo_color = (src.albedo_color.lerp(Color(0.48, 0.53, 0.58), 0.74) if skin else src.albedo_color * 0.55)
 	m.albedo_color.a = src.albedo_color.a
-	m.roughness = 0.7 if skin else (0.35 if hair else 0.22)
+	# soaked cloth: dark and near matt, cotton heavy with water (glossy, with a clear coat, it read as
+	# latex); the eyes, teeth and tongue keep their own wet surface
+	var wet_part := src.resource_name.get_slice("__", 0) in ["eye", "teeth", "tongue"]
+	m.roughness = 0.7 if skin else (0.35 if hair else (src.roughness if wet_part else 0.8))
 	if skin:
 		m.subsurf_scatter_enabled = false
 		m.metallic_specular = 0.3
-	m.clearcoat_enabled = not skin       # (a clear coat on the skin read as a glove: matt, a drowned body's)
-	m.clearcoat = 0.5 if hair else 1.0     # wet hair shines in strands, not one glare under a lamp
-	m.clearcoat_roughness = 0.3 if hair else 0.05
+	m.clearcoat_enabled = hair or (wet_part and src.clearcoat_enabled)   # (a clear coat on the skin read as a glove)
+	if hair:
+		m.clearcoat = 0.5                # wet hair shines in strands, not one glare under a lamp
+		m.clearcoat_roughness = 0.3
 	m.rim_enabled = true
 	m.rim = 0.3 if skin else 0.6
 	m.rim_tint = 0.1

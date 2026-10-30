@@ -194,8 +194,8 @@ static func seat(parent: Node3D, at: Vector3) -> Node3D:
 	part(root, Vector3(0.30, 0.60, 0.09), 0.04, "alcantara", Vector3(0.0, 0.32, -0.285), Vector3(-12.0, 0, 0), 0.015)
 	part(root, Vector3(0.26, 0.20, 0.10), 0.05, "leather", Vector3(0.0, 0.74, -0.40), Vector3(-12.0, 0, 0))
 	part(root, Vector3(0.50, 0.80, 0.05), 0.025, "satin", Vector3(0.0, 0.40, -0.37), Vector3(-12.0, 0, 0))
-	for s: float in [-1.0, 1.0]:                   # the harness slots in the headrest's foot
-		part(root, Vector3(0.055, 0.018, 0.012), 0.005, "piano", Vector3(0.07 * s, 0.62, -0.333), Vector3(-12.0, 0, 0))
+	for s: float in [-1.0, 1.0]:                   # the harness slots in the headrest's foot (matt: gloss read as white tabs)
+		part(root, Vector3(0.055, 0.018, 0.012), 0.005, "soft", Vector3(0.07 * s, 0.62, -0.333), Vector3(-12.0, 0, 0))
 	return root
 
 

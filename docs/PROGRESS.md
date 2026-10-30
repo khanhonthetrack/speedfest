@@ -5351,3 +5351,87 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   - the button: Lot 47's lamps blink twice and come on by themselves after "Who'll start me?".
   - Engine: Lot 47's camo lifted, its pinstripe a hand-laid gold 7 mm wide (dark red, 5 mm, it read
     as a wire); Gus's hair a mid grey (his white read as a helmet brighter than his face).
+
+## 2026-10-30 (session 21, cont.): round five's critics, the sixth pass
+- **Round five** (stills after d974053; two fresh critics a scene): the knock (`k8`) **5.0 and 5.0**,
+  the Mirror (`m9`) **5.0 and 5.0**. Both scenes held at 5. The critics found the cut works (the
+  Mirror's rhythm, the knock's beats) and the execution fails:
+  - faces lit flat by fills at the lens;
+  - the Mirror's asleep and empty seat unreadable, its hit framed on the ghost's shoulder;
+  - Kit's lines on the back of her head;
+  - Dee's coverage one over-the-shoulder four times;
+  - the knock's glass invisible, so the fist knocked on air;
+  - the road a polka-dot tile;
+  - the coupe's glare a lit box;
+  - white tabs and a pale visor brighter than the faces.
+- **Found while checking them:**
+  - **asleep's smear (two rounds) is the camo livery.** Lot 47's side windows are the body's painted
+    glass; only a wound window (`"windows_down"`) is real glass. From outside, the shot filmed paint;
+    no light change could fix it.
+  - **the "white tabs"** were the seats' harness slots in piano black reflecting the street.
+  - **the pale visor** was lit by a fill omni 10 cm from it.
+  - **the glare's band** (flags 2 cm apart) blurred out in the light's small shadow and flooded the
+    face.
+- **The sixth pass** (blocks at the end of `pass4_close.py`; chain-stable, rebuilt from HEAD the same):
+  - **The knock:**
+    - every face keyed from a source: Dee rimmed warm from the arch's lamp, keyed cool from the
+      dawn; Kit short-lit through the open window, a cold edge from the far one; no cabin fills;
+    - Kit's two back-of-head shots now on her face (from outside ahead of the door; from the dash);
+    - Dee's coverage five setups (the knock, tighter and lower, her profile, the frame in a frame,
+      a three-quarter from the dash);
+    - the arch's crane ends on the front side of the line (Kit left, Dee right) and the insert is on
+      that side too;
+    - the glass up and fogged for the knock (a car's new `"fog_glass"`);
+    - the wing off (the Mirror's car has none: a continuity break, and it read as a rail);
+    - the warehouse's lit door off (the "blank cinema screen" behind the end);
+    - no zoom in the arch or the end;
+    - close-ups trimmed to 1.6-1.8 s;
+    - the back seat framed on the shelf and the patch, lit grazing;
+    - the mirror at dawn filling the frame.
+  - **The Mirror:**
+    - asleep from the passenger's seat (her profile against the beaded window and the arch's brick),
+      a sodium key on her face;
+    - the empty seat a pool of light on the cushion;
+    - the hit on the ghost's face, lit from under;
+    - the mirror's light on the faces a narrow capped pool, not a flood;
+    - the coupe closing shot by shot (-30, -22, -16, -13, -11, -8, -5 m) as the cut quickens
+      (dream road 1.6 s, profile 1.2, mirror far 1.2, coupe low 1.1, glare 0.9);
+    - the mirror inserts show the housing;
+    - the whiteout's lamps grow before the white;
+    - the dark road's creep 24 cm with its mirror live;
+    - the ghost's light on her face, not the seat or the hand.
+  - **Engine:**
+    - harness slots matt;
+    - eyes wet and a little darker (they greyed under soft light);
+    - teeth ivory;
+    - skin transmittance halved (an open mouth glowed orange);
+    - the ghost's soaked cloth matt (it read as latex);
+    - the wet patch beaded (a cellular normal map: glints, not a pool);
+    - the satnav's under-light dim and neutral (the magenta under the chins);
+    - the headlamp glare faded before its card's edge;
+    - a car's `"fog_glass"` (breath on the glass).
+  - **The opening** (`o11`: **5.5 and 5.0**; its two hinge beats, the gentleman at the back and the
+    coat man's glance, the weakest images): the sixth pass at the end of `pass4_open.py`:
+    - an aisle opened in the crowd onto the coat man, him the brightest face, over Gus's dark shoulder;
+    - the glance mutual and early (him on her from 0.12 s; Kit, soft in front, turns her head back over her
+      shoulder to him), a
+      work lamp in the dark beside him;
+    - Gus short-lit with a back light, his halo gone (a shallower depth of field);
+    - Kit's front fills down, her rims up, the coat man clear of her head in her singles, Kit in the
+      yard's wide;
+    - the crowd's twins broken (each extra's clothes its own colour, heights varied: the pale tops read
+      as bare skin);
+    - the paint's hot spot lifted off the panel, the stripe a diagonal with a skimming strip light;
+    - Lot 47's wing off here too (all three scenes now show the same car).
+- **The review of the sixth pass** (two sequential readers): all findings fixed before the commit:
+  - the drowned's soaked() also flattened her eyes, teeth and tongue (now cloth only);
+  - the eye override made the import's wet eyes rougher (now the off-white alone);
+  - the hit's depth of field sat on its first key only, so it switched off after 0.03 s (rear_window
+    and empty_road had the same fault);
+  - the ghost's light in breath_out was behind her head (now in front, from below);
+  - a look only moves the eyes, and the coat man stands behind the crowd and Kit: the crowd's looks
+    dropped, Kit turns her head over her shoulder first;
+  - round three put one coat-man light dict in two shots (each shot's lights now its own copy);
+  - the fog kept through the two-shot while the pane is still going down.
+  The first gate ran past its 90 minutes (a test hung; `test_online` alone passes in 75 s); the gate
+  now logs as it runs, so a stall shows where it is.

@@ -160,7 +160,16 @@
   (PROGRESS). A spot's light projector lights nothing on this renderer (tested alone): `"band"` is now
   shadow flags. The knock's `k8` (after its fifth pass) waits for its critic; `m9` and `o11` follow the
   gate.
-- **Next**: the critics of `k8`, `m9` and `o11`; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
+- **30 Oct, sixth pass:** round five's critics held every scene at 5 (`k8` 5.0/5.0, `m9` 5.0/5.0, `o11`
+  5.5/5.0). The sixth pass (PROGRESS) is at the end of `pass4_close.py` (the knock, the Mirror) and
+  `pass4_open.py` (the opening), with engine fixes in the cabin, cast and glass. Two findings worth
+  remembering:
+  - Lot 47's side windows are the body's painted glass: a shot through one from outside films the camo
+    unless the window is wound (`"windows_down": {"driver": [9, 10]}` keeps real glass up all shot);
+  - a spot's `"band"` (shadow flags a few cm apart) blurs out when the light's shadow is small, so a
+    narrow capped cone is the reliable eye light.
+  Its stills (`k9`, `m10`, `o12`) and their critics are next.
+- **Next**: the critics of the sixth pass's stills; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
   faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera from the

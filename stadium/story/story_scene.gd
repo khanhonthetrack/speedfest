@@ -33,7 +33,7 @@ extends Node3D
 ##     true, or "high": high beams, a hard key 50 m on, glaring into a lens they point at),
 ##     "speed" (m/s along the line), "accel" (m/s^2; it stops when its speed reaches 0),
 ##     "cabin": true (StoryCabin: seats, dash, the satnav glowing, the body lined and its glass
-##     clear, beaded by the shot's rain or the car's "rain_glass": for shots inside it; "windows_down": ["driver" | "passenger"], those front windows
+##     clear, beaded by the shot's rain or the car's "rain_glass", fogged by its "fog_glass" (0..1; like "rain_glass", one value for every cabin car's clear glass in a shot): for shots inside it; "windows_down": ["driver" | "passenger"], those front windows
 ##     down, or {"driver": [from s, to s]}, wound down then), "dome" (its courtesy light's energy: a passenger lit in the
 ##     mirror), "wet_seat": true (a wet patch on its back seat, where someone sat soaked), "finish" (its paint's, over the livery's: TmCarVisual.FINISHES, "gloss" for a car
 ##     shown off), "from", "to" (s: on screen only then)}],
@@ -396,6 +396,7 @@ func _enter(i: int) -> void:
 		if c.has("cabin"):
 			var cs: Dictionary = c["spec"]
 			StoryCabin.set_wet(c["node"], float(cs.get("rain_glass", keyed_max(s.get("rain", data.get("rain", 0.0))))))
+			StoryCabin.set_fog(c["node"], float(cs.get("fog_glass", 0.0)))
 	var seated := {}                  # car -> seat -> [[person, model, its place], ...]
 	for p: Dictionary in s.get("people", []):
 		var person := StoryPerson.new()
@@ -834,7 +835,7 @@ static func _lamp_glow(high: bool) -> ShaderMaterial:
 		var m := ShaderMaterial.new()
 		m.shader = _glow_shader
 		m.set_shader_parameter("energy", 9.0 if high else 2.5)
-		m.set_shader_parameter("size", 0.75 if high else 0.35)
+		m.set_shader_parameter("size", 0.95 if high else 0.45)      # (the streak's length kept inside the fade)
 		_glows[key] = m
 	return _glows[key]
 
@@ -860,6 +861,8 @@ void fragment() {
 	vec2 q = UV * 2.0 - 1.0;
 	float r2 = dot(q, q);
 	float glare = exp(-r2 * 22.0) + exp(-r2 * 4.0) * 0.22 + exp(-abs(q.y) * 45.0) * exp(-abs(q.x) * 2.2) * 0.3;
+	// all of it gone before the card's edge (the streak and the halo cut off there read as a lit box)
+	glare *= (1.0 - smoothstep(0.5, 1.0, abs(q.x))) * (1.0 - smoothstep(0.5, 1.0, abs(q.y)));
 	ALBEDO = vec3(0.0);
 	ROUGHNESS = 1.0;
 	EMISSION = colour * energy * glare * facing * facing * facing;

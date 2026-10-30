@@ -212,8 +212,9 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	bezel.transform = satnav.transform * Transform3D(Basis(), Vector3(0.0, 0.0, -0.0115))
 	add_child(bezel)
 	var screen_light := OmniLight3D.new()
-	screen_light.light_color = Color(0.72, 0.7, 1.0)      # (a saturated violet lit the seats and faces lilac)
-	screen_light.light_energy = 0.3
+	# (a violet, then a lilac, lit the chins and necks from below: graded, it read as a magenta stain)
+	screen_light.light_color = Color(0.78, 0.86, 1.0)
+	screen_light.light_energy = 0.12
 	screen_light.omni_range = 0.9
 	screen_light.shadow_enabled = false
 	screen_light.position = satnav.position + Vector3(0.0, 0.0, -0.15)
@@ -267,6 +268,22 @@ func wet_seat() -> void:
 	m.clearcoat_enabled = true
 	m.clearcoat_roughness = 0.04
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# beads standing on it, about a centimetre each: a smooth patch caught a light as one soft pool and
+	# read as a torch on the seat, a scatter of glints reads as water
+	var beads := FastNoiseLite.new()
+	beads.noise_type = FastNoiseLite.TYPE_CELLULAR
+	beads.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+	beads.frequency = 0.1
+	beads.seed = 47
+	var bt := NoiseTexture2D.new()
+	bt.width = 512
+	bt.height = 512
+	bt.noise = beads
+	bt.as_normal_map = true
+	bt.bump_strength = 6.0
+	m.normal_enabled = true
+	m.normal_texture = bt
+	m.normal_scale = 0.8
 	var g := Gradient.new()
 	g.set_color(0, Color(1, 1, 1, 0.95))
 	g.set_color(1, Color(1, 1, 1, 0.0))
@@ -423,6 +440,14 @@ static func set_wet(car: TmCarVisual, w: float) -> void:
 		((car.get_meta("windows")[side][0] as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("wet", w)
 
 
+## Breath fogged on a fitted car's glass (0 clear .. 1): its wound windows' and the shared clear glass's.
+static func set_fog(car: TmCarVisual, f: float) -> void:
+	if _clear_glass != null:
+		_clear_glass.set_shader_parameter("fog", f)
+	for side: String in car.get_meta("windows", {}):
+		((car.get_meta("windows")[side][0] as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("fog", f)
+
+
 static func wind(car: TmCarVisual, t: float) -> void:
 	if _clear_glass != null:
 		_clear_glass.set_shader_parameter("t", t)
@@ -534,6 +559,7 @@ uniform float drop = 0.0;      // how far down the glass has slid (m)
 uniform float floor_y = 0.0;   // the door's top, in the body's frame
 uniform float wet = 0.0;       // rain on it (0 dry .. 1 soaked)
 uniform float t = 0.0;         // the shot's time: the running drops go down with it
+uniform float fog = 0.0;       // breath fogged on it (a slept-in car): a pale veil the beads still show through
 varying vec3 lp;
 varying vec3 ln;
 varying float body_y;
@@ -586,6 +612,13 @@ void fragment() {
 		alpha = mix(alpha, 0.55 + 0.3 * fres, water);
 		rough = mix(rough, 0.02, water);
 		col += vec3(0.02, 0.025, 0.03) * water;
+	}
+	if (fog > 0.0) {
+		vec2 gf = abs(ln.x) > 0.5 ? lp.zy : lp.xy;
+		float veil = fog * (0.75 + 0.25 * sin(gf.x * 23.0 + gf.y * 17.0) * sin(gf.y * 31.0 - gf.x * 7.0));
+		col = mix(col, vec3(0.3, 0.32, 0.34), veil * 0.55);
+		alpha = mix(alpha, 0.8, veil);
+		rough = mix(rough, 0.55, veil * 0.8);
 	}
 	ALBEDO = col;
 	ALPHA = alpha;

@@ -513,4 +513,124 @@ for side, lid in ((0.62, "lamp_l"), (-0.62, "lamp_r")):
     hero["lights"] += [b, g]
 hero["sounds"] = [x for x in hero.get("sounds", []) if x.get("cue") != "thump"] + [{"at": 2.47, "cue": "thump", "db": -14}]
 
+
+# --- the opening's sixth pass (o11's two critics: 5.5 and 5.0) -------------------------------------------------
+# the two hinge beats made to land: "the gentleman at the back" seen down an aisle the crowd opens, him
+# the brightest face; the coat man's glance at Kit mutual and early,
+# Kit soft in front with her eyes on him, the dark beside him given a lamp. Faces 3:1 (Gus short-lit, his
+# halo gone with a shallower depth of field; Kit's front fills down, her rims up); the coat man clear of
+# Kit's head in her singles. The crowd's twins broken (each extra's clothes their own colour, heights
+# varied; the pale tops read as bare skin). The paint's hot spot lifted off the panel, the stripe a
+# diagonal with a skimming light. The wing off (the night's other scenes have none). Kit in the yard's wide.
+# (A look moves only the eyes: the crowd's heads can't turn to a man behind them; Kit's glance back is a
+# turn of her head over her shoulder, then her eyes.)
+CROWD6 = {"c1": ([-3.8, 0, 9.2], 1.03, {}), "c2": ([-0.9, 0, 10.4], 1.01, {}),
+          "c3": ([1.8, 0, 9.4], 0.98, {}), "c4": ([2.7, 0, 12.2], 0.97, {"cloth__mindfront_knitted_sweater_02": "#2f3b4a"}),
+          "c5": ([-4.6, 0, 11.0], 0.95, {"cloth__mindfront_knitted_sweater_01": "#4a3a52"}),
+          "c6": ([-0.6, 0, 7.6], 1.02, {"cloth__mindfront_knitted_sweater_02": "#5a2e2e"}),
+          "c7": ([1.1, 0, 6.8], 1.0, {"cloth__mindfront_knitted_sweater_01": "#3b3328"}),
+          "c8": ([-2.3, 0, 6.9], 0.96, {"cloth__male_casualsuit03": "#3d4a3a"}),
+          "c9": ([3.4, 0, 7.7], 1.04, {"cloth__mindfront_lusekofta": "#2e3a4d"})}
+for sh in scene["shots"]:
+    for c in sh.get("cars", []):
+        if c.get("id") == "kit":
+            c["tuning"] = "1.7.6.0"
+    for p_ in sh.get("people", []):
+        if p_["id"] in CROWD6:
+            pos, sc, tint = CROWD6[p_["id"]]
+            p_["pos"] = list(pos)
+            p_.pop("scale", None)
+            p_.pop("tint", None)
+            if sc != 1.0:
+                p_["scale"] = sc
+            if tint:
+                p_["tint"] = dict(tint)
+
+for sid in ("yard", "gus_points", "coat", "gus", "kit_mcu", "kit_eyes", "lot47_paint", "coat_glance", "lot47_hero"):
+    shots[sid]["lights"] = copy.deepcopy(shots[sid]["lights"])     # (round three shared COAT_KEY between two shots)
+
+# the yard's wide: Kit in it (the right third, a rim on her hood), the container wall falling off
+sh = shots["yard"]
+sh["camera"] = cam2([-2.0, 1.85, 16.4], [-1.8, 1.8, 15.8], [0.3, 2.0, -2.6], 26, 0.1, dof=[22.0, 8.0, 0.04], dof_near=[1.2, 0.6, 0.1])
+for l in sh["lights"]:
+    if l.get("pos") == [0.0, 10.0, 22.0]:
+        l["energy"] = 4.0
+drop(sh, "kit_rim6")
+sh["lights"].append(spotw([0.6, 3.0, 13.0], KIT_FACE, "#8aa6ff", 2.5, 20.0, 5.0, lid="kit_rim6"))
+
+# "...gone to the gentleman at the back": over Gus's dark shoulder, down the aisle to him
+sh = shots["gus_points"]
+sh["camera"] = cam2([0.7, 2.1, -3.7], [0.6, 2.1, -3.5], [-2.5, 1.65, 14.5], 16, 0.08, dof=[24.0, 6.0, 0.06], dof_near=[6.0, 3.0, 0.12])
+for l in sh["lights"]:
+    if l.get("pos") == [-1.2, 3.6, 1.4]:
+        l.update({"pos": [-1.0, 3.6, 4.5], "look": [-1.0, 1.6, 9.5], "energy": 4.0})   # (the crowd's faces, not Gus's crown)
+    elif l.get("id") == "coat_key":
+        l["energy"] = 6.5
+
+# the coat man: on the left third looking right into the room; a cold rim off his shoulders
+sh = shots["coat"]
+for kk in sh["camera"]["keys"]:
+    kk["look"] = [-2.95, 1.72, 14.27]
+for l in sh["lights"]:
+    if l.get("id") == "coat_key":
+        l["energy"] = 6.0
+drop(sh, "coat_back6")
+sh["lights"].append(spotw([-4.6, 3.0, 15.2], COAT, "#9fb4ff", 3.0, 20.0, 5.0, lid="coat_back6"))
+sh["lead"], sh["tail"] = 0.05, 0.1
+
+# Gus: short-lit (the camera's side down to a fill), a back light from the stage lamp, no halo
+sh = shots["gus"]
+sh["camera"] = cam2([1.4, 1.65, 2.2], [1.3, 1.65, 2.0], [-0.25, 2.05, -2.6], 20, 0.12, dof=[6.0, 3.0, 0.08], eye_light=0.03)
+for l in sh["lights"]:
+    if l.get("pos") == [1.7, 3.2, -1.8]:
+        l["energy"] = 1.5
+drop(sh, "gus_back6")
+sh["lights"].append(spotw([0.3, 4.5, -4.5], [0.0, 2.1, -2.6], "#ffcf99", 3.0, 25.0, 6.0, lid="gus_back6"))
+
+# Kit's singles: the coat man clear of her head; her front fill down, her rims up (3:1 and an edge)
+sh = shots["kit_mcu"]
+sh["camera"] = cam2([1.2, 1.6, 9.6], [1.17, 1.6, 9.7], [0.3, 1.5, 11.2], 26, 0.12, dof=[1.85, 1.0, 0.12], eye_light=0.03)
+for l in sh["lights"]:
+    if l.get("id") == "kit_key":
+        l["energy"] = 0.35
+    elif l.get("id") == "kit_rim2":
+        l["energy"] = 4.5
+sh = shots["kit_eyes"]
+sh["camera"] = cam2([0.75, 1.58, 10.25], [0.73, 1.58, 10.28], [0.35, 1.47, 11.2], 22, 0.06, dof=[1.3, 0.6, 0.14], eye_light=0.02)
+for l in sh["lights"]:
+    if l.get("id") == "kit_key":
+        l["energy"] = 0.4
+    elif l.get("id") == "kit_rim2":
+        l["energy"] = 3.5
+
+# the paint: the long softbox's hot spot lifted off the panel; the stripe a diagonal, a low light skimming it
+sh = shots["lot47_paint"]
+sh["camera"] = cam2([1.55, 0.95, 1.2], [1.55, 0.95, 0.5], [0.95, 0.78, 0.4], 24, 0.06, follow="kit", dof=[1.1, 0.4, 0.12])
+sh["camera"]["keys"][1]["look"] = [0.95, 0.78, -0.4]
+for l in sh["lights"]:
+    if l.get("kind") == "softbox" and l.get("pos") in ([4.5, 2.0, 2.0], [4.5, 3.6, 0.5]):
+        l.update({"pos": [4.5, 3.6, 0.5], "energy": 0.8})
+sh["lights"] = [l for l in sh["lights"] if not (l.get("kind") == "softbox" and l.get("pos") == [2.2, 0.9, -0.5])]
+sh["lights"].append({"kind": "softbox", "pos": [2.2, 0.9, -0.5], "look": [0.9, 0.8, 0.2], "size": [2.0, 0.2], "energy": 0.6})
+
+# the glance: Kit soft in front looking at him, him turning to her early and holding; a lamp in his dark
+sh = shots["coat_glance"]
+sh["camera"] = cam2([1.55, 1.6, 9.7], [1.53, 1.6, 9.75], [-2.5, 1.65, 14.5], 18, 0.06, dof_near=[3.0, 1.2, 0.12], eye_light=0.03)
+sh["dur"] = 1.0
+person(sh, "coat")["looks"] = [[0.0, 0.12, "gus"], [0.12, 1.2, "kit"]]
+k = person(sh, "kit")
+k.pop("looks", None)
+k["looks"] = [[0.2, 1.2, "coat"]]
+k.pop("bend", None)
+k["bend"] = [{"t": 0.0}, {"t": 0.2}, {"t": 0.55, "Chest": [0, 20, 0], "Neck": [0, 30, 0], "Head": [0, 35, 0]}]   # (over her left shoulder)
+drop(sh, "work_lamp6", "coat_back6")
+sh["lights"] += [omniw([-5.6, 2.8, 17.2], "#ffb070", 2.0, 6.0, lid="work_lamp6"),
+                 spotw([-4.6, 3.0, 15.4], COAT, "#9fb4ff", 3.0, 20.0, 5.0, lid="coat_back6")]
+
+# the button: the car framed so Gus doesn't grow out of its roof
+sh = shots["lot47_hero"]
+for kk, p_ in zip(sh["camera"]["keys"], ([2.6, 0.35, 7.4], [2.6, 0.45, 6.2])):
+    kk["pos"] = p_
+    kk["look"] = [0.0, kk["look"][1], kk["look"][2]]
+
 json.dump(scene, open(path, "w"), indent="\t")

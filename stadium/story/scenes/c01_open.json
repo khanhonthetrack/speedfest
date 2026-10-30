@@ -68,7 +68,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -97,23 +97,25 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
-					"who": "crowd4"
+					"who": "crowd4",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -124,18 +126,23 @@
 						9.4
 					],
 					"face": 190,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
 					"clip": "Stand_B",
 					"pos": [
-						3.2,
+						2.7,
 						0,
-						10.8
+						12.2
 					],
 					"face": 185,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -146,7 +153,11 @@
 						11.0
 					],
 					"face": 160,
-					"who": "crowd5"
+					"who": "crowd5",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -196,7 +207,11 @@
 					],
 					"face": 185,
 					"start": 1.3,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -208,7 +223,10 @@
 					],
 					"face": 175,
 					"start": 0.6,
-					"who": "crowd5"
+					"who": "crowd5",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -220,7 +238,11 @@
 					],
 					"face": 165,
 					"start": 2.0,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -232,7 +254,11 @@
 					],
 					"face": 200,
 					"start": 1.7,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [],
@@ -289,7 +315,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -555,7 +581,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -585,25 +611,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -615,7 +643,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -627,7 +656,11 @@
 					],
 					"face": 180,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -639,7 +672,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -750,7 +787,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -763,7 +804,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -776,7 +820,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -789,7 +837,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -823,7 +875,7 @@
 						8.0
 					],
 					"colour": "#7f9cff",
-					"energy": 8.0,
+					"energy": 4.0,
 					"angle": 45.0,
 					"range": 30.0
 				},
@@ -944,6 +996,25 @@
 					"range": 6.0,
 					"shadow": false,
 					"id": "gus_warm_back"
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						0.6,
+						3.0,
+						13.0
+					],
+					"look": [
+						0.4,
+						1.58,
+						11.2
+					],
+					"colour": "#8aa6ff",
+					"energy": 2.5,
+					"angle": 20.0,
+					"range": 5.0,
+					"shadow": false,
+					"id": "kit_rim6"
 				}
 			],
 			"camera": {
@@ -953,16 +1024,16 @@
 					{
 						"u": 0,
 						"pos": [
-							-3.4,
+							-2.0,
 							1.85,
 							16.4
 						],
 						"look": [
-							0.0,
+							0.3,
 							2.0,
 							-2.6
 						],
-						"fov": 30,
+						"fov": 26,
 						"dof": [
 							22.0,
 							8.0,
@@ -977,16 +1048,16 @@
 					{
 						"u": 1,
 						"pos": [
-							-3.1,
+							-1.8,
 							1.8,
 							15.8
 						],
 						"look": [
-							0.0,
+							0.3,
 							2.0,
 							-2.6
 						],
-						"fov": 30
+						"fov": 26
 					}
 				]
 			},
@@ -1033,7 +1104,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -1063,25 +1134,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -1093,7 +1166,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -1105,7 +1179,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -1117,7 +1195,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -1266,7 +1348,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -1279,7 +1365,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -1292,7 +1381,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -1305,7 +1398,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -1346,17 +1443,17 @@
 				{
 					"kind": "spot",
 					"pos": [
-						-1.2,
+						-1.0,
 						3.6,
-						1.4
+						4.5
 					],
 					"look": [
-						0.0,
-						2.2,
-						-2.6
+						-1.0,
+						1.6,
+						9.5
 					],
 					"colour": "#ffcf99",
-					"energy": 6.0,
+					"energy": 4.0,
 					"angle": 25.0,
 					"range": 8.0
 				},
@@ -1391,7 +1488,7 @@
 						14.5
 					],
 					"colour": "#ffb070",
-					"energy": 4.0,
+					"energy": 6.5,
 					"angle": 20.0,
 					"range": 6.0,
 					"shadow": false,
@@ -1424,16 +1521,16 @@
 					{
 						"u": 0,
 						"pos": [
-							1.0,
-							2.6,
-							-4.3
+							0.7,
+							2.1,
+							-3.7
 						],
 						"look": [
 							-2.5,
-							1.72,
+							1.65,
 							14.5
 						],
-						"fov": 22,
+						"fov": 16,
 						"dof": [
 							24.0,
 							6.0,
@@ -1448,16 +1545,16 @@
 					{
 						"u": 1,
 						"pos": [
-							0.85,
-							2.6,
-							-4.1
+							0.6,
+							2.1,
+							-3.5
 						],
 						"look": [
 							-2.5,
-							1.72,
+							1.65,
 							14.5
 						],
-						"fov": 22
+						"fov": 16
 					}
 				]
 			},
@@ -1506,7 +1603,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -1536,25 +1633,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -1566,7 +1665,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -1578,7 +1678,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -1590,7 +1694,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -1666,7 +1774,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -1679,7 +1791,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -1692,7 +1807,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -1705,7 +1824,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -1804,7 +1927,7 @@
 						14.5
 					],
 					"colour": "#ffb070",
-					"energy": 4.0,
+					"energy": 6.0,
 					"angle": 20.0,
 					"range": 6.0,
 					"shadow": false,
@@ -1828,6 +1951,25 @@
 					"range": 6.0,
 					"shadow": false,
 					"id": "coat_rim2"
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						-4.6,
+						3.0,
+						15.2
+					],
+					"look": [
+						-2.5,
+						1.72,
+						14.5
+					],
+					"colour": "#9fb4ff",
+					"energy": 3.0,
+					"angle": 20.0,
+					"range": 5.0,
+					"shadow": false,
+					"id": "coat_back6"
 				}
 			],
 			"camera": {
@@ -1842,9 +1984,9 @@
 							8.4
 						],
 						"look": [
-							-2.5,
+							-2.95,
 							1.72,
-							14.5
+							14.27
 						],
 						"fov": 14,
 						"dof_near": [
@@ -1867,9 +2009,9 @@
 							8.55
 						],
 						"look": [
-							-2.5,
+							-2.95,
 							1.72,
-							14.5
+							14.27
 						],
 						"fov": 14,
 						"eye_light": 0.03
@@ -1884,8 +2026,8 @@
 					"hold": 1.5
 				}
 			],
-			"lead": 0.1,
-			"tail": 0.2,
+			"lead": 0.05,
+			"tail": 0.1,
 			"min": 1.8
 		},
 		{
@@ -1921,7 +2063,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -1951,25 +2093,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -1981,7 +2125,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -1993,7 +2138,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -2005,7 +2154,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -2066,7 +2219,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -2079,7 +2236,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -2092,7 +2252,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -2105,7 +2269,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -2156,7 +2324,7 @@
 						-2.6
 					],
 					"colour": "#ffcf99",
-					"energy": 6.0,
+					"energy": 1.5,
 					"angle": 25.0,
 					"range": 8.0
 				},
@@ -2196,6 +2364,25 @@
 					"range": 6.0,
 					"shadow": false,
 					"id": "gus_far"
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						0.3,
+						4.5,
+						-4.5
+					],
+					"look": [
+						0.0,
+						2.1,
+						-2.6
+					],
+					"colour": "#ffcf99",
+					"energy": 3.0,
+					"angle": 25.0,
+					"range": 6.0,
+					"shadow": false,
+					"id": "gus_back6"
 				}
 			],
 			"camera": {
@@ -2205,36 +2392,36 @@
 					{
 						"u": 0,
 						"pos": [
-							1.0,
-							1.7,
-							0.7
+							1.4,
+							1.65,
+							2.2
 						],
 						"look": [
 							-0.25,
-							2.2,
+							2.05,
 							-2.6
 						],
-						"fov": 27,
+						"fov": 20,
 						"dof": [
-							3.6,
-							1.0,
-							0.14
+							6.0,
+							3.0,
+							0.08
 						],
 						"eye_light": 0.03
 					},
 					{
 						"u": 1,
 						"pos": [
-							0.9,
-							1.7,
-							0.5
+							1.3,
+							1.65,
+							2.0
 						],
 						"look": [
 							-0.25,
-							2.2,
+							2.05,
 							-2.6
 						],
-						"fov": 27,
+						"fov": 20,
 						"eye_light": 0.03
 					}
 				]
@@ -2284,7 +2471,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -2314,25 +2501,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -2344,7 +2533,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -2356,7 +2546,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -2368,7 +2562,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -2431,7 +2629,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -2444,7 +2646,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -2457,7 +2662,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -2470,7 +2679,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -2538,7 +2751,7 @@
 						11.2
 					],
 					"colour": "#ffcf99",
-					"energy": 1.0,
+					"energy": 0.35,
 					"angle": 22.0,
 					"range": 8.0,
 					"id": "kit_key"
@@ -2575,7 +2788,7 @@
 						11.2
 					],
 					"colour": "#8aa6ff",
-					"energy": 2.0,
+					"energy": 4.5,
 					"angle": 25.0,
 					"range": 5.0,
 					"shadow": false,
@@ -2589,9 +2802,9 @@
 					{
 						"u": 0,
 						"pos": [
-							1.5,
+							1.2,
 							1.6,
-							9.9
+							9.6
 						],
 						"look": [
 							0.3,
@@ -2609,9 +2822,9 @@
 					{
 						"u": 1,
 						"pos": [
-							1.45,
+							1.17,
 							1.6,
-							10.05
+							9.7
 						],
 						"look": [
 							0.3,
@@ -2658,7 +2871,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -2689,25 +2902,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -2719,7 +2934,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -2731,7 +2947,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -2743,7 +2963,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -2794,7 +3018,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -2807,7 +3035,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -2820,7 +3051,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -2833,7 +3068,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -3041,7 +3280,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -3072,25 +3311,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -3102,7 +3343,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -3114,7 +3356,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -3126,7 +3372,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -3177,7 +3427,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -3190,7 +3444,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -3203,7 +3460,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -3216,7 +3477,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -3464,7 +3729,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -3495,25 +3760,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -3525,7 +3792,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -3537,7 +3805,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -3549,7 +3821,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -3600,7 +3876,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -3613,7 +3893,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -3626,7 +3909,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -3639,7 +3926,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -3874,7 +4165,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -3904,25 +4195,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -3934,7 +4227,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -3946,7 +4240,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -3958,7 +4256,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -4015,7 +4317,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -4028,7 +4334,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -4041,7 +4350,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -4054,7 +4367,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -4105,7 +4422,7 @@
 						11.2
 					],
 					"colour": "#ffcf99",
-					"energy": 1.5,
+					"energy": 0.4,
 					"angle": 22.0,
 					"range": 8.0,
 					"id": "kit_key"
@@ -4142,7 +4459,7 @@
 						11.2
 					],
 					"colour": "#8aa6ff",
-					"energy": 2.0,
+					"energy": 3.5,
 					"angle": 25.0,
 					"range": 5.0,
 					"shadow": false,
@@ -4169,36 +4486,36 @@
 					{
 						"u": 0,
 						"pos": [
-							1.1,
-							1.6,
-							10.35
+							0.75,
+							1.58,
+							10.25
 						],
 						"look": [
 							0.35,
-							1.45,
+							1.47,
 							11.2
 						],
-						"fov": 21,
+						"fov": 22,
 						"dof": [
-							1.5,
-							0.8,
-							0.12
+							1.3,
+							0.6,
+							0.14
 						],
 						"eye_light": 0.02
 					},
 					{
 						"u": 1,
 						"pos": [
-							1.08,
-							1.6,
-							10.4
+							0.73,
+							1.58,
+							10.28
 						],
 						"look": [
 							0.35,
-							1.45,
+							1.47,
 							11.2
 						],
-						"fov": 21,
+						"fov": 22,
 						"eye_light": 0.02
 					}
 				]
@@ -4255,7 +4572,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -4286,25 +4603,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -4316,7 +4635,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -4328,7 +4648,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -4340,7 +4664,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -4391,7 +4719,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -4404,7 +4736,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -4417,7 +4752,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -4430,7 +4769,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -4508,8 +4851,8 @@
 					"kind": "softbox",
 					"pos": [
 						4.5,
-						2.0,
-						2.0
+						3.6,
+						0.5
 					],
 					"look": [
 						0.0,
@@ -4520,7 +4863,7 @@
 						7.0,
 						0.7
 					],
-					"energy": 1.5
+					"energy": 0.8
 				},
 				{
 					"kind": "softbox",
@@ -4575,6 +4918,24 @@
 					"range": 6.0,
 					"shadow": false,
 					"id": "rake"
+				},
+				{
+					"kind": "softbox",
+					"pos": [
+						2.2,
+						0.9,
+						-0.5
+					],
+					"look": [
+						0.9,
+						0.8,
+						0.2
+					],
+					"size": [
+						2.0,
+						0.2
+					],
+					"energy": 0.6
 				}
 			],
 			"camera": {
@@ -4584,18 +4945,18 @@
 					{
 						"u": 0,
 						"pos": [
-							1.4,
-							0.85,
-							1.0
+							1.55,
+							0.95,
+							1.2
 						],
 						"look": [
 							0.95,
-							0.82,
-							0.3
+							0.78,
+							0.4
 						],
-						"fov": 22,
+						"fov": 24,
 						"dof": [
-							0.9,
+							1.1,
 							0.4,
 							0.12
 						]
@@ -4603,16 +4964,16 @@
 					{
 						"u": 1,
 						"pos": [
-							1.4,
-							0.85,
-							0.4
+							1.55,
+							0.95,
+							0.5
 						],
 						"look": [
 							0.95,
-							0.82,
-							-0.3
+							0.78,
+							-0.4
 						],
-						"fov": 22
+						"fov": 24
 					}
 				],
 				"follow": "kit"
@@ -4674,7 +5035,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -4704,25 +5065,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -4734,7 +5097,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -4746,7 +5110,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -4758,7 +5126,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -4770,7 +5142,40 @@
 					],
 					"face": 180,
 					"start": 0.7,
-					"who": "kit"
+					"who": "kit",
+					"looks": [
+						[
+							0.2,
+							1.2,
+							"coat"
+						]
+					],
+					"bend": [
+						{
+							"t": 0.0
+						},
+						{
+							"t": 0.2
+						},
+						{
+							"t": 0.55,
+							"Chest": [
+								0,
+								20,
+								0
+							],
+							"Neck": [
+								0,
+								30,
+								0
+							],
+							"Head": [
+								0,
+								35,
+								0
+							]
+						}
+					]
 				},
 				{
 					"id": "gus",
@@ -4801,11 +5206,11 @@
 					"looks": [
 						[
 							0.0,
-							0.25,
+							0.12,
 							"gus"
 						],
 						[
-							0.25,
+							0.12,
 							1.2,
 							"kit"
 						]
@@ -4822,7 +5227,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -4835,7 +5244,10 @@
 					"face": 175,
 					"start": 0.6,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -4848,7 +5260,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -4861,7 +5277,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -4984,6 +5404,38 @@
 					"range": 6.0,
 					"shadow": false,
 					"id": "coat_rim2"
+				},
+				{
+					"kind": "omni",
+					"pos": [
+						-5.6,
+						2.8,
+						17.2
+					],
+					"colour": "#ffb070",
+					"energy": 2.0,
+					"range": 6.0,
+					"shadow": false,
+					"id": "work_lamp6"
+				},
+				{
+					"kind": "spot",
+					"pos": [
+						-4.6,
+						3.0,
+						15.4
+					],
+					"look": [
+						-2.5,
+						1.72,
+						14.5
+					],
+					"colour": "#9fb4ff",
+					"energy": 3.0,
+					"angle": 20.0,
+					"range": 5.0,
+					"shadow": false,
+					"id": "coat_back6"
 				}
 			],
 			"camera": {
@@ -4993,9 +5445,9 @@
 					{
 						"u": 0,
 						"pos": [
-							1.0,
+							1.55,
 							1.6,
-							9.8
+							9.7
 						],
 						"look": [
 							-2.5,
@@ -5004,8 +5456,8 @@
 						],
 						"fov": 18,
 						"dof_near": [
-							1.5,
-							0.8,
+							3.0,
+							1.2,
 							0.12
 						],
 						"eye_light": 0.03
@@ -5013,9 +5465,9 @@
 					{
 						"u": 1,
 						"pos": [
-							0.98,
+							1.53,
 							1.6,
-							9.85
+							9.75
 						],
 						"look": [
 							-2.5,
@@ -5028,7 +5480,7 @@
 				]
 			},
 			"lines": [],
-			"dur": 1.2
+			"dur": 1.0
 		},
 		{
 			"id": "lot47_hero",
@@ -5063,7 +5515,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -5094,25 +5546,27 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
 					"who": "crowd4",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -5124,7 +5578,8 @@
 					],
 					"face": 190,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
@@ -5136,7 +5591,11 @@
 					],
 					"face": 200,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -5148,7 +5607,11 @@
 					],
 					"face": 160,
 					"who": "crowd5",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -5199,7 +5662,11 @@
 					"face": 185,
 					"start": 1.3,
 					"who": "crowd2",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c8",
@@ -5212,7 +5679,11 @@
 					"face": 165,
 					"start": 2.0,
 					"who": "crowd1",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -5225,7 +5696,11 @@
 					"face": 200,
 					"start": 1.7,
 					"who": "crowd3",
-					"gaze": "gus"
+					"gaze": "gus",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"lights": [
@@ -5631,12 +6106,12 @@
 					{
 						"u": 0,
 						"pos": [
-							1.8,
+							2.6,
 							0.35,
 							7.4
 						],
 						"look": [
-							0.2,
+							0.0,
 							0.75,
 							0.5
 						],
@@ -5650,12 +6125,12 @@
 					{
 						"u": 1,
 						"pos": [
-							1.8,
+							2.6,
 							0.45,
 							6.2
 						],
 						"look": [
-							0.2,
+							0.0,
 							0.8,
 							0.5
 						],
@@ -5718,7 +6193,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -5784,23 +6259,25 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
-					"who": "crowd4"
+					"who": "crowd4",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -5811,18 +6288,23 @@
 						9.4
 					],
 					"face": 190,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
 					"clip": "Stand_B",
 					"pos": [
-						3.2,
+						2.7,
 						0,
-						10.8
+						12.2
 					],
 					"face": 185,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -5833,7 +6315,11 @@
 						11.0
 					],
 					"face": 160,
-					"who": "crowd5"
+					"who": "crowd5",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -5869,7 +6355,11 @@
 					],
 					"face": 185,
 					"start": 1.3,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -5881,7 +6371,10 @@
 					],
 					"face": 175,
 					"start": 0.6,
-					"who": "crowd5"
+					"who": "crowd5",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -5893,7 +6386,11 @@
 					],
 					"face": 165,
 					"start": 2.0,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -5905,7 +6402,11 @@
 					],
 					"face": 200,
 					"start": 1.7,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"camera": {
@@ -6021,7 +6522,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -6087,23 +6588,25 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
-					"who": "crowd4"
+					"who": "crowd4",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -6114,18 +6617,23 @@
 						9.4
 					],
 					"face": 190,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
 					"clip": "Stand_B",
 					"pos": [
-						3.2,
+						2.7,
 						0,
-						10.8
+						12.2
 					],
 					"face": 185,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -6136,7 +6644,11 @@
 						11.0
 					],
 					"face": 160,
-					"who": "crowd5"
+					"who": "crowd5",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -6186,7 +6698,11 @@
 					],
 					"face": 185,
 					"start": 1.3,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -6198,7 +6714,10 @@
 					],
 					"face": 175,
 					"start": 0.6,
-					"who": "crowd5"
+					"who": "crowd5",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -6210,7 +6729,11 @@
 					],
 					"face": 165,
 					"start": 2.0,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -6222,7 +6745,11 @@
 					],
 					"face": 200,
 					"start": 1.7,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"camera": {
@@ -6313,7 +6840,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"left": 0.0,
 					"ahead": 2.0,
 					"yaw": 0,
@@ -6379,23 +6906,25 @@
 					"id": "c1",
 					"clip": "Stand",
 					"pos": [
-						-3.0,
+						-3.8,
 						0,
-						9.0
+						9.2
 					],
 					"face": 180,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 1.03
 				},
 				{
 					"id": "c2",
 					"clip": "Stand_Talk",
 					"pos": [
-						-1.6,
+						-0.9,
 						0,
-						10.2
+						10.4
 					],
 					"face": 170,
-					"who": "crowd4"
+					"who": "crowd4",
+					"scale": 1.01
 				},
 				{
 					"id": "c3",
@@ -6406,18 +6935,23 @@
 						9.4
 					],
 					"face": 190,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 0.98
 				},
 				{
 					"id": "c4",
 					"clip": "Stand_B",
 					"pos": [
-						3.2,
+						2.7,
 						0,
-						10.8
+						12.2
 					],
 					"face": 185,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 0.97,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#2f3b4a"
+					}
 				},
 				{
 					"id": "c5",
@@ -6428,7 +6962,11 @@
 						11.0
 					],
 					"face": 160,
-					"who": "crowd5"
+					"who": "crowd5",
+					"scale": 0.95,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#4a3a52"
+					}
 				},
 				{
 					"id": "kit",
@@ -6474,7 +7012,11 @@
 					],
 					"face": 185,
 					"start": 1.3,
-					"who": "crowd2"
+					"who": "crowd2",
+					"scale": 1.02,
+					"tint": {
+						"cloth__mindfront_knitted_sweater_02": "#5a2e2e"
+					}
 				},
 				{
 					"id": "c7",
@@ -6486,7 +7028,10 @@
 					],
 					"face": 175,
 					"start": 0.6,
-					"who": "crowd5"
+					"who": "crowd5",
+					"tint": {
+						"cloth__mindfront_knitted_sweater_01": "#3b3328"
+					}
 				},
 				{
 					"id": "c8",
@@ -6498,7 +7043,11 @@
 					],
 					"face": 165,
 					"start": 2.0,
-					"who": "crowd1"
+					"who": "crowd1",
+					"scale": 0.96,
+					"tint": {
+						"cloth__male_casualsuit03": "#3d4a3a"
+					}
 				},
 				{
 					"id": "c9",
@@ -6510,7 +7059,11 @@
 					],
 					"face": 200,
 					"start": 1.7,
-					"who": "crowd3"
+					"who": "crowd3",
+					"scale": 1.04,
+					"tint": {
+						"cloth__mindfront_lusekofta": "#2e3a4d"
+					}
 				}
 			],
 			"camera": {
@@ -6575,7 +7128,7 @@
 					"id": "kit",
 					"model": "nemesis",
 					"livery": 1,
-					"tuning": "0.7.6.0",
+					"tuning": "1.7.6.0",
 					"cabin": true,
 					"pins": 0,
 					"finish": "gloss",
