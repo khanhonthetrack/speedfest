@@ -497,6 +497,8 @@ sh["camera"]["keys"][2]["exposure"] = 0.85
 
 # --- the fifth pass, round two (m8's critic: 5.0, asleep unreadable): keys from the threat, not the lens;
 # the whiteout climbing from the coupe's grille; the empty places lit; sizes stepping up ----------------
+for sid in MIRROR_SHOTS + ["empty_seat"]:      # (each shot's lights its own: DASH, FILL, LINING are shared dicts)
+    shots[sid]["lights"] = copy.deepcopy(shots[sid]["lights"])
 sh = shots["asleep"]
 sh["dur"] = 1.8
 person(sh, "kit_driver")["bend"] = [{"t": 0.0, "Neck": [8, 0, -6], "Head": [12, 4, -18]}, {"t": 1.3, "Neck": [8, 0, -6], "Head": [12, 4, -18]},
@@ -507,7 +509,6 @@ for l in sh["lights"]:
     elif l.get("pos") == [4.5, 3.2, 0.5]:
         l["energy"] = 0.7                     # (it bloomed into the lens)
 sh = shots["dream_road"]
-car(sh, "white")["ahead"] = -30.0
 sh["lights"] = sh["lights"][:6] + white_lamps(1.5)
 for kk, p_ in zip(sh["camera"]["keys"], ([2.2, 0.45, 5.6], [1.7, 0.45, 4.0])):
     kk["pos"] = p_
@@ -530,9 +531,7 @@ sh["camera"] = {"follow": "kit", "ease": "inout", "handheld": 0.1, "keys": keys(
     {"u": 0, "pos": [-1.6, 0.6, -0.4]}, {"u": 1, "pos": [-1.58, 0.6, -0.5]},
     look=[-0.2, 0.8, -12.0], fov=30, dof_near=[1.5, 0.8, 0.15], exposure=0.75)}   # (her rear quarter the right quarter)
 sh = shots["closer"]
-for l in sh["lights"]:
-    if l.get("pos") in ([0.32, 0.93, 0.55], [-0.3, 0.9, -0.4]):
-        l["energy"] = 0.08
+sh["lights"] = [dict(l, energy=0.08) if l.get("pos") in ([0.32, 0.93, 0.55], [-0.3, 0.9, -0.4]) else l for l in sh["lights"]]
 for kk in sh["camera"]["keys"]:
     kk["fov"] = 24                            # (a step in from profile, not the same size again)
 person(sh, "kit_driver")["bend"] = [{"t": 0.0}, {"t": 0.6}, {"t": 0.8, "Neck": [0, -12, 0], "Head": [0, -22, 0]}]
@@ -659,8 +658,8 @@ for l in sh["lights"]:
         l.update({"pos": [0.0, 0.75, -0.2], "energy": [[0, 0.0], [0.52, 0.0], [0.55, 0.28]]})
 sh = shots["eyes"]
 for kk in sh["camera"]["keys"]:
-    kk["pos"][1] = 1.15
-    kk["look_by"] = [0.0, 0.01, 0.0]
+    kk["pos"][1] = 1.125
+    kk["look_by"] = [0.0, -0.009, 0.0]       # (the eyes a little above the middle: +0.01 framed the forehead)
     kk["fov"] = 11
 for l in sh["lights"]:
     if l.get("pos") == [0.32, 0.93, 0.55]:
@@ -771,8 +770,8 @@ def kshot(sid, lights, camera, lines, dur=None, lead=0.2, tail=0.25, window=("dr
         d.pop("shapes", None)
         if sid not in ("arch", "knock_ins", "knock"):
             lean_out(d)
-        if sid not in ("arch", "knock_ins"):
-            level_gaze(d)
+        if sid != "arch":
+            level_gaze(d)         # (the arch takes the insert's Dee whole)
     return sh
 
 
@@ -782,9 +781,10 @@ def level_gaze(d):
     The neck and head lifted, the chest as it was (straighter, it raised her face over the window's
     top)."""
     for b in d.get("bend", []):
-        if b.get("Hips", [0])[0] < 26:
+        hips = b.get("Hips", [0])[0]
+        if hips < 26:
             continue
-        for bone, cap in (("Neck", -12), ("Head", -30)):
+        for bone, cap in ((("Neck", -12), ("Head", -30)) if hips >= 30 else (("Neck", -9), ("Head", -18))):
             if bone in b:
                 b[bone] = [min(b[bone][0], cap)] + list(b[bone])[1:]
 
@@ -1127,7 +1127,7 @@ add_lights(sh, DEE_RIM)
 sh = shots["kit_react"]
 set_cam(sh, [-0.35, 1.12, 0.05], [-0.34, 1.12, 0.03], "kit_driver", 30, 0.04, look_by=[0.0, -0.03, 0.0], dof=[1.1, 0.5, 0.1])
 add_lights(sh, WIN_KEY, LINING_K)
-sh["dur"] = 1.5
+sh["dur"] = 1.6                               # (its line: 0.1 s in, 1.5 s long)
 
 # the pins: all nine and the car's arrow over the subtitle; the slab top left down
 sh = shots["pins"]

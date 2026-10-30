@@ -266,7 +266,9 @@ put a lens inside the mirror or the mirror out of frame:
   city's bounced light through the glass is down in the cabin (an env's `"gi"`, `"ambient"`: it lit
   every face flat), a faint bounce off the headlining holds the blacks off zero.
 - **The slash is a band, not a theatre spot:** a spot's `"band"` cuts its light to a level band that
-  high (a projector texture), across the eyes from the mirror's glass.
+  high, across the eyes from the mirror's glass: two flags just in front of the spot, seen by its
+  shadow alone, leave a slit (a projector texture lit nothing at all on the renderer the stills are
+  made with: tested side by side, a white texture too).
 - **The whiteout burns:** the mirror's glass can go past white into the glow (its `"boost"`, keyed;
   its `"exposure"` keyed too), the coupe's nose fills it first, light spills out of it over the
   housing and visors, and the shot's glow and bloom are up (an env's `"glow"`, `"bloom"`); it peaked
@@ -369,4 +371,5 @@ Procedure:
 | Third pass | built 28-29 Oct (`pass3_*.py`); stills round two: the opening 5.5 and 5.0 |
 | Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`); the Mirror's (`pass4_close.py`: faces keyed by the scene's own lights, cabin cameras ray-checked, the hair's sheen, the drowned skin, the rain shield, the deck, the drops); the knock's (4.5/4.5 from its critic): Dee's face in the glass, the two-shot third, first light, the wet patch, `--probe` |
 | Stills round four | the Mirror (`m7`) 5.5 and 5.5; the knock (`k7`) 5.0 and 5.0; their fifth passes (above) |
+| Stills round five | the Mirror (`m8`) 5.0 and 5.0 (asleep broken by a lens-rain setting; the band never lit: projectors lit nothing on this renderer, now shadow flags); the opening (`o10`) 5.5 and 5.0; its round three (PROGRESS: one side of the line, the yard from behind the coat man, the lamps coming on by themselves) |
 | Next | the knock's `k7` and the opening's `o10` critics, the Mirror's `m8`; iterate to 7; clips once every scene reaches 7 |

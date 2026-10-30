@@ -348,4 +348,169 @@ for sid, floor in [("gus_points", 2.2), ("coat", 1.8), ("lot47_nose", 1.8), ("lo
                    ("kit_eyes", 1.4), ("lot47_paint", 2.2)]:
     shots[sid]["min"] = floor
 
+# === ROUND THREE (the critic on round two's stills, o10: 5.5 and 5.0) ===============================
+# One side of the line for the whole crowd conversation (the camera crossed it between Gus's point and
+# his "Lot forty-seven": he looked left, then right): Gus's singles from the crowd's right, Kit's and the
+# coat man's too. The yard wide from behind the coat man (his hat soft in front, Kit and the crowd in the
+# middle, Gus on the stage: the four in one frame, so "the gentleman at the back" is somebody); Gus's
+# point over his shoulder onto him; the coat man keyed short-side with a rim (he was a hole in the dark)
+# and nodding on his price; his glance at Kit a two-shot with her in it. Kit keyed short-side, her
+# under-fill gone. The paint's insert tight on the stripe under a raking lamp. The city from the quay's
+# edge (the road and its kerb out of the frame). The car run quicker, the orbit longer. The button: Lot
+# 47's lamps blink twice and come on by themselves after "Who'll start me?".
+def spotw(pos, look, colour, energy, angle, rng, shadow=False, lid=None):
+    return light("spot", pos, look, colour, energy, angle, rng, shadow, lid)
+
+
+def omniw(pos, colour, energy, rng, lid=None):
+    l = light("omni", pos, None, colour, energy, 0.0, rng, False, lid)
+    l.pop("look", None)
+    l.pop("angle", None)
+    return l
+
+
+def cam2(pos0, pos1, look, fov, handheld=0.08, follow=None, **key):
+    k0 = dict({"u": 0, "pos": pos0, "look": look, "fov": fov}, **key)
+    k1 = {"u": 1, "pos": pos1, "look": look, "fov": fov}
+    for k_ in ("eye_light", "look_by"):
+        if k_ in key:
+            k1[k_] = key[k_]
+    c = {"ease": "inout", "handheld": handheld, "keys": [k0, k1]}
+    if follow:
+        c["follow"] = follow
+    return c
+
+
+def drop(sh, *ids):
+    sh["lights"] = [l for l in sh["lights"] if l.get("id") not in ids]
+
+
+COAT = [-2.5, 1.72, 14.5]
+KIT_FACE = [0.4, 1.58, 11.2]
+COAT_KEY = spotw([-4.2, 2.4, 12.6], COAT, "#ffb070", 4.0, 20.0, 6.0, lid="coat_key")       # short side, warm
+COAT_RIM = spotw([-1.0, 3.2, 16.8], COAT, "#9fb4ff", 4.0, 20.0, 6.0, lid="coat_rim2")      # cuts him off the wall
+# the city: from the quay's edge, the water on the lower third, the towers above it
+city["camera"] = {"ease": "inout", "handheld": 0.06, "keys": [
+    {"u": 0, "pos": [48.0, 4.5, -126.0], "look": [535.0, 30.0, 70.0], "fov": 28, "roll": 1.5},
+    {"u": 1, "pos": [46.0, 4.2, -122.5], "look": [535.0, 30.0, 70.0], "fov": 28, "roll": 0.0}]}
+# the canyon: a slow follow, a cool edge on Kit, the lookouts turning to her
+canyon["camera"]["keys"][1]["pos"] = [-7.4, 1.35, -65.6]
+for kk in canyon["camera"]["keys"]:
+    kk["look"] = [20.0, 1.6, -69.0]
+drop(canyon, "kit_rim")
+canyon["lights"].append(spotw([-3.5, 3.4, -68.2], [-6.0, 1.5, -66.5], "#9fb4ff", 3.0, 25.0, 6.0, lid="kit_rim"))
+for pid in ("w1", "w2"):
+    person(canyon, pid)["looks"] = [[0.6, 2.3, "kit"]]
+# the yard: from behind the coat man, the four in one frame; the sides' containers lit; Gus keyed from the side
+yard["camera"] = {"ease": "inout", "handheld": 0.1, "keys": [
+    {"u": 0, "pos": [-3.4, 1.85, 16.4], "look": [0.0, 2.0, -2.6], "fov": 30, "dof": [22.0, 8.0, 0.04], "dof_near": [1.2, 0.6, 0.1]},
+    {"u": 1, "pos": [-3.1, 1.8, 15.8], "look": [0.0, 2.0, -2.6], "fov": 30}]}
+drop(yard, "side_l", "side_r", "gus_warm_back")
+yard["lights"] += [omniw([-8.0, 3.0, 2.0], "#ffa040", 1.5, 8.0, "side_l"), omniw([8.0, 3.0, 2.0], "#7f9cff", 1.5, 8.0, "side_r"),
+                   spotw([0.0, 4.6, -3.8], [0.0, 2.0, -2.6], "#ffd9a8", 2.0, 30.0, 6.0, lid="gus_warm_back")]
+for l in yard["lights"]:
+    if l.get("id") == "gus_key":
+        l.update({"pos": [2.0, 4.0, -0.2], "energy": 3.0})
+# Gus's point: over his shoulder onto the coat man (the point lands on him), the halo off
+gp["camera"] = cam2([1.0, 2.6, -4.3], [0.85, 2.6, -4.1], COAT, 22, 0.08, dof=[24.0, 6.0, 0.06], dof_near=[6.0, 3.0, 0.12])
+for l in gp["lights"]:
+    if l.get("colour") == "#7f9cff" and l.get("pos") == [2.4, 4.0, -4.5]:
+        l["energy"] = 0.8
+drop(gp, "coat_key", "coat_rim2")
+gp["lights"] += [COAT_KEY, COAT_RIM]
+# the coat man: closer, keyed short-side with a rim, the wall under his face; a nod on his price
+coat["camera"] = cam2([0.6, 1.8, 8.4], [0.55, 1.8, 8.55], COAT, 14, 0.08, dof_near=[4.5, 2.0, 0.12], dof=[9.0, 2.0, 0.1], eye_light=0.03)
+drop(coat, "coat_key", "coat_rim2")
+coat["lights"] += [COAT_KEY, COAT_RIM]
+for l in coat["lights"]:
+    if l.get("pos") == [-4.6, 3.6, 17.5]:
+        l["energy"] = 1.0
+    elif l.get("id") == "coat_rim":
+        l["energy"] = 2.0
+person(coat, "coat")["bend"] = [{"t": 0.0}, {"t": 0.8}, {"t": 1.0, "Neck": [6, 0, 0], "Head": [8, 0, 0]}, {"t": 1.3}]
+# "Lot forty-seven": from the crowd's right (he looks left, as in his point), keyed on the far side, shorter
+gus["camera"] = cam2([1.0, 1.7, 0.7], [0.9, 1.7, 0.5], [-0.25, 2.2, -2.6], 27, 0.12, dof=[3.6, 1.0, 0.14], eye_light=0.03)
+drop(gus, "gus_far")
+gus["lights"].append(spotw([-1.6, 3.2, -0.8], [0.0, 2.2, -2.6], "#ffcf99", 6.0, 25.0, 6.0, lid="gus_far"))
+for l in gus["lights"]:
+    if l.get("colour") == "#7f9cff" and l.get("shadow") is False:
+        l["energy"] = 1.0
+gus["lines"][0]["hold"] = 1.4
+gus["lead"], gus["tail"] = 0.05, 0.05
+gus.pop("dur", None)
+gus["min"] = 1.5
+# Kit hearing it: from the crowd's right (she looks right, to Gus), keyed short-side, rimmed
+mcu["camera"] = cam2([1.5, 1.6, 9.9], [1.45, 1.6, 10.05], [0.3, 1.5, 11.2], 26, 0.12, dof=[1.85, 1.0, 0.12], eye_light=0.03)
+drop(mcu, "kit_short", "kit_rim2")
+mcu["lights"] += [spotw([-0.8, 2.5, 9.6], KIT_FACE, "#ffcf99", 3.5, 25.0, 5.0, lid="kit_short"),
+                  spotw([1.4, 3.0, 13.4], KIT_FACE, "#8aa6ff", 2.0, 25.0, 5.0, lid="kit_rim2")]
+for l in mcu["lights"]:
+    if l.get("id") == "kit_key":
+        l["energy"] = 1.0
+person(mcu, "kit").pop("looks", None)
+# Kit sees it: the same side, closer, short-side key and a hair rim, her under-fill gone, a bokeh behind
+eyes["camera"] = cam2([1.1, 1.6, 10.35], [1.08, 1.6, 10.4], [0.35, 1.45, 11.2], 21, 0.06, dof=[1.5, 0.8, 0.12], eye_light=0.02)
+drop(eyes, "car_glow_key", "kit_short", "kit_rim2", "far_bokeh")
+eyes["lights"] += [spotw([-0.7, 2.3, 9.9], KIT_FACE, "#ffcf99", 3.0, 25.0, 5.0, lid="kit_short"),
+                   spotw([1.2, 2.8, 12.6], KIT_FACE, "#8aa6ff", 2.0, 25.0, 5.0, lid="kit_rim2"),
+                   omniw([-3.0, 3.2, 20.0], "#ffa040", 1.5, 6.0, "far_bokeh")]
+# the car run: quicker inserts, a longer orbit
+# (the softbox written whole: the round above keeps only the softboxes at x 4.5 and -4.5)
+nose["lights"] = [l for l in nose["lights"] if not (l.get("kind") == "softbox" and l.get("pos") in ([4.5, 2.0, 2.0], [3.2, 3.4, 0.0]))] + [
+    {"kind": "softbox", "pos": [3.2, 3.4, 0.0], "look": [0.0, 0.8, 2.0], "size": [7.0, 0.7], "energy": 1.5}]   # (a long strip down the hood's line)
+for l in nose["lights"]:
+    if l.get("kind") == "spot" and l.get("pos") == [1.5, 0.2, 4.5]:
+        l.update({"pos": [2.4, 0.15, 3.2], "energy": 3.0, "angle": 25.0})
+nose["lines"][0]["hold"] = 1.4
+nose["min"] = 1.5
+for l in wheel["lights"]:
+    if l.get("kind") == "softbox" and l.get("pos") == [0.0, 5.0, 2.0]:
+        l["energy"] = 0.4
+drop(wheel, "tyre_rim")
+wheel["lights"].append(spotw([1.4, 0.6, -0.6], [0.9, 0.35, 1.3], "#9fb4ff", 2.5, 25.0, 4.0, lid="tyre_rim"))
+kit_car(wheel)["glow"] = 0.2
+wheel["lines"][0]["hold"] = 1.4
+wheel["min"] = 1.5
+orbit["camera"]["keys"] = [{"u": 0.0, "pos": [2.0, 0.7, -4.95], "look": [0.0, 0.6, -0.3], "fov": 32},
+                           {"u": 0.5, "pos": [2.8, 0.7, -4.6], "look": [0.0, 0.6, -0.3], "fov": 32},
+                           {"u": 1.0, "pos": [3.4, 0.7, -4.0], "look": [0.0, 0.6, -0.3], "fov": 32}]
+drop(orbit, "boot_warm")
+orbit["lights"].append(spotw([-2.5, 2.4, -3.0], [0.0, 0.8, -1.9], "#ffcf99", 2.5, 30.0, 6.0, lid="boot_warm"))
+orbit["min"] = 2.8
+# the paint: tight on the stripe, raked along the flank, the softboxes off its glint
+paint["camera"] = cam2([1.4, 0.85, 1.0], [1.4, 0.85, 0.4], [0.95, 0.82, 0.0], 22, 0.06, follow="kit", dof=[0.9, 0.4, 0.12])
+paint["camera"]["keys"][0]["look"] = [0.95, 0.82, 0.3]
+paint["camera"]["keys"][1]["look"] = [0.95, 0.82, -0.3]
+for l in paint["lights"]:
+    if l.get("kind") == "softbox" and l.get("pos") == [0.0, 5.0, 2.0]:
+        l["energy"] = 0.3
+    elif l.get("id") == "rake":
+        l.update({"pos": [2.4, 1.0, -1.5], "look": [0.95, 0.85, 0.0], "colour": "#ffcf99", "energy": 4.0, "angle": 18.0})
+paint["lines"][0]["hold"] = 1.7
+paint["min"] = 1.8
+paint["tail"] = 0.05
+# his glance at Kit: a two-shot over her shoulder, his eyes going from Gus to her
+cg["camera"] = cam2([1.0, 1.6, 9.8], [0.98, 1.6, 9.85], [-2.5, 1.65, 14.5], 18, 0.06, dof_near=[1.5, 0.8, 0.12], eye_light=0.03)
+cg["lights"] = copy.deepcopy(coat["lights"])
+cg["dur"] = 1.2
+person(cg, "coat")["looks"] = [[0.0, 0.25, "gus"], [0.25, 1.2, "kit"]]
+person(cg, "coat").pop("bend", None)
+# the hero: off Gus's roofline tangent, the red car's glare down; the button: her lamps blink twice and
+# come on by themselves (keyed lights in her housings, riding the car)
+for kk in hero["camera"]["keys"]:
+    kk["pos"][0] = 1.8
+for l in hero["lights"]:
+    if l.get("pos") == [-3.2, 5.5, -6.0]:
+        l["energy"] = 2.0
+BLINK = [[0, 0.0], [2.45, 0.0], [2.47, 4.0], [2.55, 4.0], [2.57, 0.0], [2.72, 0.0], [2.74, 4.0], [2.82, 4.0], [2.84, 0.0],
+         [3.05, 0.0], [3.12, 4.0]]
+drop(hero, "lamp_l", "lamp_r", "lamp_l_glow", "lamp_r_glow")
+for side, lid in ((0.62, "lamp_l"), (-0.62, "lamp_r")):
+    b = spotw([side, 0.68, 2.15], [side, 0.2, 9.0], "#e8f0ff", 0.0, 28.0, 10.0, lid=lid)
+    b["energy"], b["car"] = BLINK, "kit"
+    g = omniw([side, 0.68, 2.25], "#e8f0ff", 0.0, 0.35, lid + "_glow")
+    g["energy"], g["car"] = [[t, v * 0.6] for t, v in BLINK], "kit"
+    hero["lights"] += [b, g]
+hero["sounds"] = [x for x in hero.get("sounds", []) if x.get("cue") != "thump"] + [{"at": 2.47, "cue": "thump", "db": -14}]
+
 json.dump(scene, open(path, "w"), indent="\t")

@@ -5316,3 +5316,38 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   `k8` renders).
 - Review: `StoryFace.EYE_UP_MAX` scaled every look up by 0.6 instead of capping it (a look up to the
   mirror fell short); now a ceiling.
+- **The band, tested alone:** five spots on a grey wall. Any light projector (the band image, a plain
+  white image, a GradientTexture2D, the project's icon) lit nothing at all on this renderer (software
+  Vulkan). So every band spot in `m8` was dark, and the pools seen were other lights. `"band"` is now
+  two shadow-only flags just in front of the spot (`StoryScene._band_flags`) leaving a slit; the same
+  wall shows bands at 0.1, 0.25 and 0.5 of the cone.
+- The second review's generator findings, all fixed (after 5b41175):
+  - closer's fill edit changed the shared FILL dict, dimming six other shots; every Mirror shot's
+    lights are now its own copy;
+  - the dream road's coupe back to 40 m (the ladder);
+  - `kit_react` 1.6 s so its line fits;
+  - `level_gaze` in two tiers: the lean lifted to -12/-30, the standing knock a little (-9/-18), the
+    same in the insert and the knock (her head snapped 32 degrees across that cut);
+  - the eyes framed brow to nose (the critics' +0.01 framed the forehead).
+
+## 2026-10-30 (session 21, cont.): the opening's critic, its round three
+- **The opening's stills** (`o10`, 14 stills, after round two), two critics: **5.5 and 5.0**. Better: Gus
+  in a real jacket, the car inserts detailed (the plate legible), the camo soft, the canyon peopled, the
+  city a skyline. Wrong: the crowd conversation crosses the line (Gus looks left in his point and right
+  in "Lot forty-seven"); no frame puts the coat man, Kit, the crowd and Gus together; the coat man a
+  dark hole; faces flat (eye lights, front fills); the paint insert can't show the paint; the city's
+  road, kerb and bollards read as the track; the car run on a metronome; nothing ends the scene.
+- **Round three** (`pass4_open.py`, after round two's rhythm):
+  - one side of the line for the whole crowd conversation;
+  - the yard wide from behind the coat man (his hat soft in front, Kit and the crowd, Gus on the
+    stage), the side containers lit;
+  - Gus's point over his shoulder onto the coat man;
+  - the coat man keyed short-side with a rim, nodding on his price;
+  - his glance at Kit a two-shot over her shoulder, his eyes going from Gus to her;
+  - Kit keyed short-side and rimmed, her under-fill gone;
+  - the paint tight on the stripe under a raking lamp;
+  - the city from the quay's edge;
+  - the car run quicker (1.5-1.7 s), the orbit longer (2.8 s);
+  - the button: Lot 47's lamps blink twice and come on by themselves after "Who'll start me?".
+  - Engine: Lot 47's camo lifted, its pinstripe a hand-laid gold 7 mm wide (dark red, 5 mm, it read
+    as a wire); Gus's hair a mid grey (his white read as a helmet brighter than his face).

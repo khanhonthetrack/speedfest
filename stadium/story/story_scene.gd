@@ -90,11 +90,13 @@ const SET_DECK := 2.0                  ## m a set's deck stands over the map's g
 ## hand" (Gus, c01_open), so deep black under soft airbrushed shapes and a hand-drawn pinstripe (red,
 ## as the calipers: paint, not a reflection).
 const PAINTS := {
-	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#6e1a14",
-		"p": [0.5, 0.05, 0.0025, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
+	# (the shapes a little lighter, the pinstripe a hand-laid gold 7 mm wide: in the yard's light the
+	# greys went black on black and a thin dark red line read as a wire across the door)
+	"lot47": {"pattern": "brushed", "base": "#050506", "a": "#5a5e64", "b": "#2e3034", "c": "#c9a85c",
+		"p": [0.5, 0.05, 0.0035, 4.0], "finish": "deep", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
 	# the same at first light with dew on it: matt (its deep gloss mirrored the dawn sky, a silver car)
-	"lot47_dew": {"pattern": "brushed", "base": "#050506", "a": "#45484d", "b": "#25272a", "c": "#6e1a14",
-		"p": [0.5, 0.05, 0.0025, 4.0], "finish": "matte", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
+	"lot47_dew": {"pattern": "brushed", "base": "#050506", "a": "#5a5e64", "b": "#2e3034", "c": "#c9a85c",
+		"p": [0.5, 0.05, 0.0035, 4.0], "finish": "matte", "rim": "#1a1a1c", "caliper": "#8a1410", "lamps": "bright"},
 	# the Mirror's coupe: Vesper's own pearl white, plain (not a police car, not Kit's twin)
 	"white": {"pattern": "plain", "base": "#e9eaec", "c": "#cfd8e4", "finish": "pearl"},
 }
@@ -876,7 +878,7 @@ func _add_light(l: Dictionary) -> void:
 		s.spot_range = float(l.get("range", 20.0))
 		s.spot_angle = float(l.get("angle", 30.0))
 		if l.has("band"):
-			s.light_projector = _band(float(l["band"]))
+			_band_flags(s, float(l["band"]))
 		light = s
 	elif String(l.get("kind", "omni")) == "sun":
 		var d := DirectionalLight3D.new()
@@ -914,19 +916,27 @@ func _add_light(l: Dictionary) -> void:
 			_sweeps.append([light, _anchor * _vec(l["look"]), _anchor * _vec(l["look_to"]), _anchor.basis.y])
 
 
-## A spot's light cut to a level band ("band": its height, a fraction of the cone, soft-edged): the
-## slash of a car's beams off a rear-view mirror across the eyes, not a disc on the face.
-static func _band(h: float) -> Texture2D:
-	# an image made here, whole at once (a GradientTexture2D draws its picture later: the light took
-	# none of it and stayed a round pool); soft ends left and right like a mirror's
-	var e := clampf(h, 0.02, 0.8) * 0.5
-	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
-	for y in 64:
-		var a := 1.0 - smoothstep(e, e + 0.05, absf((y + 0.5) / 64.0 - 0.5))
-		for x in 64:
-			var b := a * (1.0 - smoothstep(0.36, 0.5, absf((x + 0.5) / 64.0 - 0.5)))
-			img.set_pixel(x, y, Color(b, b, b, 1.0))
-	return ImageTexture.create_from_image(img)
+## A spot's light cut to a level band ("band": its height, a fraction of the cone): two flags just in
+## front of it, seen by its shadow alone, leave a slit (the slash of a car's beams off a rear-view
+## mirror across the eyes, not a disc on the face). A projector texture would be simpler, but it lit
+## nothing on the renderer the stills are made with; the spot casts shadows for it.
+static func _band_flags(s: SpotLight3D, h: float) -> void:
+	s.shadow_enabled = true
+	var d := 0.15                                     # (past the shadow's near plane)
+	var half := d * tan(deg_to_rad(s.spot_angle))     # the cone's half-width there
+	var gap := half * clampf(h, 0.02, 0.8)
+	var m := StandardMaterial3D.new()
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for side: float in [-1.0, 1.0]:
+		var f := MeshInstance3D.new()
+		f.name = "BandFlag"
+		var q := QuadMesh.new()
+		q.size = Vector2(half * 4.0, half * 2.0)
+		f.mesh = q
+		f.material_override = m
+		f.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		s.add_child(f)
+		f.position = Vector3(0.0, side * (gap + half), -d)      # (a spot shines down its -z)
 
 
 ## A photographer's softbox for a car's paint: a bright panel ("size": [w, h] m, facing "look") on a

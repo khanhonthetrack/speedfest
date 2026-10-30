@@ -156,7 +156,11 @@
   (CINEMATICS "The knock's fifth pass"); its stills `k8` follow `o10`. Open: a black hexagon in a
   street lamp's bokeh in the knock's insert (in `k6` too): find the value the depth of field can't
   take.
-- **Next**: the critics of `o10`, `m8` and `k8`; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
+- **30 Oct, later:** the Mirror (`m8`) 5.0 and 5.0, the opening (`o10`) 5.5 and 5.0; both rounds applied
+  (PROGRESS). A spot's light projector lights nothing on this renderer (tested alone): `"band"` is now
+  shadow flags. The knock's `k8` (after its fifth pass) waits for its critic; `m9` and `o11` follow the
+  gate.
+- **Next**: the critics of `k8`, `m9` and `o11`; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
   faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera from the
