@@ -152,7 +152,11 @@
   cast's shaders in `cast_lab` first, then one `story_lab --ts= --shots=` run), a manifest per scene
   (each shot's times from the scene file, its stills, its data), and two sequential read-only critics
   with a brief per scene; rebuild them from PROGRESS's descriptions if the scratch is gone.
-- **Next**: the critics of `k7`, `o10` and `m8`; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
+- **30 Oct:** the knock (`k7`) scored 5.0 and 5.0; its fifth pass is at the end of `pass4_close.py`
+  (CINEMATICS "The knock's fifth pass"); its stills `k8` follow `o10`. Open: a black hexagon in a
+  street lamp's bokeh in the knock's insert (in `k6` too): find the value the depth of field can't
+  take.
+- **Next**: the critics of `o10`, `m8` and `k8`; iterate every scene to 7; clips once every scene reaches 7; then Gus's vest rebuild, hair phase B (fear shapes, Dee's bun), the coat man's
   coat (floor length reads as a robe), Gus's collar (the undershirt pokes through), and the phone
   call, bids, the coat man's exit and the ignition (long single shots still: the lint warns); then
   faces' polish; Cass, Moth, Pim, Edgar. A seated driver's eyes ("driver_head", the camera from the

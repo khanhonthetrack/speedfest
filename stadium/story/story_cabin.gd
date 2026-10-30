@@ -212,8 +212,8 @@ func _build(m: Dictionary, red_pins: int) -> void:
 	bezel.transform = satnav.transform * Transform3D(Basis(), Vector3(0.0, 0.0, -0.0115))
 	add_child(bezel)
 	var screen_light := OmniLight3D.new()
-	screen_light.light_color = Color(0.55, 0.4, 1.0)
-	screen_light.light_energy = 0.35
+	screen_light.light_color = Color(0.72, 0.7, 1.0)      # (a saturated violet lit the seats and faces lilac)
+	screen_light.light_energy = 0.3
 	screen_light.omni_range = 0.9
 	screen_light.shadow_enabled = false
 	screen_light.position = satnav.position + Vector3(0.0, 0.0, -0.15)
@@ -280,7 +280,7 @@ func wet_seat() -> void:
 	var patch := MeshInstance3D.new()
 	patch.name = "WetPatch"
 	var q := QuadMesh.new()
-	q.size = Vector2(0.42, 0.34)
+	q.size = Vector2(0.5, 0.4)
 	patch.mesh = q
 	patch.material_override = m
 	patch.rotation = Vector3(-PI * 0.5, 0.3, 0.0)
@@ -293,6 +293,23 @@ func wet_seat() -> void:
 	run.material_override = m
 	run.position = Vector3(0.05, cushion.y * 0.5 - 0.045, cushion.z * 0.5 + 0.02)    # (the face is pillowed 15 mm)
 	bench.add_child(run)
+	# more water run down the cushion's face, and a puddle in the crease against the back
+	for d: Vector3 in [Vector3(-0.12, 0.07, 0.03), Vector3(0.15, 0.12, 0.035), Vector3(0.22, 0.05, 0.03)]:
+		var drip := MeshInstance3D.new()
+		var dq := QuadMesh.new()
+		dq.size = Vector2(d.z, d.y)
+		drip.mesh = dq
+		drip.material_override = m
+		drip.position = Vector3(d.x, cushion.y * 0.5 - d.y * 0.5 + 0.01, cushion.z * 0.5 + 0.02)
+		bench.add_child(drip)
+	var pool := MeshInstance3D.new()
+	var pq := QuadMesh.new()
+	pq.size = Vector2(0.26, 0.07)
+	pool.mesh = pq
+	pool.material_override = m
+	pool.rotation = Vector3(-PI * 0.5, 0.0, 0.0)
+	pool.position = Vector3(0.03, cushion.y * 0.5 + 0.012, -cushion.z * 0.5 + 0.05)
+	bench.add_child(pool)
 
 
 ## Lowers a seat (its cushion, back and headrest; the driver's the wheel too) to `by` under where it

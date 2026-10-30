@@ -5272,3 +5272,47 @@ with Kit on screen looking in the mirror; and the full script to read ("I dont u
   - `knock_end` rebuilt Dee's look up the street after the head lift, so her head bowed again for the
     last 2 s: now capped too, her eyes going with her head;
   - asleep's head-lift was cut halfway by the shorter shot: retimed.
+
+## 2026-10-30 (session 21, cont.): the knock's critic, its fifth pass
+- The Mirror's fifth pass committed (0ad36e9, gated, after a test type fix and the account's usage
+  limit reset).
+- **The knock's stills** (`k7`, 20 stills), two critics: **5.0 and 5.0** (take five: 4.5). Better:
+  the cut (18 shots against take five's 4-9 s holds), Dee leaning with her hands on the window in
+  every shot (the owner's note answered), the purple gone, the light motivated. Wrong: flat
+  frontal keys, three frontal Kit close-ups with eyes near the lens, Dee's singles zooms of one
+  camera, the knock unseen, the back seat unreadable, the end on an empty wall, night outside at
+  06:12, a black hexagon in a lamp's bokeh (also in `k6`: a value the depth of field can't take;
+  open).
+- **The knock's fifth pass** (`pass4_close.py`, docs/CINEMATICS.md): one dawn, Kit keyed from her
+  window and shot from Dee's side, the scare line from where the passenger sat, Dee wide / two-shot /
+  over the shoulder, the fist in the insert, the arch ending on Dee at the window, the back seat from
+  between the headrests with the wet patch raked, the end on Dee's face. Engine: the satnav's light a
+  near-white violet, the door lever dark satin, the wet patch bigger with drips and a puddle.
+- The Mirror's asleep (`m8`'s first still): its `"glass"` is the film's rain on the lens, not the
+  car's window; at 0.5 it smeared the whole frame brown. Back to 0.1, with the beads on her window
+  from the car's `"rain_glass"`.
+- A spot's `"band"` never showed in `m8` (the glare a round pool again): a GradientTexture2D draws its
+  picture later and the light took none of it. It is now an image made at once (soft ends left and
+  right). Kit's head turned into the glare (the clip had it turned away, her eyes straining across).
+- **The Mirror's `m8` stills** (19), the first critic: **5.0** (asleep 2.0: the lens-rain mistake, already
+  fixed; hit 6.0, breath_out and she_is_there 6.5, dream_road and dark_road 6.0). Its round applied
+  as "the fifth pass, round two" in `pass4_close.py`:
+  - keys from the threat: profile's beams rim from the first frame, closer's fills down and a 35-degree
+    turn to the rear, breath_out keyed hard from the side window;
+  - the whiteout climbs: the coupe's grille and lamps in the glass, then the burn;
+  - the empty places lit: empty_road with two sodium pools down the road; the empty seat raked by a
+    streetlight, with a teal trace and the wet patch where she sat;
+  - sizes step up: closer at 24 against profile's 28, glare at 18, she_is_there at 11;
+  - coupe_low with Kit's rear quarter in frame, the dream road raised, the hit's teal on Kit's near
+    cheek, asleep at 1.8 s keyed from above and behind.
+- The second `m8` critic: **5.0** too (asleep 1.5, rear_window 4.0, glare and whiteout 3.5; breath_out,
+  she_is_there and mirror_far 6.0). Applied as "round two, the second critic": the cabin's blacks lifted
+  (grade lift 0.03); the glare from the mirror's own side, frontal, its band across her eyes, with
+  closer previewing a faint band; the glimpse a human outline rimmed by the beams; Kit's own lamps
+  down in the dream road; the housing edge-lit; the look back keyed teal from the seat's side, lower
+  and wider; the ghost in the hit a hand's width nearer Kit's face. Left for later: a filmic shoulder
+  for the coupe's clipped lamps, a road without its tiled puddles, a fear expression without a
+  dropped jaw, irises with a ring, the ghost's hand, breath_out's length (timings stay put while
+  `k8` renders).
+- Review: `StoryFace.EYE_UP_MAX` scaled every look up by 0.6 instead of capping it (a look up to the
+  mirror fell short); now a ceiling.

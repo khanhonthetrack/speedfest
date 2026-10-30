@@ -290,7 +290,7 @@ static func cluster_texture() -> ImageTexture:
 
 ## A door's card on side s (+1 the driver's), from zb (the B-pillar) to zf (a rear quarter's: no lever): a satin panel, a
 ## soft belt cap with a felt strip where the glass drops (its top at `belt`), an alcantara insert, a
-## leather armrest, a brushed lever in a piano-black recess.
+## leather armrest, a dark satin lever in a piano-black recess.
 static func door(parent: Node3D, s: float, x: float, zb: float, zf: float, belt: float, lever := true) -> void:
 	var len := zf - zb
 	var mid := (zb + zf) * 0.5
@@ -301,7 +301,7 @@ static func door(parent: Node3D, s: float, x: float, zb: float, zf: float, belt:
 	part(parent, Vector3(0.085, 0.05, 0.40), 0.02, "leather", Vector3(s * (x - 0.045), belt - 0.36, mid - 0.04))
 	if lever:
 		part(parent, Vector3(0.012, 0.03, 0.12), 0.006, "piano", Vector3(s * (x - 0.018), belt - 0.21, zf - 0.30))
-		part(parent, Vector3(0.012, 0.018, 0.10), 0.006, "alu", Vector3(s * (x - 0.024), belt - 0.21, zf - 0.30))
+		part(parent, Vector3(0.012, 0.018, 0.10), 0.006, "satin", Vector3(s * (x - 0.024), belt - 0.21, zf - 0.30))   # (brushed, it glared white under a bright sky)
 
 
 ## A sun visor on side s under the roof at `top` (the headlining's height there), its front at z.

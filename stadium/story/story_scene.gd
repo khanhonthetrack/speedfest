@@ -917,17 +917,16 @@ func _add_light(l: Dictionary) -> void:
 ## A spot's light cut to a level band ("band": its height, a fraction of the cone, soft-edged): the
 ## slash of a car's beams off a rear-view mirror across the eyes, not a disc on the face.
 static func _band(h: float) -> Texture2D:
+	# an image made here, whole at once (a GradientTexture2D draws its picture later: the light took
+	# none of it and stayed a round pool); soft ends left and right like a mirror's
 	var e := clampf(h, 0.02, 0.8) * 0.5
-	var g := Gradient.new()
-	g.offsets = PackedFloat32Array([0.0, 0.5 - e - 0.05, 0.5 - e, 0.5 + e, 0.5 + e + 0.05, 1.0])
-	g.colors = PackedColorArray([Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK])
-	var t := GradientTexture2D.new()
-	t.gradient = g
-	t.fill_from = Vector2(0.5, 0.0)
-	t.fill_to = Vector2(0.5, 1.0)
-	t.width = 4
-	t.height = 128
-	return t
+	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	for y in 64:
+		var a := 1.0 - smoothstep(e, e + 0.05, absf((y + 0.5) / 64.0 - 0.5))
+		for x in 64:
+			var b := a * (1.0 - smoothstep(0.36, 0.5, absf((x + 0.5) / 64.0 - 0.5)))
+			img.set_pixel(x, y, Color(b, b, b, 1.0))
+	return ImageTexture.create_from_image(img)
 
 
 ## A photographer's softbox for a car's paint: a bright panel ("size": [w, h] m, facing "look") on a

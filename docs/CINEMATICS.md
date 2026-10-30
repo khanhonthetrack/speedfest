@@ -288,6 +288,34 @@ put a lens inside the mirror or the mirror out of frame:
   white and a darker tongue (a grey-blue blob in an open mouth).
 - The scene 21.8 s plus the black (35 shots in the file); the ghost on screen 1.5 s.
 
+The knock's fifth pass (30 Oct: round four's stills, `k7`, two critics: 5.0 and 5.0; at the end of
+`pass4_close.py`). Their agreed faults: faces keyed from the camera's axis at about 1.3:1, three
+frontal Kit close-ups looking near the lens (talking to the audience), Dee's singles the same camera
+on longer lenses (zooms between cuts), the knock heard but not seen, the back seat a white blob over
+black (the scene's one horror clue invisible), the end drifting onto an empty wall, Dee upright at the
+boot in the arch then bent at the window in the next shot, night outside at 06:12. The pass:
+- **One dawn:** the sun cold blue-white from the street's end at full strength on every exterior;
+  the arch's lamp the warm key and edge on Dee; the window's light on Kit no longer lilac (the
+  satnav's light too: a near-white violet); the cabin's linings lifted off zero.
+- **Kit's singles from Dee's side of the lens, keyed from her window** (the frontal key down to a
+  fill), the looks away short; "There was someone in the back." from where the passenger sat, Kit
+  turning round over her shoulder into the lens (the Mirror's look back); "They've been places." on
+  Kit's profile from the passenger's side with Dee soft beyond.
+- **Dee's coverage:** wide from inside with both hands on the door, the wide two-shot from the
+  passenger's seat, over Kit's shoulder; the lamp's warm edge on her cheek.
+- **The knock seen:** the insert from Dee's left, her fist on the glass between the lens and Kit;
+  the arch ends on her already bent to the glass, fist up (a match into the insert), a warm key on
+  her and a cold edge on the car's roof; the knock itself higher and wider with her hands at the
+  glass.
+- **The back seat** from between the front headrests, looking down on the bench, raked low by the
+  rear glass's light (the spot half a metre off the seat that burned a disc is gone); the wet patch
+  bigger, with drips down the cushion's face and a puddle in the crease. The mirror at dawn lit on
+  the bench, the cushion in the glass's middle.
+- **The end** on Dee's face for her line, then up over the car and her in the wet street; the door
+  lever dark satin (brushed, it glared white).
+- The cameras checked on the cabin's ray-cast map first (the critics' back-seat camera was in the
+  roof, their rear point of view behind the driver's headrest).
+
 ## Calls made (the owner's standing rule: "just write it")
 - **Voices.** Not now: the picture has to pass first. Lines are cut short and long ones play over
   the listener. A voice later means a text-to-speech model with a clear commercial licence or
@@ -340,5 +368,5 @@ Procedure:
 | Take five: stills, critic, render, page | two critic rounds on stills (4.1 both); clips rendered and reviewed (4.5/10 each scene, better than take four in all three); with the owner 28 Oct: https://claude.ai/artifact/W8dnTULoXhWQpbsF6DYBoW |
 | Third pass | built 28-29 Oct (`pass3_*.py`); stills round two: the opening 5.5 and 5.0 |
 | Fourth pass | 29 Oct: the hair's cap, the interior kit, the containers, the opening's notes (`pass4_open.py`); the Mirror's (`pass4_close.py`: faces keyed by the scene's own lights, cabin cameras ray-checked, the hair's sheen, the drowned skin, the rain shield, the deck, the drops); the knock's (4.5/4.5 from its critic): Dee's face in the glass, the two-shot third, first light, the wet patch, `--probe` |
-| Stills round four | the Mirror (`m7`) 5.5 and 5.5; its fifth pass (above) |
+| Stills round four | the Mirror (`m7`) 5.5 and 5.5; the knock (`k7`) 5.0 and 5.0; their fifth passes (above) |
 | Next | the knock's `k7` and the opening's `o10` critics, the Mirror's `m8`; iterate to 7; clips once every scene reaches 7 |

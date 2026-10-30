@@ -213,7 +213,7 @@ func eyes_towards(target: Vector3) -> Dictionary:
 	var h := clampf(absf(side) / EYE_SIDE, 0.0, 1.0) * reach
 	var v := clampf(absf(up) / EYE_UPDOWN, 0.0, 1.0) * reach
 	if up > 0.0:
-		v *= EYE_UP_MAX
+		v = minf(v, EYE_UP_MAX)          # (a ceiling: a small look up, to a mirror, keeps its whole turn)
 	var out := {}
 	if side > 0.0:              # to its left: the left eye looks out, the right eye in
 		out["eyeLookOutLeft"] = h
